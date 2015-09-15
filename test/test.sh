@@ -10,6 +10,10 @@ export PYTHONPATH=$frogs_dir/bin:$PYTHONPATH
 
 
 # Clean previous results
+if [ ! -d "$frogs_dir/test/results" ]
+then
+    mkdir $frogs_dir/test/results
+fi
 rm -f $frogs_dir/test/results/*
 
 
