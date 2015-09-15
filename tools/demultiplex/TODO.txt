@@ -1,5 +1,0 @@
-- Test on complet MiSeq run to see if multi-thread is a good idea
-- to be more usefull for all sequencing projet :
-		- add Fasta format
-		- add single data possibility
-- test if empty result
