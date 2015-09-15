@@ -1,0 +1,1 @@
+Replace component by type tar.gz (see https://wiki.galaxyproject.org/Admin/Datatypes/Adding%20Datatypes)

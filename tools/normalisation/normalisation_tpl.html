@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<!--
+# Copyright (C) 2015 INRA
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+-->
+<html>
+	<head>
+		<title>FROGS Abundance Normalisation</title>
+		<meta charset="UTF-8">
+		<meta name="version" content="1.0.0">
+		<!-- CSS -->
+		<link rel="stylesheet" href="https://cdn.datatables.net/1.10.6/css/jquery.dataTables.css"></link>
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css"></link>
+		<style type="text/css">
+			#js-alert {
+				width: 90%;
+				margin-right: auto;
+				margin-left: auto;
+			}
+			#content {
+				width: 90%;
+				margin-right: auto;
+				margin-left: auto;
+			}
+			.clear {
+				clear: both;
+				height: 0px;
+				width: 100%;
+				float: none !important;
+			}
+		</style>
+		<!-- JS -->
+		<script type="text/javascript" src="http://code.jquery.com/jquery-2.1.3.min.js"></script>
+		<script type="text/javascript" src="http://code.highcharts.com/4.1.4/highcharts.js"></script>
+		<script type="text/javascript" src="http://code.highcharts.com/4.1.4/modules/exporting.js"></script>
+		<script type="text/javascript" src="https://cdn.datatables.net/1.10.6/js/jquery.dataTables.min.js"></script>
+		<script type="text/javascript">
+			/*
+			 * HTMLTable.js 0.1.0 - HTMLTable Library
+			 *
+			 * Copyright (c) 2015 Escudie Frederic
+			 * Licensed under the MIT (http://www.opensource.org/licenses/mit-license.php) license.
+			 */
+			function HTMLtable(e){var t,r,n=e,a=";";this.deleteColumns=function(e){for(var a=n.getElementsByTagName("tr"),o=0;o<a.length;o++){s=0;var i=a[o].getElementsByTagName("td");0==i.length&&(i=a[o].getElementsByTagName("th"));for(var v=0,s=0;s<t[1];s++)if(!r[o][s]){var f=i[v].getAttribute("colspan");if(null!=f)for(var m=0;f>m;m++){if(in_array(s+m,e)){var u=i[v].getAttribute("colspan");u-1==0?i[v].removeAttribute("colspan"):i[v].setAttribute("colspan",u-1)}if(null==i[v].getAttribute("colspan")){var h=i[v];a[o].removeChild(h),v--}}else if(in_array(s,e)){var h=i[v];a[o].removeChild(h),v--}v++}}l(),g()},this.filter=function(e,a){var l=new RegExp(e),g=new Array;null!=a&&a||(g.c0=!0);for(var o=n.getElementsByTagName("tr"),i=0;i<o.length;i++){f=0;var v=o[i].getElementsByTagName("td");if(0!=v.length)for(var s=0,f=0;f<t[1];f++)r[i][f]||(l.test(v[s].innerHTML)&&(g["c"+f]=!0),s++)}for(var m=new Array,u=0;u<t[1];u++)void 0===g["c"+u]&&m.push(u);this.deleteColumns(m)},this.getModel=function(){return n};var l=function(){for(var e=0,r=0,a=n.getElementsByTagName("tr"),l=0;l<a.length;l++){var g=0;e++;var o=a[l].getElementsByTagName("td");0==o.length&&(o=a[l].getElementsByTagName("th"));for(var i=0;i<o.length;i++){var v=o[i].getAttribute("colspan");g+=null==v?1:parseInt(v)}g>r&&(r=g)}t=new Array(2),t[0]=e,t[1]=r},g=function(){r=new Array(t[0]);for(var e=0;e<t[0];e++){r[e]=new Array(t[1]);for(var a=0;a<t[1];a++)r[e][a]=!1}for(var l=n.getElementsByTagName("tr"),g=0;g<l.length;g++){v=0;var o=l[g].getElementsByTagName("td");0==o.length&&(o=l[g].getElementsByTagName("th"));for(var i=0,v=0;v<t[1];v++)if(!r[g][v]){var s=0,f=0,m=o[i].getAttribute("rowspan");null!=m&&(s=parseInt(m)-1);var u=o[i].getAttribute("colspan");null!=u&&(f=parseInt(u)-1);for(var h=s;h>=0;h--)for(var y=f;y>=0;y--)(0!=h||0!=y)&&(r[g+h][v+y]=!0);i++}}};this.replace=function(e,a,l){var g=new RegExp(e);null==a&&(a=""),null==l&&(l="");for(var o=n.getElementsByTagName("tr"),i=0;i<o.length;i++){f=0;var v=o[i].getElementsByTagName("td");if(0!=v.length)for(var s=0,f=0;f<t[1];f++)if(!r[i][f]){var m=g.exec(v[s].innerHTML);null!=m&&(void 0===m[1]&&(m[1]=""),v[s].innerHTML=a+m[1]+l),s++}}},this.toCSV=function(){for(var e="",l=n.getElementsByTagName("tr"),g=0;g<l.length;g++){var o=l[g].getElementsByTagName("td");0==o.length&&(o=l[g].getElementsByTagName("th"));for(var i=0,v=0;v<t[1];v++)r[g][v]||(e+=o[i].innerHTML,i++),e+=a;e=e.substr(0,e.length-1)+"\n"}return e},l(),console.log(t),g(),console.log(r)}var in_array=function(e,t){for(var r in t)if(t[r]==e)return!0;return!1};
+			
+			/*
+			 * dataTableExtractor.plugin.js 0.1.0 - datatableExport Library
+			 *
+			 * Copyright (c) 2015 Escudie Frederic
+			 * Licensed under the MIT (http://www.opensource.org/licenses/mit-license.php) license.
+			 */
+			!function(t){t.fn.datatableExport=function(a){var e={anchor_id:t(this).attr("id"),table_id:null,csv_separator:";",omitted_columns:[]},n=t.extend(e,a);if(!t(this).length)throw"The element where the datatableExport is called does not exist.";if(void 0==n.anchor_id)throw"The datatableExport plugin must be called on an element with id.";if(null==n.table_id)throw"You must set the table_id parameter in datatableExport plugin.";if(!t("#"+n.table_id))throw"The datatable '#"+n.table_id+"' cannot be retieve in DOM.";return this.each(function(){var a=t(this);a.on("click",function(){t.fn.datatableExport.csv(n.anchor_id,n.table_id,n.csv_separator,n.omitted_columns)})})},t.fn.datatableExport.cleanCellMarkup=function(a,e){t.parseHTML(e);t("#"+a).append('<div class="hidden data-tmp">'+e+"</div>"),t("#"+a+" .data-tmp").find("input").each(function(){var a="";a=t(this).is(":checkbox")?t(this).is(":checked")?"true":"false":t(this).val(),t(this).replaceWith(a)});var n=t("#"+a+" .data-tmp").text();return t("#"+a+" .data-tmp").remove(),n},t.fn.datatableExport.csv=function(a,e,n,i){var l="",r=t("#"+e).DataTable(),d=t("#"+e+" thead")[0],o=new HTMLtable(d.cloneNode(!0));o.deleteColumns(i),l+=o.toCSV();var c=r.rows().data();t.each(c,function(e,n){for(var r="",d=0;d<n.length;d++)-1==t.inArray(d,i)&&(r+='"'+t.fn.datatableExport.cleanCellMarkup(a,n[d])+'";');""!=r&&(r=r.slice(0,-1)),l+=r+"\n"}),t("#"+a+"-extract-csv").length||t("#"+a).append('<a id="'+a+'-extract-csv" href="data:text/csv;charset=UTF-8,'+encodeURI(l)+'" download="data.csv" style="display:none;"></a>'),t("#"+a+"-extract-csv")[0].click()}}(jQuery);
+		</script>
+		<script type="text/javascript">
+			/**
+			 * Returns the string representation of the number. 
+			 * @param pValue {Float} The number to process.
+			 * @return {String} The string representation (example: 12856892.11111 => 12,856,892.11).
+			 */
+		    var numberDisplay = function( pValue ){
+		    	var new_val = "" ;
+		    	if( ("" + pValue + "").indexOf(".") != -1 ){
+		    		new_val = pValue.toFixed(2).replace(/(\d)(?=(\d{3})+\b)/g, '$1,');
+		    	} else {
+		    		new_val = pValue.toFixed().replace(/(\d)(?=(\d{3})+\b)/g, '$1,');
+		    	}
+		        return new_val ;
+		    }
+		    
+			/**
+			 * Returns the HTML table representation of the data. 
+			 * @param pTitle {String} The title of the table.
+			 * @param pCategories {Array} The title of each column.
+			 * @param pData {Array} 2D matrix with row and column data.
+			 * @return {String} The HTML table representation.
+			 */
+			var table = function( pTitle, pCategories, pData  ) {
+				// Header
+				var table_header = '    <tr>\n<th colspan="' + pCategories.length + '">' + pTitle + '</th>    </tr>\n' ;
+				var table_header_line = "" ;
+				for(var idx = 0 ; idx < pCategories.length ; idx++){
+					table_header_line += "      <th>" + pCategories[idx] + "</th>\n" ;
+				}
+				table_header += "    <tr>\n" + table_header_line + "    </tr>\n" ;
+				table_header = "  <thead>\n" + table_header + "  </thead>\n" ;
+				
+				// Body
+				var table_body = '' ;
+				for(var data_idx = 0 ; data_idx < pData.length ; data_idx++){
+					var table_body_row = "" ;
+					for(var category_idx = 0 ; category_idx < pCategories.length ; category_idx++){
+						if( $.isNumeric(pData[data_idx][category_idx]) ) {
+							table_body_row += "      <td>" + numberDisplay(pData[data_idx][category_idx]) + "</td>\n" ;
+						} else {
+							table_body_row += "      <td>" + pData[data_idx][category_idx] + "</td>\n" ;
+						}
+					}
+					table_body += "    <tr>\n" + table_body_row + "    </tr>\n" ;
+				}
+				table_body = "  <tbody>\n" + table_body + "  </tbody>\n" ;
+
+				return '<table class="table table-striped">\n' + table_header + table_body + "</table>\n" ;
+			}
+			
+			var histogram_param = function( pTitle, pYTitle, pCategories, pSeries, unity ) {
+				var param = {
+					chart: {
+						type: 'column'
+					},
+					title: {
+						text: pTitle
+					},
+					xAxis: {
+						categories: pCategories,
+						crosshair: true
+					},
+					yAxis: {
+						min: 0,
+						title: {
+							text: pYTitle
+						}
+					},
+					tooltip: {
+						headerFormat: '<span style="font-size:10px">{point.key}</span><table>',
+						pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' +
+							'<td style="padding:0"><b>{point.y} ' + unity + '</b></td></tr>',
+						footerFormat: '</table>',
+						shared: true,
+						useHTML: true
+					},
+					plotOptions: {
+						column: {
+							pointPadding: 0.2,
+							borderWidth: 0
+						}
+					},
+					credits: {
+						enabled: false
+					},
+					series: pSeries
+				};
+				
+				return param ;
+			}
+			
+			$(function() {
+				var categories = ###DATA_CATEGORIES### ;
+				var histogram_series = ###HISTO_SERIES### ;
+				var series_by_sample = ###DATA_SERIES### ;
+				
+				// Remove alert
+				$('#js-alert').remove();
+				$('#content').removeClass("hidden");
+				
+				// Display summary
+				var global_series = [{ name: 'All samples', data: histogram_series }];
+				$('#filter-summary').highcharts( histogram_param('Composition summary', 'Nb OTUs', categories, global_series, 'otu') );
+				
+				// Display data by sample
+				var table_categories = categories.slice() ;
+				table_categories.unshift( "Sample" );
+				var table_series = new Array();
+				for( var spl_idx = 0 ; spl_idx < series_by_sample.length ; spl_idx++ ){
+					var nb_by_step = series_by_sample[spl_idx]['data'].slice() ;
+					nb_by_step.unshift( series_by_sample[spl_idx]['name'] );
+					table_series.push( nb_by_step );
+				};
+				$('#filter-log').append( table("Composition by sample", table_categories, table_series) );
+				$('#filter-log table').prop( 'id', 'details-table' );
+				$('#filter-log table').DataTable({
+					"sDom": '<"top"<"#details-csv-export"><"clear">lf>rt<"bottom"ip><"clear">'
+				});
+				$('#details-csv-export').html( '<button class="btn btn-primary"><span class="glyphicon glyphicon-open-file" aria-hidden="true">CSV</span></button>' );
+				$('#details-csv-export').addClass( 'dataTables_filter' );
+				$('#details-csv-export').datatableExport({
+					'table_id': "details-table"
+				});
+			});
+		</script>
+	</head>
+	<body>
+		<p id="js-alert" class="alert alert-warning">
+			javascript is needed to display data.<br />
+			If you try to view this data on galaxy please contact your administrator to authorise javascript or download the file to view.
+		</p>
+		<div id="content" class="hidden">
+			<div id="filter-summary"></div>
+			<div id="filter-log"></div>
+		</div>
+	</body>
+</html>

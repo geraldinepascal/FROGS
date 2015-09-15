@@ -1,0 +1,22 @@
+Tool1 : demultiplex
+    INPUTS :
+        R1 file [FASTQ
+        R2 file [FASTQ]
+        barcode file [TSV]
+    OUTPUTS :
+        Demultiplexed files (R1 and R2 by sample) in archive [TAR.GZ]
+        Summary file [TSV]
+
+    PARAMETERS :
+        -
+
+    SOFTWARES :
+      PROJECT
+        splitBC.pl
+      OTHERS
+        tar
+    
+    STEPS :
+        Linear               Note
+        1- splitBC.pl        Demultiplex samples
+        2- tar               Archive

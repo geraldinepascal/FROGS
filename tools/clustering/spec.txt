@@ -1,0 +1,32 @@
+Tool2 : clusterisation
+	INPUTS :
+		fasta
+		count (TSV)
+
+	OUTPUTS :
+		abundance format BIOM
+		abundance format tsv
+		seeds fasta
+		swarm composition (std output of swarm)
+		summary
+
+	PARAMETERS :
+		aggregation maximal distance
+		cpu number
+	
+	SOFTWARES :
+            PROJECT
+               sortAbundancies.py
+               swarm2biom.py
+               biom2tsv.py
+               extractSwarmsFasta.py
+            OTHERS
+               swarm
+
+        STEPS :
+                                                            Note
+		1- sortAbundancies.py                       sort on abundance
+		2- swarm                                    clustering
+		3- swarm2biom.py                            generate BIOM abundance
+		4- biom2tsv.py                              generate TSV abundance
+		5- extractSwarmsFasta.py                    generate seeds fasta

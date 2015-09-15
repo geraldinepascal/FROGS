@@ -1,0 +1,22 @@
+	normalisation sur un nombre de lecture fourni en paramètre
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -n NUM_READS, --num-reads NUM_READS
+                        Number of reads per sample after normalisation
+  --debug               Keep temporary files to debug program.
+  -v, --version         show program's version number and exit
+
+Inputs:
+  -i INPUT_BIOM, --input-biom INPUT_BIOM
+                        abondance BIOM input File
+
+Outputs:
+  -b OUTPUT_BIOM, --output-biom OUTPUT_BIOM
+                        normalized abundance BIOM output file
+  -t OUTPUT_TSV, --output-TSV OUTPUT_TSV
+                        normalized abundance TSV output file
+  -s SUMMARY_FILE, --summary-file SUMMARY_FILE
+                        TSV file with summary of filters results.
+  -l LOG_FILE, --log-file LOG_FILE
+                        The list of commands executed.

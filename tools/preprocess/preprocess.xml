@@ -1,0 +1,332 @@
+<?xml version="1.0"?>
+<!--
+# Copyright (C) 2015 INRA
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+-->
+<tool id="FROGS_preprocess" name="FROGS Pre-process" version="1.4.2">
+	<description>Step 1 in metagenomics analysis (16S/18S): denoising and dereplication.</description>
+	<command interpreter="python2.7">
+		preprocess.py $sequencer_type.sequencer_selected
+		--output-dereplicated $dereplicated_file --output-count $count_file --summary $summary_file 
+		--nb-cpus $nb_cpus
+		#if $sequencer_type.sequencer_selected == "illumina"
+		    --min-amplicon-size $sequencer_type.min_amplicon_size --max-amplicon-size $sequencer_type.max_amplicon_size 
+		    #if $sequencer_type.sequencing_protocol.sequencing_protocol_selected == "standard"
+		        --five-prim-primer $sequencer_type.sequencing_protocol.five_prim_primer --three-prim-primer $sequencer_type.sequencing_protocol.three_prim_primer  
+		    #else
+		        --without-primers
+		    #end if
+		#else
+		    --min-amplicon-size $sequencer_type.min_amplicon_size --max-amplicon-size $sequencer_type.max_amplicon_size 
+		    --five-prim-primer $sequencer_type.five_prim_primer --three-prim-primer $sequencer_type.three_prim_primer 
+		#end if
+		
+		#if $sequencer_type.input_type.input_type_selected == "archive" 
+		    --input-archive $sequencer_type.input_type.archive_file
+		    #if $sequencer_type.sequencer_selected == "illumina" and $sequencer_type.input_type.archive_type.archive_type_selected == "already_contiged"
+			    --already-contiged
+		    #elif $sequencer_type.sequencer_selected == "illumina"
+	            --R1-size $sequencer_type.input_type.archive_type.R1_size --R2-size $sequencer_type.input_type.archive_type.R2_size 
+	            --expected-amplicon-size $sequencer_type.input_type.archive_type.expected_amplicon_size 
+		    #end if
+		#else
+		    #set $sep = ' '
+		    #if $sequencer_type.sequencer_selected == "illumina"
+	            --samples-names  
+	            #for $current in $sequencer_type.input_type.files_by_samples_type.samples 
+	                $sep${current.name}
+	            #end for
+		        --input-R1 
+		        #for $current in $sequencer_type.input_type.files_by_samples_type.samples 
+		            $sep${current.R1_file}
+		        #end for
+		        #if $sequencer_type.input_type.files_by_samples_type.files_by_samples_type_selected == "already_contiged"
+		            --already-contiged
+		        #else
+		            --input-R2
+		            #for $current in $sequencer_type.input_type.files_by_samples_type.samples 
+		                $sep${current.R2_file}
+		            #end for
+		            --R1-size $sequencer_type.input_type.files_by_samples_type.R1_size --R2-size $sequencer_type.input_type.files_by_samples_type.R2_size 
+		            --expected-amplicon-size $sequencer_type.input_type.files_by_samples_type.expected_amplicon_size 
+		        #end if
+		    #else
+		        --input-R1 
+		        #for $current in $sequencer_type.input_type.samples 
+		            $sep${current.R1_file}
+		        #end for
+		        --samples-names  
+		        #for $current in $sequencer_type.input_type.samples 
+		            $sep${current.name}
+		        #end for
+		    #end if
+		#end if
+	</command>
+	<inputs>
+		<param name="nb_cpus" type="hidden" label="CPU number" help="The maximum number of CPUs used." value="1" />
+		<conditional name="sequencer_type">
+			<param name="sequencer_selected" type="select" label="Sequencer" help="Select the sequencer family used to produce the sequences.">
+				<option value="illumina" selected="true">Illumina</option>
+				<option value="454">454</option>
+			</param>
+			<when value="illumina">
+				<!-- Samples -->
+				<conditional name="input_type">
+					<param name="input_type_selected" type="select" label="Input type" help="Samples files can be provided in single archive or with two files (R1 and R2) by sample.">
+						<option value="files_by_samples" selected="true">Files by samples</option>
+						<option value="archive">Archive</option>
+					</param>
+					<when value="archive">
+						<param name="archive_file" type="data" label="Archive file" help="The tar file containing the sequences file(s) for each sample." optional="false" />
+						<conditional name="archive_type">
+							<param name="archive_type_selected" type="select" label="Reads already contiged ?" help="The archive contains 1 file by sample : Reads 1 and Reads 2 are already contiged by pair.">
+								<option value="paired" selected="true">No</option>
+								<option value="already_contiged">Yes</option>
+							</param>
+							<when value="paired">
+								<!-- Reads size -->
+								<param name="R1_size" type="integer" label="Reads 1 size" help="The read1 size." value="" optional="false" />
+								<param name="R2_size" type="integer" label="Reads 2 size" help="The read2 size." value="" optional="false" />
+								<param name="expected_amplicon_size" type="integer" label="Expected amplicon size" help="Maximum amplicon length expected in approximately 90% of the amplicons." value="" />
+							</when>
+							<when value="already_contiged">
+							</when>
+						</conditional>
+					</when>
+					<when value="files_by_samples">
+						<conditional name="files_by_samples_type">
+							<param name="files_by_samples_type_selected" type="select" label="Reads already contiged ?" help="The inputs contain 1 file by sample : Reads 1 and Reads 2 are already contiged by pair.">
+								<option value="paired" selected="true">No</option>
+								<option value="already_contiged">Yes</option>
+							</param>
+							<when value="paired">
+								<!-- Samples -->
+								<repeat name="samples" title="Samples" min="1">
+									<param name="name" type="text" label="Name" help="The sample name." optional="false" />
+									<param format="fastq" name="R1_file" type="data" label="Reads 1" help="R1 FASTQ file of paired-end reads." />
+									<param format="fastq" name="R2_file" type="data" label="reads 2" help="R2 FASTQ file of paired-end reads." />
+								</repeat>
+								<!-- Reads size -->
+								<param name="R1_size" type="integer" label="Reads 1 size" help="The read1 size." value="" optional="false" />
+								<param name="R2_size" type="integer" label="Reads 2 size" help="The read2 size." value="" optional="false" />
+								<param name="expected_amplicon_size" type="integer" label="Expected amplicon size" help="Maximum amplicon length expected in approximately 90% of the amplicons." value="" />
+							</when>
+							<when value="already_contiged">
+								<repeat name="samples" title="Samples" min="1">
+									<param name="name" type="text" label="Name" help="The sample name." optional="false" />
+									<param format="fastq" name="R1_file" type="data" label="Sequence file" help="FASTQ file of contiged reads." />
+								</repeat>
+							</when>
+						</conditional>
+					</when>
+				</conditional>
+				<!-- Amplicons -->
+				<param name="min_amplicon_size" type="integer" label="Minimum amplicon size" help="The minimum size for the amplicons." value="" optional="false" />
+				<param name="max_amplicon_size" type="integer" label="Maximum amplicon size" help="The maximum size for the amplicons." value="" optional="false" />
+				<!-- Primers -->
+				<conditional name="sequencing_protocol">
+					<param name="sequencing_protocol_selected" type="select" label="Sequencing protocol" help="The protocol used for sequencing step: standard or custom with PCR primers as sequencing primers.">
+						<option value="standard" selected="true">Illumina standard</option>
+						<option value="without_primers">Custom protocol (Kozich et al. 2013)</option>
+					</param>
+					<when value="standard">
+						<param name="five_prim_primer" type="text" size="20" label="5' primer" help="The 5' primer sequence (wildcards are accepted). The orientation is detailed below in 'Primers parameters'." optional="false" />
+						<param name="three_prim_primer" type="text" size="20" label="3' primer" help="The 3' primer sequence (wildcards are accepted). The orientation is detailed below in 'Primers parameters'." optional="false" />
+					</when>
+					<when value="without_primers"></when>
+				</conditional>
+			</when>
+			
+			<when value="454">
+				<!-- Samples -->
+				<conditional name="input_type">
+					<param name="input_type_selected" type="select" label="Input type" help="Samples files can be provided in single archive or with one file by sample.">
+						<option value="files_by_samples" selected="true">One file by sample</option>
+						<option value="archive">Archive</option>
+					</param>
+					<when value="archive">
+						<param name="archive_file" type="data" label="Archive file" help="The tar file containing the sequences file for each sample." optional="false" />
+					</when>
+					<when value="files_by_samples">
+						<repeat name="samples" title="Samples" min="1">
+							<param name="name" type="text" label="Name" help="The sample name." optional="false" />
+							<param format="fastq" name="R1_file" type="data" label="Sequence file" help="FASTQ file of sample." />
+						</repeat>
+					</when>
+				</conditional>
+				<!-- Amplicons -->
+				<param name="min_amplicon_size" type="integer" label="Minimum amplicon size" help="The minimum size for the amplicons (with primers)." value="" optional="false" />
+				<param name="max_amplicon_size" type="integer" label="Maximum amplicon size" help="The maximum size for the amplicons (with primers)." value="" optional="false" />
+				<!-- Primers -->
+				<param name="five_prim_primer" type="text" size="20" label="5' primer" help="The 5' primer sequence (wildcards are accepted). The orientation is detailed below in 'Primers parameters'." optional="false" />
+				<param name="three_prim_primer" type="text" size="20" label="3' primer" help="The 3' primer sequence (wildcards are accepted). The orientation is detailed below in 'Primers parameters'." optional="false" />
+			</when>
+		</conditional>
+	</inputs>
+	<outputs>
+		<data format="fasta" name="dereplicated_file" label="${tool.name}: dereplicated.fasta" from_work_dir="dereplicated.fasta"/>
+		<data format="tabular" name="count_file" label="${tool.name}: count.tsv" from_work_dir="count.tsv"/>
+		<data format="html" name="summary_file" label="${tool.name}: report.html" from_work_dir="report.html"/>
+	</outputs>
+	<help>
+
+.. image:: ${static_path}/images/tools/frogs/FROGS_logo.png
+   :height: 144
+   :width: 110
+
+
+.. class:: infomark page-header h2
+
+What it does
+
+FROGS Pre-process filters and dereplicates amplicons for use in diversity analysis.
+
+
+.. class:: infomark page-header h2
+
+Inputs/Outputs
+
+.. class:: h3
+
+Inputs
+
+By sample your sequences and their qualities.
+
+.. container:: row
+
+ .. container:: col-md-6
+
+  **Illumina inputs**
+
+   :Usage: The amplicons have been sequenced in paired-end. The amplicon expected length is inferior than the R1 and R2 length. R1 and R2 can be merge by the common region.
+   :Files: One R1 and R2 by sample (format `FASTQ &lt;https://en.wikipedia.org/wiki/FASTA_format&gt;`_)
+   :Example: splA_R1.fastq.gz,  splA_R2.fastq.gz,  splB_R1.fastq.gz,  splB_R2.fastq.gz
+
+  OR
+
+   :Usage: The single end sequencing cover all the amplicons or the R1 and R2 have already been overlaped.
+   :Files: One sequence file by sample (format `FASTQ &lt;https://en.wikipedia.org/wiki/FASTA_format&gt;`_).
+   :Example: splA.fastq.gz,  splB.fastq.gz
+
+ .. container:: col-md-6
+
+  **454 inputs**
+
+   :Files: One sequence file by sample (format `FASTQ &lt;https://en.wikipedia.org/wiki/FASTA_format&gt;`_)
+   :Example: splA.fastq.gz,  splB.fastq.gz
+
+These files must be added sample by sample or provide in an archive file (tar.gz).
+
+Remark: In an archive if you use R1 and R2 files they names must end with *_R1* and *_R2*. To upload an archive, see the "Upload archive" tool or if possible create symbolic link on your Galaxy account.
+
+.. class:: h3
+
+Outputs
+
+**Sequence file** (dereplicated.fasta):
+
+ Only one file with all samples sequences (format `FASTA &lt;https://en.wikipedia.org/wiki/FASTA_format&gt;`_). These sequences are dereplicated: strictly identical sequence are represented only one and the initial count is kept in count file.
+
+**Count file** (count.tsv):
+
+ This file contains the count of all uniq sequences in each sample (format `TSV &lt;https://en.wikipedia.org/wiki/Tab-separated_values&gt;`_).
+
+**Summary file** (report.html):
+
+ This file presents the ordered filters and the number of sequences passing these (format `HTML &lt;https://en.wikipedia.org/wiki/HTML&gt;`_).
+ 
+ .. image:: ${static_path}/images/tools/frogs/FROGS_preprocess_summary.png 
+     :height: 415
+     :width: 676 
+
+
+.. class:: infomark page-header h2
+
+How it works
+
+.. csv-table:: 
+   :header: "Steps", "Illumina", "454"
+   :widths: 5, 150, 150
+   :class: table table-striped
+
+   "1", "For uncontiged data: contig read1 and read2 with a maximum of 10% mismatch in the overlaped region (`FLASh &lt;http://ccb.jhu.edu/software/FLASH/&gt;`_)", "/"
+   "2", "Filter contig sequence on its length which must be between "Minimum amplicon size" and "Maximum amplicon size", "/"
+   "3", "Remove sequences where the two primers are not persent and remove primers sequence (`cutadapt &lt;http://cutadapt.readthedocs.org/en/latest/guide.html&gt;`_). The primer search accept 10% of differences", "Remove sequence where the two primers are not persent, remove primers sequence and reverse complement the sequences with strand - (`cutadapt &lt;http://cutadapt.readthedocs.org/en/latest/guide.html&gt;`_). The primer search accept 10% of differences"
+   "4", "Filter sequences on its length and with ambiguous nucleotids","filter sequences on its length, with ambiguous nucleotids, with at least one homopolymer with size >7nt and with distance between two poor qualities ()&lt; 10) of &lt;= 10 nt" 
+   "5", "Dereplicate sequences", "Dereplicate sequences"
+
+
+.. class:: infomark page-header h2
+
+Advices/details on parameters
+
+.. class:: h3
+
+Primers parameters
+
+The primers must provided in 5' to 3' orientation. 
+
+.. role:: alert-info
+
+Example:
+
+ 5' :alert-info:`ATGCCC` GTCGTCGTAAAATGC :alert-info:`ATTTCAG` 3'
+ 
+ Value for parameter 5' primer: ATGCC
+ 
+ Value for parameter 3' primer: ATTTCAG
+
+.. class:: h3
+
+Amplicons sizes parameters
+
+ The two following images shown two examples of perfect values fors sizes parameters.
+
+ .. image:: ${static_path}/images/tools/frogs/FROGS_preprocess_ampliconSize_unimodal.png
+    :height: 415
+    :width: 676
+ 
+ .. image:: ${static_path}/images/tools/frogs/FROGS_preprocess_ampliconSize_multimodal.png
+    :height: 415
+    :width: 676
+
+ Don't worry the "Expected amplicon size" does not need to be very accurate.
+
+.. class:: h3
+
+If the filter 'overlapped' reduce drasticaly the number of sequences
+
+ In uncontiged Illumina data, the reduction of dataset by the overlapped is classicaly inferior than 20%. If all your samples loose mostly it can exist a quality problem.
+ 
+ If your overlap between R1 and R2 is superior than 50 nucleotids and the end sequence quality is poor (see `FastQC &lt;http://www.bioinformatics.babraham.ac.uk/projects/fastqc/&gt;`_) you can try to cut the end of your sequences and relaunch preprocess.
+
+
+----
+
+**Contact**
+
+Contacts: frogs@toulouse.inra.fr
+
+E-learning available: Not yet.
+
+Please cite the FROGS Publication : *Escudie F., Auer L., Cauquil L., Vidal K., Maman S., Mariadassou M., Hernadez-Raquet G., Pascal G., 2015. FROGS: Find Rapidly OTU with Galaxy Solution. In: (Ed), The JOBIM 2015 Conference, July 6th to 9th, Clermont-Ferrand, France,* http://bioinfo.genotoul.fr/fileadmin/user_upload/FROGS_poster_Jobim_2015.pdf
+
+Depending on the help provided you can cite us in acknowledgements, references or both.
+	</help> 
+	<citations>
+		<citation type="doi">10.14806/ej.17.1.200</citation>
+		<citation type="doi">10.1093/bioinformatics/btr507</citation>
+	</citations>
+</tool>

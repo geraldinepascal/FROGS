@@ -1,0 +1,113 @@
+<?xml version="1.0"?>
+<!--
+# Copyright (C) 2015 INRA
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+-->
+<tool id="FROGS_clusters_stat" name="FROGS Clusters stat" version="1.3.0">
+	<description>Process some metrics on clusters.</description>
+	<command interpreter="python2.7">
+		clusters_stat.py 
+		                 --input-biom $biom
+		                 --output-file $summary_file
+	</command>
+	<inputs>
+		<param format="txt" name="biom" type="data" label="Abundance file (format: BIOM)" help="Clusters abundance in BIOM format." optional="false" />
+	</inputs>
+	<outputs>
+		<data format="html" name="summary_file" label="${tool.name}: summary.html" from_work_dir="summary.html"/>
+	</outputs>
+	<help>
+
+.. image:: ${static_path}/images/tools/frogs/FROGS_logo.png
+   :height: 144
+   :width: 110
+
+
+.. class:: infomark page-header h2
+
+What it does
+
+FROGS Clusters stat computes several metrics and generates a HTML file describing clusters based on abundances, samples, ...
+
+
+.. class:: infomark page-header h2
+
+Input/output
+
+.. class:: h3
+
+Input
+
+**Abundance file**:
+ 
+The abundance of each cluster in each sample (format `BIOM &lt;http://biom-format.org/&gt;`_).
+
+The FROGS's tools working on clusters and others metagenomic workflows produce files in BIOM format.
+
+.. class:: h3
+
+Output
+
+**Summary file** (summary.html):
+
+ Clusters metrics (format `HTML &lt;https://en.wikipedia.org/wiki/HTML&gt;`_):
+ 
+ *Clusters distribution* : describes the sizes distribution of all clusters thank to boxplot and tables
+
+ .. image:: ${static_path}/images/tools/frogs/FROGS_cluster_stat_cluster_dist1.png
+    :height: 426
+    :width: 630
+
+ .. image:: ${static_path}/images/tools/frogs/FROGS_cluster_stat_cluster_dist2.png
+    :height: 394
+    :width: 464
+   
+ *Sequences distributions* : describes the sequences distribution among clusters
+
+ .. image:: ${static_path}/images/tools/frogs/FROGS_cluster_stat_seq_dist.png
+    :height: 326
+    :width: 473
+
+ *Samples distribution* : describes clusters distribution among sample and give an `hierarchical clustering &lt;http://en.wikipedia.org/wiki/Hierarchical_clustering&gt;`_ on samples abundance profile (distance method = `braycurtis &lt;http://fr.wikipedia.org/wiki/Distance_de_Bray-Curtis&gt;`_, linkage method = average)
+
+ .. image:: ${static_path}/images/tools/frogs/FROGS_cluster_stat_sample_dist1.png
+    :height: 321
+    :width: 487
+
+ .. image:: ${static_path}/images/tools/frogs/FROGS_cluster_stat_sample_dist2.png
+    :height: 219
+    :width: 441
+
+
+.. class:: infomark page-header h2
+
+Advices
+
+This is a very usefull tool to see the evolution of your OTU. Do not hesitate to run this tool after each FROGS step beginning at the clustering step.
+
+
+----
+
+**Contact**
+
+Contacts: frogs@toulouse.inra.fr
+
+E-learning available: Not yet.
+
+Please cite the FROGS Publication : *Escudie F., Auer L., Cauquil L., Vidal K., Maman S., Mariadassou M., Hernadez-Raquet G., Pascal G., 2015. FROGS: Find Rapidly OTU with Galaxy Solution. In: (Ed), The JOBIM 2015 Conference, July 6th to 9th, Clermont-Ferrand, France,* http://bioinfo.genotoul.fr/fileadmin/user_upload/FROGS_poster_Jobim_2015.pdf
+
+Depending on the help provided you can cite us in acknowledgements, references or both.
+	</help>
+</tool>

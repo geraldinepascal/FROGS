@@ -1,0 +1,183 @@
+<?xml version="1.0"?>
+<!--
+# Copyright (C) 2015 INRA
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+-->
+<tool id="FROGS_demultiplex" name="FROGS Demultiplex reads" version="1.1.0">
+	<description>Split by samples the reads in function of inner barcode.</description>
+	<command interpreter="python2.7">
+		demultiplex.py
+		#if str( $fastq_input.fastq_input_selector ) == "paired":
+		    --input-R1 "${fastq_input.fastq_input1}"               
+		    --input-R2 "${fastq_input.fastq_input2}"
+		#else:
+		    --input-R1 "${fastq_input.fastq_input1}"
+		#end if              
+		    --input-barcode $barcode_file
+		    --mismatches $mismatches
+		    --end $end
+		    --summary $summary
+		    --output-demultiplexed $demultiplexed_archive
+		    --output-excluded $undemultiplexed_archive
+	</command>
+	<inputs>
+		<!-- Input file -->
+		<param format="tabular" name="barcode_file" type="data" label="Barcode file" help="This file describes barcodes and samples (one line by sample tabulated separated from barcode sequence(s)). See Help section" optional="false" />
+		
+		<conditional name="fastq_input">
+	      	<param name="fastq_input_selector" type="select" label="Single or Paired-end reads" help="Select between paired and single end data">
+	      		<option value="single">Single</option>
+	        	<option value="paired">Paired</option>
+	        </param>
+	      	<when value="paired">
+	        	<param name="fastq_input1" type="data" format="fastq" label="Select first set of reads" help="Specify dataset of your forward reads"/>
+	        	<param name="fastq_input2" type="data" format="fastq" label="Select second set of reads" help="Specify dataset of your reverse reads"/>
+	        </when>
+	        <when value="single">
+	        	<param name="fastq_input1" type="data" format="fastq" label="Select fastq dataset" help="Specify dataset of your single end reads"/>
+	      	</when>
+      	</conditional>
+
+		<!-- Option -->
+		<param name="mismatches" type="integer" label="barcode mismatches" help="Number of mismatches allowed in barcode" value="0" optional="false" />
+		<param name="end" type="select" label="barcode on which end ?" help="The barcode is at the begining of the forward end or of the reverse end or both?">
+			<option value="bol" selected="true">Forward</option>
+			<option value="eol">Reverse</option>
+			<option value="both">Both ends</option>
+		</param>
+	</inputs>
+	<outputs>
+		<data name="demultiplexed_archive" label="${tool.name}: demultiplexed.tar.gz" from_work_dir="demultiplexed.tar.gz"/>
+		<data name="undemultiplexed_archive" label="${tool.name}: undemultiplexed.tar.gz" from_work_dir="undemultiplexed.tar.gz"/>
+		<data format="tabular" name="summary" label="${tool.name}: report" from_work_dir="report.tsv"/>
+	</outputs>
+
+	<help>
+.. class:: infomark page-header h2
+
+What it does
+
+Classify single or paired end reads in function of barcode forward or reverse in the first or both reads.
+
+**Command line**::
+
+  demultiplex.py --input-R1 *FQ_INPUT1* [--input-R2 *FQ_INPUT2*] --input-barcode *TXT_BARCODE* --mismatches *MISMATCH* --end *END* --summary *TXT_SUMMARY_OUTPUT* --output-demultiplexed *TARGZ_DEMULT_ARCHIVE_OUTPUT* --output-excluded *TARGZ_UNDEMULT_ARCHIVE_OUTPUT*
+
+.. csv-table:: Inputs
+   :header: "Input name", "Meaning"
+   :widths: 20, 80
+   :class: table table-striped
+
+   "FQ_INPUT1", "Fastq input file for the first read (single end or forward read of pair end sequences)"
+   "FQ_INPUT2", "Fastq input file for the second read (only for pair end sequences)"
+   "TXT_BARCODE", "Tabulated text file that describe barcode sequence used to multiplexe sample in your run: SAMPLE_NAME	BARCODE1	[BARCODE2]"
+
+.. csv-table:: Options
+   :header: "Option name", "Meaning"
+   :widths: 20, 80
+   :class: table table-striped
+
+   "-m/--mismatches MISMATCH", "Number of allowed mismatch in each barcode"
+   "-e/--end END", "To which end must the barcode be found : forward (begin of the (first) read), reverse (end of the (second) read) or both"
+
+.. csv-table:: Outputs
+   :header: "Output name", "Meaning"
+   :widths: 20, 80
+   :class: table table-striped
+
+   "TXT_SUMMARY_OUTPUT", "A tabulated text file which summarise the number of sequence (pair) for each sample"
+   "TARGZ_DEMULT_ARCHIVE_OUTPUT", "A TAR.GZ archive that contains all fastq files for each sample"
+   "TARGZ_UNDEMULT_ARCHIVE_OUTPUT", "A TAR.GZ archive that contains all fastq files for undemultiplexed read"
+
+.. class:: h3
+
+Format
+
+BARCODE_FILE : This file is expected to be tabulated:
+ -first column corresponds to the sample name
+ 
+ -second one to the sequence barcode used
+ 
+ -optional third one to the reverse sequence barcode.
+ 
+.. class:: warningmark
+
+Take care to indicate sequence barcode in the strand of the read, so you may need to reverse complement the reverse barcode sequence
+
+.. class:: warningmark
+
+Barcode sequence must have the same length
+ 
+example of barcode file. The last column is optional, like this it describes sample multiplexed by both fragment ends.
+
+.. image:: ${static_path}/images/tools/frogs/demultiplex_barcode.png
+   :height: 18
+   :width: 286
+
+FASTQ : Text file describing biological sequence in 4 lines format: 
+ -first line start by "@" corresponds to the sequence identifier and optionally the sequence description.
+ 
+ -second line is the sequence itself
+ 
+ -third line is a "+" following by the sequence identifier or not depending on the version
+ 
+ -fourth line is the quality sequence, one code per base. The code depends on the version and the sequencer
+ 
+`detailed fastq format article &lt;https://en.wikipedia.org/wiki/FASTQ_format&gt;`_
+
+example of fastq read corresponding to the previous barcode file  
+
+.. image:: ${static_path}/images/tools/frogs/demultiplex_fastq_ex.png
+   :height: 57
+   :width: 420
+
+
+.. class:: infomark page-header h2
+
+How it works
+
+For each sequence or sequence pair the sequence fragment at the beginning (forward multiplexing) of the (first) read or at the end (reverse multiplexing) of the (second) read will be compare to all barcode sequence.
+
+If this fragment is equal (with less or equal mismatch than the threshold) to one (and only one) barcode, the fragment is trimmed and the sequence will be attributed to the corresponding sample.
+
+Finally fastq files (or pair of fastq files) for each sample are included in an archive, and a report describes how many sequences are attributed for each sample. 
+
+
+.. class:: infomark page-header h2
+
+Advices
+
+Do not forget to indicate barcode sequence as they actually are in the fastq sequence file, especially if you have data multiplexed via the reverse strand.
+
+For the mismatch threshold, we advised you to let the threshold to 0, and if you are not satisfied by the result try with 1. The number of mismatch depends on the length of the barcode, but oftenly those sequences are very short so 1 mismatch is already more than the sequencing error rate.
+
+If you have different barcode length, you must demultiplex your data in different times beginning by the longest barcode set and used the "unmatched" or "ambiguous" sequence with smaller barcode and so on.
+
+If you have Roche 454 sequences in sff format, you must convert it with some program like `sff2fastq &lt;https://github.com/indraniel/sff2fastq&gt;`_ or sff_to_fastq (installable in Galaxy)
+
+
+----
+
+**Contact**
+
+Contacts: frogs@toulouse.inra.fr
+
+E-learning available: Not yet.
+
+Please cite the FROGS Publication : *Escudie F., Auer L., Cauquil L., Vidal K., Maman S., Mariadassou M., Hernadez-Raquet G., Pascal G., 2015. FROGS: Find Rapidly OTU with Galaxy Solution. In: (Ed), The JOBIM 2015 Conference, July 6th to 9th, Clermont-Ferrand, France,* http://bioinfo.genotoul.fr/fileadmin/user_upload/FROGS_poster_Jobim_2015.pdf
+
+Depending on the help provided you can cite us in acknowledgements, references or both.
+	</help>
+</tool>

@@ -1,0 +1,161 @@
+<?xml version="1.0"?>
+<!--
+# Copyright (C) 2015 INRA
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+-->
+<tool id="FROGS_remove_chimera" name="FROGS Remove chimera" version="1.2.0">
+	<description>Step 3 in metagenomics analysis : Remove PCR chimera in each sample.</description>
+	<command interpreter="python2.7">
+		remove_chimera.py 
+		                --nb-cpus $nb_cpus
+		                --input-fasta $sequence_file --non-chimera $non_chimera_fasta
+		                --summary $summary_file
+		                #if $abundance_type.abundance_type_selected == "biom"
+		                --input-biom $abundance_biom
+		                --out-abundance $out_abundance_biom
+		                #else
+		                --input-count $abundance_count
+		                --out-abundance $out_abundance_count
+		                #end if
+	</command>
+	<inputs>
+		<!-- Files -->
+		<param format="fasta" name="sequence_file" type="data" label="Sequences file" help="The sequences file." optional="false" />
+		<conditional name="abundance_type">
+			<param name="abundance_type_selected" type="select" label="Abundance type" help="Select the type of file where the abundance of each sequence by sample is stored.">
+				<option value="biom" selected="true">BIOM file</option>
+				<option value="count">TSV file</option>
+			</param>
+			<when value="biom">
+				<param format="txt" name="abundance_biom" type="data" label="Abundance file" help="It contains the count by sample for each sequence." optional="false" />
+			</when>
+			<when value="count">
+				<param format="tabular" name="abundance_count" type="data" label="Count file" help="It contains the count by sample for each sequence (see below)." optional="false" />
+			</when>
+		</conditional>
+		<!-- Parameters -->
+		<param name="nb_cpus" type="hidden" label="CPU number" help="The maximum number of CPUs used." value="1" />
+		<!--
+		<param name="size_separator" type="text" label="Size separator" help="Fill this input only if the IDs of sequences in fasta store the abundance as suffix. Example: 'Cluster_1;size=10' => ';size='" value="" optional="true" />
+		-->
+	</inputs>
+	<outputs>
+		<data format="fasta" name="non_chimera_fasta" label="${tool.name}: non_chimera.fasta" from_work_dir="non_chimera.fasta"/>
+		<data format="txt" name="out_abundance_biom" label="${tool.name}: non_chimera_abundance.biom" from_work_dir="non_chimera_abundance.biom">
+			<filter>abundance_type['abundance_type_selected'] == "biom"</filter>
+		</data>
+		<data format="tabular" name="out_abundance_count" label="${tool.name}: non_chimera_abundance.tsv" from_work_dir="non_chimera_abundance.tsv">
+			<filter>abundance_type['abundance_type_selected'] == "count"</filter>
+		</data>
+		<data format="html" name="summary_file" label="${tool.name}: report.html" from_work_dir="report.html"/>
+	</outputs>
+	<help>
+
+.. image:: ${static_path}/images/tools/frogs/FROGS_logo.png 
+   :height: 144
+   :width: 110
+
+
+.. class:: infomark page-header h2
+
+What it does
+
+Remove chimeric sequences by sample.
+
+
+.. class:: infomark page-header h2
+
+Context
+
+Chimeras are sequences formed from two or more biological sequences joined together.
+
+The majority of these anomalous sequences are formed from an incomplete extension during a PCR cycle. During subsequent cycles, a partially extended strand can bind to a template derived from a different but similar sequence.
+ 
+This phenomena is particularly common in amplicon sequencing where closely related sequences are amplified.
+
+
+.. class:: infomark page-header h2
+
+Inputs/Outputs
+
+.. class:: h3
+
+Inputs
+
+**Sequence file**:
+
+The sequences (format `FASTA &lt;https://en.wikipedia.org/wiki/FASTA_format&gt;`_).
+
+**Abundance file**:
+ 
+ The abundance of each cluster in each sample (format `BIOM &lt;http://biom-format.org/&gt;`_).
+
+OR
+
+ The abundance of each sequence in each sample (format `TSV &lt;https://en.wikipedia.org/wiki/Tab-separated_values&gt;`_). This type of file is produced by *FROGS pre-process*.
+ 
+ Example::
+
+     #id	splA	splB
+     seq1	1289	2901
+     seq2	3415	0				
+
+.. class:: h3
+
+Outputs
+
+**Sequence file** (non_chimera.fasta):
+
+ The sequence file with only non-chimera (format `FASTA &lt;https://en.wikipedia.org/wiki/FASTA_format&gt;`_).
+
+**Abundance file** (non_chimera.biom or non_chimera.tsv):
+
+ The abundance file with only non-chimera (format the same of the abundance input).
+
+**Summary file** (report.html):
+
+ This file presents the number of removed elements (format `HTML &lt;https://en.wikipedia.org/wiki/HTML&gt;`_).
+
+
+.. class:: infomark page-header h2
+
+How it works
+
+.. csv-table:: 
+   :header: "Steps", "Description"
+   :widths: 10, 90
+   :class: table table-striped
+
+   "1", "Split input data by sample (classicaly the PCR is realised by sample)."
+   "2", "Find chimera in each sample (`vsearch &lt;https://github.com/torognes/vsearch&gt;`_)."
+   "3", "Remove the sequences identify as chimera in all samples where they are present."
+
+
+----
+
+**Contact**
+
+Contacts: frogs@toulouse.inra.fr
+
+E-learning available: Not yet.
+
+Please cite the FROGS Publication : *Escudie F., Auer L., Cauquil L., Vidal K., Maman S., Mariadassou M., Hernadez-Raquet G., Pascal G., 2015. FROGS: Find Rapidly OTU with Galaxy Solution. In: (Ed), The JOBIM 2015 Conference, July 6th to 9th, Clermont-Ferrand, France,* http://bioinfo.genotoul.fr/fileadmin/user_upload/FROGS_poster_Jobim_2015.pdf
+
+Depending on the help provided you can cite us in acknowledgements, references or both.
+	</help>
+	<citations>
+		<citation type="doi">10.7287/peerj.preprints.386v1</citation>
+	</citations>
+</tool>

@@ -1,0 +1,148 @@
+<?xml version="1.0"?>
+<!--
+# Copyright (C) 2015 INRA
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+-->
+<tool id="FROGS_affiliations_stat" name="FROGS Affiliations stat" version="1.0.0">
+	<description>Process some metrics on taxonomies.</description>
+	<command interpreter="python2.7">
+		affiliations_stat.py 
+		    --input-biom $biom
+		    --output-file $summary_file
+		    --rarefaction-ranks $rarefaction_ranks
+		    #if $affiliation.affiliation_type == "FROGS_blast"
+		        --taxonomic-ranks Domain Phylum Class Order Family Genus Species
+		    	--multiple-tag "blast_affiliations"
+		        --tax-consensus-tag "blast_taxonomy"
+		        --identity-tag "perc_identity"
+		        --coverage-tag "perc_query_coverage"
+			#else if $affiliation.affiliation_type == "FROGS_rdp"
+			    --taxonomic-ranks Domain Phylum Class Order Family Genus Species
+				--taxonomy-tag "rdp_taxonomy"
+				--bootstrap-tag "rdp_bootstrap"
+			#else
+				--taxonomic-ranks $affiliation.taxonomic_ranks
+				--taxonomy-tag "$affiliation.taxonomy_tag"
+				#if $affiliation.bootstrap_tag
+					--bootstrap-tag "$affiliation.bootstrap_tag"
+				#end if
+				#if $affiliation.identity_tag and $affiliation.coverage_tag
+					--identity-tag "$affiliation.identity_tag"
+					--coverage-tag "$affiliation.coverage_tag"
+				#end if
+			#end if
+	</command>
+	<inputs>
+		<!-- Files -->
+		<param format="txt" name="biom" type="data" label="Abundance file (format: BIOM)" help="OTUs abundances and affiliations in BIOM format." optional="false" />
+		<!-- Parameters -->
+		<param name="rarefaction_ranks" type="text" label="Rarefaction ranks" help="The ranks that will be evaluated in rarefaction. Each rank is separated by one space." optional="false" value="Class Order Family Genus Species" size="80" />
+		<conditional name="affiliation">
+			<param name="affiliation_type" type="select" label="Affiliation processed" help="Select the type of affiliation processed. If your affiliation has been processed with an external tool: use 'Custom'.">
+				<option value="FROGS_blast" selected="true">FROGS blast</option>
+				<option value="FROGS_rdp">FROGS rdp</option>
+				<option value="custom">Custom</option>
+			</param>
+			<when value="FROGS_blast"></when>
+			<when value="FROGS_rdp"></when>
+			<when value="custom">
+				<param name="taxonomic_ranks" type="text" label="Taxonomic ranks" help="The ordered taxonomic ranks levels stored in BIOM. Each rank is separated by one space." optional="false" value="Domain Phylum Class Order Family Genus Species" size="80" />
+				<param name="taxonomy_tag" type="text" label="Taxonomy tag" help="The metadata title in BIOM for the taxonomy." optional="false" value="taxonomy" size="20" />
+				<param name="bootstrap_tag" type="text" label="Bootstrap tag" help="The metadata title in BIOM for the taxonomy bootstrap." value="" size="20" />
+				<param name="identity_tag" type="text" label="Identity tag" help="The metadata tag used in BIOM file to store the alignment identity." value="" size="20" />
+				<param name="coverage_tag" type="text" label="Coverage tag" help="The metadata tag used in BIOM file to store the alignment OTUs coverage." value="" size="20" />
+			</when>
+		</conditional>
+	</inputs>
+	<outputs>
+		<data format="html" name="summary_file" label="${tool.name}: summary.html" from_work_dir="summary.html"/>
+	</outputs>
+	<help>
+
+.. image:: ${static_path}/images/tools/frogs/FROGS_logo.png
+   :height: 144
+   :width: 110
+
+
+.. class:: infomark page-header h2
+
+What it does
+
+FROGS Affiliations stat computes several metrics and generates a HTML file describing OTUs based on their taxonomies and the quality of the affiliations.
+
+
+.. class:: infomark page-header h2
+
+Input/output
+
+.. class:: h3
+
+Input
+
+**Abundance file**:
+ 
+The abundance and affiliation of each OTUs in each sample (format `BIOM &lt;http://biom-format.org/&gt;`_). This file can be produced by FROGS Affiliation OTU.
+
+The FROGS's tools working on clusters and others metagenomic workflows produce files in BIOM format.
+
+.. class:: h3
+
+Output
+
+**Summary file** (summary.html):
+
+ OTUs taxonomies and affiliations metrics (format `HTML &lt;https://en.wikipedia.org/wiki/HTML&gt;`_):
+ 
+  *-Taxonomy distribution*: display the distribution of each taxon and the rarefaction for each taxonomic rank and for each sample
+  
+  .. image:: ${static_path}/images/tools/frogs/FROGS_affiliation_stat_taxonomies.png
+    :height: 380
+    :width: 650  
+
+  .. image:: ${static_path}/images/tools/frogs/FROGS_affiliation_stat_rarefaction.png
+    :height: 380
+    :width: 550
+
+  .. image:: ${static_path}/images/tools/frogs/FROGS_affiliation_stat_sunburst.png
+    :height: 380
+    :width: 430
+  
+  -Bootstrap distribution: display for affiliation methods with bootstrap the bootstrap on each taxonomic rank
+
+  .. image:: ${static_path}/images/tools/frogs/FROGS_affiliation_stat_bootstrap.png
+    :height: 380
+    :width: 650
+
+  -Alignment distribution: display for affiliation methods with alignment the distribution of identity/covrage
+
+  .. image:: ${static_path}/images/tools/frogs/FROGS_affiliation_stat_alignment.png
+    :height: 380
+    :width: 650
+
+
+
+----
+
+**Contact**
+
+Contacts: frogs@toulouse.inra.fr
+
+E-learning available: Not yet.
+
+Please cite the FROGS Publication : *Escudie F., Auer L., Cauquil L., Vidal K., Maman S., Mariadassou M., Hernadez-Raquet G., Pascal G., 2015. FROGS: Find Rapidly OTU with Galaxy Solution. In: (Ed), The JOBIM 2015 Conference, July 6th to 9th, Clermont-Ferrand, France,* http://bioinfo.genotoul.fr/fileadmin/user_upload/FROGS_poster_Jobim_2015.pdf
+
+Depending on the help provided you can cite us in acknowledgements, references or both.
+	</help>
+</tool>
