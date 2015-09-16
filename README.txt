@@ -1,6 +1,8 @@
-Find Rapidly OTUs with Galaxy Solution
+#Find Rapidly OTUs with Galaxy Solution
+
+## Description
     FROGS is a galaxy/CLI workflow designed to produce an OTUs count matrix 
-    from Illumina 16S rRNA amplicon data.
+    from high depth sequencing amplicon data.
     This workflow is focused on:
         - User-friendliness with the integration in galaxy and lot of richs 
           graphics outputs
@@ -11,7 +13,7 @@ Find Rapidly OTUs with Galaxy Solution
         - Scalability with algorithms designed to support the data growth
 
 
-Convenient input data
+## Convenient input data
     Legend for the next schemas:
         .: Complete nucleic sequence
         !: Region of interest
@@ -51,8 +53,8 @@ Convenient input data
           The R1 and R2 can have different length.
 
 
-Installation
-    1- Install dependancies
+## Installation
+    1. Install dependancies
         python interpreter
             Version: 2.7
             Tools: all
@@ -101,7 +103,7 @@ Installation
                      OR
                      sudo yum install util-linux
     
-    2- Bin directory
+    2. Bin directory
         Softwares in 'bin' folder and previous seen dependancies must be in 
         PATH and PYTHONPATH or in a 'bin' folder in the parent folder of the
         tools folder.
@@ -116,7 +118,7 @@ Installation
                     biom.py
                     ...
 
-    3- Check intallation
+    3. Check intallation
         To check your installation you can type:
             cd <FROGS_PATH>/test
             sh test.sh <FROGS_PATH> <NB_CPU> <JAVA_MEM>
@@ -124,7 +126,7 @@ Installation
         Note: JAVA_MEM must be at least 4 (= 4Gb of RAM).
         Example: sh test.sh /home/user/frogs/1.0.0/ 2 4
 
-    4- Set memory and parallelisation settings
+    4. Set memory and parallelisation settings
         If you have more than one CPU, it is recommended to increase the number
         of CPU used by tools.
         All the CPUs must be on the same computer/node.
@@ -183,7 +185,7 @@ Installation
                     <tool id="FROGS_affiliation_OTU" destination="FROGS_affiliation_OTU_job"/>
                 </tools>
 
-    5- Upload and configure the databanks
+    5. Upload and configure the databanks
         a] Assignation databank
             - Upload databank and indexes from ***********************************************************
             - To use this databank, you need to create a .loc file named
@@ -193,43 +195,43 @@ Installation
             - To use this databank, you need to create a .loc file named
               'phiX_db.loc'. The path provided must be the '.fasta'.
 
-    6- Tools images
+    6. Tools images
         The tools help contain images. These images must be in galaxy images
         static folder.
             ln -s <FROGS_PATH>/img <GALAXY_DIR>/static/images/tools/frogs
 
 
-Troubleshooting
-    Abnormal increase memory consumption with CPU number
-        With certain old versions of glibc the virtual memory used by CPU is
-        multiplicative.
-        Nb CPUs   expected RAM consumtion   observed RAM consumption	
-           1               1Gb                       1Gb
-           2               2Gb                     2*2Gb
-           3               3Gb                     3*3Gb
-           4               5Gb                     4*4Gb
-        The parameters memory and CPU provided in examples take into account 
-        this problem.
+## Troubleshooting
+### Abnormal increase memory consumption with CPU number
+    With certain old versions of glibc the virtual memory used by CPU is
+    multiplicative.
+    Nb CPUs   expected RAM consumtion   observed RAM consumption	
+       1               1Gb                       1Gb
+       2               2Gb                     2*2Gb
+       3               3Gb                     3*3Gb
+       4               5Gb                     4*4Gb
+    The parameters memory and CPU provided in examples take into account 
+    this problem.
 
-    Abnormal threads consumption in RDPClassifier
-        With large database like silva NR the RDPClassifier opens automatically
-        a large number of threads. These threads use all the available CPU
-        ressources. This is not an acceptable behaviour in multi-user context.
-        To prevent this behaviour the tool 'affiliation_OTU' uses taskset to
-        force RDPClassifier to run only on the specified number of CPUs. The
-        number of threads is not changed but the CPU consumption is controled.
+### Abnormal threads consumption in RDPClassifier
+    With large database like silva NR the RDPClassifier opens automatically
+    a large number of threads. These threads use all the available CPU
+    ressources. This is not an acceptable behaviour in multi-user context.
+    To prevent this behaviour the tool 'affiliation_OTU' uses taskset to
+    force RDPClassifier to run only on the specified number of CPUs. The
+    number of threads is not changed but the CPU consumption is controled.
 
 
-License
+## License
     GNU v3
 
 
-Citation
+## Citation
     Escudie F., Auer L., Cauquil L., Vidal K., Maman S., Mariadassou M., 
     Hernadez-Raquet G., Pascal G., 2015. FROGS: Find Rapidly OTU with Galaxy 
     Solution. In: (Ed), The JOBIM 2015 Conference, July 6th to 9th, 
     Clermont-Ferrand, France
 
 
-Contact
+## Contact
     frogs@toulouse.inra.fr
