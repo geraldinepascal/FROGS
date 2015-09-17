@@ -121,10 +121,10 @@
     3. Check intallation
         To check your installation you can type:
             cd <FROGS_PATH>/test
-            sh test.sh <FROGS_PATH> <NB_CPU> <JAVA_MEM>
+            sh test.sh <FROGS_PATH> <NB_CPU> <JAVA_MEM> <OUT_FOLDER>
         
         Note: JAVA_MEM must be at least 4 (= 4Gb of RAM).
-        Example: sh test.sh /home/user/frogs/1.0.0/ 2 4
+        Example: sh test.sh /home/user/frogs/1.0.0/ 2 4 results
 
     4. Set memory and parallelisation settings
         If you have more than one CPU, it is recommended to increase the number
