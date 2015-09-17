@@ -187,11 +187,13 @@
 
     5. Upload and configure the databanks
         a] Assignation databank
-            - Upload databank and indexes from ***********************************************************
-            - To use this databank, you need to create a .loc file named
+            - Upload databanks and indexes from http://genoweb.toulouse.inra.fr/frogs_databanks/assignation
+            - Extract databanks.
+            - To use these databank, you need to create a .loc file named
               'frogs_db.loc'. The path provided must be the '.fasta'.
         b] Contaminant databank
-            - Upload databank and indexes from ***********************************************************
+            - Upload databank and indexes from http://genoweb.toulouse.inra.fr/frogs_databanks/contaminants
+            - Extract databank.
             - To use this databank, you need to create a .loc file named
               'phiX_db.loc'. The path provided must be the '.fasta'.
 
