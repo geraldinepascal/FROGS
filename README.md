@@ -89,12 +89,12 @@
             Version: >=2.2.29+
             Named as: blastn
             Tools: affiliation_otu_16S and filters
-            Download: http://blast.ncbi.nlm.nih.gov/Blast.cgi?PAGE_TYPE=BlastDocs&DOC_TYPE=Download)
+            Download: http://blast.ncbi.nlm.nih.gov/Blast.cgi?PAGE_TYPE=BlastDocs&DOC_TYPE=Download
         RDPClassifier
             Version: -
             Name as: classifier.jar
             Tools: affiliation_otu_16S
-            Download: https://github.com/rdpstaff/RDPTools)
+            Download: https://github.com/rdpstaff/RDPTools
         taskset
             Version: util-linux-ng 2.17.2
             Name as: taskset
