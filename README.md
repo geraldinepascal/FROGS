@@ -225,7 +225,7 @@
 
 
 ## License
-    GNU v3
+    GNU GPL v3
 
 
 ## Citation
