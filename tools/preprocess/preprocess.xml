@@ -251,6 +251,11 @@ Outputs
      :height: 415
      :width: 676 
 
+ It presents also the length distribution of the kept sequences.
+ 
+ .. image:: ${static_path}/images/tools/frogs/FROGS_preprocess_lengthsSamples.png 
+     :height: 350
+     :width: 676 
 
 .. class:: infomark page-header h2
 

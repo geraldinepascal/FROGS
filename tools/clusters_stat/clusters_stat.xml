@@ -66,13 +66,13 @@ Output
  
  *Clusters distribution* : describes the sizes distribution of all clusters thank to boxplot and tables
 
- .. image:: ${static_path}/images/tools/frogs/FROGS_cluster_stat_cluster_dist1.png
+ .. image:: ${static_path}/images/tools/frogs/FROGS_cluster_stat_clusterDistrib1.png
     :height: 426
-    :width: 630
+    :width: 520
 
- .. image:: ${static_path}/images/tools/frogs/FROGS_cluster_stat_cluster_dist2.png
-    :height: 394
-    :width: 464
+ .. image:: ${static_path}/images/tools/frogs/FROGS_cluster_stat_clusterDistrib2.png
+    :height: 300
+    :width: 460
    
  *Sequences distributions* : describes the sequences distribution among clusters
 
