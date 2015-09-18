@@ -19,7 +19,7 @@
 __author__ = 'Frederic Escudie - Plateforme bioinformatique Toulouse'
 __copyright__ = 'Copyright (C) 2015 INRA'
 __license__ = 'GNU General Public License'
-__version__ = '1.2.0'
+__version__ = '1.3.0'
 __email__ = 'frogs@toulouse.inra.fr'
 __status__ = 'prod'
 
@@ -361,25 +361,52 @@ class DerepGlobal(Cmd):
 # FUNCTIONS
 #
 ##################################################################################################################################################
-def summarise_results( summary_file, log_files ):
+def get_seq_length( input_file, size_separator=None ):
+    """
+    @summary: Returns the number of sequences by sequences lengths.
+    @param input_file: [str] The sequence file path.
+    @param size_separator: [str] If it exists the size separator in sequence ID.
+    @return: [dict] By sequences lengths the number of sequence.
+    """
+    nb_by_length = dict()
+    FH_seq = SequenceFileReader.factory( input_file )
+    for record in FH_seq:
+        nb_seq = 1
+        if size_separator is not None:
+            nb_seq = int(record.id.rsplit(size_separator, 1)[-1])
+        seq_length = len(record.string)
+        if not nb_by_length.has_key(str(seq_length)):
+            nb_by_length[str(seq_length)] = 0
+        nb_by_length[str(seq_length)] += nb_seq
+    FH_seq.close()
+    return nb_by_length
+
+def summarise_results( summary_file, samples_names, log_files, filtered_files ):
     """
     @summary: Writes one summary of results from several logs.
     @param summary_file: [str] The output file.
-    @param log_files: [list] The list of path to log files (one log file by sample).
+    @param samples_names: [list] The samples names.
+    @param log_files: [list] The list of path to log files (in samples_names order).
+    @param filtered_files: [list] The list of path to sequences files after preprocessing (in samples_names order).
     """
     # Get data
     categories = get_filter_steps(log_files[0])
-    series = list()
-    for current_sample_log in log_files:
-        series.append( get_sample_resuts(current_sample_log) )
+    filters_by_sample = dict()
+    lengths_by_sample = dict()
+    for spl_idx, spl_name in enumerate(samples_names):
+        filters_by_sample[spl_name] = get_sample_resuts(log_files[spl_idx])
+        lengths_by_sample[spl_name] = get_seq_length(filtered_files[spl_idx], ';size=')
+
     # Write
     FH_summary_tpl = open( os.path.join(CURRENT_DIR, "preprocess_tpl.html") )
     FH_summary_out = open( summary_file, "w" )
     for line in FH_summary_tpl:
-        if "###DATA_CATEGORIES###" in line:
-            line = line.replace( "###DATA_CATEGORIES###", json.dumps(categories) )
-        elif "###DATA_SERIES###" in line:
-            line = line.replace( "###DATA_SERIES###", json.dumps(series) )
+        if "###FILTERS_CATEGORIES###" in line:
+            line = line.replace( "###FILTERS_CATEGORIES###", json.dumps(categories) )
+        elif "###FILTERS_DATA###" in line:
+            line = line.replace( "###FILTERS_DATA###", json.dumps(filters_by_sample) )
+        elif "###LENGTHS_DATA###" in line:
+            line = line.replace( "###LENGTHS_DATA###", json.dumps(lengths_by_sample) )
         FH_summary_out.write( line )
     FH_summary_out.close()
     FH_summary_tpl.close()
@@ -402,22 +429,17 @@ def get_sample_resuts( log_file ):
     """
     @summary: Returns the sample results (number of sequences after each filters).
     @param log_file: [str] Path to a log file.
-    @return: [dict] The sample results. Format: {'name':SPL_NAME, 'data':[INI_NB_SEQ, NB_SEQ_AFTER_FILTER_1, NB_SEQ_AFTER_FILTER_2]}.
+    @return: [list] The number of sequences after each filter.
     """
-    results = {
-        'name': None,
-        'data': list()
-    }
+    nb_seq = list()
     FH_input = open(log_file)
     for line in FH_input:
-        if line.strip().startswith('Sample name'):
-            results['name'] = line.split(':')[1].strip()
-        elif line.strip().startswith('nb seq before process'):
-            results['data'].append( int(line.split(':')[1].strip()) )
+        if line.strip().startswith('nb seq before process'):
+            nb_seq.append( int(line.split(':')[1].strip()) )
         elif line.strip().startswith('nb seq'):
-            results['data'].append( int(line.split(':')[1].strip()) )
+            nb_seq.append( int(line.split(':')[1].strip()) )
     FH_input.close()
-    return results
+    return nb_seq
 
 def log_append_files( log_file, appended_files ):
     """
@@ -681,7 +703,7 @@ def process( args ):
                     raise Exception( "Error in sub-process execution." )
 
         # Write summary
-        summarise_results( args.summary, log_files )
+        summarise_results( args.summary, samples_names, log_files, filtered_files )
         log_append_files( args.log_file, log_files )
 
         # Dereplicate global

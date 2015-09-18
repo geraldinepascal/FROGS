@@ -66,13 +66,13 @@ Output
  
  *Clusters distribution* : describes the sizes distribution of all clusters thank to boxplot and tables
 
- .. image:: ${static_path}/images/tools/frogs/FROGS_cluster_stat_cluster_dist1.png
+ .. image:: ${static_path}/images/tools/frogs/FROGS_cluster_stat_clusterDistrib1.png
     :height: 426
-    :width: 630
+    :width: 520
 
- .. image:: ${static_path}/images/tools/frogs/FROGS_cluster_stat_cluster_dist2.png
-    :height: 394
-    :width: 464
+ .. image:: ${static_path}/images/tools/frogs/FROGS_cluster_stat_clusterDistrib2.png
+    :height: 300
+    :width: 460
    
  *Sequences distributions* : describes the sequences distribution among clusters
 
@@ -104,9 +104,9 @@ This is a very usefull tool to see the evolution of your OTU. Do not hesitate to
 
 Contacts: frogs@toulouse.inra.fr
 
-E-learning available: Not yet.
+Repository: https://github.com/geraldinepascal/FROGS
 
-Please cite the FROGS Publication : *Escudie F., Auer L., Cauquil L., Vidal K., Maman S., Mariadassou M., Hernadez-Raquet G., Pascal G., 2015. FROGS: Find Rapidly OTU with Galaxy Solution. In: (Ed), The JOBIM 2015 Conference, July 6th to 9th, Clermont-Ferrand, France,* http://bioinfo.genotoul.fr/fileadmin/user_upload/FROGS_poster_Jobim_2015.pdf
+Please cite the FROGS Publication : *Escudie F., Auer L., Cauquil L., Vidal K., Maman S., Mariadassou M., Hernadez-Raquet G., Pascal G., 2015. FROGS: Find Rapidly OTU with Galaxy Solution. In: The JOBIM 2015 Conference, July 6th to 9th, Clermont-Ferrand, France,* http://bioinfo.genotoul.fr/fileadmin/user_upload/FROGS_poster_Jobim_2015.pdf
 
 Depending on the help provided you can cite us in acknowledgements, references or both.
 	</help>

@@ -18,7 +18,7 @@
 __author__ = 'Frederic Escudie - Plateforme bioinformatique Toulouse'
 __copyright__ = 'Copyright (C) 2015 INRA'
 __license__ = 'GNU General Public License'
-__version__ = '1.0.0'
+__version__ = '1.0.1'
 __email__ = 'frogs@toulouse.inra.fr'
 __status__ = 'prod'
 
@@ -142,16 +142,24 @@ class FastqIO:
 
     @staticmethod
     def is_valid(filepath):
+        is_valid = False
+        FH_in = FastqIO(filepath)
         try:
-            FH_in = FastqIO(filepath)
             seq_idx = 0
             previous = None
             while seq_idx < 10 and (seq_idx != 0 and previous is not None):
                 previous = FH_in.next_seq()
                 seq_idx += 1
-            return True
+            FH_in.close()
+            # Cheack first header
+            FH_in = FastqIO(filepath)
+            if seq_idx == 0 or FH_in.file_handle.readline().startswith("@"):
+                is_valid = True
         except:
-            return False
+            pass
+        finally:
+            FH_in.close()
+        return is_valid
 
     def write(self, sequence_record):
         self.file_handle.write( self.seqToFastqLine(sequence_record) + "\n" )
@@ -250,16 +258,20 @@ class FastaIO:
 
     @staticmethod
     def is_valid(filepath):
+        is_valid = False
+        FH_in = FastaIO(filepath)
         try:
-            FH_in = FastaIO(filepath)
             seq_idx = 0
             previous = None
             while seq_idx < 10 and (seq_idx != 0 and previous is not None):
                 previous = FH_in.next_seq()
                 seq_idx += 1
-            return True
+            is_valid = True
         except:
-            return False
+            pass
+        finally:
+            FH_in.close()
+        return is_valid
 
     def write(self, sequence_record):
         self.file_handle.write( self.seqToFastaLine(sequence_record) + "\n" )
