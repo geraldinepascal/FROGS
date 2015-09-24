@@ -58,16 +58,20 @@
 	python interpreter
 		Version: 2.7
 		Tools: all
+
 	python SciPy
 		Tools: clusters_stat
+
 	perl interpreter
 		Version: 5
 		Tools: demultiplex
+
 	flash
 		Version: >=1.2.8
 		Named as: flash
 		Tools: preprocess
 		Download: http://sourceforge.net/projects/flashpage/files
+
 	cutadapt
 		Version: >=1.7
 		Named as: cutadapt
@@ -75,26 +79,31 @@
 		Download: https://github.com/marcelm/cutadapt
 				  OR
 				  https://pypi.python.org/pypi/cutadapt
+
 	swarm
 		Version: >=2.1.1
 		Named as: swarm
 		Tools: clustering
 		Download: https://github.com/torognes/swarm
+
 	vsearch
 		Version: >=1.1.3
 		Named as: vsearch
 		Tools: remove_chimera
 		Download: https://github.com/torognes/vsearch
+
 	NCBI Blast+ blastn
 		Version: >=2.2.29+
 		Named as: blastn
 		Tools: affiliation_OTU and filters
 		Download: http://blast.ncbi.nlm.nih.gov/Blast.cgi?PAGE_TYPE=BlastDocs&DOC_TYPE=Download
+
 	RDPClassifier
 		Version: -
 		Name as: classifier.jar
 		Tools: affiliation_OTU
 		Download: https://github.com/rdpstaff/RDPTools
+
 	taskset
 		Version: util-linux-ng 2.17.2
 		Name as: taskset
@@ -102,7 +111,7 @@
 		Install: sudo apt-get install util-linux
 				 OR
 				 sudo yum install util-linux
-    
+
 ### 2. Bin directory
 	Softwares in 'bin' folder and above dependencies must be in 
 	PATH and PYTHONPATH or in a 'bin' folder in the parent folder of the
@@ -122,7 +131,7 @@
 	To check your installation you can type:
 		cd <FROGS_PATH>/test
 		bash test.sh <FROGS_PATH> <NB_CPU> <JAVA_MEM> <OUT_FOLDER>
-	
+    
 	This test executes the FROGS tools in command line mode.
 	Note:
 		JAVA_MEM must be at least 4 (= 4Gb of RAM).
