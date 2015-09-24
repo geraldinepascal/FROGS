@@ -88,17 +88,17 @@
         NCBI Blast+ blastn
             Version: >=2.2.29+
             Named as: blastn
-            Tools: affiliation_otu_16S and filters
+            Tools: affiliation_OTU and filters
             Download: http://blast.ncbi.nlm.nih.gov/Blast.cgi?PAGE_TYPE=BlastDocs&DOC_TYPE=Download
         RDPClassifier
             Version: -
             Name as: classifier.jar
-            Tools: affiliation_otu_16S
+            Tools: affiliation_OTU
             Download: https://github.com/rdpstaff/RDPTools
         taskset
             Version: util-linux-ng 2.17.2
             Name as: taskset
-            Tools: affiliation_otu_16S
+            Tools: affiliation_OTU
             Install: sudo apt-get install util-linux
                      OR
                      sudo yum install util-linux
@@ -121,12 +121,45 @@
     3. Check intallation
         To check your installation you can type:
             cd <FROGS_PATH>/test
-            sh test.sh <FROGS_PATH> <NB_CPU> <JAVA_MEM> <OUT_FOLDER>
+            bash test.sh <FROGS_PATH> <NB_CPU> <JAVA_MEM> <OUT_FOLDER>
         
-        Note: JAVA_MEM must be at least 4 (= 4Gb of RAM).
-        Example: sh test.sh /home/user/frogs/1.0.0/ 2 4 results
+        This test executes the FROGS tools in command line mode.
+        Note:
+            JAVA_MEM must be at least 4 (= 4Gb of RAM).
+        Example:
+            [user@computer:/home/user]$cd /home/user/frogs_git/test
+            [user@computer:/home/user/frogs_git/test]$bash test.sh /home/user/frogs_git/ 2 4 results
+            Step preprocess Thu Sep 24 08:34:01 CEST 2015
+            Step clustering Thu Sep 24 08:35:38 CEST 2015
+            Step remove_chimera Thu Sep 24 08:37:32 CEST 2015
+            Step filters Thu Sep 24 08:38:27 CEST 2015
+            Step affiliation_OTU Thu Sep 24 08:38:30 CEST 2015
+            Step clusters_stat Thu Sep 24 08:38:44 CEST 2015
+            Step affiliations_stat Thu Sep 24 08:38:51 CEST 2015
+            Step biom_to_tsv Thu Sep 24 08:39:13 CEST 2015
+            Completed with success
 
-    4. Set memory and parallelisation settings
+    4. Add tools in galaxy
+        Add the tools in galaxy tool_conf.xml.
+        Example:
+            ...
+            <section id="FROGS_wrappers" name="FROGS">
+                <tool file="FROGS/tools/upload_tar.xml" />
+                <tool file="FROGS/tools/demultiplex.xml" />
+                <tool file="FROGS/tools/preprocess.xml" />
+                <tool file="FROGS/tools/clustering.xml" />
+                <tool file="FROGS/tools/remove_chimera.xml" />  
+                <tool file="FROGS/tools/filters.xml" />
+                <tool file="FROGS/tools/affiliation_OTU.xml" />
+                <tool file="FROGS/tools/biom_to_tsv.xml" />
+                <tool file="FROGS/tools/clusters_stat.xml" />
+                <tool file="FROGS/tools/affiliations_stat.xml" />
+                <tool file="FROGS/tools/biom_to_stdBiom.xml" />
+                <tool file="FROGS/tools/normalisation.xml" />
+            </section>
+            ...
+
+    5. Set memory and parallelisation settings
         If you have more than one CPU, it is recommended to increase the number
         of CPUs used by tools.
         All the CPUs must be on the same computer/node.
@@ -185,7 +218,7 @@
                     <tool id="FROGS_affiliation_OTU" destination="FROGS_affiliation_OTU_job"/>
                 </tools>
 
-    5. Upload and configure the databanks
+    6. Upload and configure the databanks
         a] Assignation databank
             - Upload databanks and indexes from http://genoweb.toulouse.inra.fr/frogs_databanks/assignation
             - Extract databanks.
@@ -197,7 +230,7 @@
             - To use this databank, you need to create a .loc file named
               'phiX_db.loc'. The path provided must be the '.fasta'.
 
-    6. Tools images
+    7. Tools images
         The tools help contain images. These images must be in galaxy images
         static folder.
             ln -s <FROGS_PATH>/img <GALAXY_DIR>/static/images/tools/frogs
@@ -227,6 +260,7 @@
 ## License
     GNU GPL v3
 
+## 
 
 ## Citation
     Escudie F., Auer L., Cauquil L., Vidal K., Maman S., Mariadassou M., 
