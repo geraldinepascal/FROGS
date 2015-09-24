@@ -1,14 +1,14 @@
 #Find Rapidly OTUs with Galaxy Solution
 
 ## Description
-    FROGS is a galaxy/CLI workflow designed to produce an OTUs count matrix 
+    FROGS is a galaxy/CLI workflow designed to produce an OTU count matrix 
     from high depth sequencing amplicon data.
     This workflow is focused on:
-        - User-friendliness with the integration in galaxy and lot of richs 
-          graphics outputs
+        - User-friendliness with the integration in galaxy and lots of rich 
+          graphic outputs
         - Accuracy with a clustering without global similarity threshold, the
-          management of multi-affiliations and management of the separated PCR
-          in the chimeras removal
+          management of multi-affiliations and management of separated PCRs
+          in the chimera removal step
         - Speed with fast algorithms and an easy to use parallelisation
         - Scalability with algorithms designed to support the data growth
 
@@ -20,7 +20,7 @@
         *: PCR primers
     
     Paired-end classical protocol:
-        In the paired-end protocol the R1 and R2 must shared a nucleic region. 
+        In the paired-end protocol R1 and R2 must share a nucleic region. 
         For example the amplicons on V3-V4 regions can have a length between
         350 and 500nt; with 2*300pb sequencing the overlap is between 250nt
         and 100nt. 
@@ -34,9 +34,9 @@
             Inconvenient maximum overlap:
             R1    --------------
             R2   --------------
-        In this case it is necessary to trim R1 and R2 end before the process.
+        In this case it is necessary to trim R1 and R2 ends before the process.
     
-        The minimum overlap between R1 and R2 can have 15nt. With minus the 
+        The minimum overlap between R1 and R2 can have 15nt. With less the 
         overlap can be incorrect.
               
     Single-end classical protocol:
@@ -54,7 +54,7 @@
 
 
 ## Installation
-    1. Install dependancies
+    1. Install dependencies
         python interpreter
             Version: 2.7
             Tools: all
@@ -104,7 +104,7 @@
                      sudo yum install util-linux
     
     2. Bin directory
-        Softwares in 'bin' folder and previous seen dependancies must be in 
+        Softwares in 'bin' folder and above dependencies must be in 
         PATH and PYTHONPATH or in a 'bin' folder in the parent folder of the
         tools folder.
           Example with FROGS binaries in bin folder:
@@ -128,7 +128,7 @@
 
     4. Set memory and parallelisation settings
         If you have more than one CPU, it is recommended to increase the number
-        of CPU used by tools.
+        of CPUs used by tools.
         All the CPUs must be on the same computer/node.
 
         a] Specifications  
@@ -138,7 +138,7 @@
             clustering	    -              10 Gb         16 CPUs and 60 GB
             preprocess	    8 Gb            -            12 CPUs and 96 GB
 
-        b] Change the number of CPU used
+        b] Change the number of CPUs used
             Each tool with parallelisation possibilities contains in its XML an
             hidden parameter to set the number of used CPUs.
             Example for 16 CPUs:
