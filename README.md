@@ -269,7 +269,10 @@
 ## License
     GNU GPL v3
 
-## 
+
+## Copyright
+    2015 INRA
+
 
 ## Citation
     Escudie F., Auer L., Cauquil L., Vidal K., Maman S., Mariadassou M., 
