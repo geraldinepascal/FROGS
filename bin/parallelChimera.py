@@ -538,9 +538,7 @@ def main_process(args):
                               'nb_ambiguous': 0,
                               'abundance_ambiguous': 0}
         log_remove_spl = {}
-        print samples
-        print "start parse"
-        print time.time()
+
         if args.biom is not None:
             remove_chimera_biom( samples, args.biom, args.out_abundance, args.lenient_filter, log_remove_global, log_remove_spl )
             remove_chimera_fasta( args.sequences, args.non_chimera, get_obs_from_biom(args.out_abundance), args.size_separator )
@@ -549,10 +547,7 @@ def main_process(args):
             remove_chimera_fasta( args.sequences, args.non_chimera, get_obs_from_count(args.out_abundance), args.size_separator )
 
         # Summary
-        print "start summary"
-        print time.time()
         write_summary( samples.keys(), log_detection, log_remove_global, log_remove_spl, args.summary )
-        print time.time()
     finally:
         if not args.debug:
             tmp_files.deleteAll()
