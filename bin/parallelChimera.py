@@ -19,12 +19,13 @@
 __author__ = 'Frederic Escudie - Plateforme bioinformatique Toulouse'
 __copyright__ = 'Copyright (C) 2015 INRA'
 __license__ = 'GNU General Public License'
-__version__ = '0.5.0'
+__version__ = '0.5.1'
 __email__ = 'frogs@toulouse.inra.fr'
 __status__ = 'prod'
 
 import os
 import sys
+import time
 import argparse
 import subprocess
 from subprocess import Popen, PIPE
@@ -400,6 +401,7 @@ def remove_chimera_count( samples, in_count_file, out_count_file, lenient_filter
 def chimera( sample_names, input_fasta, input_abund, outputs_fasta, outputs_chimera, log_chimera, user_size_separator ):
     for idx in range(len(sample_names)):
         chimera_by_sample( sample_names[idx], input_fasta, input_abund, outputs_fasta[idx], outputs_chimera[idx], log_chimera, user_size_separator )
+    time.sleep(0.5) # Wait to fix 'Exception in thread QueueFeederThread' in slow systems 
 
 def chimera_by_sample( sample_name, input_fasta, input_abund, output_fasta, output_chimera, log_chimera, user_size_separator ):
     tmp_fasta = output_fasta + ".tmp"
