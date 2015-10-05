@@ -270,6 +270,10 @@
     GNU GPL v3
 
 
+## Copyright
+    2015 INRA
+
+
 ## Citation
     Escudie F., Auer L., Cauquil L., Vidal K., Maman S., Mariadassou M., 
     Hernadez-Raquet G., Pascal G., 2015. FROGS: Find Rapidly OTU with Galaxy 
