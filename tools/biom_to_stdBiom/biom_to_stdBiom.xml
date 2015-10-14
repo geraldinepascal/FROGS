@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
-<tool id="FROGS_biom_to_stdBiom" name="FROGS BIOM to std BIOM" version="1.0.0">
+<tool id="FROGS_biom_to_stdBiom" name="FROGS BIOM to std BIOM" version="1.1.0">
 	<description>Converts a FROGS BIOM in fully compatible BIOM.</description>
 	<command interpreter="python2.7">
 		biom_to_stdBiom.py 
@@ -25,10 +25,10 @@
 	</command>
 	<inputs>
 		<!-- Files -->
-		<param format="txt" name="input_biom" type="data" label="Abundance file" help="The FROGS BIOM file to convert." optional="false" />
+		<param format="biom1" name="input_biom" type="data" label="Abundance file (format: BIOM)" help="The FROGS BIOM file to convert." optional="false" />
 	</inputs>
 	<outputs>
-		<data format="txt" name="output_biom" label="${tool.name}: abundance.biom" from_work_dir="abundance.biom"/>
+		<data format="biom1" name="output_biom" label="${tool.name}: abundance.biom" from_work_dir="abundance.biom"/>
 		<data format="tabular" name="output_metadata" label="${tool.name}: blast_metadata.tsv" from_work_dir="blast_metadata.tsv" />
 	</outputs>
 	<help>

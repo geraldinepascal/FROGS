@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
-<tool id="FROGS_affiliation_OTU" name="FROGS Affiliation OTU" version="0.6.0">
+<tool id="FROGS_affiliation_OTU" name="FROGS Affiliation OTU" version="0.7.0">
 	<description>Step 4 in metagenomics analysis : Taxonomic affiliation of each OTU's seed by RDPtools and BLAST</description>
 	<command interpreter="python2.7">
 		affiliation_OTU.py 
@@ -38,12 +38,12 @@
           		<column name="value" index="1"/>
        		</options>
    		</param> 
-        <!-- Clusterisation output -->
-        <param format="fasta" name="fasta_sequences" type="data" label="OTU seed sequence in fasta format" help="Select your OTU'seed fasta file"/>
-        <param format="txt" name="biom_abundance" type="data" label="Abundance file (format: BIOM)" help="Select your biom abondance file which contain the OTU you want to affiliate"/>
+        <!-- Files -->
+        <param format="fasta" name="fasta_sequences" type="data" label="OTU seed sequence" help="Select your OTU'seed fasta file"/>
+        <param format="biom1" name="biom_abundance" type="data" label="Abundance file" help="Select your biom abondance file which contain the OTU you want to affiliate"/>
 	</inputs>
 	<outputs>
-		<data format="txt" name="biom_affiliation" label="${tool.name}: affiliation.biom" from_work_dir="affiliation.biom" />
+		<data format="biom1" name="biom_affiliation" label="${tool.name}: affiliation.biom" from_work_dir="affiliation.biom" />
 		<data format="html" name="summary" label="${tool.name}: report.html" from_work_dir="report.html"/>
 	</outputs>
   	<help>

@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
-<tool id="FROGS_affiliations_stat" name="FROGS Affiliations stat" version="1.0.0">
+<tool id="FROGS_affiliations_stat" name="FROGS Affiliations stat" version="1.1.0">
 	<description>Process some metrics on taxonomies.</description>
 	<command interpreter="python2.7">
 		affiliations_stat.py 
@@ -46,7 +46,7 @@
 	</command>
 	<inputs>
 		<!-- Files -->
-		<param format="txt" name="biom" type="data" label="Abundance file (format: BIOM)" help="OTUs abundances and affiliations in BIOM format." optional="false" />
+		<param format="biom1" name="biom" type="data" label="Abundance file (format: BIOM)" help="OTUs abundances and affiliations in BIOM format." optional="false" />
 		<!-- Parameters -->
 		<param name="rarefaction_ranks" type="text" label="Rarefaction ranks" help="The ranks that will be evaluated in rarefaction. Each rank is separated by one space." optional="false" value="Class Order Family Genus Species" size="80" />
 		<conditional name="affiliation">

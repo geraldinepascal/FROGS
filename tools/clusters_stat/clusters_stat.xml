@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
-<tool id="FROGS_clusters_stat" name="FROGS Clusters stat" version="1.3.0">
+<tool id="FROGS_clusters_stat" name="FROGS Clusters stat" version="1.4.0">
 	<description>Process some metrics on clusters.</description>
 	<command interpreter="python2.7">
 		clusters_stat.py 
@@ -23,7 +23,7 @@
 		                 --output-file $summary_file
 	</command>
 	<inputs>
-		<param format="txt" name="biom" type="data" label="Abundance file (format: BIOM)" help="Clusters abundance in BIOM format." optional="false" />
+		<param format="biom1" name="biom" type="data" label="Abundance file" help="Clusters abundance in BIOM format." optional="false" />
 	</inputs>
 	<outputs>
 		<data format="html" name="summary_file" label="${tool.name}: summary.html" from_work_dir="summary.html"/>
