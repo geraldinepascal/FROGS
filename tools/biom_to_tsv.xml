@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
-<tool id="FROGS_biom_to_tsv" name="FROGS BIOM to TSV" version="2.0.0">
+<tool id="FROGS_biom_to_tsv" name="FROGS BIOM to TSV" version="2.1.0">
 	<description>Converts a BIOM file in TSV file.</description>
 	<command interpreter="python2.7">
 		biom_to_tsv.py 
@@ -30,8 +30,8 @@
 	</command>
 	<inputs>
 		<!-- Files -->
-		<param format="txt" name="biom_file" type="data" label="Abundance file" help="The BIOM file to convert." optional="false" />
-		<param format="fasta" name="sequence_file" type="data" label="Sequences file" help="The sequences file. If you use this option the sequences will be add in TSV." optional="true" />
+		<param format="biom1" name="biom_file" type="data" label="Abundance file" help="The BIOM file to convert (format: BIOM)." optional="false" />
+		<param format="fasta" name="sequence_file" type="data" label="Sequences file" help="The sequences file (format: fasta). If you use this option the sequences will be add in TSV." optional="true" />
 		<!-- Parameters -->
 		<param name="extract_multi_align" type="boolean" label="Extract multi-alignments" help="If you have used FROGS affiliation on your data, you can extract information about multiple alignements in a second TSV." />
 	</inputs>

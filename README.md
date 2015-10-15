@@ -148,7 +148,22 @@
 		Step biom_to_tsv Thu Sep 24 08:39:13 CEST 2015
 		Completed with success
 
-### 4. Add tools in galaxy
+### 4. Add the biom1 datatype in galaxy
+	Add the type management in galaxy datatypes_conf.xml.
+	For galaxy releases >= 15:
+		<registration converters_path="lib/galaxy/datatypes/converters">
+			...
+			<datatype extension="biom1" type="galaxy.datatypes.text:Biom1" display_in_upload="True" subclass="True" mimetype="application/json" />
+			...
+		<registration />
+	For galaxy releases 14:
+		<registration converters_path="lib/galaxy/datatypes/converters">
+			...
+			<datatype extension="biom1" type="galaxy.datatypes.data:Text" display_in_upload="True" subclass="True" mimetype="application/json" />
+			...
+		<registration />
+
+### 5. Add tools in galaxy
 	Add the tools in galaxy tool_conf.xml.
 	Example:
 		...
@@ -168,7 +183,7 @@
 		</section>
 		...
 
-### 5. Set memory and parallelisation settings
+### 6. Set memory and parallelisation settings
 	If you have more than one CPU, it is recommended to increase the number
 	of CPUs used by tools.
 	All the CPUs must be on the same computer/node.
@@ -227,7 +242,7 @@
 				<tool id="FROGS_affiliation_OTU" destination="FROGS_affiliation_OTU_job"/>
 			</tools>
 
-### 6. Upload and configure the databanks
+### 7. Upload and configure the databanks
 	a] Assignation databank
 		- Upload databanks and indexes from http://genoweb.toulouse.inra.fr/frogs_databanks/assignation
 		- Extract databanks.
@@ -239,7 +254,7 @@
 		- To use this databank, you need to create a .loc file named
 		  'phiX_db.loc'. The path provided must be the '.fasta'.
 
-### 7. Tools images
+### 8. Tools images
 	The tools help contain images. These images must be in galaxy images
 	static folder.
 		ln -s <FROGS_PATH>/img <GALAXY_DIR>/static/images/tools/frogs

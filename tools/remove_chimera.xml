@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
-<tool id="FROGS_remove_chimera" name="FROGS Remove chimera" version="1.2.0">
+<tool id="FROGS_remove_chimera" name="FROGS Remove chimera" version="1.3.0">
 	<description>Step 3 in metagenomics analysis : Remove PCR chimera in each sample.</description>
 	<command interpreter="python2.7">
 		remove_chimera.py 
@@ -32,14 +32,14 @@
 	</command>
 	<inputs>
 		<!-- Files -->
-		<param format="fasta" name="sequence_file" type="data" label="Sequences file" help="The sequences file." optional="false" />
+		<param format="fasta" name="sequence_file" type="data" label="Sequences file" help="The sequences file (format: fasta)." optional="false" />
 		<conditional name="abundance_type">
 			<param name="abundance_type_selected" type="select" label="Abundance type" help="Select the type of file where the abundance of each sequence by sample is stored.">
 				<option value="biom" selected="true">BIOM file</option>
 				<option value="count">TSV file</option>
 			</param>
 			<when value="biom">
-				<param format="txt" name="abundance_biom" type="data" label="Abundance file" help="It contains the count by sample for each sequence." optional="false" />
+				<param format="biom1" name="abundance_biom" type="data" label="Abundance file" help="It contains the count by sample for each sequence." optional="false" />
 			</when>
 			<when value="count">
 				<param format="tabular" name="abundance_count" type="data" label="Count file" help="It contains the count by sample for each sequence (see below)." optional="false" />
@@ -53,7 +53,7 @@
 	</inputs>
 	<outputs>
 		<data format="fasta" name="non_chimera_fasta" label="${tool.name}: non_chimera.fasta" from_work_dir="non_chimera.fasta"/>
-		<data format="txt" name="out_abundance_biom" label="${tool.name}: non_chimera_abundance.biom" from_work_dir="non_chimera_abundance.biom">
+		<data format="biom1" name="out_abundance_biom" label="${tool.name}: non_chimera_abundance.biom" from_work_dir="non_chimera_abundance.biom">
 			<filter>abundance_type['abundance_type_selected'] == "biom"</filter>
 		</data>
 		<data format="tabular" name="out_abundance_count" label="${tool.name}: non_chimera_abundance.tsv" from_work_dir="non_chimera_abundance.tsv">

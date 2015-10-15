@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
-<tool id="FROGS_clustering" name="FROGS Clustering swarm" version="2.2.0">
+<tool id="FROGS_clustering" name="FROGS Clustering swarm" version="2.3.0">
 	<description>Step 2 in metagenomics analysis : clustering.</description>
 	<command interpreter="python2.7">
 		clustering.py 
@@ -30,16 +30,16 @@
 	</command>
 	<inputs>
 		<!-- Files -->
-		<param format="fasta" name="sequence_file" type="data" label="Sequences file" help="The sequences file." optional="false" />
-		<param format="tabular" name="count_file" type="data" label="Count file" help="It contains the count by sample for each sequence." optional="false" />
+		<param format="fasta" name="sequence_file" type="data" label="Sequences file" help="The sequences file (format: fasta)." optional="false" />
+		<param format="tabular" name="count_file" type="data" label="Count file" help="It contains the count by sample for each sequence (format: TSV)." optional="false" />
 		<!-- Parameters -->
 		<param name="nb_cpus" type="hidden" label="CPU number" help="The maximum number of CPUs used." value="1" />
 		<param name="maximal_distance" type="integer" label="Aggregation distance" help="Maximum number of differences between sequences in each aggregation step." value="3" min="1" max="15" optional="false" />
 		<param name="denoising" type="boolean" checked="true" truevalue="--denoising" falsevalue="" label="Performe denoising clustering step?" help="If checked, clustering will be perform in two steps, first with distance = 1 and then with your input distance"/>
 	</inputs>
 	<outputs>
-		<data format="txt" name="abundance_biom" label="${tool.name}: abundance.biom" from_work_dir="abundance.biom" />
 		<data format="fasta" name="seed_file" label="${tool.name}: seed_sequences.fasta" from_work_dir="seeds.fasta"/>
+		<data format="biom1" name="abundance_biom" label="${tool.name}: abundance.biom" from_work_dir="abundance.biom" />
 		<data format="tabular" name="swarms_composition" label="${tool.name}: swarms_composition.tsv" from_work_dir="swarms.tsv"/>
 	</outputs>
 	<help>
