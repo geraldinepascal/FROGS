@@ -25,7 +25,7 @@
 	</command>
 	<inputs>
 		<!-- Files -->
-		<param format="biom1" name="input_biom" type="data" label="Abundance file (format: BIOM)" help="The FROGS BIOM file to convert." optional="false" />
+		<param format="biom1" name="input_biom" type="data" label="Abundance file" help="The FROGS BIOM file to convert (format: BIOM)." optional="false" />
 	</inputs>
 	<outputs>
 		<data format="biom1" name="output_biom" label="${tool.name}: abundance.biom" from_work_dir="abundance.biom"/>

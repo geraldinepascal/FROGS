@@ -32,7 +32,7 @@
 	</command>
 	<inputs>
 		<!-- Files -->
-		<param format="fasta" name="sequence_file" type="data" label="Sequences file" help="The sequences file." optional="false" />
+		<param format="fasta" name="sequence_file" type="data" label="Sequences file" help="The sequences file (format: fasta)." optional="false" />
 		<conditional name="abundance_type">
 			<param name="abundance_type_selected" type="select" label="Abundance type" help="Select the type of file where the abundance of each sequence by sample is stored.">
 				<option value="biom" selected="true">BIOM file</option>

@@ -26,8 +26,8 @@
 		                       --summary-file $summary_file 
 	</command>
 	<inputs>
-		<param format="fasta" name="input_fasta" type="data" label="Sequences file" help="Select your seed fasta file you want to normalize." />
-		<param format="biom1" name="input_biom" type="data" label="Abundance file" help="Select your biom abundance file you want to normalize." />
+		<param format="fasta" name="input_fasta" type="data" label="Sequences file" help="Sequences file to normalize (format: fasta)." />
+		<param format="biom1" name="input_biom" type="data" label="Abundance file" help="Abundances file to normalize (format: BIOM)." />
 		<param name="num_reads" type="integer" label="Number of reads" help="The final number of reads per sample." value="" ></param>
 	</inputs>
 	<outputs>

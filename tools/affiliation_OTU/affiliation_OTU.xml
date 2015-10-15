@@ -39,8 +39,8 @@
        		</options>
    		</param> 
         <!-- Files -->
-        <param format="fasta" name="fasta_sequences" type="data" label="OTU seed sequence" help="Select your OTU'seed fasta file"/>
-        <param format="biom1" name="biom_abundance" type="data" label="Abundance file" help="Select your biom abondance file which contain the OTU you want to affiliate"/>
+        <param format="fasta" name="fasta_sequences" type="data" label="OTU seed sequence" help="OTU sequences (format: fasta)."/>
+        <param format="biom1" name="biom_abundance" type="data" label="Abundance file" help="OTU abundances (format: BIOM)."/>
 	</inputs>
 	<outputs>
 		<data format="biom1" name="biom_affiliation" label="${tool.name}: affiliation.biom" from_work_dir="affiliation.biom" />

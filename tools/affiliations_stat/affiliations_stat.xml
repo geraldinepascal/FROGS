@@ -46,7 +46,7 @@
 	</command>
 	<inputs>
 		<!-- Files -->
-		<param format="biom1" name="biom" type="data" label="Abundance file (format: BIOM)" help="OTUs abundances and affiliations in BIOM format." optional="false" />
+		<param format="biom1" name="biom" type="data" label="Abundance file" help="OTUs abundances and affiliations (format: BIOM)." optional="false" />
 		<!-- Parameters -->
 		<param name="rarefaction_ranks" type="text" label="Rarefaction ranks" help="The ranks that will be evaluated in rarefaction. Each rank is separated by one space." optional="false" value="Class Order Family Genus Species" size="80" />
 		<conditional name="affiliation">
