@@ -150,14 +150,12 @@
 
 ### 4. Add the biom1 datatype in galaxy
 	Add the type management in galaxy datatypes_conf.xml.
-
 	For galaxy releases >= 15:
 		<registration converters_path="lib/galaxy/datatypes/converters">
 			...
 			<datatype extension="biom1" type="galaxy.datatypes.text:Biom1" display_in_upload="True" subclass="True" mimetype="application/json" />
 			...
 		<registration />
-
 	For galaxy releases 14:
 		<registration converters_path="lib/galaxy/datatypes/converters">
 			...
