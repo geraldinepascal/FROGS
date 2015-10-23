@@ -1,6 +1,6 @@
 #!/usr/bin/env python2.7
 #
-# Copyright (C) 2014 INRA
+# Copyright (C) 2015 INRA
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -149,7 +149,6 @@ def biom_fasta_to_tsv( input_biom, input_fasta, output_tsv, fields, list_separat
     """
     biom = BiomIO.from_json( input_biom )
     out_fh = open( output_tsv, "w" )
-    nb_sample = len( biom.columns )
     sequence_idx = fields.index("@seed_sequence")
     # Header
     header_parts = header_line_parts( fields, biom )
@@ -160,7 +159,7 @@ def biom_fasta_to_tsv( input_biom, input_fasta, output_tsv, fields, list_separat
     FH_in = FastaIO( input_fasta )
     for record in FH_in:
         obs_idx = biom.find_idx("observation", record.id)
-        count_by_sample = biom.data.row_to_array(obs_idx, nb_sample)
+        count_by_sample = biom.data.get_row_array(obs_idx)
         observation_parts = observation_line_parts( biom.rows[obs_idx], count_by_sample, fields_without_seq, list_separator )
         observation_parts.insert( sequence_idx, record.string )
         out_fh.write( "\t".join(observation_parts) + "\n" )
