@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2012 INRA
+# Copyright (C) 2015 INRA
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -18,12 +18,11 @@
 __author__ = 'Frederic Escudie - Plateforme bioinformatique Toulouse'
 __copyright__ = 'Copyright (C) 2015 INRA'
 __license__ = 'GNU General Public License'
-__version__ = '0.7.0'
+__version__ = '0.8.0'
 __email__ = 'frogs@toulouse.inra.fr'
-__status__ = 'dev'
+__status__ = 'prod'
 
 import sys
-import copy
 import time
 import json
 import random
@@ -33,30 +32,83 @@ class DenseData( list ):
     """
     @summary: Storage for 2D matrix.
     """
+    def __init__( self, matrix=None, nb_rows=0, nb_columns=0 ):
+        """
+        @return: [DenseData] The matrix dense representation
+        @param matrix: [list] The list of list.
+        @param nb_rows: [int] The number of rows. It is automatically calculated
+                        if you set the argument matrix.
+        @param nb_columns: [int] The number of rows. It is automatically
+                           calculated if you set the argument matrix.
+        """
+        if matrix is not None:
+            super(DenseData, self).__init__(matrix)
+            if nb_rows == 0:
+                nb_rows = len(self)
+            if nb_columns == 0 and nb_rows != 0:
+                nb_columns = len(self[0])
+        else:
+            super(DenseData, self).__init__()
+        self.nb_rows = nb_rows
+        self.nb_columns = nb_columns
+
+    def _to_json( self ):
+        """
+        @return: [list] The counts for each column, by row.
+        @note: [[0, 0, 0]
+                [250, 0, 0], # The column 0 of the row 1 has a count of 250.
+                [0, 0, 0],
+                [0, 0, 100], # The column 2 of the row 3 has a count of 100.
+                [0, 521, 0]] # The column 1 of the row 4 has a count of 521.
+        """
+        return self
+
     def get_matrix_type( self ):
         """
-        @return : [str] The matrix type.
+        @return: [str] The matrix type.
         """
         return "dense"
 
     def remove_col( self, remove_idx ):
+        """
+        @summary: Remove all the count for the column provided.
+        @param remove_idx: [int] The real index of the column to remove.
+        """
         for row_idx in range(len(self)):
-            del self.data[row_idx][remove_idx]
+            del self[row_idx][remove_idx]
+        self.nb_columns -= 1
 
-    def remove_row( self, remove_idx ):
-        del self.data[remove_idx]
-
-    def nb_at( self, row_idx, col_idx ):
-        return self[row_idx][col_idx]
+    def remove_rows( self, remove_idx ):
+        """
+        @summary: Remove all the count for the rows provided.
+        @param remove_idx: [list] The real index of the rows to remove.
+        """
+        for current_idx in sorted(remove_idx, reverse=True):
+            del self[current_idx]
+        self.nb_rows -= len(remove_idx)
 
     def merge_col( self, sum_idx, added_idx ):
+        """
+        @summary: Merge two columns. The count of each row of the first column (sum_idx) becomes the sum of the values of the two columns ; the second column is deleted.
+        @param sum_idx: [int] The index of the first column to merge. This column is replaced by the new merged column.
+        @param added_idx: [int] The index of the second column to merge. This column is deleted after the process.
+        """
         for row in self:
             row[sum_idx] += row[added_idx]
         self.remove_col( added_idx )
 
+    def nb_at( self, row_idx, col_idx ):
+        """
+        @return: [int] The count for the column col_idx in row row_idx.
+        @param row_idx: [int] The index of the row.
+        @param col_idx: [int] The index of the column.
+        """
+        return self[row_idx][col_idx]
+
     def get_col_sum( self, col_idx ):
         """
-        @todo test
+        @return: [int] The sum of count for the column col_idx.
+        @param col_idx : [int] The index of the column.
         """
         total = 0
         for current_row in self:
@@ -65,38 +117,170 @@ class DenseData( list ):
 
     def get_row_sum( self, row_idx ):
         """
-        @todo test
+        @return: [int] The sum of count for the row row_idx.
+        @param row_idx: [int] The index of the row.
         """
         total = 0
         for current_col in self[row_idx]:
             total += current_col
         return total
 
-    def clear( self ):
+    def get_row_idx_by_col( self, col_idx ):
         """
-        @summary : Clear data.
+        @return: [list] The list of indexes for the non empty rows in the 
+                 specidied column.
+        @param col_idx: [int] The index of the column.
         """
-        self = DenseData()
+        for row_idx, values in enumerate(self):
+            if values[col_idx] != 0:
+                yield row_idx
 
-    def _to_list( self ):
+    def get_col_idx_by_row( self, row_idx ):
         """
+        @return: [list] The list of indexes for the non empty columns in the 
+                 specidied row.
+        @param row_idx: [int] The index of the column.
+        """
+        for col_idx, value in enumerate(self[row_idx]):
+            if value != 0:
+                yield col_idx
+
+    def add( self, row_idx, col_idx, value ):
+        """
+        @summary: Add the 'value' to the count for the column col_idx in row row_idx.
+        @param row_idx: [int] The index of the row.
+        @param col_idx: [int] The index of the column.
+        @param value: [int] The value to add.
+        """
+        self[row_idx][col_idx] += value
+
+    def subtract( self, row_idx, col_idx, value ):
+        """
+        @summary: Subtract the 'value' to the count for the column col_idx in row row_idx.
+        @param row_idx: [int] The index of the row.
+        @param col_idx: [int] The index of the column.
+        @param value: [int] The value to subtract.
+        """
+        if self[row_idx][col_idx] >= value:
+            self[row_idx][col_idx] -= value
+        else:
+            raise Exception( "'" + str(value) + "' cannot be subtract from row " + str(row_idx) + " column " + str(col_idx) + "." ) 
+
+    def change( self, row_idx, col_idx, value ):
+        """
+        @summary: Change the 'value' to the count for the column col_idx in row row_idx.
+        @param row_idx: [int] The index of the row.
+        @param col_idx: [int] The index of the column.
+        @param value: [int] The new value.
+        """
+        self[row_idx][col_idx] = value
+
+    def random_by_col( self, col_idx ):
+        """
+        @return: [int] The index of the selected row by random sampling in values of specified column.
+        @param col_idx: [int] The column where the random sampling is processed.
         @todo test
         """
-        return self
+        elt_index = random.randint(1, self.get_col_sum(col_idx))
+        find = False
+        row_idx = 0
+        previous_elt = 0
+        while not find:
+            current_nb = previous_elt + self.nb_at( row_idx, col_idx )
+            if elt_index <= current_nb:
+                find = True
+            # Next row
+            previous_elt = current_nb
+            row_idx += 1
+        return( row_idx -1 )
+
+    def random_extract_by_col( self, col_idx, nb_elt ):
+        """
+        @return: [list] The index(es) of the extracted row(s) by random sampling in values of specified column.
+        @param col_idx: [int] The column where the random sampling is processed.
+        @param nb_elt: [int] The number of extracted elements.
+        @todo test
+        """
+        selected_rows = dict()
+        nb_col_elt = self.get_col_sum(col_idx)
+        if nb_elt > nb_col_elt:
+            raise Exception("The number of element selected by random sampling is superior than the total number of elements.")
+        nb_selected = 0
+        while nb_selected < nb_elt:
+            elt_index = random.randint(1, nb_col_elt)
+            find = False
+            row_idx = 0
+            previous_elt = 0
+            while not find:
+                current_nb = previous_elt + self.nb_at( row_idx, col_idx )
+                if elt_index <= current_nb:
+                    find = True
+                # Next row
+                previous_elt = current_nb
+                row_idx += 1
+            self.subtract(row_idx-1, col_idx, 1)
+            nb_col_elt -= 1
+            nb_selected += 1
+            if not selected_rows.has_key(row_idx-1):
+                selected_rows[row_idx-1] = 0
+            selected_rows[row_idx-1] += 1
+        return( selected_rows )
+
+    def get_row_array( self, row_idx ):
+        """
+        @return: [list] The count for the row for each column.
+        @param row_idx: [int] The index of the row.
+        @note: In return '[0, 2, 0, 0]' only the second column has an observation.
+        """
+        return self[row_idx]
+
+    def get_col_array( self, col_idx ):
+        """
+        @return: [list] The count for the column for each row.
+        @param col_idx: [int] The index of the column.
+        @note: In return '[0, 2, 0, 0]' only the second row has an observation.
+        """
+        array = []
+        for row in self:
+            array.append(row[col_idx])
+        return array
+
+    def add_row( self ):
+        """
+        @summary: Adds an empty row.
+        """
+        self.append([0] * self.nb_columns)
+        self.nb_rows += 1
+
+    def add_col( self ):
+        """
+        @summary: Adds an empty column.
+        """
+        for row in self:
+            row.append(0)
+        self.nb_columns += 1
 
 
 class SparseData( dict ):
     """
     @summary: Light storage for 2D matrix (0 are not store).
     """
-    def __init__( self, list=None ):
-        ini_list = list if list is not None else list()
+    def __init__( self, matrix=None, nb_rows=0, nb_columns=0):
+        """
+        @return: [SparseData] The matrix dense representation
+        @param matrix: [dict] The dict of dict.
+        @param nb_rows: [int] The number of rows.
+        @param nb_columns: [int] The number of rows.
+        """
+        ini_list = matrix if matrix is not None else list()
         for data in ini_list:
             if not self.has_key( data[0] ):
                 self[data[0]] = dict()
             self[data[0]][data[1]] = data[2]
+        self.nb_rows = nb_rows
+        self.nb_columns = nb_columns
 
-    def _to_list( self ):
+    def _to_json( self ):
         """
         @return: [list] The counts ordered by row, by column.
         @example: [[ 1, 0, 250 ]   # The column 0 of the row 1 has a count of 250.
@@ -130,6 +314,7 @@ class SparseData( dict ):
                 if column_idx > remove_idx:
                     self[rows_idx][column_idx -1] = self[rows_idx][column_idx]
                     del self[rows_idx][column_idx]
+        self.nb_columns -= 1
 
     def remove_rows( self, remove_idx ):
         """
@@ -153,6 +338,7 @@ class SparseData( dict ):
             if offset > 0:
                 self[row_idx - offset] = self[row_idx]
                 del self[row_idx]
+        self.nb_rows -= len(remove_idx)
 
     def merge_col( self, sum_idx, added_idx ):
         """
@@ -202,46 +388,55 @@ class SparseData( dict ):
         return total
 
     def get_row_idx_by_col( self, col_idx ):
+        """
+        @return: [list] The list of indexes for the non empty rows in the 
+                 specidied column.
+        @param col_idx: [int] The index of the column.
+        """
         for row_idx in self.keys():
             if self[row_idx].has_key( col_idx ):
                 yield row_idx
 
     def get_col_idx_by_row( self, row_idx ):
-        for col_idx in self[row_idx]:
-            yield col_idx
+        """
+        @return: [list] The list of indexes for the non empty columns in the 
+                 specidied row.
+        @param row_idx: [int] The index of the column.
+        """
+        if self.has_key(row_idx):
+            for col_idx in self[row_idx]:
+                yield col_idx
 
-    def row_to_array( self, row_idx, nb_col ):
+    def get_row_array( self, row_idx ):
         """
         @return: [list] The count for the row for each column.
-                Example: '[0, 2, 0, 0]' only the second column has this observation.
         @param row_idx: [int] The index of the row.
-        @param nb_col: [int] The expected number of columns.
+        @note: In return '[0, 2, 0, 0]' only the second column has an observation.
         """
-        array = [0 for current in range(nb_col)]
+        array = [0 for current in range(self.nb_columns)]
         if self.has_key( row_idx ):
             for column_idx in sorted( self[row_idx].keys() ):
                 array[column_idx] = self[row_idx][column_idx]
         return array
 
-    def col_to_array( self, col_idx ):
+    def get_col_array( self, col_idx ):
         """
-        @return: [list] The count for the row for each column.
-                Example: '[0, 2, 0, 0]' only the second column has this observation.
-        @param row_idx: [int] The index of the row.
-        @param nb_col: [int] The expected number of columns.
+        @return: [list] The count for the column for each row.
+        @param col_idx: [int] The index of the column.
+        @note: In return '[0, 2, 0, 0]' only the second row has an observation.
         """
-        array=[]
+        array = [0 for current in range(self.nb_rows)]
         for row_idx in self:
             if self[row_idx].has_key(col_idx):
-                array.append(self[row_idx][col_idx])
+                array[row_idx] = self[row_idx][col_idx]
         return array
 
     def add( self, row_idx, col_idx, value ):
         """
-        @summary : Add the 'value' to the count for the column col_idx in row row_idx.
-         @param row_idx : [int] The index of the row.
-         @param col_idx : [int] The index of the column.
-         @param value : [int] The value to add.
+        @summary: Add the 'value' to the count for the column col_idx in row row_idx.
+        @param row_idx : [int] The index of the row.
+        @param col_idx : [int] The index of the column.
+        @param value : [int] The value to add.
         """
         if not self.has_key( row_idx ):
             self[row_idx] = { col_idx : 0 }
@@ -330,13 +525,13 @@ class SparseData( dict ):
         """
         @summary: Adds an empty row.
         """
-        pass # Nothing to do
+        self.nb_rows += 1
 
-    def add_column( self ):
+    def add_col( self ):
         """
         @summary: Adds an empty column.
         """
-        pass # Nothing to do
+        self.nb_columns += 1
 
 
 class Biom:
@@ -344,29 +539,30 @@ class Biom:
     @summary: Store biological sample by observation contingency tables.
     @see: https://github.com/biom-format
     """
-    def __init__( self, id=None, format="Biological Observation Matrix 1.0.0-dev", 
-                  format_url="http://biom-format.org", type="OTU table", generated_by=None, 
-                  date=None, rows=None, columns=None, matrix_type="dense", matrix_element_type="int", 
+    def __init__( self, id=None, format="Biological Observation Matrix 1.0.0", 
+                  format_url="http://biom-format.org/documentation/format_versions/biom-1.0.html",
+                  type="OTU table", generated_by=None, date=None, rows=None,
+                  columns=None, matrix_type="dense", matrix_element_type="int",
                   data=None ):
         """
-        @param id : [int]
-        @param format : [str]
-        @param format_url : [str]
-        @param type : [str]
-        @param generated_by : [str]
-        @param date : [str]
-        @param rows : [list]
-        @param columns : [list]
-        @param matrix_type : [str]
-        @param matrix_element_type : [str]
-        @param data : [list]
+        @param id: [int]
+        @param format: [str]
+        @param format_url: [str]
+        @param type: [str]
+        @param generated_by: [str]
+        @param date: [str]
+        @param rows: [list]
+        @param columns: [list]
+        @param matrix_type: [str]
+        @param matrix_element_type: [str]
+        @param data: [list]
         """
         self.id = id
         self.format = format
         self.format_url = format_url
         self.type = type
         self.generated_by = generated_by
-        self.date = date if date is not None else time.strftime('%y-%m-%dT%H:%M:%S',time.localtime())
+        self.date = date if date is not None else time.strftime('%Y-%m-%dT%H:%M:%S',time.localtime())
         self.rows = rows if rows is not None else list()
         self.columns = columns if columns is not None else list()
         self.matrix_element_type = matrix_element_type
@@ -374,7 +570,7 @@ class Biom:
         if matrix_type == "dense":
             self.data = DenseData( ini_data )
         else:
-            self.data = SparseData( ini_data )
+            self.data = SparseData( ini_data, len(self.rows), len(self.columns) )
         self._obs_index = {} if rows is None else {key['id']:idx for idx, key in enumerate(rows)} # observation index in self.rows (increase fin_idx speed)
 
     def __str__(self):
@@ -385,8 +581,8 @@ class Biom:
 
     def remove_observations( self, observations_names ):
         """
-        @summary : Removes the specified observations.
-         @param observations_names : [list] The IDs of the observations to remove.
+        @summary: Removes the specified observations.
+        @param observations_names : [list] The IDs of the observations to remove.
         """
         removed_observations_idx = list()
         # Find indexes
@@ -413,18 +609,19 @@ class Biom:
 
     def reset_count_by_replicates_evidence( self, samples_names, min_evidence_nb=2 ):
         """
-        @summary : Puts to 0 the counts of an observation for all samples in a replicate if the 
-                    number of samples with this observation is lower than 'min_evidence_nb' in 
-                    the replicate.
-                    example : with min_evidence_nb = 2 and 2 triplicates (A and B)
-                       Before process
-                             sample_A_1 sample_A_2 sample_A_3 sample_B_1 sample_B_2 sample_B_3
-                         obs     1           1           0         0          0          2
-                       After process
-                             sample_A_1 sample_A_2 sample_A_3 sample_B_1 sample_B_2 sample_B_3
-                         obs     1           1           0         0          0          0
-        @param samples_names : [list] The names of the replicates.
-        @param min_evidence_nb : [int] The minimun number of replicates with the observation.
+        @summary: Puts to 0 the counts of an observation for all samples in a
+                  replicate if the number of samples with this observation is
+                  lower than 'min_evidence_nb' in the replicate.
+        @param samples_names: [list] The names of the replicates.
+        @param min_evidence_nb: [int] The minimun number of replicates with the
+                                observation.
+        @note: Example with min_evidence_nb = 2 and 2 triplicates (A and B)
+               Before process
+                     spl_A1 spl_A2 spl_A3 spl_B1 spl_B2 spl_B3
+                 obs    1      1      0      0      0      2
+               After process
+                     spl_A1 spl_A2 spl_A3 spl_B1 spl_B2 spl_B3
+                 obs    1      1      0      0      0      0
         """
         samples_idx = [self.find_idx("sample", sample) for sample in samples_names]
         # For each observation
@@ -443,9 +640,9 @@ class Biom:
 
     def filter_observations_by_count( self, min_nb, max_nb=None ):
         """
-        @summary : Filter observations on count value.
-         @param min_nb : [int] The observations with a count inferior to 'min_nb' is removed.
-         @param max_nb : [int] The observations with a count superior to 'min_nb' is removed.
+        @summary: Filter observations on count value.
+        @param min_nb: [int] The observations with a count inferior to 'min_nb' is removed.
+        @param max_nb: [int] The observations with a count superior to 'min_nb' is removed.
         """
         removed_obs_names = list()
         for observation_idx in range( len(self.rows) ):
@@ -456,9 +653,9 @@ class Biom:
 
     def merge_samples( self, samples, merged_sample_id=None ):
         """
-        @summary : Merge data and metadata of a list of samples.
-         @param samples : [list] Samples to merge.
-         @param merged_sample_id : [str] Name for the new meta-sample.
+        @summary: Merge data and metadata of a list of samples.
+        @param samples: [list] Samples to merge.
+        @param merged_sample_id: [str] Name for the new meta-sample.
         """
         # Preprocess final_sample
         final_idx = self.find_idx( "sample", samples[0] )
@@ -495,10 +692,10 @@ class Biom:
 
     def find_idx( self, subject_type, query_name ):
         """
-        @summary : Returns the index of the query.
-         @param subject_type : [str] The type of subject : "sample" or "observation".
-         @param query_name : [str] The id of the element (ex : "OTU_0012").
-        @return : [int] The index of the element.
+        @summary: Returns the index of the query.
+        @param subject_type: [str] The type of subject : "sample" or "observation".
+        @param query_name: [str] The id of the element (ex : "OTU_0012").
+        @return: [int] The index of the element.
         """
         find_idx = None
         if subject_type == "observation":
@@ -516,11 +713,11 @@ class Biom:
 
     def add_metadata( self, subject_name, metadata_name, metadata_value, subject_type="sample"):
         """
-        @summary : Add a metadata on subject (a sample or an observation).
-         @param subject_name : [str] Metadata is added to the sample/observation with this name. 
-         @param metadata_name : [str] The metadata category (ex : 'taxonomy').
-         @param metadata_name : [str] The value of metadata (ex : 'Bacteria').
-         @param subject_type : [str] The type of subject : "sample" or "observation".
+        @summary: Add a metadata on subject (a sample or an observation).
+        @param subject_name : [str] Metadata is added to the sample/observation with this name. 
+        @param metadata_name : [str] The metadata category (ex : 'taxonomy').
+        @param metadata_name : [str] The value of metadata (ex : 'Bacteria').
+        @param subject_type : [str] The type of subject : "sample" or "observation".
         """
         # Select subject container
         if subject_type == "sample":
@@ -543,10 +740,10 @@ class Biom:
                 sys.stderr.write("[WARNING] You erase previous value of the metadata named '" + metadata_name + "' in " + subject_name + " (OLD:'" + str(subject_list[subject_idx]['metadata'][metadata_name]) + "' => NEW:'" + str(metadata_value) + "').\n")
             subject_list[subject_idx]['metadata'][metadata_name] = metadata_value
 
-    def to_JSON( self ):
+    def to_json( self ):
         """
-        @summary : Return a json format for the data store in the Biom object.
-        @return : [str] The json.
+        @summary: Return a json format for the data store in the Biom object.
+        @return: [str] The json.
         """
         self.shape = [
                        len(self.rows),
@@ -554,7 +751,7 @@ class Biom:
         ]
         self.matrix_type = self.data.get_matrix_type()
         save_data = self.data
-        self.data = save_data._to_list()
+        self.data = save_data._to_json()
         save_index = self._obs_index
         del self._obs_index
         json_str = json.dumps( self, default=lambda o: o.__dict__, sort_keys=False, indent=4 )
@@ -566,8 +763,8 @@ class Biom:
 
     def remove_samples( self, samples_names ):
         """
-        @summary : Removes sample(s) from biom.
-         @param samples_names : [str] The name of the sample to rename.
+        @summary: Removes sample(s) from biom.
+        @param samples_names: [str] The name of the sample to rename.
         """
         for current_sample in samples_names :
             sample_idx = self.find_idx( "sample", current_sample )
@@ -578,10 +775,10 @@ class Biom:
 
     def change_count( self, observation_name, sample_name, value ):
         """
-        @summary : Replace the count for one observation of one sample by value.
-         @param observation_name : [str] The observation name.
-         @param sample_name : [str] The sample name.
-         @param value : [int] The value to use.
+        @summary: Replace the count for one observation of one sample by value.
+        @param observation_name: [str] The observation name.
+        @param sample_name: [str] The sample name.
+        @param value: [int] The value to use.
         """
         row_idx = self.find_idx( "observation", observation_name )
         col_idx = self.find_idx( "sample", sample_name )
@@ -589,10 +786,10 @@ class Biom:
 
     def subtract_count( self, observation_name, sample_name, value ):
         """
-        @summary : Subtract a value to the count for one observation of one sample.
-         @param observation_name : [str] The observation name.
-         @param sample_name : [str] The sample name.
-         @param value : [int] The value to subtract.
+        @summary: Subtract a value to the count for one observation of one sample.
+        @param observation_name: [str] The observation name.
+        @param sample_name: [str] The sample name.
+        @param value: [int] The value to subtract.
         """
         row_idx = self.find_idx( "observation", observation_name )
         col_idx = self.find_idx( "sample", sample_name )
@@ -600,10 +797,10 @@ class Biom:
 
     def add_count( self, observation_name, sample_name, value ):
         """
-        @summary : Add a value to the count for one observation of one sample.
-         @param observation_name : [str] The observation name.
-         @param sample_name : [str] The sample name.
-         @param value : [int] The value to add.
+        @summary: Add a value to the count for one observation of one sample.
+        @param observation_name: [str] The observation name.
+        @param sample_name: [str] The sample name.
+        @param value: [int] The value to add.
         """
         row_idx = self.find_idx( "observation", observation_name )
         col_idx = self.find_idx( "sample", sample_name )
@@ -651,7 +848,7 @@ class Biom:
         # Sample doesn't exist
         except ValueError:
             self.columns.append( {'id':sample_name, 'metadata':None } )
-            self.data.add_column()
+            self.data.add_col()
             for metadata_name in ini_metadata.keys():
                 self.add_metadata( sample_name, metadata_name, ini_metadata[metadata_name], "sample" )
         # Sample already exists
@@ -698,11 +895,11 @@ class Biom:
     # Add by Maria
     def get_observations( self ):
         """
-        @summary: Returns a generator to iterate on observations.
+        @summary: Returns a generator to iterate on all observations.
         @return: [generator] the generator to iterate on observations.
         """
-        for col in self.rows:
-            yield col
+        for observation in self.rows:
+            yield observation
 
     def get_observations_by_sample( self, sample_name ):
         """
@@ -745,21 +942,12 @@ class Biom:
     def get_sample_count( self, sample_name ):
         return self.data.get_col_sum( self.find_idx("sample", sample_name) )
 
-    # add by Maria
-    def get_samples_obs_iter( self ):
-        """
-        @summary: for each sample return observations count
-        @return: iterator sample_name, count list
-        """
-        for col in self.columns:
-            yield col['id'],self.data.col_to_array( self.find_idx("sample", col['id']) )
-
     def get_sample_obs( self, sample_name ):
         """
         @summary: for sample sample_name return observations count
         @return: sample_name otu list
         """
-        return self.data.col_to_array( self.find_idx("sample", sample_name) )
+        return self.data.get_col_array( self.find_idx("sample", sample_name) )
 
     def get_total_count( self ):
         total_count = 0
@@ -792,9 +980,8 @@ class Biom:
                             [1, 8] # Iteration 2 : sample_1 has one observation_2, sample_2 has eight observation_2
         """
         nb_rows = len(self.rows)
-        nb_columns = len(self.columns)
         for row_idx in range(nb_rows):
-            yield self.data.row_to_array( row_idx, nb_columns )
+            yield self.data.get_row_array( row_idx )
 
     def to_count_table( self ):
         """
@@ -819,18 +1006,30 @@ class BiomIO:
     Reader/Writer for the Biom format.
     The BIOM file format is a json format designed to be a general-use format for representing biological sample by observation contingency tables.
     BIOM is a recognized standard for the Earth Microbiome Project and is a Genomics Standards Consortium candidate project.
-    @see : https://github.com/biom-format
+    @see: https://github.com/biom-format
+    @note: Usage example
+           # Remove the samples splA and splB from the observation matrix
+           if BiomIO.is_BIOM("/path/to/input/biom"):
+               biom = BiomIO.from_json("/path/to/input/biom")
+               biom.remove_samples(["splA", "splB"])
+               BiomIO.write("/path/to/output/biom", biom)
+           
+           # Load metadata in BIOM
+           biom = BiomIO.from_json("/path/to/input/biom")
+           BiomIO.load_metadata(biom, "/path/to/samples/metadata")
+           BiomIO.load_metadata(biom, "/path/to/observations/metadata")
+           BiomIO.write("/path/to/output/biom", biom)
     """
     @staticmethod
     def from_count_table( count_file, generated_by=None ):
         """
-        @summary : Return an object 'Biom' from a count table.
-         @param count_file : [str] The path of the count file.
+        @summary: Return an object 'Biom' from a count table.
+        @param count_file: [str] The path of the count file.
                              Format :
                               #Cluster_ID<TAB>sample1<TAB>sample2
                               OTU1<TAB>8<TAB>10
                               ...
-         @param generated_by : [str] The method/software used to generate data.
+        @param generated_by: [str] The method/software used to generate data.
         @return [Biom] The Biom object.
         """
         biom = Biom()
@@ -865,18 +1064,18 @@ class BiomIO:
     @staticmethod
     def from_json( path ):
         """
-        @summary : Return an object 'Biom' from a biom file.
-         @param path : [str] The path of the biom file.
-        @return [Biom] The Biom object.
+        @summary: Return an object 'Biom' from a biom file.
+        @param path: [str] The path of the biom file.
+        @return: [Biom] The Biom object.
         """
         json_data = open( path )
         python_dict = json.load( json_data )
         json_data.close()
 
-        return Biom( python_dict["id"], 
-                     python_dict["format"], 
+        return Biom( python_dict["id"],
+                     python_dict["format"],
                      python_dict["format_url"],
-                     python_dict["type"], 
+                     python_dict["type"],
                      python_dict["generated_by"],
                      python_dict["date"],
                      python_dict["rows"],
@@ -888,10 +1087,10 @@ class BiomIO:
     @staticmethod
     def is_BIOM( path ):
         """
-        @summary : Return true if the file is a BIOM file.
-         @param path : [str] The path of checked file.
-        @return [bool] True if the file is a BIOM file.
-        @TODO : test
+        @summary: Return true if the file is a BIOM file.
+        @param path: [str] The path of checked file.
+        @return: [bool] True if the file is a BIOM file.
+        @TODO: test
         """
         is_biom = None
         try:
@@ -904,20 +1103,20 @@ class BiomIO:
     @staticmethod
     def write( path, biom ):
         """
-        @summary : Write a biom file from a 'Biom'.
-         @param path : [str] The path of the biom file.
-         @param biom : [Biom] The Biom object to write.
+        @summary: Write a biom file from a 'Biom'.
+        @param path: [str] The path of the biom file.
+        @param biom: [Biom] The Biom object to write.
         """
         out_fh = open( path, "w" )
-        out_fh.write( biom.to_JSON() )
+        out_fh.write( biom.to_json() )
         out_fh.close()
 
     @staticmethod
     def write_count_table( path, biom ):
         """
-        @summary : Write count table from an object 'Biom'.
-         @param path : [str] The path of the biom file.
-         @param biom : [Biom] The Biom object to write.
+        @summary: Write count table from an object 'Biom'.
+        @param path: [str] The path of the biom file.
+        @param biom: [Biom] The Biom object to write.
         """
         out_fh = open( path, "w" )
         for line in biom.to_count_table():
