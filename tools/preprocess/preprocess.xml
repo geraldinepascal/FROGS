@@ -269,7 +269,7 @@ How it works
    "1", "For uncontiged data: contig read1 and read2 with a maximum of 10% mismatch in the overlaped region (`FLASh &lt;http://ccb.jhu.edu/software/FLASH/&gt;`_)", "/"
    "2", "Filter contig sequence on its length which must be between "Minimum amplicon size" and "Maximum amplicon size", "/"
    "3", "Remove sequences where the two primers are not persent and remove primers sequence (`cutadapt &lt;http://cutadapt.readthedocs.org/en/latest/guide.html&gt;`_). The primer search accept 10% of differences", "Remove sequence where the two primers are not persent, remove primers sequence and reverse complement the sequences with strand - (`cutadapt &lt;http://cutadapt.readthedocs.org/en/latest/guide.html&gt;`_). The primer search accept 10% of differences"
-   "4", "Filter sequences on its length and with ambiguous nucleotids","filter sequences on its length, with ambiguous nucleotids, with at least one homopolymer with size >7nt and with distance between two poor qualities ()&lt; 10) of &lt;= 10 nt" 
+   "4", "Filter sequences on its length and with ambiguous nucleotids","filter sequences on its length, with ambiguous nucleotids, with at least one homopolymer with size >7nt and with distance between two poor qualities (&lt; 10) of &lt;= 10 nt" 
    "5", "Dereplicate sequences", "Dereplicate sequences"
 
 

@@ -2,6 +2,12 @@
 export PATH=../../bin:$PATH
 export PYTHONPATH=../../bin:$PYTHONPATH
 
+# Create output folder
+if [ ! -d "test" ]
+then
+    mkdir test
+fi
+
 # Illumina R1 and R2
 ./preprocess.py illumina --input-R1 data/sampleA_R1.fastq.gz data/sampleB_R1.fastq.gz --input-R2 data/sampleA_R2.fastq.gz data/sampleB_R2.fastq.gz \
                          --R1-size 251 --R2-size 251 \
