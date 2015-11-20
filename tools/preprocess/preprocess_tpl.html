@@ -19,7 +19,7 @@
     <head>
         <title>FROGS Pre-process</title>
         <meta charset="UTF-8">
-        <meta name="version" content="1.2.0">
+        <meta name="version" content="1.2.1">
         <!-- CSS -->
         <link rel="stylesheet" href="https://cdn.datatables.net/1.10.6/css/jquery.dataTables.css"></link>
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css"></link>
@@ -316,12 +316,8 @@
                     $('#filterBySample-table tbody').append( '<tr><td>' + sample_data.join("</td><td>") + '</td></tr>' );
                 }
                 
-                // Buttons enable/disable management
-                $('input[id^="filterBySample-check-all"]').on( 'change', updateButtonState );
-                $('input[id^="filterBySample-chk-"]').on( 'change', updateButtonState );
-                
                 // Check all management
-                $('#filterBySample-check-all').on('click', function (e) { // Manage check all
+                $('#filterBySample-check-all').on('change', function (e) { // Manage check all
                     if( $(this).is(':checked') ){
                         $('input[id^="filterBySample-chk-"]').each( function(){
                             $(this).prop( 'checked', true );
@@ -337,6 +333,10 @@
                         $('#filterBySample-check-all').prop( 'checked', false );
                     }
                 });
+                
+                // Buttons enable/disable management
+                $('input[id^="filterBySample-check-all"]').on( 'change',  );
+                $('input[id^="filterBySample-chk-"]').on( 'change', updateButtonState );
                 
                 // Datatable
                 $('#filterBySample-table').DataTable({
