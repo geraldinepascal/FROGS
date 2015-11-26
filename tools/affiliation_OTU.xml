@@ -105,7 +105,7 @@ FROGS database(s) pre-process:
 
 2. This database is processed to keep only the taxonomy level: Domain - Phylum - Class - Order - Family - Genus - Species
 
-3. The database is split in two databses: prokaryote and eukaryote.
+3. The database is splitted in two databses: prokaryote and eukaryote.
 
 
 .. class:: infomark page-header h2
