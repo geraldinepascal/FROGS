@@ -19,7 +19,7 @@
 __author__ = 'Frederic Escudie - Plateforme bioinformatique Toulouse'
 __copyright__ = 'Copyright (C) 2015 INRA'
 __license__ = 'GNU General Public License'
-__version__ = '1.3.0'
+__version__ = '1.4.0'
 __email__ = 'frogs@toulouse.inra.fr'
 __status__ = 'prod'
 
@@ -665,6 +665,8 @@ def process( args ):
             samples_names = [os.path.basename(current_R1).split('.')[0] for current_R1 in args.input_R1]
             if args.samples_names is not None:
                 samples_names = args.samples_names
+        if len(samples_names) != len(set(samples_names)):
+            raise Exception( 'Impossible to retrieve unique samples names from files. The sample name must be before the first dot.' )
 
         # Tmp files
         filtered_files = [tmp_files.add(current_sample + '_filtered.fasta') for current_sample in samples_names]
@@ -719,6 +721,13 @@ def process( args ):
         if not args.debug:
             tmp_files.deleteAll()
 
+def spl_name_type( arg_value ):
+    """
+    @summary: Argparse type for samples-names.
+    """
+    if re.search("\s", arg_value): raise argparse.ArgumentTypeError( "A sample name must not contain white spaces." )
+    return arg_value
+
 
 ##################################################################################################################################################
 #
@@ -727,37 +736,35 @@ def process( args ):
 ##################################################################################################################################################
 if __name__ == "__main__":
     # Manage parameters
-    parser = argparse.ArgumentParser(
-        description='Pre-process amplicons to use reads in diversity analysis.',
-        usage='\n  For samples files:' +
-              '\n    preprocess.py illumina ' +
-              '\n     --input-R1 R1_FILE [R1_FILE ...]' +
-              '\n     --already-contiged | --R2-files R2_FILE [R2_FILE ...] --R1-size R1_SIZE --R2-size R2_SIZE --expected-amplicon-size SIZE' +
-              '\n     --min-amplicon-size MIN_AMPLICON_SIZE' +
-              '\n     --max-amplicon-size MAX_AMPLICON_SIZE' +
-              '\n     --without-primers | --five-prim-primer FIVE_PRIM_PRIMER --three-prim-primer THREE_PRIM_PRIMER' +
-              '\n     [--samples-names SAMPLE_NAME [SAMPLE_NAME ...]]' +
-              '\n     [-p NB_CPUS] [--debug] [-v]' +
-              '\n     [-d DEREPLICATED_FILE] [-c COUNT_FILE]' +
-              '\n     [-s SUMMARY_FILE] [-l LOG_FILE]' +
-              '\n' +
-              '\n  For samples archive:' +
-              '\n    preprocess.py 454 ' +
-              '\n     --input-archive ARCHIVE_FILE' +
-              '\n     --already-contiged | --R1-size R1_SIZE --R2-size R2_SIZE --expected-amplicon-size SIZE' +
-              '\n     --min-amplicon-size MIN_AMPLICON_SIZE' +
-              '\n     --max-amplicon-size MAX_AMPLICON_SIZE' +
-              '\n     --five-prim-primer FIVE_PRIM_PRIMER' +
-              '\n     --three-prim-primer THREE_PRIM_PRIMER' +
-              '\n     [-p NB_CPUS] [--debug] [-v]' +
-              '\n     [-d DEREPLICATED_FILE] [-c COUNT_FILE]' +
-              '\n     [-s SUMMARY_FILE] [-l LOG_FILE]'
-    )
+    parser = argparse.ArgumentParser( description='Pre-process amplicons to use reads in diversity analysis.' )
     parser.add_argument( '-v', '--version', action='version', version=__version__ )
     subparsers = parser.add_subparsers()
 
     # Illumina
-    parser_illumina = subparsers.add_parser('illumina', help='Illumina sequencers.')
+    parser_illumina = subparsers.add_parser( 'illumina', help='Illumina sequencers.', usage='''
+  For samples files:
+    preprocess.py illumina
+      --input-R1 R1_FILE [R1_FILE ...]
+      --already-contiged | --R2-files R2_FILE [R2_FILE ...] --R1-size R1_SIZE --R2-size R2_SIZE --expected-amplicon-size SIZE
+      --min-amplicon-size MIN_AMPLICON_SIZE
+      --max-amplicon-size MAX_AMPLICON_SIZE
+      --without-primers | --five-prim-primer FIVE_PRIM_PRIMER --three-prim-primer THREE_PRIM_PRIMER
+      [--samples-names SAMPLE_NAME [SAMPLE_NAME ...]]
+      [-p NB_CPUS] [--debug] [-v]
+      [-d DEREPLICATED_FILE] [-c COUNT_FILE]
+      [-s SUMMARY_FILE] [-l LOG_FILE]
+
+  For samples archive:
+    preprocess.py illumina
+      --input-archive ARCHIVE_FILE
+      --already-contiged | --R1-size R1_SIZE --R2-size R2_SIZE --expected-amplicon-size SIZE
+      --min-amplicon-size MIN_AMPLICON_SIZE
+      --max-amplicon-size MAX_AMPLICON_SIZE
+      --without-primers | --five-prim-primer FIVE_PRIM_PRIMER --three-prim-primer THREE_PRIM_PRIMER
+      [-p NB_CPUS] [--debug] [-v]
+      [-d DEREPLICATED_FILE] [-c COUNT_FILE]
+      [-s SUMMARY_FILE] [-l LOG_FILE]
+''')
     #     Illumina parameters
     parser_illumina.add_argument( '--min-amplicon-size', type=int, required=True, help='The minimum size for the amplicons.' )
     parser_illumina.add_argument( '--max-amplicon-size', type=int, required=True, help='The maximum size for the amplicons.' )
@@ -772,7 +779,7 @@ if __name__ == "__main__":
     parser_illumina.add_argument( '--debug', default=False, action='store_true', help="Keep temporary files to debug program." )
     #     Illumina inputs
     group_illumina_input = parser_illumina.add_argument_group( 'Inputs' )
-    group_illumina_input.add_argument( '--samples-names', nargs='+', default=None, help='The sample name for each R1/R2-files.' )
+    group_illumina_input.add_argument( '--samples-names', type=spl_name_type, nargs='+', default=None, help='The sample name for each R1/R2-files.' )
     group_illumina_input.add_argument( '--input-archive', default=None, help='The tar file containing R1 file and R2 file for each sample.' )
     group_illumina_input.add_argument( '--input-R1', required=None, nargs='+', help='The R1 sequence file for each sample (format: fastq).' )
     group_illumina_input.add_argument( '--input-R2', required=None, nargs='+', help='The R2 sequence file for each sample (format: fastq).' )
@@ -785,7 +792,17 @@ if __name__ == "__main__":
     group_illumina_output.add_argument( '-l', '--log-file', default=sys.stdout, help='This output file will contain several information on executed commands.')
 
     # 454
-    parser_454 = subparsers.add_parser('454', help='454 sequencers.')
+    parser_454 = subparsers.add_parser('454', help='454 sequencers.', usage='''
+  preprocess.py 454
+    --input-archive ARCHIVE_FILE | --input-R1 R1_FILE [R1_FILE ...]
+    --min-amplicon-size MIN_AMPLICON_SIZE
+    --max-amplicon-size MAX_AMPLICON_SIZE
+    --five-prim-primer FIVE_PRIM_PRIMER
+    --three-prim-primer THREE_PRIM_PRIMER
+    [-p NB_CPUS] [--debug] [-v]
+    [-d DEREPLICATED_FILE] [-c COUNT_FILE]
+    [-s SUMMARY_FILE] [-l LOG_FILE]
+''')
     parser_454.add_argument( '--min-amplicon-size', type=int, required=True, help='The minimum size for the amplicons (with primers).' )
     parser_454.add_argument( '--max-amplicon-size', type=int, required=True, help='The maximum size for the amplicons (with primers).' )
     parser_454.add_argument( '--five-prim-primer', type=str, required=True, help="The 5' primer sequence (wildcards are accepted)." )
@@ -794,7 +811,7 @@ if __name__ == "__main__":
     parser_454.add_argument( '--debug', default=False, action='store_true', help="Keep temporary files to debug program." )
     #     454 inputs
     group_454_input = parser_454.add_argument_group( 'Inputs' )
-    group_454_input.add_argument( '--samples-names', nargs='+', default=None, help='The sample name for each R1/R2-files.' )
+    group_454_input.add_argument( '--samples-names', type=spl_name_type, nargs='+', default=None, help='The sample name for each R1/R2-files.' )
     group_454_input.add_argument( '--input-archive', default=None, help='The tar file containing R1 file and R2 file for each sample (format: tar).' )
     group_454_input.add_argument( '--input-R1', required=None, nargs='+', help='The sequence file for each sample (format: fastq).' )
     group_454_input.set_defaults( sequencer='illumina' )
@@ -822,6 +839,11 @@ if __name__ == "__main__":
             if args.input_R2 is not None: raise Exception( "With '--archive-file' parameter you cannot set the parameter '--R2-files'." )
     else:  # inputs are files
         if args.input_R1 is None: raise Exception( "'--R1-files' is required." )
+        if args.samples_names is not None:
+            if len(args.samples_names) != len(args.input_R1): raise Exception( "With '--samples-names' all samples must have a name." )
+            if len(args.samples_names) != len(set(args.samples_names)):
+                duplicated_samples = set([name for name in args.samples_names if args.samples_names.count(name) > 1])
+                raise Exception( 'Samples names must be unique (duplicated: "' + '", "'.join(duplicated_samples) + '").' )
         if args.sequencer == "illumina":
             if not args.already_contiged and args.input_R2 is None: raise Exception( "'--R2-files' is required." )
     if args.sequencer == "illumina":
