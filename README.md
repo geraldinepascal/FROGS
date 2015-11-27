@@ -290,10 +290,10 @@
 
 
 ## Citation
-    Escudie F., Auer L., Cauquil L., Vidal K., Maman S., Mariadassou M., 
-    Hernadez-Raquet G., Pascal G., 2015. FROGS: Find Rapidly OTU with Galaxy 
-    Solution. In: (Ed), The JOBIM 2015 Conference, July 6th to 9th, 
-    Clermont-Ferrand, France
+    Escudie F., Auer L., Bernard M., Cauquil L., Vidal K., Maman S.,
+    Mariadassou M., Hernadez-Raquet G., Pascal G., 2015. FROGS: Find Rapidly
+    OTU with Galaxy Solution. In: (Ed), The JOBIM 2015 Conference, July 6th to
+    9th, Clermont-Ferrand, France
 
 
 ## Contact
