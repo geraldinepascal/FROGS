@@ -42,7 +42,10 @@ from biom import BiomIO
 #
 ##################################################################################################################################################
 def process( in_biom, out_biom, out_metadata ):
+    print in_biom
     ordered_blast_keys = ["taxonomy", "subject", "evalue", "perc_identity", "perc_query_coverage", "aln_length"] # Keys in blast_affiliations metadata
+    taxonomy_depth = 0
+    unclassified_observations = list()
 
     FH_metadata = open( out_metadata, "w" )
     FH_metadata.write( "#OTUID\t" + "\t".join([item for item in ordered_blast_keys]) + "\n" )
@@ -61,9 +64,16 @@ def process( in_biom, out_biom, out_metadata ):
                     observation["metadata"][metadata_key] = ";".join( map(str, observation["metadata"][metadata_key]) )
         if observation["metadata"].has_key( "blast_taxonomy" ):
             if observation["metadata"]["blast_taxonomy"] is None:
-                observation["metadata"]["taxonomy"] = ["Unclassified", "Unclassified", "Unclassified", "Unclassified", "Unclassified", "Unclassified", "Unclassified"] # Temporary fix
+                unclassified_observations.append( observation["id"] )
+                observation["metadata"]["taxonomy"] = list()
             else:
+                taxonomy_depth = len(observation["metadata"]["blast_taxonomy"].split(";"))
                 observation["metadata"]["taxonomy"] = observation["metadata"]["blast_taxonomy"].split(";")
+    # Add "Unclassified" ranks in unclassified observations
+    if taxonomy_depth > 0:
+        for observation_id in unclassified_observations:
+            observation_metadata = biom.get_observation_metadata(observation_id)
+            observation_metadata["taxonomy"] = ["Unclassified"] * taxonomy_depth
     BiomIO.write( out_biom, biom )
 
 
