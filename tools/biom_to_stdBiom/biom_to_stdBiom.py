@@ -19,7 +19,7 @@
 __author__ = 'Frederic Escudie - Plateforme bioinformatique Toulouse'
 __copyright__ = 'Copyright (C) 2015 INRA'
 __license__ = 'GNU General Public License'
-__version__ = '1.1.0'
+__version__ = '1.1.1'
 __email__ = 'frogs@toulouse.inra.fr'
 __status__ = 'prod'
 
@@ -60,7 +60,10 @@ def process( in_biom, out_biom, out_metadata ):
                 if isinstance(observation["metadata"][metadata_key], list) or isinstance(observation["metadata"][metadata_key], tuple):
                     observation["metadata"][metadata_key] = ";".join( map(str, observation["metadata"][metadata_key]) )
         if observation["metadata"].has_key( "blast_taxonomy" ):
-            observation["metadata"]["taxonomy"] = observation["metadata"]["blast_taxonomy"].split(";")
+            if observation["metadata"]["blast_taxonomy"] is None:
+                observation["metadata"]["taxonomy"] = ["Unclassified", "Unclassified", "Unclassified", "Unclassified", "Unclassified", "Unclassified", "Unclassified"] # Temporary fix
+            else:
+                observation["metadata"]["taxonomy"] = observation["metadata"]["blast_taxonomy"].split(";")
     BiomIO.write( out_biom, biom )
 
 

@@ -2,6 +2,12 @@
 export PATH=../../bin:$PATH
 export PYTHONPATH=../../bin:$PYTHONPATH
 
+if [ ! -d "test" ]
+then
+    mkdir test
+fi
+
+
 ./biom_to_stdBiom.py \
  --input-biom data/abundance.biom \
  --output-biom test/abundance_1.biom \
