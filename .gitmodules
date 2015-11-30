@@ -1,0 +1,3 @@
+[submodule "bin"]
+	path = bin
+	url = https://github.com/fescudie/frogs-dependancies.git
