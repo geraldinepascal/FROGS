@@ -42,7 +42,6 @@ from biom import BiomIO
 #
 ##################################################################################################################################################
 def process( in_biom, out_biom, out_metadata ):
-    print in_biom
     ordered_blast_keys = ["taxonomy", "subject", "evalue", "perc_identity", "perc_query_coverage", "aln_length"] # Keys in blast_affiliations metadata
     taxonomy_depth = 0
     unclassified_observations = list()
