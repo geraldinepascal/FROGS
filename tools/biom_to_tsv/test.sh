@@ -2,6 +2,12 @@
 export PATH=../../bin:$PATH
 export PYTHONPATH=../../bin:$PYTHONPATH
 
+# Create output folder
+if [ ! -d "test" ]
+then
+    mkdir test
+fi
+
 # Without affiliation without sequences
 ./biom_to_tsv.py --input-biom data/clustering.biom \
                  --output-tsv test/abundance.tsv \

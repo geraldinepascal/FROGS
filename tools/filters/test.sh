@@ -2,6 +2,11 @@
 export PATH=../../bin:$PATH
 export PYTHONPATH=../../bin:$PYTHONPATH
 
+# Create output folder
+if [ ! -d "test" ]
+then
+    mkdir test
+fi
 
 echo ""
 OUT=test/all_filters

@@ -2,6 +2,12 @@
 export PATH=../../bin:$PATH
 export PYTHONPATH=../../bin:$PYTHONPATH
 
+# Create output folder
+if [ ! -d "test" ]
+then
+    mkdir test
+fi
+
 OUT=test/test_pe/both
 mkdir -p $OUT
 echo $OUT

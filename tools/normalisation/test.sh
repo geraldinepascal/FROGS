@@ -1,6 +1,13 @@
 #!/bin/bash
 export PATH=../../bin:$PATH
 export PYTHONPATH=../../bin:$PYTHONPATH
+
+# Create output folder
+if [ ! -d "test" ]
+then
+    mkdir test
+fi
+
 #mkdir -p test/test_N1000
 #./normalisation.py -n 1000 -i data/test_3OTU_2sample_change.biom -b test/test_N1000/test_N1000.biom \
 #                         -s test/test_N1000/summary.html -l test/test_N1000/log.txt 

@@ -2,6 +2,12 @@
 export PATH=../../bin:$PATH
 export PYTHONPATH=../../bin:$PYTHONPATH
 
+# Create output folder
+if [ ! -d "test" ]
+then
+    mkdir test
+fi
+
 # Blast consensus tax
 ./affiliations_stat.py \
   --input-biom data/set500_B_affiliation.biom \

@@ -2,6 +2,12 @@
 export PATH=../../bin:$PATH
 export PYTHONPATH=../../bin:$PYTHONPATH
 
+# Create output folder
+if [ ! -d "test" ]
+then
+    mkdir test
+fi
+
 ./affiliation_OTU.py --reference data/SILVA_119_SSURef_Nr99_tax_silva.fasta \
                      --input-biom data/swarm.biom --input-fasta data/swarm.fasta \
                      --output-biom test/affiliation.biom \

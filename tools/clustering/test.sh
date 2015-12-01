@@ -2,12 +2,20 @@
 export PATH=../../bin:$PATH
 export PYTHONPATH=../../bin:$PYTHONPATH
 
+# Create output folder
+if [ ! -d "test" ]
+then
+    mkdir test
+fi
+
+# Clustering without denoising
 ./clustering.py --input-fasta data/derep.fasta --input-count data/count.tsv \
                 --distance 2 \
                 --nb-cpus 1 \
                 --output-biom test/swarms_abundance.biom --output-fasta test/seeds.fasta --output-compo test/swarms_composition.tsv \
                 --log-file test/log.txt
 
+# Clustering with denoising step
 ./clustering.py --input-fasta data/derep.fasta --input-count data/count.tsv \
                 --distance 2 \
                 --nb-cpus 1 \
