@@ -19,7 +19,7 @@
 __author__ = 'Frederic Escudie - Plateforme bioinformatique Toulouse'
 __copyright__ = 'Copyright (C) 2015 INRA'
 __license__ = 'GNU General Public License'
-__version__ = '1.4.0'
+__version__ = '1.5.0'
 __email__ = 'frogs@toulouse.inra.fr'
 __status__ = 'prod'
 
@@ -826,32 +826,32 @@ if __name__ == "__main__":
 
     # Parse parameters
     args = parser.parse_args()
-
-    # Check parameters
     prevent_shell_injections(args)
-
+    
     Logger.static_write(args.log_file, "## Application\nSoftware: " + os.path.basename(sys.argv[0]) + " (version: " + str(__version__) + ")\nCommand: " + " ".join(sys.argv) + "\n\n")
-
+    
+    # Check parameters
     if args.input_archive is not None: # input is an archive
-        if args.input_R1 is not None: raise Exception( "With '--archive-file' parameter you cannot set the parameter '--R1-files'." )
-        if args.samples_names is not None: raise Exception( "With '--archive-file' parameter you cannot set the parameter '--samples-names'." )
+        if args.input_R1 is not None: raise argparse.ArgumentTypeError( "With '--archive-file' parameter you cannot set the parameter '--R1-files'." )
+        if args.samples_names is not None: raise argparse.ArgumentTypeError( "With '--archive-file' parameter you cannot set the parameter '--samples-names'." )
         if args.sequencer == "illumina":
-            if args.input_R2 is not None: raise Exception( "With '--archive-file' parameter you cannot set the parameter '--R2-files'." )
+            if args.input_R2 is not None: raise argparse.ArgumentTypeError( "With '--archive-file' parameter you cannot set the parameter '--R2-files'." )
     else:  # inputs are files
-        if args.input_R1 is None: raise Exception( "'--R1-files' is required." )
+        if args.input_R1 is None: raise argparse.ArgumentTypeError( "'--R1-files' is required." )
         if args.samples_names is not None:
-            if len(args.samples_names) != len(args.input_R1): raise Exception( "With '--samples-names' all samples must have a name." )
+            if len(args.samples_names) != len(args.input_R1): raise argparse.ArgumentTypeError( "With '--samples-names' all samples must have a name." )
             if len(args.samples_names) != len(set(args.samples_names)):
                 duplicated_samples = set([name for name in args.samples_names if args.samples_names.count(name) > 1])
-                raise Exception( 'Samples names must be unique (duplicated: "' + '", "'.join(duplicated_samples) + '").' )
+                raise argparse.ArgumentTypeError( 'Samples names must be unique (duplicated: "' + '", "'.join(duplicated_samples) + '").' )
         if args.sequencer == "illumina":
-            if not args.already_contiged and args.input_R2 is None: raise Exception( "'--R2-files' is required." )
+            if not args.already_contiged and args.input_R2 is None: raise argparse.ArgumentTypeError( "'--R2-files' is required." )
     if args.sequencer == "illumina":
         if (args.R1_size is None or args.R2_size is None or args.expected_amplicon_size is None) and not args.already_contiged: raise Exception( "'--R1-size/--R2-size/--expected-amplicon-size' or '--already-contiged' must be setted." )
         if args.without_primers:
-            if args.five_prim_primer or args.three_prim_primer: raise Exception( "The option '--without-primers' cannot be used with '--five-prim-primer' and '--three-prim-primer'." )
+            if args.five_prim_primer or args.three_prim_primer: raise argparse.ArgumentTypeError( "The option '--without-primers' cannot be used with '--five-prim-primer' and '--three-prim-primer'." )
         else:
-            if args.five_prim_primer is None or args.three_prim_primer is None: raise Exception( "'--five-prim-primer/--three-prim-primer' or 'without-primers'  must be setted." )
+            if args.five_prim_primer is None or args.three_prim_primer is None: raise argparse.ArgumentTypeError( "'--five-prim-primer/--three-prim-primer' or 'without-primers'  must be setted." )
+            if args.min_amplicon_size < (len(args.five_prim_primer) + len(args.five_prim_primer)): raise argparse.ArgumentTypeError( "The minimum length of the amplicon (--min-length) must be superior to the size of the two primers." )
 
     # Process
     process( args )
