@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
-<tool id="FROGS_preprocess" name="FROGS Pre-process" version="1.4.2">
+<tool id="FROGS_preprocess" name="FROGS Pre-process" version="1.4.3">
 	<description>Step 1 in metagenomics analysis: denoising and dereplication.</description>
 	<command interpreter="python2.7">
 		preprocess.py $sequencer_type.sequencer_selected
@@ -46,7 +46,7 @@
 		    #if $sequencer_type.sequencer_selected == "illumina"
 	            --samples-names  
 	            #for $current in $sequencer_type.input_type.files_by_samples_type.samples 
-	                $sep${current.name}
+	                $sep"${current.name.strip()}"
 	            #end for
 		        --input-R1 
 		        #for $current in $sequencer_type.input_type.files_by_samples_type.samples 
@@ -69,7 +69,7 @@
 		        #end for
 		        --samples-names  
 		        #for $current in $sequencer_type.input_type.samples 
-		            $sep${current.name}
+		            $sep"${current.name.strip()}"
 		        #end for
 		    #end if
 		#end if
