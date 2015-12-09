@@ -20,6 +20,11 @@ fi
 #./normalisation.py -m -i data/seed_abondance_affiliation2.biom -b test/test_aff_M/test_aff_M.biom \
 #                         -s test/test_aff_M/summary.html -l test/test_aff_M/log.txt
 
-mkdir -p test/test_aff_N1000
-./normalisation.py -n 1000 -i data/non_chimera_500sp.biom -f data/non_chimera_500sp.fasta -b test/test_aff_N1000/test_aff_N1000.biom -o test/test_aff_N1000/test_aff_N1000.fasta\
-                         -s test/test_aff_N1000/summary.html -l test/test_aff_N1000/log.txt          
+./normalisation.py \
+ -n 1000 \
+ -i data/non_chimera_500sp.biom \
+ -f data/non_chimera_500sp.fasta \
+ -b test/test_aff_N1000.biom \
+ -o test/test_aff_N1000.fasta \
+ -s test/summary.html \
+ -l test/log.txt

@@ -1,6 +1,6 @@
 #!/usr/bin/env python2.7
 #
-# Copyright (C) 2014 INRA
+# Copyright (C) 2015 INRA
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -19,19 +19,15 @@
 __author__ = 'Maria Bernard INRA - SIGENAE '
 __copyright__ = 'Copyright (C) 2015 INRA'
 __license__ = 'GNU General Public License'
-__version__ = '0.6.0'
+__version__ = '0.7.0'
 __email__ = 'frogs@toulouse.inra.fr'
 __status__ = 'prod'
 
-import gzip
+
 import os
 import sys
 import json
 import argparse
-import threading
-import multiprocessing
-import subprocess
-from subprocess import Popen, PIPE
 
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
 BIN_DIR = os.path.abspath(os.path.join(os.path.dirname(CURRENT_DIR), "bin"))
@@ -40,32 +36,29 @@ sys.path.insert(0, BIN_DIR) # $PYTHONPATH
 
 from frogsUtils import *
 from biom import *
-from sequenceIO import *
-from biomTools import *
 
 
-#################################################################################################################
-###                                 NORMALISATION CLASSES                                                     ###
-#################################################################################################################
+##################################################################################################################################################
+#
+# COMMAND LINES
+#
+##################################################################################################################################################
+class BIOM_sampling(Cmd):
+    """
+    @summary: Random sampling in each sample.
+    """
+    def __init__(self, in_biom, out_biom, nb_read):
+        """
+        @param in_biom: [str] Path to BIOM file.
+        @param out_biom: [str] Path to output BIOM file.
+        @param nb_read : [int] Number of reads per sample.
+        """
+        Cmd.__init__( self,
+                      "biomTools.py",
+                      "Random sampling in each sample.",
+                      "sampling --nb-sampled " + str(nb_read) + " --input-file " + in_biom + " --output-file " + out_biom,
+                      "--version" )
 
-# class BIOM_subsample(Cmd):
-#     """
-#     @summary: Converts BIOM file to TSV file.
-#     @note: taxonomyRDP seedID seedSequence blastSubject blastEvalue blastLength blastPercentCoverage blastPercentIdentity blastTaxonomy OTUname SommeCount sample_count
-#     """
-#     def __init__(self, in_biom, out_biom, tmp_log, nb_read):
-#         """
-#         @param in_biom: [str] Path to BIOM file.
-#         @param nb_read : [int] Number of reads per sample
-#         @param out_biom: [str] Path to output BIOM file.
-#         """
-#         Cmd.__init__( self,
-#                       'biom_subsample.py',
-#                       'Normalise les comptages selon un meme nombre de lectures',
-#                       "--nb-reads " + str(nb_read) + " --input-file " + in_biom + " --output-file " + out_biom + " --log " + tmp_log,
-#                       '--version' )
-#         self.input=in_biom
-#         self.output=out_biom
 
 class BIOM_FASTA_update(Cmd):
     """
@@ -84,12 +77,13 @@ class BIOM_FASTA_update(Cmd):
                       "--input-biom " + in_biom + " --input-fasta " + in_fasta + " --output-file " + out_fasta + " --log " + log,
                       '--version' )
 
-#################################################################################################################
-###                                 NORMALISATION FUNCTIONS                                                   ###
-#################################################################################################################
-def biom_subsample(in_biom, out_biom, log, nb_read): 
-    sampling_by_sample( in_biom, out_biom, nb_sampled=nb_read )
 
+##################################################################################################################################################
+#
+# FUNCTIONS
+#
+##################################################################################################################################################
+def write_log(in_biom, out_biom, log):
     FH_log=open(log,"w")
     FH_log.write("#sample\tnb_otu_before\tnb_otu_after\n")
     initial_biom = BiomIO.from_json( in_biom )
@@ -162,9 +156,11 @@ def get_sample_resuts( log_file, output_list ):
     FH_input.close()
 
 
-###################################################################################################################
-###                                              MAIN                                                           ###
-###################################################################################################################
+##################################################################################################################################################
+#
+# MAIN
+#
+##################################################################################################################################################
 if __name__ == "__main__":
     # Manage parameters
     parser = argparse.ArgumentParser(description="Normalisation in BIOM by random sampling.")
@@ -173,13 +169,13 @@ if __name__ == "__main__":
     parser.add_argument('-v', '--version', action='version', version=__version__)
     # Inputs
     group_input = parser.add_argument_group('Inputs')
-    group_input.add_argument('-i', '--input-biom', required=True, help='abondance BIOM input File')
-    group_input.add_argument('-f', '--input-fasta', required=True, help='seed Fasta file')
+    group_input.add_argument('-i', '--input-biom', required=True, help='Abundances file to normalize (format: BIOM).')
+    group_input.add_argument('-f', '--input-fasta', required=True, help='Sequences file to normalize (format: fasta).')
     # Outputs
     group_output = parser.add_argument_group('Outputs')
-    group_output.add_argument('-b', '--output-biom', default='normalized_abundance.biom', help='normalized abundance BIOM output file')
-    group_output.add_argument('-o', '--output-fasta', default='normalized_seed.fasta', help='normalized seed Fasta output file')
-    group_output.add_argument('-s', '--summary-file', default='excluded_data.html', help='HTML file with summary of filters results.')
+    group_output.add_argument('-b', '--output-biom', default='abundance.biom', help='Normalized abundances (format: BIOM).')
+    group_output.add_argument('-o', '--output-fasta', default='sequence.fasta', help='Normalized sequences (format: fasta).')
+    group_output.add_argument('-s', '--summary-file', default='report.html', help='Summary of filters results (format: HTML).')
     group_output.add_argument('-l', '--log-file', default=sys.stdout, help='The list of commands executed.')
     args = parser.parse_args()
     prevent_shell_injections(args)
@@ -193,7 +189,8 @@ if __name__ == "__main__":
         
         Logger.static_write(args.log_file,'\n#Normalisation calculation\n\tstart: ' + time.strftime("%d %b %Y %H:%M:%S", time.localtime()) + '\n' )
         tmp_subsampling = tmp_files.add( 'tmp_biom_subsample.log' )
-        biom_subsample(args.input_biom, args.output_biom, tmp_subsampling, args.num_reads) 
+        BIOM_sampling(args.input_biom, args.output_biom, args.num_reads).submit(args.log_file)
+        write_log(args.input_biom, args.output_biom, tmp_subsampling)
         Logger.static_write(args.log_file,'\tend: ' + time.strftime("%d %b %Y %H:%M:%S", time.localtime()) + '\n\n' )
         tmp_fastaUpdate = tmp_files.add( 'tmp_fasta_update.log' )
         BIOM_FASTA_update(args.output_biom, args.input_fasta, args.output_fasta, tmp_fastaUpdate).submit(args.log_file)
