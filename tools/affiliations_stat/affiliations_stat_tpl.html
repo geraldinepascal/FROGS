@@ -19,7 +19,7 @@
 	<head>
 		<title>FROGS Affiliations stat</title>
 		<meta charset="UTF-8">
-		<meta name="version" content="1.0.1">
+		<meta name="version" content="1.0.2">
 		<!-- CSS -->
 		<link rel="stylesheet" href="https://cdn.datatables.net/1.10.6/css/jquery.dataTables.css"></link>
 		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css"></link>
@@ -416,8 +416,8 @@
 					},
 					tooltip: { 
 						formatter: function () {
-							return 'Identity: <b>' + this.point.x + '%</b><br>'
-								+ ' Coverage: <b>' + this.point.y + '%</b><br>'
+							return 'Identity: <b>' + this.series.xAxis.categories[this.point.x] + '</b><br>'
+								+ ' Coverage: <b>' + this.series.yAxis.categories[this.point.y] + '</b><br>'
 								+ ' Nb ' + clean_type[data_type] + ': <b>' + this.point.value + '</b>' ;
 						} 
 					},
