@@ -19,7 +19,7 @@
 __author__ = 'Maria Bernard INRA - SIGENAE '
 __copyright__ = 'Copyright (C) 2015 INRA'
 __license__ = 'GNU General Public License'
-__version__ = '0.7.0'
+__version__ = '0.7.1'
 __email__ = 'frogs@toulouse.inra.fr'
 __status__ = 'prod'
 
@@ -164,7 +164,7 @@ def get_sample_resuts( log_file, output_list ):
 if __name__ == "__main__":
     # Manage parameters
     parser = argparse.ArgumentParser(description="Normalisation in BIOM by random sampling.")
-    parser.add_argument('-n', '--num-reads', type=int,default=None,  help="Number of reads per sample after normalisation")
+    parser.add_argument('-n', '--num-reads', type=int, required=True, help="Number of reads per sample after normalisation")
     parser.add_argument('--debug', default=False, action='store_true', help="Keep temporary files to debug program.")
     parser.add_argument('-v', '--version', action='version', version=__version__)
     # Inputs
