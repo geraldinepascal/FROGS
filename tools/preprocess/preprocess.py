@@ -35,7 +35,7 @@ import threading
 import multiprocessing
 
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
-BIN_DIR = os.path.abspath(os.path.join(os.path.dirname(CURRENT_DIR), "bin"))
+BIN_DIR = os.path.abspath(os.path.join(os.path.dirname(os.path.dirname(CURRENT_DIR)), "bin"))
 os.putenv('PATH', BIN_DIR + os.pathsep + os.getenv('PATH')) # $PATH
 sys.path.insert(0, BIN_DIR) # $PYTHONPATH
 

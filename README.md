@@ -61,9 +61,7 @@
 
 	Otherwise, you can clone the repository from GitHub:
 		git clone https://github.com/geraldinepascal/FROGS.git
-		cd FROGS
-		git submodule init
-		git submodule update
+
 
 ### 2. Install dependencies
 	python interpreter
@@ -130,8 +128,9 @@
 	  Example with FROGS binaries in bin folder:
 		<FROGS_PATH>/
 			tools/
-				preprocess.py
-				preprocess.xml
+				preprocess/
+					preprocess.py
+					preprocess.xml
 				...
 			bin/
 				biom2tsv.py
@@ -179,18 +178,18 @@
 	Example:
 		...
 		<section id="FROGS_wrappers" name="FROGS">
-			<tool file="FROGS/tools/upload_tar.xml" />
-			<tool file="FROGS/tools/demultiplex.xml" />
-			<tool file="FROGS/tools/preprocess.xml" />
-			<tool file="FROGS/tools/clustering.xml" />
-			<tool file="FROGS/tools/remove_chimera.xml" />  
-			<tool file="FROGS/tools/filters.xml" />
-			<tool file="FROGS/tools/affiliation_OTU.xml" />
-			<tool file="FROGS/tools/biom_to_tsv.xml" />
-			<tool file="FROGS/tools/clusters_stat.xml" />
-			<tool file="FROGS/tools/affiliations_stat.xml" />
-			<tool file="FROGS/tools/biom_to_stdBiom.xml" />
-			<tool file="FROGS/tools/normalisation.xml" />
+			<tool file="FROGS/tools/upload/upload_tar.xml" />
+			<tool file="FROGS/tools/demultiplex/demultiplex.xml" />
+			<tool file="FROGS/tools/preprocess/preprocess.xml" />
+			<tool file="FROGS/tools/clustering/clustering.xml" />
+			<tool file="FROGS/tools/remove_chimera/remove_chimera.xml" />  
+			<tool file="FROGS/tools/filters/filters.xml" />
+			<tool file="FROGS/tools/affiliation_OTU/affiliation_OTU.xml" />
+			<tool file="FROGS/tools/biom_to_tsv/biom_to_tsv.xml" />
+			<tool file="FROGS/tools/clusters_stat/clusters_stat.xml" />
+			<tool file="FROGS/tools/affiliations_stat/affiliations_stat.xml" />
+			<tool file="FROGS/tools/biom_to_stdBiom/biom_to_stdBiom.xml" />
+			<tool file="FROGS/tools/normalisation/normalisation.xml" />
 		</section>
 		...
 
