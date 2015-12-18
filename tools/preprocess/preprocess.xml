@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
-<tool id="FROGS_preprocess" name="FROGS Pre-process" version="1.4.3">
+<tool id="FROGS_preprocess" name="FROGS Pre-process" version="1.4.4">
 	<description>Step 1 in metagenomics analysis: denoising and dereplication.</description>
 	<command interpreter="python2.7">
 		preprocess.py $sequencer_type.sequencer_selected
@@ -267,9 +267,9 @@ How it works
    :class: table table-striped
 
    "1", "For uncontiged data: contig read1 and read2 with a maximum of 10% mismatch in the overlaped region (`FLASh &lt;http://ccb.jhu.edu/software/FLASH/&gt;`_)", "/"
-   "2", "Filter contig sequence on its length which must be between "Minimum amplicon size" and "Maximum amplicon size", "/"
+   "2", "Filter contig sequence on its length which must be between 'Minimum amplicon size' and 'Maximum amplicon size'", "/"
    "3", "Remove sequences where the two primers are not persent and remove primers sequence (`cutadapt &lt;http://cutadapt.readthedocs.org/en/latest/guide.html&gt;`_). The primer search accept 10% of differences", "Remove sequence where the two primers are not persent, remove primers sequence and reverse complement the sequences with strand - (`cutadapt &lt;http://cutadapt.readthedocs.org/en/latest/guide.html&gt;`_). The primer search accept 10% of differences"
-   "4", "Filter sequences on its length and with ambiguous nucleotids","filter sequences on its length, with ambiguous nucleotids, with at least one homopolymer with size >7nt and with distance between two poor qualities (&lt; 10) of &lt;= 10 nt" 
+   "4", "Filter sequences on its length and with ambiguous nucleotids", "filter sequences on its length, with ambiguous nucleotids, with at least one homopolymer with size &gt;7nt and with distance between two poor qualities (&lt; 10) of &lt;= 10 nt" 
    "5", "Dereplicate sequences", "Dereplicate sequences"
 
 
