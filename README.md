@@ -54,7 +54,18 @@
 
 
 ## Installation
-### 1. Install dependencies
+### 1. Download code
+	Released versions
+		Available at https://github.com/geraldinepascal/FROGS/releases
+		After the download, follow the README instructions.
+
+	Otherwise, you can clone the repository from GitHub:
+		git clone https://github.com/geraldinepascal/FROGS.git
+		cd FROGS
+		git submodule init
+		git submodule update
+
+### 2. Install dependencies
 	python interpreter
 		Version: 2.7
 		Tools: all
@@ -112,7 +123,7 @@
 				 OR
 				 sudo yum install util-linux
 
-### 2. Bin directory
+### 3. Bin directory
 	Softwares in 'bin' folder and above dependencies must be in 
 	PATH and PYTHONPATH or in a 'bin' folder in the parent folder of the
 	tools folder.
@@ -127,7 +138,7 @@
 				biom.py
 				...
 
-### 3. Check intallation
+### 4. Check intallation
 	To check your installation you can type:
 		cd <FROGS_PATH>/test
 		bash test.sh <FROGS_PATH> <NB_CPU> <JAVA_MEM> <OUT_FOLDER>
@@ -148,7 +159,7 @@
 		Step biom_to_tsv Thu Sep 24 08:39:13 CEST 2015
 		Completed with success
 
-### 4. Add the biom1 datatype in galaxy
+### 5. Add the biom1 datatype in galaxy
 	Add the type management in galaxy datatypes_conf.xml.
 	For galaxy releases >= 15:
 		<registration converters_path="lib/galaxy/datatypes/converters">
@@ -163,7 +174,7 @@
 			...
 		<registration />
 
-### 5. Add tools in galaxy
+### 6. Add tools in galaxy
 	Add the tools in galaxy tool_conf.xml.
 	Example:
 		...
@@ -183,7 +194,7 @@
 		</section>
 		...
 
-### 6. Set memory and parallelisation settings
+### 7. Set memory and parallelisation settings
 	If you have more than one CPU, it is recommended to increase the number
 	of CPUs used by tools.
 	All the CPUs must be on the same computer/node.
@@ -242,7 +253,7 @@
 				<tool id="FROGS_affiliation_OTU" destination="FROGS_affiliation_OTU_job"/>
 			</tools>
 
-### 7. Upload and configure the databanks
+### 8. Upload and configure the databanks
 	a] Assignation databank
 		- Upload databanks and indexes from http://genoweb.toulouse.inra.fr/frogs_databanks/assignation
 		- Extract databanks.
@@ -254,7 +265,7 @@
 		- To use this databank, you need to create a .loc file named
 		  'phiX_db.loc'. The path provided must be the '.fasta'.
 
-### 8. Tools images
+### 9. Tools images
 	The tools help contain images. These images must be in galaxy images
 	static folder.
 		ln -s <FROGS_PATH>/img <GALAXY_DIR>/static/images/tools/frogs
@@ -292,8 +303,8 @@
 ## Citation
     Escudie F., Auer L., Bernard M., Cauquil L., Vidal K., Maman S.,
     Mariadassou M., Hernadez-Raquet G., Pascal G., 2015. FROGS: Find Rapidly
-    OTU with Galaxy Solution. In: (Ed), The JOBIM 2015 Conference, July 6th to
-    9th, Clermont-Ferrand, France
+    OTU with Galaxy Solution. In: The environmental genomic Conference, 
+    Montpellier, France
 
 
 ## Contact
