@@ -55,7 +55,9 @@
 
 ## Installation
 ### 1. Download code
-	Released versions are available at https://github.com/geraldinepascal/FROGS/releases. After the download, follow the README instructions.
+	Released versions
+		Available at https://github.com/geraldinepascal/FROGS/releases
+		After the download, follow the README instructions.
 
 	Otherwise, you can clone the repository from GitHub:
 		git clone https://github.com/geraldinepascal/FROGS.git
