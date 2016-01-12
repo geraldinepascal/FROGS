@@ -18,7 +18,7 @@
 __author__ = 'Frederic Escudie - Plateforme bioinformatique Toulouse'
 __copyright__ = 'Copyright (C) 2015 INRA'
 __license__ = 'GNU General Public License'
-__version__ = '0.9.0'
+__version__ = '0.10.0'
 __email__ = 'frogs@toulouse.inra.fr'
 __status__ = 'prod'
 
@@ -755,7 +755,7 @@ class Biom:
         self.data = save_data._to_json()
         save_index = self._obs_index
         del self._obs_index
-        json_str = json.dumps( self, default=lambda o: o.__dict__, sort_keys=False, indent=4 )
+        json_str = json.dumps( self, default=lambda o: o.__dict__, sort_keys=False, indent=2 )
         self.data = save_data
         self._obs_index = save_index
         del self.shape
