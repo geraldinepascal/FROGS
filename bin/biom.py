@@ -18,7 +18,7 @@
 __author__ = 'Frederic Escudie - Plateforme bioinformatique Toulouse'
 __copyright__ = 'Copyright (C) 2015 INRA'
 __license__ = 'GNU General Public License'
-__version__ = '0.10.0'
+__version__ = '0.11.0'
 __email__ = 'frogs@toulouse.inra.fr'
 __status__ = 'prod'
 
@@ -541,9 +541,9 @@ class Biom:
     @see: https://github.com/biom-format
     """
     def __init__( self, id=None, format="Biological Observation Matrix 1.0.0", 
-                  format_url="http://biom-format.org/documentation/format_versions/biom-1.0.html",
-                  type="OTU table", generated_by=None, date=None, rows=None,
-                  columns=None, matrix_type="dense", matrix_element_type="int",
+                  format_url="http://biom-format.org", type="OTU table",
+                  generated_by=None, date=None, rows=None, columns=None,
+                  matrix_type="dense", matrix_element_type="int",
                   data=None ):
         """
         @param id: [int]
@@ -741,9 +741,10 @@ class Biom:
                 sys.stderr.write("[WARNING] You erase previous value of the metadata named '" + metadata_name + "' in " + subject_name + " (OLD:'" + str(subject_list[subject_idx]['metadata'][metadata_name]) + "' => NEW:'" + str(metadata_value) + "').\n")
             subject_list[subject_idx]['metadata'][metadata_name] = metadata_value
 
-    def to_json( self ):
+    def to_json( self, pretty_print=False ):
         """
         @summary: Return a json format for the data store in the Biom object.
+        @param pretty_print: [bool] True if the returned json must be human readable.
         @return: [str] The json.
         """
         self.shape = [
@@ -755,7 +756,11 @@ class Biom:
         self.data = save_data._to_json()
         save_index = self._obs_index
         del self._obs_index
-        json_str = json.dumps( self, default=lambda o: o.__dict__, sort_keys=False, indent=2 )
+        json_str = ""
+        if pretty_print:
+            json_str = json.dumps( self, default=lambda o: o.__dict__, sort_keys=False, indent=2 )
+        else:
+            json_str = json.dumps( self, default=lambda o: o.__dict__, sort_keys=False )
         self.data = save_data
         self._obs_index = save_index
         del self.shape
@@ -1141,14 +1146,15 @@ class BiomIO:
         return is_biom
 
     @staticmethod
-    def write( path, biom ):
+    def write( path, biom, pretty_print=False ):
         """
         @summary: Write a biom file from a 'Biom'.
         @param path: [str] The path of the biom file.
         @param biom: [Biom] The Biom object to write.
+        @param pretty_print: [bool] True if the returned json must be human readable.
         """
         out_fh = open( path, "w" )
-        out_fh.write( biom.to_json() )
+        out_fh.write( biom.to_json(pretty_print) )
         out_fh.close()
 
     @staticmethod
