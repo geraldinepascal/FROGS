@@ -745,7 +745,7 @@ if __name__ == "__main__":
   For samples files:
     preprocess.py illumina
       --input-R1 R1_FILE [R1_FILE ...]
-      --already-contiged | --R2-files R2_FILE [R2_FILE ...] --R1-size R1_SIZE --R2-size R2_SIZE --expected-amplicon-size SIZE
+      --already-contiged | --input-R2 R2_FILE [R2_FILE ...] --R1-size R1_SIZE --R2-size R2_SIZE --expected-amplicon-size SIZE
       --min-amplicon-size MIN_AMPLICON_SIZE
       --max-amplicon-size MAX_AMPLICON_SIZE
       --without-primers | --five-prim-primer FIVE_PRIM_PRIMER --three-prim-primer THREE_PRIM_PRIMER
