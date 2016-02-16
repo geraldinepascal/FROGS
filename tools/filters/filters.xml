@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
-<tool id="FROGS_filters" name="FROGS Filters" version="1.1.0">
+<tool id="FROGS_filters" name="FROGS Filters" version="1.2.0">
 	<description>Filters OTUs on several criteria.</description>
 	<command interpreter="python2.7">
 		filters.py
@@ -75,9 +75,9 @@
 				<option value="yes">Apply filters</option>
 			</param>
 			<when value="yes">
-				<param name="min_sample_presence" type="integer" optional="true" label="Remove OTUs that are not present at least in XX samples; how many samples do you choose? " size="5" help="Fill the field only if you want this treatment." />
-				<param name="min_abundance" type="text" optional="true" label="Proportion/number of sequences threshold to remove an OTU" size="5" help="Fill the field only if you want this treatment. Use decimal to express proportion (0.01 for 1%) integer to express number of sequence (1 for singleton)." />
-				<param name="nb_biggest_otu" type="integer" optional="true" label="When sorted by abundance, how many OTU do you want to keep ?" size="5" help="Fill the fields only if you want this treatment." /> 
+				<param name="min_sample_presence" type="integer" optional="true" label="Minimum number of samples" size="5" help="Fill the field only if you want this treatment. Keep OTU present in at least this number of samples." />
+				<param name="min_abundance" type="text" optional="true" label="Minimum proportion/number of sequences to keep OTU" size="5" help="Fill the field only if you want this treatment. Use decimal notation for proportion (example: 0.01 for keep OTU with at least 1% of all sequences) ; Use integer notation for number of sequence (example: 2 for keep OTU with at least 2 sequences)." />
+				<param name="nb_biggest_otu" type="integer" optional="true" label="N biggest OTU" size="5" help="Fill the fields only if you want this treatment. Keep the N biggest OTU." /> 
 			</when>
 		</conditional>
 
@@ -234,7 +234,7 @@ Examples for the filters on abundance and occurence of the OTUs :
 
 -To display the 20 biggest OTU, fill the corresponding field with "20".
 
--To filter on singletons, we advise you to specify 0.005%. It seems to be the optimal threshold (`Bokulich *et al*, 2013 &lt;http://www.nature.com/nmeth/journal/v10/n1/abs/nmeth.2276.html&gt;`_ ).
+-To filter on abundance, we advise you to specify 0.005%. It seems to be the optimal threshold (`Bokulich *et al*, 2013 &lt;http://www.nature.com/nmeth/journal/v10/n1/abs/nmeth.2276.html&gt;`_ ).
 
 If you use "FROGS Filters" before "FROGS Affiliation", the filters on RDP and Blast are useless.
 
