@@ -19,7 +19,7 @@
 __author__ = 'Frederic Escudie - Plateforme bioinformatique Toulouse'
 __copyright__ = 'Copyright (C) 2015 INRA'
 __license__ = 'GNU General Public License'
-__version__ = '1.1.0'
+__version__ = '1.2.0'
 __email__ = 'frogs@toulouse.inra.fr'
 __status__ = 'prod'
 
@@ -39,7 +39,8 @@ def multiAffiFromBiom( biom, output_tsv ):
     @param output_tsv: [str] Path to the output file (format : TSV).
     """
     out_fh = open( output_tsv, "w" )
-    out_fh.write( "#" + "\t".join(["OTU", "Subject_taxonomy", "Blast_subject", "Prct_identity", "Prct_query_coverage", "e-value", "Alignment_length"]) + "\n" )
+#     out_fh.write( "#" + "\t".join(["OTU", "Subject_taxonomy", "Blast_subject", "Prct_identity", "Prct_query_coverage", "e-value", "Alignment_length"]) + "\n" )
+    out_fh.write( "#" + "\t".join(["observation_name", "blast_taxonomy", " blast_subject", "blast_perc_identity", "blast_perc_query_coverage", "blast_evalue", "blast_aln_length"]) + "\n" )
     for current_observation in biom.get_observations():
         if len(current_observation["metadata"]["blast_affiliations"]) > 1:
             for current_aln in current_observation["metadata"]["blast_affiliations"]:
