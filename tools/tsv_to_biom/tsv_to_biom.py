@@ -57,7 +57,9 @@ class Tsv2biom(Cmd):
         FH=open(in_tsv)
         header=FH.readline()
         FH.close()
-        header=header.replace("#","").strip().split()
+        if header.startswith('#'):
+            header=header[1:]
+        header=header.strip().split()
         
         # Sequence file option
         if not out_fasta is None:

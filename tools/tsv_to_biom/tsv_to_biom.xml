@@ -33,7 +33,7 @@
 		<param format="tabular" name="tsv_file" type="data" label="Abundance TSV File" help="Your FROGS abundance TSV file. Take care to keep intact column name." optional="false"/>
 		<param format="tabular" name="multi_affi_file" type="data" label="Multi_hits TSV File" help="TSV file describinh multi blast hit." optional="true" />
 		<!-- Parameters -->
-		<param name="extract_fasta" type="boolean" label="Extract seed FASTA file" help="If there is a 'seed_sequence column', you can extract seed sequence in a separated FASTA file." />
+		<param name="extract_fasta" type="boolean" label="Extract seed FASTA file" help="If there is a 'seed_sequence' column, you can extract seed sequence in a separated FASTA file." />
 	</inputs>
 	<outputs>
 		<data format="biom1" name="biom_file" label="${tool.name}: abundance.biom" from_work_dir="abundance.biom" />
@@ -105,8 +105,8 @@ When modifying your abundance TSV file
     * - do not modify column name
     * - do not remove column
     * - take care to choose a taxonomy available in your multi_hit TSV file
-    * - if deleting line from multihit, take caer to not remove a complete cluster whithout removing all multi tags in you abundance TSV file. 
-    * - if you want to rename a taxon level (ex : genus Ruminiclostridium 5 to genus Ruminiclostridium), do not forget to modify also your mult_hit TSV file.
+    * - if deleting line from multihit, take care to not remove a complete cluster whithout removing all "multi tags" in you abundance TSV file. 
+    * - if you want to rename a taxon level (ex : genus "Ruminiclostridium 5;" to genus "Ruminiclostridium;"), do not forget to modify also your mult_hit TSV file.
 
 ----
 

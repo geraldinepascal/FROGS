@@ -157,27 +157,26 @@ def tsv_to_biom( input_tsv, multi_hit_dict, fields, samples_names, output_biom, 
     
     if not output_fasta is None:
         Fasta_fh=FastaIO(output_fasta , "w" )
-        
+    
+    # parse header and store column index 
+    header=in_fh.readline()
+    if header.startswith("#"):
+        header=header[1:]
+    header = header.strip()
+    seed_seq_idx, metadata_index, sample_index = header_line_dict(fields,header,samples_names)
+    if not output_fasta is None and seed_seq_idx == -1 : 
+        raise Exception("\nYou want to extract seed fasta sequence but there is no seed_sequence column in your TSV file\n\n")
+    
     # count by sample, and metadata    
     for line in in_fh:
-        if line.startswith('#'):
-            # recover metadata, seed_sequence, and samples index from header
-            # only metadata precise in fields are kept
-            header=line.strip().replace("#","")
-            seed_seq_idx, metadata_index, sample_index = header_line_dict(fields,header,samples_names)
-            
-            if not output_fasta is None and seed_seq_idx == -1 : 
-                raise Exception("\nYou want to extract seed fasta sequence but there is no seed_sequence column in your TSV file\n\n")
-            
-            continue
         
         cluster_name=""
         line_list=line.strip().split("\t")
         count_by_sample = {}
         metadata_dict = {}
-        # parse columns
+        # parse columns
         for idx,val in enumerate(line_list):
-            # recover metadata
+            # recover metadata
             if idx in metadata_index:
                 if metadata_index[idx]=="observation_name" :
                     cluster_name = val
@@ -189,11 +188,14 @@ def tsv_to_biom( input_tsv, multi_hit_dict, fields, samples_names, output_biom, 
             # recover seed sequence
             elif idx == seed_seq_idx:
                 seed_seq = val
-                
+        
         # if fasta output file => store de seed sequence
         if not output_fasta is None:
             seq = Sequence( cluster_name, seed_seq) 
             Fasta_fh.write(seq)
+
+        if "taxonomy" in metadata_dict:
+            metadata_dict["taxonomy"] = metadata_dict["taxonomy"].split(";")
         
         # format rdp taxonomy to fit BIOM format
         if "rdp_tax_and_bootstrap" in metadata_dict:
@@ -217,7 +219,7 @@ def tsv_to_biom( input_tsv, multi_hit_dict, fields, samples_names, output_biom, 
                     metadata_dict["blast_taxonomy"], metadata_dict["blast_affiliations"] = observation_blast_parts(metadata_dict, multi_hit_dict[cluster_name])
                     if metadata_dict["blast_affiliations"] == [] :
                         raise Exception("\nyour multihit TSV file is no more consistent with your abundance TSV file for (at least) "+cluster_name+"\n\n")
-            # no multi tag= blast affiliation is equal to blast_taxonomy        
+            # no multi tag= blast affiliation is equal to blast_taxonomy        
             else:
                 blast_dict={key.replace("blast_",""):metadata_dict[key] for key in metadata_dict if key.startswith("blast")}
                 metadata_dict["blast_affiliations"]=[blast_dict]
@@ -229,6 +231,7 @@ def tsv_to_biom( input_tsv, multi_hit_dict, fields, samples_names, output_biom, 
         
         # add cluster and count to clusters_count dict    
         clusters_count[cluster_name] = count_by_sample
+        # ok print clusters_count[cluster_name].keys(), "CDT0#LOT05" in clusters_count[cluster_name], "CDT0#LOT02" in clusters_count[cluster_name]
         # add cluster and metadata to clusters_metadata dict
         clusters_metadata[cluster_name] = metadata_dict
     
