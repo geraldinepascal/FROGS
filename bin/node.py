@@ -18,7 +18,7 @@
 __author__ = 'Frederic Escudie - Plateforme bioinformatique Toulouse'
 __copyright__ = 'Copyright (C) 2015 INRA'
 __license__ = 'GNU General Public License'
-__version__ = '0.1.0'
+__version__ = '0.2.0'
 __email__ = 'frogs@toulouse.inra.fr'
 __status__ = 'dev'
 
@@ -41,9 +41,11 @@ class Node:
         if children_nodes is not None:
             for current_child in children_nodes:
                 self.add_child( current_child )
-        self.parent = parent_node
         self.name = name
         self.metadata = metadata if metadata is not None else dict()
+        self.parent = None
+        if parent_node is not None:
+            parent_node.add_child(self)
 
     def __str__(self):
         """
@@ -104,6 +106,33 @@ class Node:
             ancestors.extend( self.parent.get_ancestors() )
             ancestors.extend( [self.parent] )
         return ancestors
+
+    def get_descendants_by_depth(self, depth=1):
+        """
+        @summary: Returns the node descendants with the provided depth from the node. Example: depth=1 returns all the children of the node ; depth=2 returns all the grandchildren of the node.
+        @param: [int] The selected depth.
+        @return: [list] The nodes of descendants.
+        """
+        descendants = list()
+        if depth == 1:
+            descendants = self.get_children()
+        elif depth > 1:
+            for child in self.get_children():
+                descendants.extend( child.get_descendants(depth -1) )
+        return descendants
+
+    def get_leaves(self):
+        """
+        @summary: Returns leaves.
+        @return: [list] The nodes of leaves.
+        """
+        leaves = list()
+        if not self.has_child():
+            leaves = [self]
+        else:
+            for child in self.get_children():
+                leaves.extend( child.get_leaves() )
+        return leaves
 
     def get_depth(self):
         """
