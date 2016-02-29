@@ -4,6 +4,7 @@
   If you update your previous version to this version it is necessary to re-do the following installation steps: 6. Add tools in galaxy and 7. Set memory and parallelisation settings.
 
 ### Bugs fixes:
+  * Fix bug with BIOM without observation metadata in filters.
   * Fix bug with heatmap hover in affiliations_stat.
 
 ### Functions added:
