@@ -8,12 +8,15 @@ then
     mkdir test
 fi
 
+
+# FROGS BIOM after affiliation
 echo ""
 OUT=test/all_filters
 echo $OUT
 mkdir -p $OUT
-python2.7 filters.py --input-biom data/fake_affiliation.biom --input-fasta data/fake_affiliation.fasta \
---output-fasta $OUT/fasta_result.fasta --output-biom $OUT/biom_output \
+python2.7 filters.py \
+--input-biom data/fake_affiliation.biom --input-fasta data/fake_affiliation.fasta \
+--output-biom $OUT/filtered.biom --output-fasta $OUT/filtered.fasta \
 --summary $OUT/summary.html --excluded $OUT/excluded.tsv \
 --log-file $OUT/log.txt \
 --min-sample-presence 2 \
@@ -27,18 +30,35 @@ python2.7 filters.py --input-biom data/fake_affiliation.biom --input-fasta data/
 --nb-biggest-otu 5
 
 
+# FROGS BIOM before affiliation
 echo ""
-OUT=test/set500_B
+OUT=test/frogs_woAffiliations
 echo $OUT
 mkdir -p $OUT
-python2.7 filters.py --input-biom data/set500B_Remove_chimera.biom --input-fasta data/set500B_Remove_chimera.fasta \
---output-fasta $OUT/fasta_result.fasta --output-biom $OUT/biom_output \
+python2.7 filters.py \
+--input-biom data/set500B_Remove_chimera.biom --input-fasta data/set500B_Remove_chimera.fasta \
+--output-biom $OUT/filtered.biom --output-fasta $OUT/filtered.fasta \
 --summary $OUT/summary.html --excluded $OUT/excluded.tsv \
 --log-file $OUT/log.txt \
 --min-abundance 0.00005 \
 --min-sample-presence 2
 
 
+# External BIOM without affiliation
+echo ""
+OUT=test/usearch_woAffiliations
+echo $OUT
+mkdir -p $OUT
+python2.7 filters.py \
+--input-biom data/usearch_woAffi.biom --input-fasta data/usearch_woAffi.fasta \
+--output-biom $OUT/filtered.biom --output-fasta $OUT/filtered.fasta \
+--summary $OUT/summary.html --excluded $OUT/excluded.tsv \
+--log-file $OUT/log.txt \
+--min-abundance 0.00005 \
+--min-sample-presence 2
+
+
+# Large FROGS BIOM
 #echo ""
 #OUT=test/large_dataset
 #echo $OUT
