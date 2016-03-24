@@ -1,0 +1,53 @@
+<trainsetNo>1</trainsetNo><version>null</version><modversion>null</modversion><file>bergeyTrainingTree</file>
+<TreeNode name="Root" taxid="0" rank="rootrank" parentTaxid="-1" leaveCount="30" genusIndex="-1"></TreeNode>
+<TreeNode name="Bacteria [id:3]" taxid="3" rank="domain" parentTaxid="0" leaveCount="30" genusIndex="-1"></TreeNode>
+<TreeNode name="Actinobacteria [id:400]" taxid="400" rank="phylum" parentTaxid="3" leaveCount="30" genusIndex="-1"></TreeNode>
+<TreeNode name="Acidimicrobiia [id:401]" taxid="401" rank="class" parentTaxid="400" leaveCount="30" genusIndex="-1"></TreeNode>
+<TreeNode name="Acidimicrobiales [id:402]" taxid="402" rank="order" parentTaxid="401" leaveCount="30" genusIndex="-1"></TreeNode>
+<TreeNode name="Sva0996 marine group [id:417]" taxid="417" rank="family" parentTaxid="402" leaveCount="1" genusIndex="-1"></TreeNode>
+<TreeNode name="unknown genus [id:1000000001]" taxid="1000000001" rank="genus" parentTaxid="417" leaveCount="1" genusIndex="-1"></TreeNode>
+<TreeNode name="unidentified bacterium wb1_P06 [id:1000000043]" taxid="1000000043" rank="species" parentTaxid="1000000001" leaveCount="1" genusIndex="0"></TreeNode>
+<TreeNode name="OM1 clade [id:415]" taxid="415" rank="family" parentTaxid="402" leaveCount="7" genusIndex="-1"></TreeNode>
+<TreeNode name="Candidatus Actinomarina [id:416]" taxid="416" rank="genus" parentTaxid="415" leaveCount="2" genusIndex="-1"></TreeNode>
+<TreeNode name="unknown species [id:1000000003]" taxid="1000000003" rank="species" parentTaxid="416" leaveCount="1" genusIndex="1"></TreeNode>
+<TreeNode name="Candidatus Actinomarina minuta [id:1000000059]" taxid="1000000059" rank="species" parentTaxid="416" leaveCount="1" genusIndex="2"></TreeNode>
+<TreeNode name="unknown genus [id:1000000008]" taxid="1000000008" rank="genus" parentTaxid="415" leaveCount="5" genusIndex="-1"></TreeNode>
+<TreeNode name="microbial mat metagenome [id:1000000034]" taxid="1000000034" rank="species" parentTaxid="1000000008" leaveCount="1" genusIndex="3"></TreeNode>
+<TreeNode name="bacterium WH6-7 [id:1000000011]" taxid="1000000011" rank="species" parentTaxid="1000000008" leaveCount="1" genusIndex="4"></TreeNode>
+<TreeNode name="unidentified bacterium wb1_G04 [id:1000000041]" taxid="1000000041" rank="species" parentTaxid="1000000008" leaveCount="1" genusIndex="5"></TreeNode>
+<TreeNode name="unidentified bacterium wb1_J07 [id:1000000044]" taxid="1000000044" rank="species" parentTaxid="1000000008" leaveCount="1" genusIndex="6"></TreeNode>
+<TreeNode name="unknown species [id:1000000009]" taxid="1000000009" rank="species" parentTaxid="1000000008" leaveCount="1" genusIndex="7"></TreeNode>
+<TreeNode name="Acidimicrobiaceae [id:403]" taxid="403" rank="family" parentTaxid="402" leaveCount="12" genusIndex="-1"></TreeNode>
+<TreeNode name="CL500-29 marine group [id:405]" taxid="405" rank="genus" parentTaxid="403" leaveCount="4" genusIndex="-1"></TreeNode>
+<TreeNode name="bacterium enrichment culture clone B213(2011) [id:1000000054]" taxid="1000000054" rank="species" parentTaxid="405" leaveCount="1" genusIndex="8"></TreeNode>
+<TreeNode name="bacterium enrichment culture clone B97(2011) [id:1000000056]" taxid="1000000056" rank="species" parentTaxid="405" leaveCount="1" genusIndex="9"></TreeNode>
+<TreeNode name="unknown species [id:1000000000]" taxid="1000000000" rank="species" parentTaxid="405" leaveCount="1" genusIndex="10"></TreeNode>
+<TreeNode name="marine metagenome [id:1000000048]" taxid="1000000048" rank="species" parentTaxid="405" leaveCount="1" genusIndex="11"></TreeNode>
+<TreeNode name="Acidimicrobium [id:404]" taxid="404" rank="genus" parentTaxid="403" leaveCount="1" genusIndex="-1"></TreeNode>
+<TreeNode name="unknown species [id:1000000047]" taxid="1000000047" rank="species" parentTaxid="404" leaveCount="1" genusIndex="12"></TreeNode>
+<TreeNode name="Ferrithrix [id:407]" taxid="407" rank="genus" parentTaxid="403" leaveCount="3" genusIndex="-1"></TreeNode>
+<TreeNode name="actinobacterium BGR 74 [id:1000000024]" taxid="1000000024" rank="species" parentTaxid="407" leaveCount="1" genusIndex="13"></TreeNode>
+<TreeNode name="unknown species [id:1000000006]" taxid="1000000006" rank="species" parentTaxid="407" leaveCount="1" genusIndex="14"></TreeNode>
+<TreeNode name="actinobacterium BGR 77 [id:1000000021]" taxid="1000000021" rank="species" parentTaxid="407" leaveCount="1" genusIndex="15"></TreeNode>
+<TreeNode name="Ferrimicrobium [id:406]" taxid="406" rank="genus" parentTaxid="403" leaveCount="2" genusIndex="-1"></TreeNode>
+<TreeNode name="Ferrimicrobium acidiphilum [id:1000000050]" taxid="1000000050" rank="species" parentTaxid="406" leaveCount="1" genusIndex="16"></TreeNode>
+<TreeNode name="unknown species [id:1000000007]" taxid="1000000007" rank="species" parentTaxid="406" leaveCount="1" genusIndex="17"></TreeNode>
+<TreeNode name="unknown genus [id:409]" taxid="409" rank="genus" parentTaxid="403" leaveCount="2" genusIndex="-1"></TreeNode>
+<TreeNode name="unknown species [id:1000000027]" taxid="1000000027" rank="species" parentTaxid="409" leaveCount="1" genusIndex="18"></TreeNode>
+<TreeNode name="Ilumatobacter nonamiensis YM16-303 [id:1000000014]" taxid="1000000014" rank="species" parentTaxid="409" leaveCount="1" genusIndex="19"></TreeNode>
+<TreeNode name="Acidimicrobiales Incertae Sedis [id:410]" taxid="410" rank="family" parentTaxid="402" leaveCount="2" genusIndex="-1"></TreeNode>
+<TreeNode name="Aciditerrimonas [id:411]" taxid="411" rank="genus" parentTaxid="410" leaveCount="2" genusIndex="-1"></TreeNode>
+<TreeNode name="Aciditerrimonas ferrireducens [id:1000000012]" taxid="1000000012" rank="species" parentTaxid="411" leaveCount="1" genusIndex="20"></TreeNode>
+<TreeNode name="unknown species [id:1000000042]" taxid="1000000042" rank="species" parentTaxid="411" leaveCount="1" genusIndex="21"></TreeNode>
+<TreeNode name="unknown family [id:418]" taxid="418" rank="family" parentTaxid="402" leaveCount="5" genusIndex="-1"></TreeNode>
+<TreeNode name="unknown genus [id:1000000004]" taxid="1000000004" rank="genus" parentTaxid="418" leaveCount="5" genusIndex="-1"></TreeNode>
+<TreeNode name="bacterium enrichment culture clone auto73_4W [id:1000000051]" taxid="1000000051" rank="species" parentTaxid="1000000004" leaveCount="1" genusIndex="22"></TreeNode>
+<TreeNode name="bacterium enrichment culture clone auto8_4W [id:1000000053]" taxid="1000000053" rank="species" parentTaxid="1000000004" leaveCount="1" genusIndex="23"></TreeNode>
+<TreeNode name="actinobacterium YJF2-33 [id:1000000026]" taxid="1000000026" rank="species" parentTaxid="1000000004" leaveCount="1" genusIndex="24"></TreeNode>
+<TreeNode name="actinobacterium BGR 43 [id:1000000022]" taxid="1000000022" rank="species" parentTaxid="1000000004" leaveCount="1" genusIndex="25"></TreeNode>
+<TreeNode name="unknown species [id:1000000005]" taxid="1000000005" rank="species" parentTaxid="1000000004" leaveCount="1" genusIndex="26"></TreeNode>
+<TreeNode name="Iamiaceae [id:413]" taxid="413" rank="family" parentTaxid="402" leaveCount="3" genusIndex="-1"></TreeNode>
+<TreeNode name="Iamia [id:414]" taxid="414" rank="genus" parentTaxid="413" leaveCount="3" genusIndex="-1"></TreeNode>
+<TreeNode name="bacterium Ellin5273 [id:1000000038]" taxid="1000000038" rank="species" parentTaxid="414" leaveCount="1" genusIndex="27"></TreeNode>
+<TreeNode name="Iamia majanohamensis [id:1000000016]" taxid="1000000016" rank="species" parentTaxid="414" leaveCount="1" genusIndex="28"></TreeNode>
+<TreeNode name="bacterium Ellin5247 [id:1000000037]" taxid="1000000037" rank="species" parentTaxid="414" leaveCount="1" genusIndex="29"></TreeNode>

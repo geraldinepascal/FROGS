@@ -8,7 +8,7 @@ then
     mkdir test
 fi
 
-./affiliation_OTU.py --reference data/SILVA_119_SSURef_Nr99_tax_silva.fasta \
+./affiliation_OTU.py --reference data/db.fasta \
                      --input-biom data/swarm.biom --input-fasta data/swarm.fasta \
                      --output-biom test/affiliation.biom \
-                     --summary test/summary.tsv --log-file test/aff.log
+                     --summary test/summary.html --log-file test/aff.log
