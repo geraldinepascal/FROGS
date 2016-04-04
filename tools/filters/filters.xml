@@ -76,7 +76,7 @@
 			</param>
 			<when value="yes">
 				<param name="min_sample_presence" type="integer" optional="true" label="Minimum number of samples" size="5" help="Fill the field only if you want this treatment. Keep OTU present in at least this number of samples." />
-				<param name="min_abundance" type="text" optional="true" label="Minimum proportion/number of sequences to keep OTU" size="5" help="Fill the field only if you want this treatment. Use decimal notation for proportion (example: 0.01 for keep OTU with at least 1% of all sequences) ; Use integer notation for number of sequence (example: 2 for keep OTU with at least 2 sequences)." />
+				<param name="min_abundance" type="text" optional="true" label="Minimum proportion/number of sequences to keep OTU" size="5" help="Fill the field only if you want this treatment. Use decimal notation for proportion (example: 0.01 for keep OTU with at least 1% of all sequences) ; Use integer notation for number of sequence (example: 2 for keep OTU with at least 2 sequences, so remove single singleton)." />
 				<param name="nb_biggest_otu" type="integer" optional="true" label="N biggest OTU" size="5" help="Fill the fields only if you want this treatment. Keep the N biggest OTU." /> 
 			</when>
 		</conditional>
