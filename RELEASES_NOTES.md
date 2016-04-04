@@ -6,6 +6,7 @@ This section contain actions to execute if you update a previous FROGS version t
   * The tool FROGS\_tsv\_to\_biom has been added. It is necessary to add the following line in galaxy tool_conf.xml: `<tool file="FROGS/tools/tsv_to_biom/tsv_to_biom.xml" />`.
 
 ### Bugs fixes:
+  * Too large number of temp files in clustering tool.
   * Fix bug with BIOM without observation metadata in filters.
   * Fix bug with heatmap hover in affiliations_stat.
 

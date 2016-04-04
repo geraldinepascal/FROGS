@@ -1,6 +1,6 @@
 #!/usr/bin/env python2.7
 #
-# Copyright (C) 2014 INRA
+# Copyright (C) 2015 INRA
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -19,7 +19,7 @@
 __author__ = 'Maria Bernard - SIGENAE AND Frederic Escudie - Plateforme bioinformatique Toulouse'
 __copyright__ = 'Copyright (C) 2015 INRA'
 __license__ = 'GNU General Public License'
-__version__ = '1.2.0'
+__version__ = '1.2.1'
 __email__ = 'frogs@toulouse.inra.fr'
 __status__ = 'prod'
 
@@ -132,10 +132,9 @@ class ExtractSwarmsFasta(Cmd):
 #
 ##################################################################################################################################################
 ###
-def resizeSeed(seed_in, seed_in_compo, tmp_prefix , seed_out ) :
+def resizeSeed(seed_in, seed_in_compo, seed_out):
     """
-    @summary: add read abundance to seed sequence name and sort by decreasing abundance
-    @param count_file : [str] Path to read abundance file
+    @summary: add read abundance to seed sequence name
     @param seed_in : [str] Path to seed input fasta file
     @param seed_in_compo : [str] Path to seed input composition swarm file
     @param seed_out : [str] Path to seed output fasta file with abundance in name and sorted
@@ -147,35 +146,12 @@ def resizeSeed(seed_in, seed_in_compo, tmp_prefix , seed_out ) :
                 dict_cluster_abond["Cluster_"+str(idx+1)]=sum([ int(n.split("_")[-1]) for n in line.strip().split()])
     f.close()
 
-    sorted_cluster=sorted(dict_cluster_abond.items(),key=itemgetter(1), reverse=True)
-
     FH_input = FastaIO( seed_in )
     FH_out=FastaIO(seed_out , "w" )
     for record in FH_input:
-        if record.id == sorted_cluster[0][0]:
-            record.id += "_"+str(dict_cluster_abond[record.id])
-            FH_out.write( record )
-            sorted_cluster.pop(0)
-        else:
-            FH_tmp = FastaIO (tmp_prefix+"_"+record.id+".fasta" , "w" )
-            record.id += "_"+str(dict_cluster_abond[record.id])
-            FH_tmp.write( record )
-            FH_tmp.close()
-            if os.path.exists(tmp_prefix+"_"+sorted_cluster[0][0]+".fasta"):
-                FH_tmp = FastaIO (tmp_prefix+"_"+sorted_cluster[0][0]+".fasta")
-                for current_record in FH_tmp:
-                    FH_out.write( current_record )
-                FH_tmp.close()
-                os.remove(tmp_prefix+"_"+sorted_cluster[0][0]+".fasta")
-                sorted_cluster.pop(0)
+        record.id += "_" + str(dict_cluster_abond[record.id])
+        FH_out.write( record )
     FH_input.close()
-    for cluster in sorted_cluster:
-        id=cluster[0]
-        FH_tmp = FastaIO (tmp_prefix+"_"+id+".fasta")
-        for current_record in FH_tmp:
-            FH_out.write( current_record )
-        FH_tmp.close()
-        os.remove(tmp_prefix+"_"+id+".fasta")
     FH_out.close()
 
 ###
@@ -228,10 +204,11 @@ if __name__ == "__main__":
     # Temporary files
     tmpFiles = TmpFiles( os.path.split(args.output_biom)[0] )
     filename_woext = os.path.split(args.input_fasta)[1].split('.')[0]
-    swarm_log = tmpFiles.add( filename_woext + '_swarmLog.txt' )
+    swarm_log = tmpFiles.add( filename_woext + '_swarm_log.txt' )
     sorted_fasta = tmpFiles.add( filename_woext + '_sorted.fasta' )
     final_sorted_fasta = sorted_fasta
     swarms_file = args.output_compo
+    denoising_compo = None
 
     # Process
     try:
@@ -241,20 +218,22 @@ if __name__ == "__main__":
 
         if args.denoising and args.distance > 1:
             # Denoising
-            tmp_swarms_log = tmpFiles.add( filename_woext + '_denoisingSwarmLog.txt' )
-            tmp_swarms_file = tmpFiles.add( filename_woext + '_denoisingSwarmCompo.txt' )
-            tmp_seeds_file = tmpFiles.add( filename_woext + '_denoisingSwarmSeeds.fasta' )
-            swarms_file = tmpFiles.add( filename_woext + '_swarmD' + str(args.distance) + 'Compo.txt' )
-            final_sorted_fasta = tmpFiles.add( filename_woext + '_denoisingSwarmResizedSeeds.fasta' )
-            Swarm( sorted_fasta, tmp_swarms_file , tmp_swarms_log, 1 , args.nb_cpus ).submit( args.log_file )
-            ExtractSwarmsFasta( sorted_fasta, tmp_swarms_file, tmp_seeds_file ).submit( args.log_file )
-            resizeSeed( tmp_seeds_file, tmp_swarms_file, os.path.join(tmpFiles.tmp_dir, tmpFiles.prefix), final_sorted_fasta ) # seed denoised sort and add size to its name
+            denoising_log = tmpFiles.add( filename_woext + '_denoising_log.txt' )
+            denoising_compo = tmpFiles.add( filename_woext + '_denoising_composition.txt' )
+            denoising_seeds = tmpFiles.add( filename_woext + '_denoising_seeds.fasta' )
+            denoising_resized_seeds = tmpFiles.add( filename_woext + '_denoising_resizedSeeds.fasta' )
+            swarms_file = tmpFiles.add( filename_woext + '_swarmD' + str(args.distance) + '_composition.txt' )
+            final_sorted_fasta = tmpFiles.add( filename_woext + '_denoising_sortedSeeds.fasta' )
+            Swarm( sorted_fasta, denoising_compo, denoising_log, 1 , args.nb_cpus ).submit( args.log_file )
+            ExtractSwarmsFasta( sorted_fasta, denoising_compo, denoising_seeds ).submit( args.log_file )
+            resizeSeed( denoising_seeds, denoising_compo, denoising_resized_seeds ) # add size to seeds name
+            SortFasta( denoising_resized_seeds, final_sorted_fasta, "_" ).submit( args.log_file )
 
         Swarm( final_sorted_fasta, swarms_file, swarm_log, args.distance, args.nb_cpus ).submit( args.log_file )
 
         if args.denoising and args.distance > 1:
             # convert cluster composition in read composition ==> final swarm composition
-            agregate_composition(tmp_swarms_file, swarms_file, args.output_compo)
+            agregate_composition(denoising_compo, swarms_file, args.output_compo)
 
         Swarm2Biom( args.output_compo, args.input_count, args.output_biom ).submit( args.log_file )
         ExtractSwarmsFasta( final_sorted_fasta, swarms_file, args.output_fasta ).submit( args.log_file )
