@@ -9,22 +9,21 @@ then
 fi
 
 # Without affiliation without sequences
-#./tsv_to_biom.py -t data/swarm_abundance.tsv \
-#				 -b test/swarm_abundance.biom \
-#				 --log-file test/swarm_abundance.log 
+./tsv_to_biom.py -t data/swarm_abundance.tsv \
+				 -b test/swarm_abundance.biom \
+				 --log-file test/swarm_abundance.log
 
-
-# Without affiliation without sequences
+# Without affiliation without sequences (check error)
 #./tsv_to_biom.py -t data/swarm_abundance.tsv \
 #				 -b test/swarm_abundance.biom \
 #				 -f test/swarm_abundance.fasta \
 #				 --log-file test/swarm_abundance.log
 
 # Without affiliation with sequences
-#./tsv_to_biom.py -t data/swarm_fasta_abundance.tsv \
-#				 -b test/swarm_fasta_abundance.biom \
-#				 -f test/swarm_fasta_abundance.fasta \
-#				 --log-file test/swarm_fasta_abundance.log 
+./tsv_to_biom.py -t data/swarm_fasta_abundance.tsv \
+				 -b test/swarm_fasta_abundance.biom \
+				 -f test/swarm_fasta_abundance.fasta \
+				 --log-file test/swarm_fasta_abundance.log 
 
 # With affiliation with sequences with multihit
 ./tsv_to_biom.py -t data/affiliation_modifie.tsv \
@@ -33,7 +32,7 @@ fi
 				 -f test/affiliation.fasta \
 				 --log-file test/affiliation.log 
 
-# Données réelles
+# Real dataset
 #./tsv_to_biom.py -t /home/maria/Documents/projets/frogs/dev/tsv2biom/TG1101tableFROGScorrigeNom.tsv \
 #                 -m /home/maria/Documents/projets/frogs/dev/tsv2biom/TG1101tableFROGS_original_multihit_modified.tsv \
 #				 -b test/TG1101.biom \

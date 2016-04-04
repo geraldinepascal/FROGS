@@ -185,10 +185,11 @@
 			<tool file="FROGS/tools/remove_chimera/remove_chimera.xml" />  
 			<tool file="FROGS/tools/filters/filters.xml" />
 			<tool file="FROGS/tools/affiliation_OTU/affiliation_OTU.xml" />
-			<tool file="FROGS/tools/biom_to_tsv/biom_to_tsv.xml" />
 			<tool file="FROGS/tools/clusters_stat/clusters_stat.xml" />
 			<tool file="FROGS/tools/affiliations_stat/affiliations_stat.xml" />
 			<tool file="FROGS/tools/biom_to_stdBiom/biom_to_stdBiom.xml" />
+			<tool file="FROGS/tools/biom_to_tsv/biom_to_tsv.xml" />
+			<tool file="FROGS/tools/tsv_to_biom/tsv_to_biom.xml" />
 			<tool file="FROGS/tools/normalisation/normalisation.xml" />
 		</section>
 		...

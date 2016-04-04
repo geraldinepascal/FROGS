@@ -1,6 +1,6 @@
 #!/usr/bin/env python2.7
 #
-# Copyright (C) 2014 INRA
+# Copyright (C) 2016 INRA
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -17,7 +17,7 @@
 #
 
 __author__ = 'Maria Bernard - Sigenae INRA'
-__copyright__ = 'Copyright (C) 2015 INRA'
+__copyright__ = 'Copyright (C) 2016 INRA'
 __license__ = 'GNU General Public License'
 __version__ = '1.0.0'
 __email__ = 'frogs@toulouse.inra.fr'
@@ -41,7 +41,7 @@ from biom import *
 # COMMAND LINES
 #
 ##################################################################################################################################################
-        
+
 class Tsv2biom(Cmd):
     """
     @summary: Converts TSV file to Biom file.
@@ -60,31 +60,30 @@ class Tsv2biom(Cmd):
         if header.startswith('#'):
             header=header[1:]
         header=header.strip().split()
-        
+
         # Sequence file option
         if not out_fasta is None:
             sequence_file_opt = " --output-fasta " + out_fasta
         else:
-            sequence_file_opt = "" 
- 
-        if not in_multi is None :
+            sequence_file_opt = ""
+
+        if not in_multi is None:
             multihit_file_opt = " --input-multihits "+in_multi
         else:
-            multihit_file_opt = "" 
-            
+            multihit_file_opt = ""
+
         # Check the metadata
         observation_name_index = header.index("observation_name")
         observation_sum_index = header.index("observation_sum")
-        if observation_sum_index - observation_name_index == 1:
-            samples_names = " ".join(header[observation_sum_index+1:])
-            fields=" ".join(header[:observation_sum_index])
-        else:
+        if (observation_sum_index - observation_name_index) != 1:
             raise Exception( "You change the order of columns. TSV file must ended with observation_name, observation_sum, sample1, sample2 ... \n" )
+        samples_names = "'" + "' '".join(header[observation_sum_index+1:]) + "'"
+        fields = "'" + "' '".join(header[:observation_sum_index]) + "'"
         # Set command
         Cmd.__init__( self,
                       'tsv2biom.py',
                       'Converts a TSV file in Biom.',
-                      "--input-file "  + in_tsv + multihit_file_opt + " --output-file " + out_biom + sequence_file_opt + " --fields " + fields +" --samples-names " + samples_names,
+                      "--input-file "  + in_tsv + multihit_file_opt + " --output-file " + out_biom + sequence_file_opt + " --fields " + fields + " --samples-names " + samples_names,
                       '--version' )
 
 ##################################################################################################################################################
@@ -94,7 +93,7 @@ class Tsv2biom(Cmd):
 ##################################################################################################################################################
 if __name__ == "__main__":
     # Manage parameters
-    parser = argparse.ArgumentParser( description='Converts a BIOM file in TSV file.' )
+    parser = argparse.ArgumentParser( description='Converts a TSV file in BIOM file.' )
     parser.add_argument( '-v', '--version', action='version', version=__version__ )
     # Inputs
     group_input = parser.add_argument_group( 'Inputs' )
@@ -104,7 +103,7 @@ if __name__ == "__main__":
     group_output = parser.add_argument_group( 'Outputs' )
     group_output.add_argument( '-b', '--output-biom', required=True, help="The output abundance file (format : BIOM)." )
     group_output.add_argument( '-f', '--output-fasta', help='The output sequences file (format : FASTA). If sequences exist in your input TSV.' )
-    group_output.add_argument('-l', '--log-file', default=sys.stdout, help='This output file will contain several information on executed commands.' )
+    group_output.add_argument( '-l', '--log-file', default=sys.stdout, help='This output file will contain several information on executed commands.' )
     args = parser.parse_args()
     prevent_shell_injections(args)
 

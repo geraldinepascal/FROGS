@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <!--
-# Copyright (C) 2015 INRA
+# Copyright (C) 2016 INRA
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -20,13 +20,13 @@
 	<command interpreter="python2.7">
 		tsv_to_biom.py 
 		                --input-tsv $tsv_file
-		              #if $multi_affi_file
-		              		--input-multi-affi $multi_affi_file
-		              #end if
 		                --output-biom $biom_file
+		              #if $multi_affi_file
+		                --input-multi-affi $multi_affi_file
+		              #end if
 		              #if $extract_fasta
 		                --output-fasta $sequence_file
-		              #end if   
+		              #end if
 	</command>
 	<inputs>
 		<!-- Files -->
@@ -65,7 +65,7 @@ Authorized column names :  rdp_tax_and_bootstrap, blast_taxonomy, blast_subject,
 
 **Multiple affiliation file**:
 
- Which stores the multiple blast hits.
+Which stores the multiple blast hits.
 
 .. class:: h3
 
@@ -77,9 +77,9 @@ Outputs
 
 **Sequence file [optional]**:
 
-By checking the "Extract seed FASTA file" option, the sequences will be extract from TSV to `FASTA &lt;https://en.wikipedia.org/wiki/FASTA_format&gt;`_ format.
+ By checking the "Extract seed FASTA file" option, the sequences will be extract from TSV to `FASTA &lt;https://en.wikipedia.org/wiki/FASTA_format&gt;`_ format.
 
-Be sure that your TSV file contains the seed_sequence column.
+ Be sure that your TSV file contains the seed_sequence column.
 
 
 .. class:: infomark page-header h2
