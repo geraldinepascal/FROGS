@@ -1,0 +1,123 @@
+<?xml version="1.0"?>
+<!--
+# Copyright (C) 2016 INRA
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+-->
+<tool id="FROGS_tsv_to_biom" name="FROGS TSV to BIOM" version="1.0.0">
+	<description>Converts a TSV file in BIOM file.</description>
+	<command interpreter="python2.7">
+		tsv_to_biom.py 
+		                --input-tsv $tsv_file
+		                --output-biom $biom_file
+		              #if $multi_affi_file
+		                --input-multi-affi $multi_affi_file
+		              #end if
+		              #if $extract_fasta
+		                --output-fasta $sequence_file
+		              #end if
+	</command>
+	<inputs>
+		<!-- Files -->
+		<param format="tabular" name="tsv_file" type="data" label="Abundance TSV File" help="Your FROGS abundance TSV file. Take care to keep intact column name." optional="false"/>
+		<param format="tabular" name="multi_affi_file" type="data" label="Multi_hits TSV File" help="TSV file describinh multi blast hit." optional="true" />
+		<!-- Parameters -->
+		<param name="extract_fasta" type="boolean" label="Extract seed FASTA file" help="If there is a 'seed_sequence' column, you can extract seed sequence in a separated FASTA file." />
+	</inputs>
+	<outputs>
+		<data format="biom1" name="biom_file" label="${tool.name}: abundance.biom" from_work_dir="abundance.biom" />
+		<data format="fasta" name="sequence_file" label="${tool.name}: sequences.fasta" from_work_dir="seed.fasta" >
+			<filter>extract_fasta</filter>
+		</data>
+	</outputs>
+	<help>
+.. image:: ${static_path}/images/tools/frogs/FROGS_logo.png
+   :height: 144
+   :width: 110
+
+
+.. class:: infomark page-header h2
+
+What it does
+
+Converts a TSV file in BIOM file.
+
+.. class:: h3
+
+Inputs
+
+**Abundance file**:
+ 
+The abundance of each cluster in each sample (format TSV).
+
+Authorized column names :  rdp_tax_and_bootstrap, blast_taxonomy, blast_subject, blast_perc_identity, blast_perc_query_coverage, blast_evalue, blast_aln_length, seed_id, seed_sequence, observation_name, observation_sum
+
+**Multiple affiliation file**:
+
+Which stores the multiple blast hits.
+
+.. class:: h3
+
+Outputs
+
+**Abundance file**:
+
+ The abundance of each cluster in each sample and theirs metadata (format `BIOM &lt;http://biom-format.org/&gt;`_).
+
+**Sequence file [optional]**:
+
+ By checking the "Extract seed FASTA file" option, the sequences will be extract from TSV to `FASTA &lt;https://en.wikipedia.org/wiki/FASTA_format&gt;`_ format.
+
+ Be sure that your TSV file contains the seed_sequence column.
+
+
+.. class:: infomark page-header h2
+
+How it works
+
+FROGS TSV to Biom will search any metadata (columns before "observation_name") and sample names (columns after "observation_sum").
+
+Then it will reconstruct the Biom abundance file : for each "observation_name" it will add the associated metadata and the samples count.
+
+If metadata include blast_taxonomy, and if blast_subject is equal to "multi-subject", it will parse de multi_hit TSV file, and extract the list of blast_affiliations that contain the non ambiguous blast_taxonomy.
+
+
+
+.. class:: infomark page-header h2
+
+Advices
+
+This tool is usefull if you have modify your abundance TSV file, and you want to generate rarefaction curve or sunburst with the FROGS Affiliation stat tool.
+
+When modifying your abundance TSV file
+
+    * - do not modify column name
+    * - do not remove column
+    * - take care to choose a taxonomy available in your multi_hit TSV file
+    * - if deleting line from multihit, take care to not remove a complete cluster whithout removing all "multi tags" in you abundance TSV file. 
+    * - if you want to rename a taxon level (ex : genus "Ruminiclostridium 5;" to genus "Ruminiclostridium;"), do not forget to modify also your mult_hit TSV file.
+
+----
+
+**Contact**
+
+Contacts: frogs@toulouse.inra.fr
+
+Repository: https://github.com/geraldinepascal/FROGS
+
+Please cite the FROGS Publication: *Escudie F., Auer L., Bernard M., Cauquil L., Vidal K., Maman S., Mariadassou M., Hernadez-Raquet G., Pascal G., 2015. FROGS: Find Rapidly OTU with Galaxy Solution. In: The environmental genomic Conference, Montpellier, France,* http://bioinfo.genotoul.fr/fileadmin/user_upload/FROGS_2015_GE_Montpellier_poster.pdf
+
+Depending on the help provided you can cite us in acknowledgements, references or both.
+	</help>
+</tool>

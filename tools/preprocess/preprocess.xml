@@ -268,7 +268,7 @@ How it works
 
    "1", "For uncontiged data: contig read1 and read2 with a maximum of 10% mismatch in the overlaped region (`FLASh &lt;http://ccb.jhu.edu/software/FLASH/&gt;`_)", "/"
    "2", "Filter contig sequence on its length which must be between 'Minimum amplicon size' and 'Maximum amplicon size'", "/"
-   "3", "Remove sequences where the two primers are not persent and remove primers sequence (`cutadapt &lt;http://cutadapt.readthedocs.org/en/latest/guide.html&gt;`_). The primer search accept 10% of differences", "Remove sequence where the two primers are not persent, remove primers sequence and reverse complement the sequences with strand - (`cutadapt &lt;http://cutadapt.readthedocs.org/en/latest/guide.html&gt;`_). The primer search accept 10% of differences"
+   "3", "If sequencing protocol is the illumina standard protocol : Remove sequences where the two primers are not persent and remove primers sequence (`cutadapt &lt;http://cutadapt.readthedocs.org/en/latest/guide.html&gt;`_). The primer search accept 10% of differences", "Remove sequence where the two primers are not persent, remove primers sequence and reverse complement the sequences with strand - (`cutadapt &lt;http://cutadapt.readthedocs.org/en/latest/guide.html&gt;`_). The primer search accept 10% of differences"
    "4", "Filter sequences on its length and with ambiguous nucleotids", "filter sequences on its length, with ambiguous nucleotids, with at least one homopolymer with size &gt;7nt and with distance between two poor qualities (&lt; 10) of &lt;= 10 nt" 
    "5", "Dereplicate sequences", "Dereplicate sequences"
 
@@ -281,7 +281,9 @@ Advices/details on parameters
 
 Primers parameters
 
-The primers must provided in 5' to 3' orientation. 
+The custom protocol (`Kozich et al. 2013 &lt;http://www.ncbi.nlm.nih.gov/pmc/articles/PMC3753973/&gt;`_ ) use custom sequencing primers and these primers are the PCR primers. In this case the reads do not contain the PCR primers.
+
+In case of Illumina standard protocol, the primers must provided in 5' to 3' orientation. 
 
 .. role:: alert-info
 
@@ -331,6 +333,7 @@ Please cite the FROGS Publication: *Escudie F., Auer L., Bernard M., Cauquil L.,
 Depending on the help provided you can cite us in acknowledgements, references or both.
 	</help> 
 	<citations>
+		<citation type="doi">10.1128/AEM.01043-13</citation>
 		<citation type="doi">10.14806/ej.17.1.200</citation>
 		<citation type="doi">10.1093/bioinformatics/btr507</citation>
 	</citations>

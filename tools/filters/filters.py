@@ -468,10 +468,10 @@ if __name__ == '__main__':
     parser.add_argument( '-v', '--version', action='version', version=__version__ )
     #     Filters
     group_filter = parser.add_argument_group( 'Filters' )
-    group_filter.add_argument( '--nb-biggest-otu', type=int, default=None, required=False, help="Number of most abundant OTUs you want to keep") 
-    group_filter.add_argument( '-s', '--min-sample-presence', type=int, help="Remove OTUs that are not present at least in XX samples; how many samples do you choose? ") 
-    group_filter.add_argument( '-a', '--min-abundance', type=minAbundParameter, default=None, required=False, help="Minimum percentage/number of sequences, comparing to the total number of sequences, of an OTU (between 0 and 1 if percentage desired)" )  
-    group_filter.add_argument( '-b', '--min-rdp-bootstrap', type=str, action=BootstrapParameter, metavar=("TAXONOMIC_LEVEL:MIN_BOOTSTRAP"), help="The minimal RDP bootstrap must be superior to this value. (between 0 and 1)" )
+    group_filter.add_argument( '--nb-biggest-otu', type=int, default=None, required=False, help="Number of most abundant OTUs you want to keep.") 
+    group_filter.add_argument( '-s', '--min-sample-presence', type=int, help="Keep OTU present in at least this number of samples.") 
+    group_filter.add_argument( '-a', '--min-abundance', type=minAbundParameter, default=None, required=False, help="Minimum percentage/number of sequences, comparing to the total number of sequences, of an OTU (between 0 and 1 if percentage desired)." )  
+    group_filter.add_argument( '-b', '--min-rdp-bootstrap', type=str, action=BootstrapParameter, metavar=("TAXONOMIC_LEVEL:MIN_BOOTSTRAP"), help="The minimal RDP bootstrap must be superior to this value (between 0 and 1)." )
     group_filter.add_argument( '-t', '--rdp-taxonomy-ranks', nargs='*', default=["Domain", "Phylum", "Class", "Order", "Family", "Genus", "Species"], help='The ordered ranks levels present in the reference databank.' )
     group_filter.add_argument( '-i', '--min-blast-identity', type=ratioParameter, help="The number corresponding to the blast percentage identity (between 0 and 1)." )
     group_filter.add_argument( '-c', '--min-blast-coverage', type=ratioParameter, help="The number corresponding to the blast percentage coverage (between 0 and 1)." )
@@ -496,6 +496,8 @@ if __name__ == '__main__':
 
     if args.nb_biggest_otu is None and args.min_sample_presence is None and args.min_abundance is None and args.min_rdp_bootstrap is None and args.min_blast_identity is None and args.min_blast_coverage is None and args.max_blast_evalue is None and args.min_blast_length is None:
         raise argparse.ArgumentTypeError( "At least one filter must be set to run " + os.path.basename(sys.argv[0]) )
+    if args.min_abundance <= 0 or (type(args.min_abundance) == float and args.min_abundance >= 1.0 ) :
+        raise argparse.ArgumentTypeError( "If filtering on abundance, you must indicate a positiv threshold and if percentage abundance threshold must be smaller than 1.0. " )
     in_biom = BiomIO.from_json( args.input_biom )
     if args.min_rdp_bootstrap is not None:
         if not in_biom.has_observation_metadata("rdp_bootstrap"):

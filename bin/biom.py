@@ -18,7 +18,7 @@
 __author__ = 'Frederic Escudie - Plateforme bioinformatique Toulouse'
 __copyright__ = 'Copyright (C) 2015 INRA'
 __license__ = 'GNU General Public License'
-__version__ = '0.11.0'
+__version__ = '0.11.1'
 __email__ = 'frogs@toulouse.inra.fr'
 __status__ = 'prod'
 
@@ -894,7 +894,7 @@ class Biom:
     def has_observation_metadata(self, metadata_title):
         has_metadata = False
         for current_observ in self.get_observations():
-            if current_observ["metadata"].has_key(metadata_title):
+            if current_observ["metadata"] is not None and current_observ["metadata"].has_key(metadata_title):
                 has_metadata = True
         return has_metadata
 
@@ -908,9 +908,9 @@ class Biom:
             - list or tuple:
               ["d:Bacteria", "Proteobacteria", "Epsilonproteobacteria", "Campylobacterales", "Helicobacteraceae", "Helicobacter"]
             - string:
-               "Bacteria;Proteobacteria;Epsilonproteobacteria;Campylobacterales;Helicobacteraceae;Helicobacter;"
-            - string ended by rank separator:
                "Bacteria;Proteobacteria;Epsilonproteobacteria;Campylobacterales;Helicobacteraceae;Helicobacter"
+            - string ended by rank separator:
+               "Bacteria;Proteobacteria;Epsilonproteobacteria;Campylobacterales;Helicobacteraceae;Helicobacter;"
             - string with bootstrap:
                "Bacteria(1.0000);Proteobacteria(0.9997);Epsilonproteobacteria(1.0000);Campylobacterales(1.0000);Helicobacteraceae(0.9898);Helicobacter(0.9912)"
             - string with bootstrap and ended by rank separator:

@@ -101,7 +101,7 @@ The databases come from `SILVA &lt;http://www.arb-silva.de/&gt;`_ a comprehensiv
 
 FROGS database(s) pre-process:
 
-1. The non-redondant small sub-unit database is retrieved from SILVA (actually the version 119-1).
+1. The non-redondant small sub-unit database is retrieved from SILVA.
 
 2. This database is processed to keep only the taxonomy level: Domain - Phylum - Class - Order - Family - Genus - Species
 

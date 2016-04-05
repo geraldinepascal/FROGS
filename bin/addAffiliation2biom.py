@@ -19,7 +19,7 @@
 __author__ = 'Maria Bernard - Sigenae AND Frederic Escudie - Plateforme bioinformatique Toulouse'
 __copyright__ = 'Copyright (C) 2015 INRA'
 __license__ = 'GNU General Public License'
-__version__ = '2.2.1'
+__version__ = '2.2.2'
 __email__ = 'frogs@toulouse.inra.fr'
 __status__ = 'prod'
 
@@ -219,9 +219,9 @@ def aff_to_metadata(reference_file, biom_in, biom_out, blast_files=None, rdp_fil
             rdp_bootstrap = None
             if cluster_rdp_annot.has_key(cluster_id):
                 rdp_taxonomy = cluster_rdp_annot[cluster_id]['taxonomy']
-                bootstrap = cluster_rdp_annot[cluster_id]['bootstrap']
+                rdp_bootstrap = cluster_rdp_annot[cluster_id]['bootstrap']
             biom.add_metadata(cluster_id, "rdp_taxonomy", rdp_taxonomy, "observation")
-            biom.add_metadata(cluster_id, "rdp_bootstrap", bootstrap, "observation")
+            biom.add_metadata(cluster_id, "rdp_bootstrap", rdp_bootstrap, "observation")
     BiomIO.write(biom_out, biom)
 
 

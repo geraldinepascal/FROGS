@@ -1,12 +1,17 @@
 # v1.2.0  [dev]
 ### Update notes:
-  The repository structure has been changed: tools have been moved in sub-directories.
-  If you update your previous version to this version it is necessary to re-do the following installation steps: 6. Add tools in galaxy and 7. Set memory and parallelisation settings.
+This section contain actions to execute if you update a previous FROGS version to this version.
+
+  * The repository structure has been changed: tools have been moved in sub-directories. It is necessary to re-do the following installation steps: '6. Add tools in galaxy' and '7. Set memory and parallelisation settings'.
+  * The tool FROGS\_tsv\_to\_biom has been added. It is necessary to add the following line in galaxy tool_conf.xml: `<tool file="FROGS/tools/tsv_to_biom/tsv_to_biom.xml" />`.
 
 ### Bugs fixes:
+  * Too large number of temp files in clustering tool.
+  * Fix bug with BIOM without observation metadata in filters.
   * Fix bug with heatmap hover in affiliations_stat.
 
 ### Functions added:
+  * Add tool to convert a TSV file in BIOM file.
   * Default BIOM becomes mono-line.
   * Reduce the BIOM file size (identation 4 -> 2 in pretty_print).
   * Change the repository structure (one directory by tool).
