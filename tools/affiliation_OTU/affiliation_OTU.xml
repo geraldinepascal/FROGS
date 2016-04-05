@@ -97,10 +97,6 @@ Outputs
 
 Reference database
 
-.. class:: h3
-
-SILVA
-
 The databases come from `SILVA &lt;http://www.arb-silva.de/&gt;`_ a comprehensive and quality checked rRNA database.
 
 FROGS database(s) pre-process:
@@ -111,13 +107,6 @@ FROGS database(s) pre-process:
 
 3. The database is splitted in two databses: prokaryote and eukaryote.
 
-.. class:: h3
-
-Greengenes
-
-The databases come from `Greengenes &lt;http://greengenes.secondgenome.com/&gt;`_ 
-
-Greengenes is a prokaryotic database (16S only) and taxonomies are systematically structured on 7 taxonomic levels (format : k__;p__;c__;o__;f__;g__;s__) 
 
 .. class:: infomark page-header h2
 
