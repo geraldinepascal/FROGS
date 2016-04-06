@@ -1,4 +1,4 @@
-# v1.2.0  [dev]
+# v1.2.0  [2016-04-06]
 ### Update notes:
 This section contain actions to execute if you update a previous FROGS version to this version.
 
