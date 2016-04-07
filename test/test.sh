@@ -168,6 +168,7 @@ fi
 
 echo "Step biom_to_stdBiom `date`"
 
+
 $frogs_dir/tools/biom_to_stdBiom/biom_to_stdBiom.py \
  --input-biom $out_dir/04-affiliation.biom \
  --output-biom $out_dir/08-affiliation_std.biom \
@@ -181,6 +182,7 @@ then
 fi
 
 echo "Step tsv_to_biom `date`"
+
 
 $frogs_dir/tools/tsv_to_biom/tsv_to_biom.py \
  --input-tsv $out_dir/07-biom2tsv.tsv \

@@ -121,11 +121,12 @@
 				 OR
 				 sudo yum install util-linux
 
-### 3. Bin directory
+### 3. Bin and lib directories
 	Softwares in 'bin' folder and above dependencies must be in 
-	PATH and PYTHONPATH or in a 'bin' folder in the parent folder of the
-	tools folder.
-	  Example with FROGS binaries in bin folder:
+	PATH or in a 'bin' folder in the parent folder of the tools folder.
+	Librairies in 'lib' folder must be in PYTHONPATH or in a 'lib' folder
+	in the parent folder of the tools folder.
+	  Example:
 		<FROGS_PATH>/
 			tools/
 				preprocess/
@@ -134,8 +135,10 @@
 				...
 			bin/
 				biom2tsv.py
-				biom.py
 				...
+			lib/
+                biom.py
+                ...
 
 ### 4. Check intallation
 	To check your installation you can type:

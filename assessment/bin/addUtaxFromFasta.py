@@ -25,8 +25,8 @@ __status__ = 'prod'
 
 import re
 import argparse
-from sequenceIO import FastaIO
-from biom import BiomIO
+from frogsSequenceIO import FastaIO
+from frogsBiom import BiomIO
 
 
 ##################################################################################################################################################

@@ -28,8 +28,8 @@ import re
 import time
 import argparse
 import subprocess
-from biom import BiomIO
-from sequenceIO import FastaIO
+from frogsBiom import BiomIO
+from frogsSequenceIO import FastaIO
 
 
 ##################################################################################################################################################

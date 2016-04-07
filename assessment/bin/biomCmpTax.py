@@ -27,7 +27,7 @@ import re
 import sys
 import json
 import argparse
-from biom import BiomIO
+from frogsBiom import BiomIO
 
 
 ##################################################################################################################################################

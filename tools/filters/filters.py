@@ -19,7 +19,7 @@
 __author__ = 'Katia Vidal - Team NED Toulouse AND Frederic Escudie - Plateforme bioinformatique Toulouse'
 __copyright__ = 'Copyright (C) 2015 INRA'
 __license__ = 'GNU General Public License'
-__version__ = '1.2.0'
+__version__ = '1.3.0'
 __email__ = 'frogs@toulouse.inra.fr'
 __status__ = 'prod'
 
@@ -31,14 +31,25 @@ import operator
 import argparse
 
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
+# PATH
 BIN_DIR = os.path.abspath(os.path.join(os.path.dirname(os.path.dirname(CURRENT_DIR)), "bin"))
-os.putenv('PATH', BIN_DIR + os.pathsep + os.getenv('PATH')) # $PATH
-sys.path.insert(0, BIN_DIR) # $PYTHONPATH
+os.environ['PATH'] = BIN_DIR + os.pathsep + os.environ['PATH']
+# PYTHONPATH
+LIB_DIR = os.path.abspath(os.path.join(os.path.dirname(os.path.dirname(CURRENT_DIR)), "lib"))
+sys.path.append(LIB_DIR)
+if os.getenv('PYTHONPATH') is None: os.environ['PYTHONPATH'] = LIB_DIR
+else: os.environ['PYTHONPATH'] = os.environ['PYTHONPATH'] + os.pathsep + LIB_DIR
 
 from frogsUtils import *
-from biom import Biom, BiomIO
-from sequenceIO import *
+from frogsBiom import BiomIO
+from frogsSequenceIO import *
 
+
+##################################################################################################################################################
+#
+# COMMAND LINES
+#
+##################################################################################################################################################
 class UpdateFasta(Cmd):
     """
     @summary: Updates fasta file based on sequence in biom file
@@ -106,6 +117,11 @@ class RemoveConta(Cmd):
         FH_log.close()
 
 
+##################################################################################################################################################
+#
+# FUNCTIONS
+#
+##################################################################################################################################################
 def excluded_obs_on_rdpBootstrap(input_biom, taxonomic_depth, min_bootstrap, excluded_file):
     """
     @summary: Writes the list of the observations with an insufficient bootstrap on the specified taxonomic rank.

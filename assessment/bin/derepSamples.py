@@ -31,7 +31,7 @@ import operator
 import argparse
 import threading
 import multiprocessing
-from sequenceIO import *
+from frogsSequenceIO import *
 
 
 ##################################################################################################################################################

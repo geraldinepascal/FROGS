@@ -19,7 +19,7 @@
 __author__ = 'Plateforme bioinformatique Toulouse'
 __copyright__ = 'Copyright (C) 2016 INRA'
 __license__ = 'GNU General Public License'
-__version__ = '1.0.0'
+__version__ = '1.1.0'
 __email__ = 'frogs@toulouse.inra.fr'
 __status__ = 'beta'
 
@@ -56,7 +56,7 @@ def exec_cmd( cmd, output=None ):
 ##################################################################################################################################################
 if __name__ == "__main__":
     print "[SOFTWARE]:\tMothur"
-    
+
     # Manage parameters
     parser = argparse.ArgumentParser(description="Launch mothur workflow.")
     parser.add_argument( '--min-length', type=int, required=True, help='The minimum amplicon length.')
@@ -96,7 +96,7 @@ if __name__ == "__main__":
         args.affiliation_databank_tax = os.path.abspath(args.affiliation_databank_tax)
     args.output_biom = os.path.abspath(args.output_biom)
     args.output_fasta = os.path.abspath(args.output_fasta)
-    
+
     samples = dict()
     for sample_filename in os.listdir(args.input_folder):
         if sample_filename.endswith(".fastq"):
@@ -161,12 +161,12 @@ if __name__ == "__main__":
     #   stability.trim.contigs.good.fasta
     #   stability.trim.contigs.bad.accnos
     #   stability.contigs.good.groups
-    
+
     exec_cmd( 'mothur "#unique.seqs(fasta=stability.trim.contigs.good.fasta)"' )
     # Outputs:
     #   stability.trim.contigs.good.names
     #   stability.trim.contigs.good.unique.fasta
-    
+
     exec_cmd( 'mothur "#count.seqs(' \
         + 'name=stability.trim.contigs.good.names, ' \
         + 'group=stability.contigs.good.groups)"' )
@@ -190,7 +190,8 @@ if __name__ == "__main__":
     # Align sequences on databank
     exec_cmd( 'mothur "#align.seqs(' \
         + 'fasta=stability.trim.contigs.good.unique.fasta, ' \
-        + 'reference=restriction_db.pcr.fasta)"' )################################### + 'processors=' + str(args.nb_cpus) + ')"'
+        + 'reference=restriction_db.pcr.fasta, ' \
+        + 'processors=' + str(args.nb_cpus) + ')"' )
     # Outputs:
     #   stability.trim.contigs.good.unique.align
     #   stability.trim.contigs.good.unique.align.report
@@ -222,7 +223,7 @@ if __name__ == "__main__":
     # Outputs:
     #   stability.filter
     #   stability.trim.contigs.good.unique.good.filter.fasta
-    
+
     exec_cmd( 'mothur "#unique.seqs(' \
         + 'fasta=stability.trim.contigs.good.unique.good.filter.fasta, ' \
         + 'count=stability.trim.contigs.good.good.count_table)"' )
@@ -313,9 +314,9 @@ if __name__ == "__main__":
         exec_cmd( 'mothur "#make.biom(shared=stability.trim.contigs.good.unique.good.filter.unique.precluster.pick.pick.an.unique_list.shared)"' )
         # Outputs:
         #   stability.trim.contigs.good.unique.good.filter.unique.precluster.pick.pick.an.unique_list.0.03.biom
-        
+
         exec_cmd( 'ln -sf stability.trim.contigs.good.unique.good.filter.unique.precluster.pick.pick.an.unique_list.0.03.biom ' + args.output_biom )
-        
+
         exec_cmd( 'mothur "#get.oturep(' \
             + 'method=abundance, ' \
             + 'count=stability.trim.contigs.good.unique.good.filter.unique.precluster.uchime.pick.pick.count_table, ' \
@@ -325,12 +326,12 @@ if __name__ == "__main__":
         # Outputs:
         #   stability.trim.contigs.good.unique.good.filter.unique.precluster.pick.pick.an.unique_list.0.03.rep.count_table
         #   stability.trim.contigs.good.unique.good.filter.unique.precluster.pick.pick.an.unique_list.0.03.rep.fasta
-        
+
         # Degap and rename OTU
         exec_cmd( 'mothurDeGapSeeds.py ' \
             + '--input stability.trim.contigs.good.unique.good.filter.unique.precluster.pick.pick.an.unique_list.' + str(args.otu_distance) + '.rep.fasta ' \
             + '--output stability.trim.contigs.good.unique.good.filter.unique.precluster.pick.pick.an.unique_list.' + str(args.otu_distance) + '.rep.degap.fasta' )
-        
+
         # Add reference ID in seeds descriptions
         exec_cmd( 'mothurAddSeedRef.py ' \
             + "--input stability.trim.contigs.good.unique.good.filter.unique.precluster.pick.pick.an.unique_list." + str(args.otu_distance) + ".rep.degap.fasta "  \
@@ -341,7 +342,7 @@ if __name__ == "__main__":
         exec_cmd( 'cp ' + args.affiliation_databank_fasta + ' affiliation_db.fasta' )
         exec_cmd( 'cp ' + args.affiliation_databank_tax + ' affiliation_db.tax' )
 
-        #### Affiliation       
+        #### Affiliation
         exec_cmd( 'mothur "#classify.seqs(' \
             + 'fasta=stability.trim.contigs.good.unique.good.filter.unique.precluster.pick.pick.fasta, ' \
             + 'count=stability.trim.contigs.good.unique.good.filter.unique.precluster.uchime.pick.count_table, ' \
@@ -360,7 +361,7 @@ if __name__ == "__main__":
         #   stability.trim.contigs.good.unique.good.filter.unique.precluster.pick.pick.an.unique_list.0.03.cons.taxonomy
         #   stability.trim.contigs.good.unique.good.filter.unique.precluster.pick.pick.an.unique_list.0.03.cons.tax.summary
 
-   
+
         #### BIOM
         exec_cmd( 'mothur "#make.shared(' \
             + 'list=stability.trim.contigs.good.unique.good.filter.unique.precluster.pick.pick.an.unique_list.list, ' \
@@ -374,9 +375,9 @@ if __name__ == "__main__":
             + 'constaxonomy=stability.trim.contigs.good.unique.good.filter.unique.precluster.pick.pick.an.unique_list.' + str(args.otu_distance) + '.cons.taxonomy)"' )
         # Outputs:
         #   stability.trim.contigs.good.unique.good.filter.unique.precluster.pick.pick.an.unique_list.0.03.biom
-       
+
         exec_cmd( 'ln -sf stability.trim.contigs.good.unique.good.filter.unique.precluster.pick.pick.an.unique_list.0.03.biom ' + args.output_biom )
-       
+
         exec_cmd( 'mothur "#get.oturep(' \
             + 'method=abundance, ' \
             + 'count=stability.trim.contigs.good.unique.good.filter.unique.precluster.uchime.pick.pick.count_table, ' \
@@ -386,12 +387,12 @@ if __name__ == "__main__":
         # Outputs:
         #   stability.trim.contigs.good.unique.good.filter.unique.precluster.pick.pick.an.unique_list.0.03.rep.count_table
         #   stability.trim.contigs.good.unique.good.filter.unique.precluster.pick.pick.an.unique_list.0.03.rep.fasta
-        
+
         # Degap and rename OTU
         exec_cmd( 'mothurDeGapSeeds.py ' \
             + '--input stability.trim.contigs.good.unique.good.filter.unique.precluster.pick.pick.an.unique_list.' + str(args.otu_distance) + '.rep.fasta ' \
             + '--output stability.trim.contigs.good.unique.good.filter.unique.precluster.pick.pick.an.unique_list.' + str(args.otu_distance) + '.rep.degap.fasta' )
-        
+
         # Add reference ID in seeds descriptions
         exec_cmd( 'mothurAddSeedRef.py ' \
             + "--input stability.trim.contigs.good.unique.good.filter.unique.precluster.pick.pick.an.unique_list." + str(args.otu_distance) + ".rep.degap.fasta "  \

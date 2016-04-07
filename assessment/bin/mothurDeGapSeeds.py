@@ -25,7 +25,7 @@ __status__ = 'prod'
 
 import re
 import argparse
-from sequenceIO import *
+from frogsSequenceIO import *
 
 
 ##################################################################################################################################################

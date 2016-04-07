@@ -1,3 +1,14 @@
+# v1.3.0  [DEV]
+### Update notes:
+This section contain actions to execute if you update a previous FROGS version to this version.
+
+  * The directory lib has been created and librairies have been renamed. In installation step 2 if you have added `FROGS/bin` in the PYTHONPATH you can remove thi path and add `FROGS/lib` instead.
+
+### Bugs fixes:
+
+### Functions added:
+
+
 # v1.2.0  [2016-04-06]
 ### Update notes:
 This section contain actions to execute if you update a previous FROGS version to this version.

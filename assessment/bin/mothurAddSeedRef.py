@@ -26,7 +26,7 @@ __status__ = 'beta'
 
 import re
 import argparse
-from sequenceIO import *
+from frogsSequenceIO import *
 
 ##################################################################################################################################################
 #
