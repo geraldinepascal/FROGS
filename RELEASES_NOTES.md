@@ -2,7 +2,26 @@
 ### Update notes:
 This section contain actions to execute if you update a previous FROGS version to this version.
 
-  * The directory lib has been created and librairies have been renamed. In installation step 2 if you have added `FROGS/bin` in the PYTHONPATH you can remove thi path and add `FROGS/lib` instead.
+  * The directory lib has been created and librairies have been renamed. In installation step 2 if you have added `FROGS/bin` in the PYTHONPATH you can remove this path and add `FROGS/lib` instead.
+  * The directory libexec has been created. In installation step 2 if you have added `FROGS/bin` in the PATH you can remove this path and add `FROGS/libexec` instead.
+  * The tools are moved in bin directory. If you use FROGS in galaxy you must change the tool_conf.xml:
+	...
+	<section id="FROGS_wrappers" name="FROGS">
+		<tool file="FROGS/bin/upload_tar.xml" />
+		<tool file="FROGS/bin/demultiplex.xml" />
+		<tool file="FROGS/bin/preprocess.xml" />
+		<tool file="FROGS/bin/clustering.xml" />
+		<tool file="FROGS/bin/remove_chimera.xml" />  
+		<tool file="FROGS/bin/filters.xml" />
+		<tool file="FROGS/bin/affiliation_OTU.xml" />
+		<tool file="FROGS/bin/clusters_stat.xml" />
+		<tool file="FROGS/bin/affiliations_stat.xml" />
+		<tool file="FROGS/bin/biom_to_stdBiom.xml" />
+		<tool file="FROGS/bin/biom_to_tsv/biom_to_tsv.xml" />
+		<tool file="FROGS/bin/tsv_to_biom.xml" />
+		<tool file="FROGS/bin/normalisation.xml" />
+	</section>
+	...
 
 ### Bugs fixes:
 

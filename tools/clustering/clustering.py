@@ -30,10 +30,10 @@ from operator import itemgetter
 
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
 # PATH
-BIN_DIR = os.path.abspath(os.path.join(os.path.dirname(os.path.dirname(CURRENT_DIR)), "bin"))
+BIN_DIR = os.path.abspath(os.path.join(os.path.dirname(CURRENT_DIR), "libexec"))
 os.environ['PATH'] = BIN_DIR + os.pathsep + os.environ['PATH']
 # PYTHONPATH
-LIB_DIR = os.path.abspath(os.path.join(os.path.dirname(os.path.dirname(CURRENT_DIR)), "lib"))
+LIB_DIR = os.path.abspath(os.path.join(os.path.dirname(CURRENT_DIR), "lib"))
 sys.path.append(LIB_DIR)
 if os.getenv('PYTHONPATH') is None: os.environ['PYTHONPATH'] = LIB_DIR
 else: os.environ['PYTHONPATH'] = os.environ['PYTHONPATH'] + os.pathsep + LIB_DIR

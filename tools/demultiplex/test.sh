@@ -1,5 +1,5 @@
 #!/bin/bash
-export PATH=../../bin:$PATH
+export PATH=../../libexec:$PATH
 export PYTHONPATH=../../bin:$PYTHONPATH
 
 # Create output folder

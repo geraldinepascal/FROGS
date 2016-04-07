@@ -122,23 +122,26 @@
 				 sudo yum install util-linux
 
 ### 3. Bin and lib directories
-	Softwares in 'bin' folder and above dependencies must be in 
-	PATH or in a 'bin' folder in the parent folder of the tools folder.
-	Librairies in 'lib' folder must be in PYTHONPATH or in a 'lib' folder
-	in the parent folder of the tools folder.
+	Softwares in 'libexec' folder and above dependencies must be in 
+	PATH or in a 'libexec' (a folder in same folder as bin folder).
+	Librairies in 'lib' folder must be in PYTHONPATH or in a 'lib' 
+	(a folder in same folder as bin folder).
 	  Example:
 		<FROGS_PATH>/
+            bin/
+                preprocess.py    # Link to tools/preprocess/preprocess.py
+                ...
+			lib/
+                biom.py
+                ...
+			libexec/
+				biomTools.py
+				...
 			tools/
 				preprocess/
 					preprocess.py
 					preprocess.xml
 				...
-			bin/
-				biom2tsv.py
-				...
-			lib/
-                biom.py
-                ...
 
 ### 4. Check intallation
 	To check your installation you can type:
@@ -150,7 +153,7 @@
 		JAVA_MEM must be at least 4 (= 4Gb of RAM).
 	Example:
 		[user@computer:/home/user]$cd /home/user/frogs_git/test
-		[user@computer:/home/user/frogs_git/test]$bash test.sh /home/user/frogs_git/ 2 4 results
+		[user@computer:/home/user/frogs_git/test]$bash test.sh /home/user/frogs_git/ 2 4 /tmp/results
 		Step preprocess Thu Sep 24 08:34:01 CEST 2015
 		Step clustering Thu Sep 24 08:35:38 CEST 2015
 		Step remove_chimera Thu Sep 24 08:37:32 CEST 2015
@@ -181,19 +184,19 @@
 	Example:
 		...
 		<section id="FROGS_wrappers" name="FROGS">
-			<tool file="FROGS/tools/upload/upload_tar.xml" />
-			<tool file="FROGS/tools/demultiplex/demultiplex.xml" />
-			<tool file="FROGS/tools/preprocess/preprocess.xml" />
-			<tool file="FROGS/tools/clustering/clustering.xml" />
-			<tool file="FROGS/tools/remove_chimera/remove_chimera.xml" />  
-			<tool file="FROGS/tools/filters/filters.xml" />
-			<tool file="FROGS/tools/affiliation_OTU/affiliation_OTU.xml" />
-			<tool file="FROGS/tools/clusters_stat/clusters_stat.xml" />
-			<tool file="FROGS/tools/affiliations_stat/affiliations_stat.xml" />
-			<tool file="FROGS/tools/biom_to_stdBiom/biom_to_stdBiom.xml" />
-			<tool file="FROGS/tools/biom_to_tsv/biom_to_tsv.xml" />
-			<tool file="FROGS/tools/tsv_to_biom/tsv_to_biom.xml" />
-			<tool file="FROGS/tools/normalisation/normalisation.xml" />
+			<tool file="FROGS/bin/upload_tar.xml" />
+			<tool file="FROGS/bin/demultiplex.xml" />
+			<tool file="FROGS/bin/preprocess.xml" />
+			<tool file="FROGS/bin/clustering.xml" />
+			<tool file="FROGS/bin/remove_chimera.xml" />  
+			<tool file="FROGS/bin/filters.xml" />
+			<tool file="FROGS/bin/affiliation_OTU.xml" />
+			<tool file="FROGS/bin/clusters_stat.xml" />
+			<tool file="FROGS/bin/affiliations_stat.xml" />
+			<tool file="FROGS/bin/biom_to_stdBiom.xml" />
+			<tool file="FROGS/bin/biom_to_tsv.xml" />
+			<tool file="FROGS/bin/tsv_to_biom.xml" />
+			<tool file="FROGS/bin/normalisation.xml" />
 		</section>
 		...
 
