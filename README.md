@@ -154,14 +154,16 @@
 	Example:
 		[user@computer:/home/user]$cd /home/user/frogs_git/test
 		[user@computer:/home/user/frogs_git/test]$bash test.sh /home/user/frogs_git/ 2 4 /tmp/results
-		Step preprocess Thu Sep 24 08:34:01 CEST 2015
-		Step clustering Thu Sep 24 08:35:38 CEST 2015
-		Step remove_chimera Thu Sep 24 08:37:32 CEST 2015
-		Step filters Thu Sep 24 08:38:27 CEST 2015
-		Step affiliation_OTU Thu Sep 24 08:38:30 CEST 2015
-		Step clusters_stat Thu Sep 24 08:38:44 CEST 2015
-		Step affiliations_stat Thu Sep 24 08:38:51 CEST 2015
-		Step biom_to_tsv Thu Sep 24 08:39:13 CEST 2015
+		Step preprocess Fri Apr  8 11:44:10 CEST 2016
+		Step clustering Fri Apr  8 11:45:32 CEST 2016
+		Step remove_chimera Fri Apr  8 11:46:02 CEST 2016
+		Step filters Fri Apr  8 11:47:11 CEST 2016
+		Step affiliation_OTU Fri Apr  8 11:47:12 CEST 2016
+		Step clusters_stat Fri Apr  8 11:47:18 CEST 2016
+		Step affiliations_stat Fri Apr  8 11:47:20 CEST 2016
+		Step biom_to_tsv Fri Apr  8 11:47:40 CEST 2016
+		Step biom_to_stdBiom Fri Apr  8 11:47:41 CEST 2016
+		Step tsv_to_biom Fri Apr  8 11:47:42 CEST 2016
 		Completed with success
 
 ### 5. Add the biom1 datatype in galaxy
