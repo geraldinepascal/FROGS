@@ -55,235 +55,240 @@
 
 ## Installation
 ### 1. Download code
-	Released versions
-		Available at https://github.com/geraldinepascal/FROGS/releases
-		After the download, follow the README instructions.
+    Released versions
+        Available at https://github.com/geraldinepascal/FROGS/releases
+        After the download, follow the README instructions.
 
-	Otherwise, you can clone the repository from GitHub:
-		git clone https://github.com/geraldinepascal/FROGS.git
+    Otherwise, you can clone the repository from GitHub:
+        git clone https://github.com/geraldinepascal/FROGS.git
 
-
-### 2. Install dependencies
-	python interpreter
-		Version: 2.7
-		Tools: all
-
-	python SciPy
-		Tools: clusters_stat
-
-	perl interpreter
-		Version: 5
-		Tools: demultiplex
-
-	flash
-		Version: >=1.2.8
-		Named as: flash
-		Tools: preprocess
-		Download: http://sourceforge.net/projects/flashpage/files
-
-	cutadapt
-		Version: >=1.7
-		Named as: cutadapt
-		Tools: preprocess
-		Download: https://github.com/marcelm/cutadapt
-				  OR
-				  https://pypi.python.org/pypi/cutadapt
-
-	swarm
-		Version: >=2.1.1
-		Named as: swarm
-		Tools: clustering
-		Download: https://github.com/torognes/swarm
-
-	vsearch
-		Version: >=1.1.3
-		Named as: vsearch
-		Tools: remove_chimera
-		Download: https://github.com/torognes/vsearch
-
-	NCBI Blast+ blastn
-		Version: >=2.2.29+
-		Named as: blastn
-		Tools: affiliation_OTU and filters
-		Download: http://blast.ncbi.nlm.nih.gov/Blast.cgi?PAGE_TYPE=BlastDocs&DOC_TYPE=Download
-
-	RDPClassifier
-		Version: -
-		Name as: classifier.jar
-		Tools: affiliation_OTU
-		Download: https://github.com/rdpstaff/RDPTools
-
-	taskset
-		Version: util-linux-ng 2.17.2
-		Name as: taskset
-		Tools: affiliation_OTU
-		Install: sudo apt-get install util-linux
-				 OR
-				 sudo yum install util-linux
-
-### 3. Bin and lib directories
-	Softwares in 'libexec' folder and above dependencies must be in 
-	PATH or in a 'libexec' (a folder in same folder as bin folder).
-	Librairies in 'lib' folder must be in PYTHONPATH or in a 'lib' 
-	(a folder in same folder as bin folder).
-	  Example:
-		<FROGS_PATH>/
-            bin/
-                preprocess.py    # Link to tools/preprocess/preprocess.py
+### 2. FROGS folder
+    Default structure:
+        <FROGS_PATH>/
+            app/                 # FROGS applications (this folder must be 
+                ...              # accessible for command line and/or galaxy)
+                preprocess.py        # Link to tools/preprocess/preprocess.py
                 ...
-			lib/
-                biom.py
+            lib/                 # FROGS python librairies
                 ...
-			libexec/
-				biomTools.py
-				...
-			tools/
-				preprocess/
-					preprocess.py
-					preprocess.xml
-				...
+                frogsBiom.py
+                ...
+            libexec/             # FROGS softwares (you can also add the 
+                ...              # dependencies in this folder)
+                biomTools.py
+                ...
+            tools/               # FROGS applications with one sub-folder by
+                ...              # application
+                preprocess/
+                    preprocess.py
+                    preprocess.xml
+                ...
+    I you want to change this architecture 'libexec' must be accessible in the
+    PATH and 'lib' must be accessible in the PYTHONPATH.
+
+### 3. Install dependencies
+    Dependencies must be accessible in the PATH or added in 
+    <FROGS_PATH>/libexec.
+    
+    python interpreter
+        Version: 2.7
+        Tools: all
+
+    python SciPy
+        Tools: clusters_stat
+
+    perl interpreter
+        Version: 5
+        Tools: demultiplex
+
+    flash
+        Version: >=1.2.8
+        Named as: flash
+        Tools: preprocess
+        Download: http://sourceforge.net/projects/flashpage/files
+
+    cutadapt
+        Version: >=1.7
+        Named as: cutadapt
+        Tools: preprocess
+        Download: https://github.com/marcelm/cutadapt
+                  OR
+                  https://pypi.python.org/pypi/cutadapt
+
+    swarm
+        Version: >=2.1.1
+        Named as: swarm
+        Tools: clustering
+        Download: https://github.com/torognes/swarm
+
+    vsearch
+        Version: >=1.1.3
+        Named as: vsearch
+        Tools: remove_chimera
+        Download: https://github.com/torognes/vsearch
+
+    NCBI Blast+ blastn
+        Version: >=2.2.29+
+        Named as: blastn
+        Tools: affiliation_OTU and filters
+        Download: http://blast.ncbi.nlm.nih.gov/Blast.cgi?PAGE_TYPE=BlastDocs&DOC_TYPE=Download
+
+    RDPClassifier
+        Version: -
+        Name as: classifier.jar
+        Tools: affiliation_OTU
+        Download: https://github.com/rdpstaff/RDPTools
+
+    taskset
+        Version: util-linux-ng 2.17.2
+        Name as: taskset
+        Tools: affiliation_OTU
+        Install: sudo apt-get install util-linux
+                 OR
+                 sudo yum install util-linux
 
 ### 4. Check intallation
-	To check your installation you can type:
-		cd <FROGS_PATH>/test
-		bash test.sh <FROGS_PATH> <NB_CPU> <JAVA_MEM> <OUT_FOLDER>
+    To check your installation you can type:
+        cd <FROGS_PATH>/test
+        bash test.sh <FROGS_PATH> <NB_CPU> <JAVA_MEM> <OUT_FOLDER>
     
-	This test executes the FROGS tools in command line mode.
-	Note:
-		JAVA_MEM must be at least 4 (= 4Gb of RAM).
-	Example:
-		[user@computer:/home/user]$cd /home/user/frogs_git/test
-		[user@computer:/home/user/frogs_git/test]$bash test.sh /home/user/frogs_git/ 2 4 /tmp/results
-		Step preprocess Fri Apr  8 11:44:10 CEST 2016
-		Step clustering Fri Apr  8 11:45:32 CEST 2016
-		Step remove_chimera Fri Apr  8 11:46:02 CEST 2016
-		Step filters Fri Apr  8 11:47:11 CEST 2016
-		Step affiliation_OTU Fri Apr  8 11:47:12 CEST 2016
-		Step clusters_stat Fri Apr  8 11:47:18 CEST 2016
-		Step affiliations_stat Fri Apr  8 11:47:20 CEST 2016
-		Step biom_to_tsv Fri Apr  8 11:47:40 CEST 2016
-		Step biom_to_stdBiom Fri Apr  8 11:47:41 CEST 2016
-		Step tsv_to_biom Fri Apr  8 11:47:42 CEST 2016
-		Completed with success
+    This test executes the FROGS tools in command line mode.
+    Note:
+        JAVA_MEM must be at least 4 (= 4Gb of RAM).
+    Example:
+        [user@computer:/home/user]$cd /home/user/frogs_git/test
+        [user@computer:/home/user/frogs_git/test]$bash test.sh /home/user/frogs_git/ 2 4 /tmp/results
+        Step preprocess Fri Apr  8 11:44:10 CEST 2016
+        Step clustering Fri Apr  8 11:45:32 CEST 2016
+        Step remove_chimera Fri Apr  8 11:46:02 CEST 2016
+        Step filters Fri Apr  8 11:47:11 CEST 2016
+        Step affiliation_OTU Fri Apr  8 11:47:12 CEST 2016
+        Step clusters_stat Fri Apr  8 11:47:18 CEST 2016
+        Step affiliations_stat Fri Apr  8 11:47:20 CEST 2016
+        Step biom_to_tsv Fri Apr  8 11:47:40 CEST 2016
+        Step biom_to_stdBiom Fri Apr  8 11:47:41 CEST 2016
+        Step tsv_to_biom Fri Apr  8 11:47:42 CEST 2016
+        Completed with success
 
 ### 5. Add the biom1 datatype in galaxy
-	Add the type management in galaxy datatypes_conf.xml.
-	For galaxy releases >= 15:
-		<registration converters_path="lib/galaxy/datatypes/converters">
-			...
-			<datatype extension="biom1" type="galaxy.datatypes.text:Biom1" display_in_upload="True" subclass="True" mimetype="application/json" />
-			...
-		<registration />
-	For galaxy releases 14:
-		<registration converters_path="lib/galaxy/datatypes/converters">
-			...
-			<datatype extension="biom1" type="galaxy.datatypes.data:Text" display_in_upload="True" subclass="True" mimetype="application/json" />
-			...
-		<registration />
+    The biom1 datatype is availaible since version 16 of galaxy.
+    For previous versions add the following text in galaxy datatypes_conf.xml:
+        For galaxy releases 15:
+            <registration converters_path="lib/galaxy/datatypes/converters">
+                ...
+                <datatype extension="biom1" type="galaxy.datatypes.text:Biom1" display_in_upload="True" subclass="True" mimetype="application/json" />
+                ...
+            <registration />
+        For galaxy releases 14:
+            <registration converters_path="lib/galaxy/datatypes/converters">
+                ...
+                <datatype extension="biom1" type="galaxy.datatypes.data:Text" display_in_upload="True" subclass="True" mimetype="application/json" />
+                ...
+            <registration />
 
 ### 6. Add tools in galaxy
-	Add the tools in galaxy tool_conf.xml.
-	Example:
-		...
-		<section id="FROGS_wrappers" name="FROGS">
-			<tool file="FROGS/bin/upload_tar.xml" />
-			<tool file="FROGS/bin/demultiplex.xml" />
-			<tool file="FROGS/bin/preprocess.xml" />
-			<tool file="FROGS/bin/clustering.xml" />
-			<tool file="FROGS/bin/remove_chimera.xml" />  
-			<tool file="FROGS/bin/filters.xml" />
-			<tool file="FROGS/bin/affiliation_OTU.xml" />
-			<tool file="FROGS/bin/clusters_stat.xml" />
-			<tool file="FROGS/bin/affiliations_stat.xml" />
-			<tool file="FROGS/bin/biom_to_stdBiom.xml" />
-			<tool file="FROGS/bin/biom_to_tsv.xml" />
-			<tool file="FROGS/bin/tsv_to_biom.xml" />
-			<tool file="FROGS/bin/normalisation.xml" />
-		</section>
-		...
+    Add the tools in galaxy tool_conf.xml.
+    Example:
+        ...
+        <section id="FROGS_wrappers" name="FROGS">
+            <tool file="FROGS/app/upload_tar.xml" />
+            <tool file="FROGS/app/demultiplex.xml" />
+            <tool file="FROGS/app/preprocess.xml" />
+            <tool file="FROGS/app/clustering.xml" />
+            <tool file="FROGS/app/remove_chimera.xml" />  
+            <tool file="FROGS/app/filters.xml" />
+            <tool file="FROGS/app/affiliation_OTU.xml" />
+            <tool file="FROGS/app/clusters_stat.xml" />
+            <tool file="FROGS/app/affiliations_stat.xml" />
+            <tool file="FROGS/app/biom_to_stdBiom.xml" />
+            <tool file="FROGS/app/biom_to_tsv.xml" />
+            <tool file="FROGS/app/tsv_to_biom.xml" />
+            <tool file="FROGS/app/normalisation.xml" />
+        </section>
+        ...
 
 ### 7. Set memory and parallelisation settings
-	If you have more than one CPU, it is recommended to increase the number
-	of CPUs used by tools.
-	All the CPUs must be on the same computer/node.
+    If you have more than one CPU, it is recommended to increase the number
+    of CPUs used by tools.
+    All the CPUs must be on the same computer/node.
 
-	a] Specifications  
-		Tool            RAM/CPU     Minimal RAM     Configuration example
-		affiliation	    -              20 Gb         30 CPUs and 300 GB
-		chimera         3 Gb           5 Gb          12 CPUs and 36 GB
-		clustering	    -              10 Gb         16 CPUs and 60 GB
-		preprocess	    8 Gb            -            12 CPUs and 96 GB
+    a] Specifications  
+        Tool            RAM/CPU     Minimal RAM     Configuration example
+        affiliation        -              20 Gb         30 CPUs and 300 GB
+        chimera         3 Gb           5 Gb          12 CPUs and 36 GB
+        clustering        -              10 Gb         16 CPUs and 60 GB
+        preprocess        8 Gb            -            12 CPUs and 96 GB
 
-	b] Change the number of CPUs used
-		Each tool with parallelisation possibilities contains in its XML an
-		hidden parameter to set the number of used CPUs.
-		Example for 16 CPUs:
-		   <param name="nb_cpus" type="hidden" label="CPU number" help="The maximum number of CPUs used." value="1" />
-		   Is changed to :
-		   <param name="nb_cpus" type="hidden" label="CPU number" help="The maximum number of CPUs used." value="16" />
+    b] Change the number of CPUs used
+        Each tool with parallelisation possibilities contains in its XML an
+        hidden parameter to set the number of used CPUs.
+        Example for 16 CPUs:
+           <param name="nb_cpus" type="hidden" label="CPU number" help="The maximum number of CPUs used." value="1" />
+           Is changed to :
+           <param name="nb_cpus" type="hidden" label="CPU number" help="The maximum number of CPUs used." value="16" />
 
-	c] Change the tool launcher configuration
-		In galaxy the job_conf.xml allows to change the scheduler 
-		submission parameters.
-		Example for SGE scheduler:
-			<destinations>
-				...
-				<destination id="FROGS_preprocess_job" runner="drmaa">
-					<param id="galaxy_external_runjob_script">scripts/drmaa_external_runner.py</param>
-					<param id="galaxy_external_killjob_script">scripts/drmaa_external_killer.py</param>
-					<param id="galaxy_external_chown_script">scripts/external_chown_script.py</param>
-					<param id="nativeSpecification">-clear -q galaxyq -l mem=5G -l h_vmem=13G -pe parallel_smp 12</param>
-				</destination>
-				<destination id="FROGS_clustering_job" runner="drmaa">
-					<param id="galaxy_external_runjob_script">scripts/drmaa_external_runner.py</param>
-					<param id="galaxy_external_killjob_script">scripts/drmaa_external_killer.py</param>
-					<param id="galaxy_external_chown_script">scripts/external_chown_script.py</param>
-					<param id="nativeSpecification">-clear -q galaxyq -l mem=3G -l h_vmem=10G -pe parallel_smp 16</param>
-				</destination>
-				<destination id="FROGS_remove_chimera_job" runner="drmaa">
-					<param id="galaxy_external_runjob_script">scripts/drmaa_external_runner.py</param>
-					<param id="galaxy_external_killjob_script">scripts/drmaa_external_killer.py</param>
-					<param id="galaxy_external_chown_script">scripts/external_chown_script.py</param>
-					<param id="nativeSpecification">-clear -q galaxyq -l mem=3G -l h_vmem=4G -pe parallel_smp 12</param>
-				</destination>
-				<destination id="FROGS_affiliation_OTU_job" runner="drmaa">
-					<param id="galaxy_external_runjob_script">scripts/drmaa_external_runner.py</param>
-					<param id="galaxy_external_killjob_script">scripts/drmaa_external_killer.py</param>
-					<param id="galaxy_external_chown_script">scripts/external_chown_script.py</param>
-					<param id="nativeSpecification">-clear -q galaxyq -l mem=7G -l h_vmem=10G -pe parallel_smp 30</param>
-				</destination>
-			</destinations>
-			<tools>
-				...
-				<tool id="FROGS_preprocess" destination="FROGS_preprocess_job"/>   
-				<tool id="FROGS_clustering" destination="FROGS_clustering_job"/>     
-				<tool id="FROGS_remove_chimera" destination="FROGS_remove_chimera_job"/> 
-				<tool id="FROGS_affiliation_OTU" destination="FROGS_affiliation_OTU_job"/>
-			</tools>
+    c] Change the tool launcher configuration
+        In galaxy the job_conf.xml allows to change the scheduler 
+        submission parameters.
+        Example for SGE scheduler:
+            <destinations>
+                ...
+                <destination id="FROGS_preprocess_job" runner="drmaa">
+                    <param id="galaxy_external_runjob_script">scripts/drmaa_external_runner.py</param>
+                    <param id="galaxy_external_killjob_script">scripts/drmaa_external_killer.py</param>
+                    <param id="galaxy_external_chown_script">scripts/external_chown_script.py</param>
+                    <param id="nativeSpecification">-clear -q galaxyq -l mem=5G -l h_vmem=13G -pe parallel_smp 12</param>
+                </destination>
+                <destination id="FROGS_clustering_job" runner="drmaa">
+                    <param id="galaxy_external_runjob_script">scripts/drmaa_external_runner.py</param>
+                    <param id="galaxy_external_killjob_script">scripts/drmaa_external_killer.py</param>
+                    <param id="galaxy_external_chown_script">scripts/external_chown_script.py</param>
+                    <param id="nativeSpecification">-clear -q galaxyq -l mem=3G -l h_vmem=10G -pe parallel_smp 16</param>
+                </destination>
+                <destination id="FROGS_remove_chimera_job" runner="drmaa">
+                    <param id="galaxy_external_runjob_script">scripts/drmaa_external_runner.py</param>
+                    <param id="galaxy_external_killjob_script">scripts/drmaa_external_killer.py</param>
+                    <param id="galaxy_external_chown_script">scripts/external_chown_script.py</param>
+                    <param id="nativeSpecification">-clear -q galaxyq -l mem=3G -l h_vmem=4G -pe parallel_smp 12</param>
+                </destination>
+                <destination id="FROGS_affiliation_OTU_job" runner="drmaa">
+                    <param id="galaxy_external_runjob_script">scripts/drmaa_external_runner.py</param>
+                    <param id="galaxy_external_killjob_script">scripts/drmaa_external_killer.py</param>
+                    <param id="galaxy_external_chown_script">scripts/external_chown_script.py</param>
+                    <param id="nativeSpecification">-clear -q galaxyq -l mem=7G -l h_vmem=10G -pe parallel_smp 30</param>
+                </destination>
+            </destinations>
+            <tools>
+                ...
+                <tool id="FROGS_preprocess" destination="FROGS_preprocess_job"/>   
+                <tool id="FROGS_clustering" destination="FROGS_clustering_job"/>     
+                <tool id="FROGS_remove_chimera" destination="FROGS_remove_chimera_job"/> 
+                <tool id="FROGS_affiliation_OTU" destination="FROGS_affiliation_OTU_job"/>
+            </tools>
 
 ### 8. Upload and configure the databanks
-	a] Assignation databank
-		- Upload databanks and indexes from http://genoweb.toulouse.inra.fr/frogs_databanks/assignation
-		- Extract databanks.
-		- To use these databank, you need to create a .loc file named
-		  'frogs_db.loc'. The path provided must be the '.fasta'.
-	b] Contaminant databank
-		- Upload databank and indexes from http://genoweb.toulouse.inra.fr/frogs_databanks/contaminants
-		- Extract databank.
-		- To use this databank, you need to create a .loc file named
-		  'phiX_db.loc'. The path provided must be the '.fasta'.
+    a] Assignation databank
+        - Upload databanks and indexes from http://genoweb.toulouse.inra.fr/frogs_databanks/assignation
+        - Extract databanks.
+        - To use these databank, you need to create a .loc file named
+          'frogs_db.loc'. The path provided must be the '.fasta'.
+    b] Contaminant databank
+        - Upload databank and indexes from http://genoweb.toulouse.inra.fr/frogs_databanks/contaminants
+        - Extract databank.
+        - To use this databank, you need to create a .loc file named
+          'phiX_db.loc'. The path provided must be the '.fasta'.
 
 ### 9. Tools images
-	The tools help contain images. These images must be in galaxy images
-	static folder.
-		ln -s <FROGS_PATH>/img <GALAXY_DIR>/static/images/tools/frogs
+    The tools help contain images. These images must be in galaxy images
+    static folder.
+        ln -s <FROGS_PATH>/img <GALAXY_DIR>/static/images/tools/frogs
 
 
 ## Troubleshooting
 ### Abnormal increase memory consumption with CPU number
     With certain old versions of glibc the virtual memory used by CPU is
     multiplicative.
-    Nb CPUs   expected RAM consumtion   observed RAM consumption	
+    Nb CPUs   expected RAM consumtion   observed RAM consumption
        1               1Gb                       1Gb
        2               2Gb                     2*2Gb
        3               3Gb                     3*3Gb

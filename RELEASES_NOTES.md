@@ -4,23 +4,23 @@ This section contain actions to execute if you update a previous FROGS version t
 
   * The directory lib has been created and librairies have been renamed. In installation step 2 if you have added `FROGS/bin` in the PYTHONPATH you can remove this path and add `FROGS/lib` instead.
   * The directory libexec has been created. In installation step 2 if you have added `FROGS/bin` in the PATH you can remove this path and add `FROGS/libexec` instead.
-  * The tools are moved in bin directory. If you use FROGS in galaxy you must change the tool_conf.xml:
+  * The tools are moved in app directory. If you use FROGS in galaxy you must change the tool_conf.xml:
 
         ...
         <section id="FROGS_wrappers" name="FROGS">
-            <tool file="FROGS/bin/upload_tar.xml" />
-            <tool file="FROGS/bin/demultiplex.xml" />
-            <tool file="FROGS/bin/preprocess.xml" />
-            <tool file="FROGS/bin/clustering.xml" />
-            <tool file="FROGS/bin/remove_chimera.xml" />  
-            <tool file="FROGS/bin/filters.xml" />
-            <tool file="FROGS/bin/affiliation_OTU.xml" />
-            <tool file="FROGS/bin/clusters_stat.xml" />
-            <tool file="FROGS/bin/affiliations_stat.xml" />
-            <tool file="FROGS/bin/biom_to_stdBiom.xml" />
-            <tool file="FROGS/bin/biom_to_tsv/biom_to_tsv.xml" />
-            <tool file="FROGS/bin/tsv_to_biom.xml" />
-            <tool file="FROGS/bin/normalisation.xml" />
+            <tool file="FROGS/app/upload_tar.xml" />
+            <tool file="FROGS/app/demultiplex.xml" />
+            <tool file="FROGS/app/preprocess.xml" />
+            <tool file="FROGS/app/clustering.xml" />
+            <tool file="FROGS/app/remove_chimera.xml" />  
+            <tool file="FROGS/app/filters.xml" />
+            <tool file="FROGS/app/affiliation_OTU.xml" />
+            <tool file="FROGS/app/clusters_stat.xml" />
+            <tool file="FROGS/app/affiliations_stat.xml" />
+            <tool file="FROGS/app/biom_to_stdBiom.xml" />
+            <tool file="FROGS/app/biom_to_tsv/biom_to_tsv.xml" />
+            <tool file="FROGS/app/tsv_to_biom.xml" />
+            <tool file="FROGS/app/normalisation.xml" />
         </section>
         ...
 
