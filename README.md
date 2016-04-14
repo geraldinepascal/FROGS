@@ -83,7 +83,8 @@
                     preprocess.py
                     preprocess.xml
                 ...
-    I you want to change this architecture 'libexec' must be accessible in the
+
+    If you want to change this architecture 'libexec' must be accessible in the
     PATH and 'lib' must be accessible in the PYTHONPATH.
 
 ### 3. Install dependencies
@@ -172,6 +173,7 @@
 
 ### 5. Add the biom1 datatype in galaxy
     The biom1 datatype is availaible since version 16 of galaxy.
+
     For previous versions add the following text in galaxy datatypes_conf.xml:
         For galaxy releases 15:
             <registration converters_path="lib/galaxy/datatypes/converters">
