@@ -18,7 +18,7 @@
 __author__ = 'Frederic Escudie - Plateforme bioinformatique Toulouse'
 __copyright__ = 'Copyright (C) 2015 INRA'
 __license__ = 'GNU General Public License'
-__version__ = '1.0.1'
+__version__ = '1.0.2'
 __email__ = 'frogs@toulouse.inra.fr'
 __status__ = 'prod'
 
@@ -146,15 +146,24 @@ class FastqIO:
         FH_in = FastqIO(filepath)
         try:
             seq_idx = 0
-            previous = None
-            while seq_idx < 10 and (seq_idx != 0 and previous is not None):
-                previous = FH_in.next_seq()
+            header = FH_in.file_handle.readline()
+            while seq_idx < 10 and header:
+                if not header.startswith("@"):
+                    raise IOError( "The line '" + str(header) + "' in '" + filepath + "' is not a fastq header." )
+                unstriped_sequence = FH_in.file_handle.readline()
+                if unstriped_sequence == "": # No line
+                    raise IOError( filepath + "' is not a fastq." )
+                unstriped_separator = FH_in.file_handle.readline()
+                if unstriped_separator == "": # No line
+                    raise IOError( filepath + "' is not a fastq." )
+                unstriped_quality = FH_in.file_handle.readline()
+                if unstriped_quality == "": # No line
+                    raise IOError( filepath + "' is not a fastq." )
+                if len(unstriped_sequence.strip()) != len(unstriped_quality.strip()):
+                    raise IOError( filepath + "' is not a fastq." )
+                header = FH_in.file_handle.readline()
                 seq_idx += 1
-            FH_in.close()
-            # Cheack first header
-            FH_in = FastqIO(filepath)
-            if seq_idx == 0 or FH_in.file_handle.readline().startswith("@"):
-                is_valid = True
+            is_valid = True
         except:
             pass
         finally:
@@ -262,9 +271,18 @@ class FastaIO:
         FH_in = FastaIO(filepath)
         try:
             seq_idx = 0
-            previous = None
-            while seq_idx < 10 and (seq_idx != 0 and previous is not None):
-                previous = FH_in.next_seq()
+            header = FH_in.file_handle.readline()
+            while seq_idx < 10 and header:
+                if not header.startswith(">"):
+                    raise IOError( "The line '" + str(header) + "' in '" + filepath + "' is not a fasta header." )
+                previous_is_header = True
+                current_line = FH_in.file_handle.readline()
+                while not current_line.startswith(">") and current_line:
+                    previous_is_header = False
+                    current_line = FH_in.file_handle.readline()
+                if previous_is_header:
+                    raise IOError( filepath + "' is not a fasta." )
+                header = current_line
                 seq_idx += 1
             is_valid = True
         except:
