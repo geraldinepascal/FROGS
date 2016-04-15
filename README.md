@@ -216,10 +216,10 @@
 
     a] Specifications  
         Tool            RAM/CPU     Minimal RAM     Configuration example
-        affiliation        -              20 Gb         30 CPUs and 300 GB
-        chimera         3 Gb           5 Gb          12 CPUs and 36 GB
-        clustering        -              10 Gb         16 CPUs and 60 GB
-        preprocess        8 Gb            -            12 CPUs and 96 GB
+        affiliation        -          20 Gb          30 CPUs and 300 GB
+        chimera          3 Gb          5 Gb          12 CPUs and 36 GB
+        clustering         -          10 Gb          16 CPUs and 60 GB
+        preprocess       8 Gb            -           12 CPUs and 96 GB
 
     b] Change the number of CPUs used
         Each tool with parallelisation possibilities contains in its XML an
