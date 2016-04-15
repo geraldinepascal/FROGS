@@ -19,13 +19,13 @@
 __author__ = 'Plateforme bioinformatique Toulouse'
 __copyright__ = 'Copyright (C) 2016 INRA'
 __license__ = 'GNU General Public License'
-__version__ = '1.1.0'
+__version__ = '1.1.1'
 __email__ = 'support.genopole@toulouse.inra.fr'
 __status__ = 'beta'
 
 import re
 import argparse
-from frogsSequenceIO import FastaIO
+from frogsSequenceIO import FastaIO, SequenceFileReader
 from frogsBiom import BiomIO
 
 
