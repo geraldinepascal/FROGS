@@ -19,7 +19,7 @@
 __author__ = 'Frederic Escudie - Plateforme bioinformatique Toulouse'
 __copyright__ = 'Copyright (C) 2015 INRA'
 __license__ = 'GNU General Public License'
-__version__ = '1.6.0'
+__version__ = '1.6.1'
 __email__ = 'frogs@toulouse.inra.fr'
 __status__ = 'prod'
 
@@ -483,18 +483,18 @@ def samples_from_tar( archive, contiged, global_tmp_files, R1_files, R2_files, s
     archive_members = sorted(FH_tar.getmembers(), key=lambda member: member.name)
     for file_info in archive_members:
         if file_info.isfile():
-            if "_R1" in file_info.name or "_r1" in file_info.name:
-                samples_names.append( re.split('_[Rr]1', file_info.name)[0] )
-                R1_files.append( global_tmp_files.add(file_info.name) )
+            if contiged:
+                samples_names.append( file_info.name.split('.')[0] )
                 R1_tmp.append( os.path.join(tmp_folder, file_info.name) )
-            elif "_R2" in file_info.name or "_r2" in file_info.name:
-                R2_files.append( global_tmp_files.add(file_info.name) )
-                R2_tmp.append( os.path.join(tmp_folder, file_info.name) )
+                R1_files.append( global_tmp_files.add(file_info.name) )
             else:
-                if contiged:
-                    samples_names.append( file_info.name.split('.')[0] )
-                    R1_tmp.append( os.path.join(tmp_folder, file_info.name) )
+                if "_R1" in file_info.name or "_r1" in file_info.name:
+                    samples_names.append( re.split('_[Rr]1', file_info.name)[0] )
                     R1_files.append( global_tmp_files.add(file_info.name) )
+                    R1_tmp.append( os.path.join(tmp_folder, file_info.name) )
+                elif "_R2" in file_info.name or "_r2" in file_info.name:
+                    R2_files.append( global_tmp_files.add(file_info.name) )
+                    R2_tmp.append( os.path.join(tmp_folder, file_info.name) )
                 else:
                     raise Exception("The file '" + file_info.name + "' in archive '" + archive + "' is invalid. The files names must contain '_R1' or '_R2'.")
         else:
