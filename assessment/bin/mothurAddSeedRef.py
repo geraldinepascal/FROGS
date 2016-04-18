@@ -26,7 +26,7 @@ __status__ = 'beta'
 
 import re
 import argparse
-from sequenceIO import *
+from frogsSequenceIO import FastaIO, SequenceFileReader
 
 ##################################################################################################################################################
 #
@@ -42,7 +42,7 @@ if __name__ == "__main__":
     parser.add_argument( '-r', '--reads', required=True, nargs="+", help='Simulated reads used as input in mothur pipeline (format: fasta or fastq). These reads are used to retrieve simulation reference of the centroids. The link between centroids and reads is the sequence ID. The description of reads must contain the tag "reference=<REF_ID>".' )
     parser.add_argument( '-o', '--output', required=True, help='Output file (format: fasta).' )
     args = parser.parse_args()
-    
+
     # Get observation sequences
     nb_observations = 0
     observation_ids_by_seq = dict()
@@ -77,7 +77,7 @@ if __name__ == "__main__":
                         reference_by_observation_id[current_obs_id] = reference_id
                     elif len(reference_by_observation_id[current_obs_id].split(",")) > len(reference_id.split(",")):
                         reference_by_observation_id[current_obs_id] = reference_id
-        FH_reads.close()    
+        FH_reads.close()
     if nb_observations != len(reference_by_observation_id):
         raise Exception("All the centroids sequences cannot be retrieved in reads files.")
 

@@ -19,7 +19,7 @@
 __author__ = 'Frederic Escudie - Plateforme bioinformatique Toulouse'
 __copyright__ = 'Copyright (C) 2015 INRA'
 __license__ = 'GNU General Public License'
-__version__ = '1.5.0'
+__version__ = '1.6.1'
 __email__ = 'frogs@toulouse.inra.fr'
 __status__ = 'prod'
 
@@ -35,12 +35,17 @@ import threading
 import multiprocessing
 
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
-BIN_DIR = os.path.abspath(os.path.join(os.path.dirname(os.path.dirname(CURRENT_DIR)), "bin"))
-os.putenv('PATH', BIN_DIR + os.pathsep + os.getenv('PATH')) # $PATH
-sys.path.insert(0, BIN_DIR) # $PYTHONPATH
+# PATH
+BIN_DIR = os.path.abspath(os.path.join(os.path.dirname(CURRENT_DIR), "libexec"))
+os.environ['PATH'] = BIN_DIR + os.pathsep + os.environ['PATH']
+# PYTHONPATH
+LIB_DIR = os.path.abspath(os.path.join(os.path.dirname(CURRENT_DIR), "lib"))
+sys.path.append(LIB_DIR)
+if os.getenv('PYTHONPATH') is None: os.environ['PYTHONPATH'] = LIB_DIR
+else: os.environ['PYTHONPATH'] = os.environ['PYTHONPATH'] + os.pathsep + LIB_DIR
 
 from frogsUtils import *
-from sequenceIO import SequenceFileReader
+from frogsSequenceIO import SequenceFileReader
 
 
 ##################################################################################################################################################
@@ -478,18 +483,18 @@ def samples_from_tar( archive, contiged, global_tmp_files, R1_files, R2_files, s
     archive_members = sorted(FH_tar.getmembers(), key=lambda member: member.name)
     for file_info in archive_members:
         if file_info.isfile():
-            if "_R1" in file_info.name or "_r1" in file_info.name:
-                samples_names.append( re.split('_[Rr]1', file_info.name)[0] )
-                R1_files.append( global_tmp_files.add(file_info.name) )
+            if contiged:
+                samples_names.append( file_info.name.split('.')[0] )
                 R1_tmp.append( os.path.join(tmp_folder, file_info.name) )
-            elif "_R2" in file_info.name or "_r2" in file_info.name:
-                R2_files.append( global_tmp_files.add(file_info.name) )
-                R2_tmp.append( os.path.join(tmp_folder, file_info.name) )
+                R1_files.append( global_tmp_files.add(file_info.name) )
             else:
-                if contiged:
-                    samples_names.append( file_info.name.split('.')[0] )
-                    R1_tmp.append( os.path.join(tmp_folder, file_info.name) )
+                if "_R1" in file_info.name or "_r1" in file_info.name:
+                    samples_names.append( re.split('_[Rr]1', file_info.name)[0] )
                     R1_files.append( global_tmp_files.add(file_info.name) )
+                    R1_tmp.append( os.path.join(tmp_folder, file_info.name) )
+                elif "_R2" in file_info.name or "_r2" in file_info.name:
+                    R2_files.append( global_tmp_files.add(file_info.name) )
+                    R2_tmp.append( os.path.join(tmp_folder, file_info.name) )
                 else:
                     raise Exception("The file '" + file_info.name + "' in archive '" + archive + "' is invalid. The files names must contain '_R1' or '_R2'.")
         else:

@@ -24,7 +24,7 @@ __email__ = 'support.genopole@toulouse.inra.fr'
 __status__ = 'prod'
 
 import argparse
-from sequenceIO import *
+from frogsSequenceIO import *
 
 
 ##################################################################################################################################################

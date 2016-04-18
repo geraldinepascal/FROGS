@@ -19,7 +19,7 @@
 __author__ = 'Plateforme bioinformatique Toulouse'
 __copyright__ = 'Copyright (C) 2016 INRA'
 __license__ = 'GNU General Public License'
-__version__ = '1.0.0'
+__version__ = '1.0.1'
 __email__ = 'support.genopole@toulouse.inra.fr'
 __status__ = 'beta'
 
@@ -28,8 +28,8 @@ import re
 import time
 import argparse
 import subprocess
-from biom import BiomIO
-from sequenceIO import FastaIO
+from frogsBiom import BiomIO
+from frogsSequenceIO import FastaIO
 
 
 ##################################################################################################################################################
@@ -62,7 +62,7 @@ if __name__ == "__main__":
     for dirname, dirnames, filenames in os.walk( args.grinder_dir ):
         for filename in filenames:
             if filename.endswith( "_ranks.txt" ):
-                sample_name = filename.split(args.sample_sep)[0]
+                sample_name = filename.split("_ranks.txt")[0].split(args.sample_sep)[0]
                 samples.append( {'name':sample_name, 'path':os.path.join(dirname, filename)} )
 
     # Grinder to BIOM

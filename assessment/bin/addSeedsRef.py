@@ -19,14 +19,14 @@
 __author__ = 'Plateforme bioinformatique Toulouse'
 __copyright__ = 'Copyright (C) 2016 INRA'
 __license__ = 'GNU General Public License'
-__version__ = '1.0.0'
+__version__ = '1.1.1'
 __email__ = 'support.genopole@toulouse.inra.fr'
 __status__ = 'beta'
 
 import re
 import argparse
-from sequenceIO import *
-from biom import *
+from frogsSequenceIO import FastaIO, SequenceFileReader
+from frogsBiom import BiomIO
 
 
 ##################################################################################################################################################
@@ -75,7 +75,7 @@ if __name__ == "__main__":
             if observation_id_by_seq[seed_seq] not in reference_by_observation_id:
                 missing.append( observation_id_by_seq[seed_seq] )
         raise Exception("All the centroids sequences cannot be retrieved in reads files. Centroids without read: '" + "' '".join(missing) + "'.")
-        
+
     # Write seeds fasta with reference information
     FH_seeds = FastaIO(args.seeds_fasta)
     FH_seeds_with_ref = FastaIO(args.annotated_fasta, "w")

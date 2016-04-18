@@ -19,30 +19,44 @@
 __author__ = 'Maria Bernard - SIGENAE'
 __copyright__ = 'Copyright (C) 2015 INRA'
 __license__ = 'GNU General Public License'
-__version__ = '1.0.0'
+__version__ = '1.0.1'
 __email__ = 'frogs@toulouse.inra.fr'
 __status__ = 'prod'
 
+import os
 import sys
 import time
 import json
 import copy
 import random
 import argparse
-from biom import *
-from sequenceIO import *
 
+CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
+LIB_DIR = os.path.abspath(os.path.join(os.path.dirname(CURRENT_DIR), "lib"))
+sys.path.append(LIB_DIR)
+if os.getenv('PYTHONPATH') is None: os.environ['PYTHONPATH'] = LIB_DIR
+else: os.environ['PYTHONPATH'] = os.environ['PYTHONPATH'] + os.pathsep + LIB_DIR
+
+from frogsBiom import BiomIO
+from frogsSequenceIO import FastaIO
+
+
+##################################################################################################################################################
+#
+# FUNCTIONS
+#
+##################################################################################################################################################
 def biom_fasta_update(biom_in, fasta_in, fasta_out, log_file):
     FH_in = FastaIO( fasta_in )
     FH_out = FastaIO( fasta_out, "w" )
-    Biom = BiomIO.from_json( biom_in )
+    biom = BiomIO.from_json( biom_in )
     seq_in=0
     seq_out=0
 
     for record in FH_in:
         seq_in += 1
         try:
-            Biom.find_idx("observation",record.id)
+            biom.find_idx("observation",record.id)
         except ValueError:
             pass
         else:

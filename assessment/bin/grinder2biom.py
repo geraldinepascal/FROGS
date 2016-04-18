@@ -25,8 +25,8 @@ __status__ = 'beta'
 
 import re
 import argparse
-from biom import Biom, BiomIO
-from sequenceIO import *
+from frogsBiom import Biom, BiomIO
+from frogsSequenceIO import *
 
 
 ##################################################################################################################################################

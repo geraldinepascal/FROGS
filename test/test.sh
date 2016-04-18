@@ -12,8 +12,8 @@ if [ "$#" -ne 4 ]; then
 fi
 
 # Set ENV
-export PATH=$frogs_dir/bin:$PATH
-export PYTHONPATH=$frogs_dir/bin:$PYTHONPATH
+export PATH=$frogs_dir/libexec:$frogs_dir/app:$PATH
+export PYTHONPATH=$frogs_dir/lib:$PYTHONPATH
 
 
 # Create output folder
@@ -25,7 +25,7 @@ fi
 
 echo "Step preprocess `date`"
 
-$frogs_dir/tools/preprocess/preprocess.py illumina \
+preprocess.py illumina \
  --min-amplicon-size 380 --max-amplicon-size 460 \
  --five-prim-primer GGCGVACGGGTGAGTAA --three-prim-primer GTGCCAGCNGCNGCGG \
   --R1-size 250 --R2-size 250 --expected-amplicon-size 420 \
@@ -45,7 +45,7 @@ fi
 
 echo "Step clustering `date`"
 
-$frogs_dir/tools/clustering/clustering.py \
+clustering.py \
  --distance 3 \
  --denoising \
  --input-fasta $out_dir/01-prepro.fasta \
@@ -65,7 +65,7 @@ fi
 
 echo "Step remove_chimera `date`"
 
-$frogs_dir/tools/remove_chimera/remove_chimera.py \
+remove_chimera.py \
  --input-fasta $out_dir/02-clustering.fasta \
  --input-biom $out_dir/02-clustering.biom \
  --non-chimera $out_dir/03-chimera.fasta \
@@ -83,7 +83,7 @@ fi
 
 echo "Step filters `date`"
 
-$frogs_dir/tools/filters/filters.py \
+filters.py \
  --min-abundance 0.00005 \
  --input-biom $out_dir/03-chimera.biom \
  --input-fasta $out_dir/03-chimera.fasta \
@@ -102,7 +102,7 @@ fi
 
 echo "Step affiliation_OTU `date`"
 
-$frogs_dir/tools/affiliation_OTU/affiliation_OTU.py \
+affiliation_OTU.py \
  --reference $frogs_dir/test/data/db.fasta \
  --input-fasta $out_dir/04-filters.fasta \
  --input-biom $out_dir/04-filters.biom \
@@ -120,7 +120,7 @@ fi
 
 echo "Step clusters_stat `date`"
 
-$frogs_dir/tools/clusters_stat/clusters_stat.py \
+clusters_stat.py \
  --input-biom $out_dir/04-affiliation.biom \
  --output-file $out_dir/05-clustersStat.html \
  --log-file $out_dir/05-clustersStat.log
@@ -134,7 +134,7 @@ fi
 
 echo "Step affiliations_stat `date`"
 
-$frogs_dir/tools/affiliations_stat/affiliations_stat.py \
+affiliations_stat.py \
  --input-biom $out_dir/04-affiliation.biom \
  --output-file $out_dir/06-affiliationsStat.html \
  --log-file $out_dir/06-affiliationsStat.log \
@@ -153,7 +153,7 @@ fi
 
 echo "Step biom_to_tsv `date`"
 
-$frogs_dir/tools/biom_to_tsv/biom_to_tsv.py \
+biom_to_tsv.py \
  --input-biom $out_dir/04-affiliation.biom \
  --input-fasta $out_dir/04-filters.fasta \
  --output-tsv $out_dir/07-biom2tsv.tsv \
@@ -168,7 +168,8 @@ fi
 
 echo "Step biom_to_stdBiom `date`"
 
-$frogs_dir/tools/biom_to_stdBiom/biom_to_stdBiom.py \
+
+biom_to_stdBiom.py \
  --input-biom $out_dir/04-affiliation.biom \
  --output-biom $out_dir/08-affiliation_std.biom \
  --output-metadata $out_dir/08-affiliation_multihit.tsv \
@@ -182,7 +183,8 @@ fi
 
 echo "Step tsv_to_biom `date`"
 
-$frogs_dir/tools/tsv_to_biom/tsv_to_biom.py \
+
+tsv_to_biom.py \
  --input-tsv $out_dir/07-biom2tsv.tsv \
  --input-multi-affi $out_dir/07-biom2tsv.multi \
  --output-biom $out_dir/09-tsv2biom.biom \

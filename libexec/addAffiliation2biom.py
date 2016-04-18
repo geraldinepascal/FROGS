@@ -19,14 +19,22 @@
 __author__ = 'Maria Bernard - Sigenae AND Frederic Escudie - Plateforme bioinformatique Toulouse'
 __copyright__ = 'Copyright (C) 2015 INRA'
 __license__ = 'GNU General Public License'
-__version__ = '2.2.2'
+__version__ = '2.3.0'
 __email__ = 'frogs@toulouse.inra.fr'
 __status__ = 'prod'
 
+import os
 import sys
 import copy
 import argparse
-from biom import *
+
+CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
+LIB_DIR = os.path.abspath(os.path.join(os.path.dirname(CURRENT_DIR), "lib"))
+sys.path.append(LIB_DIR)
+if os.getenv('PYTHONPATH') is None: os.environ['PYTHONPATH'] = LIB_DIR
+else: os.environ['PYTHONPATH'] = os.environ['PYTHONPATH'] + os.pathsep + LIB_DIR
+
+from frogsBiom import BiomIO
 
 ##################################################################################################################################################
 #

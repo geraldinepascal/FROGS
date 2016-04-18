@@ -19,7 +19,7 @@
 __author__ = 'Frederic Escudie - Plateforme bioinformatique Toulouse'
 __copyright__ = 'Copyright (C) 2015 INRA'
 __license__ = 'GNU General Public License'
-__version__ = '1.2.0'
+__version__ = '1.3.0'
 __email__ = 'frogs@toulouse.inra.fr'
 __status__ = 'prod'
 
@@ -27,7 +27,7 @@ import os
 import sys
 import gzip
 import argparse
-from sequenceIO import *
+from frogsSequenceIO import *
 
 
 ##################################################################################################################################################
