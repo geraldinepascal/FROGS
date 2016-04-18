@@ -258,7 +258,7 @@ Used datasets for this assessment must be stored in following structure:
     group_output.add_argument( '--output-directory', required=True, help='Path to the output directory.' )
     args = parser.parse_args()
 
-    if "mothur" in args.pipelines and (args.mothur_databank is None or args.mothur_taxonomy):
+    if "mothur" in args.pipelines and (args.mothur_databank is None or args.mothur_taxonomy is None):
         raise Exception("'--mothur-databank' and '--mothur-taxonomy' must be provided to use the mothur pipeline.")
 
     primers_param = {
