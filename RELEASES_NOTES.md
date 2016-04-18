@@ -1,4 +1,4 @@
-# v1.3.0  [DEV]
+# v1.3.0  [2016-04-18]
 ### Update notes:
 This section contain actions to execute if you update a previous FROGS version to this version.
 
@@ -23,10 +23,6 @@ This section contain actions to execute if you update a previous FROGS version t
             <tool file="FROGS/app/normalisation.xml" />
         </section>
         ...
-
-### Bugs fixes:
-
-### Functions added:
 
 
 # v1.2.0  [2016-04-06]
