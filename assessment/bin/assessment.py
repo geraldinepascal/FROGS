@@ -19,7 +19,7 @@
 __author__ = 'Plateforme bioinformatique Toulouse'
 __copyright__ = 'Copyright (C) 2016 INRA'
 __license__ = 'GNU General Public License'
-__version__ = '1.0.0'
+__version__ = '1.0.1'
 __email__ = 'frogs@toulouse.inra.fr'
 __status__ = 'beta'
 
@@ -241,6 +241,7 @@ Used datasets for this assessment must be stored in following structure:
     parser.add_argument( '--datasets', type=int, nargs='+', default=[1, 2, 3, 4, 5], help='IDs of datasets used in assessment. Example: with "--datasets 1 5" only the sub-folders dataset_1 and dataset_5 are used in assessment. [Default: 1, 2, 3, 4, 5]' )
     parser.add_argument( '--primers', type=str, nargs='+', default=["V4V4", "V3V4"], help='Primers used in assessment. Example: with "--primers V4V4" only the sub-folder V4V4 is used in assessment. [Default: V4V4, V3V4]' )
     parser.add_argument( '--distribution-laws', type=str, nargs='+', default=["powerlaw", "uniform"], help='Distribution laws used in assessment. Example: with "--distribution-laws powerlaw" only the sub-folder powerlaw is used in assessment. [Default: powerlaw, uniform].' )
+    parser.add_argument( '--pipelines', type=str, nargs='+', default=["frogs", "uparse", "mothur"], help='launched pipelines. Example: with "--pipelines frogs" only the frogs is launched. [Default: frogs, uparse, mothur].' )
     parser.add_argument( '-p', '--nb-cpus', type=int, default=1, help='The maximum number of CPUs used. [Default: 1]' )
     parser.add_argument( '-v', '--version', action='version', version=__version__)
     # Inputs
@@ -250,12 +251,15 @@ Used datasets for this assessment must be stored in following structure:
     group_input.add_argument( '--affiliation-databank-fasta', required=True, help='Path to the affiliation databank (format: fasta). The description of sequences must be the taxonomy.' )
     group_input.add_argument( '--affiliation-databank-udb', help='Path to the affiliation databank for uparse (format: udb). In uparse pipeline the affiliation is processed with FROGS affiliation tool and if this option is provided the affiliation is also processed with Utax.' )
     group_input.add_argument( '--affiliation-databank-tax', help='Path to the affiliation databank taxonomy for mothur (format: mothur tax). In mothur pipeline the affiliation is processed with FROGS affiliation tool and if this option is provided the affiliation is also processed with mothur classify.' )
-    group_input.add_argument( '--mothur-databank', required=True, help='Path to the databank used in mothur for restrict lineage and and amplicon region (format: fasta).' )
-    group_input.add_argument( '--mothur-taxonomy', required=True, help='Path to the databank used in mothur for restrict lineage and and amplicon region (format: mothur tax).' )
+    group_input.add_argument( '--mothur-databank', help='Path to the databank used in mothur for restrict lineage and and amplicon region (format: fasta).' )
+    group_input.add_argument( '--mothur-taxonomy', help='Path to the databank used in mothur for restrict lineage and and amplicon region (format: mothur tax).' )
     # Outputs
     group_output = parser.add_argument_group('Outputs')
     group_output.add_argument( '--output-directory', required=True, help='Path to the output directory.' )
     args = parser.parse_args()
+
+    if "mothur" in args.pipelines and (args.mothur_databank is None or args.mothur_taxonomy):
+        raise Exception("'--mothur-databank' and '--mothur-taxonomy' must be provided to use the mothur pipeline.")
 
     primers_param = {
         "V3V4": {
@@ -277,7 +281,7 @@ Used datasets for this assessment must be stored in following structure:
     }
 
     # Add in path
-    add_path = ["assessment/bin/", "bin", "tools/preprocess", "tools/clustering", "tools/remove_chimera", "tools/filters", "tools/affiliation_OTU"]
+    add_path = ["assessment/bin", "libexec", "app"]
     add_path_str = args.frogs_directory + os.sep + (os.pathsep + args.frogs_directory + os.sep).join(add_path)
     os.putenv('PATH', add_path_str + os.pathsep + os.getenv('PATH'))
 
@@ -299,11 +303,11 @@ Used datasets for this assessment must be stored in following structure:
                     # Create dir
                     if not os.path.exists(dataset_out_dir):
                         os.makedirs(dataset_out_dir)
-                    
+
                     # Untar unzip dataset
                     reads_directory = os.path.join(dataset_out_dir, "reads")
                     untar( os.path.join(dataset_in_dir, "dataset.tar.gz"), reads_directory )
-                    
+
                     # Uniq
                     duplicated_sequences = os.path.join(dataset_out_dir, "duplicated_sequences.txt")
                     exec_cmd(
@@ -311,64 +315,67 @@ Used datasets for this assessment must be stored in following structure:
                         + " --input " + os.path.join(os.path.dirname(dataset_in_dir), "dataset.fasta") \
                         + " --output " + duplicated_sequences
                     )
-                    
+
                     # FROGS
-                    #    Set files and directory
-                    frogs_out_dir = os.path.join(dataset_out_dir, "frogs")
-                    if not os.path.exists(frogs_out_dir):
-                        os.makedirs(frogs_out_dir)
-                    frogs_biom = os.path.join(frogs_out_dir, "frogs.biom")
-                    frogs_fasta = os.path.join(frogs_out_dir, "frogs.fasta")
-                    frogs_assess_affi = os.path.join(frogs_out_dir, "frogs_affiResults.txt")
-                    frogs_assess_clst = os.path.join(frogs_out_dir, "frogs_OTUResults.txt")
-                    #    Execution and assessment
-                    frogs(args.affiliation_databank_fasta, reads_directory, frogs_biom, frogs_fasta, min_length, max_length, args.nb_cpus)
-                    affiliations_assessment(args.affiliation_databank_fasta, frogs_biom, frogs_fasta, dataset_in_dir, duplicated_sequences, frogs_assess_affi, "_", "blast_taxonomy", True)
-                    clusters_assessment(frogs_biom, frogs_fasta, dataset_fasta, reads_directory, frogs_assess_clst, "_")
+                    if "frogs" in args.pipelines:
+                        #    Set files and directory
+                        frogs_out_dir = os.path.join(dataset_out_dir, "frogs")
+                        if not os.path.exists(frogs_out_dir):
+                            os.makedirs(frogs_out_dir)
+                        frogs_biom = os.path.join(frogs_out_dir, "frogs.biom")
+                        frogs_fasta = os.path.join(frogs_out_dir, "frogs.fasta")
+                        frogs_assess_affi = os.path.join(frogs_out_dir, "frogs_affiResults.txt")
+                        frogs_assess_clst = os.path.join(frogs_out_dir, "frogs_OTUResults.txt")
+                        #    Execution and assessment
+                        frogs(args.affiliation_databank_fasta, reads_directory, frogs_biom, frogs_fasta, min_length, max_length, args.nb_cpus)
+                        affiliations_assessment(args.affiliation_databank_fasta, frogs_biom, frogs_fasta, dataset_in_dir, duplicated_sequences, frogs_assess_affi, "_", "blast_taxonomy", True)
+                        clusters_assessment(frogs_biom, frogs_fasta, dataset_fasta, reads_directory, frogs_assess_clst, "_")
 
                     # UPARSE
-                    #    Set files and directory
-                    uparse_out_dir = os.path.join(dataset_out_dir, "uparse")
-                    if not os.path.exists(uparse_out_dir):
-                        os.makedirs(uparse_out_dir)
-                    uparse_biom = os.path.join(uparse_out_dir, "uparse.biom")
-                    uparse_fasta = os.path.join(uparse_out_dir, "uparse.fasta")
-                    uparse_assess_affi = os.path.join(uparse_out_dir, "uparse_affiResults.txt")
-                    uparse_assess_clst = os.path.join(uparse_out_dir, "uparse_OTUResults.txt")
-                    #    Execution
-                    uparse(args.affiliation_databank_udb, reads_directory, uparse_biom, uparse_fasta, min_length, max_length, args.nb_cpus)
-                    if args.affiliation_databank_udb is not None:
-                        affiliations_assessment(args.affiliation_databank_fasta, uparse_biom, uparse_fasta, dataset_in_dir, duplicated_sequences, uparse_assess_affi, "-", "taxonomy", False)
-                        clusters_assessment(uparse_biom, uparse_fasta, dataset_fasta, reads_directory, uparse_assess_clst, "-")
-                    #    Multi-affiliation execution and assessment
-                    uparse_frogsAffi_biom = os.path.join(uparse_out_dir, "uparse-FROGS-affi.biom")
-                    uparse_frogsAffi_assess_affi = os.path.join(uparse_out_dir, "uparse-FROGS-affi_affiResults.txt")
-                    uparse_frogsAffi_assess_clst = os.path.join(uparse_out_dir, "uparse-FROGS-affi_OTUResults.txt")
-                    frogs_affiliation(args.affiliation_databank_fasta, uparse_biom, uparse_fasta, uparse_frogsAffi_biom, args.nb_cpus)
-                    affiliations_assessment(args.affiliation_databank_fasta, uparse_frogsAffi_biom, uparse_fasta, dataset_in_dir, duplicated_sequences, uparse_frogsAffi_assess_affi, "-", "blast_taxonomy", True)
-                    clusters_assessment(uparse_frogsAffi_biom, uparse_fasta, dataset_fasta, reads_directory, uparse_frogsAffi_assess_clst, "-")
+                    if "uparse" in args.pipelines:
+                        #    Set files and directory
+                        uparse_out_dir = os.path.join(dataset_out_dir, "uparse")
+                        if not os.path.exists(uparse_out_dir):
+                            os.makedirs(uparse_out_dir)
+                        uparse_biom = os.path.join(uparse_out_dir, "uparse.biom")
+                        uparse_fasta = os.path.join(uparse_out_dir, "uparse.fasta")
+                        uparse_assess_affi = os.path.join(uparse_out_dir, "uparse_affiResults.txt")
+                        uparse_assess_clst = os.path.join(uparse_out_dir, "uparse_OTUResults.txt")
+                        #    Execution
+                        uparse(args.affiliation_databank_udb, reads_directory, uparse_biom, uparse_fasta, min_length, max_length, args.nb_cpus)
+                        if args.affiliation_databank_udb is not None:
+                            affiliations_assessment(args.affiliation_databank_fasta, uparse_biom, uparse_fasta, dataset_in_dir, duplicated_sequences, uparse_assess_affi, "-", "taxonomy", False)
+                            clusters_assessment(uparse_biom, uparse_fasta, dataset_fasta, reads_directory, uparse_assess_clst, "-")
+                        #    Multi-affiliation execution and assessment
+                        uparse_frogsAffi_biom = os.path.join(uparse_out_dir, "uparse-FROGS-affi.biom")
+                        uparse_frogsAffi_assess_affi = os.path.join(uparse_out_dir, "uparse-FROGS-affi_affiResults.txt")
+                        uparse_frogsAffi_assess_clst = os.path.join(uparse_out_dir, "uparse-FROGS-affi_OTUResults.txt")
+                        frogs_affiliation(args.affiliation_databank_fasta, uparse_biom, uparse_fasta, uparse_frogsAffi_biom, args.nb_cpus)
+                        affiliations_assessment(args.affiliation_databank_fasta, uparse_frogsAffi_biom, uparse_fasta, dataset_in_dir, duplicated_sequences, uparse_frogsAffi_assess_affi, "-", "blast_taxonomy", True)
+                        clusters_assessment(uparse_frogsAffi_biom, uparse_fasta, dataset_fasta, reads_directory, uparse_frogsAffi_assess_clst, "-")
 
                     # Mothur
-                    #    Set files and directory
-                    mothur_out_dir = os.path.join(dataset_out_dir, "mothur")
-                    if not os.path.exists(mothur_out_dir):
-                        os.makedirs(mothur_out_dir)
-                    mothur_biom = os.path.join(mothur_out_dir, "mothur.biom")
-                    mothur_fasta = os.path.join(mothur_out_dir, "mothur.fasta")
-                    mothur_assess_affi = os.path.join(mothur_out_dir, "mothur_affiResults.txt")
-                    mothur_assess_clst = os.path.join(mothur_out_dir, "mothur_OTUResults.txt")
-                    #    Execution
-                    mothur(args.affiliation_databank_fasta, args.affiliation_databank_tax, args.mothur_databank, args.mothur_taxonomy, reads_directory, mothur_biom, mothur_fasta, min_length, max_length, pcr_start, pcr_end, kept_start, kept_end, args.nb_cpus)
-                    if args.affiliation_databank_tax is not None:
-                        affiliations_assessment(args.affiliation_databank_fasta, mothur_biom, mothur_fasta, dataset_in_dir, duplicated_sequences, mothur_assess_affi, "_", "taxonomy", False)
-                        clusters_assessment(mothur_biom, mothur_fasta, dataset_fasta, reads_directory, mothur_assess_clst, "_")
-                    #    Multi-affiliation execution and assessment
-                    mothur_frogsAffi_biom = os.path.join(mothur_out_dir, "mothur_frogsAffi.biom")
-                    mothur_frogsAffi_assess_affi = os.path.join(mothur_out_dir, "mothur-FROGS-affi_affiResults.txt")
-                    mothur_frogsAffi_assess_clst = os.path.join(mothur_out_dir, "mothur-FROGS-affi_OTUResults.txt")
-                    frogs_affiliation(args.affiliation_databank_fasta, mothur_biom, mothur_fasta, mothur_frogsAffi_biom, args.nb_cpus)
-                    affiliations_assessment(args.affiliation_databank_fasta, mothur_frogsAffi_biom, mothur_fasta, dataset_in_dir, duplicated_sequences, mothur_frogsAffi_assess_affi, "_", "blast_taxonomy", True)
-                    clusters_assessment(mothur_frogsAffi_biom, mothur_fasta, dataset_fasta, reads_directory, mothur_frogsAffi_assess_clst, "_")
+                    if "mothur" in args.pipelines:
+                        #    Set files and directory
+                        mothur_out_dir = os.path.join(dataset_out_dir, "mothur")
+                        if not os.path.exists(mothur_out_dir):
+                            os.makedirs(mothur_out_dir)
+                        mothur_biom = os.path.join(mothur_out_dir, "mothur.biom")
+                        mothur_fasta = os.path.join(mothur_out_dir, "mothur.fasta")
+                        mothur_assess_affi = os.path.join(mothur_out_dir, "mothur_affiResults.txt")
+                        mothur_assess_clst = os.path.join(mothur_out_dir, "mothur_OTUResults.txt")
+                        #    Execution
+                        mothur(args.affiliation_databank_fasta, args.affiliation_databank_tax, args.mothur_databank, args.mothur_taxonomy, reads_directory, mothur_biom, mothur_fasta, min_length, max_length, pcr_start, pcr_end, kept_start, kept_end, args.nb_cpus)
+                        if args.affiliation_databank_tax is not None:
+                            affiliations_assessment(args.affiliation_databank_fasta, mothur_biom, mothur_fasta, dataset_in_dir, duplicated_sequences, mothur_assess_affi, "_", "taxonomy", False)
+                            clusters_assessment(mothur_biom, mothur_fasta, dataset_fasta, reads_directory, mothur_assess_clst, "_")
+                        #    Multi-affiliation execution and assessment
+                        mothur_frogsAffi_biom = os.path.join(mothur_out_dir, "mothur_frogsAffi.biom")
+                        mothur_frogsAffi_assess_affi = os.path.join(mothur_out_dir, "mothur-FROGS-affi_affiResults.txt")
+                        mothur_frogsAffi_assess_clst = os.path.join(mothur_out_dir, "mothur-FROGS-affi_OTUResults.txt")
+                        frogs_affiliation(args.affiliation_databank_fasta, mothur_biom, mothur_fasta, mothur_frogsAffi_biom, args.nb_cpus)
+                        affiliations_assessment(args.affiliation_databank_fasta, mothur_frogsAffi_biom, mothur_fasta, dataset_in_dir, duplicated_sequences, mothur_frogsAffi_assess_affi, "_", "blast_taxonomy", True)
+                        clusters_assessment(mothur_frogsAffi_biom, mothur_fasta, dataset_fasta, reads_directory, mothur_frogsAffi_assess_clst, "_")
 
                     # Remove tmp
                     exec_cmd( "rm " + os.path.join(reads_directory, "*") )

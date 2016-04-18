@@ -19,7 +19,7 @@
 __author__ = 'Plateforme bioinformatique Toulouse'
 __copyright__ = 'Copyright (C) 2016 INRA'
 __license__ = 'GNU General Public License'
-__version__ = '1.0.0'
+__version__ = '1.0.1'
 __email__ = 'frogs@toulouse.inra.fr'
 __status__ = 'beta'
 
@@ -181,6 +181,8 @@ if __name__ == "__main__":
             + "--input-biom " + working_path_prefix + "_woAffi.biom " \
             + "--output-biom " + args.output_biom + " " \
             + "--taxonomy-tag taxonomy" )
+    else:
+        exec_cmd( "ln -sf " + working_path_prefix + "_woAffi.biom " + args.output_biom )
 
 
     # Add reference ID in seeds descriptions and remove size
