@@ -24,6 +24,9 @@ This section contain actions to execute if you update a previous FROGS version t
         </section>
         ...
 
+### Bugs fixes:
+  * Preprocess: missing values in lengths distribution graph.
+
 
 # v1.2.0  [2016-04-06]
 ### Update notes:
