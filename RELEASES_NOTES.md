@@ -1,3 +1,8 @@
+# v1.4.0  [DEV]
+### Bugs fixes:
+  * Filter: error when only the filter on contamination is used.
+
+
 # v1.3.0  [2016-04-18]
 ### Update notes:
 This section contain actions to execute if you update a previous FROGS version to this version.

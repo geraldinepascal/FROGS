@@ -19,7 +19,7 @@
 __author__ = 'Katia Vidal - Team NED Toulouse AND Frederic Escudie - Plateforme bioinformatique Toulouse'
 __copyright__ = 'Copyright (C) 2015 INRA'
 __license__ = 'GNU General Public License'
-__version__ = '1.3.0'
+__version__ = '1.3.1'
 __email__ = 'frogs@toulouse.inra.fr'
 __status__ = 'prod'
 
@@ -510,7 +510,7 @@ if __name__ == '__main__':
 
     Logger.static_write(args.log_file, "## Application\nSoftware: " + os.path.basename(sys.argv[0]) + " (version: " + str(__version__) + ")\nCommand: " + " ".join(sys.argv) + "\n\n")
 
-    if args.nb_biggest_otu is None and args.min_sample_presence is None and args.min_abundance is None and args.min_rdp_bootstrap is None and args.min_blast_identity is None and args.min_blast_coverage is None and args.max_blast_evalue is None and args.min_blast_length is None:
+    if args.nb_biggest_otu is None and args.min_sample_presence is None and args.min_abundance is None and args.min_rdp_bootstrap is None and args.min_blast_identity is None and args.min_blast_coverage is None and args.max_blast_evalue is None and args.min_blast_length is None and args.contaminant is None:
         raise argparse.ArgumentTypeError( "At least one filter must be set to run " + os.path.basename(sys.argv[0]) )
     if args.min_abundance <= 0 or (type(args.min_abundance) == float and args.min_abundance >= 1.0 ) :
         raise argparse.ArgumentTypeError( "If filtering on abundance, you must indicate a positiv threshold and if percentage abundance threshold must be smaller than 1.0. " )
