@@ -19,12 +19,11 @@
 __author__ = 'Plateforme bioinformatique Toulouse'
 __copyright__ = 'Copyright (C) 2016 INRA'
 __license__ = 'GNU General Public License'
-__version__ = '1.1.0'
+__version__ = '1.2.0'
 __email__ = 'frogs@toulouse.inra.fr'
 __status__ = 'beta'
 
 import os
-import sys
 import time
 import argparse
 import subprocess
@@ -253,12 +252,22 @@ if __name__ == "__main__":
         + 'dereplicate=t, ' \
         + 'processors=' + str(args.nb_cpus) + ')"' )
     # Outputs:
-    #   stability.trim.contigs.good.unique.good.filter.unique.precluster.uchime.pick.count_table
-    #   stability.trim.contigs.good.unique.good.filter.unique.precluster.uchime.chimeras
-    #   stability.trim.contigs.good.unique.good.filter.unique.precluster.uchime.accnos
+    #   stability.trim.contigs.good.unique.good.filter.unique.precluster.denovo.uchime.pick.count_table
+    #   stability.trim.contigs.good.unique.good.filter.unique.precluster.denovo.uchime.chimeras
+    #   stability.trim.contigs.good.unique.good.filter.unique.precluster.denovo.uchime.accnos
+    if os.path.exists("stability.trim.contigs.good.unique.good.filter.unique.precluster.uchime.accnos"): # mothur version < 1.35.0
+        exec_cmd( 'ln -sf ' \
+            + 'stability.trim.contigs.good.unique.good.filter.unique.precluster.uchime.pick.count_table ' \
+            + 'stability.trim.contigs.good.unique.good.filter.unique.precluster.denovo.uchime.pick.count_table' )
+        exec_cmd( 'ln -sf ' \
+            + 'stability.trim.contigs.good.unique.good.filter.unique.precluster.uchime.chimeras ' \
+            + 'stability.trim.contigs.good.unique.good.filter.unique.precluster.denovo.uchime.chimeras' )
+        exec_cmd( 'ln -sf ' \
+            + 'stability.trim.contigs.good.unique.good.filter.unique.precluster.uchime.accnos ' \
+            + 'stability.trim.contigs.good.unique.good.filter.unique.precluster.denovo.uchime.accnos' )
     exec_cmd( 'mothur "#remove.seqs(' \
         + 'fasta=stability.trim.contigs.good.unique.good.filter.unique.precluster.fasta, ' \
-        + 'accnos=stability.trim.contigs.good.unique.good.filter.unique.precluster.uchime.accnos)"' )
+        + 'accnos=stability.trim.contigs.good.unique.good.filter.unique.precluster.denovo.uchime.accnos)"' )
     # Outputs:
     #   stability.trim.contigs.good.unique.good.filter.unique.precluster.pick.fasta
 
@@ -268,7 +277,7 @@ if __name__ == "__main__":
     classif_lineage_time = time.time()
     exec_cmd( 'mothur "#classify.seqs(' \
         + 'fasta=stability.trim.contigs.good.unique.good.filter.unique.precluster.pick.fasta, ' \
-        + 'count=stability.trim.contigs.good.unique.good.filter.unique.precluster.uchime.pick.count_table, ' \
+        + 'count=stability.trim.contigs.good.unique.good.filter.unique.precluster.denovo.uchime.pick.count_table, ' \
         + 'reference=restriction_db.fasta, ' \
         + 'taxonomy=restriction_db.tax, ' \
         + 'cutoff=' + str(args.affi_cutoff) + ')"' )################################### + 'processors=' + str(args.nb_cpus) + ')"'
@@ -278,13 +287,13 @@ if __name__ == "__main__":
     classif_lineage_time = time.time() - classif_lineage_time
     exec_cmd( 'mothur "#remove.lineage(' \
         + 'fasta=stability.trim.contigs.good.unique.good.filter.unique.precluster.pick.fasta, ' \
-        + 'count=stability.trim.contigs.good.unique.good.filter.unique.precluster.uchime.pick.count_table, ' \
+        + 'count=stability.trim.contigs.good.unique.good.filter.unique.precluster.denovo.uchime.pick.count_table, ' \
         + 'taxonomy=stability.trim.contigs.good.unique.good.filter.unique.precluster.pick.restriction_db.wang.taxonomy, ' \
         + 'taxon=Chloroplast-Mitochondria-unknown-Archaea-Eukaryota)"' )
     # Outputs:
     #   stability.trim.contigs.good.unique.good.filter.unique.precluster.pick.restriction_db.wang.pick.taxonomy
     #   stability.trim.contigs.good.unique.good.filter.unique.precluster.pick.pick.fasta
-    #   stability.trim.contigs.good.unique.good.filter.unique.precluster.uchime.pick.pick.count_table
+    #   stability.trim.contigs.good.unique.good.filter.unique.precluster.denovo.uchime.pick.pick.count_table
 
 
     #### Clustering
@@ -296,7 +305,7 @@ if __name__ == "__main__":
     #   stability.trim.contigs.good.unique.good.filter.unique.precluster.pick.pick.dist
     exec_cmd( 'mothur "#cluster(' \
         + 'column=stability.trim.contigs.good.unique.good.filter.unique.precluster.pick.pick.dist, ' \
-        + 'count=stability.trim.contigs.good.unique.good.filter.unique.precluster.uchime.pick.pick.count_table)"' )
+        + 'count=stability.trim.contigs.good.unique.good.filter.unique.precluster.denovo.uchime.pick.pick.count_table)"' )
     # Outputs:
     #   stability.trim.contigs.good.unique.good.filter.unique.precluster.pick.pick.an.unique_list.list
 
@@ -305,7 +314,7 @@ if __name__ == "__main__":
         #### BIOM
         exec_cmd( 'mothur "#make.shared(' \
             + 'list=stability.trim.contigs.good.unique.good.filter.unique.precluster.pick.pick.an.unique_list.list, ' \
-            + 'count=stability.trim.contigs.good.unique.good.filter.unique.precluster.uchime.pick.pick.count_table, ' \
+            + 'count=stability.trim.contigs.good.unique.good.filter.unique.precluster.denovo.uchime.pick.pick.count_table, ' \
             + 'label=' + str(args.otu_distance) + ')"' )
         # Outputs:
         #   stability.trim.contigs.good.unique.good.filter.unique.precluster.pick.pick.an.unique_list.shared
@@ -319,7 +328,7 @@ if __name__ == "__main__":
 
         exec_cmd( 'mothur "#get.oturep(' \
             + 'method=abundance, ' \
-            + 'count=stability.trim.contigs.good.unique.good.filter.unique.precluster.uchime.pick.pick.count_table, ' \
+            + 'count=stability.trim.contigs.good.unique.good.filter.unique.precluster.denovo.uchime.pick.pick.count_table, ' \
             + 'list=stability.trim.contigs.good.unique.good.filter.unique.precluster.pick.pick.an.unique_list.list, ' \
             + 'fasta=stability.trim.contigs.good.unique.good.filter.unique.precluster.pick.pick.fasta, ' \
             + 'cutoff=' + str(args.otu_distance) + ')"' )
@@ -345,7 +354,7 @@ if __name__ == "__main__":
         #### Affiliation
         exec_cmd( 'mothur "#classify.seqs(' \
             + 'fasta=stability.trim.contigs.good.unique.good.filter.unique.precluster.pick.pick.fasta, ' \
-            + 'count=stability.trim.contigs.good.unique.good.filter.unique.precluster.uchime.pick.count_table, ' \
+            + 'count=stability.trim.contigs.good.unique.good.filter.unique.precluster.denovo.uchime.pick.count_table, ' \
             + 'reference=affiliation_db.fasta, ' \
             + 'taxonomy=affiliation_db.tax, ' \
             + 'cutoff=0)"' )################################### + 'processors=' + str(args.nb_cpus) + ')"'
@@ -354,7 +363,7 @@ if __name__ == "__main__":
         #   stability.trim.contigs.good.unique.good.filter.unique.precluster.pick.pick.affiliation_db.wang.tax.summary
         exec_cmd( 'mothur "#classify.otu('
             + 'list=stability.trim.contigs.good.unique.good.filter.unique.precluster.pick.pick.an.unique_list.list, ' \
-            + 'count=stability.trim.contigs.good.unique.good.filter.unique.precluster.uchime.pick.pick.count_table, ' \
+            + 'count=stability.trim.contigs.good.unique.good.filter.unique.precluster.denovo.uchime.pick.pick.count_table, ' \
             + 'taxonomy=stability.trim.contigs.good.unique.good.filter.unique.precluster.pick.pick.affiliation_db.wang.taxonomy, ' \
             + 'label=' + str(args.otu_distance) + ')"' )
         # Outputs:
@@ -365,7 +374,7 @@ if __name__ == "__main__":
         #### BIOM
         exec_cmd( 'mothur "#make.shared(' \
             + 'list=stability.trim.contigs.good.unique.good.filter.unique.precluster.pick.pick.an.unique_list.list, ' \
-            + 'count=stability.trim.contigs.good.unique.good.filter.unique.precluster.uchime.pick.pick.count_table, ' \
+            + 'count=stability.trim.contigs.good.unique.good.filter.unique.precluster.denovo.uchime.pick.pick.count_table, ' \
             + 'label=' + str(args.otu_distance) + ')"' )
         # Outputs:
         #   stability.trim.contigs.good.unique.good.filter.unique.precluster.pick.pick.an.unique_list.shared
@@ -380,7 +389,7 @@ if __name__ == "__main__":
 
         exec_cmd( 'mothur "#get.oturep(' \
             + 'method=abundance, ' \
-            + 'count=stability.trim.contigs.good.unique.good.filter.unique.precluster.uchime.pick.pick.count_table, ' \
+            + 'count=stability.trim.contigs.good.unique.good.filter.unique.precluster.denovo.uchime.pick.pick.count_table, ' \
             + 'list=stability.trim.contigs.good.unique.good.filter.unique.precluster.pick.pick.an.unique_list.list, ' \
             + 'fasta=stability.trim.contigs.good.unique.good.filter.unique.precluster.pick.pick.fasta, ' \
             + 'cutoff=' + str(args.otu_distance) + ')"' )
