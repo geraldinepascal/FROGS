@@ -386,21 +386,25 @@ def get_seq_length( input_file, size_separator=None ):
     FH_seq.close()
     return nb_by_length
 
-def summarise_results( summary_file, samples_names, log_files, filtered_files ):
+def summarise_results( summary_file, samples_names, log_files, contiged_files, filtered_files ):
     """
     @summary: Writes one summary of results from several logs.
     @param summary_file: [str] The output file.
     @param samples_names: [list] The samples names.
     @param log_files: [list] The list of path to log files (in samples_names order).
+    @param contiged_files : [list] The list of path to sequences files before preprocessing (in samples_names order).
     @param filtered_files: [list] The list of path to sequences files after preprocessing (in samples_names order).
     """
     # Get data
     categories = get_filter_steps(log_files[0])
     filters_by_sample = dict()
-    lengths_by_sample = dict()
+    before_lengths_by_sample = dict()
+    after_lengths_by_sample = dict()
     for spl_idx, spl_name in enumerate(samples_names):
         filters_by_sample[spl_name] = get_sample_resuts(log_files[spl_idx])
-        lengths_by_sample[spl_name] = get_seq_length(filtered_files[spl_idx], ';size=')
+        before_lengths_by_sample[spl_name] = get_seq_length(contiged_files[spl_idx], None)
+        after_lengths_by_sample[spl_name] = get_seq_length(filtered_files[spl_idx], ';size=')
+
 
     # Write
     FH_summary_tpl = open( os.path.join(CURRENT_DIR, "preprocess_tpl.html") )
@@ -410,8 +414,10 @@ def summarise_results( summary_file, samples_names, log_files, filtered_files ):
             line = line.replace( "###FILTERS_CATEGORIES###", json.dumps(categories) )
         elif "###FILTERS_DATA###" in line:
             line = line.replace( "###FILTERS_DATA###", json.dumps(filters_by_sample) )
-        elif "###LENGTHS_DATA###" in line:
-            line = line.replace( "###LENGTHS_DATA###", json.dumps(lengths_by_sample) )
+        elif "###BEFORE_LENGTHS_DATA###" in line:
+            line = line.replace( "###BEFORE_LENGTHS_DATA###", json.dumps(before_lengths_by_sample) )
+        elif "###AFTER_LENGTHS_DATA###" in line:
+            line = line.replace( "###AFTER_LENGTHS_DATA###", json.dumps(after_lengths_by_sample) )
         FH_summary_out.write( line )
     FH_summary_out.close()
     FH_summary_tpl.close()
@@ -573,7 +579,7 @@ def get_fasta_nb_seq( fasta_file ):
     FH_input.close()
     return nb_seq
 
-def filter_process_multiples_files(R1_files, R2_files, samples_names, out_files, log_files, args):
+def filter_process_multiples_files(R1_files, R2_files, samples_names, out_files, log_files, tmp_prefix, args):
     """
     @summary: filters sequences of samples.
     @param R1_files: [list] List of path to reads 1 fastq files or contiged files (one by sample).
@@ -581,15 +587,16 @@ def filter_process_multiples_files(R1_files, R2_files, samples_names, out_files,
     @param samples_names: [list] The list of sample name for each R1/R2-files.
     @param out_files: [list] List of path to the filtered files (one by sample).
     @param log_files: [list] List of path to the outputed log (one by sample). It contains a trace of all the operations and results.
+    @param tmp_prefix : [str] Prefix of general tmp files
     @param args: [Namespace] Global parameters.
     """
     for idx in range(len(out_files)):
         if args.already_contiged:
-            process_sample( R1_files[idx], None, samples_names[idx], out_files[idx], log_files[idx], args )
+            process_sample( R1_files[idx], None, samples_names[idx], out_files[idx], log_files[idx], tmp_prefix, args )
         else:
-            process_sample( R1_files[idx], R2_files[idx], samples_names[idx], out_files[idx], log_files[idx], args )
+            process_sample( R1_files[idx], R2_files[idx], samples_names[idx], out_files[idx], log_files[idx], tmp_prefix, args )
 
-def process_sample(R1_file, R2_file, sample_name, out_file, log_file, args):
+def process_sample(R1_file, R2_file, sample_name, out_file, log_file, tmp_prefix, args):
     """
     @summary: Merges, filters and dereplicates all sequences of one sample.
     @param R1_file: [str] Path to reads 1 fastq file or contiged file of the sample.
@@ -597,9 +604,10 @@ def process_sample(R1_file, R2_file, sample_name, out_file, log_file, args):
     @param sample_name: [str] The sample name.
     @param out_files: [str] Path to the filtered file.
     @param log_files: [str] Path to the outputed log. It contains a trace of all the operations and results.
+    @param tmp_prefix : [str] Prefix of general tmp files
     @param args: [Namespace] Global parameters.
     """
-    tmp_files = TmpFiles( os.path.split(out_file)[0] )
+    tmp_files = TmpFiles( os.path.split(out_file)[0], tmp_prefix )
     out_flash = tmp_files.add( sample_name + '_flash.fastq.gz' )
     out_lengthFilter = tmp_files.add( sample_name + '_length_filter.fastq.gz' )
     log_lengthFilter = tmp_files.add( sample_name + '_length_filter_log.txt' )
@@ -611,42 +619,42 @@ def process_sample(R1_file, R2_file, sample_name, out_file, log_file, args):
     log_NAndLengthfilter = tmp_files.add( sample_name + '_N_and_length_filter_log.txt' )
     out_count = tmp_files.add( sample_name + '_derep_count.tsv' )
 
-    try:
-        # Start log
-        FH_log = open(log_file, "w")
-        if not args.already_contiged:
-            FH_log.write('##Sample\nR1 : ' + R1_file + '\nR2 : ' + R2_file + '\nSample name : ' + sample_name + '\n')
-        else:
-            FH_log.write('##Sample\nContiged file : ' + R1_file + '\nSample name : ' + sample_name + '\n')
-        FH_log.write('nb seq before process : ' + str(get_fastq_nb_seq(R1_file)) +'\n' )
-        FH_log.write('##Commands\n')
-        FH_log.close()
+    # try:
+    # Start log
+    FH_log = open(log_file, "w")
+    if not args.already_contiged:
+        FH_log.write('##Sample\nR1 : ' + R1_file + '\nR2 : ' + R2_file + '\nSample name : ' + sample_name + '\n')
+    else:
+        FH_log.write('##Sample\nContiged file : ' + R1_file + '\nSample name : ' + sample_name + '\n')
+    FH_log.write('nb seq before process : ' + str(get_fastq_nb_seq(R1_file)) +'\n' )
+    FH_log.write('##Commands\n')
+    FH_log.close()
 
-        # Commands execution
-        if not args.already_contiged:
-            flash_cmd = Flash(R1_file, R2_file, out_flash, args)
-            flash_cmd.submit(log_file)
+    # Commands execution
+    if not args.already_contiged:
+        flash_cmd = Flash(R1_file, R2_file, out_flash, args)
+        flash_cmd.submit(log_file)
+    else:
+        out_flash = R1_file
+    if args.sequencer == "454": # 454
+        if is_gzip( out_flash ):
+            renamed_out_flash = tmp_files.add( sample_name + '_454.fastq.gz' ) # prevent cutadapt problem (type of file is checked by extension)
         else:
-            out_flash = R1_file
-        if args.sequencer == "454": # 454
-            if is_gzip( out_flash ):
-                renamed_out_flash = tmp_files.add( sample_name + '_454.fastq.gz' ) # prevent cutadapt problem (type of file is checked by extension)
-            else:
-                renamed_out_flash = tmp_files.add( sample_name + '_454.fastq' ) # prevent cutadapt problem (type of file is checked by extension)
-            shutil.copyfile( out_flash, renamed_out_flash ) # prevent symlink problem
-            Remove454prim(renamed_out_flash, out_cutadapt, log_3prim_cutadapt, args).submit(log_file)
-        else: # Illumina
-            if args.five_prim_primer and args.three_prim_primer: # Illumina standard sequencing protocol
-                LengthFilter(out_flash, out_lengthFilter, log_lengthFilter, args).submit(log_file)
-                Cutadapt5prim(out_lengthFilter, tmp_cutadapt, log_5prim_cutadapt, args).submit(log_file)
-                Cutadapt3prim(tmp_cutadapt, out_cutadapt, log_3prim_cutadapt, args).submit(log_file)
-            else: # Custom sequencing primers. The amplicons is full length (Illumina) except PCR primers (it is use as sequencing primers). [Protocol Kozich et al. 2013]
-                out_cutadapt = out_flash
-        MultiFilter(out_cutadapt, out_NAndLengthfilter, log_NAndLengthfilter, args).submit(log_file)
-        DerepBySample(out_NAndLengthfilter, out_file, out_count).submit(log_file)
-    finally:
-        if not args.debug:
-            tmp_files.deleteAll()
+            renamed_out_flash = tmp_files.add( sample_name + '_454.fastq' ) # prevent cutadapt problem (type of file is checked by extension)
+        shutil.copyfile( out_flash, renamed_out_flash ) # prevent symlink problem
+        Remove454prim(renamed_out_flash, out_cutadapt, log_3prim_cutadapt, args).submit(log_file)
+    else: # Illumina
+        if args.five_prim_primer and args.three_prim_primer: # Illumina standard sequencing protocol
+            LengthFilter(out_flash, out_lengthFilter, log_lengthFilter, args).submit(log_file)
+            Cutadapt5prim(out_lengthFilter, tmp_cutadapt, log_5prim_cutadapt, args).submit(log_file)
+            Cutadapt3prim(tmp_cutadapt, out_cutadapt, log_3prim_cutadapt, args).submit(log_file)
+        else: # Custom sequencing primers. The amplicons is full length (Illumina) except PCR primers (it is use as sequencing primers). [Protocol Kozich et al. 2013]
+            out_cutadapt = out_flash
+    MultiFilter(out_cutadapt, out_NAndLengthfilter, log_NAndLengthfilter, args).submit(log_file)
+    DerepBySample(out_NAndLengthfilter, out_file, out_count).submit(log_file)
+    # finally:
+    #     if not args.debug:
+    #         tmp_files.deleteAll()
 
 def process( args ):
     tmp_files = TmpFiles( os.path.split(args.output_dereplicated)[0] )
@@ -680,7 +688,7 @@ def process( args ):
         # Filter
         nb_processses_used = min( len(R1_files), args.nb_cpus )
         if nb_processses_used == 1:
-            filter_process_multiples_files( R1_files, R2_files, samples_names, filtered_files, log_files, args )
+            filter_process_multiples_files( R1_files, R2_files, samples_names, filtered_files, log_files, tmp_files.prefix, args )
         else:
             processes = [{'process':None, 'R1_files':[], 'R2_files':[], 'samples_names':[], 'filtered_files':[], 'log_files':[]} for idx in range(nb_processses_used)]
             # Set processes
@@ -696,10 +704,10 @@ def process( args ):
             for current_process in processes:
                 if idx == 0: # First process is threaded with parent job
                     current_process['process'] = threading.Thread( target=filter_process_multiples_files, 
-                                                                   args=(current_process['R1_files'], current_process['R2_files'], current_process['samples_names'], current_process['filtered_files'], current_process['log_files'], args) )
+                                                                   args=(current_process['R1_files'], current_process['R2_files'], current_process['samples_names'], current_process['filtered_files'], current_process['log_files'], tmp_files.prefix, args) )
                 else: # Others processes are processed on different CPU
                     current_process['process'] = multiprocessing.Process( target=filter_process_multiples_files, 
-                                                                   args=(current_process['R1_files'], current_process['R2_files'], current_process['samples_names'], current_process['filtered_files'], current_process['log_files'], args) )
+                                                                   args=(current_process['R1_files'], current_process['R2_files'], current_process['samples_names'], current_process['filtered_files'], current_process['log_files'], tmp_files.prefix, args) )
                 current_process['process'].start()
             # Wait processes end
             for current_process in processes:
@@ -710,7 +718,12 @@ def process( args ):
                     raise Exception( "Error in sub-process execution." )
 
         # Write summary
-        summarise_results( args.summary, samples_names, log_files, filtered_files )
+        contiged_files = list()
+        if args.already_contiged:
+            contiged_files = R1_files
+        else:
+            contiged_files = [os.path.join(tmp_files.tmp_dir, tmp_files.prefix + "_" + current_sample + '_flash.fastq.gz') for current_sample in samples_names]
+        summarise_results( args.summary, samples_names, log_files, contiged_files, filtered_files )
         log_append_files( args.log_file, log_files )
 
         # Dereplicate global
@@ -725,6 +738,9 @@ def process( args ):
     finally:
         if not args.debug:
             tmp_files.deleteAll()
+            for f in os.listdir(tmp_files.tmp_dir):
+                if tmp_files.prefix in f:
+                    os.remove(os.path.join(tmp_files.tmp_dir,f))
 
 def spl_name_type( arg_value ):
     """
