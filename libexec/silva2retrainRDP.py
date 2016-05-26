@@ -19,7 +19,7 @@
 __author__ = 'Frederic Escudie - Plateforme bioinformatique Toulouse'
 __copyright__ = 'Copyright (C) 2015 INRA'
 __license__ = 'GNU General Public License'
-__version__ = '0.3.0'
+__version__ = '0.3.1'
 __email__ = 'frogs@toulouse.inra.fr'
 __status__ = 'dev'
 
@@ -143,7 +143,6 @@ def silva_tax_2_tree( taxonomy_file, authorized_ranks, domains_filtered=None ):
                         else:
                             missing_node = Node( missing_name, parent_node, {}, {"clean_name" : missing_name + " [id:" + str(next_new_id) + "]", "id" : next_new_id, "rank" : authorized_ranks[missing_rank_depth]} )
                             next_new_id += 1
-                            parent_node.add_child( missing_node )
                         parent_node = missing_node
                     # Add evaluated node
                     evaluated_name = evaluated_taxonomy[-1].strip()
@@ -153,7 +152,6 @@ def silva_tax_2_tree( taxonomy_file, authorized_ranks, domains_filtered=None ):
                         current_node = parent_node.get_child( evaluated_name )
                     else: # Is not unknown or is unknown but does not already exist
                         current_node = Node( evaluated_name, parent_node, {}, {"clean_name" : evaluated_name + " [id:" + evaluated_id + "]", "id" : evaluated_id, "rank" : evaluated_rank} )
-                        parent_node.add_child( current_node )
                 # Store link between complete taxonomy and node in tree
                 if current_node is None:
                     current_node = parent_node
@@ -204,7 +202,6 @@ def process( input_fasta, input_tax, output_fasta, output_tax, domains_filtered=
                             missing_name = "unknown " + ranks[parent_depth +1]
                             missing_node = Node( missing_name, parent_node, {}, {"clean_name" : missing_name + " [id:" + str(new_taxon_id) + "]", "id" : new_taxon_id, "rank" : ranks[parent_depth +1]} )
                             new_taxon_id += 1
-                            parent_node.add_child( missing_node )
                             parent_node = missing_node
                     # Add species to tree
                     species_name = get_cleaned_sp(evaluated_taxonomy[-1])
@@ -214,7 +211,6 @@ def process( input_fasta, input_tax, output_fasta, output_tax, domains_filtered=
                     else:
                         species_node = Node( species_name, parent_node, {}, {"clean_name": species_name.replace('*', ' ').replace('<', ' ').replace('>', ' ') + " [id:" + str(new_taxon_id) + "]", "id": new_taxon_id, "rank": "species" } )
                         new_taxon_id += 1
-                        parent_node.add_child( species_node )
                     clean_taxonomy = get_taxonomy(species_node)
                 FH_cleanFasta.write( line_fields[0] + '\tRoot' + ';' + clean_taxonomy + "\n" )
         elif not is_filtered:
