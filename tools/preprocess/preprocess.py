@@ -19,7 +19,7 @@
 __author__ = 'Frederic Escudie - Plateforme bioinformatique Toulouse'
 __copyright__ = 'Copyright (C) 2015 INRA'
 __license__ = 'GNU General Public License'
-__version__ = '1.6.1'
+__version__ = '1.6.2'
 __email__ = 'frogs@toulouse.inra.fr'
 __status__ = 'prod'
 
@@ -345,19 +345,27 @@ class DerepGlobal(Cmd):
     """
     @summary : Dereplicates together sequences from several files.
     """
-    def __init__(self, all_fasta, samples_names, out_fasta, out_count, param):
+    def __init__(self, all_fasta, samples_names, out_samples_ref, out_fasta, out_count, param):
         """
         @param all_fasta : [list] Path to the processed fasta.
         @param samples_names : [list] The sample name for each fasta.
+        @param out_samples_ref : [str] Path to the file containing the link between samples names and path.
         @param out_fasta : [str] Path to the dereplicated fasta.
         @param out_count : [str] Path to the count file. It contains the count 
                             by sample for each representative sequence.
         @param param : [str] The 'param.nb_cpus'.
         """
+        # Write sample description
+        FH_ref = open(out_samples_ref, "w")
+        FH_ref.write( "#Sequence_file\tSample_name\n" )
+        for idx, current_name in enumerate(samples_names):
+            FH_ref.write( all_fasta[idx] + "\t" + current_name + "\n" )
+        FH_ref.close()
+        # Init
         Cmd.__init__( self,
                       'derepSamples.py',
                       'Dereplicates together sequences from several samples.',
-                      "--nb-cpus " + str(param.nb_cpus) + " --size-separator ';size=' --sequences-files " + " ".join(all_fasta) + " --samples-names " + " ".join(samples_names) + " --dereplicated-file " + out_fasta + " --count-file " + out_count,
+                      "--nb-cpus " + str(param.nb_cpus) + " --size-separator ';size=' --samples-ref " + out_samples_ref + " --dereplicated-file " + out_fasta + " --count-file " + out_count,
                       '--version' )
 
 
@@ -728,7 +736,7 @@ def process( args ):
 
         # Dereplicate global
         Logger.static_write(args.log_file, '##Sample\nAll\n##Commands\n')
-        DerepGlobal(filtered_files, samples_names, args.output_dereplicated, args.output_count, args).submit( args.log_file )
+        DerepGlobal(filtered_files, samples_names, tmp_files.add('derep_inputs.tsv'), args.output_dereplicated, args.output_count, args).submit( args.log_file )
 
         # Check the number of sequences after filtering
         if get_fasta_nb_seq(args.output_dereplicated) == 0:
