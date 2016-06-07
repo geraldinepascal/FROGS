@@ -19,7 +19,7 @@
 __author__ = 'Frederic Escudie - Plateforme bioinformatique Toulouse'
 __copyright__ = 'Copyright (C) 2015 INRA'
 __license__ = 'GNU General Public License'
-__version__ = '1.4.0'
+__version__ = '1.5.0'
 __email__ = 'frogs@toulouse.inra.fr'
 __status__ = 'prod'
 
@@ -46,24 +46,41 @@ from frogsSequenceIO import *
 # FUNCTIONS
 #
 ##################################################################################################################################################
+def getSamplesFromDescFile( samples_desc_file ):
+    """
+    @summary: Returns the list of samples names and the list of their sequences files.
+    @param samples_desc_file: [str]
+    @return: [list] The first element is the list of samples names. The second is the list of the sequences files.
+    """
+    sequence_files = list()
+    samples_names = list()
+    FH_samples_desc_file = open( samples_desc_file )
+    for line in FH_samples_desc_file:
+        if not line.startswith("#"):
+            sample_path, sample_name = line.strip().split("\t", 1)
+            sequence_files.append( sample_path )
+            samples_names.append( sample_name )
+    FH_samples_desc_file.close()
+    return samples_names, sequence_files
+
 def splitMultiplesFilesByLength(files, samples_names, working_dir, process_prefix):
     """
-    @summary : Split by length in all files in a list of files.
-    @param files : [list] Files to split.
-    @param sample_name : [list] Sample name for each file.
-    @param working_dir : [str] The output directory.
-    @param process_prefix : [str] The prefix for tmp files.
+    @summary: Split by length in all files in a list of files.
+    @param files: [list] Files to split.
+    @param sample_name: [list] Sample name for each file.
+    @param working_dir: [str] The output directory.
+    @param process_prefix: [str] The prefix for tmp files.
     """
     for idx, current_file in enumerate(files):
         splitFileByLength(current_file, samples_names[idx], working_dir, process_prefix)
 
 def splitFileByLength(initial_file, sample_name, working_dir, process_prefix):
     """
-    @summary : Write each sequence in file in one file by length.
-    @param initial_file : [str] The file to split.
-    @param sample_name : [str] The sample name for the file.
-    @param working_dir : [str] The output directory.
-    @param process_prefix : [str] The prefix for tmp files.
+    @summary: Write each sequence in file in one file by length.
+    @param initial_file: [str] The file to split.
+    @param sample_name: [str] The sample name for the file.
+    @param working_dir: [str] The output directory.
+    @param process_prefix: [str] The prefix for tmp files.
     """
     splits_FH = dict()
 
@@ -81,7 +98,6 @@ def splitFileByLength(initial_file, sample_name, working_dir, process_prefix):
     for length in splits_FH.keys():
         splits_FH[length].close()
 
-
 def dereplicateMultiplesLengths( working_dir, lengths, samples_names, process_prefix, size_separator ):
     """
     @summary : Dereplicates all sequences with length in a list of lengths.
@@ -96,12 +112,12 @@ def dereplicateMultiplesLengths( working_dir, lengths, samples_names, process_pr
 
 def dereplicateLength( working_dir, length, all_samples, process_prefix, size_separator=None ):
     """
-    @summary : Dereplicates all sequences with length equals to "length". This method produce a fasta file and a count file.
-    @param working_dir : [str] The directory with samples files splitted by sequence length.
-    @param length : [str] Only sequences with this length are dereplicated.
-    @param all_samples : [list] All samples names.
-    @param process_prefix : [str] The prefix for tmp files.
-    @param size_separator : [str] The size separator in the sequences ID if the sequences are already dereplicated in each sample.
+    @summary: Dereplicates all sequences with length equals to "length". This method produce a fasta file and a count file.
+    @param working_dir: [str] The directory with samples files splitted by sequence length.
+    @param length: [str] Only sequences with this length are dereplicated.
+    @param all_samples: [list] All samples names.
+    @param process_prefix: [str] The prefix for tmp files.
+    @param size_separator: [str] The size separator in the sequences ID if the sequences are already dereplicated in each sample.
     """
     records_list = list()
     derep_fasta = os.path.join(working_dir, process_prefix + "tmp_derep_" + str(length) + ".fasta")
@@ -162,26 +178,43 @@ def dereplicateLength( working_dir, length, all_samples, process_prefix, size_se
 ##################################################################################################################################################
 if __name__ == "__main__":
     # Manage parameters
-    parser = argparse.ArgumentParser( description='Remove duplicated sequences in multi-samples experimentation. Sequences using a strictly full-length matching.\n' +
-                                                  'The number of sequences represented by a unique sequence is add in the end of ID.\n' +
-                                                  'The count by sample is produce in "count-file".' )
+    parser = argparse.ArgumentParser( 
+               description='Remove duplicated sequences in multi-samples experimentation. Sequences using a strictly full-length matching.\n' +
+                           'The number of sequences represented by a unique sequence is add in the end of ID.\n' +
+                           'The count by sample is produce in "count-file".', 
+               usage='''derepSamples.py [-h] [-v]
+          [-s SIZE_SEPARATOR] [-p NB_CPUS]
+          --samples-ref PATH | --sequences-files PATH [PATH ...]
+                                [--samples-names NAMES [NAMES ...]]
+          [-d DEREPLICATED_FILE] [-c COUNT_FILE]
+''')
     parser.add_argument( '-s', '--size-separator', default=None, help='The size separator in the sequences ID if the "sequences-files" are already dereplicated in each sample.' )
     parser.add_argument( '-p', '--nb-cpus', type=int, default=1, help='The maximum number of CPUs used.' )
     parser.add_argument( '-v', '--version', action='version', version=__version__ )
     group_input = parser.add_argument_group( 'Inputs' ) # Inputs
-    group_input.add_argument( '--sequences-files', required=True, nargs='+', help='The sequence file for each sample (format : FASTA).' )
+    group_input.add_argument( '--samples-ref', help='Path to the file containing the link between samples names and sequences files (format: TSV). Each line in this file describes a sample: sequence_file_path<TAB>sample_name.' )
+    group_input.add_argument( '--sequences-files', nargs='+', help='The sequence file for each sample (format: FASTA). This parameter is mutally exclusive with the samples-ref parameter.' )
     group_input.add_argument( '--samples-names', nargs='+', help='The sample name for each sequences-files.' )
     group_output = parser.add_argument_group( 'Outputs' ) # Outputs
     group_output.add_argument( '-d', '--dereplicated-file', default='dereplication.fasta', help='Fasta file with unique sequences. Each sequence has an ID ended with the number of initial sequences represented (example : ">a0101;size=10").')
     group_output.add_argument( '-c', '--count-file', default='count.tsv', help='TSV file with count by sample for each unique sequence (example with 3 samples : "a0101<TAB>5<TAB>8<TAB>0").')
     args = parser.parse_args()
+
+    if args.sequences_files is None and args.samples_ref is None:
+        raise parser.error( "The parameter '--samples-ref' or '--sequences-files' is required." )
+    elif args.sequences_files is not None and args.samples_ref is not None:
+        raise parser.error( "The parameters '--samples-ref' and '--sequences-files' are mutually exclusive." )
+
+    # Process
     working_dir = os.path.dirname(os.path.abspath(args.dereplicated_file))
     process_prefix = str(time.time()) + "_" + str(os.getpid()) + "_"
     lengths = dict()
 
     try:
         # Samples names
-        if args.samples_names is None:
+        if args.sequences_files is None:
+            args.samples_names, args.sequences_files = getSamplesFromDescFile( args.samples_ref )
+        elif args.samples_names is None:
             args.samples_names = [os.path.splitext(os.path.basename(current_file))[0] for current_file in args.sequences_files]
 
         # Split by length

@@ -16,10 +16,10 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-__author__ = 'Frederic Escudie - Plateforme bioinformatique Toulouse'
+__author__ = 'Frederic Escudie - Plateforme bioinformatique Toulouse - Maria Bernard - Sigenae Jouy en Josas'
 __copyright__ = 'Copyright (C) 2015 INRA'
 __license__ = 'GNU General Public License'
-__version__ = '0.6.0'
+__version__ = '0.7.0'
 __email__ = 'frogs@toulouse.inra.fr'
 __status__ = 'prod'
 
@@ -51,14 +51,14 @@ class ParallelChimera(Cmd):
     """
     @summary: Removes PCR chimera by samples.
     """
-    def __init__(self, in_fasta, in_abundance, out_fasta, out_abundance, out_summary, abundance_type, nb_cpus, size_separator=None):
+    def __init__(self, in_fasta, in_abundance, out_fasta, out_abundance, out_summary, abundance_type, nb_cpus, log, size_separator=None):
         """
         """
         size_separator_option = "" if size_separator is None else "--size-separator '" + size_separator + "' "
         Cmd.__init__( self,
                       'parallelChimera.py',
                       'Removes PCR chimera by samples.',
-                      size_separator_option + "--lenient-filter --nb-cpus " + str(nb_cpus) + " --sequences " + in_fasta + " --" + abundance_type + " " + in_abundance + " --non-chimera " + out_fasta + " --out-abundance " + out_abundance + " --summary " + out_summary,
+                      size_separator_option + "--lenient-filter --nb-cpus " + str(nb_cpus) + " --sequences " + in_fasta + " --" + abundance_type + " " + in_abundance + " --non-chimera " + out_fasta + " --out-abundance " + out_abundance + " --summary " + out_summary + " --log-file " + log,
                       '--version' )
 
 
@@ -85,6 +85,23 @@ def get_size_separator( in_fasta ):
         seq_idx += 1
     FH_seq.close()
     return size_separator
+
+def log_append_files( log_file, appended_files ):
+    """
+    @summary: Append content of several log files in one log file.
+    @param log_file: [str] The log file where contents of others are appended.
+    @param appended_files: [list] List of log files to append.
+    """
+    FH_log = Logger( log_file )
+    FH_log.write( "\n" )
+    for current_file in appended_files:
+        FH_input = open(current_file)
+        for line in FH_input:
+            FH_log.write( line )
+        FH_input.close()
+        FH_log.write( "\n" )
+    FH_log.write( "\n" )
+    FH_log.close()
 
 def write_summary( summary_file, results_chimera ):
     """
@@ -189,12 +206,17 @@ if __name__ == "__main__":
         Logger.static_write(args.log_file, "## Application\nSoftware :" + sys.argv[0] + " (version : " + str(__version__) + ")\nCommand : " + " ".join(sys.argv) + "\n\n")
 
         tmp_chimera_summary = tmpFiles.add(os.path.basename(args.non_chimera) + "_summary.tsv")
+        tmp_log  = tmpFiles.add(os.path.basename(args.non_chimera) + "_tmp.log")
         size_separator = get_size_separator( args.input_fasta )
         if args.input_count is None:
-            ParallelChimera( args.input_fasta, args.input_biom, args.non_chimera, args.out_abundance, tmp_chimera_summary, "biom", args.nb_cpus, size_separator ).submit( args.log_file )
+            ParallelChimera( args.input_fasta, args.input_biom, args.non_chimera, args.out_abundance, tmp_chimera_summary, "biom", args.nb_cpus, tmp_log, size_separator ).submit( args.log_file )
         else:
-            ParallelChimera( args.input_fasta, args.input_count, args.non_chimera, args.out_abundance, tmp_chimera_summary, "count", args.nb_cpus, size_separator ).submit( args.log_file )
+            ParallelChimera( args.input_fasta, args.input_count, args.non_chimera, args.out_abundance, tmp_chimera_summary, "count", args.nb_cpus, tmp_log, size_separator ).submit( args.log_file )
         write_summary( args.summary, tmp_chimera_summary )
+        
+        # Append independant log files
+        log_append_files( args.log_file, [tmp_log] )
+        
     # Remove temporary files
     finally:
         if not args.debug:

@@ -16,10 +16,10 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-__author__ = 'Frederic Escudie - Plateforme bioinformatique Toulouse'
+__author__ = 'Frederic Escudie - Plateforme bioinformatique Toulouse - Maria Bernard - Sigenae Jouy en Josas'
 __copyright__ = 'Copyright (C) 2015 INRA'
 __license__ = 'GNU General Public License'
-__version__ = '0.7.0'
+__version__ = '0.7.1'
 __email__ = 'frogs@toulouse.inra.fr'
 __status__ = 'prod'
 
@@ -41,90 +41,46 @@ else: os.environ['PYTHONPATH'] = os.environ['PYTHONPATH'] + os.pathsep + LIB_DIR
 
 from frogsBiom import BiomIO
 from frogsSequenceIO import *
-
+from frogsUtils import *
 
 ##################################################################################################################################################
 #
 # FUNCTIONS
 #
 ##################################################################################################################################################
-class TmpFiles:
+
+def get_sample_resuts( log_file ):
     """
-    @summary: Manager for temporary files.
-    @note:
-        tmpFiles = TmpFiles(out_dir)
-        try:
-            ...
-            tmp_seq = tmpFiles.add( "toto.fasta" )
-            ...
-            tmp_log = tmpFiles.add( "log.txt" )
-            ...
-        finaly:
-            tmpFiles.deleteAll()
+    @summary: Returns the sample results (number of sequences after each filters).
+    @param log_file: [str] Path to a log file.
+    @return: [list] The number of sequences after each filter.
     """
-    def __init__(self, tmp_dir, prefix=None):
-        """
-        @param tmp_dir: [str] The temporary directory path.
-        @param prefix: [str] The prefix added to each temporary file [default: <TIMESTAMP>_<PID>].
-        """
-        if prefix is None:
-            prefix = str(time.time()) + "_" + str(os.getpid())
-        self.files = list()
-        self.tmp_dir = tmp_dir
-        self.prefix = prefix
-
-    def add(self, filename, prefix=None, dir=None):
-        """
-        @summary: Add a temporary file.
-        @param filename: The filename without prefix.
-        @param prefix: The prefix added [default: TmpFiles.prefix].
-        @param dir: The directory path [default: TmpFiles.tmp_dir].
-        @return: [str] The filepath.
-        """
-        # Default
-        if prefix is None:
-            prefix = self.prefix
-        if dir is None:
-            dir = self.tmp_dir
-        # Process
-        filepath = os.path.join(dir, prefix + "_" + filename)
-        self.files.append(filepath)
-        return filepath
-
-    def delete(self, filepath):
-        """
-        @summary: Deletes the specified temporary file.
-        @param filepath: [str] The file path to delete.
-        """
-        self.files.remove(filepath)
-        if os.path.exists(filepath): os.remove(filepath)
-
-    def deleteAll(self):
-        """
-        @summary: Deletes all temporary files.
-        """
-        all_tmp_files = [tmp_file for tmp_file in self.files]
-        for tmp_file in all_tmp_files:
-            self.delete(tmp_file)
-
-def write_summary( samples_names, log_detection, log_remove_global, log_remove_spl, out_file ):
+    res_dic=dict()
+    
+    FH_input = open(log_file)
+    for line in FH_input:
+        if line.strip().startswith('nb_chimera: '):
+            res_dic["nb_chimera"]= int(line.split(':')[1].strip())
+        elif line.strip().startswith('chimera_abun: '):
+            res_dic["chimera_abundance"] = int(line.split(':')[1].strip())
+        elif line.strip().startswith('max_chimera_abun: '):
+            res_dic["chimera_max_abundance"] = int(line.split(':')[1].strip())
+    FH_input.close()
+    return res_dic
+    
+def write_summary( samples_names, sample_logs, log_remove_global, log_remove_spl, out_file ):
     """
     @summary: Writes the summary file.
     @param samples_names: [list] The samples names.
-    @param log_detection: [Queue] The chimera detection metrics by individual sample.
+    @param sample_logs: [list] list of sample logs files
     @param log_remove_global: [dict] The global remove metrics.
     @param log_remove_spl: [dict] The remove metrics by sample.
     @param out_file: [str] Path to the summary file.
     """
     # Collect metrics
     detection_results = dict()
-    for elt in samples_names:
-        sample_info = log_detection.get()
-        detection_results[sample_info['sample_name']] = {
-            'nb_chimera': sample_info['nb_chimera'],
-            'chimera_abundance': sample_info['chimera_abun'],
-            'chimera_max_abundance': sample_info['max_chimera_abun']
-        }
+    for idx, sample in enumerate(samples_names):
+        detection_results[sample] = get_sample_resuts(sample_logs[idx])
 
     # Writes output
     FH_out = open(out_file, "w")
@@ -228,13 +184,11 @@ def remove_chimera_fasta( in_fasta, out_fasta, kept_observ, user_size_separator 
     in_fasta_fh.close()
     out_fasta_fh.close()
 
-def remove_chimera_biom( samples, in_biom_file, out_biom_file, lenient_filter, global_report, bySample_report ):
+def remove_chimera_biom( samples, chimera_files, in_biom_file, out_biom_file, lenient_filter, global_report, bySample_report, log_file ):
     """
     @summary: Removes the chimera observation from BIOM.
-    @param samples: [dict] The chimera observations by sample. Example for
-                    sample splA: sample['splA']['chimera_path'] where the value
-                    is the path to the file containing the list of the chimera
-                    observations names.
+    @param samples: [list] samples name list
+    @param chimera_files : [list] samples chimera files
     @param in_biom_file: [str] The path to the BIOM file to filter.
     @param out_biom_file: [str] The path to the BIOM after filter.
     @param lenient_filter: [bool] True: removes one sequence in all samples
@@ -248,11 +202,14 @@ def remove_chimera_biom( samples, in_biom_file, out_biom_file, lenient_filter, g
     @param bySample_report: [dict] This dictionary is update for add by sample the
                             number of removed observations, the removed
                             abundance, ...
+    @param log_file : [path] Path to general log output file
     """
+    FH_log = Logger(log_file)
+    FH_log.write("## Removes the chimera observation from BIOM.\n")
     nb_sample_by_chimera = dict()
 
     # Init bySample_report
-    for sample_name in samples.keys():
+    for sample_name in samples:
         bySample_report[sample_name] = {
             'nb_kept': 0,
             'kept_abundance': 0,
@@ -262,8 +219,8 @@ def remove_chimera_biom( samples, in_biom_file, out_biom_file, lenient_filter, g
         }
 
     # Retrieve chimera
-    for sample_name in samples.keys():
-        chimera_fh = open( samples[sample_name]['chimera_path'] )
+    for chimera_file in chimera_files:
+        chimera_fh = open( chimera_file)
         for line in chimera_fh:
             observation_name = line.strip()
             if not nb_sample_by_chimera.has_key(observation_name):
@@ -282,7 +239,7 @@ def remove_chimera_biom( samples, in_biom_file, out_biom_file, lenient_filter, g
             is_always_chimera = False
             global_report['nb_ambiguous'] += 1
             global_report['abundance_ambiguous'] += observation_abundance
-            print "'" + chimera_name + "' is not interpreted as chimera in all samples where it is present."
+            FH_log.write("'" + chimera_name + "' is not interpreted as chimera in all samples where it is present.\n")
         if not lenient_filter or is_always_chimera:
             removed_chimera.append(chimera_name)
             # Global metrics
@@ -306,14 +263,13 @@ def remove_chimera_biom( samples, in_biom_file, out_biom_file, lenient_filter, g
             bySample_report[sample['id']]['nb_kept'] += 1
             bySample_report[sample['id']]['kept_abundance'] += sample_count
     BiomIO.write(out_biom_file, biom)
+    FH_log.close()
 
-def remove_chimera_count( samples, in_count_file, out_count_file, lenient_filter, global_report, bySample_report ):
+def remove_chimera_count( samples, chimera_files, in_count_file, out_count_file, lenient_filter, global_report, bySample_report, log_file ):
     """
     @summary: Removes the chimera observation from TSV.
-    @param samples: [dict] The chimera observations by sample. Example for
-                    sample splA: sample['splA']['chimera_path'] where the value
-                    is the path to the file containing the list of the chimera
-                    observations names.
+    @param samples: [list] samples name list
+    @param chimera_files : [list] samples chimera files
     @param in_count_file: [str] The path to the COUNT file to filter.
     @param out_count_file: [str] The path to the COUNT after filter.
     @param lenient_filter: [bool] True: removes one sequence in all samples
@@ -327,12 +283,14 @@ def remove_chimera_count( samples, in_count_file, out_count_file, lenient_filter
     @param bySample_report: [dict] This dictionary is update for add by sample the
                             number of removed observations, the removed
                             abundance, ...
+    @param log_file : [path] Path to general log output file
     """
+    FH_log = Logger(log_file)
+    FH_log.write("Removes the chimera observation from TSV.\n")
     chimera = dict()
-
     # Retrieve chimera
-    for sample_name in samples.keys():
-        chimera_fh = open( samples[sample_name]['chimera_path'] )
+    for idx, sample_name in enumerate(samples):
+        chimera_fh = open( chimera_files[idx] )
         for line in chimera_fh:
             observation_name = line.strip()
             if not chimera.has_key(observation_name):
@@ -380,7 +338,7 @@ def remove_chimera_count( samples, in_count_file, out_count_file, lenient_filter
             if not is_always_chimera: # is not chimera in all samples where it is find
                 global_report['nb_ambiguous'] += 1
                 global_report['abundance_ambiguous'] += sum(observation_counts)
-                print "'" + observation_name + "' is not interpreted as chimera in all samples where it is present."
+                FH_log.write( "'" + observation_name + "' is not interpreted as chimera in all samples where it is present.\n")
             if is_always_chimera or not lenient_filter:
                 global_report['nb_removed'] += 1
                 global_report['abundance_removed'] += sum(observation_counts)
@@ -404,10 +362,11 @@ def remove_chimera_count( samples, in_count_file, out_count_file, lenient_filter
 
     in_count_fh.close()
     out_count_fh.close()
+    FH_log.close()
 
 def chimera( sample_names, input_fasta, input_abund, outputs_fasta, outputs_chimera, log_chimera, user_size_separator ):
     for idx in range(len(sample_names)):
-        chimera_by_sample( sample_names[idx], input_fasta, input_abund, outputs_fasta[idx], outputs_chimera[idx], log_chimera, user_size_separator )
+        chimera_by_sample( sample_names[idx], input_fasta, input_abund, outputs_fasta[idx], outputs_chimera[idx], log_chimera[idx], user_size_separator )
     time.sleep(0.5) # Wait to fix 'Exception in thread QueueFeederThread' in slow systems 
 
 def chimera_by_sample( sample_name, input_fasta, input_abund, output_fasta, output_chimera, log_chimera, user_size_separator ):
@@ -419,6 +378,8 @@ def chimera_by_sample( sample_name, input_fasta, input_abund, output_fasta, outp
     count_by_obs = dict()
 
     try:
+        FH_log = open(log_chimera,"w")
+        FH_log.write("##Sample : " + sample_name + "\n")
         # Get count by obs
         in_obs_fh = open( input_abund )
         header_line = in_obs_fh.readline().strip()
@@ -446,8 +407,10 @@ def chimera_by_sample( sample_name, input_fasta, input_abund, output_fasta, outp
 
         # Chimera cleanning
         if nb_seq_sample != 0:
+            FH_log.write("## Vsearch command: " + " ".join(["vsearch", "--uchime_denovo", tmp_fasta, "--nonchimeras", output_fasta, "--uchimeout", tmp_log]) + "\n" )
             submit_cmd( ["vsearch", "--uchime_denovo", tmp_fasta, "--nonchimeras", output_fasta, "--uchimeout", tmp_log], tmp_stdout, tmp_stderr )
         else: # The sample is empty
+            FH_log.write("## Empty sample, no chimera research\n")
             open( output_fasta, "w" ).close()
             open( tmp_log, "w" ).close()
 
@@ -473,19 +436,38 @@ def chimera_by_sample( sample_name, input_fasta, input_abund, output_fasta, outp
                 non_chimera_abun += size
         in_log_fh.close()
         out_chimera_fh.close()
-        log_chimera.put({ 'sample_name': sample_name,
-                          'nb_chimera': nb_chimera,
-                          'chimera_abun': chimera_abun,
-                          'max_chimera_abun': max_chimera_abun,
-                          'nb_non_chimera': nb_non_chimera,
-                          'non_chimera_abun': non_chimera_abun
-        })
+        
+        FH_log.write("##Results\n")
+        FH_log.write("sample_name: " + sample_name + "\n" + \
+                     "nb_chimera: " + str(nb_chimera)  + "\n" + \
+                     "chimera_abun: " + str(chimera_abun)  + "\n" + \
+                     "max_chimera_abun: " + str(max_chimera_abun)  + "\n" + \
+                     "nb_non_chimera: " + str(nb_non_chimera) + "\n" + \
+                     "non_chimera_abun: " + str(non_chimera_abun) + "\n" )
+        FH_log.close()       
     finally:
         if os.path.exists(tmp_fasta): os.remove(tmp_fasta)
         if os.path.exists(tmp_log): os.remove(tmp_log)
         if os.path.exists(tmp_stdout): os.remove(tmp_stdout)
         if os.path.exists(tmp_stderr): os.remove(tmp_stderr)
-
+        
+def log_append_files( log_file, appended_files ):
+    """
+    @summary: Append content of several log files in one log file.
+    @param log_file: [str] The log file where contents of others are appended.
+    @param appended_files: [list] List of log files to append.
+    """
+    FH_log = Logger( log_file )
+    FH_log.write( "\n" )
+    for current_file in appended_files:
+        FH_input = open(current_file)
+        for line in FH_input:
+            FH_log.write( line )
+        FH_input.close()
+        FH_log.write( "\n" )
+    FH_log.write( "\n" )
+    FH_log.close()
+    
 def main_process(args):
     tmp_files = TmpFiles(os.path.split(args.non_chimera)[0])
 
@@ -503,33 +485,37 @@ def main_process(args):
             del biom
 
         # Get samples
-        samples = dict()
+        samples = list()
+        fasta_files=list()
+        chimera_files=list()
+        sample_logs=list()
         in_count_fh = open( count_table )
         header_line = in_count_fh.readline().strip()
         for sample_name in header_line.split()[1:]:
-            samples[sample_name] = { 'fasta_path': tmp_files.add(sample_name + ".fasta"),
-                                     'chimera_path': tmp_files.add(sample_name + ".chimera")
-            }
+            samples.append(sample_name)
+            fasta_files.append(tmp_files.add(sample_name + ".fasta"))
+            chimera_files.append(tmp_files.add(sample_name + ".chimera"))
+            sample_logs.append(tmp_files.add(sample_name + "_log.txt"))
         in_count_fh.close()
 
         # Find chimera
-        log_detection = Queue()
-        nb_processses_used = min( len(samples.keys()), args.nb_cpus )
-        processes = [{'process':None, 'in_file':[], 'out_file':[], 'sample_name':[]} for idx in range(nb_processses_used)]
+        nb_processses_used = min( len(samples), args.nb_cpus )
+        processes = [{'process':None, 'in_file':[], 'out_file':[], 'sample_name':[], 'log' :[]} for idx in range(nb_processses_used)]
         #    Set processes
-        for idx, sample_name in enumerate(samples.keys()):
+        for idx, sample_name in enumerate(samples):
             process_idx = idx % nb_processses_used
             processes[process_idx]['sample_name'].append( sample_name )
-            processes[process_idx]['in_file'].append( samples[sample_name]['fasta_path'] )
-            processes[process_idx]['out_file'].append( samples[sample_name]['chimera_path'] )
+            processes[process_idx]['in_file'].append( fasta_files[idx] )
+            processes[process_idx]['out_file'].append( chimera_files[idx] )
+            processes[process_idx]['log'].append( sample_logs[idx] )
         #    Launch processes
         for current_process in processes:
             if idx == 0: # First process is threaded with parent job
                 current_process['process'] = threading.Thread( target=chimera, 
-                                                               args=(current_process['sample_name'], args.sequences, count_table, current_process['in_file'], current_process['out_file'], log_detection, args.size_separator) )
+                                                               args=(current_process['sample_name'], args.sequences, count_table, current_process['in_file'], current_process['out_file'], current_process['log'], args.size_separator) )
             else: # Others processes are processed on different CPU
                 current_process['process'] = multiprocessing.Process( target=chimera, 
-                                                                      args=(current_process['sample_name'], args.sequences, count_table, current_process['in_file'], current_process['out_file'], log_detection, args.size_separator) )
+                                                                      args=(current_process['sample_name'], args.sequences, count_table, current_process['in_file'], current_process['out_file'], current_process['log'], args.size_separator) )
             current_process['process'].start()
         #    Wait processes end
         for current_process in processes:
@@ -538,6 +524,9 @@ def main_process(args):
         for current_process in processes:
             if issubclass(current_process['process'].__class__, multiprocessing.Process) and current_process['process'].exitcode != 0:
                 sys.exit(1)
+
+        # Append independant log files
+        log_append_files( args.log_file, sample_logs )
 
         # Remove chimera
         log_remove_global = { 'nb_kept': 0,
@@ -549,14 +538,15 @@ def main_process(args):
         log_remove_spl = {}
 
         if args.biom is not None:
-            remove_chimera_biom( samples, args.biom, args.out_abundance, args.lenient_filter, log_remove_global, log_remove_spl )
+            remove_chimera_biom( samples, chimera_files, args.biom, args.out_abundance, args.lenient_filter, log_remove_global, log_remove_spl, args.log_file )
             remove_chimera_fasta( args.sequences, args.non_chimera, get_obs_from_biom(args.out_abundance), args.size_separator )
         else:
-            remove_chimera_count( samples, args.count, args.out_abundance, args.lenient_filter, log_remove_global, log_remove_spl )
+            remove_chimera_count( samples, chimera_files, args.count, args.out_abundance, args.lenient_filter, log_remove_global, log_remove_spl, args.log_file )
             remove_chimera_fasta( args.sequences, args.non_chimera, get_obs_from_count(args.out_abundance), args.size_separator )
 
         # Summary
-        write_summary( samples.keys(), log_detection, log_remove_global, log_remove_spl, args.summary )
+        write_summary( samples, sample_logs, log_remove_global, log_remove_spl, args.summary )
+        
     finally:
         if not args.debug:
             tmp_files.deleteAll()
@@ -601,6 +591,7 @@ if __name__ == "__main__":
     group_output.add_argument( '-n', '--non-chimera', default='non_chimera.fasta', help='Fasta without chimera.')
     group_output.add_argument( '-a', '--out-abundance', default=None, help='Abundance file without chimera.')
     group_output.add_argument( '--summary', default='summary.tsv', help='Summary file.')
+    group_output.add_argument('--log-file', default=sys.stdout, help='This output file will contain several information on executed commands.')
     args = parser.parse_args()
 
     # Process

@@ -92,7 +92,8 @@
             var lineplot_param = function(pTitle, pXTitle, pYTitle, pXCategories, pData) {
                 return {
                     chart: {
-                        type: 'line'
+                        type: 'line',
+                        zoomType: 'x'
                     },
                     title: {
                         text: pTitle
@@ -201,7 +202,15 @@
                   "sampleB": [213043, 209801, 0, 0, 0, 0, 0] 
                 }
             */
-            var lengths_by_sample = ###LENGTHS_DATA### ;
+             var before_lengths_by_sample = ###BEFORE_LENGTHS_DATA### ;
+            /* Example:
+                {
+                  "sampleA": {"395": 1, "381": 192, "382": 1790, "383": 2903, "384": 1078, "385": 10536, "386": 18182, "387": 8613, "388": 1097, "389": 7},
+                  "sampleB": {}
+                }
+            */
+
+            var after_lengths_by_sample = ###AFTER_LENGTHS_DATA### ;
             /* Example:
                 {
                   "sampleA": {"395": 1, "381": 192, "382": 1790, "383": 2903, "384": 1078, "385": 10536, "386": 18182, "387": 8613, "388": 1097, "389": 7},
@@ -223,12 +232,16 @@
                 if( $('input[id^="filterBySample-chk-"]:checked').length == 0 ){
                     $("#display-spl-lengths").addClass( "disabled" );
                 }
+                $("#display-after-spl-lengths").removeClass( "disabled" );
+                if( $('input[id^="filterBySample-chk-"]:checked').length == 0 ){
+                    $("#display-after-spl-lengths").addClass( "disabled" );
+                }
             }
             
             /**
              * Draws for the selected sample(s) the line chart that represents the number of sequences by sequence length. 
              */
-            var setLengthsGraph = function(){                
+            var setLengthsGraph = function(lengths_by_sample,title){ 
                 var selected_series = new Array();
                 $('input[id^="filterBySample-chk-"]').each( function(){
                     if( $(this).is(':checked')){
@@ -267,7 +280,7 @@
                     }
                 });
                 // Draw chart
-                $('#lengths-chart').highcharts( lineplot_param("Lengths distribution", "Length", "Nb sequences", null, selected_series) );
+                $('#lengths-chart').highcharts( lineplot_param(title, "Length", "Nb sequences", null, selected_series) );
             }
             
             /**
@@ -355,13 +368,19 @@
                     'table_id': "filterBySample-table",
                     'omitted_columns': [0]
                 });
-                
+
                 // Add modal listener
                 $('#lengths-modal').on('shown.bs.modal', function (event) {
-                    setLengthsGraph();
+                    var button = $(event.relatedTarget); // Button that triggered the modal
+                    var data_type = button.data('whatever');
+                    if( data_type == "before-process" ){
+                        setLengthsGraph(before_lengths_by_sample,"Amplicon length distribution before trimming and filtering");
+                    } else {
+                        setLengthsGraph(after_lengths_by_sample,"Preprocessed Amplicon Length distribution");
+                    }
                 });
             }
-            
+
             $(function() {
                 // Remove alert
                 $('#js-alert').remove();
@@ -397,7 +416,8 @@
                         <tr>
                             <th>
                                 <span class="table-action">With selection:</span>
-                                <button id="display-spl-lengths" class="btn btn-primary table-action disabled" data-toggle="modal" data-target="#lengths-modal">Display lengths</button>
+                                <button id="display-spl-lengths" class="btn btn-primary table-action fusion-right disabled" data-toggle="modal" data-target="#lengths-modal" data-whatever="before-process">Display amplicon lengths </button>
+                                <button id="display-after-spl-lengths" class="btn btn-primary table-action disabled" data-toggle="modal" data-target="#lengths-modal" data-whatever="after-process">Display preprocessed amplicon lengths</button>
                             </th>
                         </tr>
                     </tfoot>
