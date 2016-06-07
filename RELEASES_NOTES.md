@@ -2,6 +2,10 @@
 ### Bugs fixes:
   * Filter: error when only the filter on contamination is used.
   * Preprocess: error in final dereplication with hudge number of samples.
+  * Remove_chimera: error when using library Queue and hudge number of samples
+
+### Functions added
+  * preprocess: new amplicon length graph
 
 
 # v1.3.0  [2016-04-18]

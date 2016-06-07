@@ -499,7 +499,6 @@ def main_process(args):
         in_count_fh.close()
 
         # Find chimera
-        log_detection = Queue()
         nb_processses_used = min( len(samples), args.nb_cpus )
         processes = [{'process':None, 'in_file':[], 'out_file':[], 'sample_name':[], 'log' :[]} for idx in range(nb_processses_used)]
         #    Set processes
