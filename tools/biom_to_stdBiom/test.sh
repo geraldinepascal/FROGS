@@ -1,6 +1,6 @@
 #!/bin/bash
-export PATH=../../bin:$PATH
-export PYTHONPATH=../../bin:$PYTHONPATH
+export PATH=../../libexec:$PATH
+export PYTHONPATH=../../libexec:$PYTHONPATH
 
 # Create output folder
 if [ ! -d "test" ]
