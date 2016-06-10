@@ -19,7 +19,7 @@
 __author__ = 'Frederic Escudie - Plateforme bioinformatique Toulouse'
 __copyright__ = 'Copyright (C) 2015 INRA'
 __license__ = 'GNU General Public License'
-__version__ = '1.2.0'
+__version__ = '1.3.0'
 __email__ = 'frogs@toulouse.inra.fr'
 __status__ = 'prod'
 
@@ -195,8 +195,8 @@ def get_alignment_distrib( input_biom, identity_tag, coverage_tag, multiple_tag 
     aln_results_hash = dict()
     for observation in biom.get_observations():
         observation_metadata = observation['metadata']
-        identity = None
-        coverage = None
+        identity = 0
+        coverage = 0
         if args.multiple_tag is not None:
             if observation_metadata.has_key(multiple_tag) and len(observation_metadata[multiple_tag]) > 0:
                 identity = observation_metadata[multiple_tag][0][identity_tag]
@@ -205,16 +205,15 @@ def get_alignment_distrib( input_biom, identity_tag, coverage_tag, multiple_tag 
             if observation_metadata.has_key(identity_tag) and observation_metadata.has_key(coverage_tag):
                 identity = observation_metadata[identity_tag]
                 coverage = observation_metadata[coverage_tag]
-        if identity is not None:
-            if not aln_results_hash.has_key( identity ):
-                aln_results_hash[identity] = dict()
-            if not aln_results_hash[identity].has_key( coverage ):
-                aln_results_hash[identity][coverage] = {
-                    "clstr": 0,
-                    "seq": 0
-                }
-            aln_results_hash[identity][coverage]["clstr"] += 1
-            aln_results_hash[identity][coverage]["seq"] += biom.get_observation_count( observation['id'] )
+        if not aln_results_hash.has_key( identity ):
+            aln_results_hash[identity] = dict()
+        if not aln_results_hash[identity].has_key( coverage ):
+            aln_results_hash[identity][coverage] = {
+                "clstr": 0,
+                "seq": 0
+            }
+        aln_results_hash[identity][coverage]["clstr"] += 1
+        aln_results_hash[identity][coverage]["seq"] += biom.get_observation_count( observation['id'] )
     for ident in aln_results_hash.keys():
         for cover in aln_results_hash[ident].keys():
             aln_results.append([
