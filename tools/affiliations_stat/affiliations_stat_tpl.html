@@ -19,7 +19,7 @@
 	<head>
 		<title>FROGS Affiliations stat</title>
 		<meta charset="UTF-8">
-		<meta name="version" content="1.1.0">
+		<meta name="version" content="1.2.0">
 		<!-- CSS -->
 		<link rel="stylesheet" href="https://cdn.datatables.net/1.10.6/css/jquery.dataTables.css"></link>
 		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css"></link>
@@ -523,7 +523,7 @@
 					$('input[id^="taxBySample-chk-"]').each( function(){
 						if( $(this).is(':checked')){
 							var selected_sample = $(this).prop('id').substring(16, $(this).prop('id').length) ;
-							var series_data = new Array();
+							var series_data = new Array([0, 0]); // Add the zero point to curve
 							for( var sampling_idx = 0 ; sampling_idx < rarefaction[selected_sample][selected_level].length ; sampling_idx++ ){
 								series_data.push([
 									(sampling_idx+1)*rarefaction_step, 
