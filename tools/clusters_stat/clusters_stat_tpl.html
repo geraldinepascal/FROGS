@@ -19,7 +19,7 @@
 	<head>
 		<title>FROGS Cluster stat</title>
 		<meta charset="UTF-8">
-		<meta name="version" content="1.1.0">
+		<meta name="version" content="1.2.0">
 		<!-- CSS -->
 		<link rel="stylesheet" href="https://cdn.datatables.net/1.10.6/css/jquery.dataTables.css"></link>
 		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css"></link>
@@ -46,6 +46,9 @@
 			#hc-graph {
 				height: 500px;
 				overflow: auto;
+			}
+			#hc-warning {
+				margin-top: 8px;
 			}
 			#hc-newick {
 				width: 90%;
@@ -619,6 +622,23 @@
 				
 				update_linkage_nodes(linkage_data);
 				
+				// Display warnings
+				var excluded_samples = $.grep(
+					Object.keys(samples_distrib),
+					function(el){ return $.inArray(el, leaves_names) == -1 }
+				);
+				if( excluded_samples.length > 0 ){
+					$('#' + container_id).append( '' +
+						'<div id="hc-warning" class="alert alert-warning alert-dismissible">' +
+						'    <span>' +
+						'        <span class="glyphicon glyphicon-exclamation-sign"></span>' +
+						'        Excluded because they have no sequence: ' +
+						'    </span>' +
+						'    <span>' + excluded_samples.sort().join(", ") + '</span>' +
+						'</div>'
+					);
+				}
+
 				// Display newick
 				$('#' + container_id).append( '' +
 					'<div id="hc-newick">' +

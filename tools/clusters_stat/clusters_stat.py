@@ -19,7 +19,7 @@
 __author__ = 'Frederic Escudie - Plateforme bioinformatique Toulouse'
 __copyright__ = 'Copyright (C) 2015 INRA'
 __license__ = 'GNU General Public License'
-__version__ = '1.2.0'
+__version__ = '1.3.0'
 __email__ = 'frogs@toulouse.inra.fr'
 __status__ = 'prod'
 
@@ -51,18 +51,45 @@ class HClassification(Cmd):
     """
     @summary: Hierarchical classification on observation proportions.
     """
-    def __init__(self, in_biom, out_newick, dist_method, linkage_method):
+    def __init__(self, in_biom, out_newick, out_log, dist_method, linkage_method):
         """
         @param in_biom: [str] The processed BIOM path.
         @param out_newick: [str] The path to the output.
+        @param out_log: [str] The path to the execution log.
         @param dist_method: [str] The distance method used.
         @param linkage_method: [str] The linkage method used.
         """
+        self.exec_log = out_log
         Cmd.__init__( self,
                       'biomTools.py',
                       'Hierarchical classification on observation proportions.',
-                      'hclassification --distance-method ' + dist_method + ' --linkage-method ' + linkage_method + ' --input-file ' + in_biom + ' --output-file ' + out_newick,
+                      'hclassification --distance-method ' + dist_method + ' --linkage-method ' + linkage_method + ' --input-file ' + in_biom + ' --output-file ' + out_newick + ' > ' + out_log,
                       '--version' )
+
+    def parser(self, log_file):
+        """
+        @summary : Parse the command results to add information in log_file.
+        @log_file : [str] Path to the sample process log file.
+        """
+        excluded_exists = False
+
+        # Parse execution log
+        warning_lines = list()
+        FH_exec_log = open( self.exec_log )
+        for line in FH_exec_log:
+            if line.strip() != "" and not line.startswith("#"):
+                warning_lines.append(line.strip())
+                if "xcluded samples" in line:
+                    excluded_exists = True
+        FH_exec_log.close()
+
+        # Write warning (if at least one sample has been excluded)
+        if excluded_exists:
+            FH_log = Logger( log_file )
+            FH_log.write( 'Warning:\n' )
+            for line in warning_lines:
+                FH_log.write( '\t' + line + '\n' )
+            FH_log.close()
 
 
 class Depths(Cmd):
@@ -185,7 +212,8 @@ if __name__ == "__main__":
         Logger.static_write(args.log_file, "## Application\nSoftware :" + sys.argv[0] + " (version : " + str(__version__) + ")\nCommand : " + " ".join(sys.argv) + "\n\n")
 
         classif_file = tmp_files.add( "HClassif.newick" )
-        HClassification(args.input_biom, classif_file, args.distance_method, args.linkage_method).submit( args.log_file )
+        classif_log = tmp_files.add( "HClassif_log.txt" )
+        HClassification(args.input_biom, classif_file, classif_log, args.distance_method, args.linkage_method).submit( args.log_file )
 
         depth_file = tmp_files.add( "depths.tsv" )
         Depths(args.input_biom, depth_file).submit( args.log_file )
