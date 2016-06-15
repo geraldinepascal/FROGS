@@ -512,7 +512,7 @@ if __name__ == '__main__':
 
     if args.nb_biggest_otu is None and args.min_sample_presence is None and args.min_abundance is None and args.min_rdp_bootstrap is None and args.min_blast_identity is None and args.min_blast_coverage is None and args.max_blast_evalue is None and args.min_blast_length is None and args.contaminant is None:
         raise argparse.ArgumentTypeError( "At least one filter must be set to run " + os.path.basename(sys.argv[0]) )
-    if args.min_abundance <= 0 or (type(args.min_abundance) == float and args.min_abundance >= 1.0 ) :
+    if not args.min_abundance is None and (args.min_abundance <= 0 or (type(args.min_abundance) == float and args.min_abundance >= 1.0 ) ):
         raise argparse.ArgumentTypeError( "If filtering on abundance, you must indicate a positiv threshold and if percentage abundance threshold must be smaller than 1.0. " )
     in_biom = BiomIO.from_json( args.input_biom )
     if args.min_rdp_bootstrap is not None:
