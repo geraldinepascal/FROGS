@@ -4,6 +4,7 @@
   * Preprocess: error in final dereplication with hudge number of samples.
   * Remove_chimera: error when using library Queue and hudge number of samples.
   * Clusters_stat: error with empty samples in hierarchical clustering.
+  * Filters : bug when using other filters than abundance (check parameter when None)
 
 ### Functions added
   * Preprocess: new amplicon length graph.
