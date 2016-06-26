@@ -18,7 +18,7 @@
 __author__ = 'Frederic Escudie - Plateforme bioinformatique Toulouse'
 __copyright__ = 'Copyright (C) 2015 INRA'
 __license__ = 'GNU General Public License'
-__version__ = '0.11.1'
+__version__ = '0.12.0'
 __email__ = 'frogs@toulouse.inra.fr'
 __status__ = 'prod'
 
@@ -891,12 +891,47 @@ class Biom:
         """
         return self.rows[self.find_idx("observation", observation_name)]["metadata"]
 
-    def has_observation_metadata(self, metadata_title):
+    def has_metadata(self, metadata_title, subject_type="observation", strict=False):
+        """
+        @summary: Returns true if at least one or all subjects have the metadata.
+        @param metadata_title: [str] The title of the searched metadata.
+        @param subject_type: [str] The type of subject : "sample" or "observation".
+        @param strict: [bool] True if all the subjects must have the metadata. False if only one subject with the metadata is sufficient.
+        @returns: [bool] True if all the subjects have the metadata (strict:True) or if at least one subject has the metadata (strict:False) or if the biom does not contain any subjact.
+        """
+        nb_metadata = 0
+        nb_subjects = 0
+        subjects_list = self.rows if subject_type == "observation" else self.columns
+        for current_subject in subjects_list:
+            nb_subjects += 1
+            if current_subject["metadata"] is not None and metadata_title in current_subject["metadata"]:
+                nb_metadata += 1
         has_metadata = False
-        for current_observ in self.get_observations():
-            if current_observ["metadata"] is not None and current_observ["metadata"].has_key(metadata_title):
-                has_metadata = True
+        if not strict and nb_metadata > 0:
+            has_metadata = True
+        elif strict and nb_metadata == nb_subjects:
+            has_metadata = True
+        elif nb_subjects == 0:
+            has_metadata = True
         return has_metadata
+
+    def has_sample_metadata(self, metadata_title, strict=False):
+        """
+        @summary: Returns true if at least one or all samples have the metadata.
+        @param metadata_title: [str] The title of the searched metadata.
+        @param strict: [bool] True if all the samples must have the metadata. False if only one sample with the metadata is sufficient.
+        @returns: [bool] True if all the samples have the metadata (strict:True) or if at least one sample has the metadata (strict:False) or if the biom does not contain any sample.
+        """
+        return self.has_metadata( metadata_title, "sample", strict )
+
+    def has_observation_metadata(self, metadata_title, strict=False):
+        """
+        @summary: Returns true if at least one or all observations have the metadata.
+        @param metadata_title: [str] The title of the searched metadata.
+        @param strict: [bool] True if all the observations must have the metadata. False if only one sample with the metadata is sufficient.
+        @returns: [bool] True if all the observations have the metadata (strict:True) or if at least one observation has the metadata (strict:False) or if the biom does not contain any observation.
+        """
+        return self.has_metadata( metadata_title, "observation", strict )
 
     def get_observation_taxonomy( self, observation_name, taxonomy_key ):
         """
