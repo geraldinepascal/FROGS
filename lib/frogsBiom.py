@@ -18,7 +18,7 @@
 __author__ = 'Frederic Escudie - Plateforme bioinformatique Toulouse'
 __copyright__ = 'Copyright (C) 2015 INRA'
 __license__ = 'GNU General Public License'
-__version__ = '0.12.0'
+__version__ = '0.12.1'
 __email__ = 'frogs@toulouse.inra.fr'
 __status__ = 'prod'
 
@@ -1120,7 +1120,7 @@ class BiomIO:
         row_idx = 0
         for line in count_fh:
             line = line.strip()
-            line_fields = line.split()
+            line_fields = line.split("\t")
             # Title line
             if line.startswith('#'):
                 for sample in line_fields[1:]:
@@ -1251,7 +1251,7 @@ class BiomIO:
         metadata = list()
         # Names and type of metadata
         title_line = metadata_fh.readline().strip()
-        title_fields = title_line.split()
+        title_fields = title_line.split("\t")
         for metadata_name in title_fields[1:]:
             metadata_type = "str"
             if ini_types.has_key( metadata_name ):
@@ -1268,7 +1268,7 @@ class BiomIO:
         for line in metadata_fh:
             line = line.strip()
             if not line.startswith('#'):
-                line_fields = line.split()
+                line_fields = line.split("\t")
                 metadata_subject = line_fields[0]
                 title_idx = 0
                 for metadata_value in line_fields[1:]:
