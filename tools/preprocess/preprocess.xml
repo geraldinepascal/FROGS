@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
-<tool id="FROGS_preprocess" name="FROGS Pre-process" version="1.4.4">
+<tool id="FROGS_preprocess" name="FROGS Pre-process" version="1.5.0">
 	<description>Step 1 in metagenomics analysis: denoising and dereplication.</description>
 	<command interpreter="python2.7">
 		preprocess.py $sequencer_type.sequencer_selected
@@ -248,7 +248,7 @@ Outputs
  This file presents the ordered filters and the number of sequences passing these (format `HTML &lt;https://en.wikipedia.org/wiki/HTML&gt;`_).
  
  .. image:: ${static_path}/images/tools/frogs/FROGS_preprocess_summary.png 
-     :height: 415
+     :height: 355
      :width: 676 
 
  It presents also the length distribution of the kept sequences.
