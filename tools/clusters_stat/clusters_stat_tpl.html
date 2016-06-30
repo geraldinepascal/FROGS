@@ -19,7 +19,7 @@
 	<head>
 		<title>FROGS Cluster stat</title>
 		<meta charset="UTF-8">
-		<meta name="version" content="1.2.0">
+		<meta name="version" content="1.3.0">
 		<!-- CSS -->
 		<link rel="stylesheet" href="https://cdn.datatables.net/1.10.6/css/jquery.dataTables.css"></link>
 		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css"></link>
@@ -570,13 +570,15 @@
 				for( sample in samples_distrib ){
 					table_data.push([
 					  sample,
+					  samples_distrib[sample]['total_observations'],
 					  samples_distrib[sample]['shared_observations'],
 					  samples_distrib[sample]['own_observations'],
+					  samples_distrib[sample]['total_seq'],
 					  samples_distrib[sample]['shared_seq'],
 					  samples_distrib[sample]['own_seq'],
 					])
 				}
-				$('#' + container_id).html( table("Samples information", ["Sample", "Shared clusters", "Own clusters", "Shared sequences", "Own sequences"], table_data) );
+				$('#' + container_id).html( table("Samples information", ["Sample", "Total clusters", "Shared clusters", "Own clusters", "Total sequences", "Shared sequences", "Own sequences"], table_data) );
 				$('#' + container_id + ' table').prop( 'id', 'samples-table' );
 				$('#' + container_id + ' table').DataTable({
 					"sDom": '<"top"<"#samples-csv-export"><"clear">lf>rt<"bottom"ip><"clear">'
