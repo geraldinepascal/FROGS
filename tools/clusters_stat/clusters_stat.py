@@ -19,7 +19,7 @@
 __author__ = 'Frederic Escudie - Plateforme bioinformatique Toulouse'
 __copyright__ = 'Copyright (C) 2015 INRA'
 __license__ = 'GNU General Public License'
-__version__ = '1.4.0'
+__version__ = '1.3.0'
 __email__ = 'frogs@toulouse.inra.fr'
 __status__ = 'prod'
 
@@ -150,8 +150,6 @@ def write_summary( summary_file, input_biom, depth_file, classif_file ):
                 shared_observations += 1
                 shared_seq += obs_count_in_spl
         samples_distrib[sample_name] = {
-            'total_seq': shared_seq+own_seq,
-            'total_observations': shared_observations+own_observations,
             'shared_seq': shared_seq,
             'shared_observations': shared_observations,
             'own_seq': own_seq,
