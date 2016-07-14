@@ -245,23 +245,23 @@ def split_fasta( contaminated, in_fasta, cleaned_fasta, removed_fasta ):
 if __name__ == "__main__":
     # Manage parameters
     parser = argparse.ArgumentParser(description="Uses similarity with a contaminant databank to split contaminated sequences in first file and others sequences in an other file.")
-    parser.add_argument('-p', '--nb-cpus', type=int, default=1, help="The maximum number of CPUs used.(default 1)")
-    parser.add_argument('-w', '--word-size', type=int, default=40, help="Word size for blast wordfinder algorithm (length of best perfect match).")
-    parser.add_argument('--min-identity', type=float, default=0.8, help="Minimum identity between query and databank sequence to tag the query as contaminant.")
-    parser.add_argument('--min-coverage', type=float, default=0.8, help="Minimum coverage between query and databank sequence to tag the query as contaminant.")
+    parser.add_argument('-p', '--nb-cpus', type=int, default=1, help="The maximum number of CPUs used. [Default: %(default)s]")
+    parser.add_argument('-w', '--word-size', type=int, default=40, help="Word size for blast wordfinder algorithm (length of best perfect match). [Default: %(default)s]")
+    parser.add_argument('--min-identity', type=float, default=0.8, help="Minimum identity between query and databank sequence to tag the query as contaminant. [Default: %(default)s]")
+    parser.add_argument('--min-coverage', type=float, default=0.8, help="Minimum coverage between query and databank sequence to tag the query as contaminant. [Default: %(default)s]")
     parser.add_argument('--debug', default=False, action='store_true', help="Keep temporary files to debug program.")
     parser.add_argument('-v', '--version', action='version', version=__version__)
     # Inputs
     group_input = parser.add_argument_group('Inputs')
-    group_input.add_argument( '-f', '--input-fasta', required=True, help='The sequences to check (format: FASTA).' )
-    group_input.add_argument( '-c', '--contaminant-db', required=True, help='The sequences of contaminants (format: FASTA with blast index).')
+    group_input.add_argument( '-f', '--input-fasta', required=True, help='The sequences to check (format: fasta).' )
+    group_input.add_argument( '-c', '--contaminant-db', required=True, help='The sequences of contaminants (format: fasta with blast index).')
     group_input.add_argument( '-b', '--input-biom', default=None, help='The abundance file (format: BIOM).')
     # Outputs
     group_output = parser.add_argument_group('Outputs')
-    group_output.add_argument( '--clean-fasta', default='clean.fasta', help='The sequences without contaminants (format: FASTA).' )
+    group_output.add_argument( '--clean-fasta', default='clean.fasta', help='The sequences without contaminants (format: fasta). [Default: %(default)s]' )
     group_output.add_argument( '--clean-biom', default=None, help='The abundance without contaminants (format: BIOM).' )
-    group_output.add_argument( '--conta-fasta', default=None, help='The checked sequences tagged as contaminants (format: FASTA).' )
-    group_output.add_argument( '-l', '--log-file', default='log.txt', help='The log file.' )
+    group_output.add_argument( '--conta-fasta', default=None, help='The checked sequences tagged as contaminants (format: fasta).' )
+    group_output.add_argument( '-l', '--log-file', default='log.txt', help='The log file. [Default: %(default)s]' )
     args = parser.parse_args()
 
     tmp_files = TmpFiles(os.path.split(args.clean_fasta)[0])

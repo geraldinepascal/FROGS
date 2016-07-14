@@ -243,11 +243,11 @@ Command sequence to generate an databank usable with classifier.jar :
     parser.add_argument( '-f', '--filtered', default=None, nargs='+', choices=['bacteria', 'archaea', 'eukaryota'], help='The filtered domains.' )
     parser.add_argument( '-v', '--version', action='version', version=__version__ )
     group_input = parser.add_argument_group( 'Inputs' ) # Inputs
-    group_input.add_argument( '-r', '--reference', required=True, help='The silva sequences file (format : FASTA). Example : SILVA_119_SSURef_Nr99_tax_silva.fasta.' )
-    group_input.add_argument( '-t', '--taxonomy', required=True, help='The silva taxonomy file (format : TSV). Example : tax_slv_ssu_nr_119.txt.' )
+    group_input.add_argument( '-r', '--reference', required=True, help='The silva sequences file (format: fasta). Example : SILVA_119_SSURef_Nr99_tax_silva.fasta.' )
+    group_input.add_argument( '-t', '--taxonomy', required=True, help='The silva taxonomy file (format: TSV). Example : tax_slv_ssu_nr_119.txt.' )
     group_output = parser.add_argument_group( 'Outputs' ) # Outputs
-    group_output.add_argument( '--rdp-reference', default='rdp_seq.fasta', help='The RDP sequence file (FASTA).' )
-    group_output.add_argument( '--rdp-taxonomy', default='rdp_tax.txt', help='The RDP taxonomy file.' )
+    group_output.add_argument( '--rdp-reference', default='rdp_seq.fasta', help='The RDP sequence file (format: fasta). [Default: %(default)s]' )
+    group_output.add_argument( '--rdp-taxonomy', default='rdp_tax.txt', help='The RDP taxonomy file (format: txt). [Default: %(default)s]' )
     args = parser.parse_args()
 
     # Process

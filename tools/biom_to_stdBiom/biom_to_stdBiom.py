@@ -92,11 +92,11 @@ if __name__ == "__main__":
     parser.add_argument( '-v', '--version', action='version', version=__version__ )
     # Inputs
     group_input = parser.add_argument_group( 'Inputs' )
-    group_input.add_argument( '-b', '--input-biom', required=True, help="The abundance file (format : BIOM)." )
+    group_input.add_argument( '-b', '--input-biom', required=True, help="The abundance file (format: BIOM)." )
     # Outputs
     group_output = parser.add_argument_group( 'Outputs' )
-    group_output.add_argument( '-o', '--output-biom', default='abundance.biom', help='The fully compatible abundance file (format: BIOM).' )
-    group_output.add_argument( '-m', '--output-metadata', default='blast_metadata.tsv', help='The blast affiliations metadata (format: TSV).' )
+    group_output.add_argument( '-o', '--output-biom', default='abundance.biom', help='The fully compatible abundance file (format: BIOM). [Default: %(default)s]' )
+    group_output.add_argument( '-m', '--output-metadata', default='blast_metadata.tsv', help='The blast affiliations metadata (format: TSV). [Default: %(default)s]' )
     group_output.add_argument( '-l', '--log-file', default=sys.stdout, help='This output file will contain several information on executed commands.' )
     args = parser.parse_args()
     prevent_shell_injections(args)

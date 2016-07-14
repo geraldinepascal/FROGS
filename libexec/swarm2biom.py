@@ -107,13 +107,13 @@ def to_biom( clusters_file, count_file, output_biom, size_separator ):
 if __name__ == "__main__":
     # Manage parameters
     parser = argparse.ArgumentParser( description='Convert Swarm results to Biom file.' )
-    parser.add_argument( '-s', '--size-separator', default='_', action='store_true', help="The pre-cluster abundance separator." )
+    parser.add_argument( '-s', '--size-separator', default='_', action='store_true', help="The pre-cluster abundance separator. [Default: %(default)s]" )
     parser.add_argument( '-v', '--version', action='version', version=__version__ )
     group_input = parser.add_argument_group( 'Inputs' ) # Inputs
-    group_input.add_argument( '--clusters-file', required=True, help='The cluster file from swarm (format : TSV).' )
-    group_input.add_argument( '--count-file', required=True, help='Path to the count file (format : TSV). It contains the count of sequences by sample of each preclusters.' )
+    group_input.add_argument( '--clusters-file', required=True, help='The cluster file from swarm (format: TSV).' )
+    group_input.add_argument( '--count-file', required=True, help='Path to the count file (format: TSV). It contains the count of sequences by sample of each preclusters.' )
     group_output = parser.add_argument_group( 'Outputs' ) # Outputs
-    group_output.add_argument( '-o', '--output-file', default='swarm_abundance.biom', help='Path to the output file (format : BIOM).')
+    group_output.add_argument( '-o', '--output-file', default='swarm_abundance.biom', help='Path to the output file (format: BIOM). [Default: %(default)s]')
     args = parser.parse_args()
 
     # Process

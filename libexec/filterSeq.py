@@ -195,7 +195,7 @@ if __name__ == "__main__":
     parser.add_argument( '--qual-window', default=None, nargs='+', action=QualWindowParameter, metavar=("threshold:MIN_QUAL [win_size:WINDOW_SIZE] [offset:QUAl_OFFSET]", ""), help="The minimal distance ('win_size') between two poor quality ('threshold')." )
     parser.add_argument( '-v', '--version', action='version', version=__version__ )
     group_input = parser.add_argument_group( 'Inputs' ) # Inputs
-    group_input.add_argument( '-i', '--input-file', required=True, help='The sequence file to process (format : FASTQ or FASTA).' )
+    group_input.add_argument( '-i', '--input-file', required=True, help='The sequence file to process (format: fastq or fasta).' )
     group_output = parser.add_argument_group( 'Outputs' ) # Outputs
     group_output.add_argument( '-o', '--output-file', required=True, help='The filtered file.')
     group_output.add_argument( '-l', '--log-file', required=True, help='The log file.')

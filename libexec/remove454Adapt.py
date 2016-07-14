@@ -143,16 +143,16 @@ if __name__ == "__main__":
     parser.add_argument( '-f', '--five-prim-primer', type=str, required=True, help="The 5' primer sequence (wildcards are accepted)." )
     parser.add_argument( '-t', '--three-prim-primer', type=str, required=True, help="The 3' primer sequence (wildcards are accepted)." )
     parser.add_argument( '-m', '--min-length', type=int, required=True, help="The amplicon minimal expected length (with primers)." )
-    parser.add_argument( '-e', '--error-rate', type=float, default=0.1, help="Maximum allowed error rate (no. of errors divided by the length of the matching region)." )
-    parser.add_argument( '-n', '--non-overlap', type=int, default=1, help="Maximum allowed error rate (no. of errors divided by the length of the matching region)." )
+    parser.add_argument( '-e', '--error-rate', type=float, default=0.1, help="Maximum allowed error rate (no. of errors divided by the length of the matching region). [Default: %(default)s]" )
+    parser.add_argument( '-n', '--non-overlap', type=int, default=1, help="Maximum number of unaligned nucleotids. [Default: %(default)s]" )
     parser.add_argument( '-d', '--debug', default=False, action='store_true', help="Keep temporary files to debug program." )
     parser.add_argument( '-v', '--version', action='version', version=__version__ + " [cutadapt " + get_cutadapt_version() + "]" )
     # Inputs
     group_input = parser.add_argument_group( 'Inputs' )
-    group_input.add_argument( '-i', '--input', required=True, help='The amplicons sequences (format: FASTQ).' )
+    group_input.add_argument( '-i', '--input', required=True, help='The amplicons sequences (format: fastq).' )
     # Outputs
     group_output = parser.add_argument_group( 'Outputs' )
-    group_output.add_argument( '-o', '--output', required=True, help='The trimmed sequences.')
+    group_output.add_argument( '-o', '--output', required=True, help='The trimmed sequences (format: fastq).')
     args = parser.parse_args()
     if args.min_length < (len(args.five_prim_primer) + len(args.five_prim_primer)):
         raise argparse.ArgumentTypeError( "The minimum length of the amplicon (--min-length) must be superior to the size of the two primers." )

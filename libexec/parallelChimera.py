@@ -579,7 +579,7 @@ if __name__ == "__main__":
     )
     parser.add_argument( '--size-separator', help="The size separator if the cluster IDs contain the number of represented sequence (format: '<ID_IN_ABUND_FILE><size_separator><NB_SEQ>'" )
     parser.add_argument( '-l', '--lenient-filter', default=False, action='store_true', help="Removes one sequence in all samples only if it is detected as chimera in all samples where it is present. Without this option the program removes one sequence in all samples if it is detected as chimera in at least one sample." )
-    parser.add_argument( '-p', '--nb-cpus', type=int, default=1, help="The maximum number of CPUs used." )
+    parser.add_argument( '-p', '--nb-cpus', type=int, default=1, help="The maximum number of CPUs used. [Default: %(default)s]" )
     parser.add_argument( '--debug', default=False, action='store_true', help="Keep temporary files to debug program." )
     parser.add_argument( '-v', '--version', action='version', version=__version__ + " [vsearch " + get_vsearch_version() + "]" )
     group_input = parser.add_argument_group( 'Inputs' ) # Inputs
@@ -588,10 +588,10 @@ if __name__ == "__main__":
     group_exclusion_abundance.add_argument( '-b', '--biom', help='The abundance file for clusters by sample (format: BIOM).' )
     group_exclusion_abundance.add_argument( '-c', '--count', help='The abundance file for clusters by sample (format: count).' )
     group_output = parser.add_argument_group( 'Outputs' ) # Outputs
-    group_output.add_argument( '-n', '--non-chimera', default='non_chimera.fasta', help='Fasta without chimera.')
-    group_output.add_argument( '-a', '--out-abundance', default=None, help='Abundance file without chimera.')
-    group_output.add_argument( '--summary', default='summary.tsv', help='Summary file.')
-    group_output.add_argument('--log-file', default=sys.stdout, help='This output file will contain several information on executed commands.')
+    group_output.add_argument( '-n', '--non-chimera', default='non_chimera.fasta', help='Fasta without chimera. [Default: %(default)s]' )
+    group_output.add_argument( '-a', '--out-abundance', default=None, help='Abundance file without chimera.' )
+    group_output.add_argument( '--summary', default='summary.tsv', help='Summary file. [Default: %(default)s]' )
+    group_output.add_argument( '--log-file', default=sys.stdout, help='This output file will contain several information on executed commands.' )
     args = parser.parse_args()
 
     # Process

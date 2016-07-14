@@ -474,18 +474,18 @@ if __name__ == "__main__":
     parser_rarefaction = subparsers.add_parser('rarefaction', help='Process data for rarefaction curve by sample.')
     parser_rarefaction.add_argument( '-i', '--input-file', required=True, type=str, help='BIOM file processed.' )
     parser_rarefaction.add_argument( '-o', '--output-file-pattern', required=True, type=str, help='Rarefaction file(s) pattern with tag "##RANK##". Example: "/tmp/rarefaction_##RANK##.tsv".' )
-    parser_rarefaction.add_argument( '-s', '--step-size', type=strict_positive_int, default=10000, help='Additional number of sampled sequences by round of sampling.' )
+    parser_rarefaction.add_argument( '-s', '--step-size', type=strict_positive_int, default=10000, help='Additional number of sampled sequences by round of sampling. [Default: %(default)s]' )
     parser_rarefaction.add_argument( '-r', '--ranks', nargs='+', required=True, type=int, default=None, help='The taxonomy depth used to evaluate diversity.' )
-    parser_rarefaction.add_argument( '-k', '--taxonomy-key', type=str, default="taxonomy", help='The metadata title for the taxonomy in your BIOM file. Example : "rdp_taxonomy"' )
+    parser_rarefaction.add_argument( '-k', '--taxonomy-key', type=str, default="taxonomy", help='The metadata title for the taxonomy in your BIOM file. Example : "rdp_taxonomy". [Default: %(default)s]' )
     parser_rarefaction.set_defaults(func=task_rarefaction)
 
     # Hierarchical classification parameters
     parser_hclassification = subparsers.add_parser('hclassification', help='Process data for hierarchical classification dendrogram.')
     parser_hclassification.add_argument( '-i', '--input-file', required=True, type=str, help='BIOM file processed.' )
     parser_hclassification.add_argument( '-o', '--output-file', required=True, type=str, help='Hierarchical classification in NEWICK format.' )
-    parser_hclassification.add_argument( '-d', '--distance-method', type=str, default="euclidean", help='Used distance method for classify (example : euclidean).' )
-    parser_hclassification.add_argument( '-l', '--linkage-method', type=str, default="average", help='Used linkage method for classify (example : centroid).' )
-    parser_hclassification.add_argument( '-c', '--min-count', type=strict_positive_int, default=1, help='Samples with a count lower than this value are not processed.' )
+    parser_hclassification.add_argument( '-d', '--distance-method', type=str, default="euclidean", help='Used distance method for classify (example : euclidean). [Default: %(default)s]' )
+    parser_hclassification.add_argument( '-l', '--linkage-method', type=str, default="average", help='Used linkage method for classify (example : centroid). [Default: %(default)s]' )
+    parser_hclassification.add_argument( '-c', '--min-count', type=strict_positive_int, default=1, help='Samples with a count lower than this value are not processed. [Default: %(default)s]' )
     parser_hclassification.set_defaults(func=task_hclassification)
 
     # Observation depth parameters
@@ -497,17 +497,17 @@ if __name__ == "__main__":
     # Biom 2 tsv parameters
     parser_biom2tsv = subparsers.add_parser('biom2tsv', help='Convert BIOM file to TSV file.')
     parser_biom2tsv.add_argument( '-i', '--input-file', required=True, help='BIOM file processed.' )
-    parser_biom2tsv.add_argument( '-o', '--output-file', required=True, help='Path to the output file (format : TSV).')
-    parser_biom2tsv.add_argument( '-f', '--fields', default=['@observation_name', '@observation_sum', '@sample_count'], nargs='+', help="Columns and their order in output. Special columns : '@observation_name', '@observation_sum', '@sample_count'. The others columns must be metadata titles.")
-    parser_biom2tsv.add_argument( '-s', '--list-separator', default=';', help='Separator for complex metadata.')
+    parser_biom2tsv.add_argument( '-o', '--output-file', required=True, help='Path to the output file (format: TSV).')
+    parser_biom2tsv.add_argument( '-f', '--fields', default=['@observation_name', '@observation_sum', '@sample_count'], nargs='+', help="Columns and their order in output. Special columns : '@observation_name', '@observation_sum', '@sample_count'. The others columns must be metadata titles. [Default: %(default)s]")
+    parser_biom2tsv.add_argument( '-s', '--list-separator', default=';', help='Separator for complex metadata. [Default: %(default)s]')
     parser_biom2tsv.set_defaults(func=task_biom2tsv)
 
     # Tree count parameters
     parser_treeCount = subparsers.add_parser('treeCount', help='Produces a taxonomy tree with counts by sample in extended newick format.')
     parser_treeCount.add_argument( '-i', '--input-file', required=True, help='BIOM file processed.' )
-    parser_treeCount.add_argument( '-e', '--output-enewick', required=True, help='Path to the output file (format : enewick).')
+    parser_treeCount.add_argument( '-e', '--output-enewick', required=True, help='Path to the output file (format: enewick).')
     parser_treeCount.add_argument( '-s', '--output-samples', type=str, help="Path to the output file with link between samples names and ids (format : TSV). If this option is used the samples names in enewick are replaced by ids to reduce the file weight.")
-    parser_treeCount.add_argument( '-k', '--taxonomy-key', type=str, default="taxonomy", help='The metadata title for the taxonomy in your BIOM file. Example : "rdp_taxonomy"' )
+    parser_treeCount.add_argument( '-k', '--taxonomy-key', type=str, default="taxonomy", help='The metadata title for the taxonomy in your BIOM file. Example : "rdp_taxonomy". [Default: %(default)s]' )
     parser_treeCount.set_defaults(func=task_treeCount)
 
     # Parse parameters and call process

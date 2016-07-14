@@ -111,7 +111,7 @@ if __name__ == "__main__":
     parser.add_argument( '-s', '--size-separator', default=None, help='Each sequence in in_fasta is see as a pre-cluster. The number of sequences represented by the pre-cluster is stored in sequence ID. Sequence ID format : "<REAL_ID><size_separator><NB_SEQ>". If this size separator is missing in ID, the number of sequences represented is 1.' )
     parser.add_argument( '-i', '--input-file', required=True, help='Fasta file to sort.' )
     parser.add_argument( '-o', '--output-file', required=True, help='Sorted fasta file.' )
-    parser.add_argument( '-r', '--ranges', type=int, nargs='*', default=[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 20, 30, 100, 200, 300, 400, 500, 600, 700, 1000, 2000, 3000, 4000, 5000, 10000, 20000, 100000, 1000000, 9999999999999], help='Ranges used to decrease the memory comsumption. Each values represents one file which contains the sequences with an abundance between previous value and next values. Each file is processed separately.' )
+    parser.add_argument( '-r', '--ranges', type=int, nargs='*', default=[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 20, 30, 100, 200, 300, 400, 500, 600, 700, 1000, 2000, 3000, 4000, 5000, 10000, 20000, 100000, 1000000, 9999999999999], help='Ranges used to decrease the memory comsumption. Each values represents one file which contains the sequences with an abundance between previous value and next values. Each file is processed separately. [Default: %(default)s]' )
     args = parser.parse_args()
 
     # Process

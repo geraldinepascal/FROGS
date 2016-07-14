@@ -315,9 +315,9 @@ def parallel_submission( function, inputs, outputs, logs, cpu_used, reference, m
 if __name__ == "__main__":
     # Manage parameters
     parser = argparse.ArgumentParser(description="Taxonomic affiliation of each OTU's seed by RDPtools and BLAST.")
-    parser.add_argument( '-p', '--nb-cpus', type=int, default=1, help="The maximum number of CPUs used.(default 1)")
-    parser.add_argument( '-m', '--java-mem', type=int, default=2, help="Java memory allocation in Go.(default 2)")
-    parser.add_argument( '-t', '--taxonomy-ranks', nargs='*', default=["Domain", "Phylum", "Class", "Order", "Family", "Genus", "Species"], help='The ordered ranks levels present in the reference databank.' )
+    parser.add_argument( '-p', '--nb-cpus', type=int, default=1, help="The maximum number of CPUs used. [Default: %(default)s]")
+    parser.add_argument( '-m', '--java-mem', type=int, default=2, help="Java memory allocation in Go. [Default: %(default)s]")
+    parser.add_argument( '-t', '--taxonomy-ranks', nargs='*', default=["Domain", "Phylum", "Class", "Order", "Family", "Genus", "Species"], help='The ordered ranks levels present in the reference databank. [Default: %(default)s]' )
     parser.add_argument( '-d', '--debug', default=False, action='store_true', help="Keep temporary files to debug program.")
     parser.add_argument( '-v', '--version', action='version', version=__version__)
     # Inputs
@@ -327,8 +327,8 @@ if __name__ == "__main__":
     group_input.add_argument('-f', '--input-fasta', required=True, help="Fasta file of OTU's seed (format: fasta).")
     # Outputs
     group_output = parser.add_argument_group('Outputs')
-    group_output.add_argument('-o', '--output-biom', default='affiliation.biom', help='File which add affiliation annotations from blast and RDPtools to the abundance table.')
-    group_output.add_argument('-s', '--summary', default='summary.html', help='Report of the results (format: HTML).')
+    group_output.add_argument('-o', '--output-biom', default='affiliation.biom', help='File which add affiliation annotations from blast and RDPtools to the abundance table. [Default: %(default)s]')
+    group_output.add_argument('-s', '--summary', default='summary.html', help='Report of the results (format: HTML). [Default: %(default)s]')
     group_output.add_argument('-l', '--log-file', default=sys.stdout, help='The list of commands executed.')
     args = parser.parse_args()
     prevent_shell_injections(args)
