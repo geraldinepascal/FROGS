@@ -19,7 +19,7 @@
 __author__ = 'Frederic Escudie - Plateforme bioinformatique Toulouse'
 __copyright__ = 'Copyright (C) 2015 INRA'
 __license__ = 'GNU General Public License'
-__version__ = '1.2.0'
+__version__ = '1.3.0'
 __email__ = 'frogs@toulouse.inra.fr'
 __status__ = 'prod'
 
@@ -62,12 +62,8 @@ def to_biom( clusters_file, count_file, output_biom, size_separator ):
     count_fh = open( count_file )
     samples = count_fh.readline().strip().split()[1:]
     for line in count_fh:
-        line_fields = line.strip().split()
-        count_by_sample = {}
-        for idx, val in enumerate(line_fields[1:]):
-            if val > 0:
-                count_by_sample[samples[idx]] = int(val)
-        preclusters_count[line_fields[0]] = count_by_sample
+        precluster_id, count_str = line.strip().split(None, 1)
+        preclusters_count[precluster_id] = count_str # For large dataset store count into a string consumes minus RAM than a sparse count
     count_fh.close()
 
     # Add samples
@@ -84,14 +80,16 @@ def to_biom( clusters_file, count_file, output_biom, size_separator ):
         # Retrieve count by sample
         for seq_id in line_fields:
             real_seq_id = seq_id.rsplit(size_separator, 1)[0]
-            for preclust_sample in preclusters_count[real_seq_id]:
-                cluster_count[preclust_sample] += preclusters_count[real_seq_id][preclust_sample]
+            sample_counts = preclusters_count[real_seq_id].split()
+            for sample_idx, sample_name in enumerate(samples):
+                cluster_count[sample_name] += int(sample_counts[sample_idx])
             preclusters_count[real_seq_id] = None
         # Add cluster on biom
         biom.add_observation( cluster_name, {'seed_id':line_fields[0].rsplit(size_separator, 1)[0]} )
-        for sample_name in samples:
+        observation_idx = biom.find_idx("observation", cluster_name)
+        for sample_idx, sample_name in enumerate(samples):
             if cluster_count[sample_name] > 0:
-                biom.add_count( cluster_name, sample_name, cluster_count[sample_name] )
+                biom.data.change( observation_idx, sample_idx, cluster_count[sample_name] )
         # Next cluster
         cluster_idx += 1
 
