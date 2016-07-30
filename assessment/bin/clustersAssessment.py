@@ -19,7 +19,7 @@
 __author__ = 'Plateforme bioinformatique Toulouse'
 __copyright__ = 'Copyright (C) 2016 INRA'
 __license__ = 'GNU General Public License'
-__version__ = '1.1.0'
+__version__ = '1.2.0'
 __email__ = 'support.genopole@toulouse.inra.fr'
 __status__ = 'beta'
 
@@ -78,72 +78,93 @@ def get_uniq(fasta, references_by_sample):
     """
     
     """
-    nb_uniq = 0
-    nb_uniq_by_sample = dict()
+    uniq_id = dict()
+    uniq_id_by_sample = dict()
 
     # Get sequences
-    sequence_by_id = dict()
+    ids_by_sequences = dict()
     fh_sequences = FastaIO( fasta )
     for record in fh_sequences:
-        sequence_by_id[record.id] = record.string
+        if record.string not in ids_by_sequences:
+            ids_by_sequences[record.string] = list()
+        ids_by_sequences[record.string].append( record.id )
     fh_sequences.close()
 
-    # Get nb uniq global
-    nb_uniq = len(set([sequence_by_id[id] for id in sequence_by_id]))
+    # Get uniq in all dataset
+    for sequence in ids_by_sequences:
+        for reference_id in ids_by_sequences[sequence]:
+            uniq_id[reference_id] = ids_by_sequences[sequence][0]
 
-    # Get nb uniq by sample
+    # Get uniq by sample
     for sample_name in references_by_sample:
-        sequences = dict()
+        uniq_id_by_sample[sample_name] = dict()
         for reference_id in references_by_sample[sample_name]:
-            sequences[sequence_by_id[reference_id]] = 1
-        nb_uniq_by_sample[sample_name] = len(sequences)
+            uniq_id_by_sample[sample_name][reference_id] = uniq_id[reference_id]
 
-    return nb_uniq, nb_uniq_by_sample
+    return uniq_id, uniq_id_by_sample
 
 
-def get_global_retrieved(reference_by_obs_id, references):
-    expected_retrieved_already_processed = dict()
-    retrieved_already_processed = dict()
+def get_retrieved_in_dataset(reference_by_obs_id, references, uniq_id):
     nb_detected = 0
+    retrieved = dict()
+    expected_retrieved = dict()
     nb_splits = 0
     for obs_id in reference_by_obs_id:
         nb_detected += 1
         if not "," in reference_by_obs_id[obs_id]: # Is not a chimera
             ref_id = reference_by_obs_id[obs_id]
-            if ref_id in retrieved_already_processed:
+            if ref_id in retrieved:
                 nb_splits += 1
             else:
-                retrieved_already_processed[ref_id] = 1
+                retrieved[ref_id] = 1
                 if ref_id in references:
-                    expected_retrieved_already_processed[ref_id] = 1
-    
+                    expected_retrieved[ref_id] = 1
+    # Uniq sequence for retrieved
+    uniq_retrieved = set()
+    for ref_id in retrieved:
+        uniq_retrieved.add( uniq_id[ref_id] )
+    # Add to split the references with the same sequence and retrieved separately
+    nb_splits += len(retrieved.keys()) - len(uniq_retrieved)
+    # Uniq sequence for retrieved
+    uniq_expected_retrieved = set()
+    for ref_id in expected_retrieved:
+        uniq_expected_retrieved.add( uniq_id[ref_id] )
+    # Results
     return {
-        "expected_retrieved": len(expected_retrieved_already_processed),
-        "retrieved": len(retrieved_already_processed),
+        "expected_retrieved": len(uniq_expected_retrieved),
+        "retrieved": len(uniq_retrieved),
         "detected": nb_detected,
         "splits": nb_splits
     }
 
 
-def get_retrieved_by_sample( biom_file, reference_by_obs_id ):
+def get_retrieved_by_sample( biom_file, reference_by_obs_id, references_by_sample, uniq_id, uniq_id_by_sample ):
     counts_by_sample = dict()
     biom = BiomIO.from_json( biom_file )
     for sample_name in biom.get_samples_names():
         nb_detected = 0
-        nb_expected_retrieved = 0
-        retrieved_already_processed = dict()
+        retrieved = dict()
+        expected_retrieved = dict()
         for obs in biom.get_observations_by_sample( sample_name ):
             nb_detected += 1
             if not "," in reference_by_obs_id[obs['id']]: # Is not a chimera
                 ref_id = reference_by_obs_id[obs['id']]
-                if ref_id not in retrieved_already_processed: # Not already processed this reference
-                    retrieved_already_processed[ref_id] = 1
-                    if ref_id in references_by_sample[sample_name]:
-                        nb_expected_retrieved += 1
+                retrieved[ref_id] = 1
+                if ref_id in references_by_sample[sample_name]:
+                    expected_retrieved[ref_id] = 1
+        # Uniq sequence for retrieved
+        uniq_retrieved = set()
+        for ref_id in retrieved:
+            uniq_retrieved.add( uniq_id[ref_id] )
+        # Uniq sequence for retrieved
+        uniq_expected_retrieved = set()
+        for ref_id in expected_retrieved:
+            uniq_expected_retrieved.add( uniq_id_by_sample[sample_name][ref_id] )
+        # Results
         counts_by_sample[sample_name] = {
             "detected": nb_detected,
-            "retrieved": len(retrieved_already_processed),
-            "expected_retrieved": nb_expected_retrieved
+            "retrieved": len(uniq_retrieved),
+            "expected_retrieved": len(uniq_expected_retrieved)
         }
     return counts_by_sample
 
@@ -166,12 +187,12 @@ if __name__ == "__main__":
     
     # Get samples files
     samples = samples_from_dir(args.reads_dir, args.sample_sep)
-    
+
     # Get expected reference
     references, references_by_sample = get_ref_after_simulation(samples)
 
     # Get uniq reference
-    nb_uniq, nb_uniq_by_sample = get_uniq(args.origin, references_by_sample)
+    uniq_id, uniq_id_by_sample = get_uniq(args.origin, references_by_sample)
 
     # Get OTU in results
     reference_by_obs_id = dict()
@@ -181,13 +202,13 @@ if __name__ == "__main__":
             record.id = record.id.split(";size=", 1)[0]
         reference_by_obs_id[record.id] = re.search("reference=([^\s]+)", record.description).group(1)
     fh_sequences.close()
-    counts = get_global_retrieved(reference_by_obs_id, references)
-    counts_by_sample = get_retrieved_by_sample( args.biom, reference_by_obs_id )
+    counts = get_retrieved_in_dataset( reference_by_obs_id, references, uniq_id )
+    counts_by_sample = get_retrieved_by_sample( args.biom, reference_by_obs_id, references_by_sample, uniq_id, uniq_id_by_sample )
 
     # Output
     print "#After_simu\tDictincts_after_simu\tExpected_retrieved\tRetrieved\tDetected\tSplits"
     print "\t".join([ str(len(references)),
-                      str(nb_uniq),
+                      str(len(set(uniq_id.values()))),
                       str(counts["expected_retrieved"]),
                       str(counts["retrieved"]),
                       str(counts["detected"]),
@@ -198,7 +219,7 @@ if __name__ == "__main__":
     for sample in samples:
         print "\t".join([ sample, 
                           str(len(references_by_sample[sample])),
-                          str(nb_uniq_by_sample[sample]),
+                          str(len(set(uniq_id_by_sample[sample].values()))),
                           str(counts_by_sample[sample]["expected_retrieved"]),
                           str(counts_by_sample[sample]["retrieved"]),
                           str(counts_by_sample[sample]["detected"]) ])
