@@ -19,7 +19,7 @@
 __author__ = 'Frederic Escudie - Plateforme bioinformatique Toulouse'
 __copyright__ = 'Copyright (C) 2015 INRA'
 __license__ = 'GNU General Public License'
-__version__ = '1.3.0'
+__version__ = '1.3.1'
 __email__ = 'frogs@toulouse.inra.fr'
 __status__ = 'prod'
 
@@ -27,6 +27,13 @@ import os
 import sys
 import gzip
 import argparse
+
+CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
+LIB_DIR = os.path.abspath(os.path.join(os.path.dirname(CURRENT_DIR), "lib"))
+sys.path.append(LIB_DIR)
+if os.getenv('PYTHONPATH') is None: os.environ['PYTHONPATH'] = LIB_DIR
+else: os.environ['PYTHONPATH'] = os.environ['PYTHONPATH'] + os.pathsep + LIB_DIR
+
 from frogsSequenceIO import *
 
 
@@ -72,10 +79,10 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser( description='Extracts seeds sequences to produce the seeds fasta.' )
     parser.add_argument( '-v', '--version', action='version', version=__version__ )
     group_input = parser.add_argument_group( 'Inputs' ) # Inputs
-    group_input.add_argument( '-f', '--input-fasta', required=True, help='This file cotains sequences used in clustering  (format : Fasta).' )
-    group_input.add_argument( '-s', '--input-swarms', required=True, help='This file contains the composition of each cluster (format : TSV). One Line is a cluster ; each column is a sequence ID.' )
+    group_input.add_argument( '-f', '--input-fasta', required=True, help='This file cotains sequences used in clustering  (format: fasta).' )
+    group_input.add_argument( '-s', '--input-swarms', required=True, help='This file contains the composition of each cluster (format: TSV). One Line is a cluster ; each column is a sequence ID.' )
     group_output = parser.add_argument_group( 'Outputs' ) # Outputs
-    group_output.add_argument( '-o', '--output-fasta', required=True, help='This file will contain the seed sequence for each cluster (format : Fasta).')
+    group_output.add_argument( '-o', '--output-fasta', required=True, help='This file will contain the seed sequence for each cluster (format: fasta).')
     args = parser.parse_args()
 
     # Process

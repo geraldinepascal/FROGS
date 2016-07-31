@@ -83,13 +83,12 @@ Output
  *Samples distribution* : describes clusters distribution among sample and give an `hierarchical clustering &lt;http://en.wikipedia.org/wiki/Hierarchical_clustering&gt;`_ on samples abundance profile (distance method = `braycurtis &lt;http://fr.wikipedia.org/wiki/Distance_de_Bray-Curtis&gt;`_, linkage method = average)
 
  .. image:: ${static_path}/images/tools/frogs/FROGS_cluster_stat_sample_dist1.png
-    :height: 321
-    :width: 487
+    :height: 400
+    :width: 700
 
  .. image:: ${static_path}/images/tools/frogs/FROGS_cluster_stat_sample_dist2.png
-    :height: 219
-    :width: 441
-
+    :height: 350
+    :width: 610
 
 .. class:: infomark page-header h2
 

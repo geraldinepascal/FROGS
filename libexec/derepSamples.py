@@ -189,15 +189,15 @@ if __name__ == "__main__":
           [-d DEREPLICATED_FILE] [-c COUNT_FILE]
 ''')
     parser.add_argument( '-s', '--size-separator', default=None, help='The size separator in the sequences ID if the "sequences-files" are already dereplicated in each sample.' )
-    parser.add_argument( '-p', '--nb-cpus', type=int, default=1, help='The maximum number of CPUs used.' )
+    parser.add_argument( '-p', '--nb-cpus', type=int, default=1, help='The maximum number of CPUs used. [Default: %(default)s]' )
     parser.add_argument( '-v', '--version', action='version', version=__version__ )
     group_input = parser.add_argument_group( 'Inputs' ) # Inputs
     group_input.add_argument( '--samples-ref', help='Path to the file containing the link between samples names and sequences files (format: TSV). Each line in this file describes a sample: sequence_file_path<TAB>sample_name.' )
-    group_input.add_argument( '--sequences-files', nargs='+', help='The sequence file for each sample (format: FASTA). This parameter is mutally exclusive with the samples-ref parameter.' )
+    group_input.add_argument( '--sequences-files', nargs='+', help='The sequence file for each sample (format: fasta). This parameter is mutally exclusive with the samples-ref parameter.' )
     group_input.add_argument( '--samples-names', nargs='+', help='The sample name for each sequences-files.' )
     group_output = parser.add_argument_group( 'Outputs' ) # Outputs
-    group_output.add_argument( '-d', '--dereplicated-file', default='dereplication.fasta', help='Fasta file with unique sequences. Each sequence has an ID ended with the number of initial sequences represented (example : ">a0101;size=10").')
-    group_output.add_argument( '-c', '--count-file', default='count.tsv', help='TSV file with count by sample for each unique sequence (example with 3 samples : "a0101<TAB>5<TAB>8<TAB>0").')
+    group_output.add_argument( '-d', '--dereplicated-file', default='dereplication.fasta', help='Fasta file with unique sequences. Each sequence has an ID ended with the number of initial sequences represented (example : ">a0101;size=10"). [Default: %(default)s]')
+    group_output.add_argument( '-c', '--count-file', default='count.tsv', help='TSV file with count by sample for each unique sequence (example with 3 samples : "a0101<TAB>5<TAB>8<TAB>0"). [Default: %(default)s]')
     args = parser.parse_args()
 
     if args.sequences_files is None and args.samples_ref is None:

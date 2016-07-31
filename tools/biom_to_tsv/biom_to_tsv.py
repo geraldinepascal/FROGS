@@ -114,11 +114,11 @@ if __name__ == "__main__":
     parser.add_argument( '-v', '--version', action='version', version=__version__ )
     # Inputs
     group_input = parser.add_argument_group( 'Inputs' )
-    group_input.add_argument( '-b', '--input-biom', required=True, help="The abundance file (format : BIOM)." )
-    group_input.add_argument( '-f', '--input-fasta', help='The sequences file (format : FASTA). If you use this option the sequences will be add in TSV.' )
+    group_input.add_argument( '-b', '--input-biom', required=True, help="The abundance file (format: BIOM)." )
+    group_input.add_argument( '-f', '--input-fasta', help='The sequences file (format: fasta). If you use this option the sequences will be add in TSV.' )
     # Outputs
     group_output = parser.add_argument_group( 'Outputs' )
-    group_output.add_argument( '-t', '--output-tsv', default='abundance.tsv', help='This output file will contain the abundance and metadata (format: TSV).' )
+    group_output.add_argument( '-t', '--output-tsv', default='abundance.tsv', help='This output file will contain the abundance and metadata (format: TSV). [Default: %(default)s]' )
     group_output.add_argument( '-m', '--output-multi-affi', default=None, help='This output file will contain information about multiple alignements (format: TSV). Use this option only if your affiliation has been produced by FROGS.' )
     group_output.add_argument( '-l', '--log-file', default=sys.stdout, help='This output file will contain several information on executed commands.' )
     args = parser.parse_args()

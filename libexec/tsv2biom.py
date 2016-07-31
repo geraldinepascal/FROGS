@@ -269,14 +269,14 @@ if __name__ == "__main__":
     # Manage parameters
     parser = argparse.ArgumentParser( description='Convert TSV file to BIOM file.' )
     parser.add_argument( '-v', '--version', action='version', version=__version__ )
-    parser.add_argument( '-f', '--fields', default=['observation_name'], nargs='+', help="Metadata columns names (to include in the biom, you must at least have observation_name'. rdp_tax_and_bootstrap will be split in two taxonomy and bootstrap metadata, seed_sequence and observation_sum will be excluded.")
+    parser.add_argument( '-f', '--fields', default=['observation_name'], nargs='+', help="Metadata columns names (to include in the biom, you must at least have observation_name'. rdp_tax_and_bootstrap will be split in two taxonomy and bootstrap metadata, seed_sequence and observation_sum will be excluded. [Default: %(default)s]")
     parser.add_argument( '-s', '--samples-names', nargs='+', required=True, help="samples-names to include in the biom output")
     group_input = parser.add_argument_group( 'Inputs' ) # Inputs
-    group_input.add_argument( '-i', '--input-file', required=True, help='Path to the TSV file.' )
-    group_input.add_argument( '-m', '--input-multihits', required=False, help='Path to the TSV multi hits file.' )
+    group_input.add_argument( '-i', '--input-file', required=True, help='Path to the TSV file (format: TSV).' )
+    group_input.add_argument( '-m', '--input-multihits', required=False, help='Path to the TSV multi hits file (format: TSV).' )
     group_output = parser.add_argument_group( 'Outputs' ) # Outputs
-    group_output.add_argument( '-o', '--output-file', required=True, help='Path to the output file (format : BIOM).')
-    group_input.add_argument( '-a', '--output-fasta', default=None, required=False, help='Path to the output FASTA file.' )
+    group_output.add_argument( '-o', '--output-file', required=True, help='Path to the output file (format: BIOM).')
+    group_input.add_argument( '-a', '--output-fasta', default=None, required=False, help='Path to the output sequences file (format: fasta).' )
     args = parser.parse_args()
 
 
@@ -285,4 +285,3 @@ if __name__ == "__main__":
     if not args.input_multihits is None : 
         multi_hit_dict = store_multihits(args.input_multihits)
     tsv_to_biom( args.input_file, multi_hit_dict, args.fields, args.samples_names, args.output_file, args.output_fasta )
-    

@@ -79,9 +79,9 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser( description='Extracts multi-affiliations data from a FROGS BIOM file.' )
     parser.add_argument( '-v', '--version', action='version', version=__version__ )
     group_input = parser.add_argument_group( 'Inputs' ) # Inputs
-    group_input.add_argument( '-i', '--input-file', required=True, help='Path to the BIOM file.' )
+    group_input.add_argument( '-i', '--input-file', required=True, help='Path to the abundance file (format: BIOM).' )
     group_output = parser.add_argument_group( 'Outputs' ) # Outputs
-    group_output.add_argument( '-o', '--output-file', required=True, help='Path to the output file (format : TSV).')
+    group_output.add_argument( '-o', '--output-file', required=True, help='Path to the output file (format: TSV).')
     args = parser.parse_args()
 
     # Process

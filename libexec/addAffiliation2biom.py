@@ -244,12 +244,12 @@ if __name__ == "__main__":
     parser.add_argument( '-v', '--version', action='version', version=__version__ )
 
     group_input = parser.add_argument_group( 'Inputs' ) # Inputs
-    group_input.add_argument('-f', '--reference', required=True, help='Preformated reference file.')
+    group_input.add_argument('-f', '--reference', required=True, help='Preformated reference file (format: fasta).')
     group_input.add_argument( '-b', '--blast-file', nargs="*", default=None, required=False, help='Path to Blast output file.' )
     group_input.add_argument( '-r', '--rdp-file', nargs="*", default=None, required=False, help='Path to RDP Classifier output file.' )
-    group_input.add_argument( '-i', '--biom-in', default=None, required=True, help='Path to biom input file' )
+    group_input.add_argument( '-i', '--biom-in', default=None, required=True, help='Path to abundance input file (format: BIOM).' )
     group_output = parser.add_argument_group( 'Outputs' ) # Outputs
-    group_output.add_argument( '-o', '--biom-out', default=None, required=True, help='Path to biom output file' )
+    group_output.add_argument( '-o', '--biom-out', default=None, required=True, help='Path to abundance output file (format: BIOM).' )
     args = parser.parse_args()
 
     # Process

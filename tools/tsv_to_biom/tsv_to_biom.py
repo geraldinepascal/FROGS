@@ -105,8 +105,8 @@ if __name__ == "__main__":
     group_input.add_argument( '-m', '--input-multi-affi', default=None, help='This input file will contain information about multiple alignements (format: TSV). Use this option only if your affiliation has been produced by FROGS.' )
     # Outputs
     group_output = parser.add_argument_group( 'Outputs' )
-    group_output.add_argument( '-b', '--output-biom', required=True, help="The output abundance file (format : BIOM)." )
-    group_output.add_argument( '-f', '--output-fasta', help='The output sequences file (format : FASTA). If sequences exist in your input TSV.' )
+    group_output.add_argument( '-b', '--output-biom', required=True, help="The output abundance file (format: BIOM)." )
+    group_output.add_argument( '-f', '--output-fasta', help='The output sequences file (format: fasta). If sequences exist in your input TSV.' )
     group_output.add_argument( '-l', '--log-file', default=sys.stdout, help='This output file will contain several information on executed commands.' )
     args = parser.parse_args()
     prevent_shell_injections(args)
@@ -114,4 +114,3 @@ if __name__ == "__main__":
     # Process
     Logger.static_write(args.log_file, "## Application\nSoftware :" + sys.argv[0] + " (version : " + str(__version__) + ")\nCommand : " + " ".join(sys.argv) + "\n\n")
     Tsv2biom( args.input_tsv, args.input_multi_affi, args.output_biom, args.output_fasta ).submit( args.log_file )
-    

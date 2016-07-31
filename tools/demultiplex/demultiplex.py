@@ -306,8 +306,8 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser( 
         description='Split by samples the reads in function of inner barcode.'
     )
-    parser.add_argument('-m', '--mismatches', type=int, default=0, help="Number of mismatches allowed in barcode")
-    parser.add_argument('-e', '--end', type=str, default="bol", help="barcode is at the begining of the forward end (bol) or of the reverse (eol) or both (both). default forward (bol)")
+    parser.add_argument('-m', '--mismatches', type=int, default=0, help="Number of mismatches allowed in barcode. [Default: %(default)s]")
+    parser.add_argument('-e', '--end', type=str, default="bol", help="barcode is at the begining of the forward end (bol) or of the reverse (eol) or both (both). [Default: %(default)s]")
     parser.add_argument( '--debug', default=False, action='store_true', help="Keep temporary files to debug program." )
     parser.add_argument( '-v', '--version', action='version', version=__version__ )
     # Inputs
@@ -317,9 +317,9 @@ if __name__ == "__main__":
     group_input.add_argument( '--input-barcode', help='This file describes barcodes and samples (one line by sample). Line format : SAMPLE_NAME<TAB>BARCODE or SAMPLE_NAME<TAB>BARCODE_FW<TAB>BARCODE_RV.' )
     group_output = parser.add_argument_group( 'Outputs' )
     # Outputs
-    group_output.add_argument( '--output-demultiplexed', default="demultiplexed_read.tar.gz", help='The tar file containing R1 files and R2 files for each sample (format: tar).' )
-    group_output.add_argument( '--output-excluded', default="undemultiplexed_read.tar.gz", help='The tar file containing R1 files and R2 files not demultiplexed  (format: tar).' )
-    group_output.add_argument( '-s', '--summary', default='summary.tsv', help='TSV file with summary of filters results  (format: TSV).')
+    group_output.add_argument( '--output-demultiplexed', default="demultiplexed_read.tar.gz", help='The tar file containing R1 files and R2 files for each sample (format: tar). [Default: %(default)s]' )
+    group_output.add_argument( '--output-excluded', default="undemultiplexed_read.tar.gz", help='The tar file containing R1 files and R2 files not demultiplexed  (format: tar). [Default: %(default)s]' )
+    group_output.add_argument( '-s', '--summary', default='summary.tsv', help='TSV file with summary of filters results  (format: TSV). [Default: %(default)s]')
     group_output.add_argument( '-l', '--log-file', default=sys.stdout, help='This output file will contain several information on executed commands.')
     args = parser.parse_args()
     prevent_shell_injections(args)

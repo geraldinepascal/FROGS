@@ -19,7 +19,7 @@
 	<head>
 		<title>FROGS Cluster stat</title>
 		<meta charset="UTF-8">
-		<meta name="version" content="1.1.0">
+		<meta name="version" content="1.4.0">
 		<!-- CSS -->
 		<link rel="stylesheet" href="https://cdn.datatables.net/1.10.6/css/jquery.dataTables.css"></link>
 		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css"></link>
@@ -46,6 +46,9 @@
 			#hc-graph {
 				height: 500px;
 				overflow: auto;
+			}
+			#hc-warning {
+				margin-top: 8px;
 			}
 			#hc-newick {
 				width: 90%;
@@ -567,13 +570,15 @@
 				for( sample in samples_distrib ){
 					table_data.push([
 					  sample,
+					  samples_distrib[sample]['shared_observations'] + samples_distrib[sample]['own_observations'],
 					  samples_distrib[sample]['shared_observations'],
 					  samples_distrib[sample]['own_observations'],
+					  samples_distrib[sample]['shared_seq'] + samples_distrib[sample]['own_seq'],
 					  samples_distrib[sample]['shared_seq'],
 					  samples_distrib[sample]['own_seq'],
 					])
 				}
-				$('#' + container_id).html( table("Samples information", ["Sample", "Shared clusters", "Own clusters", "Shared sequences", "Own sequences"], table_data) );
+				$('#' + container_id).html( table("Samples information", ["Sample", "Total clusters", "Shared clusters", "Own clusters", "Total sequences", "Shared sequences", "Own sequences"], table_data) );
 				$('#' + container_id + ' table').prop( 'id', 'samples-table' );
 				$('#' + container_id + ' table').DataTable({
 					"sDom": '<"top"<"#samples-csv-export"><"clear">lf>rt<"bottom"ip><"clear">'
@@ -619,6 +624,23 @@
 				
 				update_linkage_nodes(linkage_data);
 				
+				// Display warnings
+				var excluded_samples = $.grep(
+					Object.keys(samples_distrib),
+					function(el){ return $.inArray(el, leaves_names) == -1 }
+				);
+				if( excluded_samples.length > 0 ){
+					$('#' + container_id).append( '' +
+						'<div id="hc-warning" class="alert alert-warning alert-dismissible">' +
+						'    <span>' +
+						'        <span class="glyphicon glyphicon-exclamation-sign"></span>' +
+						'        Excluded because they have no sequence: ' +
+						'    </span>' +
+						'    <span>' + excluded_samples.sort().join(", ") + '</span>' +
+						'</div>'
+					);
+				}
+
 				// Display newick
 				$('#' + container_id).append( '' +
 					'<div id="hc-newick">' +

@@ -180,7 +180,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         description='Removes PCR chimera.'
     )
-    parser.add_argument( '-p', '--nb-cpus', type=int, default=1, help="The maximum number of CPUs used." )
+    parser.add_argument( '-p', '--nb-cpus', type=int, default=1, help="The maximum number of CPUs used. [Default: %(default)s]" )
     parser.add_argument( '--debug', default=False, action='store_true', help="Keep temporary files to debug program." )
     parser.add_argument( '-v', '--version', action='version', version=__version__ )
     # Inputs
@@ -191,9 +191,9 @@ if __name__ == "__main__":
     group_exclusion_abundance.add_argument( '-c', '--input-count', help='The abundance file for clusters by sample (format: count).' )
     # Outputs
     group_output = parser.add_argument_group( 'Outputs' )
-    group_output.add_argument( '-n', '--non-chimera', default='non_chimera.fasta', help='Fasta without chimera.')
-    group_output.add_argument( '-a', '--out-abundance', default=None, help='Abundance file without chimera.')
-    group_output.add_argument( '--summary', default="summary.html", help='Report of the results (format: HTML).')
+    group_output.add_argument( '-n', '--non-chimera', default='non_chimera.fasta', help='sequences file without chimera (format: fasta). [Default: %(default)s]')
+    group_output.add_argument( '-a', '--out-abundance', default=None, help='Abundance file without chimera (format: BIOM or count).')
+    group_output.add_argument( '--summary', default="summary.html", help='Report of the results (format: HTML). [Default: %(default)s]')
     group_output.add_argument( '-l', '--log-file', default=sys.stdout, help='This output file will contain several information on executed commands.')
     args = parser.parse_args()
     prevent_shell_injections(args)

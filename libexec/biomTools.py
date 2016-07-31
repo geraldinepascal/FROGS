@@ -19,7 +19,7 @@
 __author__ = 'Frederic Escudie - Plateforme bioinformatique Toulouse'
 __copyright__ = 'Copyright (C) 2015 INRA'
 __license__ = 'GNU General Public License'
-__version__ = '0.10.0'
+__version__ = '0.10.1'
 __email__ = 'frogs@toulouse.inra.fr'
 __status__ = 'beta'
 
@@ -300,7 +300,7 @@ def observations_depth( input_biom, output_depth ):
 #
 ####################################################################################################################
 def task_hclassification( args ):
-    samples_hclassification( args.input_file, args.output_file, args.distance_method, args.linkage_method )
+    samples_hclassification( args.input_file, args.output_file, args.distance_method, args.linkage_method, args.min_count )
 
 
 def to_newick( node, id_2_name ):
@@ -325,35 +325,45 @@ def _to_newick_part( node, id_2_name ):
     else:
         return id_2_name[node.id]
 
-def samples_hclassification( input_biom, output_newick, distance_method, linkage_method ):
+def samples_hclassification( input_biom, output_newick, distance_method, linkage_method, min_count=1 ):
     """
     @summary : Process and write an hierarchical classification from Biom.
     @param input_biom : [str] Path to the BIOM file to process.
     @param output_newick : [str] Path to the newick output file.
     @param distance_method : [str] Used distance method for classify.
     @param linkage_method : [str] Used linkage method for classify.
+    @param min_count : [int] Samples with a count lower than this value are not processed.
     """
     from scipy.spatial.distance import pdist, squareform
     from scipy.cluster.hierarchy import linkage, dendrogram
     import scipy.cluster.hierarchy
     data_array = list()
-    samples_names = list()
+    processed_samples = list()
+    excluded_samples = list()
+    nb_samples = None
 
     # Normalisation on count by sample
     biom = BiomIO.from_json( input_biom )
     for col_idx, current_sample in enumerate(biom.columns):
-        samples_names.append( current_sample['id'] )
         sum_on_sample = biom.data.get_col_sum( col_idx )
-        OTUs_norm = list()
-        for row_idx in range(len(biom.rows)):
-            OTUs_norm.append( biom.data.nb_at(row_idx, col_idx)/float(sum_on_sample) )
-        data_array.append( OTUs_norm )
+        if sum_on_sample < min_count:
+			excluded_samples.append( current_sample['id'] )
+        else:
+            processed_samples.append( current_sample['id'] )
+            OTUs_norm = list()
+            for row_idx in range(len(biom.rows)):
+                OTUs_norm.append( biom.data.nb_at(row_idx, col_idx)/float(sum_on_sample) )
+            data_array.append( OTUs_norm )
+    nb_samples = len(biom.columns)
     del biom
 
-    if len(samples_names) == 1 :
+    # Process distance
+    if len(processed_samples) < 1:
+        raise Exception("All samples have a count lower than threshold (" + str(min_count) + ").")
+    elif len(processed_samples) == 1:
         # Write newick
         out_fh = open( output_newick, "w" )
-        out_fh.write( "(" + samples_names[0] + ");\n" )
+        out_fh.write( "(" + processed_samples[0] + ");\n" )
         out_fh.close()
     else:
         # Computing the distance and linkage
@@ -361,10 +371,17 @@ def samples_hclassification( input_biom, output_newick, distance_method, linkage
         data_link = linkage( data_dist, linkage_method )
         # Write newick
         scipy_hc_tree = scipy.cluster.hierarchy.to_tree( data_link , rd=False )
-        id_2_name = dict( zip(range(len(samples_names)), samples_names) )
+        id_2_name = dict( zip(range(len(processed_samples)), processed_samples) )
         out_fh = open( output_newick, "w" )
         out_fh.write( to_newick(scipy_hc_tree, id_2_name) + "\n" )
         out_fh.close()
+
+    # Display log
+    print "# Hierarchical clustering log:\n" + \
+          "\tNumber of samples in BIOM: " + str(nb_samples) + "\n" + \
+          "\tNumber of processed samples: " + str(len(processed_samples))
+    if nb_samples > len(processed_samples):
+        print "\n\tExcluded samples (count < " + str(min_count) + "): " + ", ".join(sorted(excluded_samples))
 
 
 ####################################################################################################################
@@ -457,17 +474,18 @@ if __name__ == "__main__":
     parser_rarefaction = subparsers.add_parser('rarefaction', help='Process data for rarefaction curve by sample.')
     parser_rarefaction.add_argument( '-i', '--input-file', required=True, type=str, help='BIOM file processed.' )
     parser_rarefaction.add_argument( '-o', '--output-file-pattern', required=True, type=str, help='Rarefaction file(s) pattern with tag "##RANK##". Example: "/tmp/rarefaction_##RANK##.tsv".' )
-    parser_rarefaction.add_argument( '-s', '--step-size', type=strict_positive_int, default=10000, help='Additional number of sampled sequences by round of sampling.' )
+    parser_rarefaction.add_argument( '-s', '--step-size', type=strict_positive_int, default=10000, help='Additional number of sampled sequences by round of sampling. [Default: %(default)s]' )
     parser_rarefaction.add_argument( '-r', '--ranks', nargs='+', required=True, type=int, default=None, help='The taxonomy depth used to evaluate diversity.' )
-    parser_rarefaction.add_argument( '-k', '--taxonomy-key', type=str, default="taxonomy", help='The metadata title for the taxonomy in your BIOM file. Example : "rdp_taxonomy"' )
+    parser_rarefaction.add_argument( '-k', '--taxonomy-key', type=str, default="taxonomy", help='The metadata title for the taxonomy in your BIOM file. Example : "rdp_taxonomy". [Default: %(default)s]' )
     parser_rarefaction.set_defaults(func=task_rarefaction)
 
     # Hierarchical classification parameters
     parser_hclassification = subparsers.add_parser('hclassification', help='Process data for hierarchical classification dendrogram.')
     parser_hclassification.add_argument( '-i', '--input-file', required=True, type=str, help='BIOM file processed.' )
     parser_hclassification.add_argument( '-o', '--output-file', required=True, type=str, help='Hierarchical classification in NEWICK format.' )
-    parser_hclassification.add_argument( '-d', '--distance-method', type=str, default="euclidean", help='Used distance method for classify (example : euclidean).' )
-    parser_hclassification.add_argument( '-l', '--linkage-method', type=str, default="average", help='used linkage method for classify (example : centroid).' )
+    parser_hclassification.add_argument( '-d', '--distance-method', type=str, default="euclidean", help='Used distance method for classify (example : euclidean). [Default: %(default)s]' )
+    parser_hclassification.add_argument( '-l', '--linkage-method', type=str, default="average", help='Used linkage method for classify (example : centroid). [Default: %(default)s]' )
+    parser_hclassification.add_argument( '-c', '--min-count', type=strict_positive_int, default=1, help='Samples with a count lower than this value are not processed. [Default: %(default)s]' )
     parser_hclassification.set_defaults(func=task_hclassification)
 
     # Observation depth parameters
@@ -479,17 +497,17 @@ if __name__ == "__main__":
     # Biom 2 tsv parameters
     parser_biom2tsv = subparsers.add_parser('biom2tsv', help='Convert BIOM file to TSV file.')
     parser_biom2tsv.add_argument( '-i', '--input-file', required=True, help='BIOM file processed.' )
-    parser_biom2tsv.add_argument( '-o', '--output-file', required=True, help='Path to the output file (format : TSV).')
-    parser_biom2tsv.add_argument( '-f', '--fields', default=['@observation_name', '@observation_sum', '@sample_count'], nargs='+', help="Columns and their order in output. Special columns : '@observation_name', '@observation_sum', '@sample_count'. The others columns must be metadata titles.")
-    parser_biom2tsv.add_argument( '-s', '--list-separator', default=';', help='Separator for complex metadata.')
+    parser_biom2tsv.add_argument( '-o', '--output-file', required=True, help='Path to the output file (format: TSV).')
+    parser_biom2tsv.add_argument( '-f', '--fields', default=['@observation_name', '@observation_sum', '@sample_count'], nargs='+', help="Columns and their order in output. Special columns : '@observation_name', '@observation_sum', '@sample_count'. The others columns must be metadata titles. [Default: %(default)s]")
+    parser_biom2tsv.add_argument( '-s', '--list-separator', default=';', help='Separator for complex metadata. [Default: %(default)s]')
     parser_biom2tsv.set_defaults(func=task_biom2tsv)
 
     # Tree count parameters
     parser_treeCount = subparsers.add_parser('treeCount', help='Produces a taxonomy tree with counts by sample in extended newick format.')
     parser_treeCount.add_argument( '-i', '--input-file', required=True, help='BIOM file processed.' )
-    parser_treeCount.add_argument( '-e', '--output-enewick', required=True, help='Path to the output file (format : enewick).')
+    parser_treeCount.add_argument( '-e', '--output-enewick', required=True, help='Path to the output file (format: enewick).')
     parser_treeCount.add_argument( '-s', '--output-samples', type=str, help="Path to the output file with link between samples names and ids (format : TSV). If this option is used the samples names in enewick are replaced by ids to reduce the file weight.")
-    parser_treeCount.add_argument( '-k', '--taxonomy-key', type=str, default="taxonomy", help='The metadata title for the taxonomy in your BIOM file. Example : "rdp_taxonomy"' )
+    parser_treeCount.add_argument( '-k', '--taxonomy-key', type=str, default="taxonomy", help='The metadata title for the taxonomy in your BIOM file. Example : "rdp_taxonomy". [Default: %(default)s]' )
     parser_treeCount.set_defaults(func=task_treeCount)
 
     # Parse parameters and call process

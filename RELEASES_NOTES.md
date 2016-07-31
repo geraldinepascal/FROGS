@@ -1,11 +1,15 @@
 # v1.4.0  [DEV]
 ### Bugs fixes:
-  * Filter: error when only the filter on contamination is used.
   * Preprocess: error in final dereplication with hudge number of samples.
-  * Remove_chimera: error when using library Queue and hudge number of samples
+  * Remove_chimera: error when using library Queue and hudge number of samples.
+  * Clusters_stat: error with empty samples in hierarchical clustering.
+  * Filters: error when only the filter on contamination is used.
+  * Filters: bug when using other filters than abundance (check parameter when None).
 
-### Functions added
-  * preprocess: new amplicon length graph
+### Functions added:
+  * Preprocess: new amplicon length graph.
+  * Clustering: reduce memory consumption and execution time for the step swarm2biom.
+  * Affiliations_stat: more details in alignment heatmap.
 
 
 # v1.3.0  [2016-04-18]

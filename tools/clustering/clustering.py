@@ -188,8 +188,8 @@ def agregate_composition(step1_compo , step2_compo, out_compo):
 if __name__ == "__main__":
     # Manage parameters
     parser = argparse.ArgumentParser( description='Single-linkage clustering on sequences.' )
-    parser.add_argument( '-d', '--distance', type=int, default=2, help="Maximum distance between sequences in each aggregation step." )
-    parser.add_argument( '-p', '--nb-cpus', type=int, default=1, help="The maximum number of CPUs used." )
+    parser.add_argument( '-d', '--distance', type=int, default=2, help="Maximum distance between sequences in each aggregation step. [Default: %(default)s]" )
+    parser.add_argument( '-p', '--nb-cpus', type=int, default=1, help="The maximum number of CPUs used. [Default: %(default)s]" )
     parser.add_argument( '-n', '--denoising', default=False, action='store_true',  help="denoise data by clustering read with distance=1 before perform real clustering" )
     parser.add_argument( '--debug', default=False, action='store_true', help="Keep temporary files to debug program." )
     parser.add_argument( '-v', '--version', action='version', version=__version__ )
@@ -199,9 +199,9 @@ if __name__ == "__main__":
     group_input.add_argument( '-c', '--input-count', required=True, help="The count file for 'fasta-file' (format: count). It contains the count by sample for each sequence." )
     # Outputs
     group_output = parser.add_argument_group( 'Outputs' )
-    group_output.add_argument( '-b', '--output-biom', default='swarms_abundance.biom', help='This output file will contain the abondance by sample for each cluster (format: BIOM).')
-    group_output.add_argument( '--output-fasta', default='seeds.fasta', help='This output file will contain the seed sequence for each cluster (format: fasta).')
-    group_output.add_argument( '--output-compo', default='swarms_composition.tsv', help='This output file will contain the composition of each cluster (format: TSV). One Line is a cluster ; each column is a sequence ID.')
+    group_output.add_argument( '-b', '--output-biom', default='swarms_abundance.biom', help='This output file will contain the abondance by sample for each cluster (format: BIOM). [Default: %(default)s]')
+    group_output.add_argument( '--output-fasta', default='seeds.fasta', help='This output file will contain the seed sequence for each cluster (format: fasta). [Default: %(default)s]')
+    group_output.add_argument( '--output-compo', default='swarms_composition.tsv', help='This output file will contain the composition of each cluster (format: TSV). One Line is a cluster ; each column is a sequence ID. [Default: %(default)s]')
     group_output.add_argument( '-l', '--log-file', default=sys.stdout, help='This output file will contain several information on executed commands.')
     args = parser.parse_args()
     prevent_shell_injections(args)

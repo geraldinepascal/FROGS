@@ -78,11 +78,11 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser( description='Update fasta file based on sequence in biom file' )
     parser.add_argument( '-v', '--version', action='version', version=__version__ )
     group_input = parser.add_argument_group( 'Inputs' ) # Inputs
-    group_input.add_argument( '-b', '--input-biom', required=True, help='Path to the BIOM input file.' )
-    group_input.add_argument( '-f', '--input-fasta', required=True, help='Path to the Fasta input file.' )
+    group_input.add_argument( '-b', '--input-biom', required=True, help='Path to the abundance input file (format: biom).' )
+    group_input.add_argument( '-f', '--input-fasta', required=True, help='Path to the sequences input file (format: fasta).' )
     group_output = parser.add_argument_group( 'Outputs' ) # Outputs
-    group_output.add_argument( '-o', '--output-file', required=True, help='Path to the Fasta output file')
-    group_output.add_argument( '-l', '--log-file', required=True, help='Path to the log output file')
+    group_output.add_argument( '-o', '--output-file', required=True, help='Path to the Fasta output file (format: fasta).')
+    group_output.add_argument( '-l', '--log-file', required=True, help='Path to the log output file (format: txt).')
     args = parser.parse_args()
 
     # Process

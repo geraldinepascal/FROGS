@@ -18,7 +18,7 @@
 __author__ = 'Frederic Escudie - Plateforme bioinformatique Toulouse'
 __copyright__ = 'Copyright (C) 2015 INRA'
 __license__ = 'GNU General Public License'
-__version__ = '0.11.1'
+__version__ = '0.13.0'
 __email__ = 'frogs@toulouse.inra.fr'
 __status__ = 'prod'
 
@@ -891,12 +891,47 @@ class Biom:
         """
         return self.rows[self.find_idx("observation", observation_name)]["metadata"]
 
-    def has_observation_metadata(self, metadata_title):
+    def has_metadata(self, metadata_title, subject_type="observation", strict=False):
+        """
+        @summary: Returns true if at least one or all subjects have the metadata.
+        @param metadata_title: [str] The title of the searched metadata.
+        @param subject_type: [str] The type of subject : "sample" or "observation".
+        @param strict: [bool] True if all the subjects must have the metadata. False if only one subject with the metadata is sufficient.
+        @returns: [bool] True if all the subjects have the metadata (strict:True) or if at least one subject has the metadata (strict:False) or if the biom does not contain any subjact.
+        """
+        nb_metadata = 0
+        nb_subjects = 0
+        subjects_list = self.rows if subject_type == "observation" else self.columns
+        for current_subject in subjects_list:
+            nb_subjects += 1
+            if current_subject["metadata"] is not None and metadata_title in current_subject["metadata"]:
+                nb_metadata += 1
         has_metadata = False
-        for current_observ in self.get_observations():
-            if current_observ["metadata"] is not None and current_observ["metadata"].has_key(metadata_title):
-                has_metadata = True
+        if not strict and nb_metadata > 0:
+            has_metadata = True
+        elif strict and nb_metadata == nb_subjects:
+            has_metadata = True
+        elif nb_subjects == 0:
+            has_metadata = True
         return has_metadata
+
+    def has_sample_metadata(self, metadata_title, strict=False):
+        """
+        @summary: Returns true if at least one or all samples have the metadata.
+        @param metadata_title: [str] The title of the searched metadata.
+        @param strict: [bool] True if all the samples must have the metadata. False if only one sample with the metadata is sufficient.
+        @returns: [bool] True if all the samples have the metadata (strict:True) or if at least one sample has the metadata (strict:False) or if the biom does not contain any sample.
+        """
+        return self.has_metadata( metadata_title, "sample", strict )
+
+    def has_observation_metadata(self, metadata_title, strict=False):
+        """
+        @summary: Returns true if at least one or all observations have the metadata.
+        @param metadata_title: [str] The title of the searched metadata.
+        @param strict: [bool] True if all the observations must have the metadata. False if only one sample with the metadata is sufficient.
+        @returns: [bool] True if all the observations have the metadata (strict:True) or if at least one observation has the metadata (strict:False) or if the biom does not contain any observation.
+        """
+        return self.has_metadata( metadata_title, "observation", strict )
 
     def get_observation_taxonomy( self, observation_name, taxonomy_key ):
         """
@@ -1085,7 +1120,7 @@ class BiomIO:
         row_idx = 0
         for line in count_fh:
             line = line.strip()
-            line_fields = line.split()
+            line_fields = line.split("\t")
             # Title line
             if line.startswith('#'):
                 for sample in line_fields[1:]:
@@ -1187,36 +1222,43 @@ class BiomIO:
         out_fh.close()
 
     @staticmethod
-    def load_metadata( biom, metadata_file, subject_type="sample", types=None, list_sep=None ):
+    def load_metadata( biom, metadata_file, types=None, list_sep=None, subject_type=None ):
         """
         @summary : Add to biom several metadata from metadata file.
-         @param biom : [Biom] The Biom object to update.
-         @param metadata_file : [str] The path of the metadata file.
-                                Format :
-                                #TITLE<TAB>Metadata_1_name<TAB>Metadata_2_name
-                                Subject_name<TAB>Metadata_1_value<TAB>Metadata_2_value
-                                ...
-         @param subject_type : [str] The type of subject : "sample" or "observation".
-         @param types : [dict] Types for of the metadata values ("str", "int", "float").
-                        Example :
-                        {
-                          'confidence' : 'float',
-                          'rank'       : 'int'
-                        }
-         @param list_sep : [dict] Separator if the metadata is a list.
-                        Example :
-                        {
-                          'taxonomy'      : ';', # Bacteria;Proteobacteria
-                          'environnement' : '/'  # Sea/Ocean
-                        }
+        @param biom : [Biom] The Biom object to update.
+        @param metadata_file : [str] The path of the metadata file.
+                               Format :
+                               #TITLE<TAB>Metadata_1_name<TAB>Metadata_2_name
+                               Subject_name<TAB>Metadata_1_value<TAB>Metadata_2_value
+                               ...
+        @param types : [dict] Types for of the metadata values ("str", "int", "float").
+                       Example :
+                       {
+                         'confidence' : 'float',
+                         'rank'       : 'int'
+                       }
+        @param list_sep : [dict] Separator if the metadata is a list.
+                          Example :
+                          {
+                            'taxonomy'      : ';', # Bacteria;Proteobacteria
+                            'environnement' : '/'  # Sea/Ocean
+                          }
+        @param subject_type : [str] The type of subject : "sample" or "observation". By default the subject type is retrieved from the title of the first column ("#observation<TAB>..." or "#samples<TAB>...").
         """
         ini_types = types if types is not None else dict()
         ini_list_sep = list_sep if list_sep is not None else dict()
         metadata_fh = open( metadata_file )
         metadata = list()
-        # Names and type of metadata
+        # Subject type
         title_line = metadata_fh.readline().strip()
-        title_fields = title_line.split()
+        title_fields = title_line.split("\t")
+        if subject_type is None: # Get subject type from file
+            subject_type = title_fields[0][1:].lower()
+            if subject_type.endswith("s"):
+                subject_type = subject_type[:-1]
+            if subject_type not in ["observation", "sample"]:
+                raise Exception( "The subject type in first line of file '" + metadata_file + "' must be 'sample' or 'observation'." )
+        # Names and type of metadata
         for metadata_name in title_fields[1:]:
             metadata_type = "str"
             if ini_types.has_key( metadata_name ):
@@ -1231,9 +1273,8 @@ class BiomIO:
             })
         # Values of metadata
         for line in metadata_fh:
-            line = line.strip()
             if not line.startswith('#'):
-                line_fields = line.split()
+                line_fields = [field.strip() for field in line.split("\t")]
                 metadata_subject = line_fields[0]
                 title_idx = 0
                 for metadata_value in line_fields[1:]:

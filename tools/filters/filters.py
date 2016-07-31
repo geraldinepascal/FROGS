@@ -19,7 +19,7 @@
 __author__ = 'Katia Vidal - Team NED Toulouse AND Frederic Escudie - Plateforme bioinformatique Toulouse'
 __copyright__ = 'Copyright (C) 2015 INRA'
 __license__ = 'GNU General Public License'
-__version__ = '1.3.1'
+__version__ = '1.3.2'
 __email__ = 'frogs@toulouse.inra.fr'
 __status__ = 'prod'
 
@@ -480,7 +480,7 @@ def process( args ):
 if __name__ == '__main__':
     # Parameters
     parser = argparse.ArgumentParser(description='Filters an abundance file')
-    parser.add_argument('-p', '--nb-cpus', type=int, default=1, help="The maximum number of CPUs used.")
+    parser.add_argument('-p', '--nb-cpus', type=int, default=1, help="The maximum number of CPUs used. [Default: %(default)s]")
     parser.add_argument( '-v', '--version', action='version', version=__version__ )
     #     Filters
     group_filter = parser.add_argument_group( 'Filters' )
@@ -488,22 +488,22 @@ if __name__ == '__main__':
     group_filter.add_argument( '-s', '--min-sample-presence', type=int, help="Keep OTU present in at least this number of samples.") 
     group_filter.add_argument( '-a', '--min-abundance', type=minAbundParameter, default=None, required=False, help="Minimum percentage/number of sequences, comparing to the total number of sequences, of an OTU (between 0 and 1 if percentage desired)." )  
     group_filter.add_argument( '-b', '--min-rdp-bootstrap', type=str, action=BootstrapParameter, metavar=("TAXONOMIC_LEVEL:MIN_BOOTSTRAP"), help="The minimal RDP bootstrap must be superior to this value (between 0 and 1)." )
-    group_filter.add_argument( '-t', '--rdp-taxonomy-ranks', nargs='*', default=["Domain", "Phylum", "Class", "Order", "Family", "Genus", "Species"], help='The ordered ranks levels present in the reference databank.' )
+    group_filter.add_argument( '-t', '--rdp-taxonomy-ranks', nargs='*', default=["Domain", "Phylum", "Class", "Order", "Family", "Genus", "Species"], help='The ordered ranks levels present in the reference databank. [Default: %(default)s]' )
     group_filter.add_argument( '-i', '--min-blast-identity', type=ratioParameter, help="The number corresponding to the blast percentage identity (between 0 and 1)." )
     group_filter.add_argument( '-c', '--min-blast-coverage', type=ratioParameter, help="The number corresponding to the blast percentage coverage (between 0 and 1)." )
     group_filter.add_argument( '-e', '--max-blast-evalue', type=float, help="The number corresponding to the blast e value (between 0 and 1).")
     group_filter.add_argument( '-l', '--min-blast-length', type=int, default=None, required=False, help="The number corresponding to the blast length." )
     #     Inputs
     group_input = parser.add_argument_group( 'Inputs' )
-    group_input.add_argument('--input-biom', required=True, help="The input biom file.")  #biomTest.txt
-    group_input.add_argument('--input-fasta', required=True, help="The input fasta file.")  #test.fasta
+    group_input.add_argument('--input-biom', required=True, help="The input biom file.")
+    group_input.add_argument('--input-fasta', required=True, help="The input fasta file.")
     group_input.add_argument('--contaminant', default=None, help="Use this databank to filter sequence before affiliation.")
     #     Outputs
     group_output = parser.add_argument_group( 'Outputs' )
-    group_output.add_argument('--output-biom', default="filtered.biom", help="The Biom file output.")
-    group_output.add_argument('--output-fasta', default="filtered.fasta", help="The fasta output file.")
-    group_output.add_argument('--summary', default="summary.html", help="The HTML file containing the graphs.")
-    group_output.add_argument('--excluded', default="excluded.tsv", help="The file that summarizes all the clusters discarded.")
+    group_output.add_argument('--output-biom', default="filtered.biom", help="The Biom file output. [Default: %(default)s]")
+    group_output.add_argument('--output-fasta', default="filtered.fasta", help="The fasta output file. [Default: %(default)s]")
+    group_output.add_argument('--summary', default="summary.html", help="The HTML file containing the graphs. [Default: %(default)s]")
+    group_output.add_argument('--excluded', default="excluded.tsv", help="The file that summarizes all the clusters discarded. [Default: %(default)s]")
     group_output.add_argument('--log-file', default=sys.stdout, help='The list of commands executed.')
     args = parser.parse_args()
     prevent_shell_injections(args)
@@ -512,7 +512,7 @@ if __name__ == '__main__':
 
     if args.nb_biggest_otu is None and args.min_sample_presence is None and args.min_abundance is None and args.min_rdp_bootstrap is None and args.min_blast_identity is None and args.min_blast_coverage is None and args.max_blast_evalue is None and args.min_blast_length is None and args.contaminant is None:
         raise argparse.ArgumentTypeError( "At least one filter must be set to run " + os.path.basename(sys.argv[0]) )
-    if args.min_abundance <= 0 or (type(args.min_abundance) == float and args.min_abundance >= 1.0 ) :
+    if not args.min_abundance is None and (args.min_abundance <= 0 or (type(args.min_abundance) == float and args.min_abundance >= 1.0 ) ):
         raise argparse.ArgumentTypeError( "If filtering on abundance, you must indicate a positiv threshold and if percentage abundance threshold must be smaller than 1.0. " )
     in_biom = BiomIO.from_json( args.input_biom )
     if args.min_rdp_bootstrap is not None:
