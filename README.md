@@ -171,7 +171,9 @@
         Step tsv_to_biom Fri Apr  8 11:47:42 CEST 2016
         Completed with success
 
-### 5. Add the biom1 datatype in galaxy
+### 5. New datatype
+    
+#### 5.1 Add the biom1 datatype in galaxy
     The biom1 datatype is availaible since version 16 of galaxy.
 
     For previous versions add the following text in galaxy datatypes_conf.xml:
@@ -187,6 +189,14 @@
                 <datatype extension="biom1" type="galaxy.datatypes.data:Text" display_in_upload="True" subclass="True" mimetype="application/json" />
                 ...
             <registration />
+
+#### 5.2 Add the tar datatype in galaxy
+    Datatype tar is available since release 16.07 of galaxy.
+
+    For previous 16.XX version add the following text in galaxy datatypes_conf.xml:
+        <datatype extension="tar" type="galaxy.datatypes.binary:CompressedArchive" subclass="True" display_in_upload="True"/>
+
+    For previous version you can use the FROGS_Upload_archive tool (this tool is no more working in version 16.XX and later).
 
 ### 6. Add tools in galaxy
     Add the tools in galaxy tool_conf.xml.
@@ -208,7 +218,9 @@
             <tool file="FROGS/app/normalisation.xml" />
         </section>
         ...
-
+    Note: 
+        <tool file="FROGS/app/upload_tar.xml" /> is no more working in galaxy version 16.XX and later. Prefer to add tar datatype.
+        
 ### 7. Set memory and parallelisation settings
     If you have more than one CPU, it is recommended to increase the number
     of CPUs used by tools.
