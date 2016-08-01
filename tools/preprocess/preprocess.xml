@@ -142,8 +142,12 @@
 						<option value="without_primers">Custom protocol (Kozich et al. 2013)</option>
 					</param>
 					<when value="standard">
-						<param name="five_prim_primer" type="text" size="20" label="5' primer" help="The 5' primer sequence (wildcards are accepted). The orientation is detailed below in 'Primers parameters'." optional="false" />
-						<param name="three_prim_primer" type="text" size="20" label="3' primer" help="The 3' primer sequence (wildcards are accepted). The orientation is detailed below in 'Primers parameters'." optional="false" />
+						<param name="five_prim_primer" type="text" size="20" label="5' primer" help="The 5' primer sequence (wildcards are accepted). The orientation is detailed below in 'Primers parameters'." optional="false" >
+							<validator type="empty_field" message="don't leave the 5'primer field empty!"/>
+						</param>
+						<param name="three_prim_primer" type="text" size="20" label="3' primer" help="The 3' primer sequence (wildcards are accepted). The orientation is detailed below in 'Primers parameters'." optional="false" >
+							<validator type="empty_field" message="don't leave the 3'primer field empty!"/>
+						</param>
 					</when>
 					<when value="without_primers"></when>
 				</conditional>
