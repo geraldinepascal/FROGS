@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
-<tool id="FROGS_affiliation_OTU" name="FROGS Affiliation OTU" version="0.7.0">
+<tool id="FROGS_affiliation_OTU" name="FROGS Affiliation OTU" version="0.8.0">
 	<description>Step 4 in metagenomics analysis : Taxonomic affiliation of each OTU's seed by RDPtools and BLAST</description>
 	<command interpreter="python2.7">
 		affiliation_OTU.py 
@@ -24,8 +24,11 @@
 		                       --input-fasta $fasta_sequences
 		                       --output-biom $biom_affiliation 
 		                       --summary $summary 
-		                       --nb-cpus $nb_cpu 
-		                       --java-mem $mem
+		                       --nb-cpus $nb_cpu
+		                       --java-mem $mem 
+		                       #if $rdp
+		                       		--rdp
+		                       	#end if
 	</command>
 	<inputs>
 		<!-- JOB Parameter -->
@@ -38,6 +41,7 @@
           		<column name="value" index="1"/>
        		</options>
    		</param> 
+   		<param name="rdp" type="boolean" label="Also perform RDP assignation?" help="Taxonomy affiliation will be perform thanks to Blast. This option allow you to perform it also with RDP classifier (default No)" />
         <!-- Files -->
         <param format="fasta" name="fasta_sequences" type="data" label="OTU seed sequence" help="OTU sequences (format: fasta)."/>
         <param format="biom1" name="biom_abundance" type="data" label="Abundance file" help="OTU abundances (format: BIOM)."/>

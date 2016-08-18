@@ -219,7 +219,8 @@
         </section>
         ...
     Note: 
-        <tool file="FROGS/app/upload_tar.xml" /> is no more working in galaxy version 16.XX and later. Prefer to add tar datatype.
+        <tool file="FROGS/app/upload_tar.xml" /> is no more working in galaxy version 16.XX and later. 
+        Prefer to add tar datatype.
         
 ### 7. Set memory and parallelisation settings
     If you have more than one CPU, it is recommended to increase the number
