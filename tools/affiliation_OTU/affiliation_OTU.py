@@ -19,7 +19,7 @@
 __author__ = 'Maria Bernard INRA - SIGENAE AND Frederic Escudie - Plateforme bioinformatique Toulouse'
 __copyright__ = 'Copyright (C) 2015 INRA'
 __license__ = 'GNU General Public License'
-__version__ = '0.10.0'
+__version__ = '0.11.0'
 __email__ = 'frogs@toulouse.inra.fr'
 __status__ = 'prod'
 
@@ -114,9 +114,9 @@ class AddAffiliation2Biom(Cmd):
         @param out_tsv: [str] Path to output TSV file.
         """
         argument="-f " + ref + " -i " + in_biom + " -o " + out_biom
-        if blast_list is not None:
+        if len(blast_list) > 0 :
             argument += " -b " + " ".join(blast_list)
-        if rdp_list is not None:
+        if len(rdp_list) > 0 :
             argument += " -r " + " ".join(rdp_list)
         Cmd.__init__( self,
                       'addAffiliation2biom.py',
@@ -315,9 +315,10 @@ def parallel_submission( function, inputs, outputs, logs, cpu_used, reference, m
 if __name__ == "__main__":
     # Manage parameters
     parser = argparse.ArgumentParser(description="Taxonomic affiliation of each OTU's seed by RDPtools and BLAST.")
-    parser.add_argument( '-p', '--nb-cpus', type=int, default=1, help="The maximum number of CPUs used. [Default: %(default)s]")
-    parser.add_argument( '-m', '--java-mem', type=int, default=2, help="Java memory allocation in Go. [Default: %(default)s]")
-    parser.add_argument( '-t', '--taxonomy-ranks', nargs='*', default=["Domain", "Phylum", "Class", "Order", "Family", "Genus", "Species"], help='The ordered ranks levels present in the reference databank. [Default: %(default)s]' )
+    parser.add_argument( '-p', '--nb-cpus', type=int, default=1, help="The maximum number of CPUs used.(default 1)")
+    parser.add_argument( '-m', '--java-mem', type=int, default=2, help="Java memory allocation in Go.(default 2)")
+    parser.add_argument( '-t', '--taxonomy-ranks', nargs='*', default=["Domain", "Phylum", "Class", "Order", "Family", "Genus", "Species"], help='The ordered ranks levels present in the reference databank.' )
+    parser.add_argument('--rdp', default=False,  action='store_true',  help="Use RDP classifier to affiliate OTU")
     parser.add_argument( '-d', '--debug', default=False, action='store_true', help="Keep temporary files to debug program.")
     parser.add_argument( '-v', '--version', action='version', version=__version__)
     # Inputs
@@ -350,18 +351,20 @@ if __name__ == "__main__":
 
         if args.nb_cpus == 1 or nb_seq < 100:
             # RDP
-            rdp_out_list.append( tmpFiles.add(os.path.basename(args.input_fasta) + ".rdp") )
-            process_rdp( args.input_fasta, rdp_out_list[0], args.log_file, args.reference, args.java_mem)
-            # Blast
+            if args.rdp:
+                rdp_out_list.append( tmpFiles.add(os.path.basename(args.input_fasta) + ".rdp") )
+                process_rdp( args.input_fasta, rdp_out_list[0], args.log_file, args.reference, args.java_mem)
+            # BLAST
             blast_out_list.append( tmpFiles.add(os.path.basename(args.input_fasta) + ".blast") )
             Blast(args.reference, args.input_fasta, blast_out_list[0], 1).submit(args.log_file)
         else:
             # RDP
             split_fasta(args.input_fasta, tmpFiles, max(1, int(args.nb_cpus/3)), fasta_rdp_list, args.log_file)
-            rdp_out_list = [tmpFiles.add(os.path.basename(current_fasta) + ".rdp") for current_fasta in fasta_rdp_list]
-            log_rdp_list = [tmpFiles.add(os.path.basename(current_fasta) + "_rdp.log") for current_fasta in fasta_rdp_list]
-            parallel_submission( process_rdp, fasta_rdp_list, rdp_out_list, log_rdp_list, len(fasta_rdp_list), args.reference, args.java_mem )
-            # Blast
+            if args.rdp:
+                rdp_out_list = [tmpFiles.add(os.path.basename(current_fasta) + ".rdp") for current_fasta in fasta_rdp_list]
+                log_rdp_list = [tmpFiles.add(os.path.basename(current_fasta) + "_rdp.log") for current_fasta in fasta_rdp_list]
+                parallel_submission( process_rdp, fasta_rdp_list, rdp_out_list, log_rdp_list, len(fasta_rdp_list), args.reference, args.java_mem )
+            # BLAST
             blast_out_list.append( tmpFiles.add(os.path.basename(args.input_fasta) + ".blast") )
             log_blast_list.append( tmpFiles.add(os.path.basename(args.input_fasta) + "_blast.log") )
             Blast(args.reference, args.input_fasta, blast_out_list[0], args.nb_cpus).submit(log_blast_list[0])

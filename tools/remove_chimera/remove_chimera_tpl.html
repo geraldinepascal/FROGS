@@ -19,7 +19,7 @@
 	<head>
 		<title>FROGS Remove Chimera</title>
 		<meta charset="UTF-8">
-		<meta name="version" content="1.0.1">
+		<meta name="version" content="1.0.2">
 		<!-- CSS -->
 		<link rel="stylesheet" href="https://cdn.datatables.net/1.10.6/css/jquery.dataTables.css"></link>
 		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css"></link>
@@ -101,7 +101,7 @@
 				for(var data_idx = 0 ; data_idx < pData.length ; data_idx++){
 					var table_body_row = "" ;
 					for(var category_idx = 0 ; category_idx < pCategories.length ; category_idx++){
-						if( $.isNumeric(pData[data_idx][category_idx]) ) {
+						if( typeof pData[data_idx][category_idx] === "number" ) {
 							table_body_row += "      <td>" + numberDisplay(pData[data_idx][category_idx]) + "</td>\n" ;
 						} else {
 							table_body_row += "      <td>" + pData[data_idx][category_idx] + "</td>\n" ;
