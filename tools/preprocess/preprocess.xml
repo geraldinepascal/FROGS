@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
-<tool id="FROGS_preprocess" name="FROGS Pre-process" version="1.5.0">
+<tool id="FROGS_preprocess" name="FROGS Pre-process" version="1.6.0">
 	<description>Step 1 in metagenomics analysis: denoising and dereplication.</description>
 	<command interpreter="python2.7">
 		preprocess.py $sequencer_type.sequencer_selected
@@ -101,8 +101,7 @@
 								<param name="R2_size" type="integer" label="Reads 2 size" help="The read2 size." value="" optional="false" />
 								<param name="expected_amplicon_size" type="integer" label="Expected amplicon size" help="Maximum amplicon length expected in approximately 90% of the amplicons." value="" />
 							</when>
-							<when value="already_contiged">
-							</when>
+							<when value="already_contiged"></when>
 						</conditional>
 					</when>
 					<when value="files_by_samples">
@@ -114,7 +113,9 @@
 							<when value="paired">
 								<!-- Samples -->
 								<repeat name="samples" title="Samples" min="1">
-									<param name="name" type="text" label="Name" help="The sample name." optional="false" />
+									<param name="name" type="text" label="Name" help="The sample name." optional="false">
+										<validator type="empty_field" message="This parameter is required." />
+									</param>
 									<param format="fastq" name="R1_file" type="data" label="Reads 1" help="R1 FASTQ file of paired-end reads." />
 									<param format="fastq" name="R2_file" type="data" label="reads 2" help="R2 FASTQ file of paired-end reads." />
 								</repeat>
@@ -125,7 +126,9 @@
 							</when>
 							<when value="already_contiged">
 								<repeat name="samples" title="Samples" min="1">
-									<param name="name" type="text" label="Name" help="The sample name." optional="false" />
+									<param name="name" type="text" label="Name" help="The sample name." optional="false">
+										<validator type="empty_field" message="This parameter is required." />
+									</param>
 									<param format="fastq" name="R1_file" type="data" label="Sequence file" help="FASTQ file of contiged reads." />
 								</repeat>
 							</when>
@@ -142,11 +145,11 @@
 						<option value="without_primers">Custom protocol (Kozich et al. 2013)</option>
 					</param>
 					<when value="standard">
-						<param name="five_prim_primer" type="text" size="20" label="5' primer" help="The 5' primer sequence (wildcards are accepted). The orientation is detailed below in 'Primers parameters'." optional="false" >
-							<validator type="empty_field" message="don't leave the 5'primer field empty!"/>
+						<param name="five_prim_primer" type="text" size="20" label="5' primer" help="The 5' primer sequence (wildcards are accepted). The orientation is detailed below in 'Primers parameters'." optional="false">
+							<validator type="empty_field" message="This parameter is required." />
 						</param>
-						<param name="three_prim_primer" type="text" size="20" label="3' primer" help="The 3' primer sequence (wildcards are accepted). The orientation is detailed below in 'Primers parameters'." optional="false" >
-							<validator type="empty_field" message="don't leave the 3'primer field empty!"/>
+						<param name="three_prim_primer" type="text" size="20" label="3' primer" help="The 3' primer sequence (wildcards are accepted). The orientation is detailed below in 'Primers parameters'." optional="false">
+							<validator type="empty_field" message="This parameter is required." />
 						</param>
 					</when>
 					<when value="without_primers"></when>
@@ -174,15 +177,19 @@
 				<param name="min_amplicon_size" type="integer" label="Minimum amplicon size" help="The minimum size for the amplicons (with primers)." value="" optional="false" />
 				<param name="max_amplicon_size" type="integer" label="Maximum amplicon size" help="The maximum size for the amplicons (with primers)." value="" optional="false" />
 				<!-- Primers -->
-				<param name="five_prim_primer" type="text" size="20" label="5' primer" help="The 5' primer sequence (wildcards are accepted). The orientation is detailed below in 'Primers parameters'." optional="false" />
-				<param name="three_prim_primer" type="text" size="20" label="3' primer" help="The 3' primer sequence (wildcards are accepted). The orientation is detailed below in 'Primers parameters'." optional="false" />
+				<param name="five_prim_primer" type="text" size="20" label="5' primer" help="The 5' primer sequence (wildcards are accepted). The orientation is detailed below in 'Primers parameters'." optional="false">
+					<validator type="empty_field" message="This parameter is required." />
+				</param>
+				<param name="three_prim_primer" type="text" size="20" label="3' primer" help="The 3' primer sequence (wildcards are accepted). The orientation is detailed below in 'Primers parameters'." optional="false">
+					<validator type="empty_field" message="This parameter is required." />
+				</param>
 			</when>
 		</conditional>
 	</inputs>
 	<outputs>
-		<data format="fasta" name="dereplicated_file" label="${tool.name}: dereplicated.fasta" from_work_dir="dereplicated.fasta"/>
-		<data format="tabular" name="count_file" label="${tool.name}: count.tsv" from_work_dir="count.tsv"/>
-		<data format="html" name="summary_file" label="${tool.name}: report.html" from_work_dir="report.html"/>
+		<data format="fasta" name="dereplicated_file" label="${tool.name}: dereplicated.fasta" from_work_dir="dereplicated.fasta" />
+		<data format="tabular" name="count_file" label="${tool.name}: count.tsv" from_work_dir="count.tsv" />
+		<data format="html" name="summary_file" label="${tool.name}: report.html" from_work_dir="report.html" />
 	</outputs>
 	<help>
 
