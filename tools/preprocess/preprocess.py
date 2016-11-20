@@ -19,7 +19,7 @@
 __author__ = 'Frederic Escudie - Plateforme bioinformatique Toulouse'
 __copyright__ = 'Copyright (C) 2015 INRA'
 __license__ = 'GNU General Public License'
-__version__ = '1.6.2'
+__version__ = '1.6.3'
 __email__ = 'frogs@toulouse.inra.fr'
 __status__ = 'prod'
 
@@ -55,14 +55,14 @@ from frogsSequenceIO import SequenceFileReader
 ##################################################################################################################################################
 class Flash(Cmd):
     """
-    @summary : Overlapping and merging mate pairs from fragments shorter than twice the length of reads. The others fragments are discarded.
+    @summary: Overlapping and merging mate pairs from fragments shorter than twice the length of reads. The others fragments are discarded.
     """
     def __init__(self, in_R1, in_R2, out_join, param):
         """
-        @param in_R1 : [str] Path to the R1 fastq file.
-        @param in_R2 : [str] Path to the R2 fastq file.
-        @param out_join : [str] Path to the output fastq file.
-        @param param : [Namespace] The 'param.min_amplicon_size', 'param.max_amplicon_size' and 'param.expected_amplicon_size'
+        @param in_R1: [str] Path to the R1 fastq file.
+        @param in_R2: [str] Path to the R2 fastq file.
+        @param out_join: [str] Path to the output fastq file.
+        @param param: [Namespace] The 'param.min_amplicon_size', 'param.max_amplicon_size' and 'param.expected_amplicon_size'
         """
         min_overlap = (param.R1_size + param.R2_size) - param.max_amplicon_size
         max_expected_overlap = (param.R1_size + param.R2_size) - param.expected_amplicon_size + min(20, int((param.expected_amplicon_size - param.min_amplicon_size)/2))
@@ -75,15 +75,15 @@ class Flash(Cmd):
 
     def get_version(self):
         """
-        @summary : Returns the program version number.
-        @return : version number if this is possible, otherwise this method return 'unknown'.
+        @summary: Returns the program version number.
+        @return: version number if this is possible, otherwise this method return 'unknown'.
         """
         return Cmd.get_version(self, 'stdout').split()[1].strip()
 
     def parser(self, log_file):
         """
-        @summary : Parse the command results to add information in log_file.
-        @log_file : [str] Path to the sample process log file.
+        @summary: Parse the command results to add information in log_file.
+        @log_file: [str] Path to the sample process log file.
         """
         # Parse output
         nb_seq = get_fastq_nb_seq(self.output)
@@ -96,14 +96,14 @@ class Flash(Cmd):
 
 class LengthFilter(Cmd):
     """
-    @summary : Filters sequences by length.
+    @summary: Filters sequences by length.
     """
     def __init__(self, in_fastq, out_fastq, log_file, param):
         """
-        @param in_fastq : [str] Path to the processed fastq.
-        @param out_fastq : [str] Path to the fastq with valid sequences.
-        @param log_file : [str] Path to the log file.
-        @param param : [Namespace] The 'param.min_amplicon_size' and 'param.max_amplicon_size'.
+        @param in_fastq: [str] Path to the processed fastq.
+        @param out_fastq: [str] Path to the fastq with valid sequences.
+        @param log_file: [str] Path to the log file.
+        @param param: [Namespace] The 'param.min_amplicon_size' and 'param.max_amplicon_size'.
         """
         Cmd.__init__( self,
                       'filterSeq.py',
@@ -114,8 +114,8 @@ class LengthFilter(Cmd):
 
     def parser(self, log_file):
         """
-        @summary : Parse the command results to add information in log_file.
-        @log_file : [str] Path to the sample process log file.
+        @summary: Parse the command results to add information in log_file.
+        @log_file: [str] Path to the sample process log file.
         """
         # Parse output
         FH_log_filter = open( self.program_log )
@@ -140,10 +140,10 @@ class Remove454prim(Cmd):
     """
     def __init__(self, in_fastq, out_fastq, cutadapt_log, param):
         """
-        @param in_fastq : [str] Path to the processed fastq.
-        @param out_fastq : [str] Path to the fastq with valid sequences.
-        @param cutadapt_log : [str] Path to the log file.
-        @param param : [Namespace] 'param.five_prim_primer', 'param.three_prim_primer' and 'param.min_amplicon_size'.
+        @param in_fastq: [str] Path to the processed fastq.
+        @param out_fastq: [str] Path to the fastq with valid sequences.
+        @param cutadapt_log: [str] Path to the log file.
+        @param param: [Namespace] 'param.five_prim_primer', 'param.three_prim_primer' and 'param.min_amplicon_size'.
         """
         Cmd.__init__( self,
                       'remove454Adapt.py',
@@ -154,8 +154,8 @@ class Remove454prim(Cmd):
 
     def parser(self, log_file):
         """
-        @summary : Parse the command results to add information in log_file.
-        @log_file : [str] Path to the sample process log file.
+        @summary: Parse the command results to add information in log_file.
+        @log_file: [str] Path to the sample process log file.
         """
         # Parse output
         FH_output_seq = SequenceFileReader.factory( self.output_seq )
@@ -175,10 +175,10 @@ class Cutadapt5prim(Cmd):
     """
     def __init__(self, in_fastq, out_fastq, cutadapt_log, param):
         """
-        @param in_fastq : [str] Path to the processed fastq.
-        @param out_fastq : [str] Path to the fastq with valid sequences.
-        @param cutadapt_log : [str] Path to the log file.
-        @param param : [Namespace] The primer sequence 'param.five_prim_primer'.
+        @param in_fastq: [str] Path to the processed fastq.
+        @param out_fastq: [str] Path to the fastq with valid sequences.
+        @param cutadapt_log: [str] Path to the log file.
+        @param param: [Namespace] The primer sequence 'param.five_prim_primer'.
         """
         Cmd.__init__( self,
                       'cutadapt',
@@ -189,8 +189,8 @@ class Cutadapt5prim(Cmd):
 
     def parser(self, log_file):
         """
-        @summary : Parse the command results to add information in log_file.
-        @log_file : [str] Path to the sample process log file.
+        @summary: Parse the command results to add information in log_file.
+        @log_file: [str] Path to the sample process log file.
         """
         # Parse output
         FH_output_seq = SequenceFileReader.factory( self.output_seq )
@@ -206,22 +206,22 @@ class Cutadapt5prim(Cmd):
 
     def get_version(self):
         """
-        @summary : Returns the program version number.
-        @return : version number if this is possible, otherwise this method return 'unknown'.
+        @summary: Returns the program version number.
+        @return: version number if this is possible, otherwise this method return 'unknown'.
         """
         return Cmd.get_version(self, 'stdout')
 
 
 class Cutadapt3prim(Cmd):
     """
-    @summary : Removes reads without the 3' primer and removes primer sequence.
+    @summary: Removes reads without the 3' primer and removes primer sequence.
     """
     def __init__(self, in_fastq, out_fastq, cutadapt_log, param):
         """
-        @param in_fastq : [str] Path to the processed fastq.
-        @param out_fastq : [str] Path to the fastq with valid sequences.
-        @param cutadapt_log : [str] Path to the log file.
-        @param param : [Namespace] The primer sequence 'param.three_prim_primer'.
+        @param in_fastq: [str] Path to the processed fastq.
+        @param out_fastq: [str] Path to the fastq with valid sequences.
+        @param cutadapt_log: [str] Path to the log file.
+        @param param: [Namespace] The primer sequence 'param.three_prim_primer'.
         """
         Cmd.__init__( self,
                       'cutadapt',
@@ -232,8 +232,8 @@ class Cutadapt3prim(Cmd):
 
     def parser(self, log_file):
         """
-        @summary : Parse the command results to add information in log_file.
-        @log_file : [str] Path to the sample process log file.
+        @summary: Parse the command results to add information in log_file.
+        @log_file: [str] Path to the sample process log file.
         """
         # Parse output
         FH_output_seq = SequenceFileReader.factory( self.output_seq )
@@ -249,8 +249,8 @@ class Cutadapt3prim(Cmd):
 
     def get_version(self):
         """
-        @summary : Returns the program version number.
-        @return : version number if this is possible, otherwise this method return 'unknown'.
+        @summary: Returns the program version number.
+        @return: version number if this is possible, otherwise this method return 'unknown'.
         """
         return Cmd.get_version(self, 'stdout')
 
@@ -261,10 +261,10 @@ class MultiFilter(Cmd):
     """
     def __init__(self, in_fastq, out_fasta, log_file, param):
         """
-        @param in_fastq : [str] Path to the processed fastq.
-        @param out_fasta : [str] Path to the fasta with valid sequences.
-        @param log_file : [str] Path to the log file.
-        @param param : [Namespace] The 'param.min_amplicon_size', ['param.five_prim_primer'], ['param.three_prim_primer'].
+        @param in_fastq: [str] Path to the processed fastq.
+        @param out_fasta: [str] Path to the fasta with valid sequences.
+        @param log_file: [str] Path to the log file.
+        @param param: [Namespace] The 'param.min_amplicon_size', ['param.five_prim_primer'], ['param.three_prim_primer'].
         """
         cmd_description = 'Filters amplicons without primers by length and N count.',
         add_options = ""
@@ -283,8 +283,8 @@ class MultiFilter(Cmd):
 
     def parser(self, log_file):
         """
-        @summary : Parse the command results to add information in log_file.
-        @log_file : [str] Path to the sample process log file.
+        @summary: Parse the command results to add information in log_file.
+        @log_file: [str] Path to the sample process log file.
         """
         # Parse output
         FH_log_filter = open( self.program_log )
@@ -326,13 +326,13 @@ class MultiFilter(Cmd):
 
 class DerepBySample(Cmd):
     """
-    @summary : Dereplicates sample sequences.
+    @summary: Dereplicates sample sequences.
     """
     def __init__(self, in_fasta, out_fasta, out_count):
         """
-        @param in_fasta : [str] Path to the processed fasta.
-        @param out_fasta : [str] Path to the dereplicated fasta.
-        @param out_count : [str] Path to the count file.
+        @param in_fasta: [str] Path to the processed fasta.
+        @param out_fasta: [str] Path to the dereplicated fasta.
+        @param out_count: [str] Path to the count file.
         """
         Cmd.__init__( self,
                       'derepSamples.py',
@@ -343,17 +343,16 @@ class DerepBySample(Cmd):
 
 class DerepGlobal(Cmd):
     """
-    @summary : Dereplicates together sequences from several files.
+    @summary: Dereplicates together sequences from several files.
     """
     def __init__(self, all_fasta, samples_names, out_samples_ref, out_fasta, out_count, param):
         """
-        @param all_fasta : [list] Path to the processed fasta.
-        @param samples_names : [list] The sample name for each fasta.
-        @param out_samples_ref : [str] Path to the file containing the link between samples names and path.
-        @param out_fasta : [str] Path to the dereplicated fasta.
-        @param out_count : [str] Path to the count file. It contains the count 
-                            by sample for each representative sequence.
-        @param param : [str] The 'param.nb_cpus'.
+        @param all_fasta: [list] Path to the processed fasta.
+        @param samples_names: [list] The sample name for each fasta.
+        @param out_samples_ref: [str] Path to the file containing the link between samples names and path.
+        @param out_fasta: [str] Path to the dereplicated fasta.
+        @param out_count: [str] Path to the count file. It contains the count by sample for each representative sequence.
+        @param param: [str] The 'param.nb_cpus'.
         """
         # Write sample description
         FH_ref = open(out_samples_ref, "w")
@@ -394,14 +393,13 @@ def get_seq_length( input_file, size_separator=None ):
     FH_seq.close()
     return nb_by_length
 
-def summarise_results( summary_file, samples_names, log_files, contiged_files, filtered_files ):
+def summarise_results( summary_file, samples_names, lengths_files, log_files ):
     """
     @summary: Writes one summary of results from several logs.
     @param summary_file: [str] The output file.
     @param samples_names: [list] The samples names.
     @param log_files: [list] The list of path to log files (in samples_names order).
-    @param contiged_files : [list] The list of path to sequences files before preprocessing (in samples_names order).
-    @param filtered_files: [list] The list of path to sequences files after preprocessing (in samples_names order).
+    @param lengths_files: [list] The list of path to files containing the contiged sequences lengths (in samples_names order).
     """
     # Get data
     categories = get_filter_steps(log_files[0])
@@ -410,9 +408,10 @@ def summarise_results( summary_file, samples_names, log_files, contiged_files, f
     after_lengths_by_sample = dict()
     for spl_idx, spl_name in enumerate(samples_names):
         filters_by_sample[spl_name] = get_sample_resuts(log_files[spl_idx])
-        before_lengths_by_sample[spl_name] = get_seq_length(contiged_files[spl_idx], None)
-        after_lengths_by_sample[spl_name] = get_seq_length(filtered_files[spl_idx], ';size=')
-
+        with open(lengths_files[spl_idx]) as FH_lengths:
+            lenghts = json.load(FH_lengths)
+            before_lengths_by_sample[spl_name] = lenghts["before"]
+            after_lengths_by_sample[spl_name] = lenghts["after"]
 
     # Write
     FH_summary_tpl = open( os.path.join(CURRENT_DIR, "preprocess_tpl.html") )
@@ -538,7 +537,7 @@ def samples_from_tar( archive, contiged, global_tmp_files, R1_files, R2_files, s
 def is_gzip( file ):
     """
     @return: [bool] True if the file is gziped.
-    @param file : [str] Path to processed file.
+    @param file: [str] Path to processed file.
     """
     is_gzip = None
     FH_input = gzip.open( file )
@@ -587,35 +586,35 @@ def get_fasta_nb_seq( fasta_file ):
     FH_input.close()
     return nb_seq
 
-def filter_process_multiples_files(R1_files, R2_files, samples_names, out_files, log_files, tmp_prefix, args):
+def filter_process_multiples_files(R1_files, R2_files, samples_names, out_files, lengths_files, log_files, args):
     """
     @summary: filters sequences of samples.
     @param R1_files: [list] List of path to reads 1 fastq files or contiged files (one by sample).
     @param R2_files: [list] List of path to reads 2 fastq files (one by sample).
     @param samples_names: [list] The list of sample name for each R1/R2-files.
     @param out_files: [list] List of path to the filtered files (one by sample).
-    @param log_files: [list] List of path to the outputed log (one by sample). It contains a trace of all the operations and results.
-    @param tmp_prefix : [str] Prefix of general tmp files
+    @param lengths_files: [list] List of path to the outputted files containing the contiged sequences lengths.
+    @param log_files: [list] List of path to the outputted log (one by sample). It contains a trace of all the operations and results.
     @param args: [Namespace] Global parameters.
     """
     for idx in range(len(out_files)):
         if args.already_contiged:
-            process_sample( R1_files[idx], None, samples_names[idx], out_files[idx], log_files[idx], tmp_prefix, args )
+            process_sample( R1_files[idx], None, samples_names[idx], out_files[idx], lengths_files[idx], log_files[idx], args )
         else:
-            process_sample( R1_files[idx], R2_files[idx], samples_names[idx], out_files[idx], log_files[idx], tmp_prefix, args )
+            process_sample( R1_files[idx], R2_files[idx], samples_names[idx], out_files[idx], lengths_files[idx], log_files[idx], args )
 
-def process_sample(R1_file, R2_file, sample_name, out_file, log_file, tmp_prefix, args):
+def process_sample(R1_file, R2_file, sample_name, out_file, lengths_file, log_file, args):
     """
     @summary: Merges, filters and dereplicates all sequences of one sample.
     @param R1_file: [str] Path to reads 1 fastq file or contiged file of the sample.
     @param R2_file: [str] Path to reads 2 fastq file of the sample.
     @param sample_name: [str] The sample name.
-    @param out_files: [str] Path to the filtered file.
-    @param log_files: [str] Path to the outputed log. It contains a trace of all the operations and results.
-    @param tmp_prefix : [str] Prefix of general tmp files
+    @param out_file: [str] Path to the filtered file.
+    @param lengths_file: [str] Path to the outputted file containing the contiged sequences lengths.
+    @param log_file: [str] Path to the outputted log. It contains a trace of all the operations and results.
     @param args: [Namespace] Global parameters.
     """
-    tmp_files = TmpFiles( os.path.split(out_file)[0], tmp_prefix )
+    tmp_files = TmpFiles( os.path.split(out_file)[0] )
     out_flash = tmp_files.add( sample_name + '_flash.fastq.gz' )
     out_lengthFilter = tmp_files.add( sample_name + '_length_filter.fastq.gz' )
     log_lengthFilter = tmp_files.add( sample_name + '_length_filter_log.txt' )
@@ -627,42 +626,48 @@ def process_sample(R1_file, R2_file, sample_name, out_file, log_file, tmp_prefix
     log_NAndLengthfilter = tmp_files.add( sample_name + '_N_and_length_filter_log.txt' )
     out_count = tmp_files.add( sample_name + '_derep_count.tsv' )
 
-    # try:
-    # Start log
-    FH_log = open(log_file, "w")
-    if not args.already_contiged:
-        FH_log.write('##Sample\nR1 : ' + R1_file + '\nR2 : ' + R2_file + '\nSample name : ' + sample_name + '\n')
-    else:
-        FH_log.write('##Sample\nContiged file : ' + R1_file + '\nSample name : ' + sample_name + '\n')
-    FH_log.write('nb seq before process : ' + str(get_fastq_nb_seq(R1_file)) +'\n' )
-    FH_log.write('##Commands\n')
-    FH_log.close()
-
-    # Commands execution
-    if not args.already_contiged:
-        flash_cmd = Flash(R1_file, R2_file, out_flash, args)
-        flash_cmd.submit(log_file)
-    else:
-        out_flash = R1_file
-    if args.sequencer == "454": # 454
-        if is_gzip( out_flash ):
-            renamed_out_flash = tmp_files.add( sample_name + '_454.fastq.gz' ) # prevent cutadapt problem (type of file is checked by extension)
+    try:
+        # Start log
+        FH_log = open(log_file, "w")
+        if not args.already_contiged:
+            FH_log.write('##Sample\nR1 : ' + R1_file + '\nR2 : ' + R2_file + '\nSample name : ' + sample_name + '\n')
         else:
-            renamed_out_flash = tmp_files.add( sample_name + '_454.fastq' ) # prevent cutadapt problem (type of file is checked by extension)
-        shutil.copyfile( out_flash, renamed_out_flash ) # prevent symlink problem
-        Remove454prim(renamed_out_flash, out_cutadapt, log_3prim_cutadapt, args).submit(log_file)
-    else: # Illumina
-        if args.five_prim_primer and args.three_prim_primer: # Illumina standard sequencing protocol
-            LengthFilter(out_flash, out_lengthFilter, log_lengthFilter, args).submit(log_file)
-            Cutadapt5prim(out_lengthFilter, tmp_cutadapt, log_5prim_cutadapt, args).submit(log_file)
-            Cutadapt3prim(tmp_cutadapt, out_cutadapt, log_3prim_cutadapt, args).submit(log_file)
-        else: # Custom sequencing primers. The amplicons is full length (Illumina) except PCR primers (it is use as sequencing primers). [Protocol Kozich et al. 2013]
-            out_cutadapt = out_flash
-    MultiFilter(out_cutadapt, out_NAndLengthfilter, log_NAndLengthfilter, args).submit(log_file)
-    DerepBySample(out_NAndLengthfilter, out_file, out_count).submit(log_file)
-    # finally:
-    #     if not args.debug:
-    #         tmp_files.deleteAll()
+            FH_log.write('##Sample\nContiged file : ' + R1_file + '\nSample name : ' + sample_name + '\n')
+        FH_log.write('nb seq before process : ' + str(get_fastq_nb_seq(R1_file)) +'\n' )
+        FH_log.write('##Commands\n')
+        FH_log.close()
+
+        # Commands execution
+        if not args.already_contiged:
+            flash_cmd = Flash(R1_file, R2_file, out_flash, args)
+            flash_cmd.submit(log_file)
+        else:
+            out_flash = R1_file
+        if args.sequencer == "454": # 454
+            if is_gzip( out_flash ):
+                renamed_out_flash = tmp_files.add( sample_name + '_454.fastq.gz' ) # prevent cutadapt problem (type of file is checked by extension)
+            else:
+                renamed_out_flash = tmp_files.add( sample_name + '_454.fastq' ) # prevent cutadapt problem (type of file is checked by extension)
+            shutil.copyfile( out_flash, renamed_out_flash ) # prevent symlink problem
+            Remove454prim(renamed_out_flash, out_cutadapt, log_3prim_cutadapt, args).submit(log_file)
+        else: # Illumina
+            if args.five_prim_primer and args.three_prim_primer: # Illumina standard sequencing protocol
+                LengthFilter(out_flash, out_lengthFilter, log_lengthFilter, args).submit(log_file)
+                Cutadapt5prim(out_lengthFilter, tmp_cutadapt, log_5prim_cutadapt, args).submit(log_file)
+                Cutadapt3prim(tmp_cutadapt, out_cutadapt, log_3prim_cutadapt, args).submit(log_file)
+            else: # Custom sequencing primers. The amplicons is full length (Illumina) except PCR primers (it is use as sequencing primers). [Protocol Kozich et al. 2013]
+                out_cutadapt = out_flash
+        MultiFilter(out_cutadapt, out_NAndLengthfilter, log_NAndLengthfilter, args).submit(log_file)
+        DerepBySample(out_NAndLengthfilter, out_file, out_count).submit(log_file)
+
+        # Get length before and after process
+        nb_before_by_legnth = get_seq_length( out_flash )
+        nb_after_by_legnth = get_seq_length( out_file, ';size=' )
+        with open(lengths_file, "w") as FH_lengths:
+            FH_lengths.write( json.dumps({"before":nb_before_by_legnth, "after":nb_after_by_legnth}) )
+    finally:
+        if not args.debug:
+            tmp_files.deleteAll()
 
 def process( args ):
     tmp_files = TmpFiles( os.path.split(args.output_dereplicated)[0] )
@@ -691,14 +696,15 @@ def process( args ):
 
         # Tmp files
         filtered_files = [tmp_files.add(current_sample + '_filtered.fasta') for current_sample in samples_names]
+        lengths_files = [tmp_files.add(current_sample + '_lengths.json') for current_sample in samples_names]
         log_files = [tmp_files.add(current_sample + '_log.txt') for current_sample in samples_names]
 
         # Filter
         nb_processses_used = min( len(R1_files), args.nb_cpus )
         if nb_processses_used == 1:
-            filter_process_multiples_files( R1_files, R2_files, samples_names, filtered_files, log_files, tmp_files.prefix, args )
+            filter_process_multiples_files( R1_files, R2_files, samples_names, filtered_files, lengths_files, log_files, args )
         else:
-            processes = [{'process':None, 'R1_files':[], 'R2_files':[], 'samples_names':[], 'filtered_files':[], 'log_files':[]} for idx in range(nb_processses_used)]
+            processes = [{'process':None, 'R1_files':[], 'R2_files':[], 'samples_names':[], 'filtered_files':[], 'lengths_files':[], 'log_files':[]} for idx in range(nb_processses_used)]
             # Set processes
             for idx in range(len(R1_files)):
                 process_idx = idx % nb_processses_used
@@ -707,15 +713,16 @@ def process( args ):
                     processes[process_idx]['R2_files'].append(R2_files[idx])
                 processes[process_idx]['samples_names'].append(samples_names[idx])
                 processes[process_idx]['filtered_files'].append(filtered_files[idx])
+                processes[process_idx]['lengths_files'].append(lengths_files[idx])
                 processes[process_idx]['log_files'].append(log_files[idx])
             # Launch processes
             for current_process in processes:
                 if idx == 0: # First process is threaded with parent job
                     current_process['process'] = threading.Thread( target=filter_process_multiples_files, 
-                                                                   args=(current_process['R1_files'], current_process['R2_files'], current_process['samples_names'], current_process['filtered_files'], current_process['log_files'], tmp_files.prefix, args) )
+                                                                   args=(current_process['R1_files'], current_process['R2_files'], current_process['samples_names'], current_process['filtered_files'], current_process['lengths_files'], current_process['log_files'], args) )
                 else: # Others processes are processed on different CPU
                     current_process['process'] = multiprocessing.Process( target=filter_process_multiples_files, 
-                                                                   args=(current_process['R1_files'], current_process['R2_files'], current_process['samples_names'], current_process['filtered_files'], current_process['log_files'], tmp_files.prefix, args) )
+                                                                   args=(current_process['R1_files'], current_process['R2_files'], current_process['samples_names'], current_process['filtered_files'], current_process['lengths_files'], current_process['log_files'], args) )
                 current_process['process'].start()
             # Wait processes end
             for current_process in processes:
@@ -726,12 +733,7 @@ def process( args ):
                     raise Exception( "Error in sub-process execution." )
 
         # Write summary
-        contiged_files = list()
-        if args.already_contiged:
-            contiged_files = R1_files
-        else:
-            contiged_files = [os.path.join(tmp_files.tmp_dir, tmp_files.prefix + "_" + current_sample + '_flash.fastq.gz') for current_sample in samples_names]
-        summarise_results( args.summary, samples_names, log_files, contiged_files, filtered_files )
+        summarise_results( args.summary, samples_names, lengths_files, log_files )
         log_append_files( args.log_file, log_files )
 
         # Dereplicate global
@@ -746,9 +748,6 @@ def process( args ):
     finally:
         if not args.debug:
             tmp_files.deleteAll()
-            for f in os.listdir(tmp_files.tmp_dir):
-                if tmp_files.prefix in f:
-                    os.remove(os.path.join(tmp_files.tmp_dir,f))
 
 def spl_name_type( arg_value ):
     """

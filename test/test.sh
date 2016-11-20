@@ -109,7 +109,8 @@ affiliation_OTU.py \
  --output-biom $out_dir/04-affiliation.biom \
  --summary $out_dir/04-affiliation.html \
  --log-file $out_dir/04-affiliation.log \
- --nb-cpus $nb_cpu --java-mem $java_mem
+ --nb-cpus $nb_cpu --java-mem $java_mem \
+ --rdp
 
 if [ $? -ne 0 ]
 then

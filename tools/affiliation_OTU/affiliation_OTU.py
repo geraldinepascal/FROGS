@@ -315,9 +315,9 @@ def parallel_submission( function, inputs, outputs, logs, cpu_used, reference, m
 if __name__ == "__main__":
     # Manage parameters
     parser = argparse.ArgumentParser(description="Taxonomic affiliation of each OTU's seed by RDPtools and BLAST.")
-    parser.add_argument( '-p', '--nb-cpus', type=int, default=1, help="The maximum number of CPUs used.(default 1)")
-    parser.add_argument( '-m', '--java-mem', type=int, default=2, help="Java memory allocation in Go.(default 2)")
-    parser.add_argument( '-t', '--taxonomy-ranks', nargs='*', default=["Domain", "Phylum", "Class", "Order", "Family", "Genus", "Species"], help='The ordered ranks levels present in the reference databank.' )
+    parser.add_argument( '-p', '--nb-cpus', type=int, default=1, help="The maximum number of CPUs used. [Default: %(default)s]")
+    parser.add_argument( '-m', '--java-mem', type=int, default=2, help="Java memory allocation in Go. [Default: %(default)s]")
+    parser.add_argument( '-t', '--taxonomy-ranks', nargs='*', default=["Domain", "Phylum", "Class", "Order", "Family", "Genus", "Species"], help='The ordered ranks levels present in the reference databank. [Default: %(default)s]' )
     parser.add_argument('--rdp', default=False,  action='store_true',  help="Use RDP classifier to affiliate OTU")
     parser.add_argument( '-d', '--debug', default=False, action='store_true', help="Keep temporary files to debug program.")
     parser.add_argument( '-v', '--version', action='version', version=__version__)

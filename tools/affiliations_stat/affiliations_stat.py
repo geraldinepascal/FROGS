@@ -19,7 +19,7 @@
 __author__ = 'Frederic Escudie - Plateforme bioinformatique Toulouse'
 __copyright__ = 'Copyright (C) 2015 INRA'
 __license__ = 'GNU General Public License'
-__version__ = '1.3.0'
+__version__ = '1.3.1'
 __email__ = 'frogs@toulouse.inra.fr'
 __status__ = 'prod'
 
@@ -95,11 +95,13 @@ class Rarefaction(Cmd):
         nb_seq = counts[lower_quartile_idx]
         # If lower quartile sample is empty
         if nb_seq == 0:
-            idx = 0
+            idx = 1
             while (lower_quartile_idx + idx) < nb_samples and counts[lower_quartile_idx + idx] == 0:
-                nb_seq = counts[lower_quartile_idx + idx]
                 idx += 1
-        return int(nb_seq/nb_step)
+            if (lower_quartile_idx + idx) < nb_samples:
+                nb_seq = counts[lower_quartile_idx + idx]
+        step_size = int(nb_seq/nb_step)
+        return max(1, step_size)
 
 
 class TaxonomyTree(Cmd):
