@@ -218,7 +218,7 @@ def tsv_to_biom( input_tsv, multi_hit_dict, fields, samples_names, output_biom, 
             metadata_dict["blast_taxonomy"] = metadata_dict["blast_taxonomy"].split(";")
 
             # check multihit blast : filter non consistent taxonomy hit with blast_taxonomy (if TSV modified), and compute consensus tax (if multihit line suppressed)
-            if (metadata_dict["blast_subject"] == "multi-subject" or "Multi-affiliation" in metadata_dict["blast_taxonomy"]) and not multi_hit_dict is None:
+            if not multi_hit_dict is None and (metadata_dict["blast_subject"] == "multi-subject" or "Multi-affiliation" in metadata_dict["blast_taxonomy"]):
                 if not cluster_name in multi_hit_dict:
                     raise Exception("\n"+cluster_name+" has multi-subject tag but is not present in your multi-hit TSV file. Please, provide the original multi-hit TSV file.\n\n")
                 else:
