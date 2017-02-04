@@ -16,7 +16,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-__author__ = 'Plateforme bioinformatique Toulouse - Sigenae Jouy en Josas'
+__author__ = 'Plateforme bioinformatique Toulouse - Sigenae  Jouy en Josas'
 __copyright__ = 'Copyright (C) 2016 INRA'
 __license__ = 'GNU General Public License'
 __version__ = '1.1.1'
@@ -151,7 +151,7 @@ def uparse(udb_databank, reads_directory, out_biom, out_fasta, min_length, max_l
     @param nb_cpus: [int] Number of used CPUs.
     """
     exec_cmd(
-        os.sep.join([args.frogs_directory, "assessment", "bin", "uparse.py"]) \
+        os.sep.join([args.frogs_directory, "assessment", "bin", "uparse_4real.py"]) \
         + " --min-length " + str(min_length) \
         + " --max-length " + str(max_length) \
         + " --already-contiged " \
@@ -182,7 +182,7 @@ def mothur(affiliation_databank, affiliation_taxonomy, mothur_databank, mothur_t
     @param nb_cpus: [int] Number of used CPUs.
     """
     exec_cmd(
-        os.sep.join([args.frogs_directory, "assessment", "bin", "mothur.py"]) \
+        os.sep.join([args.frogs_directory, "assessment", "bin", "mothur_4real.py"]) \
         + " --min-length " + str(min_length) \
         + " --max-length " + str(max_length) \
         + " --already-contiged " \
@@ -209,7 +209,7 @@ def qiime(reads_directory, ref_fasta, ref_tax, nb_cpus, out_biom, out_fasta):
     @param out_biom: [str] Path to the outputed Fasta file.
     """
     exec_cmd(
-        os.sep.join([args.frogs_directory, "assessment", "bin", "qiime.py"]) \
+        os.sep.join([args.frogs_directory, "assessment", "bin", "qiime_4real.py"]) \
         + " --input-folder " + reads_directory \
         + " --ref-fasta " + str(ref_fasta) \
         + (" --ref-tax " + str(ref_tax) if ref_tax is not None else "") \
@@ -256,7 +256,7 @@ Used datasets for this assessment must be stored in following structure:
     parser.add_argument( '--nb-sp', type=int, nargs='+', default=[20, 100, 200, 500, 1000], help='Numbers of species used in assessment. Example: with "--nb-sp 20 100" only the sub-folders 20sp and 100sp are used in assessment. [Default: 20, 100, 200, 500, 1000]' )
     parser.add_argument( '--datasets', type=int, nargs='+', default=[1, 2, 3, 4, 5], help='IDs of datasets used in assessment. Example: with "--datasets 1 5" only the sub-folders dataset_1 and dataset_5 are used in assessment. [Default: 1, 2, 3, 4, 5]' )
     parser.add_argument( '--primers', type=str, nargs='+', default=["V4V4", "V3V4"], help='Primers used in assessment. Example: with "--primers V4V4" only the sub-folder V4V4 is used in assessment. [Default: V4V4, V3V4]' )
-    parser.add_argument( '--distribution-laws', type=str, nargs='+', default=["powerlaw", "uniform"], help='Distribution laws used in assessment. Example: with "--distribution-laws powerlaw" only the sub-folder powerlaw is used in assessment. [Default: powerlaw, uniform].' )
+    parser.add_argument( '--distribution-laws', type=str, nargs='+', default=["even", "straggered"], help='Distribution laws used in assessment. Example: with "--distribution-laws powerlaw" only the sub-folder powerlaw is used in assessment. [Default: powerlaw, uniform].' )
     parser.add_argument( '--pipelines', type=str, nargs='+', default=["frogs", "uparse", "mothur", "qiime"], help='launched pipelines. Example: with "--pipelines frogs" only the frogs is launched. [Default: frogs, uparse, mothur, qiime].' )
     parser.add_argument( '-p', '--nb-cpus', type=int, default=1, help='The maximum number of CPUs used. [Default: 1]' )
     parser.add_argument( '-v', '--version', action='version', version=__version__)
@@ -344,9 +344,7 @@ Used datasets for this assessment must be stored in following structure:
                         frogs_assess_clst = os.path.join(frogs_out_dir, "frogs_OTUResults.txt")
                         #    Execution and assessment
                         frogs(args.affiliation_databank_fasta, reads_directory, frogs_biom, frogs_fasta, min_length, max_length, args.nb_cpus)
-                        affiliations_assessment(args.affiliation_databank_fasta, frogs_biom, frogs_fasta, dataset_in_dir, duplicated_sequences, frogs_assess_affi, "_", "blast_taxonomy", True)
-                        clusters_assessment(frogs_biom, frogs_fasta, dataset_fasta, reads_directory, frogs_assess_clst, "_")
-
+                        
                     # UPARSE
                     if "uparse" in args.pipelines:
                         #    Set files and directory
@@ -359,17 +357,7 @@ Used datasets for this assessment must be stored in following structure:
                         uparse_assess_clst = os.path.join(uparse_out_dir, "uparse_OTUResults.txt")
                         #    Execution
                         uparse(args.affiliation_databank_udb, reads_directory, uparse_biom, uparse_fasta, min_length, max_length, args.nb_cpus)
-                        if args.affiliation_databank_udb is not None:
-                            affiliations_assessment(args.affiliation_databank_fasta, uparse_biom, uparse_fasta, dataset_in_dir, duplicated_sequences, uparse_assess_affi, "-", "taxonomy", False)
-                            clusters_assessment(uparse_biom, uparse_fasta, dataset_fasta, reads_directory, uparse_assess_clst, "-")
-                        #    Multi-affiliation execution and assessment
-                        uparse_frogsAffi_biom = os.path.join(uparse_out_dir, "uparse-FROGS-affi.biom")
-                        uparse_frogsAffi_assess_affi = os.path.join(uparse_out_dir, "uparse-FROGS-affi_affiResults.txt")
-                        uparse_frogsAffi_assess_clst = os.path.join(uparse_out_dir, "uparse-FROGS-affi_OTUResults.txt")
-                        frogs_affiliation(args.affiliation_databank_fasta, uparse_biom, uparse_fasta, uparse_frogsAffi_biom, args.nb_cpus)
-                        affiliations_assessment(args.affiliation_databank_fasta, uparse_frogsAffi_biom, uparse_fasta, dataset_in_dir, duplicated_sequences, uparse_frogsAffi_assess_affi, "-", "blast_taxonomy", True)
-                        clusters_assessment(uparse_frogsAffi_biom, uparse_fasta, dataset_fasta, reads_directory, uparse_frogsAffi_assess_clst, "-")
-
+                        
                     # Mothur
                     if "mothur" in args.pipelines:
                         #    Set files and directory
@@ -382,16 +370,6 @@ Used datasets for this assessment must be stored in following structure:
                         mothur_assess_clst = os.path.join(mothur_out_dir, "mothur_OTUResults.txt")
                         #    Execution
                         mothur(args.affiliation_databank_fasta, args.affiliation_databank_tax, args.mothur_databank, args.mothur_taxonomy, reads_directory, mothur_biom, mothur_fasta, min_length, max_length, pcr_start, pcr_end, kept_start, kept_end, args.nb_cpus)
-                        if args.affiliation_databank_tax is not None:
-                            affiliations_assessment(args.affiliation_databank_fasta, mothur_biom, mothur_fasta, dataset_in_dir, duplicated_sequences, mothur_assess_affi, "_", "taxonomy", False)
-                            clusters_assessment(mothur_biom, mothur_fasta, dataset_fasta, reads_directory, mothur_assess_clst, "_")
-                        #    Multi-affiliation execution and assessment
-                        mothur_frogsAffi_biom = os.path.join(mothur_out_dir, "mothur_frogsAffi.biom")
-                        mothur_frogsAffi_assess_affi = os.path.join(mothur_out_dir, "mothur-FROGS-affi_affiResults.txt")
-                        mothur_frogsAffi_assess_clst = os.path.join(mothur_out_dir, "mothur-FROGS-affi_OTUResults.txt")
-                        frogs_affiliation(args.affiliation_databank_fasta, mothur_biom, mothur_fasta, mothur_frogsAffi_biom, args.nb_cpus)
-                        affiliations_assessment(args.affiliation_databank_fasta, mothur_frogsAffi_biom, mothur_fasta, dataset_in_dir, duplicated_sequences, mothur_frogsAffi_assess_affi, "_", "blast_taxonomy", True)
-                        clusters_assessment(mothur_frogsAffi_biom, mothur_fasta, dataset_fasta, reads_directory, mothur_frogsAffi_assess_clst, "_")
                     
                     # QIIME
                     if "qiime" in args.pipelines:
@@ -405,14 +383,4 @@ Used datasets for this assessment must be stored in following structure:
                         qiime_assess_clst = os.path.join(qiime_out_dir, "qiime_OTUResults.txt")
                         # Qiime pipeline execution
                         qiime(reads_directory, args.affiliation_databank_fasta, args.affiliation_databank_tax, args.nb_cpus, qiime_biom, qiime_fasta)
-                        if args.affiliation_databank_tax is not None:
-                            affiliations_assessment(args.affiliation_databank_fasta, qiime_biom, qiime_fasta, dataset_in_dir, duplicated_sequences, qiime_assess_affi, "-", "taxonomy", False)
-                            clusters_assessment(qiime_biom, qiime_fasta, dataset_fasta, reads_directory, qiime_assess_clst, "-")
                         
-                        #    Multi-affiliation execution and assessment
-                        qiime_frogsAffi_biom = os.path.join(qiime_out_dir, "qiime-FROGS-affi.biom")
-                        qiime_frogsAffi_assess_affi = os.path.join(qiime_out_dir, "qiime-FROGS-affi_affiResults.txt")
-                        qiime_frogsAffi_assess_clst = os.path.join(qiime_out_dir, "qiime-FROGS-affi_OTUResults.txt")
-                        frogs_affiliation(args.affiliation_databank_fasta, qiime_biom, qiime_fasta, qiime_frogsAffi_biom, args.nb_cpus)
-                        affiliations_assessment(args.affiliation_databank_fasta, qiime_frogsAffi_biom, qiime_fasta, dataset_in_dir, duplicated_sequences, qiime_frogsAffi_assess_affi, "-", "blast_taxonomy", True)
-                        clusters_assessment(qiime_frogsAffi_biom, qiime_fasta, dataset_fasta, reads_directory, qiime_frogsAffi_assess_clst, "-")
