@@ -287,11 +287,13 @@
         - Extract databanks.
         - To use these databank, you need to create a .loc file named
           'frogs_db.loc'. The path provided must be the '.fasta'.
+          (see the frogs_db.loc example file)
     b] Contaminant databank
         - Upload databank and indexes from http://genoweb.toulouse.inra.fr/frogs_databanks/contaminants
         - Extract databank.
         - To use this databank, you need to create a .loc file named
           'phiX_db.loc'. The path provided must be the '.fasta'.
+          (see the phiX_db.loc example file)
 
 ### 9. Tools images
     The tools help contain images. These images must be in galaxy images

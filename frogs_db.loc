@@ -1,0 +1,48 @@
+# Copyright (C) 2014 INRA
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+#
+#This is a sample file that enables tools FROGS_affiliations_OTU to use taxonomy database for
+#taxonomy affiliation. You will need to create or download Blast+ index and train your database
+#for RDP classifier these data files.
+#download link : http://genoweb.toulouse.inra.fr/frogs_databanks/assignation
+#Finally you will need to create frogs_db.loc file similar to this one in your galaxy
+#tool-data directory.The frogs_db.loc file has this format (longer white space characters are
+#TAB characters):
+#
+#<unique_database_name>   <file_path>
+#
+#First column will be the visible name in galaxy.
+#So, for example, if you had 16S silva 128 indexed stored in
+#/galaxy_databanks/16S/silva_128/ 
+#then the frogs_db.loc entry would look like this:
+#
+#silva 128 16S  /galaxy_databanks/16S/silva_128/silva_128_16S.fasta
+#
+#and your /galaxy_databanks/16S/silva_128/ directory
+#would contain index files:
+#
+#-rw-r--r-- 1 mbernard FROGS    8097966  5 déc.  16:56 bergeyTrainingTree.xml
+#-rw-r--r-- 1 mbernard FROGS 1572981589  5 déc.  16:56 genus_wordConditionalProbList.txt
+#-rw-r--r-- 1 mbernard FROGS       1654  5 déc.  16:56 LICENCE.txt
+#-rw-r--r-- 1 mbernard FROGS    1072228  5 déc.  16:56 logWordPrior.txt
+#-rw-r--r-- 1 mbernard FROGS  940834335  5 déc.  16:56 silva_128_16S.fasta
+#-rw-r--r-- 1 mbernard FROGS  152606489  5 déc.  16:56 silva_128_16S.fasta.nhr
+#-rw-r--r-- 1 mbernard FROGS    6918588  5 déc.  16:56 silva_128_16S.fasta.nin
+#-rw-r--r-- 1 mbernard FROGS  205320030  5 déc.  16:56 silva_128_16S.fasta.nsq
+#-rw-r--r-- 1 mbernard FROGS        281  5 déc.  16:56 silva_128_16S.fasta.properties
+#-rw-r--r-- 1 mbernard FROGS    3420464  5 déc.  16:56 silva_128_16S.tax
+#-rw-r--r-- 1 mbernard FROGS     964048  5 déc.  16:57 wordConditionalProbIndexArr.txt
+#
