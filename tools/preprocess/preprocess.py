@@ -64,7 +64,7 @@ class Flash(Cmd):
         @param out_join: [str] Path to the output fastq file.
         @param param: [Namespace] The 'param.min_amplicon_size', 'param.max_amplicon_size' and 'param.expected_amplicon_size'
         """
-        min_overlap = (param.R1_size + param.R2_size) - param.max_amplicon_size
+        min_overlap = max(1,(param.R1_size + param.R2_size) - param.max_amplicon_size )
         max_expected_overlap = (param.R1_size + param.R2_size) - param.expected_amplicon_size + min(20, int((param.expected_amplicon_size - param.min_amplicon_size)/2))
         Cmd.__init__( self,
                       'flash',

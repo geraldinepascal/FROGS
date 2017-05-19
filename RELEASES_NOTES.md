@@ -1,5 +1,6 @@
 # v1.5.0  [DEV]
-
+### Bugs fixes:
+  * Preprocess : min overlap at least equal to 1
 
 # v1.4.0  [2017-02-04]
 ### Bugs fixes:
@@ -8,6 +9,8 @@
   * Clusters_stat: error with empty samples in hierarchical clustering.
   * Filters: error when only the filter on contamination is used.
   * Filters: bug when using other filters than abundance (check parameter when None).
+  * Tsv2Biom : bug fix when using a tsv file comming from a standard biom file
+  * Affiliations_stat : bug in rarefaction step computation when sample are empty
 
 ### Functions added:
   * Preprocess: new amplicon length graph.
