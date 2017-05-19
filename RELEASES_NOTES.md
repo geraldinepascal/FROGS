@@ -2,6 +2,9 @@
 ### Bugs fixes:
   * Preprocess : min overlap at least equal to 1
 
+### unctions added:
+  * Preprocess: add Flash mismatch rate option
+
 # v1.4.0  [2017-02-04]
 ### Bugs fixes:
   * Preprocess: error in final dereplication with hudge number of samples.

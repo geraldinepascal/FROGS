@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
-<tool id="FROGS_preprocess" name="FROGS Pre-process" version="1.6.0">
+<tool id="FROGS_preprocess" name="FROGS Pre-process" version="1.7.0">
 	<description>Step 1 in metagenomics analysis: denoising and dereplication.</description>
 	<command interpreter="python2.7">
 		preprocess.py $sequencer_type.sequencer_selected
@@ -40,6 +40,7 @@
 		    #elif $sequencer_type.sequencer_selected == "illumina"
 	            --R1-size $sequencer_type.input_type.archive_type.R1_size --R2-size $sequencer_type.input_type.archive_type.R2_size 
 	            --expected-amplicon-size $sequencer_type.input_type.archive_type.expected_amplicon_size 
+	            --mismatch-rate $sequencer_type.input_type.archive_type.mm_rate
 		    #end if
 		#else
 		    #set $sep = ' '
@@ -61,6 +62,7 @@
 		            #end for
 		            --R1-size $sequencer_type.input_type.files_by_samples_type.R1_size --R2-size $sequencer_type.input_type.files_by_samples_type.R2_size 
 		            --expected-amplicon-size $sequencer_type.input_type.files_by_samples_type.expected_amplicon_size 
+		            --mismatch-rate $sequencer_type.input_type.files_by_samples_type.mm_rate
 		        #end if
 		    #else
 		        --input-R1 
@@ -100,6 +102,7 @@
 								<param name="R1_size" type="integer" label="Reads 1 size" help="The read1 size." value="" optional="false" />
 								<param name="R2_size" type="integer" label="Reads 2 size" help="The read2 size." value="" optional="false" />
 								<param name="expected_amplicon_size" type="integer" label="Expected amplicon size" help="Maximum amplicon length expected in approximately 90% of the amplicons." value="" />
+								<param name="mm_rate" type="float" label="mismatch rate." help="The maximum rate of mismatch in the overlap region" value="0.1" optional="false" />
 							</when>
 							<when value="already_contiged"></when>
 						</conditional>
@@ -123,6 +126,7 @@
 								<param name="R1_size" type="integer" label="Reads 1 size" help="The read1 size." value="" optional="false" />
 								<param name="R2_size" type="integer" label="Reads 2 size" help="The read2 size." value="" optional="false" />
 								<param name="expected_amplicon_size" type="integer" label="Expected amplicon size" help="Maximum amplicon length expected in approximately 90% of the amplicons." value="" />
+								<param name="mm_rate" type="float" label="mismatch rate." help="The maximum rate of mismatch in the overlap region" value="0.1" optional="false" />
 							</when>
 							<when value="already_contiged">
 								<repeat name="samples" title="Samples" min="1">
