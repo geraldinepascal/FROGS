@@ -148,6 +148,24 @@
                  OR
                  sudo yum install util-linux
 
+    Pynast
+        Version: >= 1.2.2
+        Named as: pynast
+        Tools: tree
+        Download: https://pypi.python.org/pypi/pynast
+
+    Mafft
+        Version: >= v7.222
+        Named as: mafft
+        Tools: tree
+        Download: http://mafft.cbrc.jp/alignment/software/
+
+    Fasttree
+        Version: >= 2.1.9
+        Named as: FastTree
+        Tools: tree
+        Download: http://www.microbesonline.org/fasttree/#Install
+
 ### 4. Check intallation
     To check your installation you can type:
         cd <FROGS_PATH>/test

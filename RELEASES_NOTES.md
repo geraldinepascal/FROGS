@@ -1,8 +1,11 @@
 # v1.5.0  [DEV]
+### Tools added : 
+  * Tree : perform phylogenetic tree reconstruction based on Pynast of Mafft and Fasttree
+
 ### Bugs fixes:
   * Preprocess : min overlap at least equal to 1
 
-### unctions added:
+### Functions added:
   * Preprocess: add Flash mismatch rate option
 
 # v1.4.0  [2017-02-04]
