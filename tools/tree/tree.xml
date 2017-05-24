@@ -1,0 +1,123 @@
+<?xml version="1.0"?>
+<!--
+# Copyright (C) 2017 INRA
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+-->
+<tool id="FROGS_Tree" name="FROGS Tree" version="1.0.0">
+	<description>Reconstruction of phylogenetic tree </description>
+	<command interpreter="python2.7">frogs_tree.py 
+                                            --input-otu $input_otu
+                                              #if $template.fileTemplate
+                                            --template-pynast ${template.template_pynast}
+                                              #end if
+                                            --biomfile $biomfile
+                                            --nb-cpus $nb_cpus
+                                            --out-tree $out_tree
+                                            --html $html
+	</command>
+    <inputs>
+		<!-- Files -->
+		<param format="fasta" name="input_otu" type="data" label="OTUs's sequences file" help="OTUs's sequences file (format: fasta). Warning: FROGS Tree is only working on less than 10000 sequences!" optional="false">
+            <validator type="empty_field" message="This parameter is required." />
+        </param>
+		<conditional name="template">
+			<param name="fileTemplate" type="boolean" label="Do you have the template alignment file ?" help="If yes, precise the template multi-alignment file." optional="false" />
+		    <when value="false"></when>           
+		    <when value="true">
+				<param format="fasta" name="template_pynast" type="data" label="Template alignment file" help="Template multi-alignment file (format: fasta)." optional="false" />
+			</when>
+		</conditional>
+        <param format="biom1" name="biomfile" type="data" label="Biom file" help="The file contains the  OTU's informations (format: biom)." optional="false">
+            <validator type="empty_field" message="This parameter is required." />
+        </param>
+        <!-- Parameter -->
+        <param name="nb_cpus" type="hidden" label="CPU number" help="The maximum number of CPUs used." value="1" />	
+    </inputs>
+	<outputs>
+		<data format="nhx" name="out_tree" label="${tool.name}: tree.nwk" from_work_dir="tree.nwk"/>
+        <data format="html" name="html" label="${tool.name}: summary.html" from_work_dir="summary.html"/>
+	</outputs>
+	<help>
+.. image:: ${static_path}/images/tools/frogs/FROGS_logo.png 
+   :height: 144
+   :width: 110
+
+.. class:: infomark page-header h2
+
+What it does
+
+Multiple alignment with `PyNAST &lt;http://biocore.github.io/pynast/&gt;`_ (if you have an alignment template file) or with `Mafft &lt;http://mafft.cbrc.jp/alignment/software&gt;`_ (if you haven't an aligned template file)
+and built a phylogenetic tree with `FastTree &lt;http://www.microbesonline.org/fasttree/&gt;`_.
+
+.. class:: infomark page-header h2
+
+Inputs/Outputs
+
+.. class:: h3
+
+Input
+
+**OTUs file**:
+
+The OTUs sequence file (format `FASTA &lt;https://en.wikipedia.org/wiki/FASTA_format&gt;`_).
+Attention: FROGS Tree is only working on less than 10000 sequences!
+ 
+ .. image:: ${static_path}/images/tools/frogs/frogs_tree_otufile.png
+
+**(optional) Template alignment file**:
+
+ A pre-aligned database of sequences (the “template” sequence) (format `multiple alignement &lt;https://en.wikipedia.org/wiki/Multiple_sequence_alignment&gt;`_).
+
+ .. image:: ${static_path}/images/tools/frogs/frogs_tree_templatefile.png 
+     
+**OTUs biom file**:
+
+The OTUs biom file (format `biom1 &lt;http://biom-format.org/documentation/format_versions/biom-1.0.html&gt;`_).
+These file is the result of FROGS.
+
+.. class:: h3
+
+Outputs
+
+**Newick file** (tree.nwk):
+
+Newick file (format `nxh &lt;https://en.wikipedia.org/wiki/Newick_format&gt;`_).
+
+ .. image:: ${static_path}/images/tools/frogs/frogs_tree_treefile.png
+  
+Use 'phyloviz' of Galaxy to view Newick file.
+
+ .. image:: ${static_path}/images/tools/frogs/frogs_tree_view_phyloviz.png
+     :height: 434
+     :width: 249
+
+**Html file** (summary.html):
+   
+The summary of OTUs in and out of phylogenetic tree(format `HTML &lt;https://en.wikipedia.org/wiki/HTML&gt;`_).
+
+.. class:: infomark page-header h2
+   
+**Contact**
+
+Contacts: frogs@toulouse.inra.fr
+
+Repository: https://github.com/geraldinepascal/FROGS
+
+Please cite the FROGS Publication: *Escudie F., Auer L., Bernard M., Cauquil L., Vidal K., Maman S., Mariadassou M., Hernadez-Raquet G., Pascal G., 2015. FROGS: Find Rapidly OTU with Galaxy Solution. In: The environmental genomic Conference, Montpellier, France,* http://bioinfo.genotoul.fr/fileadmin/user_upload/FROGS_2015_GE_Montpellier_poster.pdf
+
+Depending on the help provided you can cite us in acknowledgements, references or both.
+	
+	</help>
+</tool>
