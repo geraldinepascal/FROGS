@@ -17,7 +17,7 @@
 -->
 <tool id="FROGS_Tree" name="FROGS Tree" version="1.0.0">
 	<description>Reconstruction of phylogenetic tree </description>
-	<command interpreter="python2.7">frogs_tree.py 
+	<command interpreter="python2.7">tree.py 
                                             --input-otu $input_otu
                                               #if $template.fileTemplate
                                             --template-pynast ${template.template_pynast}
