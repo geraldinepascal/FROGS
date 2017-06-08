@@ -29,7 +29,7 @@
 	</command>
     <inputs>
 		<!-- Files -->
-		<param format="fasta" name="input_otu" type="data" label="OTUs's sequences file" help="OTUs's sequences file (format: fasta). Warning: FROGS Tree is only working on less than 10000 sequences!" optional="false">
+		<param format="fasta" name="input_otu" type="data" label="OTUs sequence file" help="OTUs sequence file (format: fasta). Warning: FROGS Tree does not work on more than 10000 sequences!" optional="false">
             <validator type="empty_field" message="This parameter is required." />
         </param>
 		<conditional name="template">
@@ -39,7 +39,7 @@
 				<param format="fasta" name="template_pynast" type="data" label="Template alignment file" help="Template multi-alignment file (format: fasta)." optional="false" />
 			</when>
 		</conditional>
-        <param format="biom1" name="biomfile" type="data" label="Biom file" help="The file contains the  OTU's informations (format: biom)." optional="false">
+        <param format="biom1" name="biomfile" type="data" label="Biom file" help="The abundance table of OTUs (format: biom)." optional="false">
             <validator type="empty_field" message="This parameter is required." />
         </param>
         <!-- Parameter -->
@@ -58,8 +58,8 @@
 
 What it does
 
-Multiple alignment with `PyNAST &lt;http://biocore.github.io/pynast/&gt;`_ (if you have an alignment template file) or with `Mafft &lt;http://mafft.cbrc.jp/alignment/software&gt;`_ (if you haven't an aligned template file)
-and built a phylogenetic tree with `FastTree &lt;http://www.microbesonline.org/fasttree/&gt;`_.
+Creation of a multiple alignment of OTUs with `PyNAST &lt;http://biocore.github.io/pynast/&gt;`_ (if you have an alignment template file) or with `Mafft &lt;http://mafft.cbrc.jp/alignment/software&gt;`_ (if you have not an aligned template file).
+And creation of a phylogenetic tree with `FastTree &lt;http://www.microbesonline.org/fasttree/&gt;`_.
 
 .. class:: infomark page-header h2
 
@@ -69,23 +69,23 @@ Inputs/Outputs
 
 Input
 
-**OTUs file**:
+**OTUs fasta file**:
 
 The OTUs sequence file (format `FASTA &lt;https://en.wikipedia.org/wiki/FASTA_format&gt;`_).
-Attention: FROGS Tree is only working on less than 10000 sequences!
+Careful: FROGS Tree works only with less than 10 000 sequences!
  
  .. image:: ${static_path}/images/tools/frogs/frogs_tree_otufile.png
 
 **(optional) Template alignment file**:
 
- A pre-aligned database of sequences (the “template” sequence) (format `multiple alignement &lt;https://en.wikipedia.org/wiki/Multiple_sequence_alignment&gt;`_).
+A pre-aligned database of sequences (the “template” sequence) (format `multiple alignement &lt;https://en.wikipedia.org/wiki/Multiple_sequence_alignment&gt;`_).
 
  .. image:: ${static_path}/images/tools/frogs/frogs_tree_templatefile.png 
      
 **OTUs biom file**:
 
 The OTUs biom file (format `biom1 &lt;http://biom-format.org/documentation/format_versions/biom-1.0.html&gt;`_).
-These file is the result of FROGS.
+This file can be obtained in particular with the FROGS pipeline.
 
 .. class:: h3
 
@@ -93,19 +93,13 @@ Outputs
 
 **Newick file** (tree.nwk):
 
-Newick file (format `nxh &lt;https://en.wikipedia.org/wiki/Newick_format&gt;`_).
+The phylogenetic tree in Newick format (format `nxh &lt;https://en.wikipedia.org/wiki/Newick_format&gt;`_).
 
  .. image:: ${static_path}/images/tools/frogs/frogs_tree_treefile.png
-  
-Use 'phyloviz' of Galaxy to view Newick file.
-
- .. image:: ${static_path}/images/tools/frogs/frogs_tree_view_phyloviz.png
-     :height: 434
-     :width: 249
 
 **Html file** (summary.html):
    
-The summary of OTUs in and out of phylogenetic tree(format `HTML &lt;https://en.wikipedia.org/wiki/HTML&gt;`_).
+The summary file describing which OTUs are contained or not in the phylogenetic tree (format `HTML &lt;https://en.wikipedia.org/wiki/HTML&gt;`_).
 
 .. class:: infomark page-header h2
    
@@ -115,7 +109,7 @@ Contacts: frogs@toulouse.inra.fr
 
 Repository: https://github.com/geraldinepascal/FROGS
 
-Please cite the FROGS Publication: *Escudie F., Auer L., Bernard M., Cauquil L., Vidal K., Maman S., Mariadassou M., Hernadez-Raquet G., Pascal G., 2015. FROGS: Find Rapidly OTU with Galaxy Solution. In: The environmental genomic Conference, Montpellier, France,* http://bioinfo.genotoul.fr/fileadmin/user_upload/FROGS_2015_GE_Montpellier_poster.pdf
+Please cite the FROGS Publication: *Escudie F., Auer L., Bernard M., Cauquil L., Vidal K., Maman S., Mariadassou M., Combes S., Hernandez-Raquet G., Pascal G., 2016. FROGS: Find Rapidly OTU with Galaxy Solution. In: ISME-2016 Montreal, CANADA ,* http://bioinfo.genotoul.fr/wp-content/uploads/FROGS_ISME2016_poster.pdf
 
 Depending on the help provided you can cite us in acknowledgements, references or both.
 	

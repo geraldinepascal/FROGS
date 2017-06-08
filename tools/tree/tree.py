@@ -25,6 +25,7 @@ __status__ = 'prod'
 import os
 import sys
 import argparse
+import json
 from numpy import median
 
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -170,7 +171,7 @@ def write_summary( summary_file, pynast_fail, biomfile, treefile):
     # to summary OTUs number && abundances number				
     detection_categories =["Taxonomic Information", "Abundance Number", "% with abundance total", "Sequence length"]
     table_otu_out =[]
-    remove_info = {
+    summary_info = {
        'number_otu_all' : 0,
        'otu_kept' : 0,
        'otu_removed' : 0,
@@ -182,59 +183,57 @@ def write_summary( summary_file, pynast_fail, biomfile, treefile):
     # to build one metadata for tree view
     dic_otu={}
     treefile = open(treefile, "r")
-    newick = treefile.read()
+    newick = treefile.read().strip()
     list_otu_all=biom.get_observations_names()
-    list_otu_otu_tree=[]
+    list_out_tree=[]
     for observation_name in biom.get_observations_names():
-        remove_info['number_otu_all'] +=1
-        remove_info['number_abundance_all'] += biom.get_observation_count(observation_name)
-    if pynast_fail is None:
-        method_alignment="MAFFT"
-        remove_info['otu_removed']=0
-        remove_info['abundance_removed']=0
-        list_otu_in_tree=list_otu_all
-    else:
-        method_alignment="PyNAST"
-        for record in (FastaIO(pynast_fail)):
-            remove_info['otu_removed'] +=1
-            remove_info['abundance_removed'] += biom.get_observation_count(record.id)
-    # to built one table of OTUs out of phylogenetic tree
+        summary_info['number_otu_all'] +=1
+        summary_info['number_abundance_all'] += biom.get_observation_count(observation_name)
+
+    if pynast_fail is not None:
         for otu in FastaIO(pynast_fail):
-            metadata=str("; ".join(biom.get_observation_taxonomy( otu.id, "taxonomy" ) if biom.has_observation_metadata( 'taxonomy' ) else biom.get_observation_taxonomy( otu.id, "blast_taxonomy" )))
+            summary_info['otu_removed'] +=1
+            summary_info['abundance_removed'] += biom.get_observation_count(otu.id)
+            
+            # to built one table of OTUs out of phylogenetic tree
+            taxonomy=""
+            if biom.has_metadata("taxonomy") or biom.has_metadata("blast_taxonomy"):
+                taxonomy=";".join(biom.get_observation_taxonomy( otu.id, "taxonomy" )) if biom.has_observation_metadata( 'taxonomy' ) else ";".join(biom.get_observation_taxonomy( otu.id, "blast_taxonomy" ))
             abundance=biom.get_observation_count(otu.id)
-            percent_abundance=abundance*100/(float(remove_info['number_abundance_all']))
+            percent_abundance=abundance*100/(float(summary_info['number_abundance_all']))
             length=len(otu.string)
-            info={"name": otu.id, "data": [metadata, abundance, percent_abundance, length]}
+            info={"name": otu.id, "data": [taxonomy, abundance, percent_abundance, length]}
             table_otu_out.append(info)
-            list_otu_otu_tree.append(otu.id)
-        list_otu_in_tree=[item for item in list_otu_all if item not in list_otu_otu_tree]
+            list_out_tree.append(otu.id)
+
+    list_in_tree=[item for item in list_otu_all if item not in list_out_tree]
     
-    list_otu_tax=[]
-    for otu in list_otu_in_tree:
-            tax=biom.get_observation_taxonomy(otu, "taxonomy" ) if biom.has_observation_metadata( 'taxonomy' ) else biom.get_observation_taxonomy(otu, "blast_taxonomy")
-            otu_tax=otu+'_'+str('_'.join(tax))
-            list_otu_tax.append(otu_tax)
-            newick=newick.replace(otu, otu_tax)
-    node=str(",".join(list_otu_tax))
-    remove_info['otu_kept'] = remove_info['number_otu_all'] - remove_info['otu_removed']
-    remove_info['abundance_kept'] = remove_info['number_abundance_all'] - remove_info['abundance_removed']
+    for otu in list_in_tree:
+        tax=None
+        if biom.has_metadata("taxonomy") or biom.has_metadata("blast_taxonomy"):
+            tax=" ".join(biom.get_observation_taxonomy(otu, "taxonomy" )) if biom.has_observation_metadata( 'taxonomy' ) else " ".join(biom.get_observation_taxonomy(otu, "blast_taxonomy"))
+        if tax :
+            newick=newick.replace(otu, otu+" "+tax)
+            
+    summary_info['otu_kept'] = summary_info['number_otu_all'] - summary_info['otu_removed']
+    summary_info['abundance_kept'] = summary_info['number_abundance_all'] - summary_info['abundance_removed']
     # Write
     FH_summary_tpl = open( os.path.join(CURRENT_DIR, "tree_tpl.html") )
     FH_summary_out = open( summary_file, "w" )
     for line in FH_summary_tpl:
+        if "###HEIGHT###" in line:
+            line = line.replace( "###HEIGHT###", json.dumps(summary_info['otu_kept']*11+166))
         if "###NEWICK###" in line:
-            line = line.replace( "###NEWICK###", str(newick)).replace('\n','')
-        if "###NODE###" in line:
-            line = line.replace( "###NODE###", node)
+            line = line.replace( "###NEWICK###", newick)
         if "###DETECTION_CATEGORIES###" in line:
-            line = line.replace( "###DETECTION_CATEGORIES###", str(detection_categories) )
+            line = line.replace( "###DETECTION_CATEGORIES###", json.dumps(detection_categories) )
         elif "###DETECTION_DATA###" in line:
-            line = line.replace( "###DETECTION_DATA###", str(table_otu_out) )
+            line = line.replace( "###DETECTION_DATA###", json.dumps(table_otu_out) )
         elif "###REMOVE_DATA###" in line:
-            line = line.replace( "###REMOVE_DATA###", str(remove_info) )
-        elif '<!-- <li role="presentation"><a data-toggle="tab" href="#OTUtable">Table of failed OTUs</a></li> -->' in line:
-            if remove_info['otu_removed']!=0:
-                line = line.replace( '<!-- <li role="presentation"><a data-toggle="tab" href="#OTUtable">Table of failed OTUs</a></li> -->', '<li role="presentation"><a data-toggle="tab" href="#OTUtable">Table of failed OTUs</a></li>' )
+            line = line.replace( "###REMOVE_DATA###", json.dumps(summary_info) )
+        elif '<div id="OTUs-fail" style="display:none;">' in line:
+            if summary_info['otu_removed']!=0:
+                line = line.replace( 'style="display:none;"', '' )
         FH_summary_out.write(line)
     FH_summary_out.close()
     FH_summary_tpl.close()

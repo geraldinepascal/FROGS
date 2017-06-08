@@ -44,12 +44,56 @@
 				float: none !important;
             }
             #phylocanvas {
-                width: 1000px;
-                height: 3000px;
-			}
+                width: 1150px;
+                height: ###HEIGHT###px;
+            }
+            .onoffswitch {
+                position: relative; width: 90px;
+                -webkit-user-select:none; -moz-user-select:none; -ms-user-select: none;
+            }
+            .onoffswitch-checkbox {
+                display: none;
+            }
+            .onoffswitch-label {
+                display: block; overflow: hidden; cursor: pointer;
+                border: 2px solid #999999; border-radius: 20px;
+            }
+            .onoffswitch-inner {
+                display: block; width: 200%; margin-left: -100%;
+                transition: margin 0.3s ease-in 0s;
+            }
+            .onoffswitch-inner:before, .onoffswitch-inner:after {
+                display: block; float: left; width: 50%; height: 30px; padding: 0; line-height: 30px;
+                font-size: 14px; color: white; font-family: Trebuchet, Arial, sans-serif; font-weight: bold;
+                box-sizing: border-box;
+            }
+            .onoffswitch-inner:before {
+                content: "ON";
+                padding-left: 10px;
+                background-color: #34A7C1; color: #FFFFFF;
+            }
+            .onoffswitch-inner:after {
+                content: "OFF";
+                padding-right: 10px;
+                background-color: #EEEEEE; color: #999999;
+                text-align: right;
+            }
+            .onoffswitch-switch {
+                display: block; width: 18px; margin: 6px;
+                background: #FFFFFF;
+                position: absolute; top: 0; bottom: 0;
+                right: 56px;
+                border: 2px solid #999999; border-radius: 20px;
+                transition: all 0.3s ease-in 0s; 
+            }
+            .onoffswitch-checkbox:checked + .onoffswitch-label .onoffswitch-inner {
+                margin-left: 0;
+            }
+            .onoffswitch-checkbox:checked + .onoffswitch-label .onoffswitch-switch {
+                right: 0px; 
+            }
 		</style>
-		<!-- JS -->
-        <script type="application/javascript" src="https://cdn.rawgit.com/PhyloCanvas/PhyloCanvas/v1.7.1/src/scripts/PhyloCanvas.js"></script>
+        <script type="application/javascript" src="https://cdn.rawgit.com/phylocanvas/phylocanvas-quickstart/v2.8.1/phylocanvas-quickstart.js"></script>
         <script src="https://code.jquery.com/jquery-3.1.1.slim.min.js"></script>
         <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
 		<script type="text/javascript" src="http://code.jquery.com/jquery-2.1.3.min.js"></script>
@@ -241,29 +285,26 @@
 				$('#details-csv-export').datatableExport({
 					'table_id': "details-table"
 				});
-                // Construct tree object
-                var phylocanvas = new PhyloCanvas.Tree('phylocanvas');
-
-                // Rectancgular tree
-                phylocanvas.setTreeType('rectangular');
-                phylocanvas.setTextSize(12)
-                phylocanvas.selectedColour="rgb(255, 128, 0)";
-                // Initialize newick string
-                var newick_str = "###NEWICK###";
-
-                phylocanvas.nodeAlign = true;
-                phylocanvas.alignLabels = true;
-                // Load and draw tree
-                phylocanvas.load(newick_str);
-
-                // Setting backColour true
-                phylocanvas.backColour = true;
-
-                // Setting different node colour and shape for 1, 2 and 9
-                phylocanvas.setNodeColourAndShape('###NODE###', "rgb(1, 110, 188)", "", 5);
-                phylocanvas.viewMetadataColumns();
-                phylocanvas.showHistory = true;
-                <!--phylocanvas.draw();-->
+                //// Construct tree object
+                var tree = Phylocanvas.createTree('phylocanvas');
+                tree.setTreeType('rectangular');
+                tree.alignLabels = true;
+                tree.setNodeSize(12);
+                tree.setTextSize(12);
+                tree.lineWidth = 1.5;
+                tree.disableZoom = true;
+                $('#myonoffswitch').change(function() {
+                    if(this.checked) {
+                        tree.disableZoom = false;
+                    } else {
+                        tree.disableZoom = true;
+                    }
+                });
+                tree.branchColour = "rgb(1, 110, 188)";
+                tree.selectedColour = "#f95d02";
+                tree.load('###NEWICK###');
+                tree.backColour = true;
+                tree.draw();
 			});
 		</script>
         <script>
@@ -279,30 +320,25 @@
 		
 		<!-- Content -->
 		<div id="content" class="hidden">
-            <h2>FROGS Tree</h2>
-            <ul class="nav nav-pills">
-                  <li role="presentation" class="active"><a data-toggle="tab" href="#summary">Summary</a></li>
-                  <!-- <li role="presentation"><a data-toggle="tab" href="#phylo">Tree View</a></li> -->
-                  <!-- <li role="presentation"><a data-toggle="tab" href="#OTUtable">Table of failed OTUs</a></li> -->
-            </ul>
-            <div id="tab-content" class="tab-content">
-                <div id="summary" role="tabpanel" class="tab-pane fade in active">
-                    <div class="row1">
-                        <div id="nb-otu" class="col-md-6"></div>
-                        <div id="nb-abundance" class="col-md-6"></div>
-                    </div>
-                </div>
-                <div id="phylo" role="tabpanel" class="tab-pane fade">
-                    <div class="row2">
-                        <div id="phylocanvas"></div>
-                    </div>
-                </div>
-                <div id="OTUtable" role="tabpanel" class="tab-pane fade">
-                    <div class="row3">
-                        <div id="OTUs-fail"></div>
-                    </div>
-                </div>
+            <h1 class="page-header">Summary</h1>
+            <div class="row">
+                <div id="nb-otu" class="col-md-6"></div>
+                <div id="nb-abundance" class="col-md-6"></div>
             </div>
+            <div id="OTUs-fail" style="display:none;">
+            	<h1 class="page-header">Table of failed OTUs</h1>
+            </div>
+            <h1 class="page-header">Tree View
+                <h5>Enabling zoom:</h5>
+            </h1>
+            <div class="onoffswitch">
+	            <input type="checkbox" name="onoffswitch" class="onoffswitch-checkbox" id="myonoffswitch">
+	            <label class="onoffswitch-label" for="myonoffswitch">
+	                <span class="onoffswitch-inner"></span>
+	                <span class="onoffswitch-switch"></span>
+	            </label>
+        	</div>
+            <div id="phylocanvas"></div>
         </div>
      </body>
 </html>

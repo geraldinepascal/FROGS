@@ -22,10 +22,9 @@ python tree.py -i data/sequences.fasta \
     -s test/pynast/summary.html \
 	-o test/pynast/frogs.nwk -l test/pynast/tree.log
 
-# arbre mafft
+# # arbre mafft
 mkdir -p test/mafft
 python tree.py -i data/sequences.fasta \
     -b data/sequences.biom \
     -s test/mafft/summary.html \
 	-o test/mafft/frogs.nwk -l test/mafft/tree.log
-
