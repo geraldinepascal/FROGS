@@ -1,4 +1,4 @@
-# v1.5.0  [DEV]
+# v2.0.0  [DEV]
 ### Tools added : 
   * Tree : perform phylogenetic tree reconstruction based on Pynast of Mafft and Fasttree
 
