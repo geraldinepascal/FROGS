@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
-<tool id="FROGS_normalisation" name="FROGS Abundance normalisation" version="1.1.1">
+<tool id="FROGS_normalisation" name="FROGS Abundance normalisation" version="2.0.0">
 	<command interpreter="python2.7">
 		normalisation.py 
 		                       --input-biom $input_biom
@@ -26,8 +26,8 @@
 		                       --summary-file $summary_file 
 	</command>
 	<inputs>
-		<param format="fasta" name="input_fasta" type="data" label="Sequences file" help="Sequences file to normalize (format: fasta)." />
-		<param format="biom1" name="input_biom" type="data" label="Abundance file" help="Abundances file to normalize (format: BIOM)." />
+		<param format="fasta" name="input_fasta" type="data" label="Sequence file" help="Sequence file to normalize (format: fasta)." />
+		<param format="biom1" name="input_biom" type="data" label="Abundance file" help="Abundance file to normalize (format: BIOM)." />
 		<param name="num_reads" type="integer" optional="false" min="1" value="" label="Number of reads" help="The final number of reads per sample." />
 	</inputs>
 	<outputs>
@@ -46,7 +46,7 @@
 
 What it does
 
-Keeps in each sample the same number of element by random sampling.
+This tool keeps, in each sample, the same number of elements by random sampling.
 
 .. class:: infomark page-header h2
 
@@ -68,11 +68,11 @@ The abundance of each OTU in each sample (format `BIOM &lt;http://biom-format.or
 
 Outputs
 
-**Sequence file** (normalized_seed.fasta):
+**Sequence file** (normalised_seed.fasta):
 
  The normalised sequences file (format `FASTA &lt;https://en.wikipedia.org/wiki/FASTA_format&gt;`_).
 
-**Abundance file** (normalized_abundance.biom):
+**Abundance file** (normalised_abundance.biom):
 
  The normalised abundance file (format `BIOM &lt;http://biom-format.org/&gt;`_).
 
@@ -96,7 +96,7 @@ Contacts: frogs@toulouse.inra.fr
 
 Repository: https://github.com/geraldinepascal/FROGS
 
-Please cite the FROGS Publication: *Escudie F., Auer L., Bernard M., Cauquil L., Vidal K., Maman S., Mariadassou M., Hernadez-Raquet G., Pascal G., 2015. FROGS: Find Rapidly OTU with Galaxy Solution. In: The environmental genomic Conference, Montpellier, France,* http://bioinfo.genotoul.fr/fileadmin/user_upload/FROGS_2015_GE_Montpellier_poster.pdf
+Please cite the FROGS Publication: *Escudie F., Auer L., Bernard M., Cauquil L., Vidal K., Maman S., Mariadassou M., Combes S., Hernandez-Raquet G., Pascal G., 2016. FROGS: Find Rapidly OTU with Galaxy Solution. In: ISME-2016 Montreal, CANADA ,* http://bioinfo.genotoul.fr/wp-content/uploads/FROGS_ISME2016_poster.pdf
 
 Depending on the help provided you can cite us in acknowledgements, references or both.
 	</help> 

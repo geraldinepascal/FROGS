@@ -1,3 +1,13 @@
+# v2.0.0  [DEV]
+### Tools added : 
+  * Tree : perform phylogenetic tree reconstruction based on Pynast or Mafft and Fasttree
+
+### Bugs fixes:
+  * Preprocess : min overlap at least equal to 1
+
+### Functions added:
+  * Preprocess: add Flash mismatch rate option
+
 # v1.4.0  [2017-02-04]
 ### Bugs fixes:
   * Preprocess: error in final dereplication with hudge number of samples.
@@ -5,6 +15,8 @@
   * Clusters_stat: error with empty samples in hierarchical clustering.
   * Filters: error when only the filter on contamination is used.
   * Filters: bug when using other filters than abundance (check parameter when None).
+  * Tsv2Biom : bug fix when using a tsv file comming from a standard biom file
+  * Affiliations_stat : bug in rarefaction step computation when sample are empty
 
 ### Functions added:
   * Preprocess: new amplicon length graph.
