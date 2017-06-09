@@ -108,11 +108,11 @@ Format
 BARCODE_FILE :
  This file is expected to be tabulated
 		
- - first column corresponds to the sample name
+ -first column corresponds to the sample name
  
- - second column corresponds to the sequence barcode used
+ -second column corresponds to the sequence barcode used
  
- - third column (optional) corresponds to the reverse sequence barcode
+ -third column (optional) corresponds to the reverse sequence barcode
  
 .. class:: warningmark
 
@@ -131,13 +131,13 @@ Example of barcode file: Here the sample is multiplexed by both fragment ends.
 FASTQ : 
  Text file describing biological sequences in a 4 line format: 
 		
- - first line starts by "@" corresponds to the sequence identifier and optionally the sequence description
+ -first line starts by "@" corresponds to the sequence identifier and optionally the sequence description
  
- - second line is the sequence itself
+ -second line is the sequence itself
  
- - third line is a "+" following by the sequence identifier or not depending on the version
+ -third line is a "+" following by the sequence identifier or not depending on the version
  
- - fourth line is the quality sequence, one code per base. The code depends on its version and the sequencer
+ -fourth line is the quality sequence, one code per base. The code depends on its version and the sequencer
  
 `Click here for more details on the fastq format &lt;https://en.wikipedia.org/wiki/FASTQ_format&gt;`_
 
