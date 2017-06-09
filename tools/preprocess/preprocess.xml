@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
-<tool id="FROGS_preprocess" name="FROGS Pre-process" version="1.7.0">
+<tool id="FROGS_preprocess" name="FROGS Pre-process" version="2.0.0">
 	<description>Step 1 in metagenomics analysis: denoising and dereplication.</description>
 	<command interpreter="python2.7">
 		preprocess.py $sequencer_type.sequencer_selected
@@ -79,7 +79,7 @@
 	<inputs>
 		<param name="nb_cpus" type="hidden" label="CPU number" help="The maximum number of CPUs used." value="1" />
 		<conditional name="sequencer_type">
-			<param name="sequencer_selected" type="select" label="Sequencer" help="Select the sequencer family used to produce the sequences.">
+			<param name="sequencer_selected" type="select" label="Sequencer" help="Select the sequencing technology used to produce the sequences.">
 				<option value="illumina" selected="true">Illumina</option>
 				<option value="454">454</option>
 			</param>
@@ -93,7 +93,7 @@
 					<when value="archive">
 						<param name="archive_file" type="data" label="Archive file" help="The tar file containing the sequences file(s) for each sample." optional="false" />
 						<conditional name="archive_type">
-							<param name="archive_type_selected" type="select" label="Reads already contiged ?" help="The archive contains 1 file by sample : Reads 1 and Reads 2 are already contiged by pair.">
+							<param name="archive_type_selected" type="select" label="Reads already contiged ?" help="The archive contains 1 file by sample : R1 and R2 are already merged by pair.">
 								<option value="paired" selected="true">No</option>
 								<option value="already_contiged">Yes</option>
 							</param>
@@ -109,7 +109,7 @@
 					</when>
 					<when value="files_by_samples">
 						<conditional name="files_by_samples_type">
-							<param name="files_by_samples_type_selected" type="select" label="Reads already contiged ?" help="The inputs contain 1 file by sample : Reads 1 and Reads 2 are already contiged by pair.">
+							<param name="files_by_samples_type_selected" type="select" label="Reads already contiged ?" help="The inputs contain 1 file by sample : R1 and R2 are already merged by pair.">
 								<option value="paired" selected="true">No</option>
 								<option value="already_contiged">Yes</option>
 							</param>
@@ -126,14 +126,14 @@
 								<param name="R1_size" type="integer" label="Reads 1 size" help="The read1 size." value="" optional="false" />
 								<param name="R2_size" type="integer" label="Reads 2 size" help="The read2 size." value="" optional="false" />
 								<param name="expected_amplicon_size" type="integer" label="Expected amplicon size" help="Maximum amplicon length expected in approximately 90% of the amplicons." value="" />
-								<param name="mm_rate" type="float" label="mismatch rate." help="The maximum rate of mismatch in the overlap region" value="0.1" optional="false" />
+								<param name="mm_rate" type="float" label="mismatch rate." help="The maximum rate of mismatches in the overlap region" value="0.1" optional="false" />
 							</when>
 							<when value="already_contiged">
 								<repeat name="samples" title="Samples" min="1">
 									<param name="name" type="text" label="Name" help="The sample name." optional="false">
 										<validator type="empty_field" message="This parameter is required." />
 									</param>
-									<param format="fastq" name="R1_file" type="data" label="Sequence file" help="FASTQ file of contiged reads." />
+									<param format="fastq" name="R1_file" type="data" label="Sequence file" help="FASTQ file of merged reads." />
 								</repeat>
 							</when>
 						</conditional>
@@ -217,7 +217,7 @@ Inputs/Outputs
 
 Inputs
 
-By sample your sequences and their qualities.
+Sample files added one after another or provide in an archive file (tar.gz).
 
 .. container:: row
 
@@ -225,13 +225,13 @@ By sample your sequences and their qualities.
 
   **Illumina inputs**
 
-   :Usage: The amplicons have been sequenced in paired-end. The amplicon expected length is inferior than the R1 and R2 length. R1 and R2 can be merge by the common region.
+   :Usage: For samples sequenced in paired-end. The amplicon length must be inferior to the length of the R1 plus R2 length. R1 and R2 are merged by the common region.
    :Files: One R1 and R2 by sample (format `FASTQ &lt;https://en.wikipedia.org/wiki/FASTA_format&gt;`_)
    :Example: splA_R1.fastq.gz,  splA_R2.fastq.gz,  splB_R1.fastq.gz,  splB_R2.fastq.gz
 
   OR
 
-   :Usage: The single end sequencing cover all the amplicons or the R1 and R2 have already been overlaped.
+   :Usage: For samples sequenced in single-ends or when R1 and R2 reads are already merged.
    :Files: One sequence file by sample (format `FASTQ &lt;https://en.wikipedia.org/wiki/FASTA_format&gt;`_).
    :Example: splA.fastq.gz,  splB.fastq.gz
 
@@ -241,8 +241,6 @@ By sample your sequences and their qualities.
 
    :Files: One sequence file by sample (format `FASTQ &lt;https://en.wikipedia.org/wiki/FASTA_format&gt;`_)
    :Example: splA.fastq.gz,  splB.fastq.gz
-
-These files must be added sample by sample or provide in an archive file (tar.gz).
 
 Remark: In an archive if you use R1 and R2 files they names must end with *_R1* and *_R2*. To upload an archive, see the "Upload archive" tool or if possible create symbolic link on your Galaxy account.
 
@@ -256,17 +254,17 @@ Outputs
 
 **Count file** (count.tsv):
 
- This file contains the count of all uniq sequences in each sample (format `TSV &lt;https://en.wikipedia.org/wiki/Tab-separated_values&gt;`_).
+ This file contains the count of all unique sequences in each sample (format `TSV &lt;https://en.wikipedia.org/wiki/Tab-separated_values&gt;`_).
 
 **Summary file** (report.html):
 
- This file presents the ordered filters and the number of sequences passing these (format `HTML &lt;https://en.wikipedia.org/wiki/HTML&gt;`_).
+ This file reports the number of remaining sequences after each filter (format `HTML &lt;https://en.wikipedia.org/wiki/HTML&gt;`_).
  
  .. image:: ${static_path}/images/tools/frogs/FROGS_preprocess_summary.png 
      :height: 355
      :width: 676 
 
- It presents also the length distribution of the kept sequences.
+ It also presents the length distribution of the remaining sequences.
  
  .. image:: ${static_path}/images/tools/frogs/FROGS_preprocess_lengthsSamples.png 
      :height: 350
@@ -281,11 +279,11 @@ How it works
    :widths: 5, 150, 150
    :class: table table-striped
 
-   "1", "For uncontiged data: contig read1 and read2 with a maximum of 10% mismatch in the overlaped region (`FLASh &lt;http://ccb.jhu.edu/software/FLASH/&gt;`_)", "/"
-   "2", "Filter contig sequence on its length which must be between 'Minimum amplicon size' and 'Maximum amplicon size'", "/"
-   "3", "If sequencing protocol is the illumina standard protocol : Remove sequences where the two primers are not persent and remove primers sequence (`cutadapt &lt;http://cutadapt.readthedocs.org/en/latest/guide.html&gt;`_). The primer search accept 10% of differences", "Remove sequence where the two primers are not persent, remove primers sequence and reverse complement the sequences with strand - (`cutadapt &lt;http://cutadapt.readthedocs.org/en/latest/guide.html&gt;`_). The primer search accept 10% of differences"
-   "4", "Filter sequences on its length and with ambiguous nucleotids", "filter sequences on its length, with ambiguous nucleotids, with at least one homopolymer with size &gt;7nt and with distance between two poor qualities (&lt; 10) of &lt;= 10 nt" 
-   "5", "Dereplicate sequences", "Dereplicate sequences"
+   "1", "For un-merged data: merges R1 and R2 with a maximum of 10% mismatch in the overlaped region (`FLASh &lt;http://ccb.jhu.edu/software/FLASH/&gt;`_)", "/"
+   "2", "Filters merged sequences on their length which must be range between 'Minimum amplicon size' and 'Maximum amplicon size'", "/"
+   "3", "If sequencing protocol is the illumina standard protocol : Removes sequences where the two primers are not present and then remove primers in the remaining sequence (`cutadapt &lt;http://cutadapt.readthedocs.org/en/latest/guide.html&gt;`_). The primer search accepts 10% of differences", "Removes sequences where the two primers are not present, removes primers sequence and reverse complement the sequences on strand -  (`cutadapt &lt;http://cutadapt.readthedocs.org/en/latest/guide.html&gt;`_). The primer search accepts 10% of differences"
+   "4", "Filters sequences on their length and with ambiguous nucleotides", "the tool removes sequences with at least one homopolymer with more than seven nucleotides and with a distance of less than or equal to 10 nucleo-tides between two poor quality positions, i.e. with a Phred quality score lesser than 10" 
+   "5", "Dereplicates sequences", "Dereplicates sequences"
 
 
 .. class:: infomark page-header h2
@@ -296,9 +294,9 @@ Advices/details on parameters
 
 Primers parameters
 
-The custom protocol (`Kozich et al. 2013 &lt;http://www.ncbi.nlm.nih.gov/pmc/articles/PMC3753973/&gt;`_ ) use custom sequencing primers and these primers are the PCR primers. In this case the reads do not contain the PCR primers.
+The (`Kozich et al. 2013 &lt;http://www.ncbi.nlm.nih.gov/pmc/articles/PMC3753973/&gt;`_ ) protocol uses custom sequencing primers which are also the PCR primers. In this case the reads do not contain the PCR primers.
 
-In case of Illumina standard protocol, the primers must provided in 5' to 3' orientation. 
+In case of Illumina standard protocol, the primers must be provided in 5' to 3' orientation. 
 
 .. role:: alert-info
 
@@ -314,7 +312,7 @@ Example:
 
 Amplicons sizes parameters
 
- The two following images shown two examples of perfect values fors sizes parameters.
+ The two following images show two examples of perfect values fors sizes parameters.
 
  .. image:: ${static_path}/images/tools/frogs/FROGS_preprocess_ampliconSize_unimodal.png
     :height: 415
@@ -328,11 +326,11 @@ Amplicons sizes parameters
 
 .. class:: h3
 
-If the filter 'overlapped' reduce drasticaly the number of sequences
+If the filter 'overlapped' reduce drasticaly the number of sequences:
 
- In uncontiged Illumina data, the reduction of dataset by the overlapped is classicaly inferior than 20%. If all your samples loose mostly it can exist a quality problem.
+ In un-merged Illumina data, the reduction of dataset by the overlapped filter is classicaly inferior than 20%. A loss of more than 20% in all samples can highlight a quality problem.
  
- If your overlap between R1 and R2 is superior than 50 nucleotids and the end sequence quality is poor (see `FastQC &lt;http://www.bioinformatics.babraham.ac.uk/projects/fastqc/&gt;`_) you can try to cut the end of your sequences and relaunch preprocess.
+ If the overlap between R1 and R2 is superior to 50 nucleotides and the quality of the end of the sequences is poor (see `FastQC &lt;http://www.bioinformatics.babraham.ac.uk/projects/fastqc/&gt;`_) you can try to cut the end of your sequences and relaunch the preprocess tool.
 
 
 ----
@@ -343,7 +341,7 @@ Contacts: frogs@toulouse.inra.fr
 
 Repository: https://github.com/geraldinepascal/FROGS
 
-Please cite the FROGS Publication: *Escudie F., Auer L., Bernard M., Cauquil L., Vidal K., Maman S., Mariadassou M., Hernadez-Raquet G., Pascal G., 2015. FROGS: Find Rapidly OTU with Galaxy Solution. In: The environmental genomic Conference, Montpellier, France,* http://bioinfo.genotoul.fr/fileadmin/user_upload/FROGS_2015_GE_Montpellier_poster.pdf
+Please cite the FROGS Publication: *Escudie F., Auer L., Bernard M., Cauquil L., Vidal K., Maman S., Mariadassou M., Combes S., Hernandez-Raquet G., Pascal G., 2016. FROGS: Find Rapidly OTU with Galaxy Solution. In: ISME-2016 Montreal, CANADA ,* http://bioinfo.genotoul.fr/wp-content/uploads/FROGS_ISME2016_poster.pdf
 
 Depending on the help provided you can cite us in acknowledgements, references or both.
 	</help> 
