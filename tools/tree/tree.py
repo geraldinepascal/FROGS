@@ -213,7 +213,7 @@ def write_summary( summary_file, pynast_fail, biomfile, treefile):
         if biom.has_metadata("taxonomy") or biom.has_metadata("blast_taxonomy"):
             tax=" ".join(biom.get_observation_taxonomy(otu, "taxonomy" )) if biom.has_observation_metadata( 'taxonomy' ) else " ".join(biom.get_observation_taxonomy(otu, "blast_taxonomy"))
         if tax :
-            newick=newick.replace(otu, otu+" "+tax)
+            newick=newick.replace(otu + ":", otu + " " + tax + ":")
             
     summary_info['otu_kept'] = summary_info['number_otu_all'] - summary_info['otu_removed']
     summary_info['abundance_kept'] = summary_info['number_abundance_all'] - summary_info['abundance_removed']
