@@ -1,6 +1,6 @@
 # v2.0.0  [DEV]
 ### Tools added : 
-  * Tree : perform phylogenetic tree reconstruction based on Pynast of Mafft and Fasttree
+  * Tree : perform phylogenetic tree reconstruction based on Pynast or Mafft and Fasttree
 
 ### Bugs fixes:
   * Preprocess : min overlap at least equal to 1

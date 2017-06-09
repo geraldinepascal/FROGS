@@ -279,7 +279,7 @@ How it works
    :widths: 5, 150, 150
    :class: table table-striped
 
-   "1", "For un-merged data: merges R1 and R2 with a maximum of 10% mismatch in the overlaped region (`FLASh &lt;http://ccb.jhu.edu/software/FLASH/&gt;`_)", "/"
+   "1", "For un-merged data: merges R1 and R2 with a maximum of M% mismatch in the overlaped region (`FLASh &lt;http://ccb.jhu.edu/software/FLASH/&gt;`_). By default M is set to 10%", "/"
    "2", "Filters merged sequences on their length which must be range between 'Minimum amplicon size' and 'Maximum amplicon size'", "/"
    "3", "If sequencing protocol is the illumina standard protocol : Removes sequences where the two primers are not present and then remove primers in the remaining sequence (`cutadapt &lt;http://cutadapt.readthedocs.org/en/latest/guide.html&gt;`_). The primer search accepts 10% of differences", "Removes sequences where the two primers are not present, removes primers sequence and reverse complement the sequences on strand -  (`cutadapt &lt;http://cutadapt.readthedocs.org/en/latest/guide.html&gt;`_). The primer search accepts 10% of differences"
    "4", "Filters sequences on their length and with ambiguous nucleotides", "the tool removes sequences with at least one homopolymer with more than seven nucleotides and with a distance of less than or equal to 10 nucleo-tides between two poor quality positions, i.e. with a Phred quality score lesser than 10" 
@@ -330,8 +330,8 @@ If the filter 'overlapped' reduce drasticaly the number of sequences:
 
  In un-merged Illumina data, the reduction of dataset by the overlapped filter is classicaly inferior than 20%. A loss of more than 20% in all samples can highlight a quality problem.
  
- If the overlap between R1 and R2 is superior to 50 nucleotides and the quality of the end of the sequences is poor (see `FastQC &lt;http://www.bioinformatics.babraham.ac.uk/projects/fastqc/&gt;`_) you can try to cut the end of your sequences and relaunch the preprocess tool.
-
+ If the overlap between R1 and R2 is superior to 50 nucleotides and the quality of the end of the sequences is poor (see `FastQC &lt;http://www.bioinformatics.babraham.ac.uk/projects/fastqc/&gt;`_) you can try to cut the end of your sequences and relaunch the preprocess tool. 
+ You can either raise the mismatch percent in the overlapped region, but not too much!
 
 ----
 
