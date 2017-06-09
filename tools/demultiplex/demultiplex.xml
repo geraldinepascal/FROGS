@@ -15,8 +15,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
-<tool id="FROGS_demultiplex" name="FROGS Demultiplex reads" version="1.1.0">
-	<description>Split by samples the reads in function of inner barcode.</description>
+<tool id="FROGS_demultiplex" name="FROGS Demultiplex reads" version="2.0.0">
+	<description>Attribute reads to samples in function of inner barcode.</description>
 	<command interpreter="python2.7">
 		demultiplex.py
 		#if str( $fastq_input.fastq_input_selector ) == "paired":
@@ -37,7 +37,7 @@
 		<param format="tabular" name="barcode_file" type="data" label="Barcode file" help="This file describes barcodes and samples (one line by sample tabulated separated from barcode sequence(s)). See Help section" optional="false" />
 		
 		<conditional name="fastq_input">
-	      	<param name="fastq_input_selector" type="select" label="Single or Paired-end reads" help="Select between paired and single end data">
+	      	<param name="fastq_input_selector" type="select" label="Single or Paired-end reads" help="Select between paired and single-end data">
 	      		<option value="single">Single</option>
 	        	<option value="paired">Paired</option>
 	        </param>
@@ -51,8 +51,8 @@
       	</conditional>
 
 		<!-- Option -->
-		<param name="mismatches" type="integer" label="barcode mismatches" help="Number of mismatches allowed in barcode" value="0" optional="false" />
-		<param name="end" type="select" label="barcode on which end ?" help="The barcode is at the begining of the forward end or of the reverse end or both?">
+		<param name="mismatches" type="integer" label="Barcode mismatches" help="Number of mismatches allowed in barcode" value="0" optional="false" />
+		<param name="end" type="select" label="Barcode on which end ?" help="The barcode is placed either at the beginning of the forward end or of the reverse end or both?">
 			<option value="bol" selected="true">Forward</option>
 			<option value="eol">Reverse</option>
 			<option value="both">Both ends</option>
@@ -69,7 +69,7 @@
 
 What it does
 
-Classify single or paired end reads in function of barcode forward or reverse in the first or both reads.
+This tool classifies single or paired-end reads in function of barcode forward or reverse in the first or both reads.
 
 **Command line**::
 
@@ -80,9 +80,9 @@ Classify single or paired end reads in function of barcode forward or reverse in
    :widths: 20, 80
    :class: table table-striped
 
-   "FQ_INPUT1", "Fastq input file for the first read (single end or forward read of pair end sequences)"
-   "FQ_INPUT2", "Fastq input file for the second read (only for pair end sequences)"
-   "TXT_BARCODE", "Tabulated text file that describe barcode sequence used to multiplexe sample in your run: SAMPLE_NAME	BARCODE1	[BARCODE2]"
+   "FQ_INPUT1", "Fastq input file for the first read (single-end or forward read of paired-end sequences)"
+   "FQ_INPUT2", "Fastq input file for the second read (only for paired-end sequences)"
+   "TXT_BARCODE", "Tabulated text file that describes barcode sequences used to multiplexe samples: SAMPLE_NAME	BARCODE1	[BARCODE2]"
 
 .. csv-table:: Options
    :header: "Option name", "Meaning"
@@ -97,20 +97,22 @@ Classify single or paired end reads in function of barcode forward or reverse in
    :widths: 20, 80
    :class: table table-striped
 
-   "TXT_SUMMARY_OUTPUT", "A tabulated text file which summarise the number of sequence (pair) for each sample"
+   "TXT_SUMMARY_OUTPUT", "A tabulated text file which summarises the number of sequences (single or paired) for each sample"
    "TARGZ_DEMULT_ARCHIVE_OUTPUT", "A TAR.GZ archive that contains all fastq files for each sample"
-   "TARGZ_UNDEMULT_ARCHIVE_OUTPUT", "A TAR.GZ archive that contains all fastq files for undemultiplexed read"
+   "TARGZ_UNDEMULT_ARCHIVE_OUTPUT", "A TAR.GZ archive that contains all fastq files for undemultiplexed reads"
 
 .. class:: h3
 
 Format
 
-BARCODE_FILE : This file is expected to be tabulated:
- -first column corresponds to the sample name
+BARCODE_FILE :
+ This file is expected to be tabulated
+		
+ - first column corresponds to the sample name
  
- -second one to the sequence barcode used
+ - second column corresponds to the sequence barcode used
  
- -optional third one to the reverse sequence barcode.
+ - third column (optional) corresponds to the reverse sequence barcode
  
 .. class:: warningmark
 
@@ -118,26 +120,28 @@ Take care to indicate sequence barcode in the strand of the read, so you may nee
 
 .. class:: warningmark
 
-Barcode sequence must have the same length
+All barcode sequences must have the same length
  
-example of barcode file. The last column is optional, like this it describes sample multiplexed by both fragment ends.
+Example of barcode file: Here the sample is multiplexed by both fragment ends.
 
 .. image:: ${static_path}/images/tools/frogs/demultiplex_barcode.png
    :height: 18
    :width: 286
 
-FASTQ : Text file describing biological sequence in 4 lines format: 
- -first line start by "@" corresponds to the sequence identifier and optionally the sequence description.
+FASTQ : 
+ Text file describing biological sequences in a 4 line format: 
+		
+ - first line starts by "@" corresponds to the sequence identifier and optionally the sequence description
  
- -second line is the sequence itself
+ - second line is the sequence itself
  
- -third line is a "+" following by the sequence identifier or not depending on the version
+ - third line is a "+" following by the sequence identifier or not depending on the version
  
- -fourth line is the quality sequence, one code per base. The code depends on the version and the sequencer
+ - fourth line is the quality sequence, one code per base. The code depends on its version and the sequencer
  
-`detailed fastq format article &lt;https://en.wikipedia.org/wiki/FASTQ_format&gt;`_
+`Click here for more details on the fastq format &lt;https://en.wikipedia.org/wiki/FASTQ_format&gt;`_
 
-example of fastq read corresponding to the previous barcode file  
+Example of fastq read corresponding to the previous barcode file  
 
 .. image:: ${static_path}/images/tools/frogs/demultiplex_fastq_ex.png
    :height: 57
@@ -148,24 +152,24 @@ example of fastq read corresponding to the previous barcode file
 
 How it works
 
-For each sequence or sequence pair the sequence fragment at the beginning (forward multiplexing) of the (first) read or at the end (reverse multiplexing) of the (second) read will be compare to all barcode sequence.
+For each sequence or sequence pair, the sequence fragment at the beginning (forward multiplexing) of the (first) read or at the end (reverse multiplexing) of the (second) read will be compared to all barcodes of the barecode file.
 
-If this fragment is equal (with less or equal mismatch than the threshold) to one (and only one) barcode, the fragment is trimmed and the sequence will be attributed to the corresponding sample.
+If this fragment is found once and only once (regarding the mismatch threshold), the fragment is trimmed and the sequence will be attributed to the corresponding sample.
 
-Finally fastq files (or pair of fastq files) for each sample are included in an archive, and a report describes how many sequences are attributed for each sample. 
+Finally fastq files (or pair of fastq files) for each sample are included in an archive and a report, describing how many sequences are attributed for each sample, is created.
 
 
 .. class:: infomark page-header h2
 
 Advices
 
-Do not forget to indicate barcode sequence as they actually are in the fastq sequence file, especially if you have data multiplexed via the reverse strand.
+Do not forget to indicate barcode sequence as they really are in the fastq sequence file, especially if you have multiplexed data via the reverse strand.
 
-For the mismatch threshold, we advised you to let the threshold to 0, and if you are not satisfied by the result try with 1. The number of mismatch depends on the length of the barcode, but oftenly those sequences are very short so 1 mismatch is already more than the sequencing error rate.
+For the mismatch threshold, we advised to let the threshold to 0. Then if you are not satisfied by the result try with 1. The number of mismatches depends on the length of the barcode, but frequently this sequences are very short so 1 mismatch is already more than the sequencing error rate.
 
-If you have different barcode length, you must demultiplex your data in different times beginning by the longest barcode set and used the "unmatched" or "ambiguous" sequence with smaller barcode and so on.
+If you have different barcode lengths, you must demultiplex your data in several steps,  beginning by the longest barcode set. Then to trim the barcodes with smaller lengths, you use the "unmatched" or "ambiguous" sequence file with smaller barcodes and so on.
 
-If you have Roche 454 sequences in sff format, you must convert it with some program like `sff2fastq &lt;https://github.com/indraniel/sff2fastq&gt;`_ or sff_to_fastq (installable in Galaxy)
+If you have Roche 454 sequences in sff format, you must convert them with some programs like `sff2fastq &lt;https://github.com/indraniel/sff2fastq&gt;`_ or sff_to_fastq (installable in Galaxy)
 
 
 ----
@@ -176,7 +180,7 @@ Contacts: frogs@toulouse.inra.fr
 
 Repository: https://github.com/geraldinepascal/FROGS
 
-Please cite the FROGS Publication: *Escudie F., Auer L., Bernard M., Cauquil L., Vidal K., Maman S., Mariadassou M., Hernadez-Raquet G., Pascal G., 2015. FROGS: Find Rapidly OTU with Galaxy Solution. In: The environmental genomic Conference, Montpellier, France,* http://bioinfo.genotoul.fr/fileadmin/user_upload/FROGS_2015_GE_Montpellier_poster.pdf
+Please cite the FROGS Publication: *Escudie F., Auer L., Bernard M., Cauquil L., Vidal K., Maman S., Mariadassou M., Combes S., Hernandez-Raquet G., Pascal G., 2016. FROGS: Find Rapidly OTU with Galaxy Solution. In: ISME-2016 Montreal, CANADA ,* http://bioinfo.genotoul.fr/wp-content/uploads/FROGS_ISME2016_poster.pdf
 
 Depending on the help provided you can cite us in acknowledgements, references or both.
 	</help>
