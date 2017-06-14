@@ -1,0 +1,267 @@
+---
+output: html_document
+params:
+   biomfile: 
+      value: x
+   samplefile:
+      value: x
+   treefile:
+      value: x
+   normalization:
+      value: x
+   outputRdata:
+      value: x
+   ranks : 
+      value: x
+---
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<style type="text/css">
+.button {
+    background-color: #2a7ecc; /* Blue */
+    border          : none;
+    color           : white;
+    padding         : 5px 10px;
+    text-align      : center;
+    text-decoration : none;
+    display         : inline-block;
+    font-size       : 12px;
+    margin          : 4px 2px;
+    cursor          : pointer;
+    border-radius   : 8px;
+}
+h4 { 
+    display      : block;
+    font-size    : 1em;
+    margin-top   : 1.33em;
+    margin-bottom: 1.33em;
+    margin-left  : 0;
+    margin-right : 0;
+    font-weight  : bold;
+    color        : #2a7ecc;
+}
+</style>
+
+<script src="https://s3-us-west-2.amazonaws.com/s.cdpn.io/14082/FileSaver.js"></script>
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(error = TRUE)
+```
+<h3>FROGS Phyloseq: Import Data</h3>
+
+ Phyloseq `r packageVersion("phyloseq")`
+ 
+```{r include=FALSE, cache=FALSE}
+library(phyloseq)
+#library(biom)
+library(ape)
+library(ggplot2)
+
+## import data
+biomfile <- params$biomfile
+data     <- import_biom(biomfile)
+tax      <- tax_table(data)[[1]]
+
+if ((gregexpr('k__', tax))[[1]][1]>0) { 
+    data <- import_biom(params$biomfile, parseFunction = parse_taxonomy_greengenes)
+} else {
+## change taxonomic rank names
+    new_rank <- as.list(strsplit(params$ranks, " ")[[1]])
+    colnames(tax_table(data)) <- new_rank
+}
+
+sampledata <- try(read.csv(params$samplefile, sep = "", row.names = 1), TRUE)
+if (inherits(sampledata, "try-error") || ncol(sampledata)==0) {
+    sampledata <- read.csv(params$samplefile, sep = "\t", row.names = 1)
+}
+
+sample_data(data) <- sampledata
+
+if (params$treefile!="None"){
+          treefile <- read.tree(params$treefile)
+    phy_tree(data) <- treefile
+}
+
+## normalization
+if(params$normalization){ data <- rarefy_even_depth(data, rngseed = 1121983)}
+
+## save data
+save(data, file=params$outputRdata)
+```
+
+#{.tabset .tabset-fade .tabset-pills}
+##Summary
+```{r,cache=FALSE, echo=FALSE, comment=NA}
+data
+if(params$normalization){cat(paste('Sequence number in each sample after normalization: ', head(sample_sums(data))[[1]]))}
+```
+
+##Ranks Names
+```{r,cache=FALSE, echo=FALSE, comment=NA}
+if ((gregexpr('k__', tax))[[1]][1]>0) {
+  cat("Warning : Taxonomic affiliations come from Greengenes database, user specified ranks names are ignored.")
+}
+cat(paste('Rank names : ',paste(rank_names(data),collapse=', ')))
+```
+
+##Sample metadata
+```{r,cache=FALSE, echo=FALSE, comment=NA}
+variables <- sample_variables(data)
+cat(paste('Sample variables: ', paste(variables, collapse=', ' )))
+
+for (var in variables){
+  cat(paste(var,': ',paste(levels(factor(get_variable(data, varName = var))),collapse=', '), '\n\n'))
+}
+```
+
+##Plot tree
+```{r, fig.width=10, fig.height=8, cache=FALSE, echo=FALSE, comment=NA}
+
+if(params$treefile!="None"){
+   p <- plot_tree(data, color=rank_names(data)[2]) + ggtitle(paste("Phylogenetic tree colored by", rank_names(data)[2])) + theme(plot.title = element_text(hjust = 0.5))
+   plot(p)
+}
+
+if(params$treefile=="None"){
+   cat("There is no phylogenetic tree in the object you have provided.")
+}
+```
+<button id="dwn-plot-tree" class="button">
+Download image
+</button>
+
+
+##R code
+<h4>Loading packages</h4>
+```{r, eval=FALSE}
+library(phyloseq)
+library(ape)
+library(ggplot2)
+```
+
+<h4>Importing data</h4>
+```{r, eval=FALSE}
+biomfile      <- # path to biom file
+treefile      <- # path to newick file if possible
+samplefile    <- # path to sample tsv file
+outputRdata   <- # path to output Rdata file
+normalization <- # TRUE or FALSE
+ranks         <- # ranks names, ex: ranks <- "Royaume Phylum Classe Ordre Famille Genre Espece"
+
+data <- import_biom(biomfile)
+tax  <- tax_table(data)[[1]]
+
+if ((gregexpr('k__', tax))[[1]][1]>0) { 
+    data <-import_biom(biomfile, parseFunction = parse_taxonomy_greengenes)
+} else {
+## change taxonomic rank names
+    new_rank <- as.list(strsplit(ranks, " ")[[1]])
+    colnames(tax_table(data)) <- new_rank
+}
+sampledata <- try(read.csv(samplefile, sep = "", row.names = 1), TRUE)
+if (inherits(sampledata, "try-error") || ncol(sampledata)==0) {
+    sampledata <- read.csv(samplefile, sep = "\t", row.names = 1)
+}
+
+sample_data(data) <- sampledata
+treefile          <- read.tree(treefile) #if have treefile
+phy_tree(data)    <- treefile
+
+# normalization
+if(normalization) {
+    data <- rarefy_even_depth(data, rngseed = 1121983);
+    cat(paste('Sequence number in each sample after normalization: ', head(sample_sums(data))[[1]], "\n"))
+}
+```
+
+<h4>Saving data</h4>
+```{r, eval=FALSE}
+save(data, file=outputRdata)
+```
+
+<h4>Data view</h4>
+```{r, eval=FALSE}
+data
+## if have treefile
+p <- plot_tree(data, color=rank_names(data)[2]) + ggtitle(paste("Phylogenetic tree colored by", rank_names(data)[2])) + theme(plot.title = element_text(hjust = 0.5))
+plot(p)
+```
+<script>
+header('Content-Type: text/html; charset=utf-8');
+</script>
+
+<div id="code-r-file" style="display:none;" charset=UTF-8>
+library(phyloseq)
+&#10;library(ape)
+&#10;library(ggplot2)
+&#10;## import data
+&#10;biomfile <- # path to biom file
+&#10;treefile <- # path to newick file if possible
+&#10;samplefile <- # path to sample tsv file
+&#10;outputRdata <- # path to output Rdata file
+&#10;normalization <- # TRUE or FALSE
+&#10;ranks <- # ranks names, ex: ranks <- \"Royaume Phylum Classe Ordre Famille Genre Espece\"
+&#10;
+&#10;data <- import_biom(biomfile)
+&#10;tax <- tax_table(data)[[1]]
+&#10;&#10;if ((gregexpr(\'k__\', tax))[[1]][1]>0) { 
+&#10;    data <-import_biom(biomfile, parseFunction = parse_taxonomy_greengenes)
+&#10;} else {
+&#10;## change taxonomic rank names
+&#10;    new_rank <- as.list(strsplit(ranks, \"&#32;\")[[1]])
+&#10;    colnames(tax_table(data)) <- new_rank
+&#10;}
+&#10;sampledata <- try(read.csv(samplefile, sep = \"\", row.names = 1), TRUE)
+&#10;if (inherits(sampledata, \"try-error\") || ncol(sampledata)==0) {
+&#10;    sampledata <- read.csv(samplefile, sep = \"&#92;t\", row.names = 1)
+&#10;}
+&#10;sample_data(data) <- sampledata
+&#10;
+&#10;#if have treefile
+&#10;treefile <- read.tree(treefile)
+&#10;phy_tree(data) <- treefile
+&#10;
+&#10;## normalization
+&#10;if(normalization) { 
+&#10;data <- rarefy_even_depth(data, rngseed = 1121983);
+&#10;cat(paste(\'Sequence number in each sample after normalization: \', head(sample_sums(data))[[1]], \"&#92;n\"))
+&#10;}
+&#10;
+&#10;## save data
+&#10;save(data, file=outputRdata)
+&#10;
+&#10;## data view
+&#10;data
+&#10;#if have treefile
+&#10;p <- plot_tree(data, color=rank_names(data)[2]) + ggtitle(paste(\"Phylogenetic tree colored by\", rank_names(data)[2])) + theme(plot.title = element_text(hjust = 0.5))
+&#10;plot(p)
+</div>
+
+<script>
+  function download(){
+    var text = document.getElementById("code-r-file").textContent;
+    var blob = new Blob([text],{type:"text/plain;charset=utf-8"});
+    saveAs(blob,"import_data_code.R");
+   }
+</script>
+<input type="button" value="Download R code" class="button" onclick="download();"/>
+
+
+<script>
+function download1(filename, mysrc) {
+var element = document.createElement('a');
+    element.setAttribute('href', mysrc);
+    element.setAttribute('download', filename);
+    element.style.display = 'none';
+    document.body.appendChild(element);
+    element.click();
+    document.body.removeChild(element);
+}
+document.getElementById("dwn-plot-tree").addEventListener("click", function(){
+var div = document.getElementById('plot-tree');
+var myimg = div.getElementsByTagName('img')[0];
+var mysrc = myimg.src;
+var filename = "tree_plot.png";
+download1(filename, mysrc);
+}, false);
+</script>
