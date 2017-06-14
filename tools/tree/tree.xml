@@ -95,7 +95,7 @@ Outputs
 
 The phylogenetic tree in Newick format (format `nxh &lt;https://en.wikipedia.org/wiki/Newick_format&gt;`_).
 
- .. image:: ${static_path}/images/tools/frogs/frogs_tree_treefile.png
+ .. image:: ${static_path}/images/tools/frogs/nwk_treefile.png
 
 **Html file** (summary.html):
    
