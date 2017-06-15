@@ -58,7 +58,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
  Phyloseq `r packageVersion("phyloseq")`
 
-```{r, include=FALSE, cache=FALSE}
+```{r, include=FALSE, cache=FALSE, warning=FALSE}
 library(plotly)
 source("https://raw.githubusercontent.com/mahendra-mariadassou/phyloseq-extended/master/load-extra-functions.R") 
 load(params$data)
@@ -77,15 +77,17 @@ Download image
 </button>
 
 ##Composition plot
-```{r, fig.width=10, fig.height=8, echo=FALSE, comment=NA, cache=FALSE, warning=FALSE}
+```{r, echo=FALSE, comment=NA, cache=FALSE, warning=FALSE, include=FALSE}
 taxaSet1 <- unlist(strsplit(params$taxaSet1, " "))
 p        <- plot_composition(data, params$taxaRank1, taxaSet1, params$taxaRank2, params$numberOfTaxa, fill=params$taxaRank2) 
 p        <- p + eval(parse(text = e)) + theme(plot.title = element_text(hjust = 0.5))
 gp <- ggplotly(p)
+```
+```{r, fig.width=10, fig.height=8, echo=FALSE, comment=NA, cache=FALSE, warning=FALSE}
 gp$x$layout$annotations[[1]]$x <- -0.08
+gp$x$layout$margin$l = 75
 gp$x$layout$margin$b = 100
 gp$x$layout$margin$t = 100
-gp$x$layout$margin$l = 75
 gp
 ```
 
