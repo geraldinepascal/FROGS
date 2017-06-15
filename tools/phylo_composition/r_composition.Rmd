@@ -81,7 +81,12 @@ Download image
 taxaSet1 <- unlist(strsplit(params$taxaSet1, " "))
 p        <- plot_composition(data, params$taxaRank1, taxaSet1, params$taxaRank2, params$numberOfTaxa, fill=params$taxaRank2) 
 p        <- p + eval(parse(text = e)) + theme(plot.title = element_text(hjust = 0.5))
-ggplotly(p)
+gp <- ggplotly(p)
+gp$x$layout$annotations[[1]]$x <- -0.08
+gp$x$layout$margin$b = 100
+gp$x$layout$margin$t = 100
+gp$x$layout$margin$l = 75
+gp
 ```
 
 ##R code
