@@ -1,0 +1,159 @@
+---
+output:
+   html_document
+params:
+   data:
+      value: x
+   varExp:
+      value: x
+   taxaRank1:
+      value: x
+   taxaSet1:
+      value: x
+   taxaRank2:
+      value: x
+   numberOfTaxa:
+      value: x
+---
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+<style type="text/css">
+code.r{ /* Code block */
+  font-size: 11px;
+}
+pre{ /* Code block */
+  font-size: 11px
+}
+.button {
+    background-color: #2a7ecc; /* Blue */
+    border          : none;
+    color           : white;
+    padding         : 5px 10px;
+    text-align      : center;
+    text-decoration : none;
+    display         : inline-block;
+    font-size       : 12px;
+    margin          : 4px 2px;
+    cursor          : pointer;
+    border-radius   : 8px;
+}
+h4 { 
+    display      : block;
+    font-size    : 1em;
+    margin-top   : 1.33em;
+    margin-bottom: 1.33em;
+    margin-left  : 0;
+    margin-right : 0;
+    font-weight  : bold;
+    color        : #2a7ecc;
+}
+</style>
+
+<script src="https://s3-us-west-2.amazonaws.com/s.cdpn.io/14082/FileSaver.js"></script>
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+<h3>FROGS Phyloseq: Visualize Data Composition</h3>
+
+ Phyloseq `r packageVersion("phyloseq")`
+
+```{r, include=FALSE, cache=FALSE}
+library(plotly)
+source("https://raw.githubusercontent.com/mahendra-mariadassou/phyloseq-extended/master/load-extra-functions.R") 
+load(params$data)
+```
+
+#{.tabset .tabset-fade .tabset-pills}
+##Bar plot
+```{r, fig.width=10, fig.height=8, echo=FALSE, comment=NA, cache=FALSE}
+e <- paste('facet_wrap(~', params$varExp,', scales = "free_x", nrow = 1)')
+p <- plot_bar(data,fill= params$taxaRank2) + eval(parse(text = e)) + ggtitle(paste("Bar plot colored by", params$taxaRank2))+         theme(plot.title = element_text(hjust = 0.5))
+plot(p)
+```
+<br>
+<button id="dwn-bar-plot" class="button">
+Download image
+</button>
+
+##Composition plot
+```{r, fig.width=10, fig.height=8, echo=FALSE, comment=NA, cache=FALSE, warning=FALSE}
+taxaSet1 <- unlist(strsplit(params$taxaSet1, " "))
+p        <- plot_composition(data, params$taxaRank1, taxaSet1, params$taxaRank2, params$numberOfTaxa, fill=params$taxaRank2) 
+p        <- p + eval(parse(text = e)) + theme(plot.title = element_text(hjust = 0.5))
+ggplotly(p)
+```
+
+##R code
+<h4>Loading packages & data</h4>
+```{r, eval=FALSE}
+library(plotly)
+source("https://raw.githubusercontent.com/mahendra-mariadassou/phyloseq-extended/master/load-extra-functions.R")
+#if in new session 
+#data <- path to Rdata file 
+#load(data)
+```
+
+<h4>Bar plot</h4>
+```{r, comment=NA, cache=FALSE, echo=FALSE}
+taxaSet1 <- paste0("c(\"", paste(unlist(strsplit(params$taxaSet1, " ")), collapse = "\", \""), "\")")
+cat(paste(sep = "","p <- plot_bar(data,fill=", '"', params$taxaRank2, '"', ") + facet_wrap(~", params$varExp, ', scales = "free_x", nrow = 1) + ggtitle("', paste("Bar plot colored by", params$taxaRank2, '")'), '+ theme(plot.title = element_text(hjust = 0.5))', '\nplot(p)'))
+```
+
+<h4>Composition plot</h4>
+```{r, comment=NA, cache=FALSE, echo=FALSE}
+cat(paste(sep = "",'taxaSet1 <- unlist(strsplit(', params$taxaSet1, ', " "))\n', "p <- plot_composition(data,", '"', params$taxaRank1, '" ,taxaSet1 , "', params$taxaRank2, '" ,', params$numberOfTaxa, ', fill="', params$taxaRank2, '"', ") + eval(", parse(text = e),")"),'+ theme(plot.title = element_text(hjust = 0.5))', '\nggplotly(p)')
+```
+
+<div id="code-r-file" style="display:none; charset=UTF-8">
+library(plotly)
+&#10;source(\"https://raw.githubusercontent.com/mahendra-mariadassou/phyloseq-extended/master/load-extra-functions.R \")
+&#10;# if in new session 
+&#10;# data <- path to Rdata file 
+&#10;# load(data)
+&#10;
+&#10;varExp <- #Experiment variable
+&#10;taxaRank1 <- #Taxonomic rank at which to filter your data
+&#10;taxaRank2 <- #Taxonomic rank used for aggregation
+&#10;taxaSet1 <- #Taxa (at previously specified taxonomic rank) to keep in the dataset
+&#10;numberOfTaxa <- #Number of most abundant taxa to keep
+
+&#10;# Bar plot
+&#10;e <- paste(\'facet_wrap(~\', varExp, \', scales = \"free_x\", nrow = 1)\')
+&#10;p <- plot_bar(data,fill= taxaRank2) + eval(parse(text = e)) + ggtitle(paste(\"Bar plot colored by\", taxaRank2))+ theme(plot.title = element_text(hjust = 0.5))
+&#10;plot(p)
+&#10;
+&#10;# composition plot
+&#10;taxaSet1 <- unlist(strsplit(taxaSet1, \"&#32;\"))
+&#10;p <- plot_composition(data, taxaRank1, taxaSet1, taxaRank2, numberOfTaxa, fill=taxaRank2) 
+&#10;p <- p + eval(parse(text = e)) + theme(plot.title = element_text(hjust = 0.5))
+&#10;ggplotly(p)
+</div>
+
+<script>
+  function download1(){
+    var text = document.getElementById("code-r-file").textContent;
+    var blob = new Blob([text],{type:"text/plain;charset=utf-8"});
+    saveAs(blob,"composition_code.R");
+   }
+</script>
+<input type="button" value="Download R code" class="button" onclick="download1();"/>
+
+<script>
+function download(filename, mysrc) {
+var element = document.createElement('a');
+    element.setAttribute('href', mysrc);
+    element.setAttribute('download', filename);
+    element.style.display = 'none';
+    document.body.appendChild(element);
+    element.click();
+    document.body.removeChild(element);
+}
+document.getElementById("dwn-bar-plot").addEventListener("click", function(){
+var div = document.getElementById('bar-plot');
+var myimg = div.getElementsByTagName('img')[0];
+var mysrc = myimg.src;
+var filename = "bar_plot.png";
+download(filename, mysrc);
+}, false);
+</script>
