@@ -88,8 +88,7 @@
     PATH and 'lib' must be accessible in the PYTHONPATH.
 
 ### 3. Install dependencies
-    Dependencies must be accessible in the PATH or added in 
-    <FROGS_PATH>/libexec.
+    Dependencies must be accessible in the PATH or added in <FROGS_PATH>/libexec.
     
     python interpreter
         Version: 2.7
@@ -136,13 +135,13 @@
 
     RDPClassifier
         Version: -
-        Name as: classifier.jar
+        Named as: classifier.jar
         Tools: affiliation_OTU
         Download: https://github.com/rdpstaff/RDPTools
 
     taskset
         Version: util-linux-ng 2.17.2
-        Name as: taskset
+        Named as: taskset
         Tools: affiliation_OTU
         Install: sudo apt-get install util-linux
                  OR
@@ -165,6 +164,52 @@
         Named as: FastTree
         Tools: tree
         Download: http://www.microbesonline.org/fasttree/#Install
+
+    RScript
+        Version : >= 3.3.0
+        Named as : RScript
+        Tools : all FROGS_Phyloseq and FROGS_DESeq
+        Download : https://cran.r-project.org/
+
+    Rmarkdown R package
+        Version : depending on your R version
+        Tools : all FROGS_Phyloseq and FROGS_DESeq
+        Install in R session : # https://cran.r-project.org/web/packages/rmarkdown/index.html
+                               install.packages("rmarkdown")
+
+    Pandoc
+        Version : >= 1.12.3
+        Named as : pandoc
+        Tools : all FROGS_Phyloseq and FROGS_DESeq
+        Download/Installation : # http://pandoc.org/installing.html#linux or simply soft-link pandoc binary from RStudio path (if you have Rstudio installed)
+
+    Phyloseq R package
+        Version : depending on your R version
+        Tools : all FROGS_Phyloseq
+        Installation in R session : # https://joey711.github.io/phyloseq/install.html
+                                    source("https://bioconductor.org/biocLite.R") ; biocLite("phyloseq")
+        Test in R session : library(phyloseq)
+
+    Plotly R package
+        Version : depending on your R version
+        Tools : FROGS_Phyloseq_composition and FROGS_Phyloseq_structure
+        Installation in R session : # https://plot.ly/r/getting-started/
+                                    install.packages("plotly")
+        Test in R session : library(plotly)
+
+    GridExtra R package
+        Version : depending on your R version
+        Tools : FROGS_Phyloseq_Beta_Diversity, FROGS_Phyloseq_Sample_Clustering, FROGS_Phyloseq_composition and FROGS_Phyloseq_structure
+        Installation in R session : # https://cran.r-project.org/web/packages/gridExtra/index.html
+                                    install.packages("gridExtra")
+        Test in R session : library(gridExtra)
+
+    DESeq2 R package
+        Version : depending on your R version
+        Tools : all FROGS_DESeq2_preprocessing FROGS_DESeq2_visualization
+        Installation in R session : # https://bioconductor.org/packages/release/bioc/html/DESeq2.html
+                                    source("https://bioconductor.org/biocLite.R"); biocLite("DESeq2")
+        Test in R session : library(DESeq2)
 
 ### 4. Check intallation
     To check your installation you can type:
