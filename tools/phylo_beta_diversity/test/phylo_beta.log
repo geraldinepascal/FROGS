@@ -1,0 +1,12 @@
+## Application
+Software :r_beta_diversity.py (version : 1.0.0)
+Command : r_beta_diversity.py --data data/data.Rdata --varExp EnvType --methods bray,unifrac,wunifrac,euclidean --output_dir test --html test/phylo_beta.html --log_file test/phylo_beta.log
+
+# Run 1 code Rmarkdown (Rscript version : [1] "R version 3.3.2 (2016-10-31)"
+[1] "Rmarkdown version:  1.4"
+[1] "Phyloseq version:  1.19.1")
+Command:
+	Rscript -e "rmarkdown::render('/home/maria/workspace/git/FROGS_dev/tools/phylo_beta_diversity/r_beta_diversity.Rmd',knit_root_dir='/home/maria/workspace/git/FROGS_dev/tools/phylo_beta_diversity/test',output_file='/home/maria/workspace/git/FROGS_dev/tools/phylo_beta_diversity/test/phylo_beta.html', params=list(data='/home/maria/workspace/git/FROGS_dev/tools/phylo_beta_diversity/data/data.Rdata', varExp='EnvType', methods='bray,unifrac,wunifrac,euclidean'), intermediates_dir='/home/maria/workspace/git/FROGS_dev/tools/phylo_beta_diversity/test')" 2> /dev/null
+Execution:
+	start: 16 Jun 2017 15:42:11
+	end:   16 Jun 2017 15:42:20

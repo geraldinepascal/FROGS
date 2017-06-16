@@ -1,0 +1,106 @@
+<?xml version="1.0"?>
+<!--
+# Copyright (C) 2017 INRA
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+-->
+<tool name="FROGS Phyloseq Beta Diversity" id="FROGS_Phyloseq_Beta_Diversity" version="1.0.0">
+	<description>distance matrix</description>
+	<command interpreter="python">r_beta_diversity.py 
+                                        --data $data
+                                        --varExp $varExp
+                                        --methods $methods,$other_method
+                                        --output_dir BetaMatrix
+                                        --html $html
+	</command>
+    <inputs>
+		<!-- Files -->
+	    <param format="rdata" name="data" type="data" label="Phyloseq object (format rdata)" help="This is the result of FROGS Phyloseq Import Data." optional="false">
+            <validator type="empty_field" message="This parameter is required." />
+        </param>
+		<!-- Parameters -->	
+		<param type="text" name="varExp" label="Experiment variable" help="The experiment variable that you want to analyse." optional="false" value="" size="40">
+            <validator type="empty_field" message="This parameter is required." />
+        </param>
+        <param name="methods" type="select" label="The methods of beta diversity" help="if the tree is not available in your RData, you can't choose Unifrac or Weighted Unifrac" multiple="true" display="checkboxes">
+            <option value="unifrac" selected="False">Unifrac</option>
+            <option value="wunifrac" selected="False">Weighted Unifrac</option>
+            <option value="bray" selected="False">Bray-Curtis</option>
+            <option value="cc" selected="False">Jaccard</option>
+        </param>
+        <param type="text" name="other_method" label="Other method" help="The other method of beta diversity that you want to use." optional="false" value="" size="40"/>
+    </inputs>
+	<outputs>
+        <data format="html" name="html" label="${tool.name}: beta_diversity" from_work_dir="beta_diversity.html">
+            <discover_datasets pattern="__designation__" ext="tabular" directory="BetaMatrix" visible="true"/>
+        </data>
+	</outputs>
+	<help>
+	
+.. image:: ${static_path}/images/tools/frogs/FROGS_logo.png 
+   :height: 144
+   :width: 110
+
+.. class:: infomark page-header h2
+
+What it does
+
+Using `phyloseq &lt;https://joey711.github.io/phyloseq/&gt;`_ and customized R function, this tool compute beta distance matrix and visualize them thanks to a heatmap
+
+
+.. class:: infomark page-header h2
+
+Inputs/Outputs
+
+.. class:: h3
+
+Input
+
+**data file** (format RData):
+One phyloseq object containing OTU's abundance table, their taxonomies and optionnaly a phylogenetic tree, and the sample experiment metadata.
+These file is the result of "FROGS Phyloseq Import Data".
+
+
+.. class:: h3
+
+Output
+
+**html file** (format `HTML &lt;https://en.wikipedia.org/wiki/HTML&gt;`_):
+
+The review of beta diversity with heatmap plots:
+
+.. image:: ${static_path}/images/tools/frogs/phyloseq_beta_diversity.png 
+     :height: 609
+     :width: 800 
+
+
+**beta diversity matrix** (format tabular):
+The distance matrix of beta diversity.
+
+ .. image:: ${static_path}/images/tools/frogs/phyloseq_beta_diversity_matrix.png 
+
+.. class:: infomark page-header h2
+
+**Contact**
+
+Contacts: frogs@toulouse.inra.fr
+
+Repository: https://github.com/geraldinepascal/FROGS
+
+Please cite the FROGS Publication: *Escudie F., Auer L., Bernard M., Cauquil L., Vidal K., Maman S., Mariadassou M., Hernadez-Raquet G., Pascal G., 2015. FROGS: Find Rapidly OTU with Galaxy Solution. In: The environmental genomic Conference, Montpellier, France,* http://bioinfo.genotoul.fr/fileadmin/user_upload/FROGS_2015_GE_Montpellier_poster.pdf
+
+Depending on the help provided you can cite us in acknowledgements, references or both.
+	
+	</help>
+</tool>

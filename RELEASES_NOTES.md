@@ -4,6 +4,7 @@
   * FROGS Phyloseq Import Data : import data from 3 files: biomfile, samplefile, treefile into a phyloseq R object.
   * FROGS Phyloseq Composition Visualization with bar plot and composition plot
   * FROGS Phyloseq Alpha Diversity with richness plot
+  * FROGS Phyloseq Beta Diversity distance matrix
 
 ### Bugs fixes:
   * Preprocess : min overlap at least equal to 1
