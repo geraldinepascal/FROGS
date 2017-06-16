@@ -1,0 +1,498 @@
+---
+output: html_document
+params:
+   data:
+      value: x
+   measures:
+      value: x
+   varExp:
+      value: x
+   fileAlpha:
+      value: x
+---
+
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<style type="text/css">
+code.r{ /* Code block */
+  font-size: 11px;
+}
+pre { /* Code block */
+  font-size: 11px
+}
+.button {
+    background-color: #2a7ecc; /* Blue */
+    border          : none;
+    color           : white;
+    padding         : 5px 10px;
+    text-align      : center;
+    text-decoration : none;
+    display         : inline-block;
+    font-size       : 12px;
+    margin          : 4px 2px;
+    cursor          : pointer;
+    border-radius   : 8px;
+}
+h4 { 
+    display      : block;
+    font-size    : 1em;
+    margin-top   : 1.33em;
+    margin-bottom: 1.33em;
+    margin-left  : 0;
+    margin-right : 0;
+    font-weight  : bold;
+    color        : #2a7ecc;
+}
+</style>
+
+<script src="https://s3-us-west-2.amazonaws.com/s.cdpn.io/14082/FileSaver.js"></script>
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+<h3>FROGS Phyloseq: Alpha Diversity Visualization</h3>
+
+ Phyloseq `r packageVersion("phyloseq")`
+ 
+```{r include=FALSE, cache=FALSE}
+library(phyloseq)
+library(ggplot2)
+load(params$data)
+measures <- as.list(strsplit(params$measures, ",")[[1]])
+```
+
+```{r, echo=FALSE}
+## Numeric values of alpha diversity indices
+alpha.diversity <- estimate_richness(data, measures = measures)
+
+## export diversity to text file
+write.table(alpha.diversity, params$fileAlpha, sep="\t", quote = FALSE, col.names = NA)
+```
+
+#{.tabset .tabset-fade .tabset-pills}
+##Richness plot
+```{r, fig.width=10, fig.height=8, echo=FALSE, comment=NA, warning=FALSE}
+p <- plot_richness(data, x = params$varExp, color = params$varExp, measures = measures) + ggtitle(paste("Alpha diversity distribution in function of", params$varExp))+ theme(plot.title = element_text(hjust = 0.5))
+plot(p)
+```
+<br>
+<button id="dwn-richness-plot" class="button">
+Download image
+</button>
+
+##Richness plot with boxplot
+```{r, fig.width=10, fig.height=8, echo=FALSE, comment=NA, warning=FALSE}
+p <- p + geom_boxplot(alpha = 0.2) +
+         geom_point()+ theme_grey() +
+         theme(axis.text.x = element_text(angle=90, hjust=0.5)) +
+         theme(plot.title = element_text(hjust = 0.5))
+plot(p)
+```
+<br>
+<button id="dwn-richness-plot-with-boxplot" class="button">
+Download image
+</button>
+
+##Rarefaction curves
+```{r include=FALSE, cache=FALSE}
+##code of Mahendra Mariadassou
+library(parallel)
+library(vegan)
+## Rarefaction curve, ggplot style
+ggrare <- function(physeq, step = 10, label = NULL, color = NULL, plot = TRUE, parallel = FALSE, se = TRUE) {
+    ## Args:
+    ## - physeq: phyloseq class object, from which abundance data are extracted
+    ## - step: Step size for sample size in rarefaction curves
+    ## - label: Default `NULL`. Character string. The name of the variable
+    ##          to map to text labels on the plot. Similar to color option
+    ##          but for plotting text.
+    ## - color: (Optional). Default ‘NULL’. Character string. The name of the
+    ##          variable to map to colors in the plot. This can be a sample
+    ##          variable (among the set returned by
+    ##          ‘sample_variables(physeq)’ ) or taxonomic rank (among the set
+    ##          returned by ‘rank_names(physeq)’).
+    ##
+    ##          Finally, The color scheme is chosen automatically by
+    ##          ‘link{ggplot}’, but it can be modified afterward with an
+    ##          additional layer using ‘scale_color_manual’.
+    ## - color: Default `NULL`. Character string. The name of the variable
+    ##          to map to text labels on the plot. Similar to color option
+    ##          but for plotting text.
+    ## - plot:  Logical, should the graphic be plotted.
+    ## - parallel: should rarefaction be parallelized (using parallel framework)
+    ## - se:    Default TRUE. Logical. Should standard errors be computed. 
+    ## require vegan
+    x <- as(otu_table(physeq), "matrix")
+    if (taxa_are_rows(physeq)) { x <- t(x) }
+
+    ## This script is adapted from vegan `rarecurve` function
+    tot <- rowSums(x)
+    S   <- rowSums(x > 0)
+    nr  <- nrow(x)
+
+    rarefun <- function(i) {
+        cat(paste("rarefying sample", rownames(x)[i]), sep = "\n")
+        n <- seq(1, tot[i], by = step)
+        if (n[length(n)] != tot[i]) {
+            n <- c(n, tot[i])
+        }
+        y <- rarefy(x[i, ,drop = FALSE], n, se = se)
+        if (nrow(y) != 1) {
+	    rownames(y) <- c(".S", ".se")
+            return(data.frame(t(y), Size = n, Sample = rownames(x)[i]))
+        } else {
+            return(data.frame(.S = y[1, ], Size = n, Sample = rownames(x)[i]))
+        }
+    }
+    if (parallel) {
+        out <- mclapply(seq_len(nr), rarefun, mc.preschedule = FALSE)
+    } else {
+        out <- lapply(seq_len(nr), rarefun)
+    }
+    df <- do.call(rbind, out)
+    
+    ## Get sample data 
+    if (!is.null(sample_data(physeq, FALSE))) {
+        sdf <- as(sample_data(physeq), "data.frame")
+        sdf$Sample <- rownames(sdf)
+        data <- merge(df, sdf, by = "Sample")
+        labels <- data.frame(x = tot, y = S, Sample = rownames(x))
+        labels <- merge(labels, sdf, by = "Sample")
+    }
+    
+    ## Add, any custom-supplied plot-mapped variables
+    if( length(color) > 1 ){
+        data$color <- color
+        names(data)[names(data)=="color"] <- deparse(substitute(color))
+        color <- deparse(substitute(color))
+    }
+    if( length(label) > 1 ){
+        labels$label <- label
+        names(labels)[names(labels)=="label"] <- deparse(substitute(label))
+        label <- deparse(substitute(label))
+    }
+    
+    p <- ggplot(data = data, aes_string(x = "Size", y = ".S", group = "Sample", color = color))
+    p <- p + labs(x = "Sample Size", y = "Species Richness")
+    if (!is.null(label)) {
+        p <- p + geom_text(data = labels, aes_string(x = "x", y = "y", label = label, color = color),
+                           size = 4, hjust = 0)
+    }
+    p <- p + geom_line()
+    if (se) { ## add standard error if available
+        p <- p + geom_ribbon(aes_string(ymin = ".S - .se", ymax = ".S + .se", color = NULL, fill = color), alpha = 0.2)
+    }
+    if (plot) {
+        plot(p)
+    }
+    invisible(p)
+}
+
+p <- ggrare(data, step = 500, color = params$varExp, plot = FALSE)
+rare.level <- sample_sums(data)[[1]]
+```
+
+```{r, fig.width=10, fig.height=8, echo=FALSE, comment=NA, warning=FALSE}
+po <- paste('p + facet_wrap(~',params$varExp,') + geom_vline(xintercept = rare.level, color = "gray60")')
+eval(parse(text = po))
+plot(p)
+```
+<br>
+<button id="dwn-rarefaction-curves" class="button">
+Download image
+</button>
+
+##R code
+<h4>Loading packages & data</h4>
+```{r, comment=NA, cache=FALSE, echo=FALSE}
+m <- gsub(",", '","', paste('c("', params$measures, '")', sep=""))
+cat("#if in new session \n#data <- path to Rdata file \n#load(data)\n#library(phyloseq)\n#library(ggplot2)")
+cat(paste("varExp <- ", params$varExp))
+cat(paste("m <- ", m))
+cat("fileAlpha <- \"alpha_diversity.tsv\"")
+```
+
+<h4>Save alpha distance table</h4>
+```{r, comment=NA, cache=FALSE, echo=FALSE}
+cat(paste("fileAlpha <- #path to output Alpha diversity file\nalpha.diversity <- estimate_richness(data, measures = m )"), "\nwrite.table(alpha.diversity, fileAlpha, sep='\\t', quote = FALSE, col.names = NA)")
+```
+
+<h4>Richness plot</h4>
+```{r, comment=NA, cache=FALSE, echo=FALSE}
+cat(paste(sep="","p <- plot_richness(data, x = ", '"', params$varExp,'"', ", color = ", '"', params$varExp, '"', ", measures = m )", '+ ggtitle("Alpha diversity distribution in function of ', params$varExp, '")'),'+ theme(plot.title = element_text(hjust = 0.5))', '\nplot(p)')
+```
+
+<h4>With box plot</h4>
+```{r, comment=NA, cache=FALSE, echo=FALSE}
+cat('p <- p + geom_boxplot(alpha = 0.2) + theme_bw() + geom_point() + theme(axis.text.x = element_blank(), plot.title = element_text(hjust = 0.5))\nplot(p)')
+```
+
+<h4>The rarefaction curve</h4>
+```{r, eval=FALSE}
+##code of Mahendra Mariadassou for the rarefaction curve
+library(parallel)
+library(vegan)
+
+## Rarefaction curve, ggplot style
+ggrare <- function(physeq, step = 10, label = NULL, color = NULL, plot = TRUE, parallel = FALSE, se = TRUE) {
+    ## Args:
+    ## - physeq: phyloseq class object, from which abundance data are extracted
+    ## - step: Step size for sample size in rarefaction curves
+    ## - label: Default `NULL`. Character string. The name of the variable
+    ##          to map to text labels on the plot. Similar to color option
+    ##          but for plotting text.
+    ## - color: (Optional). Default ‘NULL’. Character string. The name of the
+    ##          variable to map to colors in the plot. This can be a sample
+    ##          variable (among the set returned by
+    ##          ‘sample_variables(physeq)’ ) or taxonomic rank (among the set
+    ##          returned by ‘rank_names(physeq)’).
+    ##
+    ##          Finally, The color scheme is chosen automatically by
+    ##          ‘link{ggplot}’, but it can be modified afterward with an
+    ##          additional layer using ‘scale_color_manual’.
+    ## - color: Default `NULL`. Character string. The name of the variable
+    ##          to map to text labels on the plot. Similar to color option
+    ##          but for plotting text.
+    ## - plot:  Logical, should the graphic be plotted.
+    ## - parallel: should rarefaction be parallelized (using parallel framework)
+    ## - se:    Default TRUE. Logical. Should standard errors be computed. 
+    ## require vegan
+    x <- as(otu_table(physeq), "matrix")
+    if (taxa_are_rows(physeq)) { x <- t(x) }
+
+    ## This script is adapted from vegan `rarecurve` function
+    tot <- rowSums(x)
+    S <- rowSums(x > 0)
+    nr <- nrow(x)
+
+    rarefun <- function(i) {
+        cat(paste("rarefying sample", rownames(x)[i]), sep = "\n")
+        n <- seq(1, tot[i], by = step)
+        if (n[length(n)] != tot[i]) {
+            n <- c(n, tot[i])
+        }
+        y <- rarefy(x[i, ,drop = FALSE], n, se = se)
+        if (nrow(y) != 1) {
+	    rownames(y) <- c(".S", ".se")
+            return(data.frame(t(y), Size = n, Sample = rownames(x)[i]))
+        } else {
+            return(data.frame(.S = y[1, ], Size = n, Sample = rownames(x)[i]))
+        }
+    }
+    if (parallel) {
+        out <- mclapply(seq_len(nr), rarefun, mc.preschedule = FALSE)
+    } else {
+        out <- lapply(seq_len(nr), rarefun)
+    }
+    df <- do.call(rbind, out)
+    
+    ## Get sample data 
+    if (!is.null(sample_data(physeq, FALSE))) {
+        sdf <- as(sample_data(physeq), "data.frame")
+        sdf$Sample <- rownames(sdf)
+        data <- merge(df, sdf, by = "Sample")
+        labels <- data.frame(x = tot, y = S, Sample = rownames(x))
+        labels <- merge(labels, sdf, by = "Sample")
+    }
+    
+    ## Add, any custom-supplied plot-mapped variables
+    if( length(color) > 1 ){
+        data$color <- color
+        names(data)[names(data)=="color"] <- deparse(substitute(color))
+        color <- deparse(substitute(color))
+    }
+    if( length(label) > 1 ){
+        labels$label <- label
+        names(labels)[names(labels)=="label"] <- deparse(substitute(label))
+        label <- deparse(substitute(label))
+    }
+    
+    p <- ggplot(data = data, aes_string(x = "Size", y = ".S", group = "Sample", color = color))
+    p <- p + labs(x = "Sample Size", y = "Species Richness")
+    if (!is.null(label)) {
+        p <- p + geom_text(data = labels, aes_string(x = "x", y = "y", label = label, color = color),
+                           size = 4, hjust = 0)
+    }
+    p <- p + geom_line()
+    if (se) { ## add standard error if available
+        p <- p + geom_ribbon(aes_string(ymin = ".S - .se", ymax = ".S + .se", color = NULL, fill = color), alpha = 0.2)
+    }
+    if (plot) {
+        plot(p)
+    }
+    invisible(p)
+}
+
+p <- ggrare(data, step = 500, color = varExp, plot = FALSE)
+rare.level <- sample_sums(data)[[1]]
+capcap <- paste('p <- p + facet_wrap(~', varExp, ') + geom_vline(xintercept = rare.level, color = "gray60")')
+eval(parse(text = capcap))
+plot(p)
+```
+
+<div id="code-r-file" style="display:none;">
+&#10;#if in new session 
+&#10;#data <- path to Rdata file 
+&#10;#load(data)
+&#10;#library(phyloseq)
+&#10;#library(ggplot2)
+&#10;varExp <- # Experiment variable
+&#10;m <- # one list, ex:  c( \"Observed\",\"Chao1\",\"Shannon\",\"InvSimpson\")
+&#10;#Save alpha distance table
+&#10;fileAlpha <- #path to output Alpha diversity file
+&#10;alpha.diversity <- estimate_richness(data, measures = m ) 
+&#10;write.table(alpha.diversity, fileAlpha,sep=\"\\t\", quote = FALSE, col.names = NA)
+&#10;
+&#10;#Richness plot
+&#10;p <- plot_richness(data, x = varExp , color = varExp , measures = m)+ ggtitle(\"Alpha diversity distribution\") + 
+&#10;theme(plot.title = element_text(hjust = 0.5)) 
+&#10;plot(p)
+&#10;
+&#10;#With box plot
+&#10;p <- p + geom_boxplot(alpha = 0.2) + theme_bw() + geom_point() + theme(axis.text.x = element_blank(), plot.title = element_text(hjust = 0.5))
+&#10;plot(p)
+&#10;
+&#10;##code of Mahendra Mariadassou for the rarefaction curve
+&#10;library(parallel)
+&#10;library(vegan)
+&#10;## Rarefaction curve, ggplot style
+&#10;ggrare <- function(physeq, step = 10, label = NULL, color = NULL, plot = TRUE, parallel = FALSE, se = TRUE) {
+&#10;## Args:
+&#10;## - physeq: phyloseq class object, from which abundance data are extracted
+&#10;## - step: Step size for sample size in rarefaction curves
+&#10;## - label: Default `NULL`. Character string. The name of the variable
+&#10;##          to map to text labels on the plot. Similar to color option
+&#10;##          but for plotting text.
+&#10;## - color: (Optional). Default ‘NULL’. Character string. The name of the
+&#10;##          variable to map to colors in the plot. This can be a sample
+&#10;##          variable (among the set returned by
+&#10;##          ‘sample_variables(physeq)’ ) or taxonomic rank (among the set
+&#10;##          returned by ‘rank_names(physeq)’).
+&#10;##
+&#10;##          Finally, The color scheme is chosen automatically by
+&#10;##          ‘link{ggplot}’, but it can be modified afterward with an
+&#10;##          additional layer using ‘scale_color_manual’.
+&#10;## - color: Default `NULL`. Character string. The name of the variable
+&#10;##          to map to text labels on the plot. Similar to color option
+&#10;##          but for plotting text.
+&#10;## - plot:  Logical, should the graphic be plotted.
+&#10;## - parallel: should rarefaction be parallelized (using parallel framework)
+&#10;## - se:    Default TRUE. Logical. Should standard errors be computed. 
+&#10;## require vegan
+&#10;x <- as(otu_table(physeq), \"matrix\")
+&#10;if (taxa_are_rows(physeq)) { x <- t(x) }
+&#10;
+&#10;## This script is adapted from vegan `rarecurve` function
+&#10;tot <- rowSums(x)
+&#10;S <- rowSums(x > 0)
+&#10;nr <- nrow(x)
+&#10;
+&#10;rarefun <- function(i) {
+&#10;        cat(paste(\"rarefying sample\", rownames(x)[i]), sep = \"&#92;n\")
+&#10;        n <- seq(1, tot[i], by = step)
+&#10;        if (n[length(n)] != tot[i]) {
+&#10;            n <- c(n, tot[i])
+&#10;        }
+&#10;        y <- rarefy(x[i, ,drop = FALSE], n, se = se)
+&#10;        if (nrow(y) != 1) {
+&#10;	    rownames(y) <- c(\".S\", \".se\")
+&#10;            return(data.frame(t(y), Size = n, Sample = rownames(x)[i]))
+&#10;        } else {
+&#10;            return(data.frame(.S = y[1, ], Size = n, Sample = rownames(x)[i]))
+&#10;        }
+&#10;    }
+&#10;    if (parallel) {
+&#10;        out <- mclapply(seq_len(nr), rarefun, mc.preschedule = FALSE)
+&#10;    } else {
+&#10;        out <- lapply(seq_len(nr), rarefun)
+&#10;    }
+&#10;df <- do.call(rbind, out)
+&#10;    
+&#10;## Get sample data 
+&#10;if (!is.null(sample_data(physeq, FALSE))) {
+&#10;sdf <- as(sample_data(physeq), \"data.frame\")
+&#10;sdf&#36;Sample <- rownames(sdf)
+&#10;data <- merge(df, sdf, by = \"Sample\")
+&#10;labels <- data.frame(x = tot, y = S, Sample = rownames(x))
+&#10;labels <- merge(labels, sdf, by = \"Sample\")
+&#10;}
+&#10;    
+&#10;## Add, any custom-supplied plot-mapped variables
+&#10;    if( length(color) > 1 ){
+&#10;        data&#36;color <- color
+&#10;        names(data)[names(data)==\"color\"] <- deparse(substitute(color))
+&#10;        color <- deparse(substitute(color))
+&#10;    }
+&#10;    if( length(label) > 1 ){
+&#10;        labels&#36;label <- label
+&#10;        names(labels)[names(labels)==\"label\"] <- deparse(substitute(label))
+&#10;        label <- deparse(substitute(label))
+&#10;    }
+&#10;    
+&#10;    p <- ggplot(data = data, aes_string(x = \"Size\", y = \".S\", group = \"Sample\", color = color))
+&#10;    p <- p + labs(x = \"Sample Size\", y = \"Species Richness\")
+&#10;    if (!is.null(label)) {
+&#10;        p <- p + geom_text(data = labels, aes_string(x = \"x\", y = \"y\", label = label, color = color),
+&#10;                           size = 4, hjust = 0)
+&#10;    }
+&#10;    p <- p + geom_line()
+&#10;    if (se) { ## add standard error if available
+&#10;        p <- p + geom_ribbon(aes_string(ymin = \".S - .se\", ymax = \".S + .se\", color = NULL, fill = color), alpha = 0.2)
+&#10;    }
+&#10;    if (plot) {
+&#10;        plot(p)
+&#10;    }
+&#10;    invisible(p)
+&#10;}
+&#10;
+&#10;p <- ggrare(data, step = 500, color = varExp, plot = FALSE)
+&#10;rare.level <- sample_sums(data)[[1]]
+&#10;
+&#10;capcap <- paste(\'p <- p + facet_wrap(~\', varExp, \') + geom_vline(xintercept = rare.level, color = \"gray60\")\')
+&#10;eval(parse(text = capcap))
+&#10;plot(p)
+&#10;
+</div>
+
+<script>
+  function download1(){
+    var text = document.getElementById("code-r-file").textContent;
+    var blob = new Blob([text],{type:"text/plain;charset=utf-8"});
+    saveAs(blob,"alpha_diversity_code.R");
+   }
+</script>
+<input type="button" value="Download R code" class="button" onclick="download1();"/>
+
+<script>
+function download(filename, mysrc) {
+var element = document.createElement('a');
+    element.setAttribute('href', mysrc);
+    element.setAttribute('download', filename);
+    element.style.display = 'none';
+    document.body.appendChild(element);
+    element.click();
+    document.body.removeChild(element);
+}
+document.getElementById("dwn-richness-plot").addEventListener("click", function(){
+var div = document.getElementById('richness-plot');
+var myimg = div.getElementsByTagName('img')[0];
+var mysrc = myimg.src;
+var filename = "richness_plot.png";
+download(filename, mysrc);
+}, false);
+
+document.getElementById("dwn-richness-plot-with-boxplot").addEventListener("click", function(){
+var div = document.getElementById('richness-plot-with-boxplot');
+var myimg = div.getElementsByTagName('img')[0];
+var mysrc = myimg.src;
+var filename = "richness_plot_with_boxplot.png";
+download(filename, mysrc);
+}, false);
+
+document.getElementById("dwn-rarefaction-curves").addEventListener("click", function(){
+var div = document.getElementById('rarefaction-curves');
+var myimg = div.getElementsByTagName('img')[0];
+var mysrc = myimg.src;
+var filename = "rarefaction_curves.png";
+download(filename, mysrc);
+}, false);
+</script>
