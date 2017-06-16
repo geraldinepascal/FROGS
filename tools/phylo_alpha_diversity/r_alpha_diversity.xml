@@ -26,14 +26,14 @@
 	</command>
     <inputs>
 		<!-- Files -->
-	    <param format="rdata" name="data" type="data" label="Phyloseq object (format rdata)" help="These file is the result of FROGS Phyloseq Import Data." optional="false">
+	    <param format="rdata" name="data" type="data" label="Phyloseq object (format rdata)" help="This file is the result of FROGS Phyloseq Import Data." optional="false">
             <validator type="empty_field" message="This parameter is required." />
         </param>
 		<!-- Parameters -->	
 		<param name="varExp" type="text" label="Experiment variable" help="The experiment variable that you want to analyse." optional="false" value="" size="40">
             <validator type="empty_field" message="This parameter is required." />
         </param>        
-	    <param name="measures" type="select" label="The indexes of alpha diversity" multiple="true" display="checkboxes">
+	    <param name="measures" type="select" label="The alpha diversity indices to compute" multiple="true" display="checkboxes">
              <option value="Observed" selected="True">Observed</option>
              <option value="Chao1" selected="True">Chao1</option>
              <option value="Shannon" selected="True">Shannon</option>
@@ -57,7 +57,7 @@
 
 What it does
 
-Using `phyloseq &lt;https://joey711.github.io/phyloseq/&gt;`_ and customized R function, this tool construct richness plot to visualize data alpha diversity.
+Using `phyloseq &lt;https://joey711.github.io/phyloseq/&gt;`_ and customized R function, this tool construct richness plot to visualize sample alpha diversity.
 
 .. class:: infomark page-header h2
 
@@ -68,16 +68,14 @@ Inputs/Outputs
 Input
 
 **Data file** (format RData):
-The informations of data in one phyloseq object.
+One phyloseq object containing OTU's abundance table, their taxonomies and optionnaly a phylogenetic tree, and the sample experiment metadata.
 These file is the result of "FROGS Phyloseq Import Data".
 
 .. class:: h3
 
 Output
 
-**Html file** (format `HTML &lt;https://en.wikipedia.org/wiki/HTML&gt;`_): the review of richness plot.
-
-The example image of richness plot: 
+**Html file** (format `HTML &lt;https://en.wikipedia.org/wiki/HTML&gt;`_): the review of richness plot and rarefaction curves.
 
 .. image:: ${static_path}/images/tools/frogs/phyloseq_plot_richness.png 
      :height: 400
@@ -87,14 +85,12 @@ The example image of richness plot:
      :height: 400
      :width: 499
      
-The example image of rarefaction curves: 
-
 .. image:: ${static_path}/images/tools/frogs/phyloseq_rarefaction_curves.png
      :height: 400
      :width: 498
 
 **Alpha diversity table** (alpha_diversity.tsv):
-The data file containing alpha diversity distance table.
+The data file containing alpha diversity indices table.
 
 .. image:: ${static_path}/images/tools/frogs/phyloseq_alpha_diversity_table.png
 
