@@ -72,7 +72,7 @@ Inputs/Outputs
 Input
 
 **data file** (format rdata):
-The informations of data in one phyloseq object.
+One phyloseq object containing OTU's abundance table, their taxonomies and optionnaly a phylogenetic tree, and the sample experiment metadata.
 These file is the result of FROGS Phyloseq Import Data.
 
 .. class:: h3

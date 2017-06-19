@@ -138,7 +138,7 @@ library(reshape2)
 #load(data) 
 varExp <- #Experiment variable to split plot
 method <- #Beta diversity method name  #To show all available distances: distanceMethodList
-fileBeta <- \"beta_diversity.tsv\"  # output file path
+fileBeta <- "beta_diversity.tsv"  # output file path
 ```
 
 <h4>Dist as heatmap plot</h4>
@@ -174,7 +174,7 @@ plot(pa)
 
 <h4>Save distance matrix</h4>
 ```{r, eval=FALSE}
-a      <- as.matrix(dist.a)
+a <- as.matrix(dist.a)
 write.table(a, fileBeta, sep="\t", quote=FALSE, col.names=NA)
 ```
 
