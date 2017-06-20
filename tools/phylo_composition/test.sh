@@ -10,5 +10,5 @@ else
 fi 
 
 python2.7 r_composition.py -d data/data.Rdata \
-	-v EnvType -r1 Kingdom -s1 Bacteria -r2 Phylum -n 5 \
+	-v EnvType -r1 Kingdom -s1 Bacteria -r2 Phylum -n 9 \
 	-l test/phylo_compo.log -o test/phylo_compo.html
