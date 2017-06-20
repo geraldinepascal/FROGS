@@ -12,17 +12,10 @@ else
 fi
 
 # without normalisation and default ranks
-mkdir -p test/phylo_import_default
+mkdir -p test/
 python r_import_data.py  \
+	-n \
 	-b data/chaillou.biom \
 	-s data/sample_data.tsv \
 	-t data/tree.nwk \
-	-d test/phylo_import_default/phylo_import.Rdata -o test/phylo_import_default/phylo_import.html -l test/phylo_import_default/phylo_import.log
-
-# with normalisation and ranks
-mkdir -p test/phylo_import_norm_rank
-python r_import_data.py  -n -r Royaume Phylum Classe Ordre Famille Genre Espece \
-	-b data/chaillou.biom \
-	-s data/sample_data.tsv \
-	-t data/tree.nwk \
-	-d test/phylo_import_norm_rank/phylo_import.Rdata -o test/phylo_import_norm_rank/phylo_import.html -l test/phylo_import_norm_rank/phylo_import.log
+	-d test/phylo_import.Rdata -o test/phylo_import.html -l test/phylo_import.log
