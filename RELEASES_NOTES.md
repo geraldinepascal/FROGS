@@ -5,6 +5,7 @@
   * FROGS Phyloseq Composition Visualization with bar plot and composition plot
   * FROGS Phyloseq Alpha Diversity with richness plot
   * FROGS Phyloseq Beta Diversity distance matrix
+  * FROGS Phyloseq Structure
 
 ### Bugs fixes:
   * Preprocess : min overlap at least equal to 1
