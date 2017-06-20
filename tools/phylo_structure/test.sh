@@ -21,6 +21,6 @@ python r_structure.py \
      --data data/data.Rdata \
      --varExp FoodType \
      --method MDS \
-     --distance data/Bray_Curtis.tsv \
+     --distance data/Unifrac.tsv \
      --html test/phylo_structure2.html \
      --log_file test/phylo_structure2.log

@@ -44,7 +44,6 @@
             <option value="RDA" >RDA</option>
             <option value="CAP" >CAP</option>
             <option value="DPCoA" >DPCoA</option>
-            <option value="DPCoA" >PCoA</option>
         </param>
 	</inputs>
 	<outputs>
