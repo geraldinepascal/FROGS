@@ -77,9 +77,8 @@ Output
 .. container:: row
 
  .. image:: ${static_path}/images/tools/frogs/phyloseq_clustering_ward.png 
-     :height: 322
-     :width: 450
-
+   :height: 576
+   :width: 768
 
 .. class:: infomark page-header h2
 
