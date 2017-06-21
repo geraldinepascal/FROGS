@@ -20,7 +20,7 @@
 	<command interpreter="python">r_manova.py 
                                     --data $data
                                     --varExp $varExp
-                                    --method $method
+                                    --distance-matrix $method
                                     --html $html
 	</command>
     <inputs>

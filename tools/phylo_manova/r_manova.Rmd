@@ -91,8 +91,8 @@ library(vegan)
 metadata <- as(sample_data(data), "data.frame")
 
 ## load beta distance matrix
-method <- # path to Beta diversity tsv file
-A <- read.table(file=method, row.names=1)
+beta_file <- # path to Beta diversity tsv file
+A <- read.table(file=beta_file, row.names=1)
 beta_dist <- as.dist(A)
 ```
 <h4>With adonis</h4>
@@ -111,18 +111,22 @@ library(vegan)
 &#10;#library(phyloseq)
 &#10;#data <- path to Rdata file
 &#10;#load(data)
-&#10;varExp <- #Experiment variable
-&#10;method <- # path to Beta diversity tsv file
-&#10;
-&#10;A <- read.table(file=basename(method), row.names=1) 
-&#10;dist.a <- as.dist(A) 
 &#10;metadata <- as(sample_data(data), \"data.frame\")
 &#10;
-&#10;capcap <- paste(\'adonis(dist.a ~ \',varExp, \', data = metadata, perm = 9999)\')
-&#10;eval(parse(text = capcap))
+&#10;varExp <- #Experiment variable
 &#10;
-&#10;capcap <- paste(\'cap <- capscale(dist.a ~ \',varExp, \', data = metadata)\')
-&#10;eval(parse(text = capcap))
+&#10;beta_file <- # path to Beta diversity tsv file
+&#10;A <- read.table(file=beta_file, row.names=1) 
+&#10;beta_dist <- as.dist(A) 
+&#10;
+&#10;f <- paste(\"beta_dist ~ \" , varExp)
+&#10;
+&#10;## Multivariate ANOVA performed with adonis
+&#10;adonis(as.formula(f), data = metadata, perm = 9999)
+&#10;
+&#10;## Canonical Analysis of Principal Coordinates through capscale
+&#10;cap <- capscale(as.formula(f), data = metadata)
+&#10;cap
 &#10;anova(cap, permutations = 999)
 </div>
 
