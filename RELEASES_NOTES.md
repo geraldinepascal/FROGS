@@ -6,6 +6,8 @@
   * FROGS Phyloseq Alpha Diversity with richness plot
   * FROGS Phyloseq Beta Diversity distance matrix
   * FROGS Phyloseq Structure
+  * FROGS Phyloseq Clustering
+  * FROGS Phyloseq Manova 
 
 ### Bugs fixes:
   * Preprocess : min overlap at least equal to 1
