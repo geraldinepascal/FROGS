@@ -55,7 +55,6 @@ knitr::opts_chunk$set(error = TRUE)
 library(phyloseq)
 #library(biom)
 library(ape)
-library(ggplot2)
 
 ## import data
 biomfile <- params$biomfile
@@ -63,7 +62,7 @@ data     <- import_biom(biomfile)
 tax      <- tax_table(data)[[1]]
 
 if ((gregexpr('k__', tax))[[1]][1]>0) { 
-    data <- import_biom(params$biomfile, parseFunction = parse_taxonomy_greengenes)
+    data <- import_biom(biomfile, parseFunction = parse_taxonomy_greengenes)
 } else {
 ## change taxonomic rank names
     new_rank <- as.list(strsplit(params$ranks, " ")[[1]])
@@ -78,8 +77,14 @@ if (inherits(sampledata, "try-error") || ncol(sampledata)==0) {
 sample_data(data) <- sampledata
 
 if (params$treefile!="None"){
-          treefile <- read.tree(params$treefile)
+    treefile <- read.tree(params$treefile)
     phy_tree(data) <- treefile
+}
+
+## levels order as input sample_data file
+for ( variable in sample_variables(data)){
+  variable.order = as.vector(unique(sampledata[,variable]))
+  sample_data(data)[,variable] <- factor(get_variable(data, variable),levels=variable.order)
 }
 
 ## normalization
@@ -136,7 +141,6 @@ Download image
 ```{r, eval=FALSE}
 library(phyloseq)
 library(ape)
-library(ggplot2)
 ```
 
 <h4>Importing data</h4>
@@ -167,6 +171,12 @@ sample_data(data) <- sampledata
 treefile          <- read.tree(treefile) #if have treefile
 phy_tree(data)    <- treefile
 
+# levels order as input sample_data file
+for ( variable in sample_variables(data)){
+  variable.order = as.vector(unique(sampledata[,variable]))
+  sample_data(data)[,variable] <- factor(get_variable(data, variable),levels=variable.order)
+}
+
 # normalization
 if(normalization) {
     data <- rarefy_even_depth(data, rngseed = 1121983);
@@ -193,7 +203,7 @@ header('Content-Type: text/html; charset=utf-8');
 <div id="code-r-file" style="display:none;" charset=UTF-8>
 library(phyloseq)
 &#10;library(ape)
-&#10;library(ggplot2)
+&#10;
 &#10;## import data
 &#10;biomfile <- # path to biom file
 &#10;treefile <- # path to newick file if possible
@@ -217,9 +227,15 @@ library(phyloseq)
 &#10;}
 &#10;sample_data(data) <- sampledata
 &#10;
-&#10;#if have treefile
+&#10;#if you have treefile
 &#10;treefile <- read.tree(treefile)
 &#10;phy_tree(data) <- treefile
+&#10;
+&#10;# levels order as input sample_data file
+&#10;for ( variable in sample_variables(data)){
+&#10;  variable.order = as.vector(unique(sampledata[,variable]))
+&#10;  sample_data(data)[,variable] <- factor(get_variable(data, variable),levels=variable.order)
+&#10;}
 &#10;
 &#10;## normalization
 &#10;if(normalization) { 
