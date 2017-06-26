@@ -61,6 +61,7 @@ class Biom2tsv(Cmd):
 
         # Check the metadata
         biom = BiomIO.from_json( in_biom )
+        obs = biom.rows[0]
         conversion_tags = ""
         if biom.has_observation_metadata( 'rdp_taxonomy' ) and biom.has_observation_metadata( 'rdp_bootstrap' ):
             conversion_tags += "'@rdp_tax_and_bootstrap' "
@@ -76,6 +77,12 @@ class Biom2tsv(Cmd):
             conversion_tags += "'seed_id' "
         if in_fasta is not None:
             conversion_tags += "'@seed_sequence' "
+
+        frogs_metadata = ["rdp_taxonomy", "rdp_bootstrap","blast_taxonomy","blast_affiliations","seed_id"]
+        for metadata in biom.get_observation_metadata(obs["id"]):
+            if metadata not in frogs_metadata : 
+                conversion_tags += "'"+metadata+"' "
+                
         conversion_tags += "'@observation_name' '@observation_sum' '@sample_count'"
 
         # Set command
