@@ -53,6 +53,7 @@ knitr::opts_chunk$set(error = TRUE)
  
 ```{r include=FALSE, cache=FALSE}
 library(phyloseq)
+library(ggplot2)
 #library(biom)
 library(ape)
 
