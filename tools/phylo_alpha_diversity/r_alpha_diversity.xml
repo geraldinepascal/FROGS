@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
-<tool name="FROGS Phyloseq Alpha Diversity" id="FROGS_Phyloseq_Alpha_Diversity" version="1.0.0">
+<tool name="FROGSSTAT Phyloseq Alpha Diversity" id="FROGSSTAT_Phyloseq_Alpha_Diversity" version="1.0.0">
 	<description>with richness plot</description>
 	<command interpreter="python">r_alpha_diversity.py
                                              --data $data 

@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
-<tool name="FROGS Phyloseq Sample Clustering" id="FROGS_Phyloseq_Sample_Clustering" version="1.0.0">
+<tool name="FROGSSTAT Phyloseq Sample Clustering" id="FROGSSTAT_Phyloseq_Sample_Clustering" version="1.0.0">
 	<description>of samples using different linkage method</description>
 	<command interpreter="python">r_clustering.py 
                                                --html $html 

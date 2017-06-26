@@ -52,7 +52,6 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ```{r include=FALSE, cache=FALSE}
 library(phyloseq)
-library(ggplot2)
 library(gridExtra)
 library(reshape2)
 load(params$data) 
@@ -196,7 +195,7 @@ library(phyloseq)
 &#10;
 &#10;plot_dist_as_heatmap <- function(dist, order = sampleOrder, title = NULL) {
 &#10;    data <- melt(as(dist, \"matrix\"))
-&#10;    colnames(data) <- c(\"x\", \"y\", \"distance\")
+&#10;    colnames(data) <- c(\"x\" , \"y\", \"distance\")
 &#10;    if (!is.null(order)) {
 &#10;        data$x <- factor(data$x, levels = order)
 &#10;        data$y <- factor(data$y, levels = order)

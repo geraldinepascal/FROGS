@@ -204,13 +204,6 @@
                                     install.packages("gridExtra")
         Test in R session : library(gridExtra)
 
-    DESeq2 R package
-        Version : depending on your R version
-        Tools : all FROGS_DESeq2_preprocessing FROGS_DESeq2_visualization
-        Installation in R session : # https://bioconductor.org/packages/release/bioc/html/DESeq2.html
-                                    source("https://bioconductor.org/biocLite.R"); biocLite("DESeq2")
-        Test in R session : library(DESeq2)
-
 ### 4. Check intallation
     To check your installation you can type:
         cd <FROGS_PATH>/test
