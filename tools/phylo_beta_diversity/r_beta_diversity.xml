@@ -30,7 +30,7 @@
             <validator type="empty_field" message="This parameter is required." />
         </param>
 		<!-- Parameters -->	
-		<param type="text" name="varExp" label="Experiment variable" help="The experiment variable that you want to analyse." optional="false" value="" size="40">
+		<param type="text" name="varExp" label="Experiment variable" help="The experiment variable used to organize plots." optional="false" value="" size="40">
             <validator type="empty_field" message="This parameter is required." />
         </param>
         <param name="methods" type="select" label="The methods of beta diversity" help="if the tree is not available in your RData, you can't choose Unifrac or Weighted Unifrac" multiple="true" display="checkboxes">
