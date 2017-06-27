@@ -26,7 +26,7 @@
 	</command>
     <inputs>
 		<!-- Files -->
-	    <param format="rdata" name="data" type="data" label="Phyloseq object (format rdata)" help="This file is the result of FROGS Phyloseq Import Data." optional="false">
+	    <param format="rdata" name="data" type="data" label="Phyloseq object (format rdata)" help="This file is the result of FROGS Phyloseq Import Data tool." optional="false">
             <validator type="empty_field" message="This parameter is required." />
         </param>
 		<!-- Parameters -->	
@@ -57,7 +57,7 @@
 
 What it does
 
-Using `phyloseq &lt;https://joey711.github.io/phyloseq/&gt;`_ and customized R function, this tool construct richness plot to visualize sample alpha diversity.
+Using `phyloseq &lt;https://joey711.github.io/phyloseq/&gt;`_ and customized R function, this tool constructs richness plots to visualise sample alpha diversity.
 
 .. class:: infomark page-header h2
 
@@ -68,14 +68,14 @@ Inputs/Outputs
 Input
 
 **Data file** (format RData):
-One phyloseq object containing OTU's abundance table, their taxonomies and optionnaly a phylogenetic tree, and the sample experiment metadata.
-These file is the result of "FROGS Phyloseq Import Data".
+One phyloseq object containing OTU abundance table, their taxonomies (and optionnaly a phylogenetics tree, and the sample experiment metadata.
+This file is the result of "FROGS Phyloseq Import Data tool".
 
 .. class:: h3
 
 Output
 
-**Html file** (format `HTML &lt;https://en.wikipedia.org/wiki/HTML&gt;`_): the review of richness plot and rarefaction curves.
+**Html file** (format `HTML &lt;https://en.wikipedia.org/wiki/HTML&gt;`_): the review of richness plots and rarefaction curves.
 
 .. image:: ${static_path}/images/tools/frogs/phyloseq_plot_richness.png 
      :height: 400
@@ -90,7 +90,7 @@ Output
      :width: 498
 
 **Alpha diversity table** (alpha_diversity.tsv):
-The data file containing alpha diversity indices table.
+The data file containing table of alpha diversity indices.
 
 .. image:: ${static_path}/images/tools/frogs/phyloseq_alpha_diversity_table.png
 
@@ -102,7 +102,7 @@ Contacts: frogs@toulouse.inra.fr
 
 Repository: https://github.com/geraldinepascal/FROGS
 
-Please cite the FROGS Publication: *Escudie F., Auer L., Bernard M., Cauquil L., Vidal K., Maman S., Mariadassou M., Hernadez-Raquet G., Pascal G., 2015. FROGS: Find Rapidly OTU with Galaxy Solution. In: The environmental genomic Conference, Montpellier, France,* http://bioinfo.genotoul.fr/fileadmin/user_upload/FROGS_2015_GE_Montpellier_poster.pdf
+Please cite the FROGS Publication: *Escudie F., Auer L., Bernard M., Cauquil L., Vidal K., Maman S., Mariadassou M., Combes S., Hernandez-Raquet G., Pascal G., 2016. FROGS: Find Rapidly OTU with Galaxy Solution. In: ISME-2016 Montreal, CANADA ,* http://bioinfo.genotoul.fr/wp-content/uploads/FROGS_ISME2016_poster.pdf
 
 Depending on the help provided you can cite us in acknowledgements, references or both.
 	
