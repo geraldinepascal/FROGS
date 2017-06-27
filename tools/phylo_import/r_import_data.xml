@@ -31,19 +31,19 @@
 	</command>
     <inputs>
 		<!-- Files -->
-		<param format="biom1" name="biomfile" type="data" label="Biom file" help="The file contains the  OTU's informations (format: biom1)." optional="false">
+		<param format="biom1" name="biomfile" type="data" label="Biom file" help="The file contains the  OTU informations (format: biom1)." optional="false">
             <validator type="empty_field" message="This parameter is required." />
         </param>
         
-		<param format="tabular" name="samplefile" type="data" label="Sample tsv file" help="The file contains the samples's informations (format: tabular)." optional="false">
+		<param format="tabular" name="samplefile" type="data" label="Sample tsv file" help="The file contains the samples informations (format: tabular)." optional="false">
             <validator type="empty_field" message="This parameter is required." />                
         </param>
         
-		<param format="nhx" name="treefile" type="data" label="Tree file" help="The file contains the tree's informations (format: Newick - nhx or nwk)." optional="true" />
+		<param format="nhx" name="treefile" type="data" label="Tree file" help="The file contains the tree informations (format: Newick - nhx or nwk)." optional="true" />
         
         <!-- Parameters -->
-		<param name="ranks" type="text" label="Names of taxonomics ranks" help="The ordered taxonomic ranks levels stored in BIOM. Each rank is separated by one space."  value="Kingdom Phylum Class Order Family Genus Species" size="80" optional="false"/>
-		<param name="normalization" type="boolean" label="Do you want to normalize your data ?" help="To normalize data before analysis." optional="false" /> 
+		<param name="ranks" type="text" label="Names of taxonomics levels" help="The ordered taxonomic levels stored in BIOM. Each level is separated by one space."  value="Kingdom Phylum Class Order Family Genus Species" size="80" optional="false"/>
+		<param name="normalization" type="boolean" label="Do you want to normalise your data ?" help="To normalise data before analysis." optional="false" /> 
 	</inputs>
 	<outputs>
 		<data format="rdata" name="data" label="${tool.name}: data.Rdata" from_work_dir="data.Rdata"/>
@@ -59,7 +59,7 @@
 
 What it does
 
-Launch Rmardown script to import data from 3 files: biomfile, samplefile, treefile into a `phyloseq &lt;https://joey711.github.io/phyloseq/&gt;`_ object.
+Launch Rmarkdown script to import data from 3 files: biomfile, samplefile, treefile into a `phyloseq &lt;https://joey711.github.io/phyloseq/&gt;`_ object.
 
 .. class:: infomark page-header h2
 
@@ -69,10 +69,10 @@ Inputs/Outputs
 
 Input
 
-**OTUs biom file**:
+**OTU biom file**:
 
-The OTUs biom file (format `biom1 &lt;http://biom-format.org/documentation/format_versions/biom-1.0.html&gt;`_).
-These file is the result of FROGS.
+The OTU biom file (format `biom1 &lt;http://biom-format.org/documentation/format_versions/biom-1.0.html&gt;`_).
+This file is the result of FROGS.
 The example of biom file: 
 
   .. image:: ${static_path}/images/tools/frogs/biomfile.png 
@@ -81,7 +81,7 @@ The example of biom file:
 
 **Newick file** (tree.nwk):
 
-Newick file (format `nxh &lt;https://en.wikipedia.org/wiki/Newick_format&gt;`_). The result of FROGS Tree:
+Newick file (format `nxh &lt;https://en.wikipedia.org/wiki/Newick_format&gt;`_) is the result of FROGS Tree:
 
   .. image:: ${static_path}/images/tools/frogs/nwk_treefile.png
 
@@ -111,7 +111,7 @@ Contacts: frogs@toulouse.inra.fr
 
 Repository: https://github.com/geraldinepascal/FROGS
 
-Please cite the FROGS Publication: *Escudie F., Auer L., Bernard M., Cauquil L., Vidal K., Maman S., Mariadassou M., Hernadez-Raquet G., Pascal G., 2015. FROGS: Find Rapidly OTU with Galaxy Solution. In: The environmental genomic Conference, Montpellier, France,* http://bioinfo.genotoul.fr/fileadmin/user_upload/FROGS_2015_GE_Montpellier_poster.pdf
+Please cite the FROGS Publication: *Escudie F., Auer L., Bernard M., Cauquil L., Vidal K., Maman S., Mariadassou M., Combes S., Hernandez-Raquet G., Pascal G., 2016. FROGS: Find Rapidly OTU with Galaxy Solution. In: ISME-2016 Montreal, CANADA ,* http://bioinfo.genotoul.fr/wp-content/uploads/FROGS_ISME2016_poster.pdf
 
 Depending on the help provided you can cite us in acknowledgements, references or both.
 	
