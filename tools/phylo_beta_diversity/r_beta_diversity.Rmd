@@ -52,6 +52,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ```{r include=FALSE, cache=FALSE}
 library(phyloseq)
+library(ggplot2)
 library(gridExtra)
 library(reshape2)
 load(params$data) 
