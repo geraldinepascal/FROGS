@@ -94,7 +94,13 @@ if __name__ == "__main__":
     args = parser.parse_args()
     prevent_shell_injections(args)   
     # Process 
-    Logger.static_write(args.log_file, "## Application\nSoftware :" + sys.argv[0] + " (version : " + str(__version__) + ")\nCommand : " + " ".join(sys.argv) + "\n\n")
+    # keep quote around varExp
+    idx=sys.argv.index("--varExp")+1
+    cmd = " ".join(sys.argv[0:idx]) + " \"" + sys.argv[idx] + "\" "
+    if idx != len(sys.argv):
+        cmd += " ".join(sys.argv[idx+1:])
+
+    Logger.static_write(args.log_file, "## Application\nSoftware :" + sys.argv[0] + " (version : " + str(__version__) + ")\nCommand : " + cmd + "\n\n")
     html=os.path.abspath(args.html)
     data=os.path.abspath(args.data)
     matrix=os.path.abspath(args.distance_matrix)    

@@ -96,10 +96,11 @@ Download image
 ```{r, echo=FALSE, comment=NA}
 anova_data <- cbind(sample_data(data), alpha.diversity)
 anova_data$Depth <- sample_sums(data)
+
 variables=c()
 for (var in sample_variables(data) ) {
   l = length(levels(as.factor(get_variable(data,var))))
-  if(l > 1){
+  if(l > 1 && l < nsamples(data)){
     variables <- cbind(variables,var)
   }
 }
@@ -256,7 +257,7 @@ anova_data$Depth <- sample_sums(data)
 variables=c()
 for (var in sample_variables(data) ) {
   l = length(levels(as.factor(get_variable(data,var))))
-  if(l > 1){
+  if(l > 1 && l < nsamples(data)){
     variables <- cbind(variables,var)
   }
 }
@@ -406,7 +407,7 @@ plot(p)
 &#10;variables=c()
 &#10;for (var in sample_variables(data) ) {
 &#10;&#9; l = length(levels(as.factor(get_variable(data,var))))
-&#10;&#9; if(l > 1){
+&#10;&#9; if(l > 1 && l < nsamples(data)){
 &#10;&#9; variables <- cbind(variables,var)
 &#10;&#9; }
 &#10;}
