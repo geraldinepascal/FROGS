@@ -196,10 +196,10 @@ library(phyloseq)
 &#10;
 &#10;plot_dist_as_heatmap <- function(dist, order = sampleOrder, title = NULL) {
 &#10;    data <- melt(as(dist, \"matrix\"))
-&#10;    colnames(data) <- c(\"x\" , \"y\", \"distance\")
+&#10;    colnames(data) <- c(\"x\", \"y\", \"distance\")
 &#10;    if (!is.null(order)) {
-&#10;        data$x <- factor(data$x, levels = order)
-&#10;        data$y <- factor(data$y, levels = order)
+&#10;        data&#36;x <- factor(data&#36;x, levels = order)
+&#10;        data&#36;y <- factor(data&#36;y, levels = order)
 &#10;    }
 &#10;    p <- ggplot(data, aes(x = x, y = y, fill = distance)) + geom_tile() 
 &#10;    p <- p + theme(axis.title.x = element_blank(), 

@@ -190,7 +190,7 @@ cat(paste(sep="",'p3 <- plot_heatmap(data) + scale_fill_gradient2(low = lowCol, 
 &#10;
 &#10;# to be complete
 &#10;varExp <- #Experiment variable
-&#10;method <- \"DCA\" # ordination method, ex \"MDS\", \"NMDS\", \"DCA\" (default), \"CCA\", \"RDA\", \"CAP\", \"DPCoA\" or \"PCoA\" 
+&#10;method <- \"MDS\" # ordination method, ex \"MDS\" (default), \"NMDS\", \"DCA\", \"CCA\", \"RDA\", \"CAP\", \"DPCoA\" or \"PCoA\" 
 &#10;
 &#10;######### Ordiantion plots #########
 &#10;ord <- ordinate(data, method =method, distance = dist)

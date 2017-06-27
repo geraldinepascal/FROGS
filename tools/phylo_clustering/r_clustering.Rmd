@@ -179,7 +179,7 @@ library(scales)
 &#10;par(mfcol = c(1,1))
 &#10;plot(clust.wardD2, tip.color = tipColor, direction = \"downwards\", main = \"Sample Clustering with Ward.D2 linkage\")
 &#10;
-&#10;clust.complete <- as.phylo(hclust(dist, method = 'complete'))
+&#10;clust.complete <- as.phylo(hclust(dist, method = \'complete\'))
 &#10;par(mfcol = c(1,1))
 &#10;plot(clust.complete, tip.color = tipColor, direction = \"downwards\", main = \"Sample Clustering with Complete linkage\")
 &#10;
