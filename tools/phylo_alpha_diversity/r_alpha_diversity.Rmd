@@ -92,6 +92,29 @@ plot(p)
 Download image
 </button>
 
+##Alpha Diversity Indice Anova Analysis
+```{r, echo=FALSE, comment=NA}
+anova_data <- cbind(sample_data(data), alpha.diversity)
+anova_data$Depth <- sample_sums(data)
+variables=c()
+for (var in sample_variables(data) ) {
+  l = length(levels(as.factor(get_variable(data,var))))
+  if(l > 1){
+    variables <- cbind(variables,var)
+  }
+}
+variables <- paste(sep=" + ", "Depth", paste(collapse =" + ", variables ))
+## Perform ANOVA on observed richness, which effects are significant
+for (m in measures){
+    f <- paste(m," ~ ", variables)
+    cat(sep = "", "###############################################################\n#Perform ANOVA on ",m,", which effects are significant\nanova.",m," <-aov( ",f,", anova_data)\nsummary(anova.",m,")\n")
+    anova_res <- aov( as.formula(f), anova_data)
+    res <- summary(anova_res)
+    print(res)
+    cat("\n\n")
+}
+```
+
 ##Rarefaction curves
 ```{r include=FALSE, cache=FALSE}
 ##code of Mahendra Mariadassou
@@ -204,26 +227,52 @@ Download image
 ##R code
 <h4>Loading packages & data</h4>
 ```{r, comment=NA, cache=FALSE, echo=FALSE}
-m <- gsub(",", '","', paste('c("', params$measures, '")', sep=""))
+measures <- gsub(",", '","', paste('c("', params$measures, '")', sep=""))
 cat("#if in new session \n#data <- path to Rdata file \n#load(data)\n#library(phyloseq)\n#library(ggplot2)")
 cat(paste("varExp <- ", params$varExp))
-cat(paste("m <- ", m))
+cat(paste("measures <- ", measures))
 cat("fileAlpha <- \"alpha_diversity.tsv\"")
 ```
 
 <h4>Save alpha distance table</h4>
 ```{r, comment=NA, cache=FALSE, echo=FALSE}
-cat(paste("fileAlpha <- #path to output Alpha diversity file\nalpha.diversity <- estimate_richness(data, measures = m )"), "\nwrite.table(alpha.diversity, fileAlpha, sep='\\t', quote = FALSE, col.names = NA)")
+cat(paste("fileAlpha <- #path to output Alpha diversity file\nalpha.diversity <- estimate_richness(data, measures = measures )"), "\nwrite.table(alpha.diversity, fileAlpha, sep='\\t', quote = FALSE, col.names = NA)")
 ```
 
 <h4>Richness plot</h4>
 ```{r, comment=NA, cache=FALSE, echo=FALSE}
-cat(paste(sep="","p <- plot_richness(data, x = ", '"', params$varExp,'"', ", color = ", '"', params$varExp, '"', ", measures = m )", '+ ggtitle("Alpha diversity distribution in function of ', params$varExp, '")'),'+ theme(plot.title = element_text(hjust = 0.5))', '\nplot(p)')
+cat(paste(sep="","p <- plot_richness(data, x = ", '"', params$varExp,'"', ", color = ", '"', params$varExp, '"', ", measures = measures )", '+ ggtitle("Alpha diversity distribution in function of ', params$varExp, '")'),'+ theme(plot.title = element_text(hjust = 0.5))', '\nplot(p)')
 ```
 
 <h4>With box plot</h4>
 ```{r, comment=NA, cache=FALSE, echo=FALSE}
 cat('p <- p + geom_boxplot(alpha = 0.2) + theme_bw() + geom_point() + theme(axis.text.x = element_blank(), plot.title = element_text(hjust = 0.5))\nplot(p)')
+```
+
+<h4>Anova analysis</h4>
+```{r, comment=NA, eval=FALSE}
+anova_data <- cbind(sample_data(data), alpha.diversity)
+anova_data$Depth <- sample_sums(data)
+variables=c()
+for (var in sample_variables(data) ) {
+  l = length(levels(as.factor(get_variable(data,var))))
+  if(l > 1){
+    variables <- cbind(variables,var)
+  }
+}
+variables <- paste(sep=" + ", "Depth", paste(collapse =" + ", variables ))
+## Perform ANOVA on observed richness, which effects are significant
+for (m in measures){
+    f <- paste(m," ~ ", variables)
+    cat(sep = "", "###############################################################\n
+                   #Perform ANOVA on ",m,", which effects are significant\n
+                   anova.",m," <-aov( ",f,", anova_data)\n
+                   summary(anova.",m,")\n")
+    anova_res <- aov( as.formula(f), anova_data)
+    res <- summary(anova_res)
+    print(res)
+    cat("\n\n")
+}
 ```
 
 <h4>The rarefaction curve</h4>
@@ -336,20 +385,44 @@ plot(p)
 &#10;#library(phyloseq)
 &#10;#library(ggplot2)
 &#10;varExp <- # Experiment variable
-&#10;m <- # one list, ex:  c( \"Observed\",\"Chao1\",\"Shannon\",\"InvSimpson\")
+&#10;measures <- # one list, ex:  c( \"Observed\",\"Chao1\",\"Shannon\",\"InvSimpson\")
 &#10;#Save alpha distance table
 &#10;fileAlpha <- #path to output Alpha diversity file
-&#10;alpha.diversity <- estimate_richness(data, measures = m ) 
+&#10;alpha.diversity <- estimate_richness(data, measures = measures ) 
 &#10;write.table(alpha.diversity, fileAlpha,sep=\"\\t\", quote = FALSE, col.names = NA)
 &#10;
 &#10;#Richness plot
-&#10;p <- plot_richness(data, x = varExp , color = varExp , measures = m)+ ggtitle(\"Alpha diversity distribution\") + 
+&#10;p <- plot_richness(data, x = varExp , color = varExp , measures = measures)+ ggtitle(\"Alpha diversity distribution\") + 
 &#10;theme(plot.title = element_text(hjust = 0.5)) 
 &#10;plot(p)
 &#10;
 &#10;#With box plot
 &#10;p <- p + geom_boxplot(alpha = 0.2) + theme_bw() + geom_point() + theme(axis.text.x = element_blank(), plot.title = element_text(hjust = 0.5))
 &#10;plot(p)
+&#10;
+&#10;#Anova analysis
+&#10;anova_data <- cbind(sample_data(data), alpha.diversity)
+&#10;anova_data$Depth <- sample_sums(data)
+&#10;variables=c()
+&#10;for (var in sample_variables(data) ) {
+&#10;&#9; l = length(levels(as.factor(get_variable(data,var))))
+&#10;&#9; if(l > 1){
+&#10;&#9; variables <- cbind(variables,var)
+&#10;&#9; }
+&#10;}
+&#10;variables <- paste(sep=" + \", \"Depth" , paste(collapse = " + " , variables ))
+&#10;#Perform anova analyses
+&#10;for (m in measures){
+&#10;&#9; f <- paste(m," ~ " , variables)
+&#10;&#9; cat(sep = \"" , \"###############################################################\\n
+&#10;&#9;&#9;&#9;&#9;&#9;&#9;&#9; #Perform ANOVA on " ,m,\", which effects are significant\\n
+&#10;&#9;&#9;&#9;&#9;&#9;&#9;&#9; anova.\",m,\" <-aov( \",f,\", anova_data)\\n
+&#10;&#9;&#9;&#9;&#9;&#9;&#9;&#9; summary(anova.\",m,\")\\n\")
+&#10;&#9; anova_res <- aov( as.formula(f), anova_data)
+&#10;&#9; res <- summary(anova_res)
+&#10;&#9; print(res)
+&#10;&#9; cat(\"\\n\\n\")
+&#10;}
 &#10;
 &#10;##code of Mahendra Mariadassou for the rarefaction curve
 &#10;library(parallel)
