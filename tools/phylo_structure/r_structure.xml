@@ -1,0 +1,109 @@
+<?xml version="1.0"?>
+<!--
+# Copyright (C) 2017 INRA
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+-->
+<tool name="FROGSSTAT Phyloseq Structure Visualisation" id="FROGSSTAT_Phyloseq_Structure_Visualisation" version="1.0.0">
+	<description>with heatmap plot and ordination plot</description>
+	<command interpreter="python">r_structure.py 
+                                         --html $html
+                                         --data $data
+                                         --varExp $varExp
+                                         --method $method
+                                         --distance $distance
+	</command>
+    <inputs>
+		<!-- Files -->
+	    <param format="rdata" name="data" type="data" label="Phyloseq object (format rdata)" help="This is the result of FROGS Phyloseq Import Data Tool." optional="false">
+            <validator type="empty_field" message="This parameter is required." />
+        </param>
+        <param name="distance" format="tabular" type="data" label="The beta diversity distance matrix file" help="These file is the result of FROGS Phyloseq Beta Diversity tool." optional="false">
+            <validator type="empty_field" message="This parameter is required." />
+        </param>
+		<!-- Parameters -->	
+		<param name="varExp" type="text" label="Experiment variable" help="The experiment variable that you want to analyse." optional="false" value="" size="40">
+            <validator type="empty_field" message="This parameter is required." />
+        </param>
+		<param name="method" type="select" label="Ordination method">
+			<option value="MDS" >MDS/PCoA</option>
+			<option value="NMDS" >NMDS</option>
+            <option value="DCA" >DCA</option>
+            <option value="CCA" >CCA</option>
+            <option value="RDA" >RDA</option>
+            <option value="CAP" >CAP</option>
+            <option value="DPCoA" >DPCoA</option>
+        </param>
+	</inputs>
+	<outputs>
+		<data format="html" name="html" label="${tool.name}: structure.html" from_work_dir="structure.html"/>
+	</outputs>
+	<help>
+		
+.. image:: ${static_path}/images/tools/frogs/FROGS_logo.png 
+   :height: 144
+   :width: 110
+
+.. class:: infomark page-header h2
+
+What it does
+
+Using `phyloseq &lt;https://joey711.github.io/phyloseq/&gt;`_ and customized R function, this tool constructs heatmap plot and ordination plot with the `ordination methods &lt;https://www.bioconductor.org/packages/release/bioc/vignettes/phyloseq/inst/doc/phyloseq-analysis.html#ordination-methods&gt;`_ to visualise data structure.
+
+.. class:: infomark page-header h2
+
+Inputs/Outputs
+
+.. class:: h3
+
+Input
+
+**data file** (format rdata):
+The informations of data in one phyloseq object.
+This file is the result of "FROGS Phyloseq Import Data tool".
+
+**distance file** (format tabular):
+The data file containing beta diversity distance matrix.
+This file is the result of "FROGS Phyloseq Beta Diversity tool".
+
+.. class:: h3
+
+Output
+
+**html file** (format `HTML &lt;https://en.wikipedia.org/wiki/HTML&gt;`_):
+
+The review of data structure with an ordination plot and with an heatmap plot:
+
+.. image:: ${static_path}/images/tools/frogs/phyloseq_plot_sample_ellipse.png 
+     :height: 343
+     :width: 450
+
+.. image:: ${static_path}/images/tools/frogs/phyloseq_plot_heatmap_red.png 
+     :height: 343
+     :width: 450
+
+.. class:: infomark page-header h2
+
+**Contact**
+
+Contacts: frogs@toulouse.inra.fr
+
+Repository: https://github.com/geraldinepascal/FROGS
+
+Please cite the FROGS Publication: *Escudie F., Auer L., Bernard M., Cauquil L., Vidal K., Maman S., Mariadassou M., Combes S., Hernandez-Raquet G., Pascal G., 2016. FROGS: Find Rapidly OTU with Galaxy Solution. In: ISME-2016 Montreal, CANADA ,* http://bioinfo.genotoul.fr/wp-content/uploads/FROGS_ISME2016_poster.pdf
+
+Depending on the help provided you can cite us in acknowledgements, references or both.
+	
+	</help>
+</tool>

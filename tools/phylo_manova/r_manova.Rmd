@@ -1,0 +1,123 @@
+---
+output: html_document
+params:
+   data:
+      value: x
+   varExp:
+      value: x
+   method:
+      value: x
+---
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<style type="text/css">
+code.r{ /* Code block */
+  font-size: 11px;
+}
+pre{ /* Code block */
+  font-size: 11px
+}
+.button {
+    background-color: #2a7ecc; /* Blue */
+    border : none;
+    color  : white;
+    padding: 5px 10px;
+    text-align: center;
+    text-decoration: none;
+    display  : inline-block;
+    font-size: 12px;
+    margin   : 4px 2px;
+    cursor   : pointer;
+    border-radius: 8px;
+}
+h4 { 
+    display   : block;
+    font-size : 1em;
+    margin-top: 1.33em;
+    margin-bottom: 1.33em;
+    margin-left : 0;
+    margin-right: 0;
+    font-weight : bold;
+    color : #2a7ecc;
+}
+</style>
+
+<script src="https://s3-us-west-2.amazonaws.com/s.cdpn.io/14082/FileSaver.js"></script>
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+<h3>FROGS Phyloseq: Multivariate Analysis of Variance</h3>
+
+ Phyloseq `r packageVersion("phyloseq")`
+
+```{r include=FALSE, echo=FALSE}
+library(phyloseq)
+library(vegan)
+load(params$data)
+
+##get dist object from distance matrix file
+setwd(dirname(params$method))
+A        <- read.table(file=basename(params$method), row.names=1)
+dist.a   <- as.dist(A)
+metadata <- as(sample_data(data), "data.frame") ## convert sample_data to data.frame
+```
+
+#{.tabset .tabset-fade .tabset-pills}
+##Multivariate ANOVA performed with adonis
+```{r, echo=FALSE, cach=FALSE, comment=NA}
+adonis <- paste('adonis(dist.a ~ ', params$varExp, ', data = metadata, perm = 9999)')
+eval(parse(text = adonis))
+```
+
+##R code
+<h4>Loading packages & data</h4>
+```{r, eval=FALSE}
+library(vegan)
+## if in new session
+# library(phyloseq)
+#
+## load phyloseq object
+# data <- path to Rdata file
+# load(data)
+# extract sample metadata in a dataframe
+metadata <- as(sample_data(data), "data.frame")
+
+## load beta distance matrix
+beta_file <- # path to Beta diversity tsv file
+A <- read.table(file=beta_file, row.names=1)
+beta_dist <- as.dist(A)
+```
+<h4>With adonis</h4>
+```{r, comment=NA, cache=FALSE, echo=FALSE}
+cat(paste(sep="","## change experiment variable (currently ", params$varExp, " )if you wish\n","## Multivariate ANOVA performed with adonis",'\nadonis(beta_dist ~ ', params$varExp, ', data = metadata, perm = 9999)'))
+```
+
+<div id="code-r-file" style="display:none;">
+library(vegan)
+&#10;#if in new session
+&#10;#library(phyloseq)
+&#10;#data <- path to Rdata file
+&#10;#load(data)
+&#10;metadata <- as(sample_data(data), \"data.frame\")
+&#10;
+&#10;varExp <- #Experiment variable
+&#10;
+&#10;beta_file <- # path to Beta diversity tsv file
+&#10;A <- read.table(file=beta_file, row.names=1) 
+&#10;beta_dist <- as.dist(A) 
+&#10;
+&#10;f <- paste(\"beta_dist ~ \" , varExp)
+&#10;
+&#10;## Multivariate ANOVA performed with adonis
+&#10;adonis(as.formula(f), data = metadata, perm = 9999)
+&#10;
+</div>
+
+<script>
+  function download(){
+    var text = document.getElementById("code-r-file").textContent;
+    var blob = new Blob([text],{type:"text/plain;charset=utf-8"});
+    saveAs(blob,"manova_code.R");
+   }
+</script>
+<input type="button" value="Download R code" class="button" onclick="download();"/>

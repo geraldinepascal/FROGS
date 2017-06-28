@@ -1,0 +1,233 @@
+---
+output: html_document
+params:
+   data:
+      value: x
+   varExp:
+      value: x
+   methods:
+      value: x
+---
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<style type="text/css">
+code.r{ /* Code block */
+  font-size: 11px;
+}
+pre { /* Code block */
+  font-size: 11px
+}
+.button {
+    background-color: #2a7ecc; /* Blue */
+    border          : none;
+    color           : white;
+    padding         : 5px 10px;
+    text-align      : center;
+    text-decoration : none;
+    display         : inline-block;
+    font-size       : 12px;
+    margin          : 4px 2px;
+    cursor          : pointer;
+    border-radius   : 8px;
+}
+h4 { 
+    display      : block;
+    font-size    : 1em;
+    margin-top   : 1.33em;
+    margin-bottom: 1.33em;
+    margin-left  : 0;
+    margin-right : 0;
+    font-weight  : bold;
+    color        : #2a7ecc;
+}
+</style>
+
+<script src="https://s3-us-west-2.amazonaws.com/s.cdpn.io/14082/FileSaver.js"></script>
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+<h3>FROGS Phyloseq: Beta Diversity Visualization</h3>
+
+ Phyloseq `r packageVersion("phyloseq")`
+
+```{r include=FALSE, cache=FALSE}
+library(phyloseq)
+library(ggplot2)
+library(gridExtra)
+library(reshape2)
+load(params$data) 
+```
+
+```{r include=FALSE, cache=FALSE, comment=NA}
+## Generic method for distance
+methods <- as.list(strsplit(params$methods, ",")[[1]])
+
+## code to visualize distances of Mahendra Mariadassou
+sampleOrder <- levels(reorder(sample_names(data), as.numeric(get_variable(data, params$varExp)))) 
+
+plot_dist_as_heatmap <- function(dist, order = sampleOrder, title = NULL) {
+    data <- melt(as(dist, "matrix"))
+    colnames(data) <- c("x", "y", "distance")
+    if (!is.null(order)) {
+        data$x <- factor(data$x, levels = order)
+        data$y <- factor(data$y, levels = order)
+    }
+    p <- ggplot(data, aes(x = x, y = y, fill = distance)) + geom_tile() 
+    p <- p + theme(axis.title.x = element_blank(), 
+                   axis.title.y = element_blank(), 
+                   axis.text.x  = element_blank(), 
+                   axis.text.y  = element_blank()
+                   )
+    p <- p + scale_fill_continuous(limits = c(0, 1))
+    if (!is.null(title)) {
+        p <- p + ggtitle(title)
+    }
+    return(p)
+}
+```
+
+#{.tabset .tabset-fade .tabset-pills}
+
+##Dist as heatmap plot
+```{r, fig.width=8, fig.height=6, echo=FALSE, warning=FALSE}
+
+for (method in methods){
+   if (method=="unifrac"){
+      dist.uf <- distance(data, method = "unifrac") ## Unifrac
+      uf <- as.matrix(dist.uf)
+      write.table(uf, "Unifrac.tsv", sep="\t", quote=FALSE, col.names=NA)
+      p1 <- plot_dist_as_heatmap(dist.uf, title = "Unifrac")+ theme(plot.title = element_text(hjust = 0.5))
+      plot(p1)
+   }else if (method=="wunifrac"){
+      dist.wuf <- distance(data, method = "wunifrac") ## Weighted Unifrac
+      wuf <- as.matrix(dist.wuf)
+      write.table(wuf, "wUnifrac.tsv",sep="\t", quote=FALSE, col.names=NA)
+      p2 <- plot_dist_as_heatmap(dist.wuf, title = "wUnifrac")+ theme(plot.title = element_text(hjust = 0.5))
+      plot(p2)
+   }else if (method=="bray"){
+      dist.bc <- distance(data, method = "bray") ## Bray-Curtis
+      bc <- as.matrix(dist.bc)
+      write.table(bc, "Bray_Curtis.tsv",sep="\t", quote=FALSE, col.names=NA)
+      p3 <- plot_dist_as_heatmap(dist.bc, title = "Bray-Curtis")+ theme(plot.title = element_text(hjust = 0.5))
+      plot(p3)
+   }else if (method=="cc"){
+      dist.jac <- distance(data, method = "cc") ## Jaccard
+      jac <- as.matrix(dist.jac)
+      write.table(jac, "Jaccard.tsv",sep="\t", quote=FALSE, col.names=NA)
+      p4 <- plot_dist_as_heatmap(dist.jac, title = "Jaccard")+ theme(plot.title = element_text(hjust = 0.5))
+      plot(p4)
+   }else {
+      dist.a <- distance(data, method = method)
+      a <- as.matrix(dist.a)
+      write.table(a, paste(sep="", method, ".tsv"), sep="\t", quote=FALSE, col.names=NA)
+      pa <- plot_dist_as_heatmap(dist.a, title = method)+ theme(plot.title = element_text(hjust = 0.5))
+      plot(pa)
+    }
+}
+```
+
+##R code
+<h4>Loading packages & data</h4>
+```{r, eval=FALSE}
+library(phyloseq)
+library(ggplot2)
+library(gridExtra)
+library(reshape2)
+#if in new session 
+#data <- path to Rdata file 
+#load(data) 
+varExp <- #Experiment variable to split plot
+method <- #Beta diversity method name  #To show all available distances: distanceMethodList
+fileBeta <- "beta_diversity.tsv"  # output file path
+```
+
+<h4>Dist as heatmap plot</h4>
+```{r, eval=FALSE}
+## code to visualize distances of Mahendra Mariadassou
+sampleOrder <- levels(reorder(sample_names(data), as.numeric(get_variable(data, varExp)))) 
+
+plot_dist_as_heatmap <- function(dist, order = sampleOrder, title = NULL) {
+    data <- melt(as(dist, "matrix"))
+    colnames(data) <- c("x", "y", "distance")
+    if (!is.null(order)) {
+        data$x <- factor(data$x, levels = order)
+        data$y <- factor(data$y, levels = order)
+    }
+    p <- ggplot(data, aes(x = x, y = y, fill = distance)) + geom_tile() 
+    p <- p + theme(axis.title.x = element_blank(), 
+                   axis.title.y = element_blank(), 
+                   axis.text.x = element_blank(), 
+                   axis.text.y = element_blank()
+                   )
+    p <- p + scale_fill_continuous(limits = c(0, 1))
+    if (!is.null(title)) {
+        p <- p + ggtitle(title)
+    }
+    return(p)
+}
+
+dist.a <- distance(data, method = method)
+
+pa <- plot_dist_as_heatmap(dist.a, title = method)+ theme(plot.title = element_text(hjust = 0.5))
+plot(pa)
+```
+
+<h4>Save distance matrix</h4>
+```{r, eval=FALSE}
+a <- as.matrix(dist.a)
+write.table(a, fileBeta, sep="\t", quote=FALSE, col.names=NA)
+```
+
+<div id="code-r-file" style="display:none;">
+library(phyloseq)
+&#10;library(ggplot2)
+&#10;library(gridExtra)
+&#10;library(reshape2)
+&#10;#if in new session 
+&#10;#data <- path to Rdata file 
+&#10;#load(data) 
+&#10;varExp <- #Experiment variable to split plot
+&#10;method <- #Beta diversity method name
+&#10;fileBeta <- #path to output Beta diversity file
+&#10;#To show all available distances: distanceMethodList
+&#10;
+&#10;## code to visualize distances of Mahendra Mariadassou
+&#10;sampleOrder <- levels(reorder(sample_names(data), as.numeric(get_variable(data, varExp)))) 
+&#10;
+&#10;plot_dist_as_heatmap <- function(dist, order = sampleOrder, title = NULL) {
+&#10;    data <- melt(as(dist, \"matrix\"))
+&#10;    colnames(data) <- c(\"x\", \"y\", \"distance\")
+&#10;    if (!is.null(order)) {
+&#10;        data&#36;x <- factor(data&#36;x, levels = order)
+&#10;        data&#36;y <- factor(data&#36;y, levels = order)
+&#10;    }
+&#10;    p <- ggplot(data, aes(x = x, y = y, fill = distance)) + geom_tile() 
+&#10;    p <- p + theme(axis.title.x = element_blank(), 
+&#10;                   axis.title.y = element_blank(), 
+&#10;                   axis.text.x = element_blank(), 
+&#10;                   axis.text.y = element_blank()
+&#10;                   )
+&#10;    p <- p + scale_fill_continuous(limits = c(0, 1))
+&#10;    if (!is.null(title)) {
+&#10;        p <- p + ggtitle(title)
+&#10;    }
+&#10;    return(p)
+&#10;}
+&#10;
+&#10;dist.a <- distance(data, method = method)
+&#10;
+&#10;pa <- plot_dist_as_heatmap(dist.a, title = method)+ theme(plot.title = element_text(hjust = 0.5))
+&#10;plot(pa)
+&#10;
+&#10;a <- as.matrix(dist.a)
+&#10;write.table(a, fileBeta , sep=\"\\t\", quote=FALSE, col.names=NA)
+</div>
+
+<script>
+  function download(){
+    var text = document.getElementById("code-r-file").textContent;
+    var blob = new Blob([text],{type:"text/plain;charset=utf-8"});
+    saveAs(blob,"beta_diversity_code.R");
+   }
+</script>
+<input type="button" value="Download R code" class="button" onclick="download();"/>

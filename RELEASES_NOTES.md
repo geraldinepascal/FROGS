@@ -1,6 +1,13 @@
 # v2.0.0  [DEV]
 ### Tools added : 
   * Tree : perform phylogenetic tree reconstruction based on Pynast or Mafft and Fasttree
+  * FROGS Phyloseq Import Data : import data from 3 files: biomfile, samplefile, treefile into a phyloseq R object.
+  * FROGS Phyloseq Composition Visualization with bar plot and composition plot
+  * FROGS Phyloseq Alpha Diversity with richness plot
+  * FROGS Phyloseq Beta Diversity distance matrix
+  * FROGS Phyloseq Structure
+  * FROGS Phyloseq Clustering
+  * FROGS Phyloseq Manova 
 
 ### Bugs fixes:
   * Preprocess : min overlap at least equal to 1

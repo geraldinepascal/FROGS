@@ -1,0 +1,234 @@
+---
+output: html_document
+params:
+   data:
+      value: x
+   varExp:
+      value: x
+   method:
+      value: x
+---
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+<style type="text/css">
+code.r{ /* Code block */
+  font-size: 11px;
+}
+pre { /* Code block */
+  font-size: 11px
+}
+.button {
+    background-color: #2a7ecc; /* Blue */
+    border          : none;
+    color           : white;
+    padding         : 5px 10px;
+    text-align      : center;
+    text-decoration : none;
+    display         : inline-block;
+    font-size       : 12px;
+    margin          : 4px 2px;
+    cursor          : pointer;
+    border-radius   : 8px;
+}
+h4 { 
+    display      : block;
+    font-size    : 1em;
+    margin-top   : 1.33em;
+    margin-bottom: 1.33em;
+    margin-left  : 0;
+    margin-right : 0;
+    font-weight  : bold;
+    color        : #2a7ecc;
+}
+</style>
+
+<script src="https://s3-us-west-2.amazonaws.com/s.cdpn.io/14082/FileSaver.js"></script>
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+<h3>FROGS Phyloseq: Sample clustering using different linkage method</h3>
+
+ Phyloseq `r packageVersion("phyloseq")`
+
+```{r include=FALSE, echo=FALSE}
+library(phyloseq)
+library(scales)
+library(ape)
+load(params$data)
+
+##get dist object from distance matrix file
+#setwd(dirname(params$method))
+A <- read.table(file=params$method, row.names=1)
+dist <- as.dist(A)
+
+## Env types
+var <- get_variable(data, params$varExp)
+
+palette <- hue_pal()(length(levels(var))) # Automatic color palette: one color per different sample type
+
+tipColor <- col_factor(palette, levels = levels(var))(var) # Map sample type to color
+```
+
+#{.tabset .tabset-fade .tabset-pills}
+
+##Ward D2
+```{r, fig.width=8, fig.height=6, echo=FALSE}
+clust.wardD2 <- as.phylo(hclust(dist, method = 'ward.D2'))
+par(mfcol = c(1,1))
+plot(clust.wardD2, tip.color = tipColor, direction = "downwards", main = "Sample Clustering with Ward.D2 linkage")
+```
+<br>
+<button id="dwn-ward-d2" class="button">
+Download image
+</button>
+
+##Complete
+```{r, fig.width=8, fig.height=6, echo=FALSE}
+clust.complete <- as.phylo(hclust(dist, method = 'complete'))
+par(mfcol = c(1,1))
+plot(clust.complete, tip.color = tipColor, direction = "downwards", main = "Sample Clustering with Complete linkage")
+```
+<br>
+<button id="dwn-complete" class="button">
+Download image
+</button>
+
+##Single
+```{r, fig.width=8, fig.height=6, echo=FALSE}
+clust.single <- as.phylo(hclust(dist, method = 'single'))
+par(mfcol = c(1,1))
+plot(clust.single, tip.color = tipColor, direction = "downwards", main = "Sample Clustering with Single linkage")
+```
+<br>
+<button id="dwn-single" class="button">
+Download image
+</button>
+
+##R code
+
+<h4>Loading packages & data</h4>
+```{r, eval=FALSE}
+library(scales)
+library(ape)
+#if in new session 
+#library(phyloseq)
+#data <- path to Rdata file 
+#load(data)
+
+##get dist object from distance matrix file
+method <- # path to Beta diversity tsv file 
+A      <- read.table(file=method, row.names=1)
+dist   <- as.dist(A)
+
+## Env types
+varExp <- #Experiment variable to split plot
+var    <- get_variable(data,varExp)
+```
+
+<h4>Make color palettes</h4>
+```{r, eval=FALSE}
+# automatic color palette: one color per different sample type
+palette  <- hue_pal()(length(levels(var)))
+# Map sample type to color
+tipColor <- col_factor(palette, levels = levels(var))(var)
+```
+
+<h4>Sample clustering using different linkage method</h4>
+```{r, eval=FALSE}
+clust.wardD2 <- as.phylo(hclust(dist, method = 'ward.D2'))
+par(mfcol = c(1,1))
+plot(clust.wardD2, tip.color = tipColor, direction = "downwards", main = "Sample Clustering with Ward.D2 linkage")
+
+clust.complete <- as.phylo(hclust(dist, method = 'complete'))
+par(mfcol = c(1,1))
+plot(clust.complete, tip.color = tipColor, direction = "downwards", main = "Sample Clustering with Complete linkage")
+
+clust.single <- as.phylo(hclust(dist, method = 'single'))
+par(mfcol = c(1,1))
+plot(clust.single, tip.color = tipColor, direction = "downwards", main = "Sample Clustering with Single linkage")
+```
+
+<div id="code-r-file" style="display:none;" charset=UTF-8>
+library(scales)
+&#10;library(ape)
+&#10;#if in new session 
+&#10;#library(phyloseq)
+&#10;#data <- path to Rdata file 
+&#10;#load(data)
+&#10;
+&#10;##get dist object from distance matrix file
+&#10;method <- # path to Beta diversity tsv file 
+&#10;A <- read.table(file=method, row.names=1)
+&#10;dist <- as.dist(A)
+&#10;
+&#10;## Env types
+&#10;varExp <- #Experiment variable to split plot
+&#10;var <- get_variable(data,varExp)
+&#10;
+&#10;## If samplefile have the Color column:
+&#10;## Try this palette on clustering
+&#10;## Map sample type to color
+&#10;
+&#10;# automatic color palette: one color per different sample type
+&#10;palette <- hue_pal()(length(levels(var)))
+&#10;# Map sample type to color
+&#10;tipColor <- col_factor(palette, levels = levels(var))(var)
+&#10;
+&#10;clust.wardD2 <- as.phylo(hclust(dist, method = \'ward.D2\'))
+&#10;par(mfcol = c(1,1))
+&#10;plot(clust.wardD2, tip.color = tipColor, direction = \"downwards\", main = \"Sample Clustering with Ward.D2 linkage\")
+&#10;
+&#10;clust.complete <- as.phylo(hclust(dist, method = \'complete\'))
+&#10;par(mfcol = c(1,1))
+&#10;plot(clust.complete, tip.color = tipColor, direction = \"downwards\", main = \"Sample Clustering with Complete linkage\")
+&#10;
+&#10;clust.single <- as.phylo(hclust(dist, method = \'single\'))
+&#10;par(mfcol = c(1,1))
+&#10;plot(clust.single, tip.color = tipColor, direction = \"downwards\", main = \"Sample Clustering with Single linkage\")
+&#10;
+</div>
+
+<script>
+  function download1(){
+    var text = document.getElementById("code-r-file").textContent;
+    var blob = new Blob([text],{type:"text/plain;charset=utf-8"});
+    saveAs(blob,"sample_clustering_code.R");
+   }
+</script>
+<input type="button" value="Download R code" class="button" onclick="download1();"/>
+
+<script>
+function download(filename, mysrc) {
+var element = document.createElement('a');
+    element.setAttribute('href', mysrc);
+    element.setAttribute('download', filename);
+    element.style.display = 'none';
+    document.body.appendChild(element);
+    element.click();
+    document.body.removeChild(element);
+}
+document.getElementById("dwn-ward-d2").addEventListener("click", function(){
+    var div = document.getElementById('ward-d2');
+    var myimg = div.getElementsByTagName('img')[0];
+    var mysrc = myimg.src;
+    var filename = "sample_clustering_wardD2.png";
+    download(filename, mysrc);
+}, false);
+
+document.getElementById("dwn-complete").addEventListener("click", function(){
+    var div = document.getElementById('complete');
+    var myimg = div.getElementsByTagName('img')[0];
+    var mysrc = myimg.src;
+    var filename = "sample_clustering_complete.png";
+    download(filename, mysrc);
+}, false);
+
+document.getElementById("dwn-single").addEventListener("click", function(){
+    var div = document.getElementById('single');
+    var myimg = div.getElementsByTagName('img')[0];
+    var mysrc = myimg.src;
+    var filename = "sample_clustering_single.png";
+    download(filename, mysrc);
+}, false);
+</script>
