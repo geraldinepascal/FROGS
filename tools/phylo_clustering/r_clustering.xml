@@ -16,7 +16,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
 <tool name="FROGSSTAT Phyloseq Sample Clustering" id="FROGSSTAT_Phyloseq_Sample_Clustering" version="1.0.0">
-	<description>of samples using different linkage method</description>
+	<description>of samples using different linkage methods</description>
 	<command interpreter="python">r_clustering.py 
                                                --html $html 
                                                --data $data 
@@ -25,10 +25,10 @@
 	</command>
     <inputs>
 		<!-- Files -->
-	    <param format="rdata" name="data" type="data" label="Phyloseq object (format rdata)" help="This is the result of FROGS Phyloseq Import Data." optional="false">
+	    <param format="rdata" name="data" type="data" label="Phyloseq object (format rdata)" help="This is the result of FROGS Phyloseq Import Data tool." optional="false">
             <validator type="empty_field" message="This parameter is required." />
         </param>
-        <param name="method" format="tabular" type="data" label="The beta diversity distance matrix file" help="These file is the result of FROGS Phyloseq Beta Diversity." optional="false">
+        <param name="method" format="tabular" type="data" label="The beta diversity distance matrix file" help="This file is the result of FROGS Phyloseq Beta Diversity tool." optional="false">
             <validator type="empty_field" message="This parameter is required." />
         </param>
 		<!-- Parameters -->	
@@ -49,7 +49,7 @@
 
 What it does
 
-Using `phyloseq &lt;https://joey711.github.io/phyloseq/&gt;`_ and customized R function, this tool contruct the clustering plot for cluster analysis with different linkage method.
+Using `phyloseq &lt;https://joey711.github.io/phyloseq/&gt;`_ and customized R function, this tool contructs the clustering plot for cluster analysis with different linkage methods.
 
 
 .. class:: infomark page-header h2
@@ -62,11 +62,11 @@ Input
 
 **data file** (format RData):
 The informations of data in one phyloseq object.
-This is the result of FROGS Phyloseq Import Data.
+This is the result of FROGS Phyloseq Import Data tool.
 
 **distance file** (format tabular):
 The data file containing beta diversity distance matrix.
-These file is the result of FROGS Phyloseq Beta Diversity. 
+This file is the result of FROGS Phyloseq Beta Diversity tool. 
 
 .. class:: h3
 
@@ -88,7 +88,7 @@ Contacts: frogs@toulouse.inra.fr
 
 Repository: https://github.com/geraldinepascal/FROGS
 
-Please cite the FROGS Publication: *Escudie F., Auer L., Bernard M., Cauquil L., Vidal K., Maman S., Mariadassou M., Hernadez-Raquet G., Pascal G., 2015. FROGS: Find Rapidly OTU with Galaxy Solution. In: The environmental genomic Conference, Montpellier, France,* http://bioinfo.genotoul.fr/fileadmin/user_upload/FROGS_2015_GE_Montpellier_poster.pdf
+Please cite the FROGS Publication: *Escudie F., Auer L., Bernard M., Cauquil L., Vidal K., Maman S., Mariadassou M., Combes S., Hernandez-Raquet G., Pascal G., 2016. FROGS: Find Rapidly OTU with Galaxy Solution. In: ISME-2016 Montreal, CANADA ,* http://bioinfo.genotoul.fr/wp-content/uploads/FROGS_ISME2016_poster.pdf
 
 Depending on the help provided you can cite us in acknowledgements, references or both.
 	
