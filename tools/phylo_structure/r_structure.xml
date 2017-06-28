@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
-<tool name="FROGSSTAT Phyloseq Structure Visualization" id="FROGSSTAT_Phyloseq_Structure_Visualization" version="1.0.0">
+<tool name="FROGSSTAT Phyloseq Structure Visualisation" id="FROGSSTAT_Phyloseq_Structure_Visualization" version="1.0.0">
 	<description>with heatmap plot and ordination plot</description>
 	<command interpreter="python">r_structure.py 
                                          --html $html
@@ -26,10 +26,10 @@
 	</command>
     <inputs>
 		<!-- Files -->
-	    <param format="rdata" name="data" type="data" label="Phyloseq object (format rdata)" help="This is the result of FROGS Phyloseq Import Data." optional="false">
+	    <param format="rdata" name="data" type="data" label="Phyloseq object (format rdata)" help="This is the result of FROGS Phyloseq Import Data Tool." optional="false">
             <validator type="empty_field" message="This parameter is required." />
         </param>
-        <param name="distance" format="tabular" type="data" label="The beta diversity distance matrix file" help="These file is the result of FROGS Phyloseq Beta Diversity." optional="false">
+        <param name="distance" format="tabular" type="data" label="The beta diversity distance matrix file" help="These file is the result of FROGS Phyloseq Beta Diversity tool." optional="false">
             <validator type="empty_field" message="This parameter is required." />
         </param>
 		<!-- Parameters -->	
@@ -59,7 +59,7 @@
 
 What it does
 
-Using `phyloseq &lt;https://joey711.github.io/phyloseq/&gt;`_ and customized R function, this tool construct heatmap plot and ordination plot with the `ordination methods &lt;https://www.bioconductor.org/packages/release/bioc/vignettes/phyloseq/inst/doc/phyloseq-analysis.html#ordination-methods&gt;`_ to visualize data structure.
+Using `phyloseq &lt;https://joey711.github.io/phyloseq/&gt;`_ and customized R function, this tool constructs heatmap plot and ordination plot with the `ordination methods &lt;https://www.bioconductor.org/packages/release/bioc/vignettes/phyloseq/inst/doc/phyloseq-analysis.html#ordination-methods&gt;`_ to visualise data structure.
 
 .. class:: infomark page-header h2
 
@@ -71,11 +71,11 @@ Input
 
 **data file** (format rdata):
 The informations of data in one phyloseq object.
-These file is the result of "FROGS Phyloseq Import Data".
+This file is the result of "FROGS Phyloseq Import Data tool".
 
 **distance file** (format tabular):
 The data file containing beta diversity distance matrix.
-These file is the result of "FROGS Phyloseq Beta Diversity".
+This file is the result of "FROGS Phyloseq Beta Diversity tool".
 
 .. class:: h3
 
@@ -83,7 +83,7 @@ Output
 
 **html file** (format `HTML &lt;https://en.wikipedia.org/wiki/HTML&gt;`_):
 
-The review of data structure with ordination plot and with heatmap plot:
+The review of data structure with an ordination plot and with an heatmap plot:
 
 .. image:: ${static_path}/images/tools/frogs/phyloseq_plot_sample_ellipse.png 
      :height: 343
@@ -101,7 +101,7 @@ Contacts: frogs@toulouse.inra.fr
 
 Repository: https://github.com/geraldinepascal/FROGS
 
-Please cite the FROGS Publication: *Escudie F., Auer L., Bernard M., Cauquil L., Vidal K., Maman S., Mariadassou M., Hernadez-Raquet G., Pascal G., 2015. FROGS: Find Rapidly OTU with Galaxy Solution. In: The environmental genomic Conference, Montpellier, France,* http://bioinfo.genotoul.fr/fileadmin/user_upload/FROGS_2015_GE_Montpellier_poster.pdf
+Please cite the FROGS Publication: *Escudie F., Auer L., Bernard M., Cauquil L., Vidal K., Maman S., Mariadassou M., Combes S., Hernandez-Raquet G., Pascal G., 2016. FROGS: Find Rapidly OTU with Galaxy Solution. In: ISME-2016 Montreal, CANADA ,* http://bioinfo.genotoul.fr/wp-content/uploads/FROGS_ISME2016_poster.pdf
 
 Depending on the help provided you can cite us in acknowledgements, references or both.
 	
