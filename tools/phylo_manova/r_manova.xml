@@ -49,7 +49,7 @@
 
 What it does
 
-Using `phyloseq &lt;https://joey711.github.io/phyloseq/&gt;`_ and customized R function for testing Multivariate Analysis of Variance (MANOVA) with CAP (Canonical Analysis of Principal Coordinates) by adonis.
+Using `phyloseq &lt;https://joey711.github.io/phyloseq/&gt;`_ and `vegan &lt;https://cran.r-project.org/web/packages/vegan/index.html&gt;`_ functions to perform Multivariate Analysis of Variance (MANOVA)
 
 .. class:: infomark page-header h2
 
