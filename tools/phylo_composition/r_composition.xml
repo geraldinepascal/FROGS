@@ -38,13 +38,13 @@
         <param name="taxaRank1" type="text" label="Taxonomic level to filter your data" help="ex: Kingdom, Phylum, Class, Order, Family, Genus, Species" value="Kingdom"  size="20">     
             <validator type="empty_field" message="This parameter is required." />
         </param>
-        <param name="taxaSet1" type="text" label="Taxa (at the above taxonomic level) to keep in the dataset" help="ex: Bacteria (when filtering at the Kingdom level), Firmicutes (when filtering at the Phylum level). Multiple taxa (separated by a space) can be specified, *i.e.* Firmicutes Proteobacteria" value="Bacteria" size="20">
+        <param name="taxaSet1" type="text" label="Taxa (at the above taxonomic level) to keep in the dataset" help="ex: Bacteria (when filtering at the Kingdom level), Firmicutes (when filtering at the Phylum level). Multiple taxa (separated by a space) can be specified, i.e. Firmicutes Proteobacteria" value="Bacteria" size="20">
             <validator type="empty_field" message="This parameter is required." />
         </param>
         <param name="taxaRank2" type="text" label="Taxonomic level used for aggregation" help="ex: Family (when filtering at the Phylum level). The aggregation level must be below the filtering level." value="Phylum" size="20">
             <validator type="empty_field" message="This parameter is required." />
         </param>
-		<param name="numberOfTaxa" type="text" label="Number of most abundant taxa to keep" help="ex: 9, *i.e.* Tool keeps the 9 most abundant taxa and the remaining taxa are aggregated in a group 'Other'" value="9" size="20">
+		<param name="numberOfTaxa" type="text" label="Number of most abundant taxa to keep" help="ex: 9, i.e. Tool keeps the 9 most abundant taxa and the remaining taxa are aggregated in a group 'Other'" value="9" size="20">
             <validator type="empty_field" message="This parameter is required." />
         </param>
 	</inputs>
