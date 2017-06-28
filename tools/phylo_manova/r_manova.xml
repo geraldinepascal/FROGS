@@ -74,8 +74,6 @@ Output
 **html file** (format `HTML &lt;https://en.wikipedia.org/wiki/HTML&gt;`_): The review of Manova test.
 
 .. image:: ${static_path}/images/tools/frogs/phyloseq_manova.png 
-     :height: 316
-     :width: 927
      
 .. class:: infomark page-header h2
 
