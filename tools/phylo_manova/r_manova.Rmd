@@ -69,14 +69,6 @@ adonis <- paste('adonis(dist.a ~ ', params$varExp, ', data = metadata, perm = 99
 eval(parse(text = adonis))
 ```
 
-##Canonical Analysis of Principal Coordinates through capscale
-```{r, echo=FALSE, cach=FALSE, comment=NA, warning=FALSE}
-capcap <- paste('cap <- capscale(dist.a ~ ', params$varExp, ', data = metadata)')
-eval(parse(text = capcap))
-cap
-anova(cap, permutations = 999)
-```
-
 ##R code
 <h4>Loading packages & data</h4>
 ```{r, eval=FALSE}
@@ -100,11 +92,6 @@ beta_dist <- as.dist(A)
 cat(paste(sep="","## change experiment variable (currently ", params$varExp, " )if you wish\n","## Multivariate ANOVA performed with adonis",'\nadonis(beta_dist ~ ', params$varExp, ', data = metadata, perm = 9999)'))
 ```
 
-<h4>Through capscale</h4>
-```{r, comment=NA, cache=FALSE, echo=FALSE}
-cat(paste(sep="","## change experiment variable (currently ", params$varExp, " ) if you wish\n", "## Canonical Analysis of Principal Coordinates through capscale",'\ncap <- capscale(beta_dist ~ ', params$varExp, ', data = metadata)'), "\nanova(cap, permutations = 999)")
-```
-
 <div id="code-r-file" style="display:none;">
 library(vegan)
 &#10;#if in new session
@@ -124,10 +111,6 @@ library(vegan)
 &#10;## Multivariate ANOVA performed with adonis
 &#10;adonis(as.formula(f), data = metadata, perm = 9999)
 &#10;
-&#10;## Canonical Analysis of Principal Coordinates through capscale
-&#10;cap <- capscale(as.formula(f), data = metadata)
-&#10;cap
-&#10;anova(cap, permutations = 999)
 </div>
 
 <script>
