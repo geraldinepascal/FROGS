@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
-<tool name="FROGSSTAT Phyloseq Structure Visualisation" id="FROGSSTAT_Phyloseq_Structure_Visualization" version="1.0.0">
+<tool name="FROGSSTAT Phyloseq Structure Visualisation" id="FROGSSTAT_Phyloseq_Structure_Visualisation" version="1.0.0">
 	<description>with heatmap plot and ordination plot</description>
 	<command interpreter="python">r_structure.py 
                                          --html $html
