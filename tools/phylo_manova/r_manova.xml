@@ -18,7 +18,7 @@
 <tool name="FROGSSTAT Phyloseq Multivariate Analysis Of Variance" id="FROGSSTAT_Phyloseq_Multivariate_Analysis_Of_Variance" version="1.0.0">
 	<command interpreter="python">r_manova.py 
                                     --data $data
-                                    --varExp \"$varExp\"
+                                    --varExp "$varExp"
                                     --distance-matrix $method
                                     --html $html
 	</command>

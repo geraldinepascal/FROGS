@@ -95,7 +95,7 @@ if __name__ == "__main__":
     prevent_shell_injections(args)   
     # Process 
     # keep quote around varExp
-    idx=sys.argv.index("--varExp")+1
+    idx=sys.argv.index("-v")+1 if "-v" in sys.argv else sys.argv.index("--varExp")+1 
     cmd = " ".join(sys.argv[0:idx]) + " \"" + sys.argv[idx] + "\" "
     if idx != len(sys.argv):
         cmd += " ".join(sys.argv[idx+1:])
