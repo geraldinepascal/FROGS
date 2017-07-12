@@ -97,14 +97,7 @@ Download image
 anova_data <- cbind(sample_data(data), alpha.diversity)
 anova_data$Depth <- sample_sums(data)
 
-variables=c()
-for (var in sample_variables(data) ) {
-  l = length(levels(as.factor(get_variable(data,var))))
-  if(l > 1 && l < nsamples(data)){
-    variables <- cbind(variables,var)
-  }
-}
-variables <- paste(sep=" + ", "Depth", paste(collapse =" + ", variables ))
+variables <- paste(sep=" + ", "Depth", params$varExp )
 ## Perform ANOVA on observed richness, which effects are significant
 for (m in measures){
     f <- paste(m," ~ ", variables)
