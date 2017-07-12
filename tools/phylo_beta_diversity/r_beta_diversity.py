@@ -84,7 +84,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser( description='To present the data beta diversity with phyloseq.')    
     parser.add_argument('--output_dir', required=True, action="store", type=str, help="Path to output matrix file")       
     parser.add_argument('-v', '--varExp', type=str, required=True, default=None, help='The experiment variable you want to analyse.')
-    parser.add_argument('-m', '--methods', required=True, type=str, default='bray,cc,unifrac,wunifrac', help='The methods of beta diversity in Phyloseq distance list. Each method is separated by one comma. [Default: %(default)s].')
+    parser.add_argument('-m', '--distance-methods', required=True, type=str, default='bray,cc,unifrac,wunifrac', help='The methods of beta diversity in Phyloseq distance list. Each method is separated by one comma. [Default: %(default)s].')
     # Inputs
     group_input = parser.add_argument_group( 'Inputs' )
     group_input.add_argument('-d','--data', required=True, default=None, help="The path of RData file containing a phyloseq object-the result of FROGS Phyloseq Import Data" )
@@ -97,11 +97,11 @@ if __name__ == "__main__":
     
     Logger.static_write(args.log_file, "## Application\nSoftware :" + sys.argv[0] + " (version : " + str(__version__) + ")\nCommand : " + " ".join(sys.argv) + "\n\n")
     # check parameter
-    if args.methods=="None":
+    if args.distance_methods=="None":
         raise Exception("You must choose at least one method name.")     
     list_distance=["unifrac","wunifrac","bray","cc","dpcoa","jsd","manhattan","euclidean","canberra","kulczynski","jaccard","gower","altGower","morisita","horn","mountford","raup","binomial","chao","cao","w","-1","c","wb","r","I","e","t","me","j","sor","m","-2","co","g","-3","l","19","hk","rlb","sim","gl","z","maximum","binary","minkowski","ANY"]
     
-    methods=args.methods.split(",") if not args.methods[-1] == "," else args.methods[:-1].split(",")
+    methods=args.distance_methods.split(",") if not args.distance_methods[-1] == "," else args.distance_methods[:-1].split(",")
     for method in methods:
         if method not in list_distance:
             raise Exception( 'Your method "'+str(method)+'", name is not correct !!! Please make sure that it is in the list:'+str(list_distance))
@@ -114,4 +114,4 @@ if __name__ == "__main__":
     # Process 
     data=os.path.abspath(args.data)
     html=os.path.abspath(args.html)
-    Rscript(html, data, args.varExp, args.methods, outdir).submit( args.log_file )
+    Rscript(html, data, args.varExp, args.distance_methods, outdir).submit( args.log_file )
