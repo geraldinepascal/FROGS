@@ -168,7 +168,7 @@ def write_summary( summary_file, pynast_fail, biomfile, treefile):
     @param biomfile: [str] path to the input BIOM file.
     @param treefile: [str] path to the Newick file.
     """
-    # to summary OTUs number && abundances number				
+    # to summary OTUs number && abundances number               
     detection_categories =["Taxonomic Information", "Abundance Number", "% with abundance total", "Sequence length"]
     table_otu_out =[]
     summary_info = {
@@ -197,8 +197,10 @@ def write_summary( summary_file, pynast_fail, biomfile, treefile):
             
             # to built one table of OTUs out of phylogenetic tree
             taxonomy=""
-            if biom.has_metadata("taxonomy") or biom.has_metadata("blast_taxonomy"):
-                taxonomy=";".join(biom.get_observation_taxonomy( otu.id, "taxonomy" )) if biom.has_observation_metadata( 'taxonomy' ) else ";".join(biom.get_observation_taxonomy( otu.id, "blast_taxonomy" ))
+            if biom.has_metadata("taxonomy"):
+                taxonomy = ";".join(biom.get_observation_metadata(otu.id)["taxonomy"]) if issubclass(biom.get_observation_metadata(otu.id)["taxonomy"].__class__,list) else str(biom.get_observation_metadata(otu.id)["taxonomy"])
+            elif biom.has_metadata("blast_taxonomy"): 
+                taxonomy = ";".join(biom.get_observation_metadata(otu.id)["blast_taxonomy"]) if issubclass(biom.get_observation_metadata(otu.id)["blast_taxonomy"].__class__,list) else str(biom.get_observation_metadata(otu.id)["blast_taxonomy"])
             abundance=biom.get_observation_count(otu.id)
             percent_abundance=abundance*100/(float(summary_info['number_abundance_all']))
             length=len(otu.string)
@@ -210,8 +212,10 @@ def write_summary( summary_file, pynast_fail, biomfile, treefile):
     
     for otu in list_in_tree:
         tax=None
-        if biom.has_metadata("taxonomy") or biom.has_metadata("blast_taxonomy"):
-            tax=" ".join(biom.get_observation_taxonomy(otu, "taxonomy" )) if biom.has_observation_metadata( 'taxonomy' ) else " ".join(biom.get_observation_taxonomy(otu, "blast_taxonomy"))
+        if biom.has_metadata("taxonomy"):
+            tax=" ".join(biom.get_observation_metadata(otu)["taxonomy"]) if issubclass(biom.get_observation_metadata(otu)["taxonomy"].__class__, list) else str(biom.get_observation_metadata(otu)["taxonomy"])
+        elif biom.has_metadata("blast_taxonomy"):
+            tax=" ".join(biom.get_observation_metadata(otu)["blast_taxonomy"]) if issubclass(biom.get_observation_metadata(otu)["blast_taxonomy"].__class__, list) else str(biom.get_observation_metadata(otu)["blast_taxonomy"])
         if tax :
             newick=newick.replace(otu + ":", otu + " " + tax + ":")
             
@@ -278,7 +282,7 @@ if __name__ == "__main__":
         pynast_log = os.path.join(temps.tmp_dir , filename_prefix+'_pynast_log.txt') 
         temps.files.append(align)
         temps.files.append(pynast_fail)
-        temps.files.append(pynast_log)		
+        temps.files.append(pynast_log)      
     
     # Process 
     try:        
