@@ -22,13 +22,13 @@
                                         --varExp $varExp
                                         #if $methods != "None"
                                             #if $other_method != ""
-                                                --methods $methods,$other_method
+                                                --distance-methods $methods,$other_method
                                             #else
-                                                --methods $methods
+                                                --distance-methods $methods
                                             #end if
                                         #else
                                             #if $other_method != ""
-                                                --methods $other_method
+                                                --distance-methods $other_method
                                             #end if
                                         #end if
                                         --output_dir BetaMatrix
