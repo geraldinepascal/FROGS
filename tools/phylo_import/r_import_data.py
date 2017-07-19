@@ -37,6 +37,7 @@ if os.getenv('PYTHONPATH') is None: os.environ['PYTHONPATH'] = LIB_DIR
 else: os.environ['PYTHONPATH'] = os.environ['PYTHONPATH'] + os.pathsep + LIB_DIR
 
 from frogsUtils import *
+from frogsBiom import *
 ##################################################################################################################################################
 #
 # COMMAND LINES
@@ -95,7 +96,7 @@ if __name__ == "__main__":
     group_output = parser.add_argument_group( 'Outputs' ) 
     group_output.add_argument('-d','--data', default='phyloseq_data.Rdata', help="path to store phyloseq-class object in Rdata file. [Default: %(default)s]" )
     group_output.add_argument('-o','--html', default='summary.html', help="path to store resulting html file. [Default: %(default)s]" )
-    group_output.add_argument( '-l', '--log_file', default=sys.stdout, help='This output file will contain several information on executed commands.')   
+    group_output.add_argument( '-l', '--log-file', default=sys.stdout, help='This output file will contain several information on executed commands.')   
     args = parser.parse_args()
     prevent_shell_injections(args)
    
@@ -106,6 +107,9 @@ if __name__ == "__main__":
     biomfile=os.path.abspath(args.biomfile)
     samplefile=os.path.abspath(args.samplefile)
     filename_treefile = ".".join(os.path.split(args.treefile)[1].split('.')[:-1])
+    biom = BiomIO.from_json(biomfile)
+    if not biom.has_metadata("taxonomy"):
+        raise Exception("Your biom input file has no standard taxonomy metadata. Coming from FROGS, did you forget to standardize your biom with FROGS Biom to std Biom ?\n")
     if (args.treefile is None) or (args.treefile =='None') or (filename_treefile == ""):
         treefile="None"
     else:
