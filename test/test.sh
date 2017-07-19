@@ -198,7 +198,7 @@ then
 	exit 1;
 fi
 
-echo "Step tree : pynast`date`"
+echo "Step tree : pynast `date`"
 
 tree.py \
  --nb-cpus $nb_cpu  \
@@ -215,7 +215,7 @@ then
 	exit 1;
 fi
 
-echo "Step tree : mafft`date`"
+echo "Step tree : mafft `date`"
 
 tree.py \
  --nb-cpus $nb_cpu \
@@ -228,21 +228,6 @@ tree.py \
 if [ $? -ne 0 ]
 then
 	echo "Error in tree : mafft" >&2
-	exit 1;
-fi
-
-echo "Step r_import_data `date`"
-
-r_import_data.py  \
- --biomfile $out_dir/04-affiliation.biom \
- --samplefile $frogs_dir/test/data/sample_metadata.tsv \
- --treefile $out_dir/10b-tree.nwk \
- --data $out_dir/11-phylo_import.Rdata --html $out_dir/11-phylo_import.html --log-file $out_dir/11-phylo_import.log
-
- 
-if [ $? -ne 0 ]
-then
-	echo "Error in r_import_data " >&2
 	exit 1;
 fi
 
