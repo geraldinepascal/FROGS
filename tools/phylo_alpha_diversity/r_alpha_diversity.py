@@ -93,7 +93,7 @@ if __name__ == "__main__":
     group_output = parser.add_argument_group( 'Outputs' )
     group_output.add_argument('-o','--html', default='alpha_diversity.html', help="The path to store resulting html file. [Default: %(default)s]" )
     group_output.add_argument('-a','--alphaD', default='alpha_diversity.tsv', help="The path to store resulting data file containing alpha diversity table. [Default: %(default)s]" )    
-    group_output.add_argument( '-l', '--log_file', default=sys.stdout, help="This output file will contain several information on executed commands.")    
+    group_output.add_argument( '-l', '--log-file', default=sys.stdout, help="This output file will contain several information on executed commands.")    
     args = parser.parse_args()
     prevent_shell_injections(args)   
     # Process 
