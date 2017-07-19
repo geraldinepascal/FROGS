@@ -160,7 +160,7 @@ def get_methods_mafft(seqs):
     else:
         return "--auto "
         
-def write_summary( summary_file, pynast_fail, biomfile, treefile):
+def write_summary( summary_file, fasta_in, pynast_fail, biomfile, treefile):
     """
     @summary: Writes the process summary in one html file.
     @param summary_file: [str] path to the output html file.
@@ -184,11 +184,12 @@ def write_summary( summary_file, pynast_fail, biomfile, treefile):
     dic_otu={}
     treefile = open(treefile, "r")
     newick = treefile.read().strip()
-    list_otu_all=biom.get_observations_names()
+    list_otu_all=list()
     list_out_tree=[]
-    for observation_name in biom.get_observations_names():
+    for otu in FastaIO(fasta_in):
+        list_otu_all.append(otu.id)
         summary_info['number_otu_all'] +=1
-        summary_info['number_abundance_all'] += biom.get_observation_count(observation_name)
+        summary_info['number_abundance_all'] += biom.get_observation_count(otu.id)
 
     if pynast_fail is not None:
         for otu in FastaIO(pynast_fail):
@@ -288,6 +289,9 @@ if __name__ == "__main__":
     try:        
         Logger.static_write(args.log_file, "## Application\nSoftware :" + sys.argv[0] + " (version : " + str(__version__) + ")\nCommand : " + " ".join(sys.argv) + "\n\n")
         nb_seq = get_fasta_nb_seq(args.input_otu)
+        biom = BiomIO.from_json(args.biomfile)
+        if nb_seq > len(biom.rows):
+            raise Exception("Your fasta input file contains more OTU than your biom file.\n")
         Logger.static_write(args.log_file, "Number of input OTUs sequences: " + str(nb_seq) + "\n\n")
         if nb_seq >10000:
             raise Exception( "FROGS Tree is only working on less than 10 000 sequences!" )
@@ -298,7 +302,7 @@ if __name__ == "__main__":
             min_len=compute_min_sequence_length(args.input_otu)
             Pynast(args.input_otu, args.template_pynast, min_len, align, pynast_fail, pynast_log).submit( args.log_file )
         FastTree(align, args.out_tree).submit( args.log_file )
-        write_summary( args.html, pynast_fail, args.biomfile, args.out_tree)
+        write_summary( args.html, args.input_otu, pynast_fail, args.biomfile, args.out_tree)
     finally:
         if not args.debug:
             temps.deleteAll()
