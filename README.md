@@ -259,6 +259,7 @@
     Example:
         ...
         <section id="FROGS_wrappers" name="FROGS">
+        <label text="OTUs reconstruction" id="FROGS_OTU" />
             <tool file="FROGS/app/upload_tar.xml" />
             <tool file="FROGS/app/demultiplex.xml" />
             <tool file="FROGS/app/preprocess.xml" />
@@ -272,6 +273,15 @@
             <tool file="FROGS/app/biom_to_tsv.xml" />
             <tool file="FROGS/app/tsv_to_biom.xml" />
             <tool file="FROGS/app/normalisation.xml" />
+            <tool file="FROGS/app/tree.xml" />
+        <label text="OTUs structure and composition analysis" id="FROGS_Phyloseq" />
+            <tool file="FROGS/app/r_import_data.xml" />
+            <tool file="FROGS/app/r_composition.xml" />
+            <tool file="FROGS/app/r_alpha_diversity.xml" />
+            <tool file="FROGS/app/r_beta_diversity.xml" />
+            <tool file="FROGS/app/r_structure.xml" />
+            <tool file="FROGS/app/r_clustering.xml" />
+            <tool file="FROGS/app/r_manova.xml" />
         </section>
         ...
     Note: 
