@@ -83,7 +83,7 @@ if __name__ == "__main__":
     # Manage parameters
     parser = argparse.ArgumentParser( description='To compute and present the data alpha diversity with plot_richness of Phyloseq.' )
     parser.add_argument('-v', '--varExp', type=str, required=True, default=None, help='The experiment variable used to aggregate sample diversities.' )
-    parser.add_argument('-m', '--measures', type=str, required=True, nargs="*", default=['Observed','Chao1','Shannon','InvSimpson'], help='The indexes of alpha diversity, in list "Observed,Chao1,Shannon,InvSimpson,Simpson,ACE,Fisher". Each index is separated by one comma. [Default: %(default)s]')
+    parser.add_argument('-m', '--measures', type=str, nargs="*", default=['Observed','Chao1','Shannon','InvSimpson'], help='The indices of alpha diversity. Available indices : Observed, Chao1, Shannon, InvSimpson, Simpson, ACE, Fisher. [Default: %(default)s]')
   
     # Inputs
     group_input = parser.add_argument_group( 'Inputs' )
@@ -98,6 +98,15 @@ if __name__ == "__main__":
     prevent_shell_injections(args)   
     # Process 
     Logger.static_write(args.log_file, "## Application\nSoftware :" + sys.argv[0] + " (version : " + str(__version__) + ")\nCommand : " + " ".join(sys.argv) + "\n\n")
+    if len(args.measures) > 1 :
+        for m in args.measures:
+            if m not in ["Observed", "Chao1", "Shannon", "InvSimpson", "Simpson", "ACE", "Fisher"] :
+                raise Exception("Measure, " + m + " is not a valid alpha diversity indice\n")
+    else :
+        for m in args.measures[0].split(","):
+            if m not in ["Observed", "Chao1", "Shannon", "InvSimpson", "Simpson", "ACE", "Fisher"] :
+                raise Exception("Measure, " + m + " is not a valid alpha diversity indice\n")
+
     data=os.path.abspath(args.data)
     html=os.path.abspath(args.html)
     alphaD=os.path.abspath(args.alphaD)
