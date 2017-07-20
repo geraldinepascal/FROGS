@@ -129,7 +129,7 @@ library(scales)
 &#10;library(ape)
 &#10;#if in new session 
 &#10;#library(phyloseq)
-&#10;#source(\"https://raw.githubusercontent.com/mahendra-mariadassou/phyloseq-extended/master/load-extra-functions.R \")
+&#10;#source(\"`https://raw.githubusercontent.com/mahendra-mariadassou/phyloseq-extended/master/load-extra-functions.R`\")
 &#10;#data <- path to Rdata file 
 &#10;#load(data)
 &#10;

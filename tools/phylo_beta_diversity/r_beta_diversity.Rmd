@@ -151,7 +151,7 @@ library(phyloseq)
 &#10;library(ggplot2)
 &#10;library(gridExtra)
 &#10;library(reshape2)
-&#10;source(\"https://raw.githubusercontent.com/mahendra-mariadassou/phyloseq-extended/master/load-extra-functions.R \")
+&#10;source(\"`https://raw.githubusercontent.com/mahendra-mariadassou/phyloseq-extended/master/load-extra-functions.R`\")
 &#10;#if in new session 
 &#10;#data <- path to Rdata file 
 &#10;#load(data) 

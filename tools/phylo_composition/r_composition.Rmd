@@ -114,7 +114,7 @@ cat(paste(sep = "",'taxaSet1 <- unlist(strsplit(', params$taxaSet1, ', " "))\n',
 
 <div id="code-r-file" style="display:none; charset=UTF-8">
 library(plotly)
-&#10;source(\"https://raw.githubusercontent.com/mahendra-mariadassou/phyloseq-extended/master/load-extra-functions.R \")
+&#10;source(\"`https://raw.githubusercontent.com/mahendra-mariadassou/phyloseq-extended/master/load-extra-functions.R`\")
 &#10;# if in new session 
 &#10;# data <- path to Rdata file 
 &#10;# load(data)
