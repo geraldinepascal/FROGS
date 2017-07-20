@@ -12,7 +12,7 @@ fi
 python r_structure.py \
      --data data/data.Rdata \
      --varExp EnvType \
-     --method MDS \
+     --ordination-method MDS \
      --distance data/Unifrac.tsv \
      --html test/phylo_structure.html \
-     --log_file test/phylo_structure.log
+     --log-file test/phylo_structure.log

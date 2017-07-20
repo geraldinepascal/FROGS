@@ -81,7 +81,7 @@ if __name__ == "__main__":
     # Manage parameters
     parser = argparse.ArgumentParser( description='Visulization of data structure with heatmap plot and ordination plot of Phyloseq.')
     parser.add_argument('-v', '--varExp', type=str, required=True, default=None, help='The experiment variable you want to analyse.')
-    parser.add_argument('-m','--method', type=str, default='MDS', choices=["MDS", "NMDS", "DCA", "CCA", "RDA", "CAP", "DPCoA", "PCoA"], help="The ordination methods, the method in list (MDS, NMDS, DCA, CCA, RDA, CAP, DPCoA, PCoA). [Default: %(default)s]")
+    parser.add_argument('-m','--ordination-method', type=str, default='MDS', choices=["MDS", "NMDS", "DCA", "CCA", "RDA", "CAP", "DPCoA", "PCoA"], help="The ordination methods. [Default: %(default)s]")
     # Inputs
     group_input = parser.add_argument_group( 'Inputs' )
     group_input.add_argument('-d','--data', required=True, default=None, help="The path of RData file containing a phyloseq object-the result of FROGS Phyloseq Import Data" )
@@ -97,4 +97,4 @@ if __name__ == "__main__":
     html=os.path.abspath(args.html)
     data=os.path.abspath(args.data)
     distance=os.path.abspath(args.distance)
-    Rscript(html, data, args.varExp, args.method, distance).submit( args.log_file )
+    Rscript(html, data, args.varExp, args.ordination_method, distance).submit( args.log_file )
