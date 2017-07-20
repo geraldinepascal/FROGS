@@ -104,4 +104,4 @@ if __name__ == "__main__":
     html=os.path.abspath(args.html)
     data=os.path.abspath(args.data)
     taxaSet1=" ".join(args.taxaSet1)
-    Rscript(html, data, args.varExp, args.taxaRank1, str(taxaSet1), args.taxaRank2, args.numberOfTaxa).submit( args.log_file )
+    Rscript(html, data, args.varExp, args.taxaRank1.strip(), str(taxaSet1.strip()), args.taxaRank2.strip(), args.numberOfTaxa).submit( args.log_file )

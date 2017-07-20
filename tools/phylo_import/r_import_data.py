@@ -115,4 +115,4 @@ if __name__ == "__main__":
     else:
         treefile=os.path.abspath(args.treefile)
     ranks=" ".join(args.ranks)
-    Rscript(biomfile, samplefile, treefile, html, str(args.normalization).upper(), data, str(ranks)).submit(args.log_file)
+    Rscript(biomfile, samplefile, treefile, html, str(args.normalization).upper(), data, ranks).submit(args.log_file)
