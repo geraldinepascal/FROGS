@@ -31,7 +31,7 @@
                                                 --distance-methods $other_method
                                             #end if
                                         #end if
-                                        --output_dir BetaMatrix
+                                        --output-dir BetaMatrix
                                         --html $html
 	</command>
     <inputs>
