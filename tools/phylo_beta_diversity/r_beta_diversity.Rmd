@@ -55,6 +55,7 @@ library(phyloseq)
 library(ggplot2)
 library(gridExtra)
 library(reshape2)
+source("https://raw.githubusercontent.com/mahendra-mariadassou/phyloseq-extended/master/load-extra-functions.R")
 load(params$data) 
 ```
 
@@ -62,28 +63,8 @@ load(params$data)
 ## Generic method for distance
 methods <- as.list(strsplit(params$methods, ",")[[1]])
 
-## code to visualize distances of Mahendra Mariadassou
+## Order samples according to grouping variable
 sampleOrder <- levels(reorder(sample_names(data), as.numeric(get_variable(data, params$varExp)))) 
-
-plot_dist_as_heatmap <- function(dist, order = sampleOrder, title = NULL) {
-    data <- melt(as(dist, "matrix"))
-    colnames(data) <- c("x", "y", "distance")
-    if (!is.null(order)) {
-        data$x <- factor(data$x, levels = order)
-        data$y <- factor(data$y, levels = order)
-    }
-    p <- ggplot(data, aes(x = x, y = y, fill = distance)) + geom_tile() 
-    p <- p + theme(axis.title.x = element_blank(), 
-                   axis.title.y = element_blank(), 
-                   axis.text.x  = element_blank(), 
-                   axis.text.y  = element_blank()
-                   )
-    p <- p + scale_fill_continuous(limits = c(0, 1))
-    if (!is.null(title)) {
-        p <- p + ggtitle(title)
-    }
-    return(p)
-}
 ```
 
 #{.tabset .tabset-fade .tabset-pills}
@@ -96,31 +77,36 @@ for (method in methods){
       dist.uf <- distance(data, method = "unifrac") ## Unifrac
       uf <- as.matrix(dist.uf)
       write.table(uf, "Unifrac.tsv", sep="\t", quote=FALSE, col.names=NA)
-      p1 <- plot_dist_as_heatmap(dist.uf, title = "Unifrac")+ theme(plot.title = element_text(hjust = 0.5))
+      p1 <- plot_dist_as_heatmap(dist.uf, order = sampleOrder, title = "Unifrac") + 
+        theme(plot.title = element_text(hjust = 0.5))
       plot(p1)
    }else if (method=="wunifrac"){
       dist.wuf <- distance(data, method = "wunifrac") ## Weighted Unifrac
       wuf <- as.matrix(dist.wuf)
       write.table(wuf, "wUnifrac.tsv",sep="\t", quote=FALSE, col.names=NA)
-      p2 <- plot_dist_as_heatmap(dist.wuf, title = "wUnifrac")+ theme(plot.title = element_text(hjust = 0.5))
+      p2 <- plot_dist_as_heatmap(dist.wuf, order = sampleOrder, title = "wUnifrac") + 
+        theme(plot.title = element_text(hjust = 0.5))
       plot(p2)
    }else if (method=="bray"){
       dist.bc <- distance(data, method = "bray") ## Bray-Curtis
       bc <- as.matrix(dist.bc)
       write.table(bc, "Bray_Curtis.tsv",sep="\t", quote=FALSE, col.names=NA)
-      p3 <- plot_dist_as_heatmap(dist.bc, title = "Bray-Curtis")+ theme(plot.title = element_text(hjust = 0.5))
+      p3 <- plot_dist_as_heatmap(dist.bc, order = sampleOrder, title = "Bray-Curtis") + 
+        theme(plot.title = element_text(hjust = 0.5))
       plot(p3)
    }else if (method=="cc"){
       dist.jac <- distance(data, method = "cc") ## Jaccard
       jac <- as.matrix(dist.jac)
-      write.table(jac, "Jaccard_binary.tsv",sep="\t", quote=FALSE, col.names=NA)
-      p4 <- plot_dist_as_heatmap(dist.jac, title = "Jaccard")+ theme(plot.title = element_text(hjust = 0.5))
+      write.table(jac, "Jaccard.tsv",sep="\t", quote=FALSE, col.names=NA)
+      p4 <- plot_dist_as_heatmap(dist.jac, order = sampleOrder, title = "Jaccard") + 
+        theme(plot.title = element_text(hjust = 0.5))
       plot(p4)
    }else {
       dist.a <- distance(data, method = method)
       a <- as.matrix(dist.a)
       write.table(a, paste(sep="", method, ".tsv"), sep="\t", quote=FALSE, col.names=NA)
-      pa <- plot_dist_as_heatmap(dist.a, title = method)+ theme(plot.title = element_text(hjust = 0.5))
+      pa <- plot_dist_as_heatmap(dist.a, order = sampleOrder, title = method) + 
+        theme(plot.title = element_text(hjust = 0.5))
       plot(pa)
     }
 }
@@ -133,6 +119,7 @@ library(phyloseq)
 library(ggplot2)
 library(gridExtra)
 library(reshape2)
+source("https://raw.githubusercontent.com/mahendra-mariadassou/phyloseq-extended/master/load-extra-functions.R")
 #if in new session 
 #data <- path to Rdata file 
 #load(data) 
@@ -143,32 +130,13 @@ fileBeta <- "beta_diversity.tsv"  # output file path
 
 <h4>Dist as heatmap plot</h4>
 ```{r, eval=FALSE}
-## code to visualize distances of Mahendra Mariadassou
+## Order samples according to grouping variable
 sampleOrder <- levels(reorder(sample_names(data), as.numeric(get_variable(data, varExp)))) 
-
-plot_dist_as_heatmap <- function(dist, order = sampleOrder, title = NULL) {
-    data <- melt(as(dist, "matrix"))
-    colnames(data) <- c("x", "y", "distance")
-    if (!is.null(order)) {
-        data$x <- factor(data$x, levels = order)
-        data$y <- factor(data$y, levels = order)
-    }
-    p <- ggplot(data, aes(x = x, y = y, fill = distance)) + geom_tile() 
-    p <- p + theme(axis.title.x = element_blank(), 
-                   axis.title.y = element_blank(), 
-                   axis.text.x = element_blank(), 
-                   axis.text.y = element_blank()
-                   )
-    p <- p + scale_fill_continuous(limits = c(0, 1))
-    if (!is.null(title)) {
-        p <- p + ggtitle(title)
-    }
-    return(p)
-}
 
 dist.a <- distance(data, method = method)
 
-pa <- plot_dist_as_heatmap(dist.a, title = method)+ theme(plot.title = element_text(hjust = 0.5))
+pa <- plot_dist_as_heatmap(dist.a, order = sampleOrder, title = method) + 
+  theme(plot.title = element_text(hjust = 0.5))
 plot(pa)
 ```
 
@@ -183,6 +151,7 @@ library(phyloseq)
 &#10;library(ggplot2)
 &#10;library(gridExtra)
 &#10;library(reshape2)
+&#10;source(\"https://raw.githubusercontent.com/mahendra-mariadassou/phyloseq-extended/master/load-extra-functions.R\")
 &#10;#if in new session 
 &#10;#data <- path to Rdata file 
 &#10;#load(data) 
@@ -191,32 +160,13 @@ library(phyloseq)
 &#10;fileBeta <- #path to output Beta diversity file
 &#10;#To show all available distances: distanceMethodList
 &#10;
-&#10;## code to visualize distances of Mahendra Mariadassou
+&#10;## Order samples according to grouping variable
 &#10;sampleOrder <- levels(reorder(sample_names(data), as.numeric(get_variable(data, varExp)))) 
-&#10;
-&#10;plot_dist_as_heatmap <- function(dist, order = sampleOrder, title = NULL) {
-&#10;    data <- melt(as(dist, \"matrix\"))
-&#10;    colnames(data) <- c(\"x\", \"y\", \"distance\")
-&#10;    if (!is.null(order)) {
-&#10;        data&#36;x <- factor(data&#36;x, levels = order)
-&#10;        data&#36;y <- factor(data&#36;y, levels = order)
-&#10;    }
-&#10;    p <- ggplot(data, aes(x = x, y = y, fill = distance)) + geom_tile() 
-&#10;    p <- p + theme(axis.title.x = element_blank(), 
-&#10;                   axis.title.y = element_blank(), 
-&#10;                   axis.text.x = element_blank(), 
-&#10;                   axis.text.y = element_blank()
-&#10;                   )
-&#10;    p <- p + scale_fill_continuous(limits = c(0, 1))
-&#10;    if (!is.null(title)) {
-&#10;        p <- p + ggtitle(title)
-&#10;    }
-&#10;    return(p)
-&#10;}
 &#10;
 &#10;dist.a <- distance(data, method = method)
 &#10;
-&#10;pa <- plot_dist_as_heatmap(dist.a, title = method)+ theme(plot.title = element_text(hjust = 0.5))
+&#10;pa <- plot_dist_as_heatmap(dist.a, order = sampleOrder, title = method) + 
+&#10;  theme(plot.title = element_text(hjust = 0.5))
 &#10;plot(pa)
 &#10;
 &#10;a <- as.matrix(dist.a)

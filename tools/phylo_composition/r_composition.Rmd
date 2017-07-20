@@ -68,7 +68,7 @@ load(params$data)
 ##Bar plot
 ```{r, fig.width=10, fig.height=8, echo=FALSE, comment=NA, cache=FALSE}
 e <- paste('facet_wrap(~', params$varExp,', scales = "free_x", nrow = 1)')
-p <- plot_bar(data,fill= params$taxaRank2) + eval(parse(text = e)) + ggtitle(paste("Bar plot colored by", params$taxaRank2))+         theme(plot.title = element_text(hjust = 0.5))
+p <- plot_bar(data,fill= rank_names(data)[2]) + eval(parse(text = e)) + ggtitle(paste("Bar plot colored by", rank_names(data)[2]))+         theme(plot.title = element_text(hjust = 0.5))
 plot(p)
 ```
 <br>
@@ -104,7 +104,7 @@ source("https://raw.githubusercontent.com/mahendra-mariadassou/phyloseq-extended
 <h4>Bar plot</h4>
 ```{r, comment=NA, cache=FALSE, echo=FALSE}
 taxaSet1 <- paste0("c(\"", paste(unlist(strsplit(params$taxaSet1, " ")), collapse = "\", \""), "\")")
-cat(paste(sep = "","p <- plot_bar(data,fill=", '"', params$taxaRank2, '"', ") + facet_wrap(~", params$varExp, ', scales = "free_x", nrow = 1) + ggtitle("', paste("Bar plot colored by", params$taxaRank2, '")'), '+ theme(plot.title = element_text(hjust = 0.5))', '\nplot(p)'))
+cat(paste(sep = "","p <- plot_bar(data,fill=", '"', rank_names(data)[2], '"', ") + facet_wrap(~", params$varExp, ', scales = "free_x", nrow = 1) + ggtitle("', paste("Bar plot colored by", rank_names(data)[2], '")'), '+ theme(plot.title = element_text(hjust = 0.5))', '\nplot(p)'))
 ```
 
 <h4>Composition plot</h4>
@@ -123,11 +123,12 @@ library(plotly)
 &#10;taxaRank1 <- #Taxonomic rank at which to filter your data
 &#10;taxaRank2 <- #Taxonomic rank used for aggregation
 &#10;taxaSet1 <- #Taxa (at previously specified taxonomic rank) to keep in the dataset
+&#10;taxaRank <- #Taxonomic rank used for coloring (typically \"Phylum\")
 &#10;numberOfTaxa <- #Number of most abundant taxa to keep
 
 &#10;# Bar plot
 &#10;e <- paste(\'facet_wrap(~\', varExp, \', scales = \"free_x\", nrow = 1)\')
-&#10;p <- plot_bar(data,fill= taxaRank2) + eval(parse(text = e)) + ggtitle(paste(\"Bar plot colored by\", taxaRank2))+ theme(plot.title = element_text(hjust = 0.5))
+&#10;p <- plot_bar(data,fill= taxaRank) + eval(parse(text = e)) + ggtitle(paste(\"Bar plot colored by\", taxaRank))+ theme(plot.title = element_text(hjust = 0.5))
 &#10;plot(p)
 &#10;
 &#10;# composition plot
