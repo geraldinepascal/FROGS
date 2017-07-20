@@ -113,7 +113,7 @@ for (method in methods){
    }else if (method=="cc"){
       dist.jac <- distance(data, method = "cc") ## Jaccard
       jac <- as.matrix(dist.jac)
-      write.table(jac, "Jaccard.tsv",sep="\t", quote=FALSE, col.names=NA)
+      write.table(jac, "Jaccard_binary.tsv",sep="\t", quote=FALSE, col.names=NA)
       p4 <- plot_dist_as_heatmap(dist.jac, title = "Jaccard")+ theme(plot.title = element_text(hjust = 0.5))
       plot(p4)
    }else {
