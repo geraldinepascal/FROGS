@@ -12,7 +12,7 @@ fi
 python r_beta_diversity.py \
            --data data/data.Rdata \
            --varExp EnvType \
-           --methods bray,unifrac,wunifrac,euclidean \
-           --output_dir test \
+           --distance-methods bray,unifrac,wunifrac,euclidean \
+           --output-dir test \
            --html test/phylo_beta.html \
-           --log_file test/phylo_beta.log
+           --log-file test/phylo_beta.log

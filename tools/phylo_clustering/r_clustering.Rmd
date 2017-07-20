@@ -55,7 +55,8 @@ knitr::opts_chunk$set(echo = TRUE)
 library(phyloseq)
 library(scales)
 library(ape)
-source("https://raw.githubusercontent.com/mahendra-mariadassou/phyloseq-extended/master/load-extra-functions.R") load(params$data)
+source("https://raw.githubusercontent.com/mahendra-mariadassou/phyloseq-extended/master/load-extra-functions.R")
+load(params$data)
 
 ##get dist object from distance matrix file
 #setwd(dirname(params$method))
@@ -69,7 +70,7 @@ varExp <- params$varExp
 #{.tabset .tabset-fade .tabset-pills}
 
 ##Ward D2
-```{r, fig.width=8, fig.height=6, echo=FALSE}
+```{r, fig.width=8, fig.height=7, echo=FALSE}
 plot_clust(data, dist, method = "ward.D2", color = varExp)
 ```
 <br>
@@ -78,7 +79,7 @@ Download image
 </button>
 
 ##Complete
-```{r, fig.width=8, fig.height=6, echo=FALSE}
+```{r, fig.width=8, fig.height=7, echo=FALSE}
 plot_clust(data, dist, method = "complete", color = varExp)
 ```
 <br>
@@ -87,7 +88,7 @@ Download image
 </button>
 
 ##Single
-```{r, fig.width=8, fig.height=6, echo=FALSE}
+```{r, fig.width=8, fig.height=7, echo=FALSE}
 plot_clust(data, dist, method = "single", color = varExp)
 ```
 <br>
@@ -128,7 +129,7 @@ library(scales)
 &#10;library(ape)
 &#10;#if in new session 
 &#10;#library(phyloseq)
-&#10;#source(\"https://raw.githubusercontent.com/mahendra-mariadassou/phyloseq-extended/master/load-extra-functions.R\")
+&#10;#source(\"https://raw.githubusercontent.com/mahendra-mariadassou/phyloseq-extended/master/load-extra-functions.R \")
 &#10;#data <- path to Rdata file 
 &#10;#load(data)
 &#10;
