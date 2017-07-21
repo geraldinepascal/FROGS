@@ -18,7 +18,7 @@
 <tool name="FROGSSTAT Phyloseq Beta Diversity" id="FROGSSTAT_Phyloseq_Beta_Diversity" version="1.0.0">
 	<description>distance matrix</description>
 	<command interpreter="python">r_beta_diversity.py 
-                                        --data $data
+                                        --rdata $data
                                         --varExp $varExp
                                         #if $methods != "None"
                                             #if $other_method != ""
@@ -31,7 +31,7 @@
                                                 --distance-methods $other_method
                                             #end if
                                         #end if
-                                        --output-dir BetaMatrix
+                                        --matrix-outdir BetaMatrix
                                         --html $html
 	</command>
     <inputs>

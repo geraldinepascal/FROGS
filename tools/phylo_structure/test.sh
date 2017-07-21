@@ -10,9 +10,9 @@ else
 fi 
 
 python r_structure.py \
-     --data data/data.Rdata \
+     --rdata data/data.Rdata \
      --varExp EnvType \
      --ordination-method MDS \
-     --distance data/Unifrac.tsv \
+     --distance-matrix data/Unifrac.tsv \
      --html test/phylo_structure.html \
      --log-file test/phylo_structure.log

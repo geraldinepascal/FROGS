@@ -124,11 +124,11 @@ Download image
 </button>
 </h1>
 
-<button class="button" onclick="document.getElementById('plot1').style.display='' ; document.getElementById('plot2').style.display='none'; document.getElementById('plot22').style.display='none' ">No sample name</button>
+<button class="button" onclick="document.getElementById('plot1').style.display='' ; document.getElementById('plot2').style.display='none'; document.getElementById('plot22').style.display='none' ">No sample names</button>
 
-<button class="button" onclick="document.getElementById('plot2').style.display='' ; document.getElementById('plot1').style.display='none'; document.getElementById('plot22').style.display='none' ">With sample name</button>
+<button class="button" onclick="document.getElementById('plot2').style.display='' ; document.getElementById('plot1').style.display='none'; document.getElementById('plot22').style.display='none' ">With sample names</button>
 
-<button class="button" onclick="document.getElementById('plot22').style.display='' ; document.getElementById('plot2').style.display='none'; document.getElementById('plot1').style.display='none'">With ellipse</button>
+<button class="button" onclick="document.getElementById('plot22').style.display='' ; document.getElementById('plot2').style.display='none'; document.getElementById('plot1').style.display='none'">With ellipses</button>
 
 ##Heatmap plot
 ```{r, fig.width=9, fig.height=7, echo=FALSE, cache=FALSE, warning=FALSE}

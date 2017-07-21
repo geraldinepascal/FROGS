@@ -27,7 +27,7 @@
                                                       --normalization
                                                    #end if
                                                       --html $html 
-                                                      --data $data
+                                                      --rdata $data
 	</command>
     <inputs>
 		<!-- Files -->

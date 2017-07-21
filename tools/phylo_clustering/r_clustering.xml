@@ -19,9 +19,9 @@
 	<description>of samples using different linkage methods</description>
 	<command interpreter="python">r_clustering.py 
                                                --html $html 
-                                               --data $data 
+                                               --rdata $data 
                                                --varExp $varExp 
-                                               --method $method
+                                               --distance-matrix $method
 	</command>
     <inputs>
 		<!-- Files -->

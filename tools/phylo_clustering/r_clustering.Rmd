@@ -5,7 +5,7 @@ params:
       value: x
    varExp:
       value: x
-   method:
+   distance:
       value: x
 ---
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
@@ -60,7 +60,7 @@ load(params$data)
 
 ##get dist object from distance matrix file
 #setwd(dirname(params$method))
-A <- read.table(file=params$method, row.names=1)
+A <- read.table(file=params$distance, row.names=1)
 dist <- as.dist(A)
 
 ## Grouping variable
@@ -109,8 +109,8 @@ source("https://raw.githubusercontent.com/mahendra-mariadassou/phyloseq-extended
 #load(data)
 
 ##get dist object from distance matrix file
-method <- # path to Beta diversity tsv file 
-A      <- read.table(file=method, row.names=1)
+distance <- # path to Beta diversity tsv file 
+A      <- read.table(file=distance, row.names=1)
 dist   <- as.dist(A)
 
 ## Env types
@@ -134,8 +134,8 @@ library(scales)
 &#10;#load(data)
 &#10;
 &#10;##get dist object from distance matrix file
-&#10;method <- # path to Beta diversity tsv file 
-&#10;A <- read.table(file=method, row.names=1)
+&#10;distance <- # path to Beta diversity tsv file 
+&#10;A <- read.table(file=distance, row.names=1)
 &#10;dist <- as.dist(A)
 &#10;
 &#10;## Env types

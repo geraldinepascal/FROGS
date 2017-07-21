@@ -18,4 +18,4 @@ python r_import_data.py  \
 	-b data/chaillou.biom \
 	-s data/sample_data.tsv \
 	-t data/tree.nwk \
-	-d test/phylo_import.Rdata -o test/phylo_import.html -l test/phylo_import.log
+	--rdata test/phylo_import.Rdata -o test/phylo_import.html -l test/phylo_import.log

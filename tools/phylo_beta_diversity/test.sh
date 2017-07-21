@@ -10,9 +10,9 @@ else
 fi 
 
 python r_beta_diversity.py \
-           --data data/data.Rdata \
+           --rdata data/data.Rdata \
            --varExp EnvType \
            --distance-methods bray,unifrac,wunifrac,euclidean \
-           --output-dir test \
+           --matrix-outdir test \
            --html test/phylo_beta.html \
            --log-file test/phylo_beta.log

@@ -91,7 +91,7 @@ if __name__ == "__main__":
   
     # Inputs
     group_input = parser.add_argument_group( 'Inputs' )
-    group_input.add_argument('-d','--data', required=True, default=None, help="The path of RData file containing a phyloseq object-the result of FROGS Phyloseq Import Data")
+    group_input.add_argument('-r','--rdata', required=True, default=None, help="The path of RData file containing a phyloseq object-the result of FROGS Phyloseq Import Data")
 
     # output
     group_output = parser.add_argument_group( 'Outputs' )
@@ -102,6 +102,6 @@ if __name__ == "__main__":
     # Process 
     Logger.static_write(args.log_file, "## Application\nSoftware :" + sys.argv[0] + " (version : " + str(__version__) + ")\nCommand : " + " ".join(sys.argv) + "\n\n")
     html=os.path.abspath(args.html)
-    data=os.path.abspath(args.data)
+    data=os.path.abspath(args.rdata)
     taxaSet1=" ".join(args.taxaSet1)
     Rscript(html, data, args.varExp, args.taxaRank1.strip(), str(taxaSet1.strip()), args.taxaRank2.strip(), args.numberOfTaxa).submit( args.log_file )

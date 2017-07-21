@@ -10,8 +10,8 @@ else
 fi 
 
 python r_clustering.py \
-    --data data/data.Rdata \
+    --rdata data/data.Rdata \
     --varExp EnvType \
-    --method data/Unifrac.tsv \
+    --distance-matrix data/Unifrac.tsv \
     --html test/phylo_clustering.html \
     -l test/phylo_clustering.log

@@ -86,10 +86,10 @@ if __name__ == "__main__":
     parser.add_argument('-m', '--distance-methods', required=True, type=str, default='bray,cc,unifrac,wunifrac', help='Comma separated values beta diversity methods available in Phyloseq (see https://www.bioconductor.org/packages/devel/bioc/manuals/phyloseq/man/phyloseq.pdf). [Default: %(default)s].')
     # Inputs
     group_input = parser.add_argument_group( 'Inputs' )
-    group_input.add_argument('-d','--data', required=True, default=None, help="The path of RData file containing a phyloseq object-the result of FROGS Phyloseq Import Data" )
+    group_input.add_argument('-r','--rdata', required=True, default=None, help="The path of RData file containing a phyloseq object-the result of FROGS Phyloseq Import Data" )
     # output
     group_output = parser.add_argument_group( 'Outputs' )    
-    group_output.add_argument('--output-dir', required=True, action="store", type=str, help="Path to output matrix file")       
+    group_output.add_argument('--matrix-outdir', required=True, action="store", type=str, help="Path to output matrix file")       
     group_output.add_argument('-o','--html', default='beta_diversity.html', help="Path to store resulting html file. [Default: %(default)s]" )
     group_output.add_argument( '-l', '--log-file', default=sys.stdout, help='This output file will contain several information on executed commands.')    
     args = parser.parse_args()
@@ -105,9 +105,9 @@ if __name__ == "__main__":
             raise Exception( 'Your method "'+str(method)+'", name is not correct !!! Please make sure that it is in the list:'+str(list_distance))
 
     # Process 
-    outdir = os.path.abspath(args.output_dir)
+    outdir = os.path.abspath(args.matrix_outdir)
     if not os.path.exists(outdir):
         os.makedirs(outdir)
-    data=os.path.abspath(args.data)
+    data=os.path.abspath(args.rdata)
     html=os.path.abspath(args.html)
     Rscript(html, data, args.varExp, methods, outdir).submit( args.log_file )

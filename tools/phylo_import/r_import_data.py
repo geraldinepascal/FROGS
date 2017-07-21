@@ -94,7 +94,7 @@ if __name__ == "__main__":
    
     # output
     group_output = parser.add_argument_group( 'Outputs' ) 
-    group_output.add_argument('-d','--data', default='phyloseq_data.Rdata', help="path to store phyloseq-class object in Rdata file. [Default: %(default)s]" )
+    group_output.add_argument('--rdata', default='phyloseq_data.Rdata', help="path to store phyloseq-class object in Rdata file. [Default: %(default)s]" )
     group_output.add_argument('-o','--html', default='summary.html', help="path to store resulting html file. [Default: %(default)s]" )
     group_output.add_argument( '-l', '--log-file', default=sys.stdout, help='This output file will contain several information on executed commands.')   
     args = parser.parse_args()
@@ -103,7 +103,7 @@ if __name__ == "__main__":
     # Process  
     Logger.static_write(args.log_file, "## Application\nSoftware :" + sys.argv[0] + " (version : " + str(__version__) + ")\nCommand : " + " ".join(sys.argv) + "\n\n")
     html=os.path.abspath(args.html)
-    data=os.path.abspath(args.data)
+    data=os.path.abspath(args.rdata)
     biomfile=os.path.abspath(args.biomfile)
     samplefile=os.path.abspath(args.samplefile)
     filename_treefile = ".".join(os.path.split(args.treefile)[1].split('.')[:-1])

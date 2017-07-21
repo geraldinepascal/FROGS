@@ -18,7 +18,7 @@
 <tool id="FROGSSTAT_Phyloseq_Composition_Visualisation" name="FROGSSTAT Phyloseq Composition Visualisation" version="1.0.0">
 	<description>with bar plot and composition plot</description>
 	<command interpreter="python2.7">r_composition.py 
-                                              --data $data 
+                                              --rdata $data 
                                               --varExp $varExp 
                                               --taxaRank1 $taxaRank1 
                                               --taxaSet1 $taxaSet1 
