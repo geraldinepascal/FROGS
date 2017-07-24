@@ -1,3 +1,4 @@
-	Color
-splA_01	red
-splA_02	blue
+	Color   ID
+splA_01	red     rep1
+splA_02	blue    rep2
+splA_03 green   rep1
