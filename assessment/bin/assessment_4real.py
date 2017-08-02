@@ -19,7 +19,7 @@
 __author__ = 'Plateforme bioinformatique Toulouse - Sigenae  Jouy en Josas'
 __copyright__ = 'Copyright (C) 2016 INRA'
 __license__ = 'GNU General Public License'
-__version__ = '1.1.1'
+__version__ = '1.2.1'
 __email__ = 'frogs@toulouse.inra.fr'
 __status__ = 'prod'
 
@@ -163,7 +163,7 @@ def uparse(udb_databank, reads_directory, out_biom, out_fasta, min_length, max_l
     )########################################################## Problem threads > 1
 
 
-def mothur(affiliation_databank, affiliation_taxonomy, mothur_databank, mothur_taxonomy, reads_directory, out_biom, out_fasta, min_length, max_length, pcr_start, pcr_end, kept_start, kept_end, nb_cpus):
+def mothur(affiliation_databank, affiliation_taxonomy, mothur_databank, mothur_taxonomy, reads_directory, out_biom, out_fasta, min_length, max_length, pcr_start, pcr_end, kept_start, kept_end, diffs, nb_cpus):
     """
     @summary: Launch mothur pipeline.
     @param affiliation_databank: [str] Path to the databank used in affiliation. If affiliation_databank is None the affiliation step is skipped.
@@ -179,6 +179,7 @@ def mothur(affiliation_databank, affiliation_taxonomy, mothur_databank, mothur_t
     @param pcr_end: [int] End position for amplicon region. This value speedup pipeline by databank restriction.
     @param kept_start: [int] In PCR region the start position kept. All sequences must have same size.
     @param kept_end: [int] In PCR region the end position kept. All sequences must have same size.
+    @param diffs : [int] Number of mismatch to pre.cluster sequence (1 difference for every 100 bp of sequence)
     @param nb_cpus: [int] Number of used CPUs.
     """
     exec_cmd(
@@ -190,6 +191,7 @@ def mothur(affiliation_databank, affiliation_taxonomy, mothur_databank, mothur_t
         + " --pcr-end " + str(pcr_end) \
         + " --kept-start " + str(kept_start) \
         + " --kept-end " + str(kept_end) \
+        + " --preclusters-difference " + str(diffs) \
         + (" --affiliation-databank-fasta " + affiliation_databank if affiliation_databank is not None else "") \
         + (" --affiliation-databank-tax " + affiliation_taxonomy if affiliation_taxonomy is not None else "") \
         + " --restriction-databank-fasta " + mothur_databank \
@@ -293,6 +295,15 @@ Used datasets for this assessment must be stored in following structure:
             "pcr_end": 26000,
             "kept_start": 1862,
             "kept_end": 10588
+        },
+        "V4V4_forward100": {
+            "min_length": 50,
+            "max_length": 150,
+            "pcr_start": 12000,
+            "pcr_end": 26000,
+            "kept_start": 1862,
+            "kept_end": 4307,
+            "diffs" : 1
         }
     }
 
@@ -309,6 +320,10 @@ Used datasets for this assessment must be stored in following structure:
         pcr_end = primers_param[current_primers]["pcr_end"]
         kept_start = primers_param[current_primers]["kept_start"]
         kept_end = primers_param[current_primers]["kept_end"]
+        if "diffs" in primers_param[current_primers]:
+            diffs = primers_param[current_primers]["diffs"]
+        else:
+            diffs = 2
         for current_nb_sp in args.nb_sp:
             for dataset_idx in args.datasets:
                 for current_distribution in args.distribution_laws:
@@ -369,7 +384,7 @@ Used datasets for this assessment must be stored in following structure:
                         mothur_assess_affi = os.path.join(mothur_out_dir, "mothur_affiResults.txt")
                         mothur_assess_clst = os.path.join(mothur_out_dir, "mothur_OTUResults.txt")
                         #    Execution
-                        mothur(args.affiliation_databank_fasta, args.affiliation_databank_tax, args.mothur_databank, args.mothur_taxonomy, reads_directory, mothur_biom, mothur_fasta, min_length, max_length, pcr_start, pcr_end, kept_start, kept_end, args.nb_cpus)
+                        mothur(args.affiliation_databank_fasta, args.affiliation_databank_tax, args.mothur_databank, args.mothur_taxonomy, reads_directory, mothur_biom, mothur_fasta, min_length, max_length, pcr_start, pcr_end, kept_start, kept_end, diffs, args.nb_cpus)
                     
                     # QIIME
                     if "qiime" in args.pipelines:

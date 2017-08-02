@@ -21,7 +21,7 @@ __copyright__ = 'Copyright (C) 2016 INRA'
 __license__ = 'GNU General Public License'
 __version__ = '1.0.0'
 __email__ = 'frogs@toulouse.inra.fr'
-__status__ = 'dev'
+__status__ = 'prod'
 
 
 import re
@@ -138,7 +138,7 @@ def get_expected( abund_file ):
     expected_by_depth = dict()
     FH_expected = open(abund_file)
     for line in FH_expected:
-        taxonomy, count = line.strip().split()
+        taxonomy, count = line.strip().split("\t")
         clean_taxonomy = getCleanedTaxonomy(taxonomy)
         for rank_depth in range(len(clean_taxonomy)):
             rank_taxonomy = ";".join(clean_taxonomy[:rank_depth + 1])
@@ -146,7 +146,7 @@ def get_expected( abund_file ):
                 expected_by_depth[rank_depth] = dict()
             if rank_taxonomy not in expected_by_depth[rank_depth]:
                 expected_by_depth[rank_depth][rank_taxonomy] = 0
-            expected_by_depth[rank_depth][rank_taxonomy] += int(count)
+            expected_by_depth[rank_depth][rank_taxonomy] += float(count)
     FH_expected.close()
     return expected_by_depth
 
@@ -155,7 +155,7 @@ def get_checked( abund_file, checked_sample, taxonomy_key, expected_by_depth ):
     checked_by_depth = dict()
     biom = BiomIO.from_json(abund_file)
     for current_obs in biom.get_observations():
-        clean_taxonomy = getCleanedTaxonomy(current_obs["metadata"][taxonomy_key])
+        clean_taxonomy = getCleanedTaxonomy(current_obs["metadata"][taxonomy_key]) if current_obs["metadata"][taxonomy_key] is not None else ["unknown_taxa"]*len(expected_by_depth)
         count = biom.get_count(current_obs["id"], checked_sample)
         if count > 0:
             if clean_taxonomy[len(clean_taxonomy)-1] == "Multi-affiliation":

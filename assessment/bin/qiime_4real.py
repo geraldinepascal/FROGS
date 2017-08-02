@@ -72,22 +72,21 @@ if __name__ == "__main__":
     file_list=",".join([os.path.join(args.input_folder,f) for f in os.listdir(args.input_folder) ] )
     sample_name_list=",".join([f.split("-")[0] for f in os.listdir(args.input_folder)])
     
-    exec_cmd("qiime; split_libraries_fastq.py -i " + file_list \
+    exec_cmd("split_libraries_fastq.py -i " + file_list \
         + " --sample_ids " + sample_name_list \
         +" -o " + os.path.join(working_path_prefix, "qiime_preprocess") \
-        +" --barcode_type 'not-barcoded' " \
-        +" --phred_offset 33")
+        +" --barcode_type 'not-barcoded' " )
 
     merge_fasta=os.path.join(working_path_prefix,"qiime_preprocess","seqs.fna")
     
     # Launch chimera identification (in Qiime)
-    exec_cmd("qiime; identify_chimeric_seqs.py -i "+ merge_fasta \
+    exec_cmd("identify_chimeric_seqs.py -i "+ merge_fasta \
         + " -m usearch61 --suppress_usearch61_ref " \
         + " -o " + os.path.join(working_path_prefix,"usearch61_chimeras") )
         
     # Remove chimera
     qiime_input_fasta=os.path.join(working_path_prefix,"usearch61_chimeras","seqs_chimeras_filtered.fna")
-    exec_cmd("qiime; filter_fasta.py -f " + merge_fasta \
+    exec_cmd("filter_fasta.py -f " + merge_fasta \
         + " -o " + qiime_input_fasta \
         + " -s " + os.path.join(working_path_prefix,"usearch61_chimeras","chimeras.txt") \
         + " -n")
@@ -97,7 +96,7 @@ if __name__ == "__main__":
     if args.nb_cpus > 1 :
         cpus_opt = " -aO "+str(args.nb_cpus)
              
-    qiime_command ="qiime; pick_open_reference_otus.py -i " + qiime_input_fasta\
+    qiime_command ="pick_open_reference_otus.py -i " + qiime_input_fasta\
         + cpus_opt \
         + " -o "+ os.path.join(working_path_prefix, "pick_open_reference_otus") \
         + " -r "+ args.ref_fasta \
@@ -107,7 +106,7 @@ if __name__ == "__main__":
     
     qiime_fasta=os.path.join(working_path_prefix, "pick_open_reference_otus","rep_set.fna")
     if args.ref_tax is not None:
-        exec_cmd("qiime; assign_taxonomy.py -o " + os.path.join(working_path_prefix,"uclust_assigned_taxonomy") \
+        exec_cmd("assign_taxonomy.py -o " + os.path.join(working_path_prefix,"uclust_assigned_taxonomy") \
             + " -i " + qiime_fasta \
             + " -t " + args.ref_tax \
             + " -r " + args.ref_fasta )
