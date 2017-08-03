@@ -11,6 +11,7 @@
 
 ### Bugs fixes:
   * Preprocess : min overlap at least equal to 1
+  * biom2tsv : not working with stdBiom containing RDP affiliation
 
 ### Functions added:
   * Preprocess: add Flash mismatch rate option
