@@ -54,8 +54,13 @@ knitr::opts_chunk$set(echo = TRUE)
 
 
 ```{r include=FALSE, echo=FALSE}
+library(phyloseq)
 source("https://raw.githubusercontent.com/mahendra-mariadassou/phyloseq-extended/master/load-extra-functions.R")
+library(plotly)
 load(params$data)
+
+# Add SampleID variable to physeq metadata
+sample_data(data)$SampleID <- sample_names(data)
 
 #get dist object from distance matrix file
 A    <- read.table(file=params$distance, row.names=1)
@@ -63,17 +68,13 @@ dist <- as.dist(A)
 ord  <- ordinate(data, method = params$method, distance = dist)
 var  <- get_variable(data, params$varExp)
 
-# automatic color palette: one color per different sample type
-palette <- hue_pal()(length(levels(var)))
-va      <- params$varExp
-names(palette) <- levels(sample_data(data)$va)
-
 p1 <- plot_ordination(data, ord, color = params$varExp) + 
-                      scale_color_manual(values = palette) +
+                      geom_text(aes(label = SampleID), alpha = 0) + ## add invisible labels
                       theme_bw() + ggtitle(paste(params$method,"")) +
                       theme(plot.title = element_text(hjust = 0.5)) 
 p2 <- plot_samples(data, ord, color = params$varExp) +
-                      scale_color_manual(values = palette) + theme_bw() +
+                      geom_text(aes(label = SampleID), alpha = 0) + ## add invisible labels  
+                      theme_bw() +
                       ggtitle(paste(params$method,"")) +
                       theme(plot.title = element_text(hjust = 0.5))
 g <- paste('p22 <- p2 +  stat_ellipse(aes(group =', params$varExp,'))')
@@ -95,8 +96,9 @@ p3 <- p3 + facet_grid(e, scales = "free_x") +
 ##Ordination plot
 
 <h1 id="plot1">
-```{r, fig.width=8, fig.height=6, echo=FALSE, cache=FALSE}
-plot(p1)
+```{r, fig.width=8, fig.height=6, echo=FALSE, cache=FALSE, message = FALSE}
+## plot(p1)
+ggplotly(p1, tooltip = c("colour", "label"))
 ```
 <br>
 <button id="dwn-plot1" class="button">
@@ -105,8 +107,9 @@ Download image
 </h1>
 
 <h1 id="plot2" style="display: none;">
-```{r, fig.width=8, fig.height=6, echo=FALSE, cache=FALSE}
-plot(p2)
+```{r, fig.width=8, fig.height=6, echo=FALSE, cache=FALSE, message = FALSE}
+## plot(p2)
+ggplotly(p2, tooltip = c("colour", "label"))
 ```
 <br>
 <button id="dwn-plot2" class="button">
@@ -116,7 +119,8 @@ Download image
 
 <h1 id="plot22" style="display: none;">
 ```{r, fig.width=8, fig.height=6, echo=FALSE, cache=FALSE, comment=NA, message=FALSE}
-plot(p22)
+## plot(p22)
+ggplotly(p22, tooltip = c("colour", "label"))
 ```
 <br>
 <button id="dwn-plot22" class="button">
