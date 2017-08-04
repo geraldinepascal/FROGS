@@ -71,6 +71,8 @@ if ((gregexpr('k__', tax))[[1]][1]>0) {
 }
 
 sampledata <- read.csv(params$samplefile, sep = "\t", row.names = 1)
+## add sample name to metadata, as SampleID variable
+sampledata$SampleID <- rownames(sampledata)
 sample_data(data) <- sampledata
 
 if (params$treefile!="None"){
@@ -84,7 +86,7 @@ for ( variable in sample_variables(data)){
   sample_data(data)[,variable] <- factor(get_variable(data, variable),levels=variable.order)
 }
 
-## remove empty sample
+## remove empty samples
 empty_samples <- sample_names(data)[which(sample_sums(data)==0)]
 sample_to_keep <- sample_names(data)[which(sample_sums(data)>0)]
 data <- prune_samples(sample_to_keep, data)
@@ -100,8 +102,8 @@ save(data, file=params$outputRdata)
 ##Summary
 ```{r,cache=FALSE, echo=FALSE, comment=NA}
 data
-if(length(empty_samples) > 0) {cat(paste('Remove emtpy samples: ', paste(empty_samples, collapse=",")))}
-if(params$normalization){cat(paste('Sequence number in each sample after normalization: ', head(sample_sums(data))[[1]]))}
+if(length(empty_samples) > 0) {cat(paste('Remove empty samples: ', paste(empty_samples, collapse=",")))}
+if(params$normalization){cat(paste('Number of sequences in each sample after normalization: ', head(sample_sums(data))[[1]]))}
 ```
 
 ##Ranks Names
@@ -168,6 +170,8 @@ if ((gregexpr('k__', tax))[[1]][1]>0) {
 }
 
 sampledata <- read.csv(samplefile, sep = "\t", row.names = 1)
+## add sample name to metadata, as SampleID variable
+sampledata$SampleID <- rownames(sampledata)
 sample_data(data) <- sampledata
 
 treefile          <- read.tree(treefile) #if have treefile
@@ -232,6 +236,8 @@ library(phyloseq)
 &#10;}
 &#10;
 &#10;sampledata <- read.csv(samplefile, sep = \"&#92;t\", row.names = 1)
+&#10;## add sample name to metadata, as SampleID variable
+&#10;sampledata$SampleID <- rownames(sampledata)
 &#10;sample_data(data) <- sampledata
 &#10;
 &#10;#if you have treefile
