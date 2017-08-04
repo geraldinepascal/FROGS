@@ -81,7 +81,7 @@ Download image
 taxaSet1 <- unlist(strsplit(params$taxaSet1, " "))
 p        <- plot_composition(data, params$taxaRank1, taxaSet1, params$taxaRank2, params$numberOfTaxa, fill=params$taxaRank2) 
 p        <- p + eval(parse(text = e)) + theme(plot.title = element_text(hjust = 0.5))
-gp <- ggplotly(p)
+gp <- ggplotly(p, tooltip = c("x", "y", "fill"))
 ```
 ```{r, fig.width=10, fig.height=8, echo=FALSE, comment=NA, cache=FALSE, warning=FALSE}
 gp$x$layout$annotations[[1]]$x <- -0.08
@@ -109,7 +109,7 @@ cat(paste(sep = "","p <- plot_bar(data,fill=", '"', rank_names(data)[2], '"', ")
 
 <h4>Composition plot</h4>
 ```{r, comment=NA, cache=FALSE, echo=FALSE}
-cat(paste(sep = "",'taxaSet1 <- unlist(strsplit(', params$taxaSet1, ', " "))\n', "p <- plot_composition(data,", '"', params$taxaRank1, '" ,taxaSet1 , "', params$taxaRank2, '" ,', params$numberOfTaxa, ', fill="', params$taxaRank2, '"', ") + eval(", parse(text = e),")"),'+ theme(plot.title = element_text(hjust = 0.5))', '\nggplotly(p)')
+cat(paste(sep = "",'taxaSet1 <- unlist(strsplit(', params$taxaSet1, ', " "))\n', "p <- plot_composition(data,", '"', params$taxaRank1, '" ,taxaSet1 , "', params$taxaRank2, '" ,', params$numberOfTaxa, ', fill="', params$taxaRank2, '"', ") + eval(", parse(text = e),")"),'+ theme(plot.title = element_text(hjust = 0.5))', '\nggplotly(p, tooltip = c("x", "y", "fill"))')
 ```
 
 <div id="code-r-file" style="display:none; charset=UTF-8">
@@ -135,7 +135,7 @@ library(plotly)
 &#10;taxaSet1 <- unlist(strsplit(taxaSet1, \"&#32;\"))
 &#10;p <- plot_composition(data, taxaRank1, taxaSet1, taxaRank2, numberOfTaxa, fill=taxaRank2) 
 &#10;p <- p + eval(parse(text = e)) + theme(plot.title = element_text(hjust = 0.5))
-&#10;ggplotly(p)
+&#10;ggplotly(p, tooltip = c(\"x\", \"y\", \"fill\"))
 </div>
 
 <script>
