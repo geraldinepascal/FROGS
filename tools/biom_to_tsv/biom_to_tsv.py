@@ -16,7 +16,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-__author__ = 'Frederic Escudie - Plateforme bioinformatique Toulouse'
+__author__ = 'Frederic Escudie - Plateforme bioinformatique Toulouse and Maria Bernard - Sigenae Jouy en Josas'
 __copyright__ = 'Copyright (C) 2015 INRA'
 __license__ = 'GNU General Public License'
 __version__ = '1.3.0'
@@ -79,9 +79,10 @@ class Biom2tsv(Cmd):
             conversion_tags += "'@seed_sequence' "
 
         frogs_metadata = ["rdp_taxonomy", "rdp_bootstrap","blast_taxonomy","blast_affiliations","seed_id"]
-        for metadata in biom.get_observation_metadata(obs["id"]):
-            if metadata not in frogs_metadata : 
-                conversion_tags += "'"+metadata+"' "
+        if biom.get_observation_metadata(obs["id"]) != None:
+            for metadata in biom.get_observation_metadata(obs["id"]):
+                if metadata not in frogs_metadata : 
+                    conversion_tags += "'"+metadata+"' "
                 
         conversion_tags += "'@observation_name' '@observation_sum' '@sample_count'"
 
