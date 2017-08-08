@@ -168,19 +168,26 @@
     RScript
         Version : >= 3.3.0
         Named as : RScript
-        Tools : all FROGS_Phyloseq and FROGS_DESeq
+        Tools : all FROGS_Phyloseq
         Download : https://cran.r-project.org/
+
+    Phangorn R package
+        Version : depending on your R version
+        Tools : FROGS_Tree
+        Installation in R session : # https://cran.r-project.org/web/packages/phangorn/index.html
+                                    install.packages("phangorn")
+        Test in R session : library(phangorn)
 
     Rmarkdown R package
         Version : depending on your R version
-        Tools : all FROGS_Phyloseq and FROGS_DESeq
+        Tools : all FROGS_Phyloseq
         Install in R session : # https://cran.r-project.org/web/packages/rmarkdown/index.html
                                install.packages("rmarkdown")
 
     Pandoc
         Version : >= 1.12.3
         Named as : pandoc
-        Tools : all FROGS_Phyloseq and FROGS_DESeq
+        Tools : all FROGS_Phyloseq
         Download/Installation : # http://pandoc.org/installing.html#linux or simply soft-link pandoc binary from RStudio path (if you have Rstudio installed)
 
     Phyloseq R package
@@ -203,6 +210,7 @@
         Installation in R session : # https://cran.r-project.org/web/packages/gridExtra/index.html
                                     install.packages("gridExtra")
         Test in R session : library(gridExtra)
+
 
 ### 4. Check intallation
     To check your installation you can type:

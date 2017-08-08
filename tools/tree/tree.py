@@ -122,6 +122,30 @@ class FastTree(Cmd):
         """
         return Cmd.get_version(self, 'stderr').split()[4].strip()
 
+
+class RootTree(Cmd):
+    """
+    @summary: root tree with phangornm midpoint
+    @see: https://cran.r-project.org/web/packages/phangorn/phangorn.pdf
+    """
+    def __init__(self, in_tree, out_tree):
+        """
+        @param in_tree: [str] Path to input tree file (Newick format).
+        @param out_tree: [str] path to output rooted tree file (Newick format)
+        """
+        Cmd.__init__( self,
+                    "root_tree.R",
+                    "root newick tree with phangorn R package midpoint function.",
+                    in_tree + " " + out_tree,
+                    "-v")
+
+    def get_version(self):
+        """
+        @summary: Returns the program version number.
+        @return: [str] Version number if this is possible, otherwise this method return 'unknown'.
+        """
+        return Cmd.get_version(self, 'stdout').split()[-1].strip()
+
 ##################################################################################################################################################
 #
 # FUNCTIONS
@@ -271,19 +295,20 @@ if __name__ == "__main__":
     prevent_shell_injections(args)
     
     # Temporary files
-    temps=TmpFiles(os.path.split(args.out_tree)[0])
+    tmpFiles=TmpFiles(os.path.split(args.out_tree)[0])
     filename_prefix = ".".join(os.path.split(args.input_otu)[1].split('.')[:-1])
     if args.template_pynast is None:
-        align= os.path.join(temps.tmp_dir ,filename_prefix+ '_mafft_aligned.fasta')   
-        temps.files.append(align)
+        align= os.path.join(tmpFiles.tmp_dir ,filename_prefix+ '_mafft_aligned.fasta')   
         pynast_fail=None
     else:
-        align = os.path.join(temps.tmp_dir , filename_prefix+ '_pynast_aligned.fasta')
-        pynast_fail = os.path.join(temps.tmp_dir , filename_prefix+'_pynast_fail.fasta')
-        pynast_log = os.path.join(temps.tmp_dir , filename_prefix+'_pynast_log.txt') 
-        temps.files.append(align)
-        temps.files.append(pynast_fail)
-        temps.files.append(pynast_log)      
+        align = os.path.join(tmpFiles.tmp_dir , filename_prefix+ '_pynast_aligned.fasta')
+        pynast_fail = os.path.join(tmpFiles.tmp_dir , filename_prefix+'_pynast_fail.fasta')
+        pynast_log = os.path.join(tmpFiles.tmp_dir , filename_prefix+'_pynast_log.txt') 
+        tmpFiles.files.append(pynast_fail)
+        tmpFiles.files.append(pynast_log)
+    
+    tmpFiles.files.append(align)
+    fasttree=tmpFiles.add(filename_prefix + ".fasttree")
     
     # Process 
     try:        
@@ -301,8 +326,9 @@ if __name__ == "__main__":
         else:
             min_len=compute_min_sequence_length(args.input_otu)
             Pynast(args.input_otu, args.template_pynast, min_len, align, pynast_fail, pynast_log).submit( args.log_file )
-        FastTree(align, args.out_tree).submit( args.log_file )
+        FastTree(align, fasttree).submit( args.log_file )
+        RootTree(fasttree, args.out_tree).submit(args.log_file)
         write_summary( args.html, args.input_otu, pynast_fail, args.biomfile, args.out_tree)
     finally:
         if not args.debug:
-            temps.deleteAll()
+            tmpFiles.deleteAll()

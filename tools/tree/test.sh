@@ -17,14 +17,14 @@ fi
 # arbre pynast
 mkdir -p test/pynast
 python tree.py -i data/sequences.fasta \
-	-t data/otus_pynast.fasta \
+    -t data/otus_pynast.fasta \
     -b data/sequences.biom \
     -s test/pynast/summary.html \
-	-o test/pynast/frogs.nwk -l test/pynast/tree.log
+    -o test/pynast/frogs.nwk -l test/pynast/tree.log
 
 # # arbre mafft
 mkdir -p test/mafft
 python tree.py -i data/sequences.fasta \
     -b data/sequences.biom \
     -s test/mafft/summary.html \
-	-o test/mafft/frogs.nwk -l test/mafft/tree.log
+    -o test/mafft/frogs.nwk -l test/mafft/tree.log
