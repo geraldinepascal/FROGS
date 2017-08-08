@@ -109,7 +109,7 @@ if __name__ == "__main__":
     biom = BiomIO.from_json(biomfile)
     if not biom.has_metadata("taxonomy"):
         raise Exception("Your biom input file has no standard taxonomy metadata. Coming from FROGS, did you forget to standardize your biom with FROGS Biom to std Biom ?\n")
-    if (args.treefile is None) or (args.treefile =='None') or (filename_treefile == ""):
+    if (args.treefile is None) :
         treefile="None"
     else:
         treefile=os.path.abspath(args.treefile)
