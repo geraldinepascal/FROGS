@@ -34,7 +34,7 @@ preprocess.py illumina \
  --output-count $out_dir/01-prepro.tsv \
  --summary $out_dir/01-prepro.html \
  --log-file $out_dir/01-prepro.log \
- --nb-cpus $nb_cpu 
+ --nb-cpus $nb_cpu --mismatch-rate 0.15
  
 if [ $? -ne 0 ]
 then
@@ -85,13 +85,14 @@ echo "Step filters `date`"
 
 filters.py \
  --min-abundance 0.00005 \
+ --min-sample-presence 3\
  --input-biom $out_dir/03-chimera.biom \
  --input-fasta $out_dir/03-chimera.fasta \
  --output-fasta $out_dir/04-filters.fasta \
  --output-biom $out_dir/04-filters.biom \
  --excluded $out_dir/04-filters.excluded \
  --summary $out_dir/04-filters.html \
- --log-file $out_dir/04-filters.log \
+ --log-file $out_dir/04-filters.log 
 
 if [ $? -ne 0 ]
 then
@@ -195,6 +196,138 @@ tsv_to_biom.py \
 if [ $? -ne 0 ]
 then
 	echo "Error in tsv_to_biom" >&2
+	exit 1;
+fi
+
+echo "Step tree : pynast `date`"
+
+tree.py \
+ --nb-cpus $nb_cpu  \
+ --input-otu $out_dir/04-filters.fasta \
+ --biomfile $out_dir/04-affiliation.biom \
+ --template-pynast $frogs_dir/test/data/otus_pynast.fasta \
+ --out-tree $out_dir/10a-tree.nwk \
+ --html $out_dir/10a-tree.html \
+ --log-file $out_dir/10a-tree.log
+ 
+if [ $? -ne 0 ]
+then
+	echo "Error in tree : pynast" >&2
+	exit 1;
+fi
+
+echo "Step tree : mafft `date`"
+
+tree.py \
+ --nb-cpus $nb_cpu \
+ --input-otu $out_dir/04-filters.fasta \
+ --biomfile $out_dir/04-affiliation.biom \
+ --out-tree $out_dir/10b-tree.nwk \
+ --html $out_dir/10b-tree.html \
+ --log-file $out_dir/10b-tree.log
+
+if [ $? -ne 0 ]
+then
+	echo "Error in tree : mafft" >&2
+	exit 1;
+fi
+
+echo "Step r_import_data `date`"
+
+r_import_data.py  \
+ --biomfile $out_dir/08-affiliation_std.biom \
+ --samplefile $frogs_dir/test/data/sample_metadata.tsv \
+ --treefile $out_dir/10b-tree.nwk \
+ --rdata $out_dir/11-phylo_import.Rdata --html $out_dir/11-phylo_import.html --log-file $out_dir/11-phylo_import.log
+
+ 
+if [ $? -ne 0 ]
+then
+	echo "Error in r_import_data " >&2
+	exit 1;
+fi
+
+echo "Step r_composition `date`"
+
+r_composition.py  \
+ --varExp Color --taxaRank1 Kingdom --taxaSet1 Bacteria --taxaRank2 Phylum --numberOfTaxa 9 \
+ --rdata $out_dir/11-phylo_import.Rdata \
+ --html $out_dir/12-phylo_composition.html --log-file $out_dir/12-phylo_composition.log
+
+ 
+if [ $? -ne 0 ]
+then
+	echo "Error in r_composition " >&2
+	exit 1;
+fi
+
+echo "Step r_alpha_diversity `date`"
+
+r_alpha_diversity.py  \
+ --varExp Color \
+ --rdata $out_dir/11-phylo_import.Rdata --alpha-measures Observed Chao1 Shannon \
+ --alpha-out $out_dir/13-phylo_alpha_div.tsv --html $out_dir/13-phylo_alpha_div.html --log-file $out_dir/13-phylo_alpha_div.log
+
+ 
+if [ $? -ne 0 ]
+then
+	echo "Error in r_alpha_diversity " >&2
+	exit 1;
+fi
+
+echo "Step r_beta_diversity `date`"
+
+r_beta_diversity.py  \
+ --varExp Color --distance-methods cc,unifrac \
+ --rdata $out_dir/11-phylo_import.Rdata \
+ --matrix-outdir $out_dir --html $out_dir/14-phylo_beta_div.html --log-file $out_dir/14-phylo_beta_div.log
+
+ 
+if [ $? -ne 0 ]
+then
+	echo "Error in r_beta_diversity " >&2
+	exit 1;
+fi
+
+#~ echo "Step r_structure `date`"
+#~ 
+#~ r_structure.py  \
+ #~ --varExp Color --ordination-method MDS \
+ #~ --rdata $out_dir/11-phylo_import.Rdata --distance-matrix $out_dir/Unifrac.tsv \
+ #~ --html $out_dir/15-phylo_structure.html --log-file $out_dir/15-phylo_structure.log
+#~ 
+ #~ 
+#~ if [ $? -ne 0 ]
+#~ then
+	#~ echo "Error in r_structure " >&2
+	#~ exit 1;
+#~ fi
+
+echo "Step r_clustering `date`"
+
+r_clustering.py  \
+ --varExp Color \
+ --rdata $out_dir/11-phylo_import.Rdata --distance-matrix $out_dir/Unifrac.tsv \
+ --html $out_dir/16-phylo_structure.html --log-file $out_dir/16-phylo_structure.log
+
+ 
+if [ $? -ne 0 ]
+then
+	echo "Error in r_clustering " >&2
+	exit 1;
+fi
+
+echo "Step r_manova `date`"
+
+r_manova.py  \
+ --varExp Color \
+ --rdata $out_dir/11-phylo_import.Rdata --distance-matrix $out_dir/Unifrac.tsv \
+ --html $out_dir/17-phylo_structure.html --log-file $out_dir/17-phylo_structure.log
+
+ 
+if [ $? -ne 0 ]
+then
+	echo "Error in r_manova " >&2
 	exit 1;
 fi
 

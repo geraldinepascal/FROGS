@@ -19,7 +19,7 @@ __author__ = 'Ta Thi Ngan & Maria Bernard INRA - SIGENAE'
 __copyright__ = 'Copyright (C) 2017 INRA'
 __license__ = 'GNU General Public License'
 __version__ = '1.0.0'
-__email__ = 'frogs@toulouse.inra.fr'
+__email__ = 'frogs@inra.fr'
 __status__ = 'prod'
 
 import os
@@ -81,20 +81,20 @@ if __name__ == "__main__":
     # Manage parameters
     parser = argparse.ArgumentParser( description='Visulization of data structure with heatmap plot and ordination plot of Phyloseq.')
     parser.add_argument('-v', '--varExp', type=str, required=True, default=None, help='The experiment variable you want to analyse.')
-    parser.add_argument('-m','--method', type=str, default='MDS', choices=["MDS", "NMDS", "DCA", "CCA", "RDA", "CAP", "DPCoA", "PCoA"], help="The ordination methods, the method in list (MDS, NMDS, DCA, CCA, RDA, CAP, DPCoA, PCoA). [Default: %(default)s]")
+    parser.add_argument('-m','--ordination-method', type=str, default='MDS', choices=["MDS", "NMDS", "DPCoA", "PCoA"], help="The ordination methods. [Default: %(default)s]")
     # Inputs
     group_input = parser.add_argument_group( 'Inputs' )
-    group_input.add_argument('-d','--data', required=True, default=None, help="The path of RData file containing a phyloseq object-the result of FROGS Phyloseq Import Data" )
-    group_input.add_argument('-i','--distance', required=True, default=None, help="Path of data file containing beta diversity distance matrix. These file is the result of FROGS Phyloseq Beta Diversity.") 
+    group_input.add_argument('-r','--rdata', required=True, default=None, help="The path of RData file containing a phyloseq object-the result of FROGS Phyloseq Import Data" )
+    group_input.add_argument('-d','--distance-matrix', required=True, default=None, help="Path of data file containing beta diversity distance matrix. These file is the result of FROGS Phyloseq Beta Diversity.") 
     # output
     group_output = parser.add_argument_group( 'Outputs' )
     group_output.add_argument('-o','--html', default='structure.html', help="Path to store resulting html file containing plots. [Default: %(default)s]")   
-    group_output.add_argument( '-l', '--log_file', default=sys.stdout, help='This output file will contain several information on executed commands.')    
+    group_output.add_argument( '-l', '--log-file', default=sys.stdout, help='This output file will contain several information on executed commands.')    
     args = parser.parse_args()
     prevent_shell_injections(args)   
     # Process 
     Logger.static_write(args.log_file, "## Application\nSoftware :" + sys.argv[0] + " (version : " + str(__version__) + ")\nCommand : " + " ".join(sys.argv) + "\n\n")
     html=os.path.abspath(args.html)
-    data=os.path.abspath(args.data)
-    distance=os.path.abspath(args.distance)
-    Rscript(html, data, args.varExp, args.method, distance).submit( args.log_file )
+    rdata=os.path.abspath(args.rdata)
+    distance=os.path.abspath(args.distance_matrix)
+    Rscript(html, rdata, args.varExp, args.ordination_method, distance).submit( args.log_file )

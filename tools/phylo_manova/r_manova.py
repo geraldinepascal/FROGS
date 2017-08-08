@@ -19,7 +19,7 @@ __author__ = 'Ta Thi Ngan & Maria Bernard INRA - SIGENAE'
 __copyright__ = 'Copyright (C) 2017 INRA'
 __license__ = 'GNU General Public License'
 __version__ = '1.0.0'
-__email__ = 'frogs@toulouse.inra.fr'
+__email__ = 'frogs@inra.fr'
 __status__ = 'prod'
 
 import os
@@ -60,7 +60,7 @@ class Rscript(Cmd):
         Cmd.__init__( self,
                       'Rscript',
                       'Run 1 code Rmarkdown',
-                       '-e "rmarkdown::render('+"'"+rmd+"',output_file='"+html+"', params=list(data='"+data+"', varExp='"+varExp+"',method='"+matrix+"'), intermediates_dir='"+os.path.dirname(html)+"')"+'" 2> /dev/null',
+                       '-e "rmarkdown::render('+"'"+rmd+"',output_file='"+html+"', params=list(data='"+data+"', varExp='"+varExp+"',distance='"+matrix+"'), intermediates_dir='"+os.path.dirname(html)+"')"+'" 2> /dev/null',
                        "-e '(sessionInfo()[[1]][13])[[1]][1]; paste(\"Rmarkdown version: \",packageVersion(\"rmarkdown\")) ; library(phyloseq); paste(\"Phyloseq version: \",packageVersion(\"phyloseq\"))'")
     def get_version(self):
         """
@@ -83,13 +83,13 @@ if __name__ == "__main__":
     
     # Inputs
     group_input = parser.add_argument_group( 'Inputs' )
-    group_input.add_argument('-d','--data', required=True, default=None, help="The path of RData file containing a phyloseq object-the result of FROGS Phyloseq Import Data" )
+    group_input.add_argument('-r','--rdata', required=True, default=None, help="The path of RData file containing a phyloseq object-the result of FROGS Phyloseq Import Data" )
     group_input.add_argument('-m','--distance-matrix', required=True, default=None, help="The path of data file containing beta diversity distance matrix. These file is the result of FROGS Phyloseq Beta Diversity." ) 
 
     # output
     group_output = parser.add_argument_group( 'Outputs' )
     group_output.add_argument('-o','--html', default='manova.html', help="The path to store resulting html file. [Default: %(default)s]" )   
-    group_output.add_argument( '-l', '--log_file', default=sys.stdout, help='This output file will contain several information on executed commands.')    
+    group_output.add_argument( '-l', '--log-file', default=sys.stdout, help='This output file will contain several information on executed commands.')    
     
     args = parser.parse_args()
     prevent_shell_injections(args)   
@@ -102,6 +102,6 @@ if __name__ == "__main__":
 
     Logger.static_write(args.log_file, "## Application\nSoftware :" + sys.argv[0] + " (version : " + str(__version__) + ")\nCommand : " + cmd + "\n\n")
     html=os.path.abspath(args.html)
-    data=os.path.abspath(args.data)
+    data=os.path.abspath(args.rdata)
     matrix=os.path.abspath(args.distance_matrix)    
     Rscript(html, data, args.varExp, matrix).submit( args.log_file )   

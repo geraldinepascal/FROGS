@@ -9,8 +9,12 @@
   * FROGS Phyloseq Clustering
   * FROGS Phyloseq Manova 
 
+### libexec program added:
+  * rooted_tree.R : Rscript to root FastTree tree. (used by Tree)
+
 ### Bugs fixes:
   * Preprocess : min overlap at least equal to 1
+  * biom2tsv : not working with stdBiom containing RDP affiliation
 
 ### Functions added:
   * Preprocess: add Flash mismatch rate option

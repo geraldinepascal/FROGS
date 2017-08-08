@@ -19,8 +19,8 @@
 __author__ = 'Maria Bernard - Sigenae AND Frederic Escudie - Plateforme bioinformatique Toulouse'
 __copyright__ = 'Copyright (C) 2015 INRA'
 __license__ = 'GNU General Public License'
-__version__ = '1.4.0'
-__email__ = 'frogs@toulouse.inra.fr'
+__version__ = '1.4.1'
+__email__ = 'frogs@inra.fr'
 __status__ = 'prod'
 
 import os
@@ -62,12 +62,18 @@ def observation_line_parts( observation, count_by_sample, fields, list_separator
         elif current_field == '@observation_sum':
             line.append( str(sum(count_by_sample)) )
         elif current_field == "@rdp_tax_and_bootstrap":
-                rdp_and_bootstrap = ""
+            rdp_and_bootstrap = ""
+            if issubclass(observation['metadata']["rdp_taxonomy"].__class__, list) :
                 rdp_taxonomy = observation['metadata']["rdp_taxonomy"]
                 rdp_bootstrap = observation['metadata']["rdp_bootstrap"]
                 for i, tax in enumerate(rdp_taxonomy):
                     rdp_and_bootstrap += tax + ";(" + str(rdp_bootstrap[i]) + ");" # tax1;(boots1);tax2;(boots2);
-                line.append(str(rdp_and_bootstrap))
+            else:
+                rdp_taxonomy = observation['metadata']["rdp_taxonomy"].split(";")
+                rdp_bootstrap = observation['metadata']["rdp_bootstrap"].split(";")
+                for i, tax in enumerate(rdp_taxonomy):
+                    rdp_and_bootstrap += tax + ";(" + str(rdp_bootstrap[i]) + ");" # tax1;(boots1);tax2;(boots2);
+            line.append(str(rdp_and_bootstrap))
         elif current_field == "@blast_perc_identity":
             if len(observation['metadata']["blast_affiliations"]) > 0:
                 line.append( str(uniq(observation['metadata']["blast_affiliations"], "perc_identity", "multi-identity")) )

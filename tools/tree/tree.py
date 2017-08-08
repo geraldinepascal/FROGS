@@ -19,7 +19,7 @@ __author__ = ' Ta Thi Ngan & Maria Bernard INRA - SIGENAE '
 __copyright__ = 'Copyright (C) 2017 INRA'
 __license__ = 'GNU General Public License'
 __version__ = '1.0.0'
-__email__ = 'frogs@toulouse.inra.fr'
+__email__ = 'frogs@inra.fr'
 __status__ = 'prod'
 
 import os
@@ -122,6 +122,30 @@ class FastTree(Cmd):
         """
         return Cmd.get_version(self, 'stderr').split()[4].strip()
 
+
+class RootTree(Cmd):
+    """
+    @summary: root tree with phangornm midpoint
+    @see: https://cran.r-project.org/web/packages/phangorn/phangorn.pdf
+    """
+    def __init__(self, in_tree, out_tree):
+        """
+        @param in_tree: [str] Path to input tree file (Newick format).
+        @param out_tree: [str] path to output rooted tree file (Newick format)
+        """
+        Cmd.__init__( self,
+                    "root_tree.R",
+                    "root newick tree with phangorn R package midpoint function.",
+                    in_tree + " " + out_tree,
+                    "-v")
+
+    def get_version(self):
+        """
+        @summary: Returns the program version number.
+        @return: [str] Version number if this is possible, otherwise this method return 'unknown'.
+        """
+        return Cmd.get_version(self, 'stdout').split()[-1].strip()
+
 ##################################################################################################################################################
 #
 # FUNCTIONS
@@ -160,7 +184,7 @@ def get_methods_mafft(seqs):
     else:
         return "--auto "
         
-def write_summary( summary_file, pynast_fail, biomfile, treefile):
+def write_summary( summary_file, fasta_in, pynast_fail, biomfile, treefile):
     """
     @summary: Writes the process summary in one html file.
     @param summary_file: [str] path to the output html file.
@@ -168,7 +192,7 @@ def write_summary( summary_file, pynast_fail, biomfile, treefile):
     @param biomfile: [str] path to the input BIOM file.
     @param treefile: [str] path to the Newick file.
     """
-    # to summary OTUs number && abundances number				
+    # to summary OTUs number && abundances number               
     detection_categories =["Taxonomic Information", "Abundance Number", "% with abundance total", "Sequence length"]
     table_otu_out =[]
     summary_info = {
@@ -184,11 +208,12 @@ def write_summary( summary_file, pynast_fail, biomfile, treefile):
     dic_otu={}
     treefile = open(treefile, "r")
     newick = treefile.read().strip()
-    list_otu_all=biom.get_observations_names()
+    list_otu_all=list()
     list_out_tree=[]
-    for observation_name in biom.get_observations_names():
+    for otu in FastaIO(fasta_in):
+        list_otu_all.append(otu.id)
         summary_info['number_otu_all'] +=1
-        summary_info['number_abundance_all'] += biom.get_observation_count(observation_name)
+        summary_info['number_abundance_all'] += biom.get_observation_count(otu.id)
 
     if pynast_fail is not None:
         for otu in FastaIO(pynast_fail):
@@ -197,8 +222,10 @@ def write_summary( summary_file, pynast_fail, biomfile, treefile):
             
             # to built one table of OTUs out of phylogenetic tree
             taxonomy=""
-            if biom.has_metadata("taxonomy") or biom.has_metadata("blast_taxonomy"):
-                taxonomy=";".join(biom.get_observation_taxonomy( otu.id, "taxonomy" )) if biom.has_observation_metadata( 'taxonomy' ) else ";".join(biom.get_observation_taxonomy( otu.id, "blast_taxonomy" ))
+            if biom.has_metadata("taxonomy"):
+                taxonomy = ";".join(biom.get_observation_metadata(otu.id)["taxonomy"]) if issubclass(biom.get_observation_metadata(otu.id)["taxonomy"].__class__,list) else str(biom.get_observation_metadata(otu.id)["taxonomy"])
+            elif biom.has_metadata("blast_taxonomy"): 
+                taxonomy = ";".join(biom.get_observation_metadata(otu.id)["blast_taxonomy"]) if issubclass(biom.get_observation_metadata(otu.id)["blast_taxonomy"].__class__,list) else str(biom.get_observation_metadata(otu.id)["blast_taxonomy"])
             abundance=biom.get_observation_count(otu.id)
             percent_abundance=abundance*100/(float(summary_info['number_abundance_all']))
             length=len(otu.string)
@@ -210,8 +237,10 @@ def write_summary( summary_file, pynast_fail, biomfile, treefile):
     
     for otu in list_in_tree:
         tax=None
-        if biom.has_metadata("taxonomy") or biom.has_metadata("blast_taxonomy"):
-            tax=" ".join(biom.get_observation_taxonomy(otu, "taxonomy" )) if biom.has_observation_metadata( 'taxonomy' ) else " ".join(biom.get_observation_taxonomy(otu, "blast_taxonomy"))
+        if biom.has_metadata("taxonomy"):
+            tax=" ".join(biom.get_observation_metadata(otu)["taxonomy"]) if issubclass(biom.get_observation_metadata(otu)["taxonomy"].__class__, list) else str(biom.get_observation_metadata(otu)["taxonomy"])
+        elif biom.has_metadata("blast_taxonomy"):
+            tax=" ".join(biom.get_observation_metadata(otu)["blast_taxonomy"]) if issubclass(biom.get_observation_metadata(otu)["blast_taxonomy"].__class__, list) else str(biom.get_observation_metadata(otu)["blast_taxonomy"])
         if tax :
             newick=newick.replace(otu + ":", otu + " " + tax + ":")
             
@@ -266,24 +295,28 @@ if __name__ == "__main__":
     prevent_shell_injections(args)
     
     # Temporary files
-    temps=TmpFiles(os.path.split(args.out_tree)[0])
+    tmpFiles=TmpFiles(os.path.split(args.out_tree)[0])
     filename_prefix = ".".join(os.path.split(args.input_otu)[1].split('.')[:-1])
     if args.template_pynast is None:
-        align= os.path.join(temps.tmp_dir ,filename_prefix+ '_mafft_aligned.fasta')   
-        temps.files.append(align)
+        align= os.path.join(tmpFiles.tmp_dir ,filename_prefix+ '_mafft_aligned.fasta')   
         pynast_fail=None
     else:
-        align = os.path.join(temps.tmp_dir , filename_prefix+ '_pynast_aligned.fasta')
-        pynast_fail = os.path.join(temps.tmp_dir , filename_prefix+'_pynast_fail.fasta')
-        pynast_log = os.path.join(temps.tmp_dir , filename_prefix+'_pynast_log.txt') 
-        temps.files.append(align)
-        temps.files.append(pynast_fail)
-        temps.files.append(pynast_log)		
+        align = os.path.join(tmpFiles.tmp_dir , filename_prefix+ '_pynast_aligned.fasta')
+        pynast_fail = os.path.join(tmpFiles.tmp_dir , filename_prefix+'_pynast_fail.fasta')
+        pynast_log = os.path.join(tmpFiles.tmp_dir , filename_prefix+'_pynast_log.txt') 
+        tmpFiles.files.append(pynast_fail)
+        tmpFiles.files.append(pynast_log)
+    
+    tmpFiles.files.append(align)
+    fasttree=tmpFiles.add(filename_prefix + ".fasttree")
     
     # Process 
     try:        
         Logger.static_write(args.log_file, "## Application\nSoftware :" + sys.argv[0] + " (version : " + str(__version__) + ")\nCommand : " + " ".join(sys.argv) + "\n\n")
         nb_seq = get_fasta_nb_seq(args.input_otu)
+        biom = BiomIO.from_json(args.biomfile)
+        if nb_seq > len(biom.rows):
+            raise Exception("Your fasta input file contains more OTU than your biom file.\n")
         Logger.static_write(args.log_file, "Number of input OTUs sequences: " + str(nb_seq) + "\n\n")
         if nb_seq >10000:
             raise Exception( "FROGS Tree is only working on less than 10 000 sequences!" )
@@ -293,8 +326,9 @@ if __name__ == "__main__":
         else:
             min_len=compute_min_sequence_length(args.input_otu)
             Pynast(args.input_otu, args.template_pynast, min_len, align, pynast_fail, pynast_log).submit( args.log_file )
-        FastTree(align, args.out_tree).submit( args.log_file )
-        write_summary( args.html, pynast_fail, args.biomfile, args.out_tree)
+        FastTree(align, fasttree).submit( args.log_file )
+        RootTree(fasttree, args.out_tree).submit(args.log_file)
+        write_summary( args.html, args.input_otu, pynast_fail, args.biomfile, args.out_tree)
     finally:
         if not args.debug:
-            temps.deleteAll()
+            tmpFiles.deleteAll()

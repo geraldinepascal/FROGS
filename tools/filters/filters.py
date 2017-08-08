@@ -20,7 +20,7 @@ __author__ = 'Katia Vidal - Team NED Toulouse AND Frederic Escudie - Plateforme 
 __copyright__ = 'Copyright (C) 2015 INRA'
 __license__ = 'GNU General Public License'
 __version__ = '1.3.2'
-__email__ = 'frogs@toulouse.inra.fr'
+__email__ = 'frogs@inra.fr'
 __status__ = 'prod'
 
 

@@ -19,9 +19,9 @@
 	<description>of samples using different linkage methods</description>
 	<command interpreter="python">r_clustering.py 
                                                --html $html 
-                                               --data $data 
+                                               --rdata $data 
                                                --varExp $varExp 
-                                               --method $method
+                                               --distance-matrix $method
 	</command>
     <inputs>
 		<!-- Files -->
@@ -84,7 +84,7 @@ Output
 
 **Contact**
 
-Contacts: frogs@toulouse.inra.fr
+Contacts: frogs@inra.fr
 
 Repository: https://github.com/geraldinepascal/FROGS
 

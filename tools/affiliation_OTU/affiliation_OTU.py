@@ -20,7 +20,7 @@ __author__ = 'Maria Bernard INRA - SIGENAE AND Frederic Escudie - Plateforme bio
 __copyright__ = 'Copyright (C) 2015 INRA'
 __license__ = 'GNU General Public License'
 __version__ = '0.11.0'
-__email__ = 'frogs@toulouse.inra.fr'
+__email__ = 'frogs@inra.fr'
 __status__ = 'prod'
 
 import os
@@ -359,8 +359,8 @@ if __name__ == "__main__":
             Blast(args.reference, args.input_fasta, blast_out_list[0], 1).submit(args.log_file)
         else:
             # RDP
-            split_fasta(args.input_fasta, tmpFiles, max(1, int(args.nb_cpus/3)), fasta_rdp_list, args.log_file)
             if args.rdp:
+                split_fasta(args.input_fasta, tmpFiles, max(1, int(args.nb_cpus/3)), fasta_rdp_list, args.log_file)
                 rdp_out_list = [tmpFiles.add(os.path.basename(current_fasta) + ".rdp") for current_fasta in fasta_rdp_list]
                 log_rdp_list = [tmpFiles.add(os.path.basename(current_fasta) + "_rdp.log") for current_fasta in fasta_rdp_list]
                 parallel_submission( process_rdp, fasta_rdp_list, rdp_out_list, log_rdp_list, len(fasta_rdp_list), args.reference, args.java_mem )

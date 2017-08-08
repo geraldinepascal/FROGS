@@ -5,7 +5,7 @@ params:
       value: x
    varExp:
       value: x
-   method:
+   distance:
       value: x
 ---
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
@@ -55,28 +55,23 @@ knitr::opts_chunk$set(echo = TRUE)
 library(phyloseq)
 library(scales)
 library(ape)
+source("https://raw.githubusercontent.com/mahendra-mariadassou/phyloseq-extended/master/load-extra-functions.R")
 load(params$data)
 
 ##get dist object from distance matrix file
 #setwd(dirname(params$method))
-A <- read.table(file=params$method, row.names=1)
+A <- read.table(file=params$distance, row.names=1)
 dist <- as.dist(A)
 
-## Env types
-var <- get_variable(data, params$varExp)
-
-palette <- hue_pal()(length(levels(var))) # Automatic color palette: one color per different sample type
-
-tipColor <- col_factor(palette, levels = levels(var))(var) # Map sample type to color
+## Grouping variable
+varExp <- params$varExp
 ```
 
 #{.tabset .tabset-fade .tabset-pills}
 
 ##Ward D2
-```{r, fig.width=8, fig.height=6, echo=FALSE}
-clust.wardD2 <- as.phylo(hclust(dist, method = 'ward.D2'))
-par(mfcol = c(1,1))
-plot(clust.wardD2, tip.color = tipColor, direction = "downwards", main = "Sample Clustering with Ward.D2 linkage")
+```{r, fig.width=8, fig.height=7, echo=FALSE}
+plot_clust(data, dist, method = "ward.D2", color = varExp)
 ```
 <br>
 <button id="dwn-ward-d2" class="button">
@@ -84,10 +79,8 @@ Download image
 </button>
 
 ##Complete
-```{r, fig.width=8, fig.height=6, echo=FALSE}
-clust.complete <- as.phylo(hclust(dist, method = 'complete'))
-par(mfcol = c(1,1))
-plot(clust.complete, tip.color = tipColor, direction = "downwards", main = "Sample Clustering with Complete linkage")
+```{r, fig.width=8, fig.height=7, echo=FALSE}
+plot_clust(data, dist, method = "complete", color = varExp)
 ```
 <br>
 <button id="dwn-complete" class="button">
@@ -95,10 +88,8 @@ Download image
 </button>
 
 ##Single
-```{r, fig.width=8, fig.height=6, echo=FALSE}
-clust.single <- as.phylo(hclust(dist, method = 'single'))
-par(mfcol = c(1,1))
-plot(clust.single, tip.color = tipColor, direction = "downwards", main = "Sample Clustering with Single linkage")
+```{r, fig.width=8, fig.height=7, echo=FALSE}
+plot_clust(data, dist, method = "single", color = varExp)
 ```
 <br>
 <button id="dwn-single" class="button">
@@ -111,42 +102,26 @@ Download image
 ```{r, eval=FALSE}
 library(scales)
 library(ape)
+source("https://raw.githubusercontent.com/mahendra-mariadassou/phyloseq-extended/master/load-extra-functions.R")
 #if in new session 
 #library(phyloseq)
 #data <- path to Rdata file 
 #load(data)
 
 ##get dist object from distance matrix file
-method <- # path to Beta diversity tsv file 
-A      <- read.table(file=method, row.names=1)
+distance <- # path to Beta diversity tsv file 
+A      <- read.table(file=distance, row.names=1)
 dist   <- as.dist(A)
 
 ## Env types
-varExp <- #Experiment variable to split plot
-var    <- get_variable(data,varExp)
-```
-
-<h4>Make color palettes</h4>
-```{r, eval=FALSE}
-# automatic color palette: one color per different sample type
-palette  <- hue_pal()(length(levels(var)))
-# Map sample type to color
-tipColor <- col_factor(palette, levels = levels(var))(var)
+varExp <- # (discrete) experimental variable used to color samples
 ```
 
 <h4>Sample clustering using different linkage method</h4>
 ```{r, eval=FALSE}
-clust.wardD2 <- as.phylo(hclust(dist, method = 'ward.D2'))
-par(mfcol = c(1,1))
-plot(clust.wardD2, tip.color = tipColor, direction = "downwards", main = "Sample Clustering with Ward.D2 linkage")
-
-clust.complete <- as.phylo(hclust(dist, method = 'complete'))
-par(mfcol = c(1,1))
-plot(clust.complete, tip.color = tipColor, direction = "downwards", main = "Sample Clustering with Complete linkage")
-
-clust.single <- as.phylo(hclust(dist, method = 'single'))
-par(mfcol = c(1,1))
-plot(clust.single, tip.color = tipColor, direction = "downwards", main = "Sample Clustering with Single linkage")
+plot_clust(data, dist, method = "ward.D2", color = varExp)
+plot_clust(data, dist, method = "complete", color = varExp)
+plot_clust(data, dist, method = "single", color = varExp)
 ```
 
 <div id="code-r-file" style="display:none;" charset=UTF-8>
@@ -154,38 +129,22 @@ library(scales)
 &#10;library(ape)
 &#10;#if in new session 
 &#10;#library(phyloseq)
+&#10;#source(\"`https://raw.githubusercontent.com/mahendra-mariadassou/phyloseq-extended/master/load-extra-functions.R`\")
 &#10;#data <- path to Rdata file 
 &#10;#load(data)
 &#10;
 &#10;##get dist object from distance matrix file
-&#10;method <- # path to Beta diversity tsv file 
-&#10;A <- read.table(file=method, row.names=1)
+&#10;distance <- # path to Beta diversity tsv file 
+&#10;A <- read.table(file=distance, row.names=1)
 &#10;dist <- as.dist(A)
 &#10;
 &#10;## Env types
-&#10;varExp <- #Experiment variable to split plot
-&#10;var <- get_variable(data,varExp)
+&#10;varExp <- #(discrete) experimental variable used to color samples
 &#10;
-&#10;## If samplefile have the Color column:
-&#10;## Try this palette on clustering
-&#10;## Map sample type to color
-&#10;
-&#10;# automatic color palette: one color per different sample type
-&#10;palette <- hue_pal()(length(levels(var)))
-&#10;# Map sample type to color
-&#10;tipColor <- col_factor(palette, levels = levels(var))(var)
-&#10;
-&#10;clust.wardD2 <- as.phylo(hclust(dist, method = \'ward.D2\'))
-&#10;par(mfcol = c(1,1))
-&#10;plot(clust.wardD2, tip.color = tipColor, direction = \"downwards\", main = \"Sample Clustering with Ward.D2 linkage\")
-&#10;
-&#10;clust.complete <- as.phylo(hclust(dist, method = \'complete\'))
-&#10;par(mfcol = c(1,1))
-&#10;plot(clust.complete, tip.color = tipColor, direction = \"downwards\", main = \"Sample Clustering with Complete linkage\")
-&#10;
-&#10;clust.single <- as.phylo(hclust(dist, method = \'single\'))
-&#10;par(mfcol = c(1,1))
-&#10;plot(clust.single, tip.color = tipColor, direction = \"downwards\", main = \"Sample Clustering with Single linkage\")
+&#10;## Clustering Trees
+&#10;plot_clust(data, dist, method = \"ward.D2\", color = varExp)
+&#10;plot_clust(data, dist, method = \"complete\", color = varExp)
+&#10;plot_clust(data, dist, method = \"single\", color = varExp)
 &#10;
 </div>
 

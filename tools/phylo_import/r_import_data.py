@@ -19,7 +19,7 @@ __author__ = ' Ta Thi Ngan & Maria Bernard INRA - SIGENAE '
 __copyright__ = 'Copyright (C) 2017 INRA'
 __license__ = 'GNU General Public License'
 __version__ = '1.0.0'
-__email__ = 'frogs@toulouse.inra.fr'
+__email__ = 'frogs@inra.fr'
 __status__ = 'prod'
 
 import os
@@ -37,6 +37,7 @@ if os.getenv('PYTHONPATH') is None: os.environ['PYTHONPATH'] = LIB_DIR
 else: os.environ['PYTHONPATH'] = os.environ['PYTHONPATH'] + os.pathsep + LIB_DIR
 
 from frogsUtils import *
+from frogsBiom import *
 ##################################################################################################################################################
 #
 # COMMAND LINES
@@ -87,28 +88,30 @@ if __name__ == "__main__":
     parser.add_argument( '-r','--ranks', type=str, nargs='*', default=['Kingdom', 'Phylum', 'Class', 'Order','Family','Genus', 'Species'], help='The ordered taxonomic ranks levels stored in BIOM. Each rank is separated by one space. [Default: %(default)s]')      
     # Inputs
     group_input = parser.add_argument_group( 'Inputs' )
-    group_input.add_argument( '-b', '--biomfile', required=True, help='path to biom file (format: biom1). These file is the result of FROGS.' )
+    group_input.add_argument( '-b', '--biomfile', required=True, help='path to standard biom file (format: biom1). These file is the result of FROGS.' )
     group_input.add_argument( '-s', '--samplefile', required=True, help='path to sample file (format: tabular).' )
     group_input.add_argument( '-t', '--treefile', default=None, help='path to tree file from FROGS Tree (format: Newich "nhx" or "nwk" ).' )
    
     # output
     group_output = parser.add_argument_group( 'Outputs' ) 
-    group_output.add_argument('-d','--data', default='phyloseq_data.Rdata', help="path to store phyloseq-class object in Rdata file. [Default: %(default)s]" )
+    group_output.add_argument('--rdata', default='phyloseq_data.Rdata', help="path to store phyloseq-class object in Rdata file. [Default: %(default)s]" )
     group_output.add_argument('-o','--html', default='summary.html', help="path to store resulting html file. [Default: %(default)s]" )
-    group_output.add_argument( '-l', '--log_file', default=sys.stdout, help='This output file will contain several information on executed commands.')   
+    group_output.add_argument( '-l', '--log-file', default=sys.stdout, help='This output file will contain several information on executed commands.')   
     args = parser.parse_args()
     prevent_shell_injections(args)
    
     # Process  
     Logger.static_write(args.log_file, "## Application\nSoftware :" + sys.argv[0] + " (version : " + str(__version__) + ")\nCommand : " + " ".join(sys.argv) + "\n\n")
     html=os.path.abspath(args.html)
-    data=os.path.abspath(args.data)
+    data=os.path.abspath(args.rdata)
     biomfile=os.path.abspath(args.biomfile)
     samplefile=os.path.abspath(args.samplefile)
-    filename_treefile = ".".join(os.path.split(args.treefile)[1].split('.')[:-1])
-    if (args.treefile is None) or (args.treefile =='None') or (filename_treefile == ""):
+    biom = BiomIO.from_json(biomfile)
+    if not biom.has_metadata("taxonomy"):
+        raise Exception("Your biom input file has no standard taxonomy metadata. Coming from FROGS, did you forget to standardize your biom with FROGS Biom to std Biom ?\n")
+    if (args.treefile is None) :
         treefile="None"
     else:
         treefile=os.path.abspath(args.treefile)
     ranks=" ".join(args.ranks)
-    Rscript(biomfile, samplefile, treefile, html, str(args.normalization).upper(), data, str(ranks)).submit(args.log_file)
+    Rscript(biomfile, samplefile, treefile, html, str(args.normalization).upper(), data, ranks).submit(args.log_file)

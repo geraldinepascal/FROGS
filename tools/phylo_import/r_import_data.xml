@@ -27,11 +27,11 @@
                                                       --normalization
                                                    #end if
                                                       --html $html 
-                                                      --data $data
+                                                      --rdata $data
 	</command>
     <inputs>
 		<!-- Files -->
-		<param format="biom1" name="biomfile" type="data" label="Biom file" help="The file contains the  OTU informations (format: biom1)." optional="false">
+		<param format="biom1" name="biomfile" type="data" label="Standard biom file" help="The file contains the  OTU informations (format: biom1)." optional="false">
             <validator type="empty_field" message="This parameter is required." />
         </param>
         
@@ -72,7 +72,7 @@ Input
 **OTU biom file**:
 
 The OTU biom file (format `biom1 &lt;http://biom-format.org/documentation/format_versions/biom-1.0.html&gt;`_).
-This file is the result of FROGS.
+This file is the result of FROGS BIOM to std BIOM.
 The example of biom file: 
 
   .. image:: ${static_path}/images/tools/frogs/biomfile.png 
@@ -107,7 +107,7 @@ Output
 
 **Contact**
 
-Contacts: frogs@toulouse.inra.fr
+Contacts: frogs@inra.fr
 
 Repository: https://github.com/geraldinepascal/FROGS
 

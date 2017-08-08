@@ -97,14 +97,7 @@ Download image
 anova_data <- cbind(sample_data(data), alpha.diversity)
 anova_data$Depth <- sample_sums(data)
 
-variables=c()
-for (var in sample_variables(data) ) {
-  l = length(levels(as.factor(get_variable(data,var))))
-  if(l > 1 && l < nsamples(data)){
-    variables <- cbind(variables,var)
-  }
-}
-variables <- paste(sep=" + ", "Depth", paste(collapse =" + ", variables ))
+variables <- paste(sep=" + ", "Depth", params$varExp )
 ## Perform ANOVA on observed richness, which effects are significant
 for (m in measures){
     f <- paste(m," ~ ", variables)
@@ -196,7 +189,7 @@ ggrare <- function(physeq, step = 10, label = NULL, color = NULL, plot = TRUE, p
     }
     
     p <- ggplot(data = data, aes_string(x = "Size", y = ".S", group = "Sample", color = color))
-    p <- p + labs(x = "Sample Size", y = "Species Richness")
+    p <- p + labs(x = "Sample Size", y = "OTU Richness")
     if (!is.null(label)) {
         p <- p + geom_text(data = labels, aes_string(x = "x", y = "y", label = label, color = color),
                            size = 4, hjust = 0)
@@ -357,7 +350,7 @@ ggrare <- function(physeq, step = 10, label = NULL, color = NULL, plot = TRUE, p
     }
     
     p <- ggplot(data = data, aes_string(x = "Size", y = ".S", group = "Sample", color = color))
-    p <- p + labs(x = "Sample Size", y = "Species Richness")
+    p <- p + labs(x = "Sample Size", y = "OTU Richness")
     if (!is.null(label)) {
         p <- p + geom_text(data = labels, aes_string(x = "x", y = "y", label = label, color = color),
                            size = 4, hjust = 0)
@@ -503,7 +496,7 @@ plot(p)
 &#10;    }
 &#10;    
 &#10;    p <- ggplot(data = data, aes_string(x = \"Size\", y = \".S\", group = \"Sample\", color = color))
-&#10;    p <- p + labs(x = \"Sample Size\", y = \"Species Richness\")
+&#10;    p <- p + labs(x = \"Sample Size\", y = \"OTU Richness\")
 &#10;    if (!is.null(label)) {
 &#10;        p <- p + geom_text(data = labels, aes_string(x = \"x\", y = \"y\", label = label, color = color),
 &#10;                           size = 4, hjust = 0)

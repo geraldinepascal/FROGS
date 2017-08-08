@@ -70,11 +70,9 @@ if ((gregexpr('k__', tax))[[1]][1]>0) {
     colnames(tax_table(data)) <- new_rank
 }
 
-sampledata <- try(read.csv(params$samplefile, sep = "", row.names = 1), TRUE)
-if (inherits(sampledata, "try-error") || ncol(sampledata)==0) {
-    sampledata <- read.csv(params$samplefile, sep = "\t", row.names = 1)
-}
-
+sampledata <- read.csv(params$samplefile, sep = "\t", row.names = 1)
+## add sample name to metadata, as SampleID variable
+sampledata$SampleID <- rownames(sampledata)
 sample_data(data) <- sampledata
 
 if (params$treefile!="None"){
@@ -88,6 +86,11 @@ for ( variable in sample_variables(data)){
   sample_data(data)[,variable] <- factor(get_variable(data, variable),levels=variable.order)
 }
 
+## remove empty samples
+empty_samples <- sample_names(data)[which(sample_sums(data)==0)]
+sample_to_keep <- sample_names(data)[which(sample_sums(data)>0)]
+data <- prune_samples(sample_to_keep, data)
+
 ## normalization
 if(params$normalization){ data <- rarefy_even_depth(data, rngseed = 1121983)}
 
@@ -99,7 +102,8 @@ save(data, file=params$outputRdata)
 ##Summary
 ```{r,cache=FALSE, echo=FALSE, comment=NA}
 data
-if(params$normalization){cat(paste('Sequence number in each sample after normalization: ', head(sample_sums(data))[[1]]))}
+if(length(empty_samples) > 0) {cat(paste('Remove empty samples: ', paste(empty_samples, collapse=",")))}
+if(params$normalization){cat(paste('Number of sequences in each sample after normalization: ', head(sample_sums(data))[[1]]))}
 ```
 
 ##Ranks Names
@@ -164,12 +168,12 @@ if ((gregexpr('k__', tax))[[1]][1]>0) {
     new_rank <- as.list(strsplit(ranks, " ")[[1]])
     colnames(tax_table(data)) <- new_rank
 }
-sampledata <- try(read.csv(samplefile, sep = "", row.names = 1), TRUE)
-if (inherits(sampledata, "try-error") || ncol(sampledata)==0) {
-    sampledata <- read.csv(samplefile, sep = "\t", row.names = 1)
-}
 
+sampledata <- read.csv(samplefile, sep = "\t", row.names = 1)
+## add sample name to metadata, as SampleID variable
+sampledata$SampleID <- rownames(sampledata)
 sample_data(data) <- sampledata
+
 treefile          <- read.tree(treefile) #if have treefile
 phy_tree(data)    <- treefile
 
@@ -178,6 +182,12 @@ for ( variable in sample_variables(data)){
   variable.order = as.vector(unique(sampledata[,variable]))
   sample_data(data)[,variable] <- factor(get_variable(data, variable),levels=variable.order)
 }
+
+# remove empty sample
+empty_samples <- sample_names(data)[which(sample_sums(data)==0)]
+sample_to_keep <- sample_names(data)[which(sample_sums(data)>0)]
+data <- prune_samples(sample_to_keep, data)
+if(length(empty_samples) > 0) {cat(paste('Remove emtpy samples: ', paste(empty_samples, collapse=","),"\n"))}
 
 # normalization
 if(normalization) {
@@ -224,10 +234,10 @@ library(phyloseq)
 &#10;    new_rank <- as.list(strsplit(ranks, \"&#32;\")[[1]])
 &#10;    colnames(tax_table(data)) <- new_rank
 &#10;}
-&#10;sampledata <- try(read.csv(samplefile, sep = \"\", row.names = 1), TRUE)
-&#10;if (inherits(sampledata, \"try-error\") || ncol(sampledata)==0) {
-&#10;    sampledata <- read.csv(samplefile, sep = \"&#92;t\", row.names = 1)
-&#10;}
+&#10;
+&#10;sampledata <- read.csv(samplefile, sep = \"&#92;t\", row.names = 1)
+&#10;## add sample name to metadata, as SampleID variable
+&#10;sampledata$SampleID <- rownames(sampledata)
 &#10;sample_data(data) <- sampledata
 &#10;
 &#10;#if you have treefile
@@ -239,6 +249,11 @@ library(phyloseq)
 &#10;  variable.order = as.vector(unique(sampledata[,variable]))
 &#10;  sample_data(data)[,variable] <- factor(get_variable(data, variable),levels=variable.order)
 &#10;}
+&#10;
+&#10;## remove empty sample
+&#10;empty_samples <- sample_names(data)[which(sample_sums(data)==0)]
+&#10;sample_to_keep <- sample_names(data)[which(sample_sums(data)>0)]
+&#10;data <- prune_samples(sample_to_keep, data)
 &#10;
 &#10;## normalization
 &#10;if(normalization) { 
