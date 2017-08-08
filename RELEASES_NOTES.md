@@ -1,4 +1,7 @@
-# v2.0.0  [DEV]
+# v2.1.0 [DEV]:
+
+
+# v2.0.0  [2017-08-08]
 ### Tools added : 
   * Tree : perform phylogenetic tree reconstruction based on Pynast or Mafft and Fasttree
   * FROGS Phyloseq Import Data : import data from 3 files: biomfile, samplefile, treefile into a phyloseq R object.
