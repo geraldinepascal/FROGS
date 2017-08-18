@@ -19,7 +19,7 @@
 	<description>Filters OTUs on several criteria.</description>
 	<command interpreter="python2.7">
 		filters.py
-			--nb-cpus $nb_cpu 
+			--nb-cpus \${GALAXY_SLOTS:-1} 
 			--input-biom $input_biom  
 			--input-fasta $input_fasta
 			--output-fasta $output_fasta
@@ -67,8 +67,6 @@
 		<param format="biom1" name="input_biom" type="data" label="Abundance file" help="The abundance file to filter (format: BIOM)." />
 
    		<!-- Parameters -->
-		<param name="nb_cpu" type="hidden" label="CPU number" help="The maximum number of CPUs used." value="1"></param>
-		
 		<conditional name="abundance_filters">
 			<param name="abundance_filters_areApplied" type="select" label=" *** THE FILTERS ON OTUS IN SAMPLES, OTUS SIZE and SEQUENCE PERCENTAGE" help="If you want to filter OTUs on their abundance and occurrence." >
 				<option value="no">No filters</option>

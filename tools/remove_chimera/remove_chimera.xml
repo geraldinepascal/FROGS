@@ -19,7 +19,7 @@
 	<description>Step 3 in metagenomics analysis : Remove PCR chimera in each sample.</description>
 	<command interpreter="python2.7">
 		remove_chimera.py 
-		                --nb-cpus $nb_cpus
+		                --nb-cpus \${GALAXY_SLOTS:-1}
 		                --input-fasta $sequence_file --non-chimera $non_chimera_fasta
 		                --summary $summary_file
 		                #if $abundance_type.abundance_type_selected == "biom"
@@ -45,8 +45,6 @@
 				<param format="tabular" name="abundance_count" type="data" label="Count file" help="It contains the count by sample for each sequence (see below)." optional="false" />
 			</when>
 		</conditional>
-		<!-- Parameters -->
-		<param name="nb_cpus" type="hidden" label="CPU number" help="The maximum number of CPUs used." value="1" />
 		<!--
 		<param name="size_separator" type="text" label="Size separator" help="Fill this input only if the IDs of sequences in fasta store the abundance as suffix. Example: 'Cluster_1;size=10' => ';size='" value="" optional="true" />
 		-->

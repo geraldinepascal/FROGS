@@ -19,7 +19,7 @@
 	<description>Step 2 in metagenomics analysis : clustering.</description>
 	<command interpreter="python2.7">
 		clustering.py 
-		                --nb-cpus $nb_cpus
+		                --nb-cpus \${GALAXY_SLOTS:-1}
 		                --distance $maximal_distance
 		                --input-fasta $sequence_file
 		                --input-count $count_file
@@ -33,7 +33,6 @@
 		<param format="fasta" name="sequence_file" type="data" label="Sequences file" help="The sequences file (format: fasta)." optional="false" />
 		<param format="tabular" name="count_file" type="data" label="Count file" help="It contains the count by sample for each sequence (format: TSV)." optional="false" />
 		<!-- Parameters -->
-		<param name="nb_cpus" type="hidden" label="CPU number" help="The maximum number of CPUs used." value="1" />
 		<param name="maximal_distance" type="integer" label="Aggregation distance" help="Maximum number of differences between sequences in each aggregation step." value="3" min="1" max="15" optional="false" />
 		<param name="denoising" type="boolean" checked="true" truevalue="--denoising" falsevalue="" label="Performe denoising clustering step?" help="If checked, clustering will be perform in two steps, first with distance = 1 and then with your input distance"/>
 	</inputs>
