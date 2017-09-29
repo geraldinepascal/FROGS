@@ -69,7 +69,7 @@ class Flash(Cmd):
         Cmd.__init__( self,
                       'flash',
                       'Join overlapping paired reads.',
-                      '--threads 1 --min-overlap ' + str(min_overlap) + ' --max-overlap ' + str(max_expected_overlap) + ' --max-mismatch-density ' + str(param.mismatch_rate) +' --compress ' + in_R1 + ' ' + in_R2 + ' --output-prefix '+ out_join_prefix +' 2> /dev/null',
+                      '--threads 1 --min-overlap ' + str(min_overlap) + ' --max-overlap ' + str(max_expected_overlap) + ' --max-mismatch-density ' + str(param.mismatch_rate) +' --compress ' + in_R1 + ' ' + in_R2 + ' --output-directory '+ os.path.dirname(out_join_prefix) + ' --output-prefix ' + os.path.basename(out_join_prefix) +' 2> /dev/null',
                       '--version' )
         self.output = out_join_prefix + ".extendedFrags.fastq.gz"
 
