@@ -19,7 +19,7 @@
     <head>
         <title>FROGS Pre-process</title>
         <meta charset="UTF-8">
-        <meta name="version" content="1.2.1">
+        <meta name="version" content="r3.0-v0.0">
         <!-- CSS -->
         <link rel="stylesheet" href="https://cdn.datatables.net/1.10.6/css/jquery.dataTables.css"></link>
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css"></link>
@@ -145,18 +145,24 @@
              * @param unity {String} Unity used in tooltip.
              * @return {Hash} Parameters to use in Highchart's constructor.
              */           
-            var histogram_param = function( pTitle, pYTitle, pCategories, pSeries, unity ) {
+            var histogram_param = function( pTitle, pSubtitle, pYTitle, pCategories, pSeries, unity ) {
                 var param = {
                     chart: {
                         type: 'column'
                     },
+                    colors : [
+                            '#7cb5ec', '#4E9A06'
+                    ] ,
                     title: {
                         text: pTitle
                     },
-                    xAxis: {
+                    subtitle: {
+                        text: pSubtitle
+                    },
+                    xAxis: [{
                         categories: pCategories,
                         crosshair: true
-                    },
+                    }],
                     yAxis: {
                         min: 0,
                         title: {
@@ -164,10 +170,19 @@
                         }
                     },
                     tooltip: {
-                        headerFormat: '<span style="font-size:10px">{point.key}</span><table>',
-                        pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' +
-                            '<td style="padding:0"><b>{point.y} ' + unity + '</b></td></tr>',
-                        footerFormat: '</table>',
+                        formatter: function() {
+                            var s = '<b> ' + this.x + '</b>' ,
+                            sum = 0;
+                            $.each(this.points, 
+                                function(i, point) {
+                                s += '<br/>'+ '<span style="color: ' + point.series.color + '"> ' + point.series.name +' : </span>'+
+                                point.y + " " + unity;
+                                sum += point.y;
+                                }
+                            );
+                            s += '<br/>total : '+sum
+                            return s;
+                        },
                         shared: true,
                         useHTML: true
                     },
@@ -193,16 +208,23 @@
             ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
             var filters_categories = ###FILTERS_CATEGORIES### ;
             /* Example:
-                ["before process", "overlapped", "with expected length", "with 5' primer", "with 3' primer", "with expected length", "without N"]
+                ["before process", "combined", "with 5' primer", "with 3' primer", "with expected length", "without N"]
             */
+
             var filters_by_sample = ###FILTERS_DATA### ;
             /* Example:
-                {
-                  "sampleA": [90126, 90126, 90126, 89697, 89697, 89697, 89697],
-                  "sampleB": [213043, 209801, 0, 0, 0, 0, 0] 
-                }
+            var filters_by_sample = {
+                "artificial combined": {
+                    "sampleA": {"with 3' primer": 100, "without N": 100, "with 5' primer": 200, "combined": 300}, 
+                    "sampleB": {"with 3' primer": 0, "without N": 0, "with 5' primer": 0, "combined": 0}}, 
+                "extended": {
+                    "sampleA": {"with expected length": 997, "with 3' primer": 997, "without N": 997, "with 5' primer": 997, "combined": 1000}, 
+                    "sampleB": {"with expected length": 634, "with 3' primer": 727, "without N": 619, "with 5' primer": 800, "combined": 834}}, 
+                "before process": {"sampleA": 1300, "sampleB": 834}
+            } ;
             */
-             var before_lengths_by_sample = ###BEFORE_LENGTHS_DATA### ;
+
+            var before_lengths_by_sample = ###BEFORE_LENGTHS_DATA### ;
             /* Example:
                 {
                   "sampleA": {"395": 1, "381": 192, "382": 1790, "383": 2903, "384": 1078, "385": 10536, "386": 18182, "387": 8613, "388": 1097, "389": 7},
@@ -287,47 +309,81 @@
              * Draws the bar chart that represents the total number of sequences after each filter. 
              */
             var summaryLoad = function(){
-                var global_data = new Array();
-                for( var spl_name in filters_by_sample ){
-                    var nb_by_step = filters_by_sample[spl_name] ;
-                    for( var step_idx = 0 ; step_idx < filters_by_sample[spl_name].length ; step_idx++ ){
-                        if( global_data.length < step_idx+1 ){
-                            global_data.push(0);
+                var total_input = 0;
+                var extended_data = new Array();
+                var non_overlapped_data = new Array();
+
+                for( var spl_name in filters_by_sample["extended"] ){
+                    total_input += filters_by_sample["before process"][spl_name] ;
+                    for ( var cat_idx = 1 ; cat_idx < filters_categories.length ; cat_idx++ ){
+                        var cat = filters_categories[cat_idx] ;
+                        if(extended_data.length <= cat_idx-1){
+                            extended_data.push(0);
+                            non_overlapped_data.push(0);
                         }
-                        global_data[step_idx] += nb_by_step[step_idx] ;
-                    }
+                        extended_data[cat_idx-1] += filters_by_sample["extended"][spl_name][cat] ;
+                        if ("artificial combined" in filters_by_sample) {
+                            if ( cat in filters_by_sample["artificial combined"][spl_name] ){
+                                non_overlapped_data[cat_idx-1] += filters_by_sample["artificial combined"][spl_name][cat] ;
+                            }else{
+                                non_overlapped_data[cat_idx-1] = non_overlapped_data[cat_idx-2] ;
+                            }
+                        }
+                    } 
+
                 }
-                var global_series = [{ name: 'All samples', data: global_data }];
-                $('#filter-summary').highcharts( histogram_param('Filtering summary', 'Nb sequences', filters_categories, global_series, 'seq') );
+                var global_series = [ { name: 'extended', data: extended_data }]
+                if ("artificial combined" in filters_by_sample) {
+                    global_series.push({name: 'artificial combined', data: non_overlapped_data});
+                }
+                $('#filter-summary').highcharts( histogram_param('Filtering summary','starting from : ' + total_input + ' sequences', 'Nb sequences', filters_categories.slice(0-filters_categories.length+1), global_series, 'seq') );
             }
 
             /**
              * Set the table that represents by sample the number of sequences after each filter. 
+             * Use key to select one subhashtable
              */
-            var sampleDetailsLoad = function(){
+            var sampleDetailsLoad = function(key, checkBox, tableId, distrib_length){
                 // Table titles
-                var titles = [ '<input id="filterBySample-check-all" type="checkbox" value="1">', "Samples" ];
-                titles.push( '% kept' );
-                for( var rank = 0 ; rank < filters_categories.length ; rank++ ){
-                    titles.push( filters_categories[rank] );
+                if (checkBox){
+                    var titles = [ '<input id="filterBySample-check-all" type="checkbox" value="1">', "Samples"];    
+                }else{
+                    var titles = ["Samples"];    
                 }
-                $('#filterBySample-table thead').append( '<tr><th>' + titles.join("</th><th>") + '</th></tr>' );
-                $('#filterBySample-table .title').attr( "colspan", titles.length );
-                $('#filterBySample-table tfoot th').each(function(){
+                
+                titles.push( '% kept' );
+                var filters = filters_by_sample[key] ;
+
+                for( var sample_name in filters ){
+                    if (checkBox) {
+                        var sample_data = ['<input id="filterBySample-chk-' + sample_name + '" type="checkbox" value="1">', sample_name];
+                    }else{
+                        var sample_data = [sample_name];
+                    }
+                    
+                    var prct_kept = filters[sample_name][filters_categories[filters_categories.length -1]]*100/filters[sample_name][filters_categories[1]]
+                    if (isNaN(prct_kept)){
+                        prct_kept = 0
+                    }
+                    sample_data.push( numberDisplay(prct_kept) );
+                    for ( var cat_idx = 0 ; cat_idx < filters_categories.length ; cat_idx++ ){
+                        var cat = filters_categories[cat_idx] ;
+                        if ( cat in filters[sample_name]) {
+                            if (!( titles.includes(cat) )){
+                                titles.push(cat);
+                            }
+                            sample_data.push( numberDisplay(filters[sample_name][cat]) );
+                        }
+                    }
+
+                    $('#'+tableId+' tbody').append( '<tr><td>' + sample_data.join("</td><td>") + '</td></tr>' );
+                }
+
+                $('#'+tableId+' thead').append( '<tr><th>' + titles.join("</th><th>") + '</th></tr>' );
+                $('#'+tableId+' .title').attr( "colspan", titles.length );
+                $('#'+tableId+' tfoot th').each(function(){
                     $(this).attr( "colspan", titles.length );
                 });
-                
-                // Table data
-                for( var sample_name in filters_by_sample ){
-                    var sample_data = ['<input id="filterBySample-chk-' + sample_name + '" type="checkbox" value="1">', sample_name] ;
-                    var prct_kept = filters_by_sample[sample_name][filters_categories.length-1]/filters_by_sample[sample_name][0]*100
-                    sample_data.push( numberDisplay(prct_kept) );
-                    for( var idx = 0 ; idx < filters_by_sample[sample_name].length ; idx++){
-                        sample_data.push( numberDisplay(filters_by_sample[sample_name][idx]) );
-                    }
-                    // Add row data
-                    $('#filterBySample-table tbody').append( '<tr><td>' + sample_data.join("</td><td>") + '</td></tr>' );
-                }
                 
                 // Check all management
                 $('#filterBySample-check-all').on('change', function (e) { // Manage check all
@@ -352,9 +408,13 @@
                 $('input[id^="filterBySample-chk-"]').on( 'change', updateButtonState );
                 
                 // Datatable
-                $('#filterBySample-table').DataTable({
-                    "sDom": '<"top"<"#filterBySample-csv-export"><"clear">lf>rt<"bottom"ip><"clear">',
-                    'order': [[1, 'asc']],
+                var start_col_idx = 0
+                if(checkBox){
+                    start_col_idx = 1
+                }
+                $('#'+tableId+'').DataTable({
+                    "sDom": '<"top"<"#'+tableId+'-export"><"clear">lf>rt<"bottom"ip><"clear">',
+                    'order': [[start_col_idx, 'asc']],
                     'columnDefs': [{
                         'targets': [0],
                         'orderable': false
@@ -362,23 +422,31 @@
                     "fnDrawCallback": updateButtonState
                 });
                 // Datatable export
-                $('#filterBySample-csv-export').html( '<button class="btn btn-primary"><span class="glyphicon glyphicon-open-file" aria-hidden="true">CSV</span></button>' );
-                $('#filterBySample-csv-export').addClass( 'dataTables_filter' );
-                $('#filterBySample-csv-export').datatableExport({
-                    'table_id': "filterBySample-table",
+                $('#'+tableId+'-export').html( '<button class="btn btn-primary"><span class="glyphicon glyphicon-open-file" aria-hidden="true">CSV</span></button>' );
+                $('#'+tableId+'-export').addClass( 'dataTables_filter' );
+                if ( checkBox){
+                    $('#'+tableId+'-export').datatableExport({
+                    'table_id': tableId,
                     'omitted_columns': [0]
-                });
+                    });
+                }else{
+                    $('#'+tableId+'-export').datatableExport({
+                    'table_id': tableId,
+                    });
+                }
 
                 // Add modal listener
-                $('#lengths-modal').on('shown.bs.modal', function (event) {
-                    var button = $(event.relatedTarget); // Button that triggered the modal
-                    var data_type = button.data('whatever');
-                    if( data_type == "before-process" ){
-                        setLengthsGraph(before_lengths_by_sample,"Amplicon length distribution before trimming and filtering");
-                    } else {
-                        setLengthsGraph(after_lengths_by_sample,"Preprocessed Amplicon Length distribution");
-                    }
-                });
+                if (distrib_length){
+                    $('#lengths-modal').on('shown.bs.modal', function (event) {
+                        var button = $(event.relatedTarget); // Button that triggered the modal
+                        var data_type = button.data('whatever');
+                        if( data_type == "before-process" ){
+                            setLengthsGraph(before_lengths_by_sample,"Amplicon length distribution before trimming and filtering");
+                        } else {
+                            setLengthsGraph(after_lengths_by_sample,"Preprocessed Amplicon Length distribution");
+                        }
+                    });
+                }
             }
 
             $(function() {
@@ -390,7 +458,12 @@
                 summaryLoad();
                 
                 // Display data by sample
-                sampleDetailsLoad();
+                sampleDetailsLoad("extended",true, "filterBySample-table-overlapped", true);
+                if ("artificial combined" in filters_by_sample ){
+                    sampleDetailsLoad("artificial combined", false, "filterBySample-table-artificialCombined", false);    
+                }else{
+                    $("#filterBySample-table-artificialCombined").remove();
+                }
             });
         </script>
     </head>
@@ -405,10 +478,10 @@
         <div id="content" class="hidden">
             <div id="filter-summary"></div>
             <div id="filter-log">
-                <table id="filterBySample-table" class="table table-striped">
+                <table id="filterBySample-table-overlapped" class="table table-striped">
                     <thead>
                         <tr>
-                            <th class="title">Filtering by sample</th>
+                            <th class="title">Filtering by sample : details on full length amplicon reads</th>
                         </tr>
                     </thead>
                     <tbody></tbody>
@@ -421,6 +494,14 @@
                             </th>
                         </tr>
                     </tfoot>
+                </table>
+                <table id="filterBySample-table-artificialCombined" class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th class="title">Filtering by sample : details on artificially combined reads</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
                 </table>
             </div>
         </div>

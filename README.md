@@ -115,6 +115,15 @@
                   OR
                   https://pypi.python.org/pypi/cutadapt
 
+    ITSx
+        Version : >= 1.0.11
+        Named : ITSx
+        Tools : preprocess
+        Download : http://microbiology.se/software/itsx/
+        Remark : ITSx_db folder need to be in the PATH or in <FROGS_PATH>/libexec
+                 depend on HMMER 3 or later (only for hmmpress and hmmscan)
+                 if ITSx test command line failed it's may be due to a difference in HMMER version used to prepare HMM models: hmmpress the ITSx_db/HMMs/*.hmm with your own HMMER version
+
     swarm
         Version: >=2.1.1
         Named as: swarm

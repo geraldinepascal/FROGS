@@ -1,9 +1,10 @@
 # v2.1.0 [DEV]:
-
+### Function added:
+  * Preprocess : keep and filter non overlapped reads (particularly important for ITS amplicon)
 
 # v2.0.0  [2017-08-08]
 ### Tools added : 
-  * Tree : perform phylogenetic tree reconstruction based on Pynast or Mafft and Fasttree
+  * Tree : perform phylogenetic tree reconstruction based on Mafft or Pynast follow by Fasttree and phangorn
   * FROGS Phyloseq Import Data : import data from 3 files: biomfile, samplefile, treefile into a phyloseq R object.
   * FROGS Phyloseq Composition Visualization with bar plot and composition plot
   * FROGS Phyloseq Alpha Diversity with richness plot
@@ -17,7 +18,7 @@
 
 ### Bugs fixes:
   * Preprocess : min overlap at least equal to 1
-  * biom2tsv : not working with stdBiom containing RDP affiliation
+  * biom2tsv : not working with stdBiom containing RDP affiliation, not working when emtpy metadata
 
 ### Functions added:
   * Preprocess: add Flash mismatch rate option
