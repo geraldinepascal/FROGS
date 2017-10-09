@@ -15,21 +15,25 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
-<tool id="FROGS_preprocess" name="FROGS Pre-process" version="r3.0-v0.0">
+<tool id="FROGS_preprocess" name="FROGS Pre-process" version="r3.0-v1.0">
 	<description>Step 1 in metagenomics analysis: denoising and dereplication.</description>
 	<command interpreter="python2.7">
 		preprocess.py $sequencer_type.sequencer_selected
 		--output-dereplicated $dereplicated_file --output-count $count_file --summary $summary_file 
 		--nb-cpus $nb_cpus
+		--min-amplicon-size $sequencer_type.min_amplicon_size --max-amplicon-size $sequencer_type.max_amplicon_size 
+		
+		#if $sequencer_type.ITS_amplicon
+			--its
+		#end if
+
 		#if $sequencer_type.sequencer_selected == "illumina"
-		    --min-amplicon-size $sequencer_type.min_amplicon_size --max-amplicon-size $sequencer_type.max_amplicon_size 
 		    #if $sequencer_type.sequencing_protocol.sequencing_protocol_selected == "standard"
 		        --five-prim-primer $sequencer_type.sequencing_protocol.five_prim_primer --three-prim-primer $sequencer_type.sequencing_protocol.three_prim_primer  
 		    #else
 		        --without-primers
 		    #end if
 		#else
-		    --min-amplicon-size $sequencer_type.min_amplicon_size --max-amplicon-size $sequencer_type.max_amplicon_size 
 		    --five-prim-primer $sequencer_type.five_prim_primer --three-prim-primer $sequencer_type.three_prim_primer 
 		#end if
 		
@@ -142,6 +146,7 @@
 				<!-- Amplicons -->
 				<param name="min_amplicon_size" type="integer" label="Minimum amplicon size" help="The minimum size for the amplicons." value="" optional="false" />
 				<param name="max_amplicon_size" type="integer" label="Maximum amplicon size" help="The maximum size for the amplicons." value="" optional="false" />
+				<param name="ITS_amplicon" type="boolean" label="Is it an ITS amplicon" help="In case of ITS amplicon, an additionnal filter is made with ITSx" />
 				<!-- Primers -->
 				<conditional name="sequencing_protocol">
 					<param name="sequencing_protocol_selected" type="select" label="Sequencing protocol" help="The protocol used for sequencing step: standard or custom with PCR primers as sequencing primers.">
@@ -180,6 +185,7 @@
 				<!-- Amplicons -->
 				<param name="min_amplicon_size" type="integer" label="Minimum amplicon size" help="The minimum size for the amplicons (with primers)." value="" optional="false" />
 				<param name="max_amplicon_size" type="integer" label="Maximum amplicon size" help="The maximum size for the amplicons (with primers)." value="" optional="false" />
+				<param name="ITS_amplicon" type="boolean" label="Is it an ITS amplicon" help="In case of ITS amplicon, an additionnal filter is made with ITSx" />
 				<!-- Primers -->
 				<param name="five_prim_primer" type="text" size="20" label="5' primer" help="The 5' primer sequence (wildcards are accepted). The orientation is detailed below in 'Primers parameters'." optional="false">
 					<validator type="empty_field" message="This parameter is required." />
@@ -242,7 +248,7 @@ Sample files added one after another or provide in an archive file (tar.gz).
    :Files: One sequence file by sample (format `FASTQ &lt;https://en.wikipedia.org/wiki/FASTA_format&gt;`_)
    :Example: splA.fastq.gz,  splB.fastq.gz
 
-Remark: In an archive if you use R1 and R2 files they names must end with *_R1* and *_R2*. To upload an archive, see the "Upload archive" tool or if possible create symbolic link on your Galaxy account.
+Remark: In an archive if you use R1 and R2 files they names must end with *_R1* and *_R2*. 
 
 .. class:: h3
 
@@ -261,10 +267,10 @@ Outputs
  This file reports the number of remaining sequences after each filter (format `HTML &lt;https://en.wikipedia.org/wiki/HTML&gt;`_).
  
  .. image:: ${static_path}/images/tools/frogs/FROGS_preprocess_summary.png 
-     :height: 355
-     :width: 676 
+     :height: 556
+     :width: 985 
 
- It also presents the length distribution of the remaining sequences.
+ It also presents the length distribution of the remaining full amplicon sequences.
  
  .. image:: ${static_path}/images/tools/frogs/FROGS_preprocess_lengthsSamples.png 
      :height: 350
@@ -279,11 +285,11 @@ How it works
    :widths: 5, 150, 150
    :class: table table-striped
 
-   "1", "For un-merged data: merges R1 and R2 with a maximum of M% mismatch in the overlaped region (`FLASh &lt;http://ccb.jhu.edu/software/FLASH/&gt;`_). By default M is set to 10%", "/"
-   "2", "Filters merged sequences on their length which must be range between 'Minimum amplicon size' and 'Maximum amplicon size'", "/"
-   "3", "If sequencing protocol is the illumina standard protocol : Removes sequences where the two primers are not present and then remove primers in the remaining sequence (`cutadapt &lt;http://cutadapt.readthedocs.org/en/latest/guide.html&gt;`_). The primer search accepts 10% of differences", "Removes sequences where the two primers are not present, removes primers sequence and reverse complement the sequences on strand -  (`cutadapt &lt;http://cutadapt.readthedocs.org/en/latest/guide.html&gt;`_). The primer search accepts 10% of differences"
-   "4", "Filters sequences on their length and with ambiguous nucleotides", "the tool removes sequences with at least one homopolymer with more than seven nucleotides and with a distance of less than or equal to 10 nucleo-tides between two poor quality positions, i.e. with a Phred quality score lesser than 10" 
-   "5", "Dereplicates sequences", "Dereplicates sequences"
+   "1", "For un-merged data: merges R1 and R2 with a maximum of M% mismatch in the overlaped region (`FLASh &lt;http://ccb.jhu.edu/software/FLASH/&gt;`_). By default M is set to 10%. Resulting un-merged reads are artificially combined by adding 100 Ns between the reads", "/"
+   "2", "If sequencing protocol is the illumina standard protocol : Removes sequences where the two primers are not present and then remove primers in the remaining sequence (`cutadapt &lt;http://cutadapt.readthedocs.org/en/latest/guide.html&gt;`_). The primer search accepts 10% of differences", "Removes sequences where the two primers are not present, removes primers sequence and reverse complement the sequences on strand -  (`cutadapt &lt;http://cutadapt.readthedocs.org/en/latest/guide.html&gt;`_). The primer search accepts 10% of differences"
+   "3", "Filters sequences with ambiguous nucleotides and for merged sequences filters on their length which must be range between 'Minimum amplicon size - primer length' and 'Maximum amplicon size - primer length'", "the tool removes sequences with at least one homopolymer with more than seven nucleotides and with a distance of less than or equal to 10 nucleo-tides between two poor quality positions, i.e. with a Phred quality score lesser than 10" 
+   "4", "Dereplicates sequences", "Dereplicates sequences"
+   "5", "If the targeted amplicon sequence is the ITS, extract the exact part of variable region targeted with `ITSx &lt;http://microbiology.se/software/itsx/&gt;`_", "If the targeted amplicon sequence is the ITS, extract the exact part of variable region targeted with `ITSx &lt;http://microbiology.se/software/itsx/&gt;`_"
 
 
 .. class:: infomark page-header h2
@@ -304,7 +310,7 @@ Example:
 
  5' :alert-info:`ATGCCC` GTCGTCGTAAAATGC :alert-info:`ATTTCAG` 3'
  
- Value for parameter 5' primer: ATGCC
+ Value for parameter 5' primer: ATGCCC
  
  Value for parameter 3' primer: ATTTCAG
 

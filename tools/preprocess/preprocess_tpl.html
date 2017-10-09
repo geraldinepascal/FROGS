@@ -19,7 +19,7 @@
     <head>
         <title>FROGS Pre-process</title>
         <meta charset="UTF-8">
-        <meta name="version" content="r3.0-v0.0">
+        <meta name="version" content="r3.0-v1.0">
         <!-- CSS -->
         <link rel="stylesheet" href="https://cdn.datatables.net/1.10.6/css/jquery.dataTables.css"></link>
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css"></link>
@@ -458,7 +458,11 @@
                 summaryLoad();
                 
                 // Display data by sample
-                sampleDetailsLoad("extended",true, "filterBySample-table-overlapped", true);
+                if ("extended" in filters_by_sample ){
+                    sampleDetailsLoad("extended",true, "filterBySample-table-overlapped", true);
+                }else{
+                    $("#filterBySample-table-overlapped").remove();
+                }
                 if ("artificial combined" in filters_by_sample ){
                     sampleDetailsLoad("artificial combined", false, "filterBySample-table-artificialCombined", false);    
                 }else{

@@ -1,6 +1,7 @@
 #!/bin/sh
-export PATH=../../libexec:$PATH
-export PYTHONPATH=../../lib:$PYTHONPATH
+FROGS_DIR=`dirname $(dirname $(pwd))`
+export PATH=$FROGS_DIR/libexec:$PATH
+export PYTHONPATH=$FROGS_DIR/lib:$PYTHONPATH
 
 if [ -d test ]
 then
