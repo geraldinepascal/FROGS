@@ -102,7 +102,7 @@
         Tools: demultiplex
 
     flash
-        Version: >=1.2.8
+        Version: >=1.2.10
         Named as: flash
         Tools: preprocess
         Download: http://sourceforge.net/projects/flashpage/files
