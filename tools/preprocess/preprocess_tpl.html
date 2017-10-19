@@ -321,7 +321,13 @@
                             extended_data.push(0);
                             non_overlapped_data.push(0);
                         }
-                        extended_data[cat_idx-1] += filters_by_sample["extended"][spl_name][cat] ;
+                        
+                        if (cat in filters_by_sample["extended"][spl_name]){
+                            extended_data[cat_idx-1] += filters_by_sample["extended"][spl_name][cat] ;    
+                        }else{
+                            extended_data[cat_idx-1] = extended_data[cat_idx-2] ;
+                        }
+
                         if ("artificial combined" in filters_by_sample) {
                             if ( cat in filters_by_sample["artificial combined"][spl_name] ){
                                 non_overlapped_data[cat_idx-1] += filters_by_sample["artificial combined"][spl_name][cat] ;
@@ -361,19 +367,26 @@
                         var sample_data = [sample_name];
                     }
                     
-                    var prct_kept = filters[sample_name][filters_categories[filters_categories.length -1]]*100/filters[sample_name][filters_categories[1]]
-                    if (isNaN(prct_kept)){
-                        prct_kept = 0
-                    }
-                    sample_data.push( numberDisplay(prct_kept) );
+                    var last_idx = 0; 
                     for ( var cat_idx = 0 ; cat_idx < filters_categories.length ; cat_idx++ ){
                         var cat = filters_categories[cat_idx] ;
                         if ( cat in filters[sample_name]) {
+                            last_idx = cat_idx
                             if (!( titles.includes(cat) )){
                                 titles.push(cat);
                             }
                             sample_data.push( numberDisplay(filters[sample_name][cat]) );
                         }
+                    }
+                    
+                    var prct_kept = filters[sample_name][filters_categories[last_idx]]*100/filters[sample_name][filters_categories[1]]
+                    if (isNaN(prct_kept)){
+                        prct_kept = 0
+                    }
+                    if (checkBox) {
+                        sample_data.splice(2, 0, numberDisplay(prct_kept));
+                    }else{
+                        sample_data.splice(1, 0, numberDisplay(prct_kept));
                     }
 
                     $('#'+tableId+' tbody').append( '<tr><td>' + sample_data.join("</td><td>") + '</td></tr>' );

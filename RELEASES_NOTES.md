@@ -1,6 +1,7 @@
-# v2.1.0 [DEV]:
+# v3.0.0 [DEV]:
 ### Function added:
   * Preprocess : keep and filter non overlapped reads (particularly important for ITS amplicon)
+  * Preprocess : add a ITSx (http://microbiology.se/software/itsx/) filter for Fungi ITS amplicon analysis
 
 # v2.0.0  [2017-08-08]
 ### Tools added : 

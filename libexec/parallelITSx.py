@@ -225,7 +225,7 @@ def process_ITSx(in_fasta, cwd, out, log_file):
     FH_log = Logger( log_file )
     FH_log.write("## Input file : " + os.path.split(in_fasta)[1] + "\n" ) 
     FH_log.write("## in working directory: " + cwd + "\n")
-    cmd = ["ITSx", "-i", in_fasta, "-o", prefix , "--preserve", "T","--concat","T"]
+    cmd = ["ITSx", "-i", in_fasta, "-o", prefix , "--preserve", "T","--concat","T","-t","F"]
     FH_log.write("## ITSx command: " + " ".join(cmd) + "\n")
     submit_cmd( cmd , cwd )
     FH_log.close()
@@ -338,7 +338,7 @@ if __name__ == "__main__":
     )
     parser.add_argument( '-p', '--nb-cpus', type=int, default=1, help="The maximum number of CPUs used. [Default: %(default)s]" )
     parser.add_argument( '--debug', default=False, action='store_true', help="Keep temporary files to debug program." )
-    parser.add_argument( '-v', '--version', action='version', version=__version__ + " [get_ITSx_version " + get_ITSx_version() + "]" )
+    parser.add_argument( '-v', '--version', action='version', version=__version__ + " [ITSx " + get_ITSx_version() + "]" )
     group_input = parser.add_argument_group( 'Inputs' ) # Inputs
     group_input.add_argument( '-i', '--input-fasta', required=True, help='The fasta input sequences to treat' )
     group_input.add_argument( '-c', '--input-count', required=True, help='The count tsv file associated with input fasta file' )

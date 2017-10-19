@@ -62,14 +62,17 @@ class Flash(Cmd):
         @param in_R1: [str] Path to the R1 fastq file.
         @param in_R2: [str] Path to the R2 fastq file.
         @param out_join_prefix: [str] Path to the output fastq file.
-        @param param: [Namespace] The 'param.min_amplicon_size', 'param.max_amplicon_size', 'param.expected_amplicon_size' and param.mismatch_rate'
+        @param param: [Namespace] The 'param.min_amplicon_size', 'param.max_amplicon_size', 'param.expected_amplicon_size', 'param.fungi' and param.mismatch_rate'
         """
         min_overlap = max(1,(param.R1_size + param.R2_size) - param.max_amplicon_size )
         max_expected_overlap = (param.R1_size + param.R2_size) - param.expected_amplicon_size + min(20, int((param.expected_amplicon_size - param.min_amplicon_size)/2))
+        outies=""
+        if param.fungi:
+            outies += " --allow-outies "
         Cmd.__init__( self,
                       'flash',
                       'Join overlapping paired reads.',
-                      '--threads 1 --min-overlap ' + str(min_overlap) + ' --max-overlap ' + str(max_expected_overlap) + ' --max-mismatch-density ' + str(param.mismatch_rate) +' --compress ' + in_R1 + ' ' + in_R2 + ' --output-directory '+ os.path.dirname(out_join_prefix) + ' --output-prefix ' + os.path.basename(out_join_prefix) +' 2> /dev/null',
+                      '--threads 1 '+ outies +' --min-overlap ' + str(min_overlap) + ' --max-overlap ' + str(max_expected_overlap) + ' --max-mismatch-density ' + str(param.mismatch_rate) +' --compress ' + in_R1 + ' ' + in_R2 + ' --output-directory '+ os.path.dirname(out_join_prefix) + ' --output-prefix ' + os.path.basename(out_join_prefix) +' 2> /dev/null',
                       '--version' )
         self.output = out_join_prefix + ".extendedFrags.fastq.gz"
 
@@ -91,45 +94,6 @@ class Flash(Cmd):
         FH_log = Logger( log_file )
         FH_log.write( 'Results:\n' )
         FH_log.write( '\tnb seq combined: ' + str(nb_seq_combined) + '\n' )
-        FH_log.close()
-
-class LengthFilter(Cmd):
-    """
-    @summary: Filters sequences by length.
-    """
-    def __init__(self, in_fastq, out_fastq, log_file, param):
-        """
-        @param in_fastq: [str] Path to the processed fastq.
-        @param out_fastq: [str] Path to the fastq with valid sequences.
-        @param log_file: [str] Path to the log file.
-        @param param: [Namespace] The 'param.min_amplicon_size' and 'param.max_amplicon_size'.
-        """
-        Cmd.__init__( self,
-                      'filterSeq.py',
-                      'Filters amplicons by length.',
-                      '--compress --min-length ' + str(param.min_amplicon_size) + ' --max-length ' + str(param.max_amplicon_size) + ' --input-file ' + in_fastq + ' --output-file ' + out_fastq + ' --log-file ' + log_file,
-                      '--version' )
-        self.program_log = log_file
-
-    def parser(self, log_file):
-        """
-        @summary: Parse the command results to add information in log_file.
-        @log_file: [str] Path to the sample process log file.
-        """
-        # Parse output
-        FH_log_filter = open( self.program_log )
-        nb_processed = 0
-        filtered_on_length = 0
-        for line in FH_log_filter:
-            if line.startswith('Nb seq filtered on length'):
-                filtered_on_length = int(line.split(':')[1].strip())
-            elif line.startswith('Nb seq processed'):
-                nb_processed = int(line.split(':')[1].strip())
-        FH_log_filter.close()
-        # Write result
-        FH_log = Logger( log_file )
-        FH_log.write( 'Results:\n' )
-        FH_log.write( '\tnb seq with expected length : ' + str(nb_processed - filtered_on_length) + '\n' )
         FH_log.close()
 
 
@@ -258,12 +222,14 @@ class MultiFilter(Cmd):
     """
     @summary : Filters sequences.
     """
-    def __init__(self, in_fastq, min_len, max_len, out_fasta, log_file, param):
+    def __init__(self, in_fastq, min_len, max_len, tag, out_fasta, log_file, param):
         """
         @param in_fastq: [str] Path to the processed fastq.
+        @param min_len, max_len [int] : minimum and maximum length filter criteria
+        @param tag [str] : check the presence of tag in sequence.
         @param out_fasta: [str] Path to the fasta with valid sequences.
         @param log_file: [str] Path to the log file.
-        @param param: [Namespace] The 'param.min_amplicon_size', ['param.five_prim_primer'], ['param.three_prim_primer'].
+        @param param: [Namespace] The 'param.sequencer'
         """
         cmd_description = 'Filters amplicons without primers by length and N count.',
         add_options = ""
@@ -274,6 +240,8 @@ class MultiFilter(Cmd):
             add_options += ' --min-length ' + str(min_len)
         if max_len > -1:
             add_options += ' --max-length ' + str(max_len)
+        if not tag is None:
+            add_options += ' --tag ' + tag
 
         Cmd.__init__( self,
                       'filterSeq.py',
@@ -291,12 +259,15 @@ class MultiFilter(Cmd):
         FH_log_filter = open( self.program_log )
         nb_processed = 0
         filtered_on_length = None
+        filtered_on_tag = None
         filtered_on_N = None
         filtered_on_homopolymer = None
         filtered_on_quality = None
         for line in FH_log_filter:
             if line.startswith('Nb seq filtered on length'):
                 filtered_on_length = int(line.split(':')[1].strip())
+            if line.startswith('Nb seq filtered on absence of tag'):
+                filtered_on_tag = int(line.split(':')[1].strip())
             elif line.startswith('Nb seq filtered on N'):
                 filtered_on_N = int(line.split(':')[1].strip())
             elif line.startswith('Nb seq filtered on homopolymer'):
@@ -322,6 +293,9 @@ class MultiFilter(Cmd):
         if filtered_on_quality is not None:
             FH_log.write( '\tnb seq without nearest poor quality : ' + str(previous_nb_seq - filtered_on_quality) + '\n' )
             previous_nb_seq -= filtered_on_quality
+        if filtered_on_tag is not None:
+            FH_log.write( '\tnb seq with expected tag : ' + str(previous_nb_seq - filtered_on_tag) + '\n' )
+            previous_nb_seq -= filtered_on_tag
         FH_log.close()
 
 class Combined(Cmd):
@@ -400,12 +374,10 @@ class ITSx(Cmd):
             'parallelITSx.py',
             'identifies ITS sequences and extracts the ITS region',
             ' -i ' + in_fasta + ' -c ' + in_count + cpu_options +' -o ' + out_fasta + ' -a ' + out_count + ' --log-file ' + log_file,
-            '-v'
+            '--version'
             )
         self.program_log = log_file
 
-    def get_version(self):
-        return Cmd.get_version(self, 'stdout').strip()
 
     def parser(self, log_file):
         """
@@ -544,7 +516,7 @@ def summarise_results( samples_names, lengths_files, log_files, param ):
     @param samples_names: [list] The samples names.
     @param log_files: [list] The list of path to log files (in samples_names order).
     @param lengths_files: [list] The list of path to files containing the contiged sequences lengths (in samples_names order).
-    @param param: [str] The 'param.summary' , 'param.output_count', 'param.its' .
+    @param param: [str] The 'param.summary' , 'param.output_count', 'param.fungi' .
     """
     # Get data
     categories = get_filter_steps(log_files[0])
@@ -553,7 +525,7 @@ def summarise_results( samples_names, lengths_files, log_files, param ):
     after_lengths_by_sample = dict()
     
     # compute ITSx final filter by sample
-    if param.its :
+    if param.fungi :
         categories.append("ITS")
         filters_ITSx = get_ITSx_results(param.output_count)
         after_lengths_by_sample = get_seq_length_by_sample( param.output_dereplicated, param.output_count )
@@ -570,14 +542,14 @@ def summarise_results( samples_names, lengths_files, log_files, param ):
                 filters_by_sample["artificial combined"] = {}
             filters_by_sample["artificial combined"][spl_name] = filters["artificial combined"]
         
-        if param.its:
+        if param.fungi:
             filters_by_sample["extended"][spl_name]["ITS"] = filters_ITSx["extended"][spl_name]
             filters_by_sample["artificial combined"][spl_name]["ITS"] = filters_ITSx["artificial combined"][spl_name]
         
         with open(lengths_files[spl_idx]) as FH_lengths:
             lenghts = json.load(FH_lengths)
             before_lengths_by_sample[spl_name] = lenghts["before"]
-            if not param.its :
+            if not param.fungi :
                 after_lengths_by_sample[spl_name] = lenghts["after"]
 
     # check length
@@ -588,8 +560,6 @@ def summarise_results( samples_names, lengths_files, log_files, param ):
             b_count += before_lengths_by_sample[sample][l]
         for l in after_lengths_by_sample[sample]:
             a_count += after_lengths_by_sample[sample][l]
-    print "lenght before on ", b_count
-    print "lenght after on ", a_count
     
     # Write
     FH_summary_tpl = open( os.path.join(CURRENT_DIR, "preprocess_tpl.html") )
@@ -617,9 +587,9 @@ def get_filter_steps( log_file ):
     FH_input = open(log_file)
     for line in FH_input:
         if line.strip().startswith('nb seq') and not line.strip().startswith('nb seq before process'):
-            steps.append( line.split('nb seq')[1].split(':')[0].strip() )
-        if "combine_and_split" in line and len(steps) >1:
-            break
+            step = line.split('nb seq')[1].split(':')[0].strip()
+            if not step in steps:
+                steps.append( step )
     FH_input.close()
     return steps
 
@@ -884,13 +854,13 @@ def process_sample(R1_file, R2_file, sample_name, out_file, art_out_file, length
         if args.three_prim_primer is not None: primers_size += len(args.three_prim_primer)
         min_len = args.min_amplicon_size - primers_size
         max_len = args.max_amplicon_size - primers_size
-        MultiFilter(out_cutadapt, min_len, max_len, out_NAndLengthfilter, log_NAndLengthfilter, args).submit(log_file)
+        MultiFilter(out_cutadapt, min_len, max_len, None, out_NAndLengthfilter, log_NAndLengthfilter, args).submit(log_file)
         
         # Get length before and after process
         length_dict = dict()
         nb_before_by_legnth = get_seq_length( out_flash )
         length_dict["before"]=nb_before_by_legnth
-        if not args.its :
+        if not args.fungi :
             nb_after_by_legnth = get_seq_length( out_NAndLengthfilter )
             length_dict["after"] = nb_after_by_legnth
         with open(lengths_file, "w") as FH_lengths:
@@ -907,7 +877,7 @@ def process_sample(R1_file, R2_file, sample_name, out_file, art_out_file, length
                     Cutadapt3prim(art_tmp_cutadapt, art_out_cutadapt, art_log_3prim_cutadapt, args).submit(log_file)
                 else: # Custom sequencing primers. The amplicons is full length (Illumina) except PCR primers (it is use as sequencing primers). [Protocol Kozich et al. 2013]
                     art_out_cutadapt = out_artificial_combined
-            MultiFilter(art_out_cutadapt, -1, -1, art_out_Nfilter, art_log_Nfilter, args).submit(log_file)
+            MultiFilter(art_out_cutadapt, -1, -1, "X"*100, art_out_Nfilter, art_log_Nfilter, args).submit(log_file)
             ReplaceJoinTag(art_out_Nfilter, "X"*100, "N"*100, art_out_XtoN ).submit(log_file)
             DerepBySample(out_NAndLengthfilter + " " + art_out_XtoN, out_file, out_count).submit(log_file)
         else:
@@ -987,7 +957,7 @@ def process( args ):
 
         # Dereplicate global on combined filtered cutadapted multifiltered derep
         Logger.static_write(args.log_file, '##Sample\nAll\n##Commands\n')
-        if args.its : 
+        if args.fungi : 
             derep_file = tmp_files.add("derep_globa.fasta")
             derep_count = tmp_files.add("derep_globa.count.tsv")
             DerepGlobal(filtered_files, samples_names, tmp_files.add('derep_inputs.tsv'), derep_file, derep_count, args).submit( args.log_file )
@@ -1057,7 +1027,7 @@ if __name__ == "__main__":
       [-s SUMMARY_FILE] [-l LOG_FILE]
 ''')
     #     Illumina parameters
-    parser_illumina.add_argument( '--its', default=False, action='store_true', help='the targeted amplicons is an ITS region' )
+    parser_illumina.add_argument( '--fungi', default=False, action='store_true', help='the targeted amplicons is an ITS region' )
     parser_illumina.add_argument( '--min-amplicon-size', type=int, required=True, help='The minimum size for the amplicons.' )
     parser_illumina.add_argument( '--max-amplicon-size', type=int, required=True, help='The maximum size for the amplicons.' )
     parser_illumina.add_argument( '--five-prim-primer', type=str, help="The 5' primer sequence (wildcards are accepted)." )
@@ -1096,7 +1066,7 @@ if __name__ == "__main__":
     [-d DEREPLICATED_FILE] [-c COUNT_FILE]
     [-s SUMMARY_FILE] [-l LOG_FILE]
 ''')
-    parser_454.add_argument( '--its', default=False, action='store_true', help='the targeted amplicons is an ITS region' )
+    parser_454.add_argument( '--fungi', default=False, action='store_true', help='the targeted amplicons is a Fungi ITS region' )
     parser_454.add_argument( '--min-amplicon-size', type=int, required=True, help='The minimum size for the amplicons (with primers).' )
     parser_454.add_argument( '--max-amplicon-size', type=int, required=True, help='The maximum size for the amplicons (with primers).' )
     parser_454.add_argument( '--five-prim-primer', type=str, required=True, help="The 5' primer sequence (wildcards are accepted)." )

@@ -23,8 +23,8 @@
 		--nb-cpus $nb_cpus
 		--min-amplicon-size $sequencer_type.min_amplicon_size --max-amplicon-size $sequencer_type.max_amplicon_size 
 		
-		#if $sequencer_type.ITS_amplicon
-			--its
+		#if $sequencer_type.ITS_fungi
+			--fungi
 		#end if
 
 		#if $sequencer_type.sequencer_selected == "illumina"
@@ -146,7 +146,7 @@
 				<!-- Amplicons -->
 				<param name="min_amplicon_size" type="integer" label="Minimum amplicon size" help="The minimum size for the amplicons." value="" optional="false" />
 				<param name="max_amplicon_size" type="integer" label="Maximum amplicon size" help="The maximum size for the amplicons." value="" optional="false" />
-				<param name="ITS_amplicon" type="boolean" label="Is it an ITS amplicon" help="In case of ITS amplicon, an additionnal filter is made with ITSx" />
+				<param name="ITS_fungi" type="boolean" label="Is it an ITS Fungi amplicon?" help="In case of ITS Fungi amplicon, an additionnal filter is applied with ITSx" />
 				<!-- Primers -->
 				<conditional name="sequencing_protocol">
 					<param name="sequencing_protocol_selected" type="select" label="Sequencing protocol" help="The protocol used for sequencing step: standard or custom with PCR primers as sequencing primers.">
@@ -185,7 +185,7 @@
 				<!-- Amplicons -->
 				<param name="min_amplicon_size" type="integer" label="Minimum amplicon size" help="The minimum size for the amplicons (with primers)." value="" optional="false" />
 				<param name="max_amplicon_size" type="integer" label="Maximum amplicon size" help="The maximum size for the amplicons (with primers)." value="" optional="false" />
-				<param name="ITS_amplicon" type="boolean" label="Is it an ITS amplicon" help="In case of ITS amplicon, an additionnal filter is made with ITSx" />
+				<param name="ITS_fungi" type="boolean" label="Is it an ITS Fungi amplicon?" help="In case of ITS Fungi amplicon, an additionnal filter is applied with ITSx" />
 				<!-- Primers -->
 				<param name="five_prim_primer" type="text" size="20" label="5' primer" help="The 5' primer sequence (wildcards are accepted). The orientation is detailed below in 'Primers parameters'." optional="false">
 					<validator type="empty_field" message="This parameter is required." />
@@ -289,7 +289,7 @@ How it works
    "2", "If sequencing protocol is the illumina standard protocol : Removes sequences where the two primers are not present and then remove primers in the remaining sequence (`cutadapt &lt;http://cutadapt.readthedocs.org/en/latest/guide.html&gt;`_). The primer search accepts 10% of differences", "Removes sequences where the two primers are not present, removes primers sequence and reverse complement the sequences on strand -  (`cutadapt &lt;http://cutadapt.readthedocs.org/en/latest/guide.html&gt;`_). The primer search accepts 10% of differences"
    "3", "Filters sequences with ambiguous nucleotides and for merged sequences filters on their length which must be range between 'Minimum amplicon size - primer length' and 'Maximum amplicon size - primer length'", "the tool removes sequences with at least one homopolymer with more than seven nucleotides and with a distance of less than or equal to 10 nucleo-tides between two poor quality positions, i.e. with a Phred quality score lesser than 10" 
    "4", "Dereplicates sequences", "Dereplicates sequences"
-   "5", "If the targeted amplicon sequence is the ITS, extract the exact part of variable region targeted with `ITSx &lt;http://microbiology.se/software/itsx/&gt;`_", "If the targeted amplicon sequence is the ITS, extract the exact part of variable region targeted with `ITSx &lt;http://microbiology.se/software/itsx/&gt;`_"
+   "5", "If the targeted amplicon sequence is the ITS for Fungi exclusively, extract the exact part of variable region targeted with `ITSx &lt;http://microbiology.se/software/itsx/&gt;`_", "If the targeted amplicon sequence is the ITS for Fungi exclusively, extract the exact part of variable region targeted with `ITSx &lt;http://microbiology.se/software/itsx/&gt;`_"
 
 
 .. class:: infomark page-header h2
