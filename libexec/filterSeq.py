@@ -63,7 +63,7 @@ class QualWindowParameter(argparse.Action):
             param[key] = int(val)
         setattr(namespace, self.dest, param)
 
-def filter_seq( input_file, output_file, log_file, min_length=None, max_length=None, max_N=None, max_homopolymer=None, qual_window=None, force_fasta=False ):
+def filter_seq( input_file, output_file, log_file, min_length=None, max_length=None, max_N=None, max_homopolymer=None, qual_window=None, tag=None, force_fasta=False ):
     """
     @summary: Filters sequences on length, number of N and number of homopolymer.
     @param input_file: [str] Path to the processed sequence file.
@@ -74,6 +74,7 @@ def filter_seq( input_file, output_file, log_file, min_length=None, max_length=N
     @param max_N: [str] The maximum number of N to keep a sequence. The value None cancels the filter on this criterion.
     @param max_homopoly: [str] The maximum number of homopolymer to keep a sequence. The value None cancels the filter on this criterion.
     @param qual_window: [dict] The minimal distance between two poor quality.
+    @param tag: [str] A particular tag included in the sequence to keep it. The value None cancels the filter on this criterion.
     @param force_fasta: [bool] With True the output will be a fasta. Otherwise the output format is the same of the input.
     """
     def is_true( *val ):
@@ -115,6 +116,9 @@ def filter_seq( input_file, output_file, log_file, min_length=None, max_length=N
                 previous_idx = idx
         return is_keep
 
+    def check_tag(sequence):
+        return (tag in sequence)
+
     # Load suitable function to check length
     length_is_ok = is_true # no check
     if min_length is not None and max_length is not None: # check min and max length
@@ -139,6 +143,11 @@ def filter_seq( input_file, output_file, log_file, min_length=None, max_length=N
     if qual_window is not None:
         quality_is_ok = check_quality
 
+    # Load suitable function to check the presence of tag
+    tag_seq_is_ok = is_true # no check
+    if tag is not None:
+        tag_seq_is_ok = check_tag
+
     # Process
     #~ fh_in = SequenceFileReader.factory(input_file)
     fh_in = FastqIO(input_file)
@@ -153,6 +162,7 @@ def filter_seq( input_file, output_file, log_file, min_length=None, max_length=N
     filter_on_N = 0
     filter_on_homopoly = 0
     filter_on_quality = 0
+    filter_on_tag = 0
     for seq_record in fh_in:
         nb_seq += 1
         if not length_is_ok( len(seq_record.string) ):
@@ -163,6 +173,8 @@ def filter_seq( input_file, output_file, log_file, min_length=None, max_length=N
             filter_on_homopoly += 1
         elif not quality_is_ok( seq_record.quality ):
             filter_on_quality += 1
+        elif not tag_seq_is_ok(seq_record.string):
+            filter_on_tag += 1
         else:
             fh_out.write( seq_record )
 
@@ -177,6 +189,8 @@ def filter_seq( input_file, output_file, log_file, min_length=None, max_length=N
         log_fh.write( "Nb seq filtered on homopolymer : " + str(filter_on_homopoly) + "\n" )
     if not qual_window is None:
         log_fh.write( "Nb seq filtered on quality : " + str(filter_on_quality) + "\n" )
+    if not tag is None:
+        log_fh.write( "Nb seq filtered on absence of tag : " + str(filter_on_tag) + "\n" )
     log_fh.close()
 
 
@@ -193,6 +207,7 @@ if __name__ == "__main__":
     parser.add_argument( '--max-N', default=None, type=int, help='The maximum number of N to keep a sequence.' )
     parser.add_argument( '--max-homopolymer', default=None, type=int, help='The maximum number of homopolymer to keep a sequence.' )
     parser.add_argument( '--qual-window', default=None, nargs='+', action=QualWindowParameter, metavar=("threshold:MIN_QUAL [win_size:WINDOW_SIZE] [offset:QUAl_OFFSET]", ""), help="The minimal distance ('win_size') between two poor quality ('threshold')." )
+    parser.add_argument( '--tag', default=None, type=str, help='A particular tag included in the sequence to keep it' )
     parser.add_argument( '-v', '--version', action='version', version=__version__ )
     group_input = parser.add_argument_group( 'Inputs' ) # Inputs
     group_input.add_argument( '-i', '--input-file', required=True, help='The sequence file to process (format: fastq or fasta).' )
@@ -207,4 +222,4 @@ if __name__ == "__main__":
     if args.compress:
         if not args.output_file.endswith('gz'):
             output_file = args.output_file + '.gz'
-    filter_seq( args.input_file, output_file, args.log_file, args.min_length, args.max_length, args.max_N, args.max_homopolymer, args.qual_window, args.force_fasta )
+    filter_seq( args.input_file, output_file, args.log_file, args.min_length, args.max_length, args.max_N, args.max_homopolymer, args.qual_window, args.tag, args.force_fasta )
