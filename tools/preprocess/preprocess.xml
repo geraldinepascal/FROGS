@@ -20,7 +20,7 @@
 	<command interpreter="python2.7">
 		preprocess.py $sequencer_type.sequencer_selected
 		--output-dereplicated $dereplicated_file --output-count $count_file --summary $summary_file 
-		--nb-cpus $nb_cpus
+		--nb-cpus \${GALAXY_SLOTS:-1}
 		--min-amplicon-size $sequencer_type.min_amplicon_size --max-amplicon-size $sequencer_type.max_amplicon_size 
 		
 		#if $sequencer_type.ITS_fungi
@@ -81,7 +81,6 @@
 		#end if
 	</command>
 	<inputs>
-		<param name="nb_cpus" type="hidden" label="CPU number" help="The maximum number of CPUs used." value="1" />
 		<conditional name="sequencer_type">
 			<param name="sequencer_selected" type="select" label="Sequencer" help="Select the sequencing technology used to produce the sequences.">
 				<option value="illumina" selected="true">Illumina</option>
