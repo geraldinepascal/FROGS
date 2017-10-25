@@ -787,12 +787,18 @@ def process_sample(R1_file, R2_file, sample_name, out_file, art_out_file, length
     """
 
     tmp_files = TmpFiles( os.path.split(out_file)[0] )
+
     # FLASH
     out_flash = tmp_files.add( sample_name + '_flash.extendedFrags.fastq.gz' )
     out_notcombined_R1_flash = tmp_files.add( sample_name + '_flash.notCombined_1.fastq.gz' )
     out_notcombined_R2_flash = tmp_files.add( sample_name + '_flash.notCombined_2.fastq.gz' )
     out_flash_hist = tmp_files.add(sample_name + '_flash.hist')
     out_flash_histogram = tmp_files.add(sample_name + '_flash.histogram')
+    if args.fungi:
+        out_flash_hist_innie = tmp_files.add(sample_name + '_flash.hist.innie')
+        out_flash_histogram_innie = tmp_files.add(sample_name + '_flash.histogram.innie')
+        out_flash_hist_outie = tmp_files.add(sample_name + '_flash.hist.outie')
+        out_flash_histogram_outie = tmp_files.add(sample_name + '_flash.histogram.outie')
     out_artificial_combined = tmp_files.add( sample_name + '_artificial_combined.fastq.gz' )
     # CUTADAPT ON COMBINED FILTER
     tmp_cutadapt = tmp_files.add( sample_name + '_cutadapt_5prim_trim.fastq.gz' )
