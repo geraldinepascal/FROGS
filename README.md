@@ -109,6 +109,8 @@
 
     cutadapt
         Version: >=1.7
+            Note : Since version 1.12 of cutadapt, the memory usage increases drastically. 
+                   We advise you to install at most the cutadapt 1.11 version
         Named as: cutadapt
         Tools: preprocess
         Download: https://github.com/marcelm/cutadapt
