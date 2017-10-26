@@ -357,23 +357,25 @@ class ITSx(Cmd):
     """
     @summary: Use ITSx to identifies ITS sequences and extracts the ITS region
     """
-    def __init__(self, in_fasta, in_count, out_fasta, out_count, log_file, param):
+    def __init__(self, in_fasta, in_count, target, out_fasta, out_count, log_file, param):
         """
         @param in_fasta: [str] Path to the fasta to process.
         @param in_count: [str] Path to the associated count file to update.
+        @param target : [str] Either ITS1 or ITS2
         @param out_fasta: [str] Path to the processed fasta.
         @param out_count: [str] Path to the updated count file.
         @param log_file: [str] Path to the updated count file.
         @param param: [Namespace] The 'param.nb_cpus'.
         """
-        cpu_options=''
+        options=''
         if param.nb_cpus > 1:
-            cpu_options = " --nb-cpus " + str(param.nb_cpus)
-                
+            options = " --nb-cpus " + str(param.nb_cpus)
+        if param.debug:
+            options += " --debug "
         Cmd.__init__(self,
             'parallelITSx.py',
             'identifies ITS sequences and extracts the ITS region',
-            ' -i ' + in_fasta + ' -c ' + in_count + cpu_options +' -o ' + out_fasta + ' -a ' + out_count + ' --log-file ' + log_file,
+            ' -f ' + in_fasta + ' -c ' + in_count + options + ' --its '+ target + ' -o ' + out_fasta + ' -a ' + out_count + ' --log-file ' + log_file,
             '--version'
             )
         self.program_log = log_file
@@ -386,23 +388,26 @@ class ITSx(Cmd):
         """
         # Parse output
         FH_log_ITSX = open( self.program_log )
-        nb_ITS1 = 0
-        nb_ITS2 = 0
-        nb_ITS1_ITS2 = 0
+        count_ITSx = dict()
+        kept = ""
         for line in FH_log_ITSX:
-            if line.startswith('nb_ITS1_only:'):
-                nb_ITS1 += int(line.split(':')[1].strip())
-            elif line.startswith('nb_ITS2_only:'):
-                nb_ITS2 += int(line.split(':')[1].strip())
-            elif line.startswith('nb_ITS1_ITS2:'):
-                nb_ITS1_ITS2 += int(line.split(':')[1].strip())
+            if line.startswith('nb') :
+                [key,value]=line.strip().split(':')
+                if key in count_ITSx:
+                    count_ITSx[key]+= int(value)
+                else:
+                    count_ITSx[key]= int(value)
+                if "kept" in key:
+                    kept = key
         FH_log_ITSX.close()
         # Write result
         FH_log = Logger( log_file )
         FH_log.write( 'Results:\n' )
-        FH_log.write( '\tnb ITS1 sequence : ' + str(nb_ITS1) + '\n' +
-                      '\tnb ITS2 sequence : ' + str(nb_ITS2) + '\n' + 
-                      '\tnb ITS1_ITS2 sequence : ' + str(nb_ITS1_ITS2) + '\n')
+        FH_log.write( '\t' + kept + ' : ' + str(count_ITSx[kept]) + '\n')
+        for key in count_ITSx :
+            if key != kept:
+                FH_log.write( '\t' + key + ' : ' + str(count_ITSx[key]) + '\n')
+
         FH_log.close()
 
 class DerepBySample(Cmd):
@@ -501,7 +506,7 @@ def get_seq_length_by_sample( input_file, count_file):
     for record in FH_seq:
         if "FROGS_combined" in record.id:
             continue
-        nb_seq = sample_by_seq[record.id]
+        nb_seq = sample_by_seq[record.id.split(";size=")[0]]
         seq_length = len(record.string)
         for sample_name in nb_seq :
             if not nb_by_length[sample_name].has_key(str(seq_length)):
@@ -633,7 +638,7 @@ def get_ITSx_results(in_count):
         else:
             seq_id = line.split()[0]
             for idx, count in enumerate(line.strip().split()[1:]): 
-                sample = samples_names[idx-1]
+                sample = samples_names[idx]
                 if "FROGS_combined" in seq_id : 
                     nb_seq["artificial combined"][sample] += int(count)
                 else:
@@ -969,7 +974,7 @@ def process( args ):
             DerepGlobal(filtered_files, samples_names, tmp_files.add('derep_inputs.tsv'), derep_file, derep_count, args).submit( args.log_file )
 
             log_itsx = tmp_files.add("ITSx.log")
-            ITSx(derep_file, derep_count, args.output_dereplicated, args.output_count, log_itsx, args ).submit( args.log_file )
+            ITSx(derep_file, derep_count, args.fungi, args.output_dereplicated, args.output_count, log_itsx, args ).submit( args.log_file )
         else : 
             DerepGlobal(filtered_files, samples_names, tmp_files.add('derep_inputs.tsv'), args.output_dereplicated, args.output_count, args).submit( args.log_file )
 
@@ -1033,7 +1038,7 @@ if __name__ == "__main__":
       [-s SUMMARY_FILE] [-l LOG_FILE]
 ''')
     #     Illumina parameters
-    parser_illumina.add_argument( '--fungi', default=False, action='store_true', help='the targeted amplicons is an ITS region' )
+    parser_illumina.add_argument( '--fungi', type=str, required=True,  choices=['ITS1','ITS2'], help='Which the fungi ITS region is targeted: either ITS1 or ITS2' )
     parser_illumina.add_argument( '--min-amplicon-size', type=int, required=True, help='The minimum size for the amplicons.' )
     parser_illumina.add_argument( '--max-amplicon-size', type=int, required=True, help='The maximum size for the amplicons.' )
     parser_illumina.add_argument( '--five-prim-primer', type=str, help="The 5' primer sequence (wildcards are accepted)." )

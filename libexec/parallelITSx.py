@@ -134,8 +134,8 @@ def submit_cmd( cmd, cwd=None):
         # stdeh.close()
         raise StandardError( error_msg )
 
-def parallel_submission( function, inputs, cwds, outputs, logs, cpu_used):
-    processes = [{'process':None, 'inputs':None, 'cwd' : None, 'outputs':None, 'log_files':None} for idx in range(cpu_used)]
+def parallel_submission( function, inputs, its, cwds, outputs, logs, cpu_used):
+    processes = [{'process':None, 'inputs':None, 'its':its, 'cwd' : None, 'outputs':None, 'log_files':None} for idx in range(cpu_used)]
     # Launch processes
     for idx in range(len(inputs)):
         process_idx = idx % cpu_used
@@ -147,10 +147,10 @@ def parallel_submission( function, inputs, cwds, outputs, logs, cpu_used):
     for current_process in processes:
         if idx == 0:  # First process is threaded with parent job
             current_process['process'] = threading.Thread(target=function,
-                                                          args=(current_process['inputs'], current_process['cwd'], current_process['outputs'], current_process['log_files']))
+                                                          args=(current_process['inputs'],current_process['its'], current_process['cwd'], current_process['outputs'], current_process['log_files']))
         else:  # Others processes are processed on diffrerent CPU
             current_process['process'] = multiprocessing.Process(target=function,
-                                                                 args=(current_process['inputs'], current_process['cwd'], current_process['outputs'], current_process['log_files']))
+                                                                 args=(current_process['inputs'], current_process['its'], current_process['cwd'], current_process['outputs'], current_process['log_files']))
         current_process['process'].start()
     # Wait processes end
     for current_process in processes:
@@ -160,63 +160,48 @@ def parallel_submission( function, inputs, cwds, outputs, logs, cpu_used):
         if issubclass(current_process['process'].__class__, multiprocessing.Process) and current_process['process'].exitcode != 0:
             raise Exception("Error in sub-process execution.")
 
-def replaceTag(input, tag1, tag2, out, log):
+def parseITSxResult(input_dir, prefix, its, out, log):
     """
-    @summary : modify concatenation tag from ITSx and remove 5.8S first or last base
-    @param input  : [str] Path to ITS1 sequence fasta file
-    @param tag1     : [str] the sequence tag to replace
-    @param tag2     : [str] the sequence tag to use
-    @param out     : [str] Path to fasta concatenated ITS sequence fasta file
+    @summary : rename sequence of targeted ITS and summarize ITSx detections
+    @param input  : [str] Path to ITSx output directory
+    @param prefix     : [str] ITSx output files prefix 
+    @param its     : [str] ITS region targeted (and to keep), either ITS1 or ITS2
+    @param out     : [str] Path to fasta targeted ITS region sequence fasta file
+    @param log     : [str] Path to log file to summarize ITSx detections
     """
-    FH_in = FastaIO(input)
+    fasta_files = [ os.path.join(input_dir,f) for f in os.listdir(input_dir) if f.endswith(".fasta") ]
+    count_ITSx = dict()
+
     FH_out = FastaIO(out,"w")
-    ITS1=  0
-    ITS2 = 0
-    ITS1_2= 0 
-    for record in FH_in:
-
-        splitted = record.string.split(tag1)
-        if len(splitted[0]) == 1 :
-            record.string = splitted[1]
-            if not ";size=" in record.id : 
-                record.id += "_ITS2"
-            else :
-                record.id = record.id.replace(";size=", "_ITS2;size=")
-            ITS2 += 1
-        elif len(splitted[1]) == 1:
-            record.string = splitted[0]
-            if not ";size=" in record.id : 
-                record.id += "_ITS1"
-            else :
-                record.id = record.id.replace(";size=", "_ITS1;size=")
-            ITS1 += 1
-        else:
-            record.string = record.string.replace(tag1,tag2)
-            if not "FROGS_combined" in record.id :
+    for fasta in fasta_files:
+        # based on file name recover detection type : ITS1 ITS2 full chimeric no_detection.
+        detection_type = os.path.basename(fasta).replace(prefix,"").replace(".fasta","")[1:] # first char is either "." or "_"
+        count_ITSx[detection_type] = 0
+        FH_in = FastaIO(fasta)
+        for record in FH_in:
+            count_ITSx[detection_type] += 1
+            if detection_type == its :
                 if not ";size=" in record.id : 
-                    record.id += "_FROGS_combined_ITS1_ITS2"
+                    record.id += "_"+its
                 else :
-                    record.id = record.id.replace(";size=", "_FROGS_combined_ITS1_ITS2;size=")
-            else:
-                if not ";size=" in record.id : 
-                    record.id += "_ITS1_ITS2"
-                else :
-                    record.id = record.id.replace(";size=", "_ITS1_ITS2;size=")
-            ITS1_2 += 1 
+                    record.id = record.id.replace(";size=", "_"+its+";size=")
+                FH_out.write(record)
 
-        FH_out.write(record)
-    FH_in.close()
+        FH_in.close()
+
     FH_out.close()
+
     FH_log = Logger( log )
-    FH_log.write("## replace ITSx \"-----\" tag combining ITS 1 and 2 by 100 N and remove firts or last 5.8S base when only one ITS region is included\n")
     FH_log.write("##Results\n")
-    FH_log.write("Output file :" + os.path.split(out)[1] + "\n" + 
-                     "nb_ITS1_only: " + str(ITS1)  + "\n" +
-                     "nb_ITS2_only: " + str(ITS2)  + "\n" +
-                     "nb_ITS1_ITS2: " + str(ITS1_2)  + "\n" )
+    FH_log.write("Output file :" + os.path.split(out)[1] + "\n" )
+    for detection_type in count_ITSx :
+        if detection_type == its:
+            FH_log.write("nb "+detection_type+ " (kept): " + str(count_ITSx[detection_type]) + "\n")
+        else : 
+            FH_log.write("nb "+detection_type+ " (removed): " + str(count_ITSx[detection_type]) + "\n")
     FH_log.close()
 
-def process_ITSx(in_fasta, cwd, out, log_file):
+def process_ITSx(in_fasta, its, cwd, out, log_file):
 
     os.mkdir(cwd)
     prefix = os.path.splitext(os.path.split(in_fasta)[1])[0]
@@ -225,12 +210,12 @@ def process_ITSx(in_fasta, cwd, out, log_file):
     FH_log = Logger( log_file )
     FH_log.write("## Input file : " + os.path.split(in_fasta)[1] + "\n" ) 
     FH_log.write("## in working directory: " + cwd + "\n")
-    cmd = ["ITSx", "-i", in_fasta, "-o", prefix , "--preserve", "T","--concat","T","-t","F"]
+    cmd = ["ITSx", "-i", in_fasta, "-o", prefix , "--preserve", "T","-t","F"]
     FH_log.write("## ITSx command: " + " ".join(cmd) + "\n")
     submit_cmd( cmd , cwd )
     FH_log.close()
 
-    replaceTag(os.path.join(cwd,prefix+".concat.fasta"), "-----", 100*"N", out, log_file)
+    parseITSxResult(cwd, prefix, its, out, log_file)
 
 def append_results(appended_fasta, appended_log, fasta_out, log_file):
     """
@@ -262,7 +247,7 @@ def append_results(appended_fasta, appended_log, fasta_out, log_file):
     FH_log.close()
 
 
-def Update_count(input_count, input_fasta, output_count) :
+def update_count(input_count, input_fasta, output_count) :
     """
     @summary : update count by keeping only line from the resulting fasta file
     @param input_count [str] : Path to input count file
@@ -274,7 +259,7 @@ def Update_count(input_count, input_fasta, output_count) :
 
     FH_in = FastaIO(input_fasta)
     for record in FH_in:
-        seq_dict[record.id.split(";size=")[0].replace("_ITS2","").replace("_ITS1","")] = record.id
+        seq_dict[record.id.split(";size=")[0].replace("_ITS2","").replace("_ITS1","")] = record.id.split(";size=")[0]
     FH_in.close()
 
     FH_in = open(input_count)
@@ -302,7 +287,7 @@ def main_process(args):
         if args.nb_cpus == 1 or nb_seq < 10:
             in_fasta = os.path.abspath(args.input_fasta)
             tmp_dir = tmpFiles.add_dir(os.path.split(args.output_fasta)[1])
-            process_ITSx(in_fasta, tmp_dir, args.output_fasta, args.log_file)
+            process_ITSx(in_fasta, args.its, tmp_dir, args.output_fasta, args.log_file)
 
         else:
             fasta_ITSx_list = list()
@@ -314,12 +299,12 @@ def main_process(args):
             ITSx_outputs = [tmpFiles.add(os.path.basename(current_fasta) + ".fasta") for current_fasta in fasta_ITSx_list]
             logs_ITSx = [tmpFiles.add(os.path.basename(current_fasta) + "_itsx.log") for current_fasta in fasta_ITSx_list]
             tmp_dirs = [ tmpFiles.add_dir(os.path.split(current_fasta)[1]) for current_fasta in fasta_ITSx_list ]
-            parallel_submission( process_ITSx, fasta_ITSx_list, tmp_dirs, ITSx_outputs, logs_ITSx, len(fasta_ITSx_list) )
+            parallel_submission( process_ITSx, fasta_ITSx_list, args.its, tmp_dirs, ITSx_outputs, logs_ITSx, len(fasta_ITSx_list) )
 
             # Logs
             append_results(ITSx_outputs, logs_ITSx, args.output_fasta, args.log_file)
 
-        Update_count(args.input_count, args.output_fasta, args.output_count)
+        update_count(args.input_count, args.output_fasta, args.output_count)
     
     finally:
         if not args.debug:
@@ -339,8 +324,9 @@ if __name__ == "__main__":
     parser.add_argument( '-p', '--nb-cpus', type=int, default=1, help="The maximum number of CPUs used. [Default: %(default)s]" )
     parser.add_argument( '--debug', default=False, action='store_true', help="Keep temporary files to debug program." )
     parser.add_argument( '-v', '--version', action='version', version=__version__ + " [ITSx " + get_ITSx_version() + "]" )
+    parser.add_argument( '-i', '--its', type=str, required=True, choices=['ITS1','ITS2'], help='Which ITS region are targeted. either ITS1 or ITS2 ')
     group_input = parser.add_argument_group( 'Inputs' ) # Inputs
-    group_input.add_argument( '-i', '--input-fasta', required=True, help='The fasta input sequences to treat' )
+    group_input.add_argument( '-f', '--input-fasta', required=True, help='The fasta input sequences to treat' )
     group_input.add_argument( '-c', '--input-count', required=True, help='The count tsv file associated with input fasta file' )
     group_output = parser.add_argument_group( 'Outputs' ) # Outputs
     group_output.add_argument( '-o', '--output-fasta', default='ITS.fasta', help='Fasta with ITS sequences only. [Default: %(default)s]' )

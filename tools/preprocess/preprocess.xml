@@ -23,8 +23,8 @@
 		--nb-cpus \${GALAXY_SLOTS:-1}
 		--min-amplicon-size $sequencer_type.min_amplicon_size --max-amplicon-size $sequencer_type.max_amplicon_size 
 		
-		#if $sequencer_type.ITS_fungi
-			--fungi
+		#if $sequencer_type.is_ITS.ITS_fungi
+			--fungi $sequencer_type.is_ITS.ITS_target
 		#end if
 
 		#if $sequencer_type.sequencer_selected == "illumina"
@@ -145,7 +145,16 @@
 				<!-- Amplicons -->
 				<param name="min_amplicon_size" type="integer" label="Minimum amplicon size" help="The minimum size for the amplicons." value="" optional="false" />
 				<param name="max_amplicon_size" type="integer" label="Maximum amplicon size" help="The maximum size for the amplicons." value="" optional="false" />
-				<param name="ITS_fungi" type="boolean" label="Is it an ITS Fungi amplicon?" help="In case of ITS Fungi amplicon, an additionnal filter is applied with ITSx" />
+				<conditional name="is_ITS">
+					<param name="ITS_fungi" type="boolean" label="Is it an ITS Fungi amplicon?" help="In case of ITS Fungi amplicon, an additionnal filter is applied with ITSx" />
+		    		<when value="false"></when>           
+		    		<when value="true">
+						<param name="ITS_target" type="select" display="radio" label="Which ITS region is targeted?" >
+							<option value="ITS1" > ITS1 </option>
+							<option value="ITS2" > ITS2 </option>
+						</param>
+					</when>
+				</conditional>
 				<!-- Primers -->
 				<conditional name="sequencing_protocol">
 					<param name="sequencing_protocol_selected" type="select" label="Sequencing protocol" help="The protocol used for sequencing step: standard or custom with PCR primers as sequencing primers.">
@@ -184,7 +193,16 @@
 				<!-- Amplicons -->
 				<param name="min_amplicon_size" type="integer" label="Minimum amplicon size" help="The minimum size for the amplicons (with primers)." value="" optional="false" />
 				<param name="max_amplicon_size" type="integer" label="Maximum amplicon size" help="The maximum size for the amplicons (with primers)." value="" optional="false" />
-				<param name="ITS_fungi" type="boolean" label="Is it an ITS Fungi amplicon?" help="In case of ITS Fungi amplicon, an additionnal filter is applied with ITSx" />
+				<conditional name="is_ITS">
+					<param name="ITS_fungi" type="boolean" label="Is it an ITS Fungi amplicon?" help="In case of ITS Fungi amplicon, an additionnal filter is applied with ITSx" />
+		    		<when value="false"></when>           
+		    		<when value="true">
+						<param name="ITS_target" type="select" display="radio" label="Which ITS region is targeted?" >
+							<option value="ITS1" > ITS1 </option>
+							<option value="ITS2" > ITS2 </option>
+						</param>
+					</when>
+				</conditional>
 				<!-- Primers -->
 				<param name="five_prim_primer" type="text" size="20" label="5' primer" help="The 5' primer sequence (wildcards are accepted). The orientation is detailed below in 'Primers parameters'." optional="false">
 					<validator type="empty_field" message="This parameter is required." />
