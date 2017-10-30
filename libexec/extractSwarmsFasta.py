@@ -16,10 +16,10 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-__author__ = 'Frederic Escudie - Plateforme bioinformatique Toulouse'
+__author__ = 'Frederic Escudie - Plateforme bioinformatique Toulouse AND Maria Bernard - SIGENAE'
 __copyright__ = 'Copyright (C) 2015 INRA'
 __license__ = 'GNU General Public License'
-__version__ = '1.3.1'
+__version__ = '1.4.1'
 __email__ = 'frogs@inra.fr'
 __status__ = 'prod'
 
@@ -56,7 +56,10 @@ def filter_seq( input_fasta, clusters_file, cluster_fasta ):
     for line in clusters_fh:
         line = line.strip()
         representative_id = line.split()[0]
-        cluster_representative[representative_id] = "Cluster_" + str(cluster_idx)
+        if "FROGS_combined" in representative_id:
+            cluster_representative[representative_id] = "Cluster_" + str(cluster_idx) + "_FROGS_combined"
+        else:
+            cluster_representative[representative_id] = "Cluster_" + str(cluster_idx)
         cluster_idx += 1
     clusters_fh.close()
 
@@ -64,6 +67,7 @@ def filter_seq( input_fasta, clusters_file, cluster_fasta ):
     FH_in = FastaIO( input_fasta )
     FH_out = FastaIO( cluster_fasta, "w" )
     for record in FH_in:
+        print record.description
         if cluster_representative.has_key(record.id):
             record.id = cluster_representative[record.id]
             FH_out.write( record )
