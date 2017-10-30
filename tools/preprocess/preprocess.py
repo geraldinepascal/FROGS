@@ -19,7 +19,7 @@
 __author__ = 'Frederic Escudie - Plateforme bioinformatique Toulouse / Maria Bernard - SIGENAE Jouy en Josas'
 __copyright__ = 'Copyright (C) 2015 INRA'
 __license__ = 'GNU General Public License'
-__version__ = 'r3.0-v1.0'
+__version__ = 'r3.0-v1.8'
 __email__ = 'frogs@inra.fr'
 __status__ = 'prod'
 
@@ -427,7 +427,7 @@ class DerepBySample(Cmd):
                       '--version' )
 
 
-class DerepGlobal(Cmd):
+class DerepGlobalMultiFasta(Cmd):
     """
     @summary: Dereplicates together sequences from several files.
     """
@@ -453,6 +453,24 @@ class DerepGlobal(Cmd):
                       "--nb-cpus " + str(param.nb_cpus) + " --size-separator ';size=' --samples-ref " + out_samples_ref + " --dereplicated-file " + out_fasta + " --count-file " + out_count,
                       '--version' )
 
+class DerepGlobalFastaCount(Cmd):
+    """
+    @summary: Dereplicates together sequences from several files.
+    """
+    def __init__(self, fasta, count, out_fasta, out_count, param):
+        """
+        @param fasta: [str] Path to the processed fasta.
+        @param count: [str] Path to the processed count.
+        @param out_fasta: [str] Path to the dereplicated fasta.
+        @param out_count: [str] Path to the count file. It contains the count by sample for each representative sequence.
+        @param param: [str] The 'param.nb_cpus'.
+        """
+        # Init
+        Cmd.__init__( self,
+                      'derepSamples.py',
+                      'Dereplicates together sequences from several samples based on one fasta file and one count file.',
+                      "--nb-cpus " + str(param.nb_cpus) + " --size-separator ';size=' --sequences-file " + fasta + " --samples-count " + count + " --dereplicated-file " + out_fasta + " --count-file " + out_count,
+                      '--version' )
 
 ##################################################################################################################################################
 #
@@ -971,12 +989,15 @@ def process( args ):
         if args.fungi : 
             derep_file = tmp_files.add("derep_globa.fasta")
             derep_count = tmp_files.add("derep_globa.count.tsv")
-            DerepGlobal(filtered_files, samples_names, tmp_files.add('derep_inputs.tsv'), derep_file, derep_count, args).submit( args.log_file )
+            DerepGlobalMultiFasta(filtered_files, samples_names, tmp_files.add('derep_inputs.tsv'), derep_file, derep_count, args).submit( args.log_file )
 
             log_itsx = tmp_files.add("ITSx.log")
-            ITSx(derep_file, derep_count, args.fungi, args.output_dereplicated, args.output_count, log_itsx, args ).submit( args.log_file )
+            fasta_itsx = tmp_files.add("ITSx.fasta")
+            count_itsx = tmp_files.add("ITSx.count")
+            ITSx(derep_file, derep_count, args.fungi, fasta_itsx, count_itsx, log_itsx, args ).submit( args.log_file )
+            DerepGlobalFastaCount(fasta_itsx, count_itsx, args.output_dereplicated, args.output_count, args).submit(args.log_file)
         else : 
-            DerepGlobal(filtered_files, samples_names, tmp_files.add('derep_inputs.tsv'), args.output_dereplicated, args.output_count, args).submit( args.log_file )
+            DerepGlobalMultiFasta(filtered_files, samples_names, tmp_files.add('derep_inputs.tsv'), args.output_dereplicated, args.output_count, args).submit( args.log_file )
 
         summarise_results( samples_names, lengths_files, log_files, args )
 
