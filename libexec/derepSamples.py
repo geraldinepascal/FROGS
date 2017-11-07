@@ -19,7 +19,7 @@
 __author__ = 'Frederic Escudie - Plateforme bioinformatique Toulouse AND Maria Bernard - SIGENAE Jouy en Josas'
 __copyright__ = 'Copyright (C) 2015 INRA'
 __license__ = 'GNU General Public License'
-__version__ = '1.6.0'
+__version__ = '1.6.1'
 __email__ = 'frogs@inra.fr'
 __status__ = 'prod'
 
@@ -98,7 +98,7 @@ def splitFileBySample(input_count, fasta, size_separator, working_dir, process_p
         samples = [ s for s in dict_count[record.id] if dict_count[record.id][s] > 0 ]
         for s in samples:
             if not s in FH_out :
-                FH_out[s] = FastaIO(os.path.join(working_dir, process_prefix + "tmp_" + s + '.fasta'), 'a')
+                FH_out[s] = FastaIO(os.path.join(working_dir, process_prefix + "tmp_sample_" + s + '.fasta'), 'a')
             sample_record = Sequence(record.id, record.string, record.description)
             sample_record.id = sample_record.id + size_separator + str(dict_count[sample_record.id][s])
             FH_out[s].write(sample_record)
