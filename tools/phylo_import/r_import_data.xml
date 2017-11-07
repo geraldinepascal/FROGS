@@ -18,14 +18,16 @@
 <tool name="FROGSSTAT Phyloseq Import Data" id="FROGSSTAT_Phyloseq_Import_Data" version="1.0.0">
 	<description>from 3 files: biomfile, samplefile, treefile </description>
 	<command interpreter="python2.7">r_import_data.py --biomfile $biomfile
-                                                   #if $samplefile
                                                       --samplefile $samplefile 
-                                                   #end if
+                                                    #if $treefile
                                                       --treefile $treefile 
+                                                    #end if
+
                                                       --ranks "$ranks"
-	                                               #if $normalization
+	                                                  #if $normalization
                                                       --normalization
-                                                   #end if
+                                                    #end if
+                                                    
                                                       --html $html 
                                                       --rdata $data
 	</command>
