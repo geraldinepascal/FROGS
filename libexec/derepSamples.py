@@ -82,7 +82,7 @@ def splitFileBySample(input_count, fasta, size_separator, working_dir, process_p
     for line in FH_count:
         if line.startswith("#id"):
             samples_names = line.strip().split("\t")[1:]
-            sequence_files = [ os.path.join(working_dir, process_prefix + "tmp_" + s + '.fasta') for s in samples_names ]
+            sequence_files = [ os.path.join(working_dir, process_prefix + "tmp_sample_" + s + '.fasta') for s in samples_names ]
         else:
             seq_id = line.split("\t")[0]
             dict_count[seq_id] = { samples_names[idx] : int(count) for idx,count in enumerate(line.strip().split()[1:]) }
@@ -357,5 +357,5 @@ if __name__ == "__main__":
         # Delete tmp files
         if not args.debug:
             for item in sorted(os.listdir(working_dir)):
-                if os.path.isfile(os.path.join(working_dir, item)) and (re.match(process_prefix + 'tmp_.+_length_\d+.fasta', item) or re.match(process_prefix + 'tmp_count_\d+.tsv', item) or re.match(process_prefix + 'tmp_derep_\d+.fasta', item)):
+                if os.path.isfile(os.path.join(working_dir, item)) and (re.match(process_prefix + 'tmp_.+_length_\d+.fasta', item) or re.match(process_prefix + 'tmp_count_\d+.tsv', item) or re.match(process_prefix + 'tmp_sample_.+.fasta', item) or re.match(process_prefix + 'tmp_derep_\d+.fasta', item)):
                     os.remove(os.path.join(working_dir, item))

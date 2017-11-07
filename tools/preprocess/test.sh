@@ -8,7 +8,7 @@ if [ ! -d "test" ]
 then
     mkdir test
 else
-    rm test/*
+    rm -r test/*
 fi
 
 # Illumina R1 and R2
@@ -22,11 +22,12 @@ echo "Illumina R1 and R2"
 
 # ITS Illumina R1 and R2
 echo "ITS Illumina R1 and R2"
-./preprocess.py illumina --input-R1 data/ITSSample_R1.fastq.gz --input-R2 data/ITSSample_R2.fastq.gz\
-                         --samples-names ITSSample --fungi \
+./preprocess.py illumina --input-R1 data/sample1_ITS1_R1.fq.gz sample2_ITS1_R1.fq.gz --input-R2 data/sample1_ITS1_R2.fq.gz sample2_ITS1_R2.fq.gz \
+                         --samples-names sample1_ITS sample2_ITS --fungi ITS1 \
+                         --nb-cpus 8 \
                          --R1-size 300 --R2-size 300 \
-                         --expected-amplicon-size 400 --min-amplicon-size 150 --max-amplicon-size 599 \
-                         --five-prim-primer "CAHCGATGAAGAACGYRG" --three-prim-primer "GCATATHANTAAGSGSAGG" \
+                         --expected-amplicon-size 250 --min-amplicon-size 50 --max-amplicon-size 599 --mismatch-rate 0.15 \
+                         --five-prim-primer "CTTGGTCATTTAGAGGAAGTAA" --three-prim-primer "GCATCGATGAAGAACGCAGC" \
                          --output-dereplicated test/derep_ITS_R1R2.fasta --output-count test/count_ITS_R1R2.tsv \
                          --summary test/summary_ITS_R1R2.html --log-file test/log_ITS_R1R2.txt
 
