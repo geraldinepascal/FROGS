@@ -22,7 +22,7 @@ echo "Illumina R1 and R2"
 
 # ITS Illumina R1 and R2
 echo "ITS Illumina R1 and R2"
-./preprocess.py illumina --input-R1 data/sample1_ITS1_R1.fq.gz sample2_ITS1_R1.fq.gz --input-R2 data/sample1_ITS1_R2.fq.gz sample2_ITS1_R2.fq.gz \
+./preprocess.py illumina --input-R1 data/sample1_ITS1_R1.fq.gz data/sample2_ITS1_R1.fq.gz --input-R2 data/sample1_ITS1_R2.fq.gz data/sample2_ITS1_R2.fq.gz \
                          --samples-names sample1_ITS sample2_ITS --fungi ITS1 \
                          --nb-cpus 8 \
                          --R1-size 300 --R2-size 300 \

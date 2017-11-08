@@ -1040,7 +1040,7 @@ if __name__ == "__main__":
       --min-amplicon-size MIN_AMPLICON_SIZE
       --max-amplicon-size MAX_AMPLICON_SIZE
       --without-primers | --five-prim-primer FIVE_PRIM_PRIMER --three-prim-primer THREE_PRIM_PRIMER
-      [--mismatch-rate RATE ] [--its]
+      [--mismatch-rate RATE ] [--fungi {ITS1,ITS2}]
       [--samples-names SAMPLE_NAME [SAMPLE_NAME ...]]
       [-p NB_CPUS] [--debug] [-v]
       [-d DEREPLICATED_FILE] [-c COUNT_FILE] [--artComb-output-dereplicated ART_DEREPLICATED_FILE] [--artComb-output-count ART_COUNT_FILE]
@@ -1053,13 +1053,13 @@ if __name__ == "__main__":
       --min-amplicon-size MIN_AMPLICON_SIZE
       --max-amplicon-size MAX_AMPLICON_SIZE
       --without-primers | --five-prim-primer FIVE_PRIM_PRIMER --three-prim-primer THREE_PRIM_PRIMER
-      [--mismatch-rate RATE ] [--its]
+      [--mismatch-rate RATE ] [--fungi {ITS1,ITS2}]
       [-p NB_CPUS] [--debug] [-v]
       [-d DEREPLICATED_FILE] [-c COUNT_FILE] [-c COUNT_FILE] [--artComb-output-dereplicated ART_DEREPLICATED_FILE] [--artComb-output-count ART_COUNT_FILE]
       [-s SUMMARY_FILE] [-l LOG_FILE]
 ''')
     #     Illumina parameters
-    parser_illumina.add_argument( '--fungi', type=str, required=True,  choices=['ITS1','ITS2'], help='Which the fungi ITS region is targeted: either ITS1 or ITS2' )
+    parser_illumina.add_argument( '--fungi', type=str, required=False,  choices=['ITS1','ITS2'], help='Which the fungi ITS region is targeted: either ITS1 or ITS2' )
     parser_illumina.add_argument( '--min-amplicon-size', type=int, required=True, help='The minimum size for the amplicons.' )
     parser_illumina.add_argument( '--max-amplicon-size', type=int, required=True, help='The maximum size for the amplicons.' )
     parser_illumina.add_argument( '--five-prim-primer', type=str, help="The 5' primer sequence (wildcards are accepted)." )
@@ -1094,11 +1094,12 @@ if __name__ == "__main__":
     --max-amplicon-size MAX_AMPLICON_SIZE
     --five-prim-primer FIVE_PRIM_PRIMER
     --three-prim-primer THREE_PRIM_PRIMER
+    [--fungi {ITS1,ITS2}]
     [-p NB_CPUS] [--debug] [-v]
     [-d DEREPLICATED_FILE] [-c COUNT_FILE]
     [-s SUMMARY_FILE] [-l LOG_FILE]
 ''')
-    parser_454.add_argument( '--fungi', default=False, action='store_true', help='the targeted amplicons is a Fungi ITS region' )
+    parser_454.add_argument( '--fungi', type=str, required=False,  choices=['ITS1','ITS2'], help='Which the fungi ITS region is targeted: either ITS1 or ITS2' )
     parser_454.add_argument( '--min-amplicon-size', type=int, required=True, help='The minimum size for the amplicons (with primers).' )
     parser_454.add_argument( '--max-amplicon-size', type=int, required=True, help='The maximum size for the amplicons (with primers).' )
     parser_454.add_argument( '--five-prim-primer', type=str, required=True, help="The 5' primer sequence (wildcards are accepted)." )

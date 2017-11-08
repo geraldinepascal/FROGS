@@ -3,6 +3,9 @@
   * Preprocess : keep and filter non overlapped reads (particularly important for ITS amplicon)
   * Preprocess : add a ITSx (http://microbiology.se/software/itsx/) filter for Fungi ITS amplicon analysis
 
+### Bugs fixes:
+  * Phyloseq import: bug when Tree is None
+
 # v2.0.0  [2017-08-08]
 ### Tools added : 
   * Tree : perform phylogenetic tree reconstruction based on Mafft or Pynast follow by Fasttree and phangorn
