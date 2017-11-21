@@ -166,7 +166,7 @@
         Download: http://www.microbesonline.org/fasttree/#Install
 
     RScript
-        Version : >= 3.3.0
+        Version : >= 3.4.0
         Named as : RScript
         Tools : all FROGS_Phyloseq
         Download : https://cran.r-project.org/
