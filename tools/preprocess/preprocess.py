@@ -19,7 +19,7 @@
 __author__ = 'Frederic Escudie - Plateforme bioinformatique Toulouse / Maria Bernard - SIGENAE Jouy en Josas'
 __copyright__ = 'Copyright (C) 2015 INRA'
 __license__ = 'GNU General Public License'
-__version__ = 'r3.0-v1.8'
+__version__ = 'r3.0-v2.0'
 __email__ = 'frogs@inra.fr'
 __status__ = 'prod'
 
@@ -57,14 +57,15 @@ class Flash(Cmd):
     """
     @summary: Overlapping and merging mate pairs from fragments shorter than twice the length of reads. The others fragments are discarded.
     """
-    def __init__(self, in_R1, in_R2, out_join_prefix , param):
+    def __init__(self, in_R1, in_R2, out_join_prefix , flash_err, param):
         """
         @param in_R1: [str] Path to the R1 fastq file.
         @param in_R2: [str] Path to the R2 fastq file.
         @param out_join_prefix: [str] Path to the output fastq file.
+        @param flash_err: [str] Path to the temporary stderr output file
         @param param: [Namespace] The 'param.min_amplicon_size', 'param.max_amplicon_size', 'param.expected_amplicon_size', 'param.fungi' and param.mismatch_rate'
         """
-        min_overlap = max(1,(param.R1_size + param.R2_size) - param.max_amplicon_size )
+        min_overlap = max(-1,(param.R1_size + param.R2_size) - param.max_amplicon_size )
         max_expected_overlap = (param.R1_size + param.R2_size) - param.expected_amplicon_size + min(20, int((param.expected_amplicon_size - param.min_amplicon_size)/2))
         outies=""
         if param.fungi:
@@ -72,7 +73,7 @@ class Flash(Cmd):
         Cmd.__init__( self,
                       'flash',
                       'Join overlapping paired reads.',
-                      '--threads 1 '+ outies +' --min-overlap ' + str(min_overlap) + ' --max-overlap ' + str(max_expected_overlap) + ' --max-mismatch-density ' + str(param.mismatch_rate) +' --compress ' + in_R1 + ' ' + in_R2 + ' --output-directory '+ os.path.dirname(out_join_prefix) + ' --output-prefix ' + os.path.basename(out_join_prefix) +' 2> /dev/null',
+                      '--threads 1 '+ outies +' --min-overlap ' + str(min_overlap) + ' --max-overlap ' + str(max_expected_overlap) + ' --max-mismatch-density ' + str(param.mismatch_rate) +' --compress ' + in_R1 + ' ' + in_R2 + ' --output-directory '+ os.path.dirname(out_join_prefix) + ' --output-prefix ' + os.path.basename(out_join_prefix) +' 2> ' + flash_err,
                       '--version' )
         self.output = out_join_prefix + ".extendedFrags.fastq.gz"
 
@@ -817,6 +818,7 @@ def process_sample(R1_file, R2_file, sample_name, out_file, art_out_file, length
     out_notcombined_R2_flash = tmp_files.add( sample_name + '_flash.notCombined_2.fastq.gz' )
     out_flash_hist = tmp_files.add(sample_name + '_flash.hist')
     out_flash_histogram = tmp_files.add(sample_name + '_flash.histogram')
+    out_flash_err = tmp_files.add(sample_name + '_flash.stderr')
     if args.fungi:
         out_flash_hist_innie = tmp_files.add(sample_name + '_flash.hist.innie')
         out_flash_histogram_innie = tmp_files.add(sample_name + '_flash.histogram.innie')
@@ -860,7 +862,7 @@ def process_sample(R1_file, R2_file, sample_name, out_file, art_out_file, length
 
         # Commands execution
         if not args.already_contiged:
-            flash_cmd = Flash(R1_file, R2_file, out_flash.replace(".extendedFrags.fastq.gz",""), args)
+            flash_cmd = Flash(R1_file, R2_file, out_flash.replace(".extendedFrags.fastq.gz",""), out_flash_err, args)
             flash_cmd.submit(log_file)
         else:
             out_flash = R1_file
