@@ -228,6 +228,9 @@
         cd <FROGS_PATH>/test
         bash test.sh <FROGS_PATH> <NB_CPU> <JAVA_MEM> <OUT_FOLDER>
     
+    "Bioinformatic" tools are performed on a small simulated dataset of one sample replicated three times.
+    "Statistical" tools are performed on an extract of the published results of Chaillou et al, ISME 2014, doi:10.1038/ismej.2014.202
+
     This test executes the FROGS tools in command line mode.
     Note:
         JAVA_MEM must be at least 4 (= 4Gb of RAM).
