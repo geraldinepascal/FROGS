@@ -18,7 +18,7 @@
 __author__ = ' Ta Thi Ngan & Maria Bernard INRA - SIGENAE '
 __copyright__ = 'Copyright (C) 2017 INRA'
 __license__ = 'GNU General Public License'
-__version__ = '1.0.0'
+__version__ = 'r3.0-1.1.0'
 __email__ = 'frogs@inra.fr'
 __status__ = 'prod'
 
@@ -64,7 +64,7 @@ class Pynast(Cmd):
         Cmd.__init__( self,
                       'pynast',
                       'Pynast multiple alignment.',
-                      "--input_fp " + in_candi_pynast + " --template_fp " + in_templ_pynast + " --min_len " + min_len + " --fasta_out "+ pynast_align + " --failure_fp " + pynast_fail + " --log_fp " + pynast_log + ' 2> /dev/null',
+                      "--input_fp " + in_candi_pynast + " --template_fp " + in_templ_pynast + " --min_len " + min_len + " --fasta_out "+ pynast_align + " --failure_fp " + pynast_fail + " --log_fp " + pynast_log ,
                       "--version")
 
     def get_version(self):
@@ -79,17 +79,18 @@ class Mafft(Cmd):
     @summary: Mafft denovo multiple alignment of observed candidate sequences.
     @see: http://mafft.cbrc.jp/alignment/software/
     """
-    def __init__(self, mafftMet, fasta, aligned, thread):
+    def __init__(self, mafftMet, fasta, aligned, thread, mafft_stderr):
         """
         @param mafftMet: [str] Mafft method option.
         @param fasta: [str] Path to input fasta file.
         @param aligned: [str] Path to store resulting alignment file.
+        @param mafft_stderr: [str] Path to temporary Mafft stderr output file
         @param thread: [int] number of cpu to use.
         """
         Cmd.__init__(self,
                  'mafft',
                  'Mafft multiple alignment.',
-                  "" + mafftMet + "--thread "+ str(thread) +" "+ fasta +" > "+aligned +' 2> /dev/null',
+                  "" + mafftMet + "--thread "+ str(thread) +" "+ fasta +" > "+aligned +' 2> ' + mafft_stderr,
                   "--version")
 
     def get_version(self):
@@ -104,15 +105,16 @@ class FastTree(Cmd):
     @summary: reconstruction of phylogenetic tree with the GTR model for nucleotic evolution.
     @see: http://www.microbesonline.org/fasttree/
     """
-    def __init__(self, align, output):
+    def __init__(self, align, output, fasttree_stderr):
         """
         @param align: [str] Path to input alignment file.
         @param output: [str] path to store resulting tree file.
+        @param fasttre_stderr: [str] Path to temporary FastTree stderr output file
         """
         Cmd.__init__( self,
                       'FastTree',
                       'reconstruction a phylogenetic tree',
-                      "-nt -gtr " + align+" > "+ output+ ' 2> /dev/null',
+                      "-nt -gtr " + align+" > "+ output+ ' 2> ' + fasttree_stderr,
                       "-expert")
 
     def get_version(self):
@@ -298,17 +300,16 @@ if __name__ == "__main__":
     tmpFiles=TmpFiles(os.path.split(args.out_tree)[0])
     filename_prefix = ".".join(os.path.split(args.input_otu)[1].split('.')[:-1])
     if args.template_pynast is None:
-        align= os.path.join(tmpFiles.tmp_dir ,filename_prefix+ '_mafft_aligned.fasta')   
+        mafft_stderr = tmpFiles.add("mafft.stderr")
+        align= tmpFiles.add('mafft_aligned.fasta')   
         pynast_fail=None
     else:
-        align = os.path.join(tmpFiles.tmp_dir , filename_prefix+ '_pynast_aligned.fasta')
-        pynast_fail = os.path.join(tmpFiles.tmp_dir , filename_prefix+'_pynast_fail.fasta')
-        pynast_log = os.path.join(tmpFiles.tmp_dir , filename_prefix+'_pynast_log.txt') 
-        tmpFiles.files.append(pynast_fail)
-        tmpFiles.files.append(pynast_log)
+        align = tmpFiles.add('pynast_aligned.fasta')
+        pynast_fail = tmpFiles.add('pynast_fail.fasta')
+        pynast_log = tmpFiles.add('pynast_log.txt') 
     
-    tmpFiles.files.append(align)
-    fasttree=tmpFiles.add(filename_prefix + ".fasttree")
+    fasttree=tmpFiles.add("fasttree.nwk")
+    fasttree_stderr=tmpFiles.add("fasttree.stderr")
     
     # Process 
     try:        
@@ -322,11 +323,11 @@ if __name__ == "__main__":
             raise Exception( "FROGS Tree is only working on less than 10 000 sequences!" )
         if args.template_pynast is None:
             mafftMet=get_methods_mafft(args.input_otu)
-            Mafft(mafftMet, args.input_otu, align, args.nb_cpus).submit( args.log_file )
+            Mafft(mafftMet, args.input_otu, align, args.nb_cpus, mafft_stderr).submit( args.log_file )
         else:
             min_len=compute_min_sequence_length(args.input_otu)
             Pynast(args.input_otu, args.template_pynast, min_len, align, pynast_fail, pynast_log).submit( args.log_file )
-        FastTree(align, fasttree).submit( args.log_file )
+        FastTree(align, fasttree, fasttree_stderr).submit( args.log_file )
         RootTree(fasttree, args.out_tree).submit(args.log_file)
         write_summary( args.html, args.input_otu, pynast_fail, args.biomfile, args.out_tree)
     finally:
