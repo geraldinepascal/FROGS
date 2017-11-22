@@ -50,7 +50,7 @@ class Rscript(Cmd):
     @see: http://rmarkdown.rstudio.com/
           https://joey711.github.io/phyloseq/
     """
-    def __init__(self, biomfile, samplefile, treefile, html, normalization, data, ranks):
+    def __init__(self, biomfile, samplefile, treefile, html, normalization, data, ranks, rmd_stderr):
         """
         @param biomfile: [str] The biom file contains the  OTU's informations: abundance and taxonomy. These file is the result of FROGS.
         @param samplefile: [str] The tabular file contains the samples's informations. 
@@ -60,12 +60,13 @@ class Rscript(Cmd):
         @param normalization: [str] To normalize data before analysis.
         @param data: [str] The path to store one phyloseq-class object in Rdata file.
         @param ranks: [str] The ordered taxonomic ranks levels stored in BIOM. Each rank is separated by one space.
+        @param rmd_stderr: [str] Path to temporary Rmarkdown stderr output file
         """ 
         rmd = os.path.join(CURRENT_DIR, "r_import_data.Rmd")
         Cmd.__init__( self,
                       'Rscript',
                       'Run r_import_data.Rmd',
-                      '-e "rmarkdown::render('+"'"+rmd+"',output_file='"+html+"', params=list(biomfile='"+biomfile+"', samplefile='"+samplefile+"', treefile='"+treefile+"', normalization="+normalization+", outputRdata='"+data+"', ranks='"+ranks+"'), intermediates_dir='"+os.path.dirname(html)+"')"+'" 2> /dev/null',
+                      '-e "rmarkdown::render('+"'"+rmd+"',output_file='"+html+"', params=list(biomfile='"+biomfile+"', samplefile='"+samplefile+"', treefile='"+treefile+"', normalization="+normalization+", outputRdata='"+data+"', ranks='"+ranks+"'), intermediates_dir='"+os.path.dirname(html)+"')"+'" 2> ' + rmd_stderr,
                        "-e '(sessionInfo()[[1]][13])[[1]][1]; paste(\"Rmarkdown version: \",packageVersion(\"rmarkdown\")) ; library(phyloseq); paste(\"Phyloseq version: \",packageVersion(\"phyloseq\"))'")
     def get_version(self):
         """
@@ -84,6 +85,7 @@ if __name__ == "__main__":
    
     # Manage parameters
     parser = argparse.ArgumentParser( description='Launch Rmardown script to import data from 3 files: biomfile, samplefile, treefile into a phyloseq object')
+    parser.add_argument( '--debug', default=False, action='store_true', help="Keep temporary files to debug program." )   
     parser.add_argument( '-n','--normalization', default=False, action='store_true', help='To normalize data before analysis. Use this option if you didnt do it in FROGS Abundance normalisation. [Default: %(default)s]')
     parser.add_argument( '-r','--ranks', type=str, nargs='*', default=['Kingdom', 'Phylum', 'Class', 'Order','Family','Genus', 'Species'], help='The ordered taxonomic ranks levels stored in BIOM. Each rank is separated by one space. [Default: %(default)s]')      
     # Inputs
@@ -114,4 +116,11 @@ if __name__ == "__main__":
     else:
         treefile=os.path.abspath(args.treefile)
     ranks=" ".join(args.ranks)
-    Rscript(biomfile, samplefile, treefile, html, str(args.normalization).upper(), data, ranks).submit(args.log_file)
+
+    try : 
+        tmpFiles = TmpFiles(os.path.dirname(html))
+        rmd_stderr = tmpFiles.add("rmarkdown.stderr")
+        Rscript(biomfile, samplefile, treefile, html, str(args.normalization).upper(), data, ranks, rmd_stderr).submit(args.log_file)
+    finally :
+        if not args.debug:
+            tmpFiles.deleteAll()
