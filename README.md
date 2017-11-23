@@ -102,13 +102,13 @@
         Tools: demultiplex
 
     flash
-        Version: >=1.2.8
+        Version: 1.2.11
         Named as: flash
         Tools: preprocess
         Download: http://sourceforge.net/projects/flashpage/files
 
     cutadapt
-        Version: >=1.7
+        Version: 1.8.3
             Note : With the cutadapt version 1.12, the memory usage increases drastically. 
                    We advise our user to install, at most, the cutadapt version  1.11
         Named as: cutadapt
@@ -118,25 +118,25 @@
                   https://pypi.python.org/pypi/cutadapt
 
     swarm
-        Version: >=2.1.1
+        Version: 2.1.1
         Named as: swarm
         Tools: clustering
         Download: https://github.com/torognes/swarm
 
     vsearch
-        Version: >=1.1.3
+        Version: 1.1.3
         Named as: vsearch
         Tools: remove_chimera
         Download: https://github.com/torognes/vsearch
 
     NCBI Blast+ blastn
-        Version: >=2.2.29+
+        Version: 2.2.30+
         Named as: blastn
         Tools: affiliation_OTU and filters
         Download: http://blast.ncbi.nlm.nih.gov/Blast.cgi?PAGE_TYPE=BlastDocs&DOC_TYPE=Download
 
     RDPClassifier
-        Version: -
+        Version: 2.0.2
         Named as: classifier.jar
         Tools: affiliation_OTU
         Download: https://github.com/rdpstaff/RDPTools
@@ -150,64 +150,64 @@
                  sudo yum install util-linux
 
     Pynast
-        Version: >= 1.2.2
+        Version: 1.2.2
         Named as: pynast
         Tools: tree
         Download: https://pypi.python.org/pypi/pynast
 
     Mafft
-        Version: >= v7.222
+        Version: v7.310
         Named as: mafft
         Tools: tree
         Download: http://mafft.cbrc.jp/alignment/software/
 
     Fasttree
-        Version: >= 2.1.9
+        Version: 2.1.10
         Named as: FastTree
         Tools: tree
         Download: http://www.microbesonline.org/fasttree/#Install
 
     RScript
-        Version : >= 3.4.0
+        Version : 3.4.0
         Named as : RScript
         Tools : all FROGS_Phyloseq
         Download : https://cran.r-project.org/
 
     Phangorn R package
-        Version : depending on your R version
+        Version : 2.2.0
         Tools : FROGS_Tree
         Installation in R session : # https://cran.r-project.org/web/packages/phangorn/index.html
                                     install.packages("phangorn")
         Test in R session : library(phangorn)
 
     Rmarkdown R package
-        Version : depending on your R version
+        Version : 1.5
         Tools : all FROGS_Phyloseq
         Install in R session : # https://cran.r-project.org/web/packages/rmarkdown/index.html
                                install.packages("rmarkdown")
 
     Pandoc
-        Version : >= 1.12.3
+        Version : 1.17.2
         Named as : pandoc
         Tools : all FROGS_Phyloseq
         Download/Installation : # http://pandoc.org/installing.html#linux or simply soft-link pandoc binary from RStudio path (if you have Rstudio installed)
 
     Phyloseq R package
-        Version : depending on your R version
+        Version : 1.20.0
         Tools : all FROGS_Phyloseq
         Installation in R session : # https://joey711.github.io/phyloseq/install.html
                                     source("https://bioconductor.org/biocLite.R") ; biocLite("phyloseq")
         Test in R session : library(phyloseq)
 
     Plotly R package
-        Version : depending on your R version
+        Version : 4.7.0
         Tools : FROGS_Phyloseq_composition and FROGS_Phyloseq_structure
         Installation in R session : # https://plot.ly/r/getting-started/
                                     install.packages("plotly")
         Test in R session : library(plotly)
 
     GridExtra R package
-        Version : depending on your R version
+        Version : 2.2.1
         Tools : FROGS_Phyloseq_Beta_Diversity, FROGS_Phyloseq_Sample_Clustering, FROGS_Phyloseq_composition and FROGS_Phyloseq_structure
         Installation in R session : # https://cran.r-project.org/web/packages/gridExtra/index.html
                                     install.packages("gridExtra")
