@@ -18,7 +18,7 @@
 __author__ = 'Ta Thi Ngan & Maria Bernard INRA - SIGENAE'
 __copyright__ = 'Copyright (C) 2017 INRA'
 __license__ = 'GNU General Public License'
-__version__ = '1.0.0'
+__version__ = '1.1.0'
 __email__ = 'frogs@inra.fr'
 __status__ = 'prod'
 
@@ -51,19 +51,20 @@ class Rscript(Cmd):
     @return: html file containing the plots
              beta divesity distance matrix tsv file(s)
     """
-    def __init__(self, html, data, varExp, methods, outdir):
+    def __init__(self, html, data, varExp, methods, outdir, rmd_stderr):
         """
         @param html: [str] path to store resulting html file.
         @param data: [str] path to phyloseq object in RData file, the result of FROGS Phyloseq Import Data.
         @param varExp: [str] Experiment variable to split plot.
         @param methods: [str] one or more of beta diversity method.        
         @param outdir: [str] The path to store resulting beta diversity distance matrix.
+        @param rmd_stderr: [str] Path to temporary Rmarkdown stderr output file
         """ 
         rmd = os.path.join(CURRENT_DIR, "r_beta_diversity.Rmd")
         Cmd.__init__( self,
                       'Rscript',
                       'Run 1 code Rmarkdown',
-                       '-e "rmarkdown::render('+"'"+rmd+"',knit_root_dir='"+outdir+ "',output_file='"+html+"', params=list(data='"+data+"', varExp='"+varExp+ "', methods='"+methods+ "'), intermediates_dir='"+os.path.dirname(html)+"')"+'" 2> /dev/null',
+                       '-e "rmarkdown::render('+"'"+rmd+"',knit_root_dir='"+outdir+ "',output_file='"+html+"', params=list(data='"+data+"', varExp='"+varExp+ "', methods='"+methods+ "'), intermediates_dir='"+os.path.dirname(html)+"')"+'" 2> ' + rmd_stderr,
                        "-e '(sessionInfo()[[1]][13])[[1]][1]; paste(\"Rmarkdown version: \",packageVersion(\"rmarkdown\")) ; library(phyloseq); paste(\"Phyloseq version: \",packageVersion(\"phyloseq\"))'")
     def get_version(self):
         """
@@ -82,6 +83,7 @@ if __name__ == "__main__":
    
     # Manage parameters
     parser = argparse.ArgumentParser( description='To present the data beta diversity with phyloseq.')    
+    parser.add_argument( '--debug', default=False, action='store_true', help="Keep temporary files to debug program." )   
     parser.add_argument('-v', '--varExp', type=str, required=True, default=None, help='The experiment variable you want to analyse.')
     parser.add_argument('-m', '--distance-methods', required=True, type=str, default='bray,cc,unifrac,wunifrac', help='Comma separated values beta diversity methods available in Phyloseq (see https://www.bioconductor.org/packages/devel/bioc/manuals/phyloseq/man/phyloseq.pdf). [Default: %(default)s].')
     # Inputs
@@ -110,4 +112,10 @@ if __name__ == "__main__":
         os.makedirs(outdir)
     data=os.path.abspath(args.rdata)
     html=os.path.abspath(args.html)
-    Rscript(html, data, args.varExp, methods, outdir).submit( args.log_file )
+    try:
+        tmpFiles = TmpFiles(os.path.dirname(html))
+        rmd_stderr = tmpFiles.add("rmarkdown.stderr")
+        Rscript(html, data, args.varExp, methods, outdir, rmd_stderr).submit( args.log_file )
+    finally :
+        if not args.debug:
+            tmpFiles.deleteAll()

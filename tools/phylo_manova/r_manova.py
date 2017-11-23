@@ -18,7 +18,7 @@
 __author__ = 'Ta Thi Ngan & Maria Bernard INRA - SIGENAE'
 __copyright__ = 'Copyright (C) 2017 INRA'
 __license__ = 'GNU General Public License'
-__version__ = '1.0.0'
+__version__ = '1.1.0'
 __email__ = 'frogs@inra.fr'
 __status__ = 'prod'
 
@@ -49,18 +49,19 @@ class Rscript(Cmd):
           https://joey711.github.io/phyloseq/
     @return: the html file containing manova test result.
     """
-    def __init__(self, html, data, varExp, matrix):
+    def __init__(self, html, data, varExp, matrix,rmd_stderr):
         """
         @param html: [str] The path to store resulting html file.
         @param data: [str] One phyloseq object in Rdata file, the result of FROGS Phyloseq Import Data.
         @param varExp: [str] The experiment variable.
         @param matrix: [str] Path of data file containing beta diversity distance matrix. These file is the result of FROGS Phyloseq Beta Diversity.
+        @param rmd_stderr: [str] Path to temporary Rmarkdown stderr output file
         """ 
         rmd = os.path.join(CURRENT_DIR, "r_manova.Rmd")
         Cmd.__init__( self,
                       'Rscript',
                       'Run 1 code Rmarkdown',
-                       '-e "rmarkdown::render('+"'"+rmd+"',output_file='"+html+"', params=list(data='"+data+"', varExp='"+varExp+"',distance='"+matrix+"'), intermediates_dir='"+os.path.dirname(html)+"')"+'" 2> /dev/null',
+                       '-e "rmarkdown::render('+"'"+rmd+"',output_file='"+html+"', params=list(data='"+data+"', varExp='"+varExp+"',distance='"+matrix+"'), intermediates_dir='"+os.path.dirname(html)+"')"+'" 2> ' + rmd_stderr,
                        "-e '(sessionInfo()[[1]][13])[[1]][1]; paste(\"Rmarkdown version: \",packageVersion(\"rmarkdown\")) ; library(phyloseq); paste(\"Phyloseq version: \",packageVersion(\"phyloseq\"))'")
     def get_version(self):
         """
@@ -79,6 +80,7 @@ if __name__ == "__main__":
    
     # Manage parameters
     parser = argparse.ArgumentParser( description='Multivariate Analysis of Variance (MANOVA) test with CAP (Canonical Analysis of Principal Coordinates) by adonis.' )
+    parser.add_argument( '--debug', default=False, action='store_true', help="Keep temporary files to debug program." )   
     parser.add_argument('-v', '--varExp', type=str, required=True, default=None, help='The experiment variable you want to analyse.')
     
     # Inputs
@@ -104,4 +106,10 @@ if __name__ == "__main__":
     html=os.path.abspath(args.html)
     data=os.path.abspath(args.rdata)
     matrix=os.path.abspath(args.distance_matrix)    
-    Rscript(html, data, args.varExp, matrix).submit( args.log_file )   
+    try:
+        tmpFiles = TmpFiles(os.path.dirname(html))
+        rmd_stderr = tmpFiles.add("rmarkdown.stderr")
+        Rscript(html, data, args.varExp, matrix, rmd_stderr).submit( args.log_file )   
+    finally:
+        if not args.debug:
+            tmpFiles.deleteAll()
