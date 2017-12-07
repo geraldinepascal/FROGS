@@ -47,7 +47,6 @@ echo "Step clustering `date`"
 
 clustering.py \
  --distance 3 \
- --denoising \
  --input-fasta $out_dir/01-prepro.fasta \
  --input-count $out_dir/01-prepro.tsv \
  --output-biom $out_dir/02-clustering.biom \
@@ -55,6 +54,18 @@ clustering.py \
  --output-compo $out_dir/02-clustering_compo.tsv \
  --log-file $out_dir/02-clustering.log \
  --nb-cpus $nb_cpu
+
+#clustering.py \
+# --distance 3 \
+# --denoising \
+# --input-fasta $out_dir/01-prepro.fasta \
+# --input-count $out_dir/01-prepro.tsv \
+# --output-biom $out_dir/02-clustering.biom \
+# --output-fasta $out_dir/02-clustering.fasta \
+# --output-compo $out_dir/02-clustering_compo.tsv \
+# --log-file $out_dir/02-clustering.log \
+# --nb-cpus $nb_cpu
+
 
 if [ $? -ne 0 ]
 then
@@ -308,7 +319,7 @@ echo "Step r_clustering `date`"
 r_clustering.py  \
  --varExp Color \
  --rdata $out_dir/11-phylo_import.Rdata --distance-matrix $out_dir/Unifrac.tsv \
- --html $out_dir/16-phylo_structure.html --log-file $out_dir/16-phylo_structure.log
+ --html $out_dir/16-phylo_clutering.html --log-file $out_dir/16-phylo_clustering.log
 
  
 if [ $? -ne 0 ]
@@ -322,7 +333,7 @@ echo "Step r_manova `date`"
 r_manova.py  \
  --varExp Color \
  --rdata $out_dir/11-phylo_import.Rdata --distance-matrix $out_dir/Unifrac.tsv \
- --html $out_dir/17-phylo_structure.html --log-file $out_dir/17-phylo_structure.log
+ --html $out_dir/17-phylo_manova.html --log-file $out_dir/17-phylo_manova.log
 
  
 if [ $? -ne 0 ]
