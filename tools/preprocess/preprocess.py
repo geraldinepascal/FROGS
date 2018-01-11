@@ -53,29 +53,31 @@ from frogsSequenceIO import *
 # COMMAND LINES
 #
 ##################################################################################################################################################
-class Flash(Cmd):
+class Pear(Cmd):
     """
-    @summary: Overlapping and merging mate pairs from fragments shorter than twice the length of reads. The others fragments are discarded.
+    @summary: Overlapping and merging mate pairs from fragments shorter than twice the length of reads.
     """
-    def __init__(self, in_R1, in_R2, out_join_prefix , flash_err, param):
+    def __init__(self, in_R1, in_R2, out_prefix, pear_log, param):
         """
         @param in_R1: [str] Path to the R1 fastq file.
         @param in_R2: [str] Path to the R2 fastq file.
-        @param out_join_prefix: [str] Path to the output fastq file.
-        @param flash_err: [str] Path to the temporary stderr output file
-        @param param: [Namespace] The 'param.min_amplicon_size', 'param.max_amplicon_size', 'param.expected_amplicon_size', 'param.fungi' and param.mismatch_rate'
+        @param out_prefix: [str] Prefix of path to the output fastq files.
+        @param pear_log: [str] Path to log file
+        @param param: [Namespace] The 'param.min_amplicon_size', 'param.max_amplicon_size', 'param.R1_size', 'param.R2_size'
         """
-        min_overlap = max(-1,(param.R1_size + param.R2_size) - param.max_amplicon_size )
-        max_expected_overlap = (param.R1_size + param.R2_size) - param.expected_amplicon_size + min(20, int((param.expected_amplicon_size - param.min_amplicon_size)/2))
-        outies=""
-        if param.fungi:
-            outies += " --allow-outies "
-        Cmd.__init__( self,
-                      'flash',
-                      'Join overlapping paired reads.',
-                      '--threads 1 '+ outies +' --min-overlap ' + str(min_overlap) + ' --max-overlap ' + str(max_expected_overlap) + ' --max-mismatch-density ' + str(param.mismatch_rate) +' --compress ' + in_R1 + ' ' + in_R2 + ' --output-directory '+ os.path.dirname(out_join_prefix) + ' --output-prefix ' + os.path.basename(out_join_prefix) +' 2> ' + flash_err,
-                      '--version' )
-        self.output = out_join_prefix + ".extendedFrags.fastq.gz"
+        min_overlap=max(param.R1_size+param.R2_size-param.max_amplicon_size, 10)
+        max_assembly_length=min(param.max_amplicon_size, param.R1_size + param.R2_size -10)
+        min_assembly_length=param.min_amplicon_size 
+
+        Cmd.__init__(self,
+            'pear',
+            'join overlapping paired reads',
+             '--forward-fastq ' + in_R1 + ' --reverse-fastq ' + in_R2 +' --output ' + out_prefix \
+             + ' --min-overlap ' + str(min_overlap) + ' --max-assembly-length ' + str(max_assembly_length) + ' --min-assembly-length ' + str(min_assembly_length) \
+             + ' --keep-original > ' + pear_log,
+             '--version')
+
+        self.output = out_prefix + '.assembled.fastq'
 
     def get_version(self):
         """
@@ -96,6 +98,50 @@ class Flash(Cmd):
         FH_log.write( 'Results:\n' )
         FH_log.write( '\tnb seq combined: ' + str(nb_seq_combined) + '\n' )
         FH_log.close()
+
+# class Flash(Cmd):
+#     """
+#     @summary: Overlapping and merging mate pairs from fragments shorter than twice the length of reads. The others fragments are discarded.
+#     """
+#     def __init__(self, in_R1, in_R2, out_join_prefix , flash_err, param):
+#         """
+#         @param in_R1: [str] Path to the R1 fastq file.
+#         @param in_R2: [str] Path to the R2 fastq file.
+#         @param out_join_prefix: [str] Path to the output fastq file.
+#         @param flash_err: [str] Path to the temporary stderr output file
+#         @param param: [Namespace] The 'param.min_amplicon_size', 'param.max_amplicon_size', 'param.expected_amplicon_size', 'param.fungi' and param.mismatch_rate'
+#         """
+#         min_overlap = max(-1,(param.R1_size + param.R2_size) - param.max_amplicon_size )
+#         max_expected_overlap = (param.R1_size + param.R2_size) - param.expected_amplicon_size + min(20, int((param.expected_amplicon_size - param.min_amplicon_size)/2))
+#         outies=""
+#         if param.fungi:
+#             outies += " --allow-outies "
+#         Cmd.__init__( self,
+#                       'flash',
+#                       'Join overlapping paired reads.',
+#                       '--threads 1 '+ outies +' --min-overlap ' + str(min_overlap) + ' --max-overlap ' + str(max_expected_overlap) + ' --max-mismatch-density ' + str(param.mismatch_rate) +' --compress ' + in_R1 + ' ' + in_R2 + ' --output-directory '+ os.path.dirname(out_join_prefix) + ' --output-prefix ' + os.path.basename(out_join_prefix) +' 2> ' + flash_err,
+#                       '--version' )
+#         self.output = out_join_prefix + ".extendedFrags.fastq.gz"
+
+#     def get_version(self):
+#         """
+#         @summary: Returns the program version number.
+#         @return: version number if this is possible, otherwise this method return 'unknown'.
+#         """
+#         return Cmd.get_version(self, 'stdout').split()[1].strip()
+
+#     def parser(self, log_file):
+#         """
+#         @summary: Parse the command results to add information in log_file.
+#         @log_file: [str] Path to the sample process log file.
+#         """
+#         # Parse output
+#         nb_seq_combined = get_nb_seq(self.output)
+#         # Write result
+#         FH_log = Logger( log_file )
+#         FH_log.write( 'Results:\n' )
+#         FH_log.write( '\tnb seq combined: ' + str(nb_seq_combined) + '\n' )
+#         FH_log.close()
 
 
 class Remove454prim(Cmd):
@@ -812,19 +858,29 @@ def process_sample(R1_file, R2_file, sample_name, out_file, art_out_file, length
 
     tmp_files = TmpFiles( os.path.split(out_file)[0] )
 
-    # FLASH
-    out_flash = tmp_files.add( sample_name + '_flash.extendedFrags.fastq.gz' )
-    out_notcombined_R1_flash = tmp_files.add( sample_name + '_flash.notCombined_1.fastq.gz' )
-    out_notcombined_R2_flash = tmp_files.add( sample_name + '_flash.notCombined_2.fastq.gz' )
-    out_flash_hist = tmp_files.add(sample_name + '_flash.hist')
-    out_flash_histogram = tmp_files.add(sample_name + '_flash.histogram')
-    out_flash_err = tmp_files.add(sample_name + '_flash.stderr')
-    if args.fungi:
-        out_flash_hist_innie = tmp_files.add(sample_name + '_flash.hist.innie')
-        out_flash_histogram_innie = tmp_files.add(sample_name + '_flash.histogram.innie')
-        out_flash_hist_outie = tmp_files.add(sample_name + '_flash.hist.outie')
-        out_flash_histogram_outie = tmp_files.add(sample_name + '_flash.histogram.outie')
+    # PEAR
+    out_pear = tmp_files.add( sample_name + '_pear.assembled.fastq' )
+    out_notcombined_R1_pear = tmp_files.add( sample_name + '_pear.unassembled.forward.fastq' )
+    out_notcombined_R2_pear = tmp_files.add( sample_name + '_pear.unassembled.reverse.fastq' )
+    out_pear_discard = tmp_files.add(sample_name + '_pear.discarded.fastq')
+    out_pear_log = tmp_files.add(sample_name + '_pear.log')
     out_artificial_combined = tmp_files.add( sample_name + '_artificial_combined.fastq.gz' )
+
+    # # FLASH
+    # out_flash = tmp_files.add( sample_name + '_flash.extendedFrags.fastq.gz' )
+    # out_notcombined_R1_flash = tmp_files.add( sample_name + '_flash.notCombined_1.fastq.gz' )
+    # out_notcombined_R2_flash = tmp_files.add( sample_name + '_flash.notCombined_2.fastq.gz' )
+    # out_flash_hist = tmp_files.add(sample_name + '_flash.hist')
+    # out_flash_histogram = tmp_files.add(sample_name + '_flash.histogram')
+    # out_flash_err = tmp_files.add(sample_name + '_flash.stderr')
+    # if args.fungi:
+    #     out_flash_hist_innie = tmp_files.add(sample_name + '_flash.hist.innie')
+    #     out_flash_histogram_innie = tmp_files.add(sample_name + '_flash.histogram.innie')
+    #     out_flash_hist_outie = tmp_files.add(sample_name + '_flash.hist.outie')
+    #     out_flash_histogram_outie = tmp_files.add(sample_name + '_flash.histogram.outie')
+    # out_artificial_combined = tmp_files.add( sample_name + '_artificial_combined.fastq.gz' )
+
+
     # CUTADAPT ON COMBINED FILTER
     tmp_cutadapt = tmp_files.add( sample_name + '_cutadapt_5prim_trim.fastq.gz' )
     log_5prim_cutadapt = tmp_files.add( sample_name + '_cutadapt_5prim_log.txt' )
@@ -862,23 +918,34 @@ def process_sample(R1_file, R2_file, sample_name, out_file, art_out_file, length
 
         # Commands execution
         if not args.already_contiged:
-            flash_cmd = Flash(R1_file, R2_file, out_flash.replace(".extendedFrags.fastq.gz",""), out_flash_err, args)
-            flash_cmd.submit(log_file)
+            # flash_cmd = Flash(R1_file, R2_file, out_flash.replace(".extendedFrags.fastq.gz",""), out_flash_err, args)
+            # flash_cmd.submit(log_file)
+            pear_cmd = Pear(R1_file, R2_file, out_pear.replace(".assembled.fastq",""), out_pear_log, args)
+            pear_cmd.submit(log_file)
         else:
-            out_flash = R1_file
+            # out_flash = R1_file
+            out_pear = R1_file
         if args.sequencer == "454": # 454
-            if is_gzip( out_flash ):
-                renamed_out_flash = tmp_files.add( sample_name + '_454.fastq.gz' ) # prevent cutadapt problem (type of file is checked by extension)
+            # if is_gzip( out_flash ):
+            #     renamed_out_flash = tmp_files.add( sample_name + '_454.fastq.gz' ) # prevent cutadapt problem (type of file is checked by extension)
+            # else:
+            #     renamed_out_flash = tmp_files.add( sample_name + '_454.fastq' ) # prevent cutadapt problem (type of file is checked by extension)
+            # shutil.copyfile( out_flash, renamed_out_flash ) # prevent symlink problem
+            # Remove454prim(renamed_out_flash, out_cutadapt, log_3prim_cutadapt, args).submit(log_file)
+            if is_gzip( out_pear ):
+                renamed_out_pear = tmp_files.add( sample_name + '_454.fastq.gz' ) # prevent cutadapt problem (type of file is checked by extension)
             else:
-                renamed_out_flash = tmp_files.add( sample_name + '_454.fastq' ) # prevent cutadapt problem (type of file is checked by extension)
-            shutil.copyfile( out_flash, renamed_out_flash ) # prevent symlink problem
-            Remove454prim(renamed_out_flash, out_cutadapt, log_3prim_cutadapt, args).submit(log_file)
+                renamed_out_pear = tmp_files.add( sample_name + '_454.fastq' ) # prevent cutadapt problem (type of file is checked by extension)
+            shutil.copyfile( out_pear, renamed_out_pear ) # prevent symlink problem
+            Remove454prim(renamed_out_pear, out_cutadapt, log_3prim_cutadapt, args).submit(log_file)
         else: # Illumina
             if args.five_prim_primer and args.three_prim_primer: # Illumina standard sequencing protocol
-                Cutadapt5prim(out_flash, tmp_cutadapt, log_5prim_cutadapt, args).submit(log_file)
+                # Cutadapt5prim(out_flash, tmp_cutadapt, log_5prim_cutadapt, args).submit(log_file)
+                Cutadapt5prim(out_pear, tmp_cutadapt, log_5prim_cutadapt, args).submit(log_file)
                 Cutadapt3prim(tmp_cutadapt, out_cutadapt, log_3prim_cutadapt, args).submit(log_file)
             else: # Custom sequencing primers. The amplicons is full length (Illumina) except PCR primers (it is use as sequencing primers). [Protocol Kozich et al. 2013]
-                out_cutadapt = out_flash
+                # out_cutadapt = out_flash
+                out_cutadapt = out_pear
 
         primers_size = 0
         if args.five_prim_primer is not None: primers_size += len(args.five_prim_primer)
@@ -889,7 +956,8 @@ def process_sample(R1_file, R2_file, sample_name, out_file, art_out_file, length
         
         # Get length before and after process
         length_dict = dict()
-        nb_before_by_legnth = get_seq_length( out_flash )
+        # nb_before_by_legnth = get_seq_length( out_flash )
+        nb_before_by_legnth = get_seq_length( out_pear )
         length_dict["before"]=nb_before_by_legnth
         if not args.fungi :
             nb_after_by_legnth = get_seq_length( out_NAndLengthfilter )
@@ -899,7 +967,8 @@ def process_sample(R1_file, R2_file, sample_name, out_file, art_out_file, length
 
         # dealing with uncontiged reads.
         if not args.already_contiged :
-            Combined(out_notcombined_R1_flash, out_notcombined_R2_flash, "X"*100, out_artificial_combined ).submit(log_file)
+            # Combined(out_notcombined_R1_flash, out_notcombined_R2_flash, "X"*100, out_artificial_combined ).submit(log_file)
+            Combined(out_notcombined_R1_pear, out_notcombined_R2_pear, "X"*100, out_artificial_combined ).submit(log_file)
             if args.sequencer == "454" :
                 Remove454prim(out_artificial_combined, art_out_cutadapt, art_log_3prim_cutadapt, args).submit(log_file)
             else:
@@ -1034,15 +1103,41 @@ if __name__ == "__main__":
     subparsers = parser.add_subparsers()
 
     # Illumina
+#     parser_illumina = subparsers.add_parser( 'illumina', help='Illumina sequencers.', usage='''
+#   For samples files:
+#     preprocess.py illumina
+#       --input-R1 R1_FILE [R1_FILE ...]
+#       --already-contiged | --input-R2 R2_FILE [R2_FILE ...] --R1-size R1_SIZE --R2-size R2_SIZE --expected-amplicon-size SIZE
+#       --min-amplicon-size MIN_AMPLICON_SIZE
+#       --max-amplicon-size MAX_AMPLICON_SIZE
+#       --without-primers | --five-prim-primer FIVE_PRIM_PRIMER --three-prim-primer THREE_PRIM_PRIMER
+#       [--mismatch-rate RATE ] [--fungi {ITS1,ITS2}]
+#       [--samples-names SAMPLE_NAME [SAMPLE_NAME ...]]
+#       [-p NB_CPUS] [--debug] [-v]
+#       [-d DEREPLICATED_FILE] [-c COUNT_FILE] [--artComb-output-dereplicated ART_DEREPLICATED_FILE] [--artComb-output-count ART_COUNT_FILE]
+#       [-s SUMMARY_FILE] [-l LOG_FILE]
+
+#   For samples archive:
+#     preprocess.py illumina
+#       --input-archive ARCHIVE_FILE
+#       --already-contiged | --R1-size R1_SIZE --R2-size R2_SIZE --expected-amplicon-size SIZE
+#       --min-amplicon-size MIN_AMPLICON_SIZE
+#       --max-amplicon-size MAX_AMPLICON_SIZE
+#       --without-primers | --five-prim-primer FIVE_PRIM_PRIMER --three-prim-primer THREE_PRIM_PRIMER
+#       [--mismatch-rate RATE ] [--fungi {ITS1,ITS2}]
+#       [-p NB_CPUS] [--debug] [-v]
+#       [-d DEREPLICATED_FILE] [-c COUNT_FILE] [-c COUNT_FILE] [--artComb-output-dereplicated ART_DEREPLICATED_FILE] [--artComb-output-count ART_COUNT_FILE]
+#       [-s SUMMARY_FILE] [-l LOG_FILE]
+# ''')
     parser_illumina = subparsers.add_parser( 'illumina', help='Illumina sequencers.', usage='''
   For samples files:
     preprocess.py illumina
       --input-R1 R1_FILE [R1_FILE ...]
-      --already-contiged | --input-R2 R2_FILE [R2_FILE ...] --R1-size R1_SIZE --R2-size R2_SIZE --expected-amplicon-size SIZE
+      --already-contiged | --input-R2 R2_FILE [R2_FILE ...] --R1-size R1_SIZE --R2-size R2_SIZE
       --min-amplicon-size MIN_AMPLICON_SIZE
       --max-amplicon-size MAX_AMPLICON_SIZE
       --without-primers | --five-prim-primer FIVE_PRIM_PRIMER --three-prim-primer THREE_PRIM_PRIMER
-      [--mismatch-rate RATE ] [--fungi {ITS1,ITS2}]
+      [--fungi {ITS1,ITS2}]
       [--samples-names SAMPLE_NAME [SAMPLE_NAME ...]]
       [-p NB_CPUS] [--debug] [-v]
       [-d DEREPLICATED_FILE] [-c COUNT_FILE] [--artComb-output-dereplicated ART_DEREPLICATED_FILE] [--artComb-output-count ART_COUNT_FILE]
@@ -1051,11 +1146,11 @@ if __name__ == "__main__":
   For samples archive:
     preprocess.py illumina
       --input-archive ARCHIVE_FILE
-      --already-contiged | --R1-size R1_SIZE --R2-size R2_SIZE --expected-amplicon-size SIZE
+      --already-contiged | --R1-size R1_SIZE --R2-size R2_SIZE
       --min-amplicon-size MIN_AMPLICON_SIZE
       --max-amplicon-size MAX_AMPLICON_SIZE
       --without-primers | --five-prim-primer FIVE_PRIM_PRIMER --three-prim-primer THREE_PRIM_PRIMER
-      [--mismatch-rate RATE ] [--fungi {ITS1,ITS2}]
+      [--fungi {ITS1,ITS2}]
       [-p NB_CPUS] [--debug] [-v]
       [-d DEREPLICATED_FILE] [-c COUNT_FILE] [-c COUNT_FILE] [--artComb-output-dereplicated ART_DEREPLICATED_FILE] [--artComb-output-count ART_COUNT_FILE]
       [-s SUMMARY_FILE] [-l LOG_FILE]
@@ -1069,8 +1164,8 @@ if __name__ == "__main__":
     parser_illumina.add_argument( '--without-primers', action='store_true', default=False, help="Use this option when you use custom sequencing primers and these primers are the PCR primers. In this case the reads do not contain the PCR primers." )
     parser_illumina.add_argument( '--R1-size', type=int, help='The read1 size.' )
     parser_illumina.add_argument( '--R2-size', type=int, help='The read2 size.' )
-    parser_illumina.add_argument( '--expected-amplicon-size', type=int, help='The expected size for the majority of the amplicons (with primers).' )
-    parser_illumina.add_argument( '--mismatch-rate', type=float, default=0.1, help='Maxi mismatch rate in overlap region. [Default: %(default)s]' )
+    # parser_illumina.add_argument( '--expected-amplicon-size', type=int, help='The expected size for the majority of the amplicons (with primers).' )
+    # parser_illumina.add_argument( '--mismatch-rate', type=float, default=0.1, help='Maxi mismatch rate in overlap region. [Default: %(default)s]' )
     parser_illumina.add_argument( '--already-contiged', action='store_true', default=False, help='The archive contains 1 file by sample : Reads 1 and Reads 2 are already contiged by pair.' )
     parser_illumina.add_argument( '-p', '--nb-cpus', type=int, default=1, help="The maximum number of CPUs used. [Default: %(default)s]" )
     parser_illumina.add_argument( '--debug', default=False, action='store_true', help="Keep temporary files to debug program." )
@@ -1145,7 +1240,8 @@ if __name__ == "__main__":
         if args.sequencer == "illumina":
             if not args.already_contiged and args.input_R2 is None: raise argparse.ArgumentTypeError( "'--R2-files' is required." )
     if args.sequencer == "illumina":
-        if (args.R1_size is None or args.R2_size is None or args.expected_amplicon_size is None) and not args.already_contiged: raise Exception( "'--R1-size/--R2-size/--expected-amplicon-size' or '--already-contiged' must be setted." )
+        # if (args.R1_size is None or args.R2_size is None or args.expected_amplicon_size is None) and not args.already_contiged: raise Exception( "'--R1-size/--R2-size/--expected-amplicon-size' or '--already-contiged' must be setted." )
+        if (args.R1_size is None or args.R2_size is None ) and not args.already_contiged: raise Exception( "'--R1-size/--R2-size' or '--already-contiged' must be setted." )
         if args.without_primers:
             if args.five_prim_primer or args.three_prim_primer: raise argparse.ArgumentTypeError( "The option '--without-primers' cannot be used with '--five-prim-primer' and '--three-prim-primer'." )
         else:
