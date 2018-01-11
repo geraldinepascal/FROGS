@@ -16,7 +16,7 @@ echo "Illumina R1 and R2"
 ./preprocess.py illumina --input-R1 data/sampleA_R1.fastq.gz data/sampleB_R1.fastq.gz --input-R2 data/sampleA_R2.fastq.gz data/sampleB_R2.fastq.gz \
                          --samples-names sample_A sample_B \
                          --R1-size 251 --R2-size 251 \
-                         --expected-amplicon-size 410 --min-amplicon-size 340 --max-amplicon-size 450 \
+                         --min-amplicon-size 340 --max-amplicon-size 450 \
                          --five-prim-primer "CCGTCAATTC" --three-prim-primer "CCGCNGCTGCT" \
                          --output-dereplicated test/derep_illumina_R1R2.fasta --output-count test/count_illumina_R1R2.tsv --summary test/summary_illumina_R1R2.html --log-file test/log_illumina_R1R2.txt
 
@@ -26,7 +26,7 @@ echo "ITS Illumina R1 and R2"
                          --samples-names sample1_ITS sample2_ITS --fungi ITS1 \
                          --nb-cpus 8 \
                          --R1-size 300 --R2-size 300 \
-                         --expected-amplicon-size 250 --min-amplicon-size 50 --max-amplicon-size 599 --mismatch-rate 0.15 \
+                         --min-amplicon-size 50 --max-amplicon-size 700 \
                          --five-prim-primer "CTTGGTCATTTAGAGGAAGTAA" --three-prim-primer "GCATCGATGAAGAACGCAGC" \
                          --output-dereplicated test/derep_ITS_R1R2.fasta --output-count test/count_ITS_R1R2.tsv \
                          --summary test/summary_ITS_R1R2.html --log-file test/log_ITS_R1R2.txt
@@ -36,7 +36,7 @@ echo "Illumina tar R1 and R2"
 tar -zcf test/samples.tar.gz -C data sampleA_R1.fastq.gz sampleA_R2.fastq.gz sampleB_R1.fastq.gz sampleB_R2.fastq.gz
 ./preprocess.py illumina --input-archive test/samples.tar.gz \
                          --R1-size 251 --R2-size 251 \
-                         --expected-amplicon-size 410 --min-amplicon-size 340 --max-amplicon-size 450 \
+                         --min-amplicon-size 340 --max-amplicon-size 450 \
                          --five-prim-primer "CCGTCAATTC" --three-prim-primer "CCGCNGCTGCT" \
                          --output-dereplicated test/derep_illumina_TAR_R1R2.fasta --output-count test/count_illumina_TAR_R1R2.tsv --summary test/summary_illumina_TAR_R1R2.html --log-file test/log_illumina_TAR_R1R2.txt
 rm test/samples.tar.gz
@@ -67,7 +67,7 @@ cutadapt -a CCGCNGCTGCT --error-rate 0.1 --discard-untrimmed --match-read-wildca
 ./preprocess.py illumina --input-R1 test/test_sampleA.fastq.gz test/test_sampleB.fastq.gz \
                          --samples-names sample_A sample_B \
                          --already-contiged --without-primers \
-                         --expected-amplicon-size 410 --min-amplicon-size 340 --max-amplicon-size 450 \
+                         --min-amplicon-size 340 --max-amplicon-size 450 \
                          --output-dereplicated test/derep_illumina_contiged_custom.fasta --output-count test/count_illumina_contiged_custom.tsv --summary test/summary_illumina_contiged_custom.html --log-file test/log_illumina_contiged_custom.txt
 rm test/test_sampleA.fastq.gz test/test_sampleA_tmp.fastq.gz test/test_sampleB.fastq.gz test/test_sampleB_tmp.fastq.gz
 
