@@ -101,11 +101,11 @@
         Version: 5
         Tools: demultiplex
 
-    flash
-        Version: 1.2.11
-        Named as: flash
+    pear
+        Version: 0.9.10
+        Named as: pear
         Tools: preprocess
-        Download: http://sourceforge.net/projects/flashpage/files
+        Download: https://sco.h-its.org/exelixis/web/software/pear/
 
     cutadapt
         Version: 1.8.3
