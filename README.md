@@ -407,11 +407,8 @@
 
 
 ## Citation
-    Escudie F., Auer L., Bernard M., Cauquil L., Vidal K., Maman S.,
-    Mariadassou M., Hernadez-Raquet G., Pascal G., 2015. FROGS: Find Rapidly
-    OTU with Galaxy Solution. In: The environmental genomic Conference, 
-    Montpellier, France
+    Frédéric Escudié, Lucas Auer, Maria Bernard, Mahendra Mariadassou, Laurent Cauquil, Katia Vidal, Sarah Maman, Guillermina Hernandez-Raquet, Sylvie Combes, Géraldine Pascal; FROGS: Find, Rapidly, OTUs with Galaxy Solution, Bioinformatics, 2017, btx791, https://doi.org/10.1093/bioinformatics/btx791
 
 
 ## Contact
-    frogs@toulouse.inra.fr
+    frogs@inra.fr
