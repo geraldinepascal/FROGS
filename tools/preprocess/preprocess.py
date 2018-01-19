@@ -580,7 +580,7 @@ def get_seq_length_by_sample( input_file, count_file):
     FH_seq.close()
     return nb_by_length
 
-def summarise_results( samples_names, lengths_files, log_files, param ):
+def summarise_results( samples_names, lengths_files, log_files, fasta, count, param ):
     """
     @summary: Writes one summary of results from several logs.
     @param samples_names: [list] The samples names.
@@ -597,8 +597,8 @@ def summarise_results( samples_names, lengths_files, log_files, param ):
     # compute ITSx final filter by sample
     if param.fungi :
         categories.append("ITS")
-        filters_ITSx = get_ITSx_results(param.output_count)
-        after_lengths_by_sample = get_seq_length_by_sample( param.output_dereplicated, param.output_count )
+        filters_ITSx = get_ITSx_results(count)
+        after_lengths_by_sample = get_seq_length_by_sample( fasta, count )
 
     # recover all filter by sample
     for spl_idx, spl_name in enumerate(samples_names):
@@ -1067,10 +1067,10 @@ def process( args ):
             count_itsx = tmp_files.add("ITSx.count")
             ITSx(derep_file, derep_count, args.fungi, fasta_itsx, count_itsx, log_itsx, args ).submit( args.log_file )
             DerepGlobalFastaCount(fasta_itsx, count_itsx, args.output_dereplicated, args.output_count, args).submit(args.log_file)
+            summarise_results( samples_names, lengths_files, log_files, fasta_itsx, count_itsx, args )
         else : 
             DerepGlobalMultiFasta(filtered_files, samples_names, tmp_files.add('derep_inputs.tsv'), args.output_dereplicated, args.output_count, args).submit( args.log_file )
-
-        summarise_results( samples_names, lengths_files, log_files, args )
+            summarise_results( samples_names, lengths_files, log_files, args.output_dereplicated, args.output_count, args )
 
         
         # Check the number of sequences after filtering
