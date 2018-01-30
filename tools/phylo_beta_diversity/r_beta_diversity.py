@@ -64,7 +64,7 @@ class Rscript(Cmd):
         Cmd.__init__( self,
                       'Rscript',
                       'Run 1 code Rmarkdown',
-                       '-e "rmarkdown::render('+"'"+rmd+"',knit_root_dir='"+outdir+ "',output_file='"+html+"', params=list(data='"+data+"', varExp='"+varExp+ "', methods='"+methods+ "'), intermediates_dir='"+os.path.dirname(html)+"')"+'" 2> ' + rmd_stderr,
+                       '-e "rmarkdown::render('+"'"+rmd+"',knit_root_dir='"+outdir+ "',output_file='"+html+"', params=list(data='"+data+"', varExp='"+varExp+ "', methods='"+methods+"', libdir ='"+LIB_DIR+"'), intermediates_dir='"+os.path.dirname(html)+"')"+'" 2> ' + rmd_stderr,
                        "-e '(sessionInfo()[[1]][13])[[1]][1]; paste(\"Rmarkdown version: \",packageVersion(\"rmarkdown\")) ; library(phyloseq); paste(\"Phyloseq version: \",packageVersion(\"phyloseq\"))'")
     def get_version(self):
         """
