@@ -88,6 +88,9 @@
     PATH and 'lib' must be accessible in the PYTHONPATH.
 
 ### 3. Install dependencies
+
+### 3.1 lib exec and additionnal packages
+
     Dependencies must be accessible in the PATH or added in <FROGS_PATH>/libexec.
     
     python interpreter
@@ -179,7 +182,7 @@
     RScript
         Version : = 3.4.0
         Named as : RScript
-        Tools : all FROGS_Phyloseq
+        Tools : all FROGSSTAT_Phyloseq
         Download : https://cran.r-project.org/
 
     Phangorn R package
@@ -191,36 +194,47 @@
 
     Rmarkdown R package
         Version : 1.5
-        Tools : all FROGS_Phyloseq
+        Tools : all FROGSSTAT_Phyloseq
         Install in R session : # https://cran.r-project.org/web/packages/rmarkdown/index.html
                                install.packages("rmarkdown")
 
     Pandoc
         Version : 1.17.2
         Named as : pandoc
-        Tools : all FROGS_Phyloseq
+        Tools : all FROGSSTAT_Phyloseq
         Download/Installation : # http://pandoc.org/installing.html#linux or simply soft-link pandoc binary from RStudio path (if you have Rstudio installed)
 
     Phyloseq R package
         Version : 1.20.0
-        Tools : all FROGS_Phyloseq
+        Tools : all FROGSSTAT_Phyloseq
         Installation in R session : # https://joey711.github.io/phyloseq/install.html
                                     source("https://bioconductor.org/biocLite.R") ; biocLite("phyloseq")
         Test in R session : library(phyloseq)
 
     Plotly R package
         Version : 4.7.0
-        Tools : FROGS_Phyloseq_composition and FROGS_Phyloseq_structure
+        Tools : FROGSSTAT_Phyloseq_composition and FROGSSTAT_Phyloseq_structure
         Installation in R session : # https://plot.ly/r/getting-started/
                                     install.packages("plotly")
         Test in R session : library(plotly)
 
     GridExtra R package
         Version : 2.2.1
-        Tools : FROGS_Phyloseq_Beta_Diversity, FROGS_Phyloseq_Sample_Clustering, FROGS_Phyloseq_composition and FROGS_Phyloseq_structure
+        Tools : FROGSSTAT_Phyloseq_Beta_Diversity, FROGSSTAT_Phyloseq_Sample_Clustering, FROGSSTAT_Phyloseq_composition and FROGSSTAT_Phyloseq_structure
         Installation in R session : # https://cran.r-project.org/web/packages/gridExtra/index.html
                                     install.packages("gridExtra")
         Test in R session : library(gridExtra)
+
+### 3.2 R lib 
+
+    Dependencies must be accessible in <FROGS_PATH>/lib.
+
+    Phyloseq-extended
+        Version : v0.99
+        Tools : all FROGSSTAT tools
+        Installation : # https://github.com/mahendra-mariadassou/phyloseq-extended/releases
+                       untar archive in <FROGS_PATH>/lib
+
 
 
 ### 4. Check intallation
@@ -296,7 +310,7 @@
             <tool file="FROGS/app/tsv_to_biom.xml" />
             <tool file="FROGS/app/normalisation.xml" />
             <tool file="FROGS/app/tree.xml" />
-        <label text="OTUs structure and composition analysis" id="FROGS_Phyloseq" />
+        <label text="OTUs structure and composition analysis" id="FROGSSTAT_Phyloseq" />
             <tool file="FROGS/app/r_import_data.xml" />
             <tool file="FROGS/app/r_composition.xml" />
             <tool file="FROGS/app/r_alpha_diversity.xml" />

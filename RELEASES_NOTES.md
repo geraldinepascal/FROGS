@@ -5,6 +5,7 @@
 
 ### Modification:
   * Preprocess : replace FLASH (https://ccb.jhu.edu/software/FLASH/) by PEAR (https://sco.h-its.org/exelixis/web/software/pear/), remove mismatch-rate and expected-amplicon-length options
+  * FROGSSTAT tools do not call anymore external script from urls. Additionnal library dependancies added : https://github.com/mahendra-mariadassou/phyloseq-extended/releases
 
 ### Bugs fixes:
   * Phyloseq import: bug when Tree is None
