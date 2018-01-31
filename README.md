@@ -233,7 +233,7 @@
         Version : v0.99
         Tools : all FROGSSTAT tools
         Installation : # https://github.com/mahendra-mariadassou/phyloseq-extended/releases
-                       untar archive and copy content in <FROGS_PATH>/lib
+                       untar archive and copy content of folder "phyloseq-extended/" in <FROGS_PATH>/lib
 
 
 
