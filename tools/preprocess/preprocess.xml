@@ -43,6 +43,7 @@
 			    --already-contiged
 		    #elif $sequencer_type.sequencer_selected == "illumina"
 	            --R1-size $sequencer_type.input_type.archive_type.R1_size --R2-size $sequencer_type.input_type.archive_type.R2_size 
+	        	--mismatch-rate $sequencer_type.input_type.archive_type.mm_rate
 		    #end if
 		#else
 		    #set $sep = ' '
@@ -63,6 +64,7 @@
 		                $sep${current.R2_file}
 		            #end for
 		            --R1-size $sequencer_type.input_type.files_by_samples_type.R1_size --R2-size $sequencer_type.input_type.files_by_samples_type.R2_size 
+		            --mismatch-rate $sequencer_type.input_type.files_by_samples_type.mm_rate
 		        #end if
 		    #else
 		        --input-R1 
@@ -100,6 +102,7 @@
 								<!-- Reads size -->
 								<param name="R1_size" type="integer" label="Reads 1 size" help="The read1 size." value="" optional="false" />
 								<param name="R2_size" type="integer" label="Reads 2 size" help="The read2 size." value="" optional="false" />
+								<param name="mm_rate" type="float" label="mismatch rate." help="The maximum rate of mismatch in the overlap region" value="0.1" optional="false" />
 							</when>
 							<when value="already_contiged"></when>
 						</conditional>
@@ -122,6 +125,7 @@
 								<!-- Reads size -->
 								<param name="R1_size" type="integer" label="Reads 1 size" help="The read1 size." value="" optional="false" />
 								<param name="R2_size" type="integer" label="Reads 2 size" help="The read2 size." value="" optional="false" />
+								<param name="mm_rate" type="float" label="mismatch rate." help="The maximum rate of mismatches in the overlap region" value="0.1" optional="false" />
 							</when>
 							<when value="already_contiged">
 								<repeat name="samples" title="Samples" min="1">
@@ -294,7 +298,7 @@ How it works
    :widths: 5, 150, 150
    :class: table table-striped
 
-   "1", "For un-merged data: merges R1 and R2 (`PEAR &lt;https://sco.h-its.org/exelixis/web/software/pear/&gt;`_). Resulting un-merged reads are artificially combined by adding 100 Ns between the reads", "/"
+   "1", "For un-merged data: merges R1 and R2 with a maximum of M% mismatch in the overlaped region(`VSEARCH &lt;https://github.com/torognes/vsearch/&gt;`_). Resulting un-merged reads are artificially combined by adding 100 Ns between the reads", "/"
    "2", "If sequencing protocol is the illumina standard protocol : Removes sequences where the two primers are not present and then remove primers in the remaining sequence (`cutadapt &lt;http://cutadapt.readthedocs.org/en/latest/guide.html&gt;`_). The primer search accepts 10% of differences", "Removes sequences where the two primers are not present, removes primers sequence and reverse complement the sequences on strand -  (`cutadapt &lt;http://cutadapt.readthedocs.org/en/latest/guide.html&gt;`_). The primer search accepts 10% of differences"
    "3", "Filters sequences with ambiguous nucleotides and for merged sequences filters on their length which must be range between 'Minimum amplicon size - primer length' and 'Maximum amplicon size - primer length'", "the tool removes sequences with at least one homopolymer with more than seven nucleotides and with a distance of less than or equal to 10 nucleo-tides between two poor quality positions, i.e. with a Phred quality score lesser than 10" 
    "4", "Dereplicates sequences", "Dereplicates sequences"
@@ -345,7 +349,7 @@ If the filter 'overlapped' reduce drasticaly the number of sequences:
 
  In un-merged Illumina data, the reduction of dataset by the overlapped filter is classicaly inferior than 20%. A loss of more than 20% in all samples can highlight a quality problem.
  
- If the overlap between R1 and R2 is superior to 50 nucleotides and the quality of the end of the sequences is poor (see `FastQC &lt;http://www.bioinformatics.babraham.ac.uk/projects/fastqc/&gt;`_) you can try to cut the end of your sequences and relaunch the preprocess tool. 
+ If the overlap between R1 and R2 is superior to 50 nucleotides and the quality of the end of the sequences is poor (see `FastQC &lt;http://www.bioinformatics.babraham.ac.uk/projects/fastqc/&gt;`_) you can try to cut the end of your sequences and relaunch the preprocess tool. You can either raise the mismatch percent in the overlapped region, but not too much!
 
 ----
 
