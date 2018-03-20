@@ -95,9 +95,13 @@ The number specified in "Number of reads" must be smaller than each total number
 Contacts: frogs@inra.fr
 
 Repository: https://github.com/geraldinepascal/FROGS
+website: http://frogs.toulouse.inra.fr/
 
-Please cite the FROGS Publication: *Escudie F., Auer L., Bernard M., Cauquil L., Vidal K., Maman S., Mariadassou M., Combes S., Hernandez-Raquet G., Pascal G., 2016. FROGS: Find Rapidly OTU with Galaxy Solution. In: ISME-2016 Montreal, CANADA ,* http://bioinfo.genotoul.fr/wp-content/uploads/FROGS_ISME2016_poster.pdf
+Please cite the **FROGS article**: *Escudie F., et al. Bioinformatics, 2017. FROGS: Find, Rapidly, OTUs with Galaxy Solution.*
 
-Depending on the help provided you can cite us in acknowledgements, references or both.
-	</help> 
+	</help>
+	<citations>
+		<citation type="doi">10.1093/bioinformatics/btx791</citation>
+	</citations>
+
 </tool>
