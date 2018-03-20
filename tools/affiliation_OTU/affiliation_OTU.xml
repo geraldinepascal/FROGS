@@ -141,12 +141,14 @@ As you can see the affiliation of each OTU is not human readable in outputed abu
 Contacts: frogs@inra.fr
 
 Repository: https://github.com/geraldinepascal/FROGS
+website: http://frogs.toulouse.inra.fr/
 
-Please cite the FROGS Publication: *Escudie F., Auer L., Bernard M., Cauquil L., Vidal K., Maman S., Mariadassou M., Hernadez-Raquet G., Pascal G., 2015. FROGS: Find Rapidly OTU with Galaxy Solution. In: The environmental genomic Conference, Montpellier, France,* http://bioinfo.genotoul.fr/fileadmin/user_upload/FROGS_2015_GE_Montpellier_poster.pdf
+Please cite the FROGS article: *Escudie F., Auer L., Bernard M., Mariadassou M., Cauquil L., Vidal K., Maman S., Hernadez-Raquet G., Combes S., Pascal G. FROGS: Find, Rapidly, OTUs with Galaxy Solution. Bioinformatics, 2017, btx791* https://doi.org/10.1093/bioinformatics/btx791
 
 Depending on the help provided you can cite us in acknowledgements, references or both.
 	</help>
 	<citations>
+		<citation type="doi">10.1093/bioinformatics/btx791</citation>
 		<citation type="doi">10.1186/1471-2105-10-421</citation>
 		<citation type="doi">10.1128/AEM.00062-07</citation>
 	</citations>
