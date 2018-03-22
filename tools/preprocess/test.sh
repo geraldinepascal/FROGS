@@ -47,7 +47,7 @@ echo "Illumina contiged"
                          --samples-names sample_A sample_B \
                          --min-amplicon-size 340 --max-amplicon-size 450 \
                          --five-prim-primer "CCGTCAATTC" --three-prim-primer "CCGCNGCTGCT" \
-                         --output-dereplicated test/derep_illumina_CONTIGUED.fasta --output-count test/count_illumina_CONTIGUED.tsv --summary test/summary_illumina_CONTIGUED.html --log-file test/log_illumina_CONTIGUED.txt
+                         --output-dereplicated test/derep_illumina_CONTIGED.fasta --output-count test/count_illumina_CONTIGED.tsv --summary test/summary_illumina_CONTIGED.html --log-file test/log_illumina_CONTIGED.txt
 
 # Illumina tar contiged
 echo "Illumina tar contiged"
@@ -55,7 +55,7 @@ tar -zcf test/contiged_samples.tar.gz -C data sampleA.fastq.gz sampleB.fastq.gz
 ./preprocess.py illumina --input-archive test/contiged_samples.tar.gz --already-contiged \
                          --min-amplicon-size 340 --max-amplicon-size 450 \
                          --five-prim-primer "CCGTCAATTC" --three-prim-primer "CCGCNGCTGCT" \
-                         --output-dereplicated test/derep_illumina_TAR_CONTIGUED.fasta --output-count test/count_illumina_TAR_CONTIGUED.tsv --summary test/summary_illumina_TAR_CONTIGUED.html --log-file test/log_illumina_TAR_CONTIGUED.txt
+                         --output-dereplicated test/derep_illumina_TAR_CONTIGED.fasta --output-count test/count_illumina_TAR_CONTIGED.tsv --summary test/summary_illumina_TAR_CONTIGED.html --log-file test/log_illumina_TAR_CONTIGED.txt
 rm test/contiged_samples.tar.gz
 
 # Illumina contiged without primers

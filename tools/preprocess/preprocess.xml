@@ -39,7 +39,7 @@
 		
 		#if $sequencer_type.input_type.input_type_selected == "archive" 
 		    --input-archive $sequencer_type.input_type.archive_file
-		    #if $sequencer_type.sequencer_selected == "illumina" and $sequencer_type.input_type.archive_type.archive_type_selected == "already_contiged"
+		    #if $sequencer_type.sequencer_selected == "illumina" and $sequencer_type.input_type.archive_type.archive_type_selected == "already_merged"
 			    --already-contiged
 		    #elif $sequencer_type.sequencer_selected == "illumina"
 	            --R1-size $sequencer_type.input_type.archive_type.R1_size --R2-size $sequencer_type.input_type.archive_type.R2_size 
@@ -59,7 +59,7 @@
 		        #for $current in $sequencer_type.input_type.files_by_samples_type.samples 
 		            $sep${current.R1_file}
 		        #end for
-		        #if $sequencer_type.input_type.files_by_samples_type.files_by_samples_type_selected == "already_contiged"
+		        #if $sequencer_type.input_type.files_by_samples_type.files_by_samples_type_selected == "already_merged"
 		            --already-contiged
 		        #else
 		            --input-R2
@@ -100,25 +100,25 @@
 					<when value="archive">
 						<param name="archive_file" type="data" label="Archive file" help="The tar file containing the sequences file(s) for each sample." optional="false" />
 						<conditional name="archive_type">
-							<param name="archive_type_selected" type="select" label="Reads already contiged ?" help="The archive contains 1 file by sample : R1 and R2 are already merged by pair.">
+							<param name="archive_type_selected" type="select" label="Reads already merged ?" help="The archive contains 1 file by sample : R1 and R2 are already merged by pair.">
 								<option value="paired" selected="true">No</option>
-								<option value="already_contiged">Yes</option>
+								<option value="already_merged">Yes</option>
 							</param>
 							<when value="paired">
 								<!-- Reads size -->
-								<param name="R1_size" type="integer" label="Reads 1 size" help="The read1 size." value="" optional="false" />
-								<param name="R2_size" type="integer" label="Reads 2 size" help="The read2 size." value="" optional="false" />
+								<param name="R1_size" type="integer" label="Reads 1 size" help="The maximum read1 size." value="" optional="false" />
+								<param name="R2_size" type="integer" label="Reads 2 size" help="The maximum read2 size." value="" optional="false" />
 								<param name="mm_rate" type="float" label="mismatch rate." help="The maximum rate of mismatch in the overlap region" value="0.1" optional="false" />
-								<param name="keep_unmerged" type="boolean" label="Would you like to keep unmerged reads?" help="Unmerged reads will be excluded if No or artificially combined with 100 Ns if Yes. (default No)" />
+								<param name="keep_unmerged" type="boolean" label="Would you like to keep unmerged reads?" help="No : Unmerged reads will be excluded; Yes : unmerged reads will be artificially combined with 100 N. (default No)" />
 							</when>
-							<when value="already_contiged"></when>
+							<when value="already_merged"></when>
 						</conditional>
 					</when>
 					<when value="files_by_samples">
 						<conditional name="files_by_samples_type">
 							<param name="files_by_samples_type_selected" type="select" label="Reads already contiged ?" help="The inputs contain 1 file by sample : R1 and R2 are already merged by pair.">
 								<option value="paired" selected="true">No</option>
-								<option value="already_contiged">Yes</option>
+								<option value="already_merged">Yes</option>
 							</param>
 							<when value="paired">
 								<!-- Samples -->
@@ -130,12 +130,12 @@
 									<param format="fastq" name="R2_file" type="data" label="reads 2" help="R2 FASTQ file of paired-end reads." />
 								</repeat>
 								<!-- Reads size -->
-								<param name="R1_size" type="integer" label="Reads 1 size" help="The read1 size." value="" optional="false" />
-								<param name="R2_size" type="integer" label="Reads 2 size" help="The read2 size." value="" optional="false" />
+								<param name="R1_size" type="integer" label="Reads 1 size" help="The maximum read1 size." value="" optional="false" />
+								<param name="R2_size" type="integer" label="Reads 2 size" help="The maximum read2 size." value="" optional="false" />
 								<param name="mm_rate" type="float" label="mismatch rate." help="The maximum rate of mismatches in the overlap region" value="0.1" optional="false" />
-								<param name="keep_unmerged" type="boolean" label="Would you like to keep unmerged reads?" help="Unmerged reads will be excluded if No or artificially combined with 100 Ns if Yes. (default No)" />
+								<param name="keep_unmerged" type="boolean" label="Would you like to keep unmerged reads?" help="No : Unmerged reads will be excluded; Yes : unmerged reads will be artificially combined with 100 N. (default No)" />
 							</when>
-							<when value="already_contiged">
+							<when value="already_merged">
 								<repeat name="samples" title="Samples" min="1">
 									<param name="name" type="text" label="Name" help="The sample name." optional="false">
 										<validator type="empty_field" message="This parameter is required." />
@@ -306,7 +306,7 @@ How it works
    :widths: 5, 150, 150
    :class: table table-striped
 
-   "1", "For un-merged data: merges R1 and R2 with a maximum of M% mismatch in the overlaped region(`VSEARCH &lt;https://github.com/torognes/vsearch/&gt;`_). Resulting un-merged reads are artificially combined by adding 100 Ns between the reads", "/"
+   "1", "For un-merged data: merges R1 and R2 with a maximum of M% mismatch in the overlaped region(`VSEARCH &lt;https://github.com/torognes/vsearch/&gt;`_). Resulting un-merged reads may optionnaly be artificially combined by adding 100 N between the reads", "/"
    "2", "If sequencing protocol is the illumina standard protocol : Removes sequences where the two primers are not present and then remove primers in the remaining sequence (`cutadapt &lt;http://cutadapt.readthedocs.org/en/latest/guide.html&gt;`_). The primer search accepts 10% of differences", "Removes sequences where the two primers are not present, removes primers sequence and reverse complement the sequences on strand -  (`cutadapt &lt;http://cutadapt.readthedocs.org/en/latest/guide.html&gt;`_). The primer search accepts 10% of differences"
    "3", "Filters sequences with ambiguous nucleotides and for merged sequences filters on their length which must be range between 'Minimum amplicon size - primer length' and 'Maximum amplicon size - primer length'", "the tool removes sequences with at least one homopolymer with more than seven nucleotides and with a distance of less than or equal to 10 nucleo-tides between two poor quality positions, i.e. with a Phred quality score lesser than 10" 
    "4", "Dereplicates sequences", "Dereplicates sequences"
@@ -316,6 +316,12 @@ How it works
 .. class:: infomark page-header h2
 
 Advices/details on parameters
+
+.. class:: h3
+
+Keeping or not un-merged paired reads
+
+This option is usefull when and only when, targeted amplicon is longer than the sequencing technology can provide (ITS amplicon for example). In other case, you will only keep noise in your analysis.
 
 .. class:: h3
 
@@ -353,9 +359,9 @@ Amplicons sizes parameters
 
 .. class:: h3
 
-If the filter 'overlapped' reduce drasticaly the number of sequences:
+If the filter 'merged' reduce drasticaly the number of sequences:
 
- In un-merged Illumina data, the reduction of dataset by the overlapped filter is classicaly inferior than 20%. A loss of more than 20% in all samples can highlight a quality problem.
+ In un-merged Illumina data, the reduction of dataset by the merged filter is classicaly inferior than 20%. A loss of more than 20% in all samples can highlight a quality problem.
  
  If the overlap between R1 and R2 is superior to 50 nucleotides and the quality of the end of the sequences is poor (see `FastQC &lt;http://www.bioinformatics.babraham.ac.uk/projects/fastqc/&gt;`_) you can try to cut the end of your sequences and relaunch the preprocess tool. You can either raise the mismatch percent in the overlapped region, but not too much!
 
