@@ -92,11 +92,11 @@ class Pear(Cmd):
         @log_file: [str] Path to the sample process log file.
         """
         # Parse output
-        nb_seq_combined = get_nb_seq(self.output)
+        nb_seq_merged = get_nb_seq(self.output)
         # Write result
         FH_log = Logger( log_file )
         FH_log.write( 'Results:\n' )
-        FH_log.write( '\tnb seq combined: ' + str(nb_seq_combined) + '\n' )
+        FH_log.write( '\tnb seq merged: ' + str(nb_seq_merged) + '\n' )
         FH_log.close()
 
 class Vsearch(Cmd):
@@ -112,7 +112,7 @@ class Vsearch(Cmd):
         @param param: [Namespace] The 'param.min_amplicon_size', 'param.max_amplicon_size', 'param.R1_size', 'param.R2_size'
         """
         min_overlap=max(param.R1_size+param.R2_size-param.max_amplicon_size, 10)
-        max_diff = int(max(param.R1_size, param.R2_size)*param.mismatch_rate)
+        max_diff = int(min(param.R1_size, param.R2_size)*param.mismatch_rate)
 
         Cmd.__init__(self,
             'vsearch',
@@ -137,11 +137,11 @@ class Vsearch(Cmd):
         @summary: Parse the command results to add information in log_file.
         @log_file: [str] Path to the sample process log file.
         """
-        nb_seq_combined = get_nb_seq(self.output)
+        nb_seq_merged = get_nb_seq(self.output)
         # Write result
         FH_log = Logger( log_file )
         FH_log.write( 'Results:\n' )
-        FH_log.write( '\tnb seq combined: ' + str(nb_seq_combined) + '\n' )
+        FH_log.write( '\tnb seq merged: ' + str(nb_seq_merged) + '\n' )
         FH_log.close()
 
 class Flash(Cmd):
@@ -181,11 +181,11 @@ class Flash(Cmd):
         @log_file: [str] Path to the sample process log file.
         """
         # Parse output
-        nb_seq_combined = get_nb_seq(self.output)
+        nb_seq_merged = get_nb_seq(self.output)
         # Write result
         FH_log = Logger( log_file )
         FH_log.write( 'Results:\n' )
-        FH_log.write( '\tnb seq combined: ' + str(nb_seq_combined) + '\n' )
+        FH_log.write( '\tnb seq merged: ' + str(nb_seq_merged) + '\n' )
         FH_log.close()
 
 
@@ -386,7 +386,7 @@ class MultiFilter(Cmd):
             FH_log.write( '\tnb seq without nearest poor quality : ' + str(previous_nb_seq - filtered_on_quality) + '\n' )
             previous_nb_seq -= filtered_on_quality
         if filtered_on_tag is not None:
-            FH_log.write( '\tnb seq with expected tag : ' + str(previous_nb_seq - filtered_on_tag) + '\n' )
+            FH_log.write( '\t(nb seq with expected tag : ' + str(previous_nb_seq - filtered_on_tag) + ')\n' )
             previous_nb_seq -= filtered_on_tag
         FH_log.close()
 
@@ -421,7 +421,7 @@ class Combined(Cmd):
         # Write result
         FH_log = Logger( log_file )
         FH_log.write( 'Results:\n' )
-        FH_log.write( '\tnb seq combined: ' + str(nb_seq_combined) + '\n' )
+        FH_log.write( '\tnb seq merged: ' + str(nb_seq_combined) + '\n' )
         FH_log.close()
 
 
@@ -625,42 +625,52 @@ def get_seq_length_by_sample( input_file, count_file):
     FH_seq.close()
     return nb_by_length
 
-def summarise_results( samples_names, lengths_files, log_files, fasta, count, param ):
+def summarise_results( samples_names, lengths_files, log_files, ITSx_fasta, ITSx_count, param ):
     """
     @summary: Writes one summary of results from several logs.
     @param samples_names: [list] The samples names.
-    @param log_files: [list] The list of path to log files (in samples_names order).
     @param lengths_files: [list] The list of path to files containing the contiged sequences lengths (in samples_names order).
-    @param param: [str] The 'param.summary' , 'param.output_count', 'param.fungi' .
+    @param log_files: [list] The list of path to log files (in samples_names order).
+    @param param: [str] The 'param.summary' , 'param.fungi' .
     """
     # Get data
     categories = get_filter_steps(log_files[0])
-    filters_by_sample = {"before process":{}, "extended":{}}
+    if args.already_contiged and args.sequencer == "illumina":
+        categories.insert(1,"input sequences")
+    elif args.sequencer == "454":
+        categories.insert(1,"input sequences")
+    filters_by_sample = {"before process":{}, "combined":{}}
     before_lengths_by_sample = dict()
     after_lengths_by_sample = dict()
     
-    # compute ITSx final filter by sample
+    # compute ITSx final filter by sample and sample length distribution
     if param.fungi :
         categories.append("ITS")
-        filters_ITSx = get_ITSx_results(count)
-        after_lengths_by_sample = get_seq_length_by_sample( fasta, count )
+        filters_ITSx = get_ITSx_results(ITSx_count)
+        after_lengths_by_sample = get_seq_length_by_sample( ITSx_fasta, ITSx_count )
 
     # recover all filter by sample
     for spl_idx, spl_name in enumerate(samples_names):
 
         filters = get_sample_results(log_files[spl_idx])
         filters_by_sample["before process"][spl_name] = filters["before process"]
-        filters_by_sample["extended"][spl_name] = filters["extended"]
-        
+        filters_by_sample["combined"][spl_name] = filters["combined"]
+        # add input sequences in table
+        if args.already_contiged and args.sequencer == "illumina":
+            filters_by_sample["combined"][spl_name]["input sequences"] = filters["before process"]
+        if args.sequencer == "454":
+            filters_by_sample["combined"][spl_name]["input sequences"] = filters["before process"]
+
         if "artificial combined" in filters:
             if not "artificial combined" in filters_by_sample:
                 filters_by_sample["artificial combined"] = {}
             filters_by_sample["artificial combined"][spl_name] = filters["artificial combined"]
         
         if param.fungi:
-            filters_by_sample["extended"][spl_name]["ITS"] = filters_ITSx["extended"][spl_name]
+            filters_by_sample["combined"][spl_name]["ITS"] = filters_ITSx["combined"][spl_name]
             filters_by_sample["artificial combined"][spl_name]["ITS"] = filters_ITSx["artificial combined"][spl_name]
         
+        # length distribution
         with open(lengths_files[spl_idx]) as FH_lengths:
             lenghts = json.load(FH_lengths)
             before_lengths_by_sample[spl_name] = lenghts["before"]
@@ -714,9 +724,9 @@ def get_sample_results( log_file ):
     @param log_file: [str] Path to a log file.
     @return: [list] The number of sequences after each filter.
     """
-    nb_seq = {"before process":0, "extended":{}}
+    nb_seq = {"before process":0, "combined":{}}
     FH_input = open(log_file)
-    key="extended"
+    key="combined"
     for line in FH_input:
         if "combine_and_split" in line:
             key="artificial combined"
@@ -734,16 +744,16 @@ def get_ITSx_results(in_count):
     """
     @summary : count number of output ITS sequence by sample_name
     @in_count [str] : final count file
-    @return : dict{"extended" : {"sample_name" : <int>}, "artificial combined" : { "sample_name": <int>} } 
+    @return : dict{"combined" : {"sample_name" : <int>}, "artificial combined" : { "sample_name": <int>} } 
     """
-    nb_seq = {"extended" : {}, "artificial combined" : {}}
+    nb_seq = {"combined" : {}, "artificial combined" : {}}
     samples_names = list()
 
     FH_in = open(in_count)
     for line in FH_in:
         if line.startswith("#id") : 
             samples_names = line.strip().split("\t")[1:]
-            nb_seq["extended"] = {s:0 for s in samples_names}
+            nb_seq["combined"] = {s:0 for s in samples_names}
             nb_seq["artificial combined"] = {s:0 for s in samples_names}
         else:
             seq_id = line.split()[0]
@@ -752,8 +762,7 @@ def get_ITSx_results(in_count):
                 if "FROGS_combined" in seq_id : 
                     nb_seq["artificial combined"][sample] += int(count)
                 else:
-                    nb_seq["extended"][sample] += int(count)
-
+                    nb_seq["combined"][sample] += int(count)
 
     FH_in.close()
     return nb_seq
@@ -1012,7 +1021,7 @@ def process_sample(R1_file, R2_file, sample_name, out_file, art_out_file, length
             FH_lengths.write( json.dumps(length_dict))
 
         # dealing with uncontiged reads.
-        if not args.already_contiged :
+        if args.keep_unmerged:
             Combined(out_notcombined_R1, out_notcombined_R2, "X"*100, out_artificial_combined ).submit(log_file)
             if args.sequencer == "454" :
                 Remove454prim(out_artificial_combined, art_out_cutadapt, art_log_3prim_cutadapt, args).submit(log_file)
@@ -1115,7 +1124,7 @@ def process( args ):
             summarise_results( samples_names, lengths_files, log_files, fasta_itsx, count_itsx, args )
         else : 
             DerepGlobalMultiFasta(filtered_files, samples_names, tmp_files.add('derep_inputs.tsv'), args.output_dereplicated, args.output_count, args).submit( args.log_file )
-            summarise_results( samples_names, lengths_files, log_files, args.output_dereplicated, args.output_count, args )
+            summarise_results( samples_names, lengths_files, log_files, None, None, args )
 
         
         # Check the number of sequences after filtering
@@ -1182,7 +1191,7 @@ if __name__ == "__main__":
       --min-amplicon-size MIN_AMPLICON_SIZE
       --max-amplicon-size MAX_AMPLICON_SIZE
       --without-primers | --five-prim-primer FIVE_PRIM_PRIMER --three-prim-primer THREE_PRIM_PRIMER
-      [--fungi {ITS1,ITS2}]
+      [--fungi {ITS1,ITS2}] [--keep-unmerged]
       [--samples-names SAMPLE_NAME [SAMPLE_NAME ...]]
       [-p NB_CPUS] [--debug] [-v]
       [-d DEREPLICATED_FILE] [-c COUNT_FILE] [--artComb-output-dereplicated ART_DEREPLICATED_FILE] [--artComb-output-count ART_COUNT_FILE]
@@ -1195,13 +1204,14 @@ if __name__ == "__main__":
       --min-amplicon-size MIN_AMPLICON_SIZE
       --max-amplicon-size MAX_AMPLICON_SIZE
       --without-primers | --five-prim-primer FIVE_PRIM_PRIMER --three-prim-primer THREE_PRIM_PRIMER
-      [--fungi {ITS1,ITS2}]
+      [--fungi {ITS1,ITS2}] [--keep-unmerged]
       [-p NB_CPUS] [--debug] [-v]
       [-d DEREPLICATED_FILE] [-c COUNT_FILE] [-c COUNT_FILE] [--artComb-output-dereplicated ART_DEREPLICATED_FILE] [--artComb-output-count ART_COUNT_FILE]
       [-s SUMMARY_FILE] [-l LOG_FILE]
 ''')
     #     Illumina parameters
     parser_illumina.add_argument( '--fungi', type=str, required=False,  choices=['ITS1','ITS2'], help='Which the fungi ITS region is targeted: either ITS1 or ITS2' )
+    parser_illumina.add_argument( '--keep-unmerged', default=False, action='store_true', help='In case of uncontiged paired reads, keep unmerged, and artificially combined them with 100 Ns.' )
     parser_illumina.add_argument( '--min-amplicon-size', type=int, required=True, help='The minimum size for the amplicons.' )
     parser_illumina.add_argument( '--max-amplicon-size', type=int, required=True, help='The maximum size for the amplicons.' )
     parser_illumina.add_argument( '--five-prim-primer', type=str, help="The 5' primer sequence (wildcards are accepted)." )
@@ -1262,7 +1272,7 @@ if __name__ == "__main__":
     group_454_output.add_argument( '-s', '--summary', default='summary.html', help='HTML file with summary of filters results. [Default: %(default)s]')
     group_454_output.add_argument( '-l', '--log-file', default=sys.stdout, help='This output file will contain several information on executed commands.')
     parser_454.set_defaults( sequencer='454' )
-    parser_454.set_defaults( already_contiged=True )
+    parser_454.set_defaults( already_contiged=True, keep_unmerged=False )
 
     # Parse parameters
     args = parser.parse_args()
@@ -1293,6 +1303,7 @@ if __name__ == "__main__":
         else:
             if args.five_prim_primer is None or args.three_prim_primer is None: raise argparse.ArgumentTypeError( "'--five-prim-primer/--three-prim-primer' or 'without-primers'  must be setted." )
             if args.min_amplicon_size <= (len(args.five_prim_primer) + len(args.five_prim_primer)): raise argparse.ArgumentTypeError( "The minimum length of the amplicon (--min-length) must be superior to the size of the two primers." )
+        if (args.already_contiged and args.keep_unmerged): raise Exception("--already-contiged and keep-unmerged options cannot be used together")
 
     # Process
     process( args )

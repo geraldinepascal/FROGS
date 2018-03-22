@@ -144,20 +144,21 @@
              * @param pSeries {Array} The HightChart series.
              * @param unity {String} Unity used in tooltip.
              * @return {Hash} Parameters to use in Highchart's constructor.
-             */           
-            var histogram_param = function( pTitle, pSubtitle, pYTitle, pCategories, pSeries, unity ) {
+             */
+             // couleur des diapos : bleu #8EADAC, vert : #A2A32F, orange1 #C6792B , taupe #9A866C, orange pastel : #DE9F73
+            var histogram_param = function( pTitle, nb, pYTitle, pCategories, pSeries, unity ) {
                 var param = {
                     chart: {
                         type: 'column'
                     },
                     colors : [
-                            '#7cb5ec', '#4E9A06'
+                            '#8EADAC', '#DE9F73'
                     ] ,
                     title: {
                         text: pTitle
                     },
                     subtitle: {
-                        text: pSubtitle
+                        text: 'starting from : ' + nb + ' sequences'
                     },
                     xAxis: [{
                         categories: pCategories,
@@ -167,7 +168,12 @@
                         min: 0,
                         title: {
                             text: pYTitle
-                        }
+                        },
+                        plotLines:[{
+                            color: "#A2A32F",
+                            width: 2,
+                            value: nb
+                        }]
                     },
                     tooltip: {
                         formatter: function() {
@@ -180,7 +186,7 @@
                                 sum += point.y;
                                 }
                             );
-                            s += '<br/>total : '+sum
+                            s += '<br/>total : '+ sum + ' ( ' + Number(Math.round(sum*100/nb + "e+2")  + "e-2")  + '%)'
                             return s;
                         },
                         shared: true,
@@ -217,7 +223,7 @@
                 "artificial combined": {
                     "sampleA": {"with 3' primer": 100, "without N": 100, "with 5' primer": 200, "combined": 300}, 
                     "sampleB": {"with 3' primer": 0, "without N": 0, "with 5' primer": 0, "combined": 0}}, 
-                "extended": {
+                "combined": {
                     "sampleA": {"with expected length": 997, "with 3' primer": 997, "without N": 997, "with 5' primer": 997, "combined": 1000}, 
                     "sampleB": {"with expected length": 634, "with 3' primer": 727, "without N": 619, "with 5' primer": 800, "combined": 834}}, 
                 "before process": {"sampleA": 1300, "sampleB": 834}
@@ -313,7 +319,7 @@
                 var extended_data = new Array();
                 var non_overlapped_data = new Array();
 
-                for( var spl_name in filters_by_sample["extended"] ){
+                for( var spl_name in filters_by_sample["combined"] ){
                     total_input += filters_by_sample["before process"][spl_name] ;
                     for ( var cat_idx = 1 ; cat_idx < filters_categories.length ; cat_idx++ ){
                         var cat = filters_categories[cat_idx] ;
@@ -322,8 +328,8 @@
                             non_overlapped_data.push(0);
                         }
                         
-                        if (cat in filters_by_sample["extended"][spl_name]){
-                            extended_data[cat_idx-1] += filters_by_sample["extended"][spl_name][cat] ;    
+                        if (cat in filters_by_sample["combined"][spl_name]){
+                            extended_data[cat_idx-1] += filters_by_sample["combined"][spl_name][cat] ;    
                         }else{
                             extended_data[cat_idx-1] = extended_data[cat_idx-2] ;
                         }
@@ -338,11 +344,11 @@
                     } 
 
                 }
-                var global_series = [ { name: 'extended', data: extended_data }]
+                var global_series = [ { name: 'combined', data: extended_data }]
                 if ("artificial combined" in filters_by_sample) {
                     global_series.push({name: 'artificial combined', data: non_overlapped_data});
                 }
-                $('#filter-summary').highcharts( histogram_param('Filtering summary','starting from : ' + total_input + ' sequences', 'Nb sequences', filters_categories.slice(0-filters_categories.length+1), global_series, 'seq') );
+                $('#filter-summary').highcharts( histogram_param('Filtering summary', total_input, 'Nb sequences', filters_categories.slice(0-filters_categories.length+1), global_series, 'seq') );
             }
 
             /**
@@ -435,7 +441,7 @@
                     "fnDrawCallback": updateButtonState
                 });
                 // Datatable export
-                $('#'+tableId+'-export').html( '<button class="btn btn-primary"><span class="glyphicon glyphicon-open-file" aria-hidden="true">CSV</span></button>' );
+                $('#'+tableId+'-export').html( '<button class="btn btn-primary" style="background-color:#8EADAC;border:#8EADAC"><span class="glyphicon glyphicon-open-file" aria-hidden="true">CSV</span></button>' );
                 $('#'+tableId+'-export').addClass( 'dataTables_filter' );
                 if ( checkBox){
                     $('#'+tableId+'-export').datatableExport({
@@ -471,10 +477,10 @@
                 summaryLoad();
                 
                 // Display data by sample
-                if ("extended" in filters_by_sample ){
-                    sampleDetailsLoad("extended",true, "filterBySample-table-overlapped", true);
+                if ("combined" in filters_by_sample ){
+                    sampleDetailsLoad("combined",true, "filterBySample-table-combined", true);
                 }else{
-                    $("#filterBySample-table-overlapped").remove();
+                    $("#filterBySample-table-combined").remove();
                 }
                 if ("artificial combined" in filters_by_sample ){
                     sampleDetailsLoad("artificial combined", false, "filterBySample-table-artificialCombined", false);    
@@ -495,7 +501,7 @@
         <div id="content" class="hidden">
             <div id="filter-summary"></div>
             <div id="filter-log">
-                <table id="filterBySample-table-overlapped" class="table table-striped">
+                <table id="filterBySample-table-combined" class="table table-striped">
                     <thead>
                         <tr>
                             <th class="title">Filtering by sample : details on full length amplicon reads</th>
@@ -506,8 +512,8 @@
                         <tr>
                             <th>
                                 <span class="table-action">With selection:</span>
-                                <button id="display-spl-lengths" class="btn btn-primary table-action fusion-right disabled" data-toggle="modal" data-target="#lengths-modal" data-whatever="before-process">Display amplicon lengths </button>
-                                <button id="display-after-spl-lengths" class="btn btn-primary table-action disabled" data-toggle="modal" data-target="#lengths-modal" data-whatever="after-process">Display preprocessed amplicon lengths</button>
+                                <button id="display-spl-lengths" class="btn btn-primary table-action fusion-right disabled" data-toggle="modal" data-target="#lengths-modal" data-whatever="before-process" style="background-color:#8EADAC;border:#8EADAC">Display amplicon lengths </button>
+                                <button id="display-after-spl-lengths" class="btn btn-primary table-action disabled" data-toggle="modal" data-target="#lengths-modal" data-whatever="after-process" style="background-color:#8EADAC;border:#8EADAC">Display preprocessed amplicon lengths</button>
                             </th>
                         </tr>
                     </tfoot>

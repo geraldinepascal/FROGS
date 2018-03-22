@@ -44,6 +44,9 @@
 		    #elif $sequencer_type.sequencer_selected == "illumina"
 	            --R1-size $sequencer_type.input_type.archive_type.R1_size --R2-size $sequencer_type.input_type.archive_type.R2_size 
 	        	--mismatch-rate $sequencer_type.input_type.archive_type.mm_rate
+	        	#if $sequencer_type.input_type.archive_type.keep_unmerged
+	        		--keep-unmerged
+	        	#end if
 		    #end if
 		#else
 		    #set $sep = ' '
@@ -65,6 +68,9 @@
 		            #end for
 		            --R1-size $sequencer_type.input_type.files_by_samples_type.R1_size --R2-size $sequencer_type.input_type.files_by_samples_type.R2_size 
 		            --mismatch-rate $sequencer_type.input_type.files_by_samples_type.mm_rate
+		            #if $sequencer_type.input_type.files_by_samples_type.keep_unmerged
+	        			--keep-unmerged
+	        		#end if
 		        #end if
 		    #else
 		        --input-R1 
@@ -103,6 +109,7 @@
 								<param name="R1_size" type="integer" label="Reads 1 size" help="The read1 size." value="" optional="false" />
 								<param name="R2_size" type="integer" label="Reads 2 size" help="The read2 size." value="" optional="false" />
 								<param name="mm_rate" type="float" label="mismatch rate." help="The maximum rate of mismatch in the overlap region" value="0.1" optional="false" />
+								<param name="keep_unmerged" type="boolean" label="Would you like to keep unmerged reads?" help="Unmerged reads will be excluded if No or artificially combined with 100 Ns if Yes. (default No)" />
 							</when>
 							<when value="already_contiged"></when>
 						</conditional>
@@ -126,6 +133,7 @@
 								<param name="R1_size" type="integer" label="Reads 1 size" help="The read1 size." value="" optional="false" />
 								<param name="R2_size" type="integer" label="Reads 2 size" help="The read2 size." value="" optional="false" />
 								<param name="mm_rate" type="float" label="mismatch rate." help="The maximum rate of mismatches in the overlap region" value="0.1" optional="false" />
+								<param name="keep_unmerged" type="boolean" label="Would you like to keep unmerged reads?" help="Unmerged reads will be excluded if No or artificially combined with 100 Ns if Yes. (default No)" />
 							</when>
 							<when value="already_contiged">
 								<repeat name="samples" title="Samples" min="1">
