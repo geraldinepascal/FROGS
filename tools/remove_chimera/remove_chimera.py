@@ -209,8 +209,12 @@ if __name__ == "__main__":
         tmp_log  = tmpFiles.add(os.path.basename(args.non_chimera) + "_tmp.log")
         size_separator = get_size_separator( args.input_fasta )
         if args.input_count is None:
+            if args.out_abundance == None:
+                args.out_abundance = "non_chimera_abundance.biom"
             ParallelChimera( args.input_fasta, args.input_biom, args.non_chimera, args.out_abundance, tmp_chimera_summary, "biom", args.nb_cpus, tmp_log, size_separator ).submit( args.log_file )
         else:
+            if args.out_abundance == None:
+                args.out_abundance = "non_chimera_abundance.count"
             ParallelChimera( args.input_fasta, args.input_count, args.non_chimera, args.out_abundance, tmp_chimera_summary, "count", args.nb_cpus, tmp_log, size_separator ).submit( args.log_file )
         write_summary( args.summary, tmp_chimera_summary )
         
