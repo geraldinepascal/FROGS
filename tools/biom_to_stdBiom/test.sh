@@ -17,14 +17,6 @@ fi
 
 # BIOM with affiliation
 ./biom_to_stdBiom.py \
- --ref blast_taxonomy \
  --input-biom data/affiliation.biom \
  --output-biom test/abundance_blast.biom \
  --log-file test/log_blast.txt
-
-#  # BIOM with affiliation
-./biom_to_stdBiom.py \
- --ref rdp_taxonomy \
- --input-biom data/affiliation.biom \
- --output-biom test/abundance_rdp.biom \
- --log-file test/log_rdp.txt
