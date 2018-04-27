@@ -117,7 +117,7 @@ class Vsearch(Cmd):
         Cmd.__init__(self,
             'vsearch',
             'join overlapping paired reads',
-             ' --fastq_mergepairs ' + in_R1 + ' --reverse ' + in_R2 \
+             ' --threads 1 --fastq_mergepairs ' + in_R1 + ' --reverse ' + in_R2 \
              + ' --fastqout ' + out_prefix + '.assembled.fastq ' + ' --fastqout_notmerged_fwd ' + out_prefix + '.unassembled_R1.fastq ' + ' --fastqout_notmerged_rev ' + out_prefix + '.unassembled_R2.fastq '\
              + ' --fastq_allowmergestagger --fastq_ascii ' + param.quality_scale + ' --fastq_maxdiffs ' + str(max_diff) + ' --fastq_minovlen ' + str(min_overlap) \
              + ' 2> ' + log,
