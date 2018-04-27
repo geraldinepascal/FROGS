@@ -1194,7 +1194,7 @@ if __name__ == "__main__":
       [--fungi {ITS1,ITS2}] [--keep-unmerged]
       [--samples-names SAMPLE_NAME [SAMPLE_NAME ...]]
       [-p NB_CPUS] [--debug] [-v]
-      [-d DEREPLICATED_FILE] [-c COUNT_FILE] [--artComb-output-dereplicated ART_DEREPLICATED_FILE] [--artComb-output-count ART_COUNT_FILE]
+      [-d DEREPLICATED_FILE] [-c COUNT_FILE] 
       [-s SUMMARY_FILE] [-l LOG_FILE]
 
   For samples archive:
@@ -1219,7 +1219,6 @@ if __name__ == "__main__":
     parser_illumina.add_argument( '--without-primers', action='store_true', default=False, help="Use this option when you use custom sequencing primers and these primers are the PCR primers. In this case the reads do not contain the PCR primers." )
     parser_illumina.add_argument( '--R1-size', type=int, help='The read1 size.' )
     parser_illumina.add_argument( '--R2-size', type=int, help='The read2 size.' )
-    # parser_illumina.add_argument( '--expected-amplicon-size', type=int, help='The expected size for the majority of the amplicons (with primers).' )
     parser_illumina.add_argument( '--mismatch-rate', type=float, default=0.1, help='Maxi mismatch rate in overlap region. [Default: %(default)s]' )
     parser_illumina.add_argument( '--quality-scale', type=str, default="33", choices=["33", "64"], help='The phred base quality scale, either 33 or 64 [Default: %(default)s]' )
     parser_illumina.add_argument( '--already-contiged', action='store_true', default=False, help='The archive contains 1 file by sample : Reads 1 and Reads 2 are already contiged by pair.' )
