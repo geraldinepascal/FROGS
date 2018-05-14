@@ -18,7 +18,7 @@
 __author__ = ' Ta Thi Ngan & Maria Bernard INRA - SIGENAE '
 __copyright__ = 'Copyright (C) 2017 INRA'
 __license__ = 'GNU General Public License'
-__version__ = '1.1.0'
+__version__ = '1.2.0'
 __email__ = 'frogs@inra.fr'
 __status__ = 'prod'
 
@@ -27,11 +27,19 @@ import sys
 import argparse
 
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
+FROGS_DIR=""
+if CURRENT_DIR.endswith("phylo_import"):
+    FROGS_DIR = os.path.dirname(os.path.dirname(CURRENT_DIR))
+else:
+    FROGS_DIR = os.path.dirname(CURRENT_DIR)
+
 # PATH
-BIN_DIR = os.path.abspath(os.path.join(os.path.dirname(CURRENT_DIR), "libexec"))
+BIN_DIR = os.path.abspath(os.path.join(FROGS_DIR, "libexec"))
 os.environ['PATH'] = BIN_DIR + os.pathsep + os.environ['PATH']
+APP_DIR = os.path.abspath(os.path.join(FROGS_DIR, "app"))
+os.environ['PATH'] = APP_DIR + os.pathsep + os.environ['PATH']
 # PYTHONPATH
-LIB_DIR = os.path.abspath(os.path.join(os.path.dirname(CURRENT_DIR), "lib"))
+LIB_DIR = os.path.abspath(os.path.join(FROGS_DIR, "lib"))
 sys.path.append(LIB_DIR)
 if os.getenv('PYTHONPATH') is None: os.environ['PYTHONPATH'] = LIB_DIR
 else: os.environ['PYTHONPATH'] = os.environ['PYTHONPATH'] + os.pathsep + LIB_DIR
@@ -75,6 +83,24 @@ class Rscript(Cmd):
         """
         return Cmd.get_version(self, 'stdout')
 
+class FROGSBiomToStdBiom(Cmd):
+    """
+    @summary : standardize FROGS biom file by keeping blast affiliation consensus as final taxonomy
+    """
+    def __init__(self, biom_in, biom_out, blast_metadata):
+        """
+        @param biom_in : [str] The FROGS input biom file path
+        @param biom_out : [str] The output standard biom file path
+        @param blast_metadata : [str] Output tsv file containing blast detailed affiliations
+        """    
+        Cmd.__init__(self,
+                    'biom_to_stdBiom.py',
+                    'standardize FROGS biom file',
+                    '--input-biom ' + biom_in + ' --output-biom ' + biom_out + ' --output-metadata ' + blast_metadata,
+                    '--version'
+        )
+
+
 ##################################################################################################################################################
 #
 # MAIN
@@ -108,9 +134,15 @@ if __name__ == "__main__":
     data=os.path.abspath(args.rdata)
     biomfile=os.path.abspath(args.biomfile)
     samplefile=os.path.abspath(args.samplefile)
+
     biom = BiomIO.from_json(biomfile)
+    to_standardize = False
     if not biom.has_metadata("taxonomy"):
-        raise Exception("Your biom input file has no standard taxonomy metadata. Coming from FROGS, did you forget to standardize your biom with FROGS Biom to std Biom ?\n")
+        if not biom.has_metadata("blast_taxonomy"):
+            raise Exception("Your biom input file is not comming from FROGS and has no standard taxonomy metadata.\n")
+        else:
+            to_standardize=True
+
     if (args.treefile is None) :
         treefile="None"
     else:
@@ -119,6 +151,11 @@ if __name__ == "__main__":
 
     try : 
         tmpFiles = TmpFiles(os.path.dirname(html))
+        if to_standardize:
+            std_biom = tmpFiles.add(os.path.basename(os.path.splitext(biomfile)[0])+".stdBiom")
+            blast_metadata = tmpFiles.add(os.path.basename(os.path.splitext(biomfile)[0])+".blast_metadata")
+            FROGSBiomToStdBiom(biomfile, std_biom, blast_metadata).submit(args.log_file)
+            biomfile = std_biom
         rmd_stderr = tmpFiles.add("rmarkdown.stderr")
         Rscript(biomfile, samplefile, treefile, html, str(args.normalization).upper(), data, ranks, rmd_stderr).submit(args.log_file)
     finally :
