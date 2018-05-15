@@ -438,8 +438,6 @@ if __name__ == "__main__":
     parser.add_argument( '-m', '--java-mem', type=int, default=2, help="Java memory allocation in Go. [Default: %(default)s]")
     parser.add_argument( '-t', '--taxonomy-ranks', nargs='*', default=["Domain", "Phylum", "Class", "Order", "Family", "Genus", "Species"], help='The ordered ranks levels present in the reference databank. [Default: %(default)s]' )
     parser.add_argument('--rdp', default=False,  action='store_true',  help="Use RDP classifier to affiliate OTU")
-    # parser.add_argument('--vsearch', default=False,  action='store_true',  help="Use Vsearch instead of blast classifier to affiliate OTU")
-    # parser.add_argument('--needleall', default=False,  action='store_true',  help="Use needleall instead of blast classifier to affiliate OTU")
     parser.add_argument( '-d', '--debug', default=False, action='store_true', help="Keep temporary files to debug program.")
     parser.add_argument( '-v', '--version', action='version', version=__version__)
     # Inputs
@@ -482,8 +480,7 @@ if __name__ == "__main__":
             Logger.static_write(args.log_file, "\t with nb seq artificially combined :" + str(nb_combined) +"\n")
         Logger.static_write(args.log_file,"\n")
 
-        #~ if args.nb_cpus == 1 or nb_seq < 100:
-        if args.nb_cpus == 1 :
+        if args.nb_cpus == 1 or nb_seq < 100:
             # kmer method affiliation
             # RDP
             if args.rdp:
@@ -497,12 +494,6 @@ if __name__ == "__main__":
                 needleall_out_list.append( tmpFiles.add( fasta_combined + ".needleall.blast_like" ) )
                 process_needleall(fasta_combined, sam_needleall_list[0],needleall_out_list[0], args.log_file, args.reference)
             
-            # # VSEARCH
-            # if args.vsearch:
-            #     vsearch_reference_db = os.path.splitext(args.reference)[0] + "udb" if os.path.exists(os.path.splitext(args.reference)[0] + "udb") else args.reference
-            #     aln_out_list.append( tmpFiles.add(os.path.basename(fasta_full_length) + ".vsearch") )
-            #     Vsearch(vsearch_reference_db, fasta_full_length, aln_out_list[0], 1).submit(args.log_file)
-
             # local alignment                 
             #BLAST
             blast_out_list.append( tmpFiles.add(os.path.basename(fasta_full_length) + ".blast") )
@@ -519,18 +510,12 @@ if __name__ == "__main__":
             # alignment method affiliation
             # global alignment
             if nb_combined > 0:
-                # split_fasta(fasta_combined, tmpFiles, max(1, int(args.nb_cpus/3)), fasta_needleall_list, args.log_file)
-                split_fasta(fasta_combined, tmpFiles, max(1, int(args.nb_cpus/2)), fasta_needleall_list, args.log_file)
+                split_fasta(fasta_combined, tmpFiles, max(1, int(args.nb_cpus/3)), fasta_needleall_list, args.log_file)
                 sam_needleall_list = [tmpFiles.add(os.path.basename(current_fasta) + ".needleall.sam", prefix="") for current_fasta in fasta_needleall_list ]
                 needleall_out_list = [tmpFiles.add(os.path.basename(current_fasta) + ".needleall.blast_like", prefix="") for current_fasta in fasta_needleall_list ]
                 log_needleall_list = [tmpFiles.add(os.path.basename(current_fasta) + ".needleall.log", prefix="" ) for current_fasta in fasta_needleall_list ]
                 needleall_parallel_submission( process_needleall, fasta_needleall_list, sam_needleall_list, needleall_out_list, log_needleall_list, len(fasta_needleall_list), args.reference)
-            # # VSEARCH
-            # if args.vsearch:
-            #     vsearch_reference_db = os.path.splitext(args.reference)[0] + ".udb" if os.path.exists(os.path.splitext(args.reference)[0] + "udb") else args.reference
-            #     aln_out_list.append( tmpFiles.add(os.path.basename(args.input_fasta) + ".vsearch") )
-            #     log_aln_list.append( tmpFiles.add(os.path.basename(args.input_fasta) + "_vsearch.log") )
-            #     Vsearch(vsearch_reference_db, args.input_fasta, aln_out_list[0], args.nb_cpus).submit(log_aln_list[0])
+            
             # BLAST
             blast_out_list.append(tmpFiles.add(os.path.basename(fasta_full_length) + ".blast") )
             log_blast_list.append( tmpFiles.add(os.path.basename(fasta_full_length) + "_blast.log") ) 
