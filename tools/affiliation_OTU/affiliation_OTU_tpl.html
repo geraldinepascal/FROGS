@@ -109,11 +109,15 @@
 				return '<table class="table table-striped">\n' + table_header + table_body + "</table>\n" ;
 			}
 			
+			// couleur des diapos : bleu #8EADAC, vert : #A2A32F, orange1 #C6792B , taupe #9A866C, orange pastel : #DE9F73
 			var histogram_param = function( pTitle, pYTitle, pCategories, pSeries, unity ) {
 				var param = {
 					chart: {
 						type: 'column'
 					},
+					colors : [
+                            '#8EADAC', '#DE9F73'
+                    ] ,
 					title: {
 						text: pTitle
 					},
@@ -160,11 +164,15 @@
 			* @return {Hash} The hash.
 			* @warning This method use HightChart xAxis.categories.
 			*/
+			// couleur des diapos : bleu #8EADAC, vert : #A2A32F, orange1 #C6792B , taupe #9A866C, orange pastel : #DE9F73
 			var chartplot = function( pTitle, pXTitle, pYTitle, pXCategories, pData ) {
 				var chart = {
 						title: {
 							text: pTitle
 						},
+						colors : [
+                            '#8EADAC', '#DE9F73'
+                    	] ,
 						xAxis: {},
 						yAxis: {
 							title: {
@@ -285,7 +293,7 @@
 				$('#samples-details table').DataTable({
 					"sDom": '<"top"<"#details-csv-export"><"clear">lf>rt<"bottom"ip><"clear">'
 				});
-				$('#details-csv-export').html( '<button class="btn btn-primary"><span class="glyphicon glyphicon-open-file" aria-hidden="true">CSV</span></button>' );
+				$('#details-csv-export').html( '<button class="btn btn-primary" style="background-color:#8EADAC;border:#8EADAC" ><span class="glyphicon glyphicon-open-file" aria-hidden="true" >CSV</span></button>' );
 				$('#details-csv-export').addClass( 'dataTables_filter' );
 				$('#details-csv-export').datatableExport({
 					'table_id': "details-table"

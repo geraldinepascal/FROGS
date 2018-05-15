@@ -7,17 +7,18 @@ export PYTHONPATH=$FROGS_DIR/lib:$PYTHONPATH
 if [ ! -d "test" ]
 then
     mkdir test
+else
+   rm test/*
 fi
 
 #Blast
-echo "#Blast"
-./affiliation_OTU.py --reference data/db.fasta \
-                     --input-biom data/swarm.biom --input-fasta data/swarm.fasta \
-                     --output-biom test/Blast_affiliation.biom \
-                     --summary test/Blast_summary.html --log-file test/Blast_aff.log
+./affiliation_OTU.py --nb-cpus 4 --reference data/db.fasta \
+                     --input-biom data/filter_modified.biom --input-fasta data/filter_modified.fasta \
+                     --output-biom test/Needle_affiliation.biom \
+                     --summary test/Needle_summary.html --log-file test/Needle_aff.log
 #Blast and RDP
-echo "#Blast and RDP"
-./affiliation_OTU.py --reference data/db.fasta --rdp\
-                     --input-biom data/swarm.biom --input-fasta data/swarm.fasta \
-                     --output-biom test/Blast_RDP_affiliation.biom \
-                     --summary test/Blast_RDP_summary.html --log-file test/Blast_RDP_aff.log
+#~ echo "#Blast and RDP"
+#~ ./affiliation_OTU.py --reference data/db.fasta --rdp\
+                     #~ --input-biom data/swarm.biom --input-fasta data/swarm.fasta \
+                     #~ --output-biom test/Blast_RDP_affiliation.biom \
+                     #~ --summary test/Blast_RDP_summary.html --log-file test/Blast_RDP_aff.log

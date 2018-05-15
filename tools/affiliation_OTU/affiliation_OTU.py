@@ -19,7 +19,7 @@
 __author__ = 'Maria Bernard INRA - SIGENAE AND Frederic Escudie - Plateforme bioinformatique Toulouse'
 __copyright__ = 'Copyright (C) 2015 INRA'
 __license__ = 'GNU General Public License'
-__version__ = '0.11.0'
+__version__ = 'r3.0-v2.0'
 __email__ = 'frogs@inra.fr'
 __status__ = 'prod'
 
@@ -65,7 +65,7 @@ class Blast(Cmd):
                       "-num_threads " + str(nb_cpus) + " -task megablast -word_size 38 -max_target_seqs 500 -outfmt '6 qseqid sseqid pident length mismatch gapopen qstart qend sstart send evalue bitscore qlen' -query "+ query_fasta +" -out "+ output_blast +" -db " + ref_fasta,
                       "-version")
 
-        self.output = output_blast
+        # self.output = output_blast
 
     def get_version(self):
         """
@@ -73,6 +73,73 @@ class Blast(Cmd):
         @return: version number if this is possible, otherwise this method return 'unknown'.
         """
         return Cmd.get_version(self, 'stdout').split()[1].strip()
+
+class NeedleAll(Cmd):
+    def __init__(self, ref_fasta, query_fasta, output_sam):
+        """
+        @param ref_fasta: [str] Path to the reference fasta file (blast indexed).
+        @param query_fasta: [str] Path to the query fasta file to submit to blast
+        @param output_blast: [str] Path to blast results.
+        @param nb_cpus: [int] Number of usable CPUs.
+        """
+        Cmd.__init__( self,
+                      "needleall",
+                      "needleall taxonomic affiliation",
+                      "-asequence " + ref_fasta + " -bsequence " + query_fasta + " -outfile " + output_sam + " -aformat3 sam -gapopen 10.0 -gapextend 0.5 2> /dev/null",
+                      "-version")
+
+        # self.output = output_blast
+
+    def get_version(self):
+        """
+        @summary: Returns the program version number.
+        @return: version number if this is possible, otherwise this method return 'unknown'.
+        """
+        return Cmd.get_version(self, 'stderr').strip()
+
+class NeedleallSam_to_tsv(Cmd):
+    def __init__(self, input_sam, input_ref, output_tsv):
+        """
+        @param input_sam: [str] Path to NeedleAll Sam output file.
+        @param input_ref: [str] Path to reference fasta file use for NeedleAll alignment.
+        @param output_tsv: [int] Path to ouput Blast like tsv file.
+        """
+        Cmd.__init__( self,
+                      "needleallSam_to_tsv.py",
+                      "convert NeedleAll Sam output in blast like tsv output sorted by bitscore",
+                      "-n " + input_sam + " -r " + input_ref + " -b " + output_tsv,
+                      "-v")
+
+    def get_version(self):
+        """
+        @summary: Returns the program version number.
+        @return: version number if this is possible, otherwise this method return 'unknown'.
+        """
+        return Cmd.get_version(self, 'stderr').strip()
+
+
+class Vsearch(Cmd):
+    def __init__(self, ref, query_fasta, output_vsearch, nb_cpus):
+        """
+        @param ref: [str] Path to the reference file (fasta or pre indexed udb file)
+        @param query_fasta: [str] Path to the query fasta file to submit to blast
+        @param output_blast: [str] Path to blast results.
+        @param nb_cpus: [int] Number of usable CPUs.
+        """
+        Cmd.__init__( self,
+                      "vsearch",
+                      "vsearch taxonomic affiliation",
+                      "--usearch_global "+ query_fasta +" --db " + ref +" --threads " + str(nb_cpus) + " --id 0 --iddef 2 --strand both --top_hits_only --maxaccepts 500 --userfields query+target+id+alnlen+mism+opens+qilo+qihi+tilo+tihi+evalue+bits+ql --userout " + output_vsearch + " 2> /dev/null",
+                      "--version")
+
+        # self.output = output_vsearch
+
+    def get_version(self):
+        """
+        @summary: Returns the program version number.
+        @return: version number if this is possible, otherwise this method return 'unknown'.
+        """
+        return Cmd.get_version(self, 'stderr').split(",")[0].split()[1]
 
 
 class RDPAffiliation(Cmd):
@@ -128,23 +195,33 @@ class AddAffiliation2Biom(Cmd):
 ###################################################################################################################
 ###                                 OTU AFFILIATION FUNCTIONS                                                   ###
 ###################################################################################################################
-def get_fasta_nb_seq( fasta_file ):
+def extract_FROGS_combined(input_fasta, fasta_full_length, fasta_combined):
     """
-    @summary: Returns the number of sequences in fasta_file.
-    @param fasta_file: [str] Path to the fasta file processed.
-    @return: [int] The number of sequences.
+    @summary: separate, FROGS artiificila combined OTU (replacing N by "-") and full length OTU.
+    @param input_fasta : [str] Path to input fasta file
+    @param fasta_full_length : [str] Path to output fasta file of full length OTU
+    @param fasta_combined : [str] Path to output fasta file of artiificial combined OTU
     """
-    FH_input = None
-    if not is_gzip(fasta_file):
-        FH_input = open( fasta_file )
-    else:
-        FH_input = gzip.open( fasta_file )
-    nb_seq = 0
-    for line in FH_input:
-        if line.startswith(">"):
-            nb_seq += 1
+
+    FH_input = FastaIO(input_fasta)
+    FH_FL = FastaIO(fasta_full_length, "w")
+    FH_AC = FastaIO(fasta_combined, "w")
+
+    nb = 0
+    nb_combined = 0
+    for record in FH_input:
+        nb += 1
+        if "N" in record.string:
+            nb_combined +=1
+            record.string.replace("N","-")
+            FH_AC.write(record)
+        else:
+            FH_FL.write(record)
     FH_input.close()
-    return nb_seq
+    FH_FL.close()
+    FH_AC.close()
+
+    return nb,nb_combined
 
 def split_fasta(fasta_file, tmp_files_manager, nb_file, out_list, log_file):
     """
@@ -160,7 +237,10 @@ def split_fasta(fasta_file, tmp_files_manager, nb_file, out_list, log_file):
     for idx, record in enumerate(record_iter):
         out_file_idx = idx % nb_file
         if len(out_files) == 0 or not out_file_idx < len(out_files):
-            new_out_file = tmp_files_manager.add( os.path.basename(fasta_file) + "_" + str(out_file_idx) )
+            if fasta_file.startswith(tmp_files_manager.prefix):
+                new_out_file = tmp_files_manager.add( os.path.basename(fasta_file) + "_" + str(out_file_idx) , prefix="" )
+            else: 
+                new_out_file = tmp_files_manager.add( os.path.basename(fasta_file) + "_" + str(out_file_idx) )
             out_files.append({ 'file_path': new_out_file,
                                'file_handle': FastaIO(new_out_file, "w"),
                                'nb_seq': 0
@@ -178,18 +258,6 @@ def split_fasta(fasta_file, tmp_files_manager, nb_file, out_list, log_file):
     for out_file in out_files:
         FH_log.write( "\tWrote " + str(out_file['nb_seq']) + " records to " + out_file['file_path'] + "\n" )
     FH_log.close()
-
-def process_rdp(input, output, log_file, reference, memory):
-    """
-    @summary: Launches RDP.
-    @param input: [str] Path to the query fasta file to submit to RDP.
-    @param output: [str] Path to rdp results.
-    @param log_file: [str] Path to rdp log.
-    @param reference: [str] Path to the reference fasta file (rdp formated).
-    @param memory: [int] Memory used by RDP.
-    """
-    rdp_cmd = RDPAffiliation(reference, input, output, memory)
-    rdp_cmd.submit(log_file)
 
 def summarise_results( summary_file, biom_file, taxonomy_ranks ):
     """
@@ -283,7 +351,19 @@ def log_append_files(log_file, appended_files):
     FH_log.write("\n")
     FH_log.close()
 
-def parallel_submission( function, inputs, outputs, logs, cpu_used, reference, memory):
+def process_rdp(input, output, log_file, reference, memory):
+    """
+    @summary: Launches RDP.
+    @param input: [str] Path to the query fasta file to submit to RDP.
+    @param output: [str] Path to rdp results.
+    @param log_file: [str] Path to rdp log.
+    @param reference: [str] Path to the reference fasta file (rdp formated).
+    @param memory: [int] Memory used by RDP.
+    """
+    rdp_cmd = RDPAffiliation(reference, input, output, memory)
+    rdp_cmd.submit(log_file)
+
+def rdp_parallel_submission( function, inputs, outputs, logs, cpu_used, reference, memory):
     processes = [{'process':None, 'inputs':None, 'outputs':None, 'log_files':None} for idx in range(cpu_used)]
     # Launch processes
     for idx in range(len(inputs)):
@@ -308,6 +388,45 @@ def parallel_submission( function, inputs, outputs, logs, cpu_used, reference, m
         if issubclass(current_process['process'].__class__, multiprocessing.Process) and current_process['process'].exitcode != 0:
             raise Exception("Error in sub-process execution.")
 
+def process_needleall(input, temp, output, log_file, reference):
+    """
+    @summary: Launches RDP.
+    @param input: [str] Path to the query fasta file to submit to NeedleAll.
+    @param input: [str] Path to the NeedleAll sam results.
+    @param output: [str] Path to tsv converted NeedleAll results.
+    @param log_file: [str] Path to needleall log.
+    @param reference: [str] Path to the reference fasta file.
+    """
+    needleall_cmd = NeedleAll(reference, input, temp)
+    needleall_cmd.submit(log_file)
+    convert_to_tsv_cmd = NeedleallSam_to_tsv(temp, reference, output)
+    convert_to_tsv_cmd.submit(log_file)
+
+def needleall_parallel_submission( function, inputs, temps, outputs, logs, cpu_used, reference):
+    processes = [{'process':None, 'inputs':None, 'outputs':None, 'log_files':None} for idx in range(cpu_used)]
+    # Launch processes
+    for idx in range(len(inputs)):
+        process_idx = idx % cpu_used
+        processes[process_idx]['inputs'] = inputs[idx]
+        processes[process_idx]['temps'] = temps[idx]
+        processes[process_idx]['outputs'] = outputs[idx]
+        processes[process_idx]['log_files'] = logs[idx]
+
+    for current_process in processes:
+        if idx == 0:  # First process is threaded with parent job
+            current_process['process'] = threading.Thread(target=function,
+                                                          args=(current_process['inputs'], current_process['temps'], current_process['outputs'], current_process['log_files'], reference))
+        else:  # Others processes are processed on diffrerent CPU
+            current_process['process'] = multiprocessing.Process(target=function,
+                                                                 args=(current_process['inputs'], current_process['temps'], current_process['outputs'], current_process['log_files'], reference))
+        current_process['process'].start()
+    # Wait processes end
+    for current_process in processes:
+        current_process['process'].join()
+    # Check processes status
+    for current_process in processes:
+        if issubclass(current_process['process'].__class__, multiprocessing.Process) and current_process['process'].exitcode != 0:
+            raise Exception("Error in sub-process execution.")
 
 ###################################################################################################################
 ###                                              MAIN                                                           ###
@@ -319,6 +438,8 @@ if __name__ == "__main__":
     parser.add_argument( '-m', '--java-mem', type=int, default=2, help="Java memory allocation in Go. [Default: %(default)s]")
     parser.add_argument( '-t', '--taxonomy-ranks', nargs='*', default=["Domain", "Phylum", "Class", "Order", "Family", "Genus", "Species"], help='The ordered ranks levels present in the reference databank. [Default: %(default)s]' )
     parser.add_argument('--rdp', default=False,  action='store_true',  help="Use RDP classifier to affiliate OTU")
+    # parser.add_argument('--vsearch', default=False,  action='store_true',  help="Use Vsearch instead of blast classifier to affiliate OTU")
+    # parser.add_argument('--needleall', default=False,  action='store_true',  help="Use needleall instead of blast classifier to affiliate OTU")
     parser.add_argument( '-d', '--debug', default=False, action='store_true', help="Keep temporary files to debug program.")
     parser.add_argument( '-v', '--version', action='version', version=__version__)
     # Inputs
@@ -336,43 +457,90 @@ if __name__ == "__main__":
 
     # Temporary files
     tmpFiles = TmpFiles( os.path.split(args.output_biom)[0] )
+    fasta_full_length = tmpFiles.add(os.path.basename(args.input_fasta + "_FROGS_full_length"))
+    fasta_combined = tmpFiles.add(os.path.basename(args.input_fasta + "_FROGS_combined"))
+    # rdp tmp
     fasta_rdp_list = []
     rdp_out_list = []
     log_rdp_list = []
-    fasta_blast_list = []
+    # needle on FROGS_combined
+    fasta_needleall_list = []
+    sam_needleall_list = []
+    needleall_out_list = []
+    # aln Blast on FROGS full length
     blast_out_list = []
     log_blast_list = []
+    # merge aln
+    aln_out = ""
 
     # Process
     try:
         Logger.static_write(args.log_file, "## Application\nSoftware: " + os.path.basename(sys.argv[0]) + " (version: " + str(__version__) + ")\nCommand: " + " ".join(sys.argv) + "\n\n")
-        nb_seq = get_fasta_nb_seq(args.input_fasta)
-        Logger.static_write(args.log_file, "Nb seq : " + str(nb_seq) + "\n\n")
+        nb_seq, nb_combined = extract_FROGS_combined(args.input_fasta, fasta_full_length, fasta_combined)
+        Logger.static_write(args.log_file, "Nb seq : " + str(nb_seq) + "\n")
+        if nb_combined > 0 :
+            Logger.static_write(args.log_file, "\t with nb seq artificially combined :" + str(nb_combined) +"\n")
+        Logger.static_write(args.log_file,"\n")
 
-        if args.nb_cpus == 1 or nb_seq < 100:
+        #~ if args.nb_cpus == 1 or nb_seq < 100:
+        if args.nb_cpus == 1 :
+            # kmer method affiliation
             # RDP
             if args.rdp:
                 rdp_out_list.append( tmpFiles.add(os.path.basename(args.input_fasta) + ".rdp") )
                 process_rdp( args.input_fasta, rdp_out_list[0], args.log_file, args.reference, args.java_mem)
-            # BLAST
-            blast_out_list.append( tmpFiles.add(os.path.basename(args.input_fasta) + ".blast") )
-            Blast(args.reference, args.input_fasta, blast_out_list[0], 1).submit(args.log_file)
+            # alignment method affiliation
+            # global alignment
+            if nb_combined > 0 :
+                # NeedleAll
+                sam_needleall_list.append( tmpFiles.add( fasta_combined + ".needleall.sam" ) )
+                needleall_out_list.append( tmpFiles.add( fasta_combined + ".needleall.blast_like" ) )
+                process_needleall(fasta_combined, sam_needleall_list[0],needleall_out_list[0], args.log_file, args.reference)
+            
+            # # VSEARCH
+            # if args.vsearch:
+            #     vsearch_reference_db = os.path.splitext(args.reference)[0] + "udb" if os.path.exists(os.path.splitext(args.reference)[0] + "udb") else args.reference
+            #     aln_out_list.append( tmpFiles.add(os.path.basename(fasta_full_length) + ".vsearch") )
+            #     Vsearch(vsearch_reference_db, fasta_full_length, aln_out_list[0], 1).submit(args.log_file)
+
+            # local alignment                 
+            #BLAST
+            blast_out_list.append( tmpFiles.add(os.path.basename(fasta_full_length) + ".blast") )
+            Blast(args.reference, fasta_full_length, blast_out_list[0], 1).submit(args.log_file)
         else:
+            # kmer method affiliation
             # RDP
             if args.rdp:
                 split_fasta(args.input_fasta, tmpFiles, max(1, int(args.nb_cpus/3)), fasta_rdp_list, args.log_file)
                 rdp_out_list = [tmpFiles.add(os.path.basename(current_fasta) + ".rdp") for current_fasta in fasta_rdp_list]
                 log_rdp_list = [tmpFiles.add(os.path.basename(current_fasta) + "_rdp.log") for current_fasta in fasta_rdp_list]
-                parallel_submission( process_rdp, fasta_rdp_list, rdp_out_list, log_rdp_list, len(fasta_rdp_list), args.reference, args.java_mem )
+                rdp_parallel_submission( process_rdp, fasta_rdp_list, rdp_out_list, log_rdp_list, len(fasta_rdp_list), args.reference, args.java_mem )
+            
+            # alignment method affiliation
+            # global alignment
+            if nb_combined > 0:
+                # split_fasta(fasta_combined, tmpFiles, max(1, int(args.nb_cpus/3)), fasta_needleall_list, args.log_file)
+                split_fasta(fasta_combined, tmpFiles, max(1, int(args.nb_cpus/2)), fasta_needleall_list, args.log_file)
+                sam_needleall_list = [tmpFiles.add(os.path.basename(current_fasta) + ".needleall.sam", prefix="") for current_fasta in fasta_needleall_list ]
+                needleall_out_list = [tmpFiles.add(os.path.basename(current_fasta) + ".needleall.blast_like", prefix="") for current_fasta in fasta_needleall_list ]
+                log_needleall_list = [tmpFiles.add(os.path.basename(current_fasta) + ".needleall.log", prefix="" ) for current_fasta in fasta_needleall_list ]
+                needleall_parallel_submission( process_needleall, fasta_needleall_list, sam_needleall_list, needleall_out_list, log_needleall_list, len(fasta_needleall_list), args.reference)
+            # # VSEARCH
+            # if args.vsearch:
+            #     vsearch_reference_db = os.path.splitext(args.reference)[0] + ".udb" if os.path.exists(os.path.splitext(args.reference)[0] + "udb") else args.reference
+            #     aln_out_list.append( tmpFiles.add(os.path.basename(args.input_fasta) + ".vsearch") )
+            #     log_aln_list.append( tmpFiles.add(os.path.basename(args.input_fasta) + "_vsearch.log") )
+            #     Vsearch(vsearch_reference_db, args.input_fasta, aln_out_list[0], args.nb_cpus).submit(log_aln_list[0])
             # BLAST
-            blast_out_list.append( tmpFiles.add(os.path.basename(args.input_fasta) + ".blast") )
-            log_blast_list.append( tmpFiles.add(os.path.basename(args.input_fasta) + "_blast.log") )
-            Blast(args.reference, args.input_fasta, blast_out_list[0], args.nb_cpus).submit(log_blast_list[0])
+            blast_out_list.append(tmpFiles.add(os.path.basename(fasta_full_length) + ".blast") )
+            log_blast_list.append( tmpFiles.add(os.path.basename(fasta_full_length) + "_blast.log") ) 
+            Blast(args.reference, fasta_full_length, blast_out_list[0], args.nb_cpus).submit(log_blast_list[0])
+
             # Logs
-            log_append_files(args.log_file, log_rdp_list + log_blast_list)
+            log_append_files(args.log_file, log_rdp_list + log_needleall_list + log_blast_list)
 
         # Convert to output file
-        AddAffiliation2Biom( args.reference, blast_out_list, rdp_out_list, args.input_biom, args.output_biom ).submit( args.log_file )
+        AddAffiliation2Biom( args.reference, blast_out_list + needleall_out_list, rdp_out_list, args.input_biom, args.output_biom ).submit( args.log_file )
         summarise_results( args.summary, args.output_biom, args.taxonomy_ranks )
 
     finally:
