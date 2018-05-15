@@ -131,18 +131,26 @@ def splitSeq (input, format, tag, revcomp, out1, out2):
         split_seq = record.string.split(tag)
         if len(split_seq) != 2:
             raise Exception(record.id + " of " + input + " can not be split into 2 pieces with the tag : "+ tag +"\n")
-        if format == "fastq" :
-            part1=Sequence(record.id+"_FROGS_split_part1", split_seq[0],None, record.quality[ : len(split_seq[0]) ] )
-            if revcomp : 
-                part2=Sequence(record.id+"_FROGS_split_part2", reverse_complement(split_seq[1]),None, record.quality[ :len(split_seq[0])+len(tag)-1:-1 ] )
-            else :
-                part2=Sequence(record.id+"_FROGS_split_part2", split_seq[1],None, record.quality[ len(split_seq[0])+len(tag) : ] )
+
+        if not record.description is None:
+            R1_desc = record.description.split(";")[0].replace('R1_desc:','')
+            R2_desc = record.description.split(";")[1].replace('R2_desc:','')
         else:
-            part1=Sequence(record.id+"_FROGS_split_part1", split_seq[0],None, None )
-            if revcomp :
-                part2=Sequence(record.id+"_FROGS_split_part2", reverse_complement(split_seq[1]),None, None )
+            R1_desc = None
+            R2_desc = None
+
+        if format == "fastq" :
+            part1=Sequence(record.id+"_FROGS_split_part1", split_seq[0], R1_desc, record.quality[ : len(split_seq[0]) ] )
+            if revcomp : 
+                part2=Sequence(record.id+"_FROGS_split_part2", reverse_complement(split_seq[1]),R2_desc, record.quality[ :len(split_seq[0])+len(tag)-1:-1 ] )
             else :
-                part2=Sequence(record.id+"_FROGS_split_part2", split_seq[1],None, None )
+                part2=Sequence(record.id+"_FROGS_split_part2", split_seq[1],R2_desc, record.quality[ len(split_seq[0])+len(tag) : ] )
+        else:
+            part1=Sequence(record.id+"_FROGS_split_part1", split_seq[0],R1_desc, None )
+            if revcomp :
+                part2=Sequence(record.id+"_FROGS_split_part2", reverse_complement(split_seq[1]),R2_desc, None )
+            else :
+                part2=Sequence(record.id+"_FROGS_split_part2", split_seq[1],R2_desc, None )
 
         FH_out1.write(part1)
         if out2:
@@ -175,34 +183,40 @@ def combineSeq(input1, input2, format, tag, revcomp, out):
     iter1 = FH_in1.__iter__()
     for record1 in iter1:
         record1.id = record1.id.replace("_FROGS_split_part1","")
+        record1.desc = record1.description
         if record1.id.endswith(".1") or record1.id.endswith("/1"):
             record1.id=record1.id[:-2]
+
         if input2:
             record2 = FH_in2.next_seq()
         else : 
             record2 = iter1.next()
+
         record2.id = record2.id.replace("_FROGS_split_part2","")
+        record2.desc = record2.description
         if record2.id.endswith(".2") or record2.id.endswith("/2"):
             record2.id=record2.id[:-2]
 
         if record1.id != record2.id:
             raise Exception ("Input files are not in correct order, starting with "+record1.id+" and "+record2.id+"\n")
-
+        description = None
+        if record1.desc != None and record2.desc != None :
+            description = "R1_desc:"+record1.desc+";R2_desc="+record2.desc
         if format == "fastq" : 
             if revcomp:
                 combined = Sequence(record1.id+"_FROGS_combined", \
                     record1.string+tag+reverse_complement(record2.string), \
-                    None,\
+                    description,\
                     record1.quality+badQualCode*len(tag)+record2.quality[::-1])
             else : 
                 combined = Sequence(record1.id+"_FROGS_combined", \
                     record1.string+tag+record2.string, \
-                    None,\
+                    description,\
                     record1.quality+badQualCode*len(tag)+record2.quality)
         else : 
             combined = Sequence(record1.id+"_FROGS_combined", \
                 record1.string+tag+record2.string, \
-                None,\
+                description,\
                 None)
         FH_out.write(combined)
 
