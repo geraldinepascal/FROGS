@@ -108,6 +108,11 @@ def process(params):
 
 		# match / mismatch, and id%
 		mismatch=l[12].split(":")[-1]
+
+		# count N in query sequence, substract from length
+		N = l[9].count("N")
+		length -= N
+		
 		pident=str(round((cig_dict["M"]- int(mismatch))*100.00/length,2))
 
 		# write sorted alignement by bitscore
