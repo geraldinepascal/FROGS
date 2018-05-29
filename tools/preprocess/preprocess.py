@@ -53,51 +53,6 @@ from frogsSequenceIO import *
 # COMMAND LINES
 #
 ##################################################################################################################################################
-class Pear(Cmd):
-    """
-    @summary: Overlapping and merging mate pairs from fragments shorter than twice the length of reads.
-    """
-    def __init__(self, in_R1, in_R2, out_prefix, pear_log, param):
-        """
-        @param in_R1: [str] Path to the R1 fastq file.
-        @param in_R2: [str] Path to the R2 fastq file.
-        @param out_prefix: [str] Prefix of path to the output fastq files.
-        @param pear_log: [str] Path to log file
-        @param param: [Namespace] The 'param.min_amplicon_size', 'param.max_amplicon_size', 'param.R1_size', 'param.R2_size'
-        """
-        min_overlap=max(param.R1_size+param.R2_size-param.max_amplicon_size, 10)
-        max_assembly_length=min(param.max_amplicon_size, param.R1_size + param.R2_size -10)
-        min_assembly_length=param.min_amplicon_size 
-
-        Cmd.__init__(self,
-            'pear',
-            'join overlapping paired reads',
-             '--forward-fastq ' + in_R1 + ' --reverse-fastq ' + in_R2 +' --output ' + out_prefix \
-             + ' --min-overlap ' + str(min_overlap) + ' --max-assembly-length ' + str(max_assembly_length) + ' --min-assembly-length ' + str(min_assembly_length) \
-             + ' --keep-original > ' + pear_log,
-             '--version')
-
-        self.output = out_prefix + '.assembled.fastq'
-
-    def get_version(self):
-        """
-        @summary: Returns the program version number.
-        @return: version number if this is possible, otherwise this method return 'unknown'.
-        """
-        return Cmd.get_version(self, 'stdout').split()[1].strip()
-
-    def parser(self, log_file):
-        """
-        @summary: Parse the command results to add information in log_file.
-        @log_file: [str] Path to the sample process log file.
-        """
-        # Parse output
-        nb_seq_merged = get_nb_seq(self.output)
-        # Write result
-        FH_log = Logger( log_file )
-        FH_log.write( 'Results:\n' )
-        FH_log.write( '\tnb seq merged: ' + str(nb_seq_merged) + '\n' )
-        FH_log.close()
 
 class Vsearch(Cmd):
     """
@@ -143,51 +98,6 @@ class Vsearch(Cmd):
         FH_log.write( 'Results:\n' )
         FH_log.write( '\tnb seq merged: ' + str(nb_seq_merged) + '\n' )
         FH_log.close()
-
-class Flash(Cmd):
-    """
-    @summary: Overlapping and merging mate pairs from fragments shorter than twice the length of reads. The others fragments are discarded.
-    """
-    def __init__(self, in_R1, in_R2, out_join_prefix , flash_err, param):
-        """
-        @param in_R1: [str] Path to the R1 fastq file.
-        @param in_R2: [str] Path to the R2 fastq file.
-        @param out_join_prefix: [str] Path to the output fastq file.
-        @param flash_err: [str] Path to the temporary stderr output file
-        @param param: [Namespace] The 'param.min_amplicon_size', 'param.max_amplicon_size', 'param.expected_amplicon_size', 'param.fungi' and param.mismatch_rate'
-        """
-        min_overlap = max(-1,(param.R1_size + param.R2_size) - param.max_amplicon_size )
-        max_expected_overlap = (param.R1_size + param.R2_size) - param.expected_amplicon_size + min(20, int((param.expected_amplicon_size - param.min_amplicon_size)/2))
-        outies=""
-        if param.fungi:
-            outies += " --allow-outies "
-        Cmd.__init__( self,
-                      'flash',
-                      'Join overlapping paired reads.',
-                      '--threads 1 '+ outies +' --min-overlap ' + str(min_overlap) + ' --max-overlap ' + str(max_expected_overlap) + ' --max-mismatch-density ' + str(param.mismatch_rate) +' --compress ' + in_R1 + ' ' + in_R2 + ' --output-directory '+ os.path.dirname(out_join_prefix) + ' --output-prefix ' + os.path.basename(out_join_prefix) +' 2> ' + flash_err,
-                      '--version' )
-        self.output = out_join_prefix + ".extendedFrags.fastq.gz"
-
-    def get_version(self):
-        """
-        @summary: Returns the program version number.
-        @return: version number if this is possible, otherwise this method return 'unknown'.
-        """
-        return Cmd.get_version(self, 'stdout').split()[1].strip()
-
-    def parser(self, log_file):
-        """
-        @summary: Parse the command results to add information in log_file.
-        @log_file: [str] Path to the sample process log file.
-        """
-        # Parse output
-        nb_seq_merged = get_nb_seq(self.output)
-        # Write result
-        FH_log = Logger( log_file )
-        FH_log.write( 'Results:\n' )
-        FH_log.write( '\tnb seq merged: ' + str(nb_seq_merged) + '\n' )
-        FH_log.close()
-
 
 class Remove454prim(Cmd):
     """
@@ -445,63 +355,6 @@ class ReplaceJoinTag(Cmd):
     def get_version(self):   
         return Cmd.get_version(self, 'stdout').strip()
 
-class ITSx(Cmd):
-    """
-    @summary: Use ITSx to identifies ITS sequences and extracts the ITS region
-    """
-    def __init__(self, in_fasta, in_count, target, out_fasta, out_count, log_file, param):
-        """
-        @param in_fasta: [str] Path to the fasta to process.
-        @param in_count: [str] Path to the associated count file to update.
-        @param target : [str] Either ITS1 or ITS2
-        @param out_fasta: [str] Path to the processed fasta.
-        @param out_count: [str] Path to the updated count file.
-        @param log_file: [str] Path to the updated count file.
-        @param param: [Namespace] The 'param.nb_cpus'.
-        """
-        options=''
-        if param.nb_cpus > 1:
-            options = " --nb-cpus " + str(param.nb_cpus)
-        if param.debug:
-            options += " --debug "
-        Cmd.__init__(self,
-            'parallelITSx.py',
-            'identifies ITS sequences and extracts the ITS region',
-            ' -f ' + in_fasta + ' -c ' + in_count + options + ' --its '+ target + ' -o ' + out_fasta + ' -a ' + out_count + ' --log-file ' + log_file,
-            '--version'
-            )
-        self.program_log = log_file
-
-
-    def parser(self, log_file):
-        """
-        @summary: Parse the command results to add information in log_file.
-        @log_file: [str] Path to the ITSx log file.
-        """
-        # Parse output
-        FH_log_ITSX = open( self.program_log )
-        count_ITSx = dict()
-        kept = ""
-        for line in FH_log_ITSX:
-            if line.startswith('nb') :
-                [key,value]=line.strip().split(':')
-                if key in count_ITSx:
-                    count_ITSx[key]+= int(value)
-                else:
-                    count_ITSx[key]= int(value)
-                if "kept" in key:
-                    kept = key
-        FH_log_ITSX.close()
-        # Write result
-        FH_log = Logger( log_file )
-        FH_log.write( 'Results:\n' )
-        FH_log.write( '\t' + kept + ' : ' + str(count_ITSx[kept]) + '\n')
-        for key in count_ITSx :
-            if key != kept:
-                FH_log.write( '\t' + key + ' : ' + str(count_ITSx[key]) + '\n')
-
-        FH_log.close()
-
 class DerepBySample(Cmd):
     """
     @summary: Dereplicates sample sequences.
@@ -625,13 +478,13 @@ def get_seq_length_by_sample( input_file, count_file):
     FH_seq.close()
     return nb_by_length
 
-def summarise_results( samples_names, lengths_files, log_files, ITSx_fasta, ITSx_count, param ):
+def summarise_results( samples_names, lengths_files, log_files, param ):
     """
     @summary: Writes one summary of results from several logs.
     @param samples_names: [list] The samples names.
     @param lengths_files: [list] The list of path to files containing the contiged sequences lengths (in samples_names order).
     @param log_files: [list] The list of path to log files (in samples_names order).
-    @param param: [str] The 'param.summary' , 'param.fungi' .
+    @param param: [str] The 'param.summary' .
     """
     # Get data
     categories = get_filter_steps(log_files[0])
@@ -643,12 +496,6 @@ def summarise_results( samples_names, lengths_files, log_files, ITSx_fasta, ITSx
     before_lengths_by_sample = dict()
     after_lengths_by_sample = dict()
     
-    # compute ITSx final filter by sample and sample length distribution
-    if param.fungi :
-        categories.append("ITS")
-        filters_ITSx = get_ITSx_results(ITSx_count)
-        after_lengths_by_sample = get_seq_length_by_sample( ITSx_fasta, ITSx_count )
-
     # recover all filter by sample
     for spl_idx, spl_name in enumerate(samples_names):
 
@@ -666,20 +513,16 @@ def summarise_results( samples_names, lengths_files, log_files, ITSx_fasta, ITSx
                 filters_by_sample["artificial combined"] = {}
             filters_by_sample["artificial combined"][spl_name] = filters["artificial combined"]
         
-        if param.fungi:
-            filters_by_sample["combined"][spl_name]["ITS"] = filters_ITSx["combined"][spl_name]
-            filters_by_sample["artificial combined"][spl_name]["ITS"] = filters_ITSx["artificial combined"][spl_name]
-        
         # length distribution
         with open(lengths_files[spl_idx]) as FH_lengths:
             lenghts = json.load(FH_lengths)
             before_lengths_by_sample[spl_name] = lenghts["before"]
-            if not param.fungi :
-                after_lengths_by_sample[spl_name] = lenghts["after"]
+            after_lengths_by_sample[spl_name] = lenghts["after"]
 
     # check length
     b_count= 0
     a_count = 0
+    
     for sample in samples_names:
         for l in before_lengths_by_sample[sample]:
             b_count += before_lengths_by_sample[sample][l]
@@ -738,33 +581,6 @@ def get_sample_results( log_file ):
             step = line.split('nb seq')[1].split(':')[0].strip() 
             nb_seq[key][step] = int(line.split(':')[1].strip()) 
     FH_input.close()
-    return nb_seq
-
-def get_ITSx_results(in_count):
-    """
-    @summary : count number of output ITS sequence by sample_name
-    @in_count [str] : final count file
-    @return : dict{"combined" : {"sample_name" : <int>}, "artificial combined" : { "sample_name": <int>} } 
-    """
-    nb_seq = {"combined" : {}, "artificial combined" : {}}
-    samples_names = list()
-
-    FH_in = open(in_count)
-    for line in FH_in:
-        if line.startswith("#id") : 
-            samples_names = line.strip().split("\t")[1:]
-            nb_seq["combined"] = {s:0 for s in samples_names}
-            nb_seq["artificial combined"] = {s:0 for s in samples_names}
-        else:
-            seq_id = line.split()[0]
-            for idx, count in enumerate(line.strip().split()[1:]): 
-                sample = samples_names[idx]
-                if "FROGS_combined" in seq_id : 
-                    nb_seq["artificial combined"][sample] += int(count)
-                else:
-                    nb_seq["combined"][sample] += int(count)
-
-    FH_in.close()
     return nb_seq
 
 def log_append_files( log_file, appended_files ):
@@ -912,27 +728,6 @@ def process_sample(R1_file, R2_file, sample_name, out_file, art_out_file, length
 
     tmp_files = TmpFiles( os.path.split(out_file)[0] )
 
-    # # FLASH
-    # out_contig = tmp_files.add( sample_name + '_flash.extendedFrags.fastq.gz' )
-    # out_notcombined_R1 = tmp_files.add( sample_name + '_flash.notCombined_1.fastq.gz' )
-    # out_notcombined_R2 = tmp_files.add( sample_name + '_flash.notCombined_2.fastq.gz' )
-    # out_contig_log = tmp_files.add(sample_name + '_flash.stderr')
-    # # other files to remove
-    # tmp_files.add(sample_name + '_flash.hist')
-    # tmp_files.add(sample_name + '_flash.histogram')
-    # if args.fungi:
-    #     tmp_files.add(sample_name + '_flash.hist.innie')
-    #     tmp_files.add(sample_name + '_flash.histogram.innie')
-    #     tmp_files.add(sample_name + '_flash.hist.outie')
-    #     tmp_files.add(sample_name + '_flash.histogram.outie')
-
-    # PEAR
-    # out_contig = tmp_files.add( sample_name + '_pear.assembled.fastq' )
-    # out_notcombined_R1 = tmp_files.add( sample_name + '_pear.unassembled.forward.fastq' )
-    # out_notcombined_R2 = tmp_files.add( sample_name + '_pear.unassembled.reverse.fastq' )
-    # out_contig_log = tmp_files.add(sample_name + '_pear.log')
-    # tmp_files.add(sample_name + '_pear.discarded.fastq')   # other file to remove
-
     # VSEARCH
     out_contig = tmp_files.add( sample_name + '_vsearch.assembled.fastq' )
     out_notcombined_R1 = tmp_files.add( sample_name + '_vsearch.unassembled_R1.fastq' )
@@ -978,16 +773,9 @@ def process_sample(R1_file, R2_file, sample_name, out_file, art_out_file, length
 
         # Commands execution
         if not args.already_contiged:
-            # flash_cmd = Flash(R1_file, R2_file, out_contig.replace(".extendedFrags.fastq.gz",""), out_contig_log, args)
-            # flash_cmd.submit(log_file)
-
-            # pear_cmd = Pear(R1_file, R2_file, out_contig.replace(".assembled.fastq",""), out_contig_log, args)
-            # pear_cmd.submit(log_file)
-
             vsearch_cmd = Vsearch(R1_file, R2_file, out_contig.replace(".assembled.fastq",""), out_contig_log, args)
             vsearch_cmd.submit(log_file)
         else:
-            # out_contig = R1_file
             out_contig = R1_file
         if args.sequencer == "454": # 454
             if is_gzip( out_contig ):
@@ -1014,9 +802,10 @@ def process_sample(R1_file, R2_file, sample_name, out_file, art_out_file, length
         length_dict = dict()
         nb_before_by_legnth = get_seq_length( out_contig )
         length_dict["before"]=nb_before_by_legnth
-        if not args.fungi :
-            nb_after_by_legnth = get_seq_length( out_NAndLengthfilter )
-            length_dict["after"] = nb_after_by_legnth
+        
+        nb_after_by_legnth = get_seq_length( out_NAndLengthfilter )
+        length_dict["after"] = nb_after_by_legnth
+        
         with open(lengths_file, "w") as FH_lengths:
             FH_lengths.write( json.dumps(length_dict))
 
@@ -1111,22 +900,9 @@ def process( args ):
 
         # Dereplicate global on combined filtered cutadapted multifiltered derep
         Logger.static_write(args.log_file, '##Sample\nAll\n##Commands\n')
-        if args.fungi : 
-            derep_file = tmp_files.add("derep_globa.fasta")
-            derep_count = tmp_files.add("derep_globa.count.tsv")
-            DerepGlobalMultiFasta(filtered_files, samples_names, tmp_files.add('derep_inputs.tsv'), derep_file, derep_count, args).submit( args.log_file )
+        DerepGlobalMultiFasta(filtered_files, samples_names, tmp_files.add('derep_inputs.tsv'), args.output_dereplicated, args.output_count, args).submit( args.log_file )
+        summarise_results( samples_names, lengths_files, log_files, args )
 
-            log_itsx = tmp_files.add("ITSx.log")
-            fasta_itsx = tmp_files.add("ITSx.fasta")
-            count_itsx = tmp_files.add("ITSx.count")
-            ITSx(derep_file, derep_count, args.fungi, fasta_itsx, count_itsx, log_itsx, args ).submit( args.log_file )
-            DerepGlobalFastaCount(fasta_itsx, count_itsx, args.output_dereplicated, args.output_count, args).submit(args.log_file)
-            summarise_results( samples_names, lengths_files, log_files, fasta_itsx, count_itsx, args )
-        else : 
-            DerepGlobalMultiFasta(filtered_files, samples_names, tmp_files.add('derep_inputs.tsv'), args.output_dereplicated, args.output_count, args).submit( args.log_file )
-            summarise_results( samples_names, lengths_files, log_files, None, None, args )
-
-        
         # Check the number of sequences after filtering
         nb_seq = get_nb_seq(args.output_dereplicated)
         if  nb_seq == 0:
@@ -1155,34 +931,6 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser( description='Pre-process amplicons to use reads in diversity analysis.' )
     parser.add_argument( '-v', '--version', action='version', version=__version__ )
     subparsers = parser.add_subparsers()
-
-    # Illumina
-#     parser_illumina = subparsers.add_parser( 'illumina', help='Illumina sequencers.', usage='''
-#   For samples files:
-#     preprocess.py illumina
-#       --input-R1 R1_FILE [R1_FILE ...]
-#       --already-contiged | --input-R2 R2_FILE [R2_FILE ...] --R1-size R1_SIZE --R2-size R2_SIZE --expected-amplicon-size SIZE
-#       --min-amplicon-size MIN_AMPLICON_SIZE
-#       --max-amplicon-size MAX_AMPLICON_SIZE
-#       --without-primers | --five-prim-primer FIVE_PRIM_PRIMER --three-prim-primer THREE_PRIM_PRIMER
-#       [--mismatch-rate RATE ] [--fungi {ITS1,ITS2}]
-#       [--samples-names SAMPLE_NAME [SAMPLE_NAME ...]]
-#       [-p NB_CPUS] [--debug] [-v]
-#       [-d DEREPLICATED_FILE] [-c COUNT_FILE] [--artComb-output-dereplicated ART_DEREPLICATED_FILE] [--artComb-output-count ART_COUNT_FILE]
-#       [-s SUMMARY_FILE] [-l LOG_FILE]
-
-#   For samples archive:
-#     preprocess.py illumina
-#       --input-archive ARCHIVE_FILE
-#       --already-contiged | --R1-size R1_SIZE --R2-size R2_SIZE --expected-amplicon-size SIZE
-#       --min-amplicon-size MIN_AMPLICON_SIZE
-#       --max-amplicon-size MAX_AMPLICON_SIZE
-#       --without-primers | --five-prim-primer FIVE_PRIM_PRIMER --three-prim-primer THREE_PRIM_PRIMER
-#       [--mismatch-rate RATE ] [--fungi {ITS1,ITS2}]
-#       [-p NB_CPUS] [--debug] [-v]
-#       [-d DEREPLICATED_FILE] [-c COUNT_FILE] [-c COUNT_FILE] [--artComb-output-dereplicated ART_DEREPLICATED_FILE] [--artComb-output-count ART_COUNT_FILE]
-#       [-s SUMMARY_FILE] [-l LOG_FILE]
-# ''')
     parser_illumina = subparsers.add_parser( 'illumina', help='Illumina sequencers.', usage='''
   For samples files:
     preprocess.py illumina
@@ -1210,10 +958,9 @@ if __name__ == "__main__":
       [-s SUMMARY_FILE] [-l LOG_FILE]
 ''')
     #     Illumina parameters
-    parser_illumina.add_argument( '--fungi', type=str, required=False,  choices=['ITS1','ITS2'], help='Which the fungi ITS region is targeted: either ITS1 or ITS2' )
     parser_illumina.add_argument( '--keep-unmerged', default=False, action='store_true', help='In case of uncontiged paired reads, keep unmerged, and artificially combined them with 100 Ns.' )
-    parser_illumina.add_argument( '--min-amplicon-size', type=int, required=True, help='The minimum size for the amplicons.' )
-    parser_illumina.add_argument( '--max-amplicon-size', type=int, required=True, help='The maximum size for the amplicons.' )
+    parser_illumina.add_argument( '--min-amplicon-size', type=int, required=True, help='The minimum size for the amplicons (with primers).' )
+    parser_illumina.add_argument( '--max-amplicon-size', type=int, required=True, help='The maximum size for the amplicons (with primers).' )
     parser_illumina.add_argument( '--five-prim-primer', type=str, help="The 5' primer sequence (wildcards are accepted)." )
     parser_illumina.add_argument( '--three-prim-primer', type=str, help="The 3' primer sequence (wildcards are accepted)." )
     parser_illumina.add_argument( '--without-primers', action='store_true', default=False, help="Use this option when you use custom sequencing primers and these primers are the PCR primers. In this case the reads do not contain the PCR primers." )
@@ -1251,7 +998,6 @@ if __name__ == "__main__":
     [-d DEREPLICATED_FILE] [-c COUNT_FILE]
     [-s SUMMARY_FILE] [-l LOG_FILE]
 ''')
-    parser_454.add_argument( '--fungi', type=str, required=False,  choices=['ITS1','ITS2'], help='Which the fungi ITS region is targeted: either ITS1 or ITS2' )
     parser_454.add_argument( '--min-amplicon-size', type=int, required=True, help='The minimum size for the amplicons (with primers).' )
     parser_454.add_argument( '--max-amplicon-size', type=int, required=True, help='The maximum size for the amplicons (with primers).' )
     parser_454.add_argument( '--five-prim-primer', type=str, required=True, help="The 5' primer sequence (wildcards are accepted)." )
@@ -1295,7 +1041,6 @@ if __name__ == "__main__":
         if args.sequencer == "illumina":
             if not args.already_contiged and args.input_R2 is None: raise argparse.ArgumentTypeError( "'--R2-files' is required." )
     if args.sequencer == "illumina":
-        # if (args.R1_size is None or args.R2_size is None or args.expected_amplicon_size is None) and not args.already_contiged: raise Exception( "'--R1-size/--R2-size/--expected-amplicon-size' or '--already-contiged' must be setted." )
         if (args.R1_size is None or args.R2_size is None ) and not args.already_contiged: raise Exception( "'--R1-size/--R2-size' or '--already-contiged' must be setted." )
         if args.without_primers:
             if args.five_prim_primer or args.three_prim_primer: raise argparse.ArgumentTypeError( "The option '--without-primers' cannot be used with '--five-prim-primer' and '--three-prim-primer'." )
