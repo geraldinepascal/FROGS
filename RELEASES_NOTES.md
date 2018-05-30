@@ -1,11 +1,11 @@
 # v3.0.0 [DEV]:
 ### Function added:
-  * Preprocess : keep and filter non overlapped reads (particularly important for ITS amplicon)
-  * Preprocess : add a ITSx (http://microbiology.se/software/itsx/) filter for Fungi ITS amplicon analysis
+  * Preprocess : keep and filter non overlapped reads (particularly important for amplicon polymorphe in length)
 
 ### Modification:
-  * Preprocess : replace FLASH (https://ccb.jhu.edu/software/FLASH/) by PEAR (https://sco.h-its.org/exelixis/web/software/pear/), remove mismatch-rate and expected-amplicon-length options
+  * Preprocess : replace FLASH (https://ccb.jhu.edu/software/FLASH/) by VSEARCH (https://github.com/torognes/vsearch), remove expected-amplicon-length option
   * FROGSSTAT tools do not call anymore external script from urls. Additionnal library dependancies added : https://github.com/mahendra-mariadassou/phyloseq-extended/releases
+  * Affiliation : non overlapped read generate FROGS_combined OTU that are affiliated thanks to Needl (http://emboss.sourceforge.net/apps/release/6.6/emboss/apps/needleall.html) global alignment
 
 ### Bugs fixes:
   * Phyloseq import: bug when Tree is None

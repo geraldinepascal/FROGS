@@ -143,12 +143,29 @@ def submit_cmd( cmd, stdout_path, stderr_path):
         stdeh.close()
         raise StandardError( error_msg )
 
+def get_needleall_version():
+    """
+    @summary: Return the emboss version.
+    @return: [str] The emboss version.
+    """
+    version = None
+    try:
+        cmd = ["needlall", "-version"]
+        p = Popen(cmd, stdout=PIPE, stderr=PIPE)
+        stdout, stderr = p.communicate()
+
+        version = stderr.strip()
+    except:
+        version = "unknown"
+    return version
+
 def process_needleall(ref_fasta, query_fasta, output_sam, log_file):
 
     cmd = ["needleall", "-asequence", ref_fasta, "-bsequence", query_fasta, "-outfile", output_sam, "-aformat3", "sam", "-gapopen", "10.0", "-gapextend", "0.5"]
     tmp_stderr = output_sam + ".stderr"
     tmp_stdout = output_sam + ".stdout"
     FH_log = Logger( log_file )
+    FH_log.write("# Needlall version: " + get_needleall_version() + "\n")
     FH_log.write("# Needlall command: " + " ".join(cmd) + "\n")
     submit_cmd( cmd, tmp_stdout, tmp_stderr )
     FH_log.close()
@@ -177,7 +194,7 @@ def process(params):
 if __name__ == "__main__":
     # Manage parameters
     parser = argparse.ArgumentParser(description="Reduced reference fasta file based on best blast before runing NeedleAll alignement")
-    parser.add_argument( '-v', '--version', action='version', version=__version__)
+    parser.add_argument( '-v', '--version', action='version', version=__version__ + " [needleall " + get_needleall_version() + "]")
 
     # Inputs
     group_input = parser.add_argument_group('Inputs')

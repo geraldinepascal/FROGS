@@ -104,12 +104,6 @@
         Version: 5
         Tools: demultiplex
 
-    pear
-        Version: 0.9.10
-        Named as: pear
-        Tools: preprocess
-        Download: https://sco.h-its.org/exelixis/web/software/pear/
-
     cutadapt
         Version: 1.8.3
             Note : With the cutadapt version 1.12, the memory usage increases drastically. 
@@ -119,6 +113,18 @@
         Download: https://github.com/marcelm/cutadapt
                   OR
                   https://pypi.python.org/pypi/cutadapt
+                  
+    vsearch
+        Version: 1.1.3
+        Named as: vsearch
+        Tools: remove_chimera
+        Download: https://github.com/torognes/vsearch
+        
+    swarm
+        Version: 2.1.1
+        Named as: swarm
+        Tools: clustering
+        Download: https://github.com/torognes/swarm
 
     ITSx
         Version : 1.0.11
@@ -128,18 +134,6 @@
         Remark : ITSx_db folder need to be in the PATH or in <FROGS_PATH>/libexec
                  depend on HMMER 3 or later (only for hmmpress and hmmscan)
                  if ITSx test command line failed it's may be due to a difference in HMMER version used to prepare HMM models: hmmpress the ITSx_db/HMMs/*.hmm with your own HMMER version
-
-    swarm
-        Version: 2.1.1
-        Named as: swarm
-        Tools: clustering
-        Download: https://github.com/torognes/swarm
-
-    vsearch
-        Version: 1.1.3
-        Named as: vsearch
-        Tools: remove_chimera
-        Download: https://github.com/torognes/vsearch
 
     NCBI Blast+ blastn
         Version: 2.2.30+
@@ -160,6 +154,12 @@
         Install: sudo apt-get install util-linux
                  OR
                  sudo yum install util-linux
+
+    Needlall
+        Version: EMBOSS:6.6.0.0
+        Named as: needleall
+        Tools : affiliation_OTU
+        Download : ftp://emboss.open-bio.org/pub/EMBOSS/
 
     Pynast
         Version: 1.2.2
