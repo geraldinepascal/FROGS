@@ -159,33 +159,37 @@ def get_needleall_version():
         version = "unknown"
     return version
 
-def process_needleall(ref_fasta, query_fasta, output_sam, log_file):
+def process_needleall(ref_fasta, query_fasta, output_sam, needle_out, needle_err, log_file):
 
     cmd = ["needleall", "-asequence", ref_fasta, "-bsequence", query_fasta, "-outfile", output_sam, "-aformat3", "sam", "-gapopen", "10.0", "-gapextend", "0.5"]
-    tmp_stderr = output_sam + ".stderr"
-    tmp_stdout = output_sam + ".stdout"
     FH_log = Logger( log_file )
     FH_log.write("# Needlall version: " + get_needleall_version() + "\n")
     FH_log.write("# Needlall command: " + " ".join(cmd) + "\n")
-    submit_cmd( cmd, tmp_stdout, tmp_stderr )
+    submit_cmd( cmd, needle_out, needle_err )
     FH_log.close()
 
 def process(params):
 
     tmpFiles = TmpFiles( os.path.split(params.output_sam)[0] )
     extract_fasta_ref = tmpFiles.add(os.path.basename(params.reference))
+    needle_out = tmpFiles.add(os.path.basename(params.output_sam)+"needle.out")
+    needle_err = tmpFiles.add(os.path.basename(params.output_sam)+"needle.err")
     
     # Extract best blast ref
-    Logger.static_write(params.log_file, "# Parsing blast alignment results to reduce reference databse\n")
-    nb_ref = extract_ref(params.query_fasta, params.query_blast_R1, params.query_blast_R2, params.reference,extract_fasta_ref)
+    try :
+        Logger.static_write(params.log_file, "# Parsing blast alignment results to reduce reference databse\n")
+        nb_ref = extract_ref(params.query_fasta, params.query_blast_R1, params.query_blast_R2, params.reference,extract_fasta_ref)
 
-    # Launch needleall
-    if nb_ref > 0 :
-        Logger.static_write(params.log_file, "\tReducing reference databases to " + str(nb_ref) + " sequences\n\n")
-        process_needleall(extract_fasta_ref, params.query_fasta, params.output_sam, params.log_file)
-    else:
-        Logger.static_write(params.log_file, "\tNeedle alignment not performed because no blast alignment available\n")
-        open(params.output_sam, 'w').close()
+        # Launch needleall
+        if nb_ref > 0 :
+            Logger.static_write(params.log_file, "\tReducing reference databases to " + str(nb_ref) + " sequences\n\n")
+            process_needleall(extract_fasta_ref, params.query_fasta, params.output_sam, needle_out, needle_err, params.log_file)
+        else:
+            Logger.static_write(params.log_file, "\tNeedle alignment not performed because no blast alignment available\n")
+            open(params.output_sam, 'w').close()
+    finally:
+        if not params.debug:
+            tmpFiles.deleteAll()
 
     
 ###################################################################################################################
@@ -195,6 +199,7 @@ if __name__ == "__main__":
     # Manage parameters
     parser = argparse.ArgumentParser(description="Reduced reference fasta file based on best blast before runing NeedleAll alignement")
     parser.add_argument( '-v', '--version', action='version', version=__version__ + " [needleall " + get_needleall_version() + "]")
+    parser.add_argument( '-d', '--debug', default=False, action='store_true', help="Keep temporary files to debug program.")
 
     # Inputs
     group_input = parser.add_argument_group('Inputs')
