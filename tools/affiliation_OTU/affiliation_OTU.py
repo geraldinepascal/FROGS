@@ -74,21 +74,40 @@ class Blast(Cmd):
         """
         return Cmd.get_version(self, 'stdout').split()[1].strip()
 
-class NeedleAll(Cmd):
-    def __init__(self, ref_fasta, query_fasta, output_sam):
+class SplitOnTag(Cmd):
+    """
+    @summary : split fasta sequence on tag
+    """
+    def __init__(self, combined_input , split_tag , out_split_1 , out_split_2 ):
+        """
+        @param combined_input  : [str] Path to combined sequence 
+        @param split_tag     : [str] the sequence tag on which to split sequences
+        @param out_split_1     : [str] Path to fasta split sequence output file 1
+        @param out_split_2     : [str]  Path to fasta split sequence output file 2
+        """
+        Cmd.__init__( self,
+                      'combine_and_split.py',
+                      'Split on tag.',
+                      ' --reads1 ' + combined_input + ' -s ' + split_tag + ' --split-output1 ' + out_split_1 + ' --split-output2 ' + out_split_2,
+                      '--version' )
+
+    def get_version(self):   
+        return Cmd.get_version(self, 'stdout').strip()
+
+class NeedleAllOnBlast(Cmd):
+    def __init__(self, ref_fasta, query_fasta, query_blast_R1, query_blast_R2, output_sam, log):
         """
         @param ref_fasta: [str] Path to the reference fasta file (blast indexed).
         @param query_fasta: [str] Path to the query fasta file to submit to blast
-        @param output_blast: [str] Path to blast results.
-        @param nb_cpus: [int] Number of usable CPUs.
+        @param query_blast: [str] Path to the query R1 blast alignement file to reduced ref_fasta for needle
+        @param query_blast: [str] Path to the query R2 blast alignement file to reduced ref_fasta for needle
+        @param output_blast: [str] Path to needleall sam results.
         """
         Cmd.__init__( self,
-                      "needleall",
+                      "needleall_on_bestBlast.py",
                       "needleall taxonomic affiliation",
-                      "-asequence " + ref_fasta + " -bsequence " + query_fasta + " -outfile " + output_sam + " -aformat3 sam -gapopen 10.0 -gapextend 0.5 2> /dev/null",
-                      "-version")
-
-        # self.output = output_blast
+                      " -r " + ref_fasta + " -f " + query_fasta + " --query-blast-R1 " + query_blast_R1 + " --query-blast-R2 " + query_blast_R2 + " -s " + output_sam + " -l " + log,
+                      "-v")
 
     def get_version(self):
         """
@@ -96,6 +115,7 @@ class NeedleAll(Cmd):
         @return: version number if this is possible, otherwise this method return 'unknown'.
         """
         return Cmd.get_version(self, 'stderr').strip()
+
 
 class NeedleallSam_to_tsv(Cmd):
     def __init__(self, input_sam, input_ref, output_tsv):
@@ -116,31 +136,6 @@ class NeedleallSam_to_tsv(Cmd):
         @return: version number if this is possible, otherwise this method return 'unknown'.
         """
         return Cmd.get_version(self, 'stderr').strip()
-
-
-class Vsearch(Cmd):
-    def __init__(self, ref, query_fasta, output_vsearch, nb_cpus):
-        """
-        @param ref: [str] Path to the reference file (fasta or pre indexed udb file)
-        @param query_fasta: [str] Path to the query fasta file to submit to blast
-        @param output_blast: [str] Path to blast results.
-        @param nb_cpus: [int] Number of usable CPUs.
-        """
-        Cmd.__init__( self,
-                      "vsearch",
-                      "vsearch taxonomic affiliation",
-                      "--usearch_global "+ query_fasta +" --db " + ref +" --threads " + str(nb_cpus) + " --id 0 --iddef 2 --strand both --top_hits_only --maxaccepts 500 --userfields query+target+id+alnlen+mism+opens+qilo+qihi+tilo+tihi+evalue+bits+ql --userout " + output_vsearch + " 2> /dev/null",
-                      "--version")
-
-        # self.output = output_vsearch
-
-    def get_version(self):
-        """
-        @summary: Returns the program version number.
-        @return: version number if this is possible, otherwise this method return 'unknown'.
-        """
-        return Cmd.get_version(self, 'stderr').split(",")[0].split()[1]
-
 
 class RDPAffiliation(Cmd):
     def __init__(self, ref, query_fasta, output, memory):
@@ -388,37 +383,41 @@ def rdp_parallel_submission( function, inputs, outputs, logs, cpu_used, referenc
         if issubclass(current_process['process'].__class__, multiprocessing.Process) and current_process['process'].exitcode != 0:
             raise Exception("Error in sub-process execution.")
 
-def process_needleall(input, temp, output, log_file, reference):
+def process_needleall(reference, input_fasta, input_blast_R1, input_blast_R2, temp_sam, output, log_file):
     """
-    @summary: Launches RDP.
-    @param input: [str] Path to the query fasta file to submit to NeedleAll.
-    @param input: [str] Path to the NeedleAll sam results.
-    @param output: [str] Path to tsv converted NeedleAll results.
-    @param log_file: [str] Path to needleall log.
+    @summary: Launches NeedleAll on best blast refence.
     @param reference: [str] Path to the reference fasta file.
+    @param input_fasta: [str] Path to the query fasta file to submit to NeedleAll.
+    @param input_blast: [str] Path to the query R1 blast alignment file to reduce reference fasta for NeedleAll.
+    @param input_blast: [str] Path to the query R2 blast alignment file to reduce reference fasta for NeedleAll.
+    @param temp_sam: [str] Path to the NeedleAll sam results.
+    @param output: [str] Path to blast-like tsv converted NeedleAll results.
+    @param log_file: [str] Path to needleall log.
     """
-    needleall_cmd = NeedleAll(reference, input, temp)
+    needleall_cmd = NeedleAllOnBlast(reference, input_fasta, input_blast_R1, input_blast_R2, temp_sam, log_file)
     needleall_cmd.submit(log_file)
-    convert_to_tsv_cmd = NeedleallSam_to_tsv(temp, reference, output)
+    convert_to_tsv_cmd = NeedleallSam_to_tsv(temp_sam, reference, output)
     convert_to_tsv_cmd.submit(log_file)
 
-def needleall_parallel_submission( function, inputs, temps, outputs, logs, cpu_used, reference):
-    processes = [{'process':None, 'inputs':None, 'outputs':None, 'log_files':None} for idx in range(cpu_used)]
+def needleall_parallel_submission( function, reference, inputs_fasta, input_blast_R1, input_blast_R2, temps_sam, outputs, log_files, cpu_used):
+    processes = [{'process':None, 'inputs_fasta':None, 'input_blast_R1':None, 'input_blast_R2':None, 'temps_sam':None, 'outputs':None, 'log_files':None} for idx in range(cpu_used)]
     # Launch processes
-    for idx in range(len(inputs)):
+    for idx in range(len(inputs_fasta)):
         process_idx = idx % cpu_used
-        processes[process_idx]['inputs'] = inputs[idx]
-        processes[process_idx]['temps'] = temps[idx]
+        processes[process_idx]['inputs_fasta'] = inputs_fasta[idx]
+        processes[process_idx]['input_blast_R1'] = input_blast_R1
+        processes[process_idx]['input_blast_R2'] = input_blast_R2
+        processes[process_idx]['temps_sam'] = temps_sam[idx]
         processes[process_idx]['outputs'] = outputs[idx]
-        processes[process_idx]['log_files'] = logs[idx]
+        processes[process_idx]['log_files'] = log_files[idx]
 
     for current_process in processes:
         if idx == 0:  # First process is threaded with parent job
             current_process['process'] = threading.Thread(target=function,
-                                                          args=(current_process['inputs'], current_process['temps'], current_process['outputs'], current_process['log_files'], reference))
+                                                          args=(reference, current_process['inputs_fasta'], current_process['input_blast_R1'], current_process['input_blast_R2'], current_process['temps_sam'], current_process['outputs'], current_process['log_files']))
         else:  # Others processes are processed on diffrerent CPU
             current_process['process'] = multiprocessing.Process(target=function,
-                                                                 args=(current_process['inputs'], current_process['temps'], current_process['outputs'], current_process['log_files'], reference))
+                                                                 args=(reference, current_process['inputs_fasta'], current_process['input_blast_R1'], current_process['input_blast_R2'], current_process['temps_sam'], current_process['outputs'], current_process['log_files']))
         current_process['process'].start()
     # Wait processes end
     for current_process in processes:
@@ -463,8 +462,10 @@ if __name__ == "__main__":
     log_rdp_list = []
     # needle on FROGS_combined
     fasta_needleall_list = []
+    blast_combined_list = []
     sam_needleall_list = []
     needleall_out_list = []
+    log_needleall_list = []
     # aln Blast on FROGS full length
     blast_out_list = []
     log_blast_list = []
@@ -490,14 +491,23 @@ if __name__ == "__main__":
             # global alignment
             if nb_combined > 0 :
                 # NeedleAll
-                sam_needleall_list.append( tmpFiles.add( fasta_combined + ".needleall.sam" ) )
-                needleall_out_list.append( tmpFiles.add( fasta_combined + ".needleall.blast_like" ) )
-                process_needleall(fasta_combined, sam_needleall_list[0],needleall_out_list[0], args.log_file, args.reference)
-            
+                split_combined_R1 = tmpFiles.add(os.path.basename(fasta_combined) + "_R1.fasta") 
+                split_combined_R2 = tmpFiles.add(os.path.basename(fasta_combined) + "_R2.fasta") 
+                SplitOnTag(fasta_combined , 100*"N" , split_combined_R1 , split_combined_R2 ).submit(args.log_file)
+                blast_combined_R1 = tmpFiles.add(os.path.basename(split_combined_R1) + ".blast") 
+                blast_combined_R2 = tmpFiles.add(os.path.basename(split_combined_R2) + ".blast") 
+                Blast(args.reference, split_combined_R1, blast_combined_R1, 1).submit(args.log_file)
+                Blast(args.reference, split_combined_R2, blast_combined_R2, 1).submit(args.log_file)
+                sam_needleall_list.append( tmpFiles.add( os.path.basename(fasta_combined) + ".needleall.sam" ) )
+                needleall_out_list.append( tmpFiles.add( os.path.basename(fasta_combined) + ".needleall.blast_like" ) )
+                log_needleall_list.append( tmpFiles.add( os.path.basename(fasta_combined) + ".needleall.log" ) )
+                process_needleall(args.reference, fasta_combined, blast_combined_R1, blast_combined_R2, sam_needleall_list[0], needleall_out_list[0], args.log_file)
+
             # local alignment                 
             #BLAST
             blast_out_list.append( tmpFiles.add(os.path.basename(fasta_full_length) + ".blast") )
             Blast(args.reference, fasta_full_length, blast_out_list[0], 1).submit(args.log_file)
+        # parallelisation
         else:
             # kmer method affiliation
             # RDP
@@ -510,12 +520,19 @@ if __name__ == "__main__":
             # alignment method affiliation
             # global alignment
             if nb_combined > 0:
-                split_fasta(fasta_combined, tmpFiles, max(1, int(args.nb_cpus/3)), fasta_needleall_list, args.log_file)
+                split_combined_R1 = tmpFiles.add(os.path.basename(fasta_combined) + "_R1.fasta") 
+                split_combined_R2 = tmpFiles.add(os.path.basename(fasta_combined) + "_R2.fasta") 
+                SplitOnTag(fasta_combined , 100*"N" , split_combined_R1 , split_combined_R2 ).submit(args.log_file)
+                blast_combined_R1 = tmpFiles.add(os.path.basename(split_combined_R1) + ".blast") 
+                blast_combined_R2 = tmpFiles.add(os.path.basename(split_combined_R2) + ".blast") 
+                Blast(args.reference, split_combined_R1, blast_combined_R1, 1).submit(args.log_file)
+                Blast(args.reference, split_combined_R2, blast_combined_R2, 1).submit(args.log_file)
+
+                split_fasta(fasta_combined, tmpFiles, max(1, int(args.nb_cpus/2)), fasta_needleall_list, args.log_file)
                 sam_needleall_list = [tmpFiles.add(os.path.basename(current_fasta) + ".needleall.sam", prefix="") for current_fasta in fasta_needleall_list ]
                 needleall_out_list = [tmpFiles.add(os.path.basename(current_fasta) + ".needleall.blast_like", prefix="") for current_fasta in fasta_needleall_list ]
                 log_needleall_list = [tmpFiles.add(os.path.basename(current_fasta) + ".needleall.log", prefix="" ) for current_fasta in fasta_needleall_list ]
-                needleall_parallel_submission( process_needleall, fasta_needleall_list, sam_needleall_list, needleall_out_list, log_needleall_list, len(fasta_needleall_list), args.reference)
-            
+                needleall_parallel_submission( process_needleall, args.reference, fasta_needleall_list, blast_combined_R1, blast_combined_R2, sam_needleall_list, needleall_out_list, log_needleall_list, len(fasta_needleall_list))
             # BLAST
             blast_out_list.append(tmpFiles.add(os.path.basename(fasta_full_length) + ".blast") )
             log_blast_list.append( tmpFiles.add(os.path.basename(fasta_full_length) + "_blast.log") ) 
