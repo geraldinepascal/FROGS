@@ -150,10 +150,9 @@ def get_needleall_version():
     """
     version = None
     try:
-        cmd = ["needlall", "-version"]
+        cmd = ["needleall", "--version"]
         p = Popen(cmd, stdout=PIPE, stderr=PIPE)
         stdout, stderr = p.communicate()
-
         version = stderr.strip()
     except:
         version = "unknown"
