@@ -54,6 +54,97 @@ from frogsSequenceIO import *
 #
 ##################################################################################################################################################
 
+class Pear(Cmd):
+    """
+    @summary: Overlapping and merging mate pairs from fragments shorter than twice the length of reads.
+    """
+    def __init__(self, in_R1, in_R2, out_prefix, pear_log, param):
+        """
+        @param in_R1: [str] Path to the R1 fastq file.
+        @param in_R2: [str] Path to the R2 fastq file.
+        @param out_prefix: [str] Prefix of path to the output fastq files.
+        @param pear_log: [str] Path to log file
+        @param param: [Namespace] The 'param.min_amplicon_size', 'param.max_amplicon_size', 'param.R1_size', 'param.R2_size'
+        """
+        min_overlap=max(param.R1_size+param.R2_size-param.max_amplicon_size, 10)
+        max_assembly_length=min(param.max_amplicon_size, param.R1_size + param.R2_size -10)
+        min_assembly_length=param.min_amplicon_size 
+
+        Cmd.__init__(self,
+            'pear',
+            'join overlapping paired reads',
+             ' --forward-fastq ' + in_R1 + ' --reverse-fastq ' + in_R2 +' --output ' + out_prefix \
+             + ' --min-overlap ' + str(min_overlap) + ' --max-assembly-length ' + str(max_assembly_length) + ' --min-assembly-length ' + str(min_assembly_length) \
+             + ' --keep-original > ' + pear_log,
+             ' --version')
+
+        self.output = out_prefix + '.assembled.fastq'
+
+    def get_version(self):
+        """
+        @summary: Returns the program version number.
+        @return: version number if this is possible, otherwise this method return 'unknown'.
+        """
+        return Cmd.get_version(self, 'stdout').split()[1].strip()
+
+    def parser(self, log_file):
+        """
+        @summary: Parse the command results to add information in log_file.
+        @log_file: [str] Path to the sample process log file.
+        """
+        # Parse output
+        nb_seq_merged = get_nb_seq(self.output)
+        # Write result
+        FH_log = Logger( log_file )
+        FH_log.write( 'Results:\n' )
+        FH_log.write( '\tnb seq merged: ' + str(nb_seq_merged) + '\n' )
+        FH_log.close()
+
+class Flash(Cmd):
+    """
+    @summary: Overlapping and merging mate pairs from fragments shorter than twice the length of reads. The others fragments are discarded.
+    """
+    def __init__(self, in_R1, in_R2, out_join_prefix , flash_err, param):
+        """
+        @param in_R1: [str] Path to the R1 fastq file.
+        @param in_R2: [str] Path to the R2 fastq file.
+        @param out_join_prefix: [str] Path to the output fastq file.
+        @param flash_err: [str] Path to the temporary stderr output file
+        @param param: [Namespace] The 'param.min_amplicon_size', 'param.max_amplicon_size', 'param.expected_amplicon_size', 'param.fungi' and param.mismatch_rate'
+        """
+        #min_overlap = max(1,(param.R1_size + param.R2_size) - param.max_amplicon_size )
+        min_overlap=max(param.R1_size+param.R2_size-param.max_amplicon_size, 10)
+        max_expected_overlap = (param.R1_size + param.R2_size) - param.expected_amplicon_size + min(20, int((param.expected_amplicon_size - param.min_amplicon_size)/2))
+        
+        outies=""
+        outies += " --allow-outies "
+        Cmd.__init__( self,
+                      'flash',
+                      'Join overlapping paired reads.',
+                      '--threads 1 '+ outies +' --min-overlap ' + str(min_overlap) + ' --max-overlap ' + str(max_expected_overlap) + ' --max-mismatch-density ' + str(param.mismatch_rate) +'  --compress ' + in_R1 + ' ' + in_R2 + ' --output-directory '+ os.path.dirname(out_join_prefix) + ' --output-prefix ' + os.path.basename(out_join_prefix) +' 2> ' + flash_err,
+                      ' --version' )
+        self.output = out_join_prefix + ".extendedFrags.fastq.gz"
+
+    def get_version(self):
+        """
+        @summary: Returns the program version number.
+        @return: version number if this is possible, otherwise this method return 'unknown'.
+        """
+        return Cmd.get_version(self, 'stdout').split()[1].strip()
+
+    def parser(self, log_file):
+        """
+        @summary: Parse the command results to add information in log_file.
+        @log_file: [str] Path to the sample process log file.
+        """
+        # Parse output
+        nb_seq_merged = get_nb_seq(self.output)
+        # Write result
+        FH_log = Logger( log_file )
+        FH_log.write( 'Results:\n' )
+        FH_log.write( '\tnb seq merged: ' + str(nb_seq_merged) + '\n' )
+        FH_log.close()
+
 class Vsearch(Cmd):
     """
     @summary: Overlapping and merging mate pairs from fragments shorter than twice the length of reads.
@@ -727,14 +818,34 @@ def process_sample(R1_file, R2_file, sample_name, out_file, art_out_file, length
     """
 
     tmp_files = TmpFiles( os.path.split(out_file)[0] )
+    
+    if args.sequencer == "illumina":
+        # FLASH
+        if args.merge_software == "flash":
+            out_contig = tmp_files.add( sample_name + '_flash.extendedFrags.fastq.gz' )
+            out_notcombined_R1 = tmp_files.add( sample_name + '_flash.notCombined_1.fastq.gz' )
+            out_notcombined_R2 = tmp_files.add( sample_name + '_flash.notCombined_2.fastq.gz' )
+            out_contig_log = tmp_files.add(sample_name + '_flash.stderr')
+            # other files to remove
+            tmp_files.add(sample_name + '_flash.hist')
+            tmp_files.add(sample_name + '_flash.histogram')
 
-    # VSEARCH
-    out_contig = tmp_files.add( sample_name + '_vsearch.assembled.fastq' )
-    out_notcombined_R1 = tmp_files.add( sample_name + '_vsearch.unassembled_R1.fastq' )
-    out_notcombined_R2 = tmp_files.add( sample_name + '_vsearch.unassembled_R2.fastq' )
-    out_contig_log = tmp_files.add(sample_name + '_vsearch.log')
+        # PEAR
+        elif args.merge_software == "pear":
+            out_contig = tmp_files.add( sample_name + '_pear.assembled.fastq' )
+            out_notcombined_R1 = tmp_files.add( sample_name + '_pear.unassembled.forward.fastq' )
+            out_notcombined_R2 = tmp_files.add( sample_name + '_pear.unassembled.reverse.fastq' )
+            out_contig_log = tmp_files.add(sample_name + '_pear.log')
+            tmp_files.add(sample_name + '_pear.discarded.fastq')   # other file to remove
 
-    out_artificial_combined = tmp_files.add( sample_name + '_artificial_combined.fastq.gz' )
+        # VSEARCH
+        elif args.merge_software == "vsearch":
+            out_contig = tmp_files.add( sample_name + '_vsearch.assembled.fastq' )
+            out_notcombined_R1 = tmp_files.add( sample_name + '_vsearch.unassembled_R1.fastq' )
+            out_notcombined_R2 = tmp_files.add( sample_name + '_vsearch.unassembled_R2.fastq' )
+            out_contig_log = tmp_files.add(sample_name + '_vsearch.log')
+
+        out_artificial_combined = tmp_files.add( sample_name + '_artificial_combined.fastq.gz' )
 
     # CUTADAPT ON COMBINED FILTER
     tmp_cutadapt = tmp_files.add( sample_name + '_cutadapt_5prim_trim.fastq.gz' )
@@ -773,8 +884,16 @@ def process_sample(R1_file, R2_file, sample_name, out_file, art_out_file, length
 
         # Commands execution
         if not args.already_contiged:
-            vsearch_cmd = Vsearch(R1_file, R2_file, out_contig.replace(".assembled.fastq",""), out_contig_log, args)
-            vsearch_cmd.submit(log_file)
+            if args.merge_software == "vsearch":
+                vsearch_cmd = Vsearch(R1_file, R2_file, out_contig.replace(".assembled.fastq",""), out_contig_log, args)
+                vsearch_cmd.submit(log_file)
+            elif args.merge_software == "flash":
+                flash_cmd = Flash(R1_file, R2_file, out_contig.replace(".extendedFrags.fastq.gz",""), out_contig_log, args)
+                flash_cmd.submit(log_file)
+            elif args.merge_software == "pear":
+                pear_cmd = Pear(R1_file, R2_file, out_contig.replace(".assembled.fastq",""), out_contig_log, args)
+                pear_cmd.submit(log_file)
+                
         else:
             out_contig = R1_file
         if args.sequencer == "454": # 454
@@ -958,9 +1077,11 @@ if __name__ == "__main__":
       [-s SUMMARY_FILE] [-l LOG_FILE]
 ''')
     #     Illumina parameters
+    parser_illumina.add_argument( '--merge-software', default="vsearch", choices=["vsearch","flash","pear"], help='Software used to merge paired reads' )
     parser_illumina.add_argument( '--keep-unmerged', default=False, action='store_true', help='In case of uncontiged paired reads, keep unmerged, and artificially combined them with 100 Ns.' )
     parser_illumina.add_argument( '--min-amplicon-size', type=int, required=True, help='The minimum size for the amplicons (with primers).' )
     parser_illumina.add_argument( '--max-amplicon-size', type=int, required=True, help='The maximum size for the amplicons (with primers).' )
+    parser_illumina.add_argument( '--expected-amplicon-size', type=int, help='The expected size for the majority of the amplicons (with primers).' )
     parser_illumina.add_argument( '--five-prim-primer', type=str, help="The 5' primer sequence (wildcards are accepted)." )
     parser_illumina.add_argument( '--three-prim-primer', type=str, help="The 3' primer sequence (wildcards are accepted)." )
     parser_illumina.add_argument( '--without-primers', action='store_true', default=False, help="Use this option when you use custom sequencing primers and these primers are the PCR primers. In this case the reads do not contain the PCR primers." )
@@ -1031,6 +1152,7 @@ if __name__ == "__main__":
         if args.samples_names is not None: raise argparse.ArgumentTypeError( "With '--archive-file' parameter you cannot set the parameter '--samples-names'." )
         if args.sequencer == "illumina":
             if args.input_R2 is not None: raise argparse.ArgumentTypeError( "With '--archive-file' parameter you cannot set the parameter '--R2-files'." )
+            
     else:  # inputs are files
         if args.input_R1 is None: raise argparse.ArgumentTypeError( "'--R1-files' is required." )
         if args.samples_names is not None:
@@ -1040,6 +1162,7 @@ if __name__ == "__main__":
                 raise argparse.ArgumentTypeError( 'Samples names must be unique (duplicated: "' + '", "'.join(duplicated_samples) + '").' )
         if args.sequencer == "illumina":
             if not args.already_contiged and args.input_R2 is None: raise argparse.ArgumentTypeError( "'--R2-files' is required." )
+
     if args.sequencer == "illumina":
         if (args.R1_size is None or args.R2_size is None ) and not args.already_contiged: raise Exception( "'--R1-size/--R2-size' or '--already-contiged' must be setted." )
         if args.without_primers:
@@ -1048,6 +1171,9 @@ if __name__ == "__main__":
             if args.five_prim_primer is None or args.three_prim_primer is None: raise argparse.ArgumentTypeError( "'--five-prim-primer/--three-prim-primer' or 'without-primers'  must be setted." )
             if args.min_amplicon_size <= (len(args.five_prim_primer) + len(args.five_prim_primer)): raise argparse.ArgumentTypeError( "The minimum length of the amplicon (--min-length) must be superior to the size of the two primers." )
         if (args.already_contiged and args.keep_unmerged): raise Exception("--already-contiged and keep-unmerged options cannot be used together")
+        if (not args.already_contiged):
+            if args.merge_software == "flash":
+                if args.expected_amplicon_size is None: raise argparse.ArgumentTypeError( "With '--merge-software flash' you need to set the parameter '--expected-amplicon-size'." )
 
     # Process
     process( args )

@@ -16,9 +16,31 @@ echo "Illumina R1 and R2"
 ./preprocess.py illumina --input-R1 data/sampleA_R1.fastq.gz data/sampleB_R1.fastq.gz --input-R2 data/sampleA_R2.fastq.gz data/sampleB_R2.fastq.gz \
                          --samples-names sample_A sample_B \
                          --R1-size 251 --R2-size 251 \
+                         --merge-software vsearch \
                          --min-amplicon-size 340 --max-amplicon-size 450 \
                          --five-prim-primer "CCGTCAATTC" --three-prim-primer "CCGCNGCTGCT" \
                          --output-dereplicated test/derep_illumina_R1R2.fasta --output-count test/count_illumina_R1R2.tsv --summary test/summary_illumina_R1R2.html --log-file test/log_illumina_R1R2.txt
+
+# Illumina R1 and R2 with PEAR
+echo "Illumina R1 and R2 with PEAR"
+./preprocess.py illumina --input-R1 data/sampleA_R1.fastq.gz data/sampleB_R1.fastq.gz --input-R2 data/sampleA_R2.fastq.gz data/sampleB_R2.fastq.gz \
+                         --samples-names sample_A sample_B \
+                         --R1-size 251 --R2-size 251 \
+                         --merge-software pear \
+                         --min-amplicon-size 340 --max-amplicon-size 450 \
+                         --five-prim-primer "CCGTCAATTC" --three-prim-primer "CCGCNGCTGCT" \
+                         --output-dereplicated test/derep_illumina_R1R2_pear.fasta --output-count test/count_illumina_R1R2_pear.tsv --summary test/summary_illumina_R1R2_pear.html --log-file test/log_illumina_R1R2_pear.txt
+
+# Illumina R1 and R2 with flash
+echo "Illumina R1 and R2 with flash"
+./preprocess.py illumina --input-R1 data/sampleA_R1.fastq.gz data/sampleB_R1.fastq.gz --input-R2 data/sampleA_R2.fastq.gz data/sampleB_R2.fastq.gz \
+                         --samples-names sample_A sample_B \
+                         --R1-size 251 --R2-size 251 \
+                         --expected-amplicon-size 410 \
+                         --merge-software flash \
+                         --min-amplicon-size 340 --max-amplicon-size 450 \
+                         --five-prim-primer "CCGTCAATTC" --three-prim-primer "CCGCNGCTGCT" \
+                         --output-dereplicated test/derep_illumina_R1R2_flash.fasta --output-count test/count_illumina_R1R2_flash.tsv --summary test/summary_illumina_R1R2_flash.html --log-file test/log_illumina_R1R2_flash.txt
 
 # Illumina tar R1 and R2, keep unmerged
 echo "Illumina tar R1 and R2, keep unmerged"

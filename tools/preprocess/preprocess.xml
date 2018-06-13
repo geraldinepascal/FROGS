@@ -40,6 +40,9 @@
 		    #elif $sequencer_type.sequencer_selected == "illumina"
 	            --R1-size $sequencer_type.input_type.archive_type.R1_size --R2-size $sequencer_type.input_type.archive_type.R2_size 
 	        	--mismatch-rate $sequencer_type.input_type.archive_type.mm_rate
+	        	--merge-software $sequencer_type.input_type.archive_type.merge_software
+	        	#if $sequencer_type.input_type.archive_type.merge_software == "flash"
+					--expected-amplicon-size $sequencer_type.input_type.archive_type.expected_amplicon_size
 	        	#if $sequencer_type.input_type.archive_type.keep_unmerged
 	        		--keep-unmerged
 	        	#end if
@@ -64,6 +67,9 @@
 		            #end for
 		            --R1-size $sequencer_type.input_type.files_by_samples_type.R1_size --R2-size $sequencer_type.input_type.files_by_samples_type.R2_size 
 		            --mismatch-rate $sequencer_type.input_type.files_by_samples_type.mm_rate
+		            --merge-software $sequencer_type.input_type.files_by_samples_type.merge_software
+		            #if $sequencer_type.input_type.files_by_samples_type.merge_software == "flash"
+						--expected-amplicon-size $sequencer_type.input_type.files_by_samples_type.expected_amplicon_size
 		            #if $sequencer_type.input_type.files_by_samples_type.keep_unmerged
 	        			--keep-unmerged
 	        		#end if
@@ -105,6 +111,20 @@
 								<param name="R1_size" type="integer" label="Reads 1 size" help="The maximum read1 size." value="" optional="false" />
 								<param name="R2_size" type="integer" label="Reads 2 size" help="The maximum read2 size." value="" optional="false" />
 								<param name="mm_rate" type="float" label="mismatch rate." help="The maximum rate of mismatch in the overlap region" value="0.1" optional="false" />
+								
+								<conditional name="merge_software_type">
+									<param name="merge_software" type="select" label="Merge software" help="Select the software to merge paired-end reads.">
+										<option value="vsearch" selected="true">Vsearch</option>
+										<option value="flash">Flash</option>
+									</param>
+									<when value="flash">
+										<param name="expected_amplicon_size" type="integer" label="Expected amplicon size" help="Maximum amplicon length expected in approximately 90% of the amplicons." value="" />
+									</when>
+								</conditional>
+								<!--<param name="merge_software" type="select" label="Merge software" help="Select the software to merge paired-end reads.">
+									<option value="vsearch" selected="true">Vsearch</option>
+									<option value="flash">Flash</option>
+								</param>-->
 								<param name="keep_unmerged" type="boolean" label="Would you like to keep unmerged reads?" help="No : Unmerged reads will be excluded; Yes : unmerged reads will be artificially combined with 100 N. (default No)" />
 							</when>
 							<when value="already_merged"></when>
@@ -129,6 +149,20 @@
 								<param name="R1_size" type="integer" label="Reads 1 size" help="The maximum read1 size." value="" optional="false" />
 								<param name="R2_size" type="integer" label="Reads 2 size" help="The maximum read2 size." value="" optional="false" />
 								<param name="mm_rate" type="float" label="mismatch rate." help="The maximum rate of mismatches in the overlap region" value="0.1" optional="false" />
+								<conditional name="merge_software_type">
+									<param name="merge_software" type="select" label="Merge software" help="Select the software to merge paired-end reads.">
+										<option value="vsearch" selected="true">Vsearch</option>
+										<option value="flash">Flash</option>
+									</param>
+									<when value="flash">
+										<param name="expected_amplicon_size" type="integer" label="Expected amplicon size" help="Maximum amplicon length expected in approximately 90% of the amplicons." value="" />
+									</when>
+								</conditional>
+								<!--
+								<param name="merge_software" type="select" label="Merge software" help="Select the software to merge paired-end reads.">
+									<option value="vsearch" selected="true">Vsearch</option>
+									<option value="flash">Flash</option>
+								</param>-->
 								<param name="keep_unmerged" type="boolean" label="Would you like to keep unmerged reads?" help="No : Unmerged reads will be excluded; Yes : unmerged reads will be artificially combined with 100 N. (default No)" />
 							</when>
 							<when value="already_merged">
@@ -282,7 +316,7 @@ How it works
    :widths: 5, 150, 150
    :class: table table-striped
 
-   "1", "For un-merged data: merges R1 and R2 with a maximum of M% mismatch in the overlaped region(`VSEARCH &lt;https://github.com/torognes/vsearch/&gt;`_). Resulting un-merged reads may optionnaly be artificially combined by adding 100 N between the reads", "/"
+   "1", "For un-merged data: merges R1 and R2 with a maximum of M% mismatch in the overlaped region(`VSEARCH &lt;https://github.com/torognes/vsearch/&gt;`_ or `FLASH &lt;https://ccb.jhu.edu/software/FLASH/&gt;`_). Resulting un-merged reads may optionnaly be artificially combined by adding 100 N between the reads", "/"
    "2", "If sequencing protocol is the illumina standard protocol : Removes sequences where the two primers are not present and then remove primers in the remaining sequence (`cutadapt &lt;http://cutadapt.readthedocs.org/en/latest/guide.html&gt;`_). The primer search accepts 10% of differences", "Removes sequences where the two primers are not present, removes primers sequence and reverse complement the sequences on strand -  (`cutadapt &lt;http://cutadapt.readthedocs.org/en/latest/guide.html&gt;`_). The primer search accepts 10% of differences"
    "3", "Filters sequences with ambiguous nucleotides and for merged sequences filters on their length which must be range between 'Minimum amplicon size - primer length' and 'Maximum amplicon size - primer length'", "the tool removes sequences with at least one homopolymer with more than seven nucleotides and with a distance of less than or equal to 10 nucleo-tides between two poor quality positions, i.e. with a Phred quality score lesser than 10" 
    "4", "Dereplicates sequences", "Dereplicates sequences"

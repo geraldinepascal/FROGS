@@ -103,8 +103,20 @@
     perl interpreter
         Version: 5
         Tools: demultiplex
+    
+    vsearch
+        Version: 1.1.3
+        Named as: vsearch
+        Tools: preprocess and remove_chimera
+        Download: https://github.com/torognes/vsearch
 
-    pear
+    flash
+        Version: 1.2.11
+        Named as: flash
+        Tools: preprocess
+        Download: https://sourceforge.net/projects/flashpage/files/
+
+    pear (optional)
         Version: 0.9.10
         Named as: pear
         Tools: preprocess
@@ -134,12 +146,6 @@
         Named as: swarm
         Tools: clustering
         Download: https://github.com/torognes/swarm
-
-    vsearch
-        Version: 1.1.3
-        Named as: vsearch
-        Tools: remove_chimera
-        Download: https://github.com/torognes/vsearch
 
     NCBI Blast+ blastn
         Version: 2.2.30+
