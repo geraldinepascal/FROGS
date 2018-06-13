@@ -131,6 +131,18 @@
         Download: https://github.com/marcelm/cutadapt
                   OR
                   https://pypi.python.org/pypi/cutadapt
+                  
+    vsearch
+        Version: 1.1.3
+        Named as: vsearch
+        Tools: remove_chimera
+        Download: https://github.com/torognes/vsearch
+        
+    swarm
+        Version: 2.1.1
+        Named as: swarm
+        Tools: clustering
+        Download: https://github.com/torognes/swarm
 
     ITSx
         Version : 1.0.11
@@ -166,6 +178,12 @@
         Install: sudo apt-get install util-linux
                  OR
                  sudo yum install util-linux
+
+    Needlall
+        Version: EMBOSS:6.6.0.0
+        Named as: needleall
+        Tools : affiliation_OTU
+        Download : ftp://emboss.open-bio.org/pub/EMBOSS/
 
     Pynast
         Version: 1.2.2

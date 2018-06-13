@@ -1,10 +1,11 @@
 # v3.0.0 [DEV]:
 ### Function added:
-  * Preprocess : keep and filter non overlapped reads (particularly important for ITS amplicon)
+  * Preprocess : keep and filter non overlapped reads (particularly important for amplicon polymorphe in length)
 
 ### Modification:
   * Preprocess : add VSEARCH and PEAR (https://sco.h-its.org/exelixis/web/software/pear/) options to merge reads, remove expected-amplicon-length options
   * FROGSSTAT tools do not call anymore external script from urls. Additionnal library dependancies added : https://github.com/mahendra-mariadassou/phyloseq-extended/releases
+  * Affiliation : non overlapped read generate FROGS_combined OTU that are affiliated thanks to Needl (http://emboss.sourceforge.net/apps/release/6.6/emboss/apps/needleall.html) global alignment
 
 ### Bugs fixes:
   * Phyloseq import: bug when Tree is None

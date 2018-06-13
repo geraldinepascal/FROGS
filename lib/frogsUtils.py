@@ -132,6 +132,7 @@ class Cmd:
         # Log
         if log_file is not None:
             FH_log = Logger( log_file )
+            FH_log.write( '########################################################################################################\n' )
             FH_log.write( '# ' + self.description + ' (' + os.path.basename(self.program) + ' version : ' + self.get_version() + ')\n' )
             FH_log.write( 'Command:\n\t' + self.get_cmd() + '\n\n' )
             FH_log.write( 'Execution:\n\tstart: ' + time.strftime("%d %b %Y %H:%M:%S", time.localtime()) + '\n' )
