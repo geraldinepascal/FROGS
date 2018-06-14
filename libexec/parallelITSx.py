@@ -41,6 +41,7 @@ else: os.environ['PYTHONPATH'] = os.environ['PYTHONPATH'] + os.pathsep + LIB_DIR
 
 from frogsSequenceIO import *
 from frogsUtils import *
+from frogsBiom import BiomIO
 
 ##################################################################################################################################################
 #
@@ -181,10 +182,12 @@ def parseITSxResult(input_dir, prefix, its, out, log):
         for record in FH_in:
             count_ITSx[detection_type] += 1
             if detection_type == its :
+                """
                 if not ";size=" in record.id : 
                     record.id += "_"+its
                 else :
                     record.id = record.id.replace(";size=", "_"+its+";size=")
+                """
                 FH_out.write(record)
 
         FH_in.close()
@@ -193,12 +196,12 @@ def parseITSxResult(input_dir, prefix, its, out, log):
 
     FH_log = Logger( log )
     FH_log.write("##Results\n")
-    FH_log.write("Output file :" + os.path.split(out)[1] + "\n" )
+    #FH_log.write("Output file :" + os.path.split(out)[1] + "\n" )
     for detection_type in count_ITSx :
         if detection_type == its:
-            FH_log.write("nb "+detection_type+ " (kept): " + str(count_ITSx[detection_type]) + "\n")
+            FH_log.write("\tnb "+detection_type+ " (kept): " + str(count_ITSx[detection_type]) + "\n")
         else : 
-            FH_log.write("nb "+detection_type+ " (removed): " + str(count_ITSx[detection_type]) + "\n")
+            FH_log.write("\tnb "+detection_type+ " (removed): " + str(count_ITSx[detection_type]) + "\n")
     FH_log.close()
 
 def process_ITSx(in_fasta, its, cwd, out, log_file):
@@ -275,14 +278,199 @@ def update_count(input_count, input_fasta, output_count) :
             elif seq_id + "_FROGS_combined" in seq_dict :
                 FH_out.write( seq_dict[seq_id + "_FROGS_combined"] + "\t" + "\t".join(line.split()[1:]) + "\n")
 
-def main_process(args):
+def remove_itsx_fasta( in_fasta, out_fasta, kept_observ, user_size_separator ):
+    in_fasta_fh = FastaIO( in_fasta )
+    out_fasta_fh = FastaIO( out_fasta, "w")
+    for record in in_fasta_fh:
+        real_id = record.id
+        if user_size_separator is not None and user_size_separator in record.id:
+            real_id = record.id.rsplit(user_size_separator, 1)[0]
+        if kept_observ.has_key(real_id):
+            record.id = real_id
+            if user_size_separator is not None:
+                record.id = real_id + user_size_separator + str(kept_observ[real_id])
+            out_fasta_fh.write(record)
+    in_fasta_fh.close()
+    out_fasta_fh.close()
 
+def remove_observations( removed_observations, input_biom, output_biom ):
+    """
+    @summary: Removes the specified list of observations.
+    @param removed_observations: [list] The names of the observations to remove.
+    @param input_biom: [str] The path to the input BIOM.
+    @param output_biom: [str] The path to the output BIOM.
+    """
+    biom = BiomIO.from_json( input_biom )
+    biom.remove_observations( removed_observations )
+    BiomIO.write( output_biom, biom )
+
+def write_summary( samples_names, log_remove_global, log_remove_spl, out_file ):
+    """
+    @summary: Writes the summary file.
+    @param samples_names: [list] The samples names.
+    @param sample_logs: [list] list of sample logs files
+    @param log_remove_global: [dict] The global remove metrics.
+    @param log_remove_spl: [dict] The remove metrics by sample.
+    @param out_file: [str] Path to the summary file.
+    """
+    
+    """
+    # Collect metrics
+    detection_results = dict()
+    for idx, sample in enumerate(samples_names):
+        detection_results[sample] = get_sample_resuts(sample_logs[idx])
+    """
+    # Writes output
+    FH_out = open(out_file, "w")
+    print log_remove_global
+    print log_remove_spl
+    global_remove_results = [ log_remove_global['nb_removed'], log_remove_global['nb_kept'],
+                              log_remove_global['abundance_removed'], log_remove_global['abundance_kept']]
+    FH_out.write( '##Metrics global\n' )
+    FH_out.write( "\t".join(['#Nb removed', 'Nb kept', 'Abundance removed', 'Abundance kept']) + "\n" )
+    FH_out.write( "\t".join(map(str, global_remove_results)) + "\n" )
+    FH_out.write( "\n" )
+
+    FH_out.write( '##Metrics by sample\n' )
+    FH_out.write( "\t".join(['#Sample name', 'Kept nb', 'Kept abundance', 'Removed nb', 'Removed abundance', 'Abundance of the most abundant removed', 'Detected nb', 'Detected abundance', 'Abundance of the most abundant detected']) + "\n" )
+    for sample in sorted(samples_names):
+        sample_remove_results = "\t".join(map(str, [sample,
+                                                    log_remove_spl[sample]['nb_kept'],
+                                                    log_remove_spl[sample]['kept_abundance'],
+                                                    log_remove_spl[sample]['nb_removed'],
+                                                    log_remove_spl[sample]['removed_abundance'],
+                                                    log_remove_spl[sample]['removed_max_abundance'],""",
+                                                    detection_results[sample]['nb_chimera'],
+                                                    detection_results[sample]['chimera_abundance'],
+                                                    detection_results[sample]['chimera_max_abundance'],"""
+                                                    ]))
+        FH_out.write( sample_remove_results + "\n" )
+    FH_out.write( "\n" )
+
+    FH_out.close()
+
+def remove_itsx_biom( samples, itsx_file, in_biom_file, out_biom_file, global_report, bySample_report, log_file ):
+    """
+    @summary: Removes the chimera observation from BIOM.
+    @param samples: [list] samples name list
+    @param chimera_files : [list] samples chimera files
+    @param in_biom_file: [str] The path to the BIOM file to filter.
+    @param out_biom_file: [str] The path to the BIOM after filter.
+    
+    @param global_report: [dict] This dictionary is update with the global
+                          number of removed observations, the global removed
+                          abundance, ...
+    @param bySample_report: [dict] This dictionary is update for add by sample the
+                            number of removed observations, the removed
+                            abundance, ...
+    @param log_file : [path] Path to general log output file
+    """
+    FH_log = Logger(log_file)
+    FH_log.write("## Removes the chimera observation from BIOM.\n")
+    
+
+    # Init bySample_report
+    # Init bySample_report
+    for sample_name in samples:
+        bySample_report[sample_name] = {
+            'nb_kept': 0,
+            'kept_abundance': 0,
+            'nb_removed': 0,
+            'removed_abundance': 0,
+            'removed_max_abundance': 0
+        }
+    # Retrieve IDs to remove
+    biom = BiomIO.from_json(in_biom_file)
+    
+    all_observations = list()
+    for current_idx, observation_name in enumerate(biom.get_observations_names()):
+        all_observations.append(observation_name.encode('UTF8'))
+    print all_observations
+    record_iter = FastaIO( itsx_file )
+    itsx_ids = list()
+    for idx, record in enumerate(record_iter):
+        itsx_ids.append(record.id)
+    
+    lost_clusters = [x for x in all_observations if x in itsx_ids]
+    
+    print itsx_ids
+    print len(lost_clusters)
+    
+    
+    kept_clusters = [x for x in all_observations if not x in itsx_ids]
+    
+    for lost_cluster in lost_clusters:
+        print lost_cluster
+        global_report['nb_removed'] += 1
+        global_report['abundance_removed'] += biom.get_observation_count(lost_cluster)
+        # By sample metrics
+        for sample in biom.get_samples_by_observation(lost_cluster):
+            sample_count = biom.get_count(lost_cluster, sample['id'])
+            bySample_report[sample['id']]['nb_removed'] += 1
+            bySample_report[sample['id']]['removed_abundance'] += sample_count
+            bySample_report[sample['id']]['removed_max_abundance'] = max(bySample_report[sample['id']]['removed_max_abundance'], sample_count)
+    
+    for kept_cluster in kept_clusters:
+        global_report['nb_kept'] += 1
+        global_report['abundance_kept'] += biom.get_observation_count(kept_cluster)
+        # By sample metrics
+        for sample in biom.get_samples_by_observation(kept_cluster):
+            sample_count = biom.get_count(observation_name, sample['id'])
+            bySample_report[sample['id']]['nb_kept'] += 1
+            bySample_report[sample['id']]['kept_abundance'] += sample_count
+    
+    remove_observations( lost_clusters, in_biom_file, out_biom_file )
+
+
+    """
+    # Remove chimera
+    removed_chimera = list()
+    biom = BiomIO.from_json(in_biom_file)
+    for chimera_name in nb_sample_by_chimera.keys():
+        is_always_chimera = True
+        nb_sample_with_obs = sum( 1 for sample in biom.get_samples_by_observation(chimera_name) )
+        observation_abundance = biom.get_observation_count(chimera_name)
+        if nb_sample_with_obs != nb_sample_by_chimera[chimera_name]:
+            is_always_chimera = False
+            global_report['nb_ambiguous'] += 1
+            global_report['abundance_ambiguous'] += observation_abundance
+            FH_log.write("'" + chimera_name + "' is not interpreted as chimera in all samples where it is present.\n")
+        if not lenient_filter or is_always_chimera:
+            removed_chimera.append(chimera_name)
+            # Global metrics
+            global_report['nb_removed'] += 1
+            global_report['abundance_removed'] += observation_abundance
+            # By sample metrics
+            for sample in biom.get_samples_by_observation(chimera_name):
+                sample_count = biom.get_count(chimera_name, sample['id'])
+                bySample_report[sample['id']]['nb_removed'] += 1
+                bySample_report[sample['id']]['removed_abundance'] += sample_count
+                bySample_report[sample['id']]['removed_max_abundance'] = max(bySample_report[sample['id']]['removed_max_abundance'], sample_count)
+    biom.remove_observations(removed_chimera)
+
+    # Nb non-chimera
+    for observation_name in biom.get_observations_names():
+        global_report['nb_kept'] += 1
+        global_report['abundance_kept'] += biom.get_observation_count(observation_name)
+        # By sample metrics
+        for sample in biom.get_samples_by_observation(observation_name):
+            sample_count = biom.get_count(observation_name, sample['id'])
+            bySample_report[sample['id']]['nb_kept'] += 1
+            bySample_report[sample['id']]['kept_abundance'] += sample_count
+    BiomIO.write(out_biom_file, biom)
+    FH_log.close()
+    # End remove chimera
+    """
+
+def main_process(args):
     try : 
-        
         tmpFiles = TmpFiles(os.path.split(args.output_fasta)[0])
 
         # set number of process
         nb_seq = get_fasta_nb_seq(args.input_fasta)
+        
+        in_biom = BiomIO.from_json( args.input_biom )
+        samples = in_biom.get_samples_names()
         
         if args.nb_cpus == 1 or nb_seq < 10:
             in_fasta = os.path.abspath(args.input_fasta)
@@ -303,9 +491,23 @@ def main_process(args):
 
             # Logs
             append_results(ITSx_outputs, logs_ITSx, args.output_fasta, args.log_file)
-
-        update_count(args.input_count, args.output_fasta, args.output_count)
+        
+        itsx_file = args.output_fasta
+        log_remove_global = { 'nb_kept': 0,
+                              'abundance_kept': 0,
+                              'nb_removed': 0,
+                              'abundance_removed': 0,
+                            }
+        log_remove_spl = {}
+        if args.input_biom is not None:
+            remove_itsx_biom( samples, itsx_file, args.input_biom, args.output_biom, log_remove_global, log_remove_spl, args.log_file )
+            #remove_itsx_fasta( args.sequences, args.non_chimera, get_obs_from_biom(args.out_abundance), args.size_separator )
+        
+        #update_count(args.input_count, args.output_fasta, args.output_count)
     
+        # Summary
+        write_summary( samples, log_remove_global, log_remove_spl, args.summary )
+        
     finally:
         if not args.debug:
             tmpFiles.deleteAll()
@@ -327,10 +529,11 @@ if __name__ == "__main__":
     parser.add_argument( '-i', '--its', type=str, required=True, choices=['ITS1','ITS2'], help='Which ITS region are targeted. either ITS1 or ITS2 ')
     group_input = parser.add_argument_group( 'Inputs' ) # Inputs
     group_input.add_argument( '-f', '--input-fasta', required=True, help='The fasta input sequences to treat' )
-    group_input.add_argument( '-c', '--input-count', required=True, help='The count tsv file associated with input fasta file' )
+    group_input.add_argument( '-b', '--input-biom', required=True, help='The abundance file for clusters by sample (format: BIOM).' )
     group_output = parser.add_argument_group( 'Outputs' ) # Outputs
-    group_output.add_argument( '-o', '--output-fasta', default='ITS.fasta', help='Fasta with ITS sequences only. [Default: %(default)s]' )
-    group_output.add_argument( '-a', '--output-count', default='ITS.count.tsv', help='Updated count tsv file. [Default: %(default)s]' )
+    group_output.add_argument( '-o', '--output-fasta', default='ITSX.fasta', help='Fasta with ITS sequences only. [Default: %(default)s]' )
+    group_output.add_argument( '--summary', default='summary.tsv', help='Summary file. [Default: %(default)s]' )
+    group_output.add_argument( '-a', '--output-biom', default='ITSX.biom', help='Updated BIOM file. [Default: %(default)s]' )
     group_output.add_argument( '--log-file', default=sys.stdout, help='This output file will contain several information on executed commands.' )
     args = parser.parse_args()
 
