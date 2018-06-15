@@ -279,7 +279,6 @@ def write_summary( samples_names, log_remove_global, log_remove_spl, out_file ):
     """
     # Writes output
     FH_out = open(out_file, "w")
-    FH_out.write(str(log_remove_spl))
     global_remove_results = [ log_remove_global['nb_removed'], log_remove_global['nb_kept'],
                               log_remove_global['abundance_removed'], log_remove_global['abundance_kept']]
     FH_out.write( '##Metrics global\n' )
