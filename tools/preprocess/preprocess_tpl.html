@@ -169,6 +169,13 @@
                         title: {
                             text: pYTitle
                         },
+                        stackLabels: {
+							enabled: true,
+							style: {
+								fontWeight: 'bold',
+								color: (Highcharts.theme && Highcharts.theme.textColor) || 'gray'
+							}
+						},
                         plotLines:[{
                             color: "#A2A32F",
                             width: 2,
@@ -194,6 +201,14 @@
                     },
                     plotOptions: {
                         column: {
+							stacking: 'normal',
+							dataLabels: {
+								enabled: true,
+								style: {
+									textShadow: false,
+									color: (Highcharts.theme && Highcharts.theme.textColor) || 'white'
+								}
+							},
                             pointPadding: 0.2,
                             borderWidth: 0
                         }
@@ -344,6 +359,7 @@
                     } 
 
                 }
+                
                 var global_series = [ { name: 'combined', data: extended_data }]
                 if ("artificial combined" in filters_by_sample) {
                     global_series.push({name: 'artificial combined', data: non_overlapped_data});
@@ -475,7 +491,6 @@
                 
                 // Display summary
                 summaryLoad();
-                
                 // Display data by sample
                 if ("combined" in filters_by_sample ){
                     sampleDetailsLoad("combined",true, "filterBySample-table-combined", true);
