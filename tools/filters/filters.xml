@@ -123,7 +123,7 @@
 			</param>
 			<when value="no"></when>
 			<when value="yes">
-				<param name="contaminants_db" type="select" label="Cotaminant databank" help="The phiX databank (the phiX is a control added in Illumina sequencing technologies).">
+				<param name="contaminants_db" type="select" label="Contaminant databank" help="The phiX databank (the phiX is a control added in Illumina sequencing technologies).">
 		       		<options from_file="phiX_db.loc">
 		          		<column name="name" index="0"/>
 		          		<column name="value" index="1"/>
