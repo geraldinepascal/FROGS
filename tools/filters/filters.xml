@@ -114,7 +114,7 @@
 		</conditional>
 		
 		<conditional name="contaminations_filter">
-			<param name="contaminations_filter_isApplied" type="select" label=" *** THE FILTERS ON CONTAMINATIONS" help="If you want to filter OTUs on classical contaminations.">
+			<param name="contaminants_db" type="select" label="Contaminant databank" help="The phiX databank (the phiX is a control added in Illumina sequencing technologies).">
 				<option value="no">No filters</option>
 				<option value="yes">Apply filters</option>
 			</param>
