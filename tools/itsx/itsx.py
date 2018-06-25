@@ -111,25 +111,6 @@ class ITSx(Cmd):
 # FUNCTIONS
 #
 ##################################################################################################################################################
-def get_size_separator( in_fasta ):
-    size_separator = ';size='
-    FH_seq = FastaIO( in_fasta )
-    record = FH_seq.next_seq()
-    seq_idx = 1
-    while seq_idx < 10 and size_separator is not None and record is not None:
-        if not size_separator in record.id:
-            size_separator = None
-        elif size_separator is not None:
-            try:
-                real_id, size = record.id.rsplit(size_separator, 1)
-                int(size)
-            except:
-                size_separator = None
-        record = FH_seq.next_seq()
-        seq_idx += 1
-    FH_seq.close()
-    return size_separator
-
 def log_append_files( log_file, appended_files ):
     """
     @summary: Append content of several log files in one log file.
@@ -176,34 +157,6 @@ def write_summary( summary_file, input_biom, output_biom, discards ):
             'filtered': dict(),
             'kept': 0
         }
-	
-    # By sample and by filters
-    filters_intersections = dict()
-    for filter in discards.keys():
-        FH_filter = open( discards[filter] )
-        for line in FH_filter:
-            observation_name = line.strip()
-            if not filters_intersections.has_key( observation_name ):
-                filters_intersections[observation_name] = dict()
-            filters_intersections[observation_name][filter] = 1
-        FH_filter.close()
-    for observation_name in filters_intersections.keys():
-        # Removed intersection
-        intersections_key = "--@@--".join(sorted( filters_intersections[observation_name].keys() ))
-        if not filters_results.has_key( intersections_key ):
-            filters_results[intersections_key] = {
-                'filters': filters_intersections[observation_name].keys(),
-                'count': 0
-            }
-        filters_results[intersections_key]['count'] += 1
-
-        # Filters by samples
-        for sample in in_biom.get_samples_by_observation(observation_name):
-            for filter in filters_intersections[observation_name]:
-                if not samples_results[sample['id']]['filtered'].has_key(filter):
-                    samples_results[sample['id']]['filtered'][filter] = 0
-                samples_results[sample['id']]['filtered'][filter] += 1
-    del in_biom
 	
     # Global after filters
     out_biom = BiomIO.from_json( output_biom )
@@ -269,36 +222,16 @@ if __name__ == "__main__":
     # Process
     try:
         Logger.static_write(args.log_file, "## Application\nSoftware :" + sys.argv[0] + " (version : " + str(__version__) + ")\nCommand : " + " ".join(sys.argv) + "\n\n")
-
-        #tmp_chimera_summary = tmpFiles.add(os.path.basename(args.non_chimera) + "_summary.tsv")
-        tmp_log  = tmpFiles.add(os.path.basename(args.out_fasta) + "_tmp.log")
-        #size_separator = get_size_separator( args.input_fasta )
         log_itsx = tmpFiles.add("ITSx.log")
-        #fasta_itsx = tmp_files.add("ITSx.fasta")
-        #count_itsx = tmp_files.add("ITSx.count")
-        print args.out_abundance
         if args.input_count is None:
             if args.out_abundance == None:
                 args.out_abundance = "itsx_abundance.biom"
-            ITSx(args.input_fasta, args.input_biom, args.region, args.out_fasta, args.out_abundance, log_itsx, args ).submit( args.log_file )
         else:
             if args.out_abundance == None:
                 args.out_abundance = "itsx_abundance.count"
-            ITSx(args.input_fasta, args.input_biom, args.region, args.out_fasta, args.out_abundance, log_itsx, args ).submit( args.log_file )
-            #ParallelChimera( args.input_fasta, args.input_count, args.non_chimera, args.out_abundance, tmp_chimera_summary, "count", args.nb_cpus, tmp_log, size_separator ).submit( args.log_file )
         
-        """
-        discards = dict() # by filter the discard file path
-        label = "nb full (removed)"
-            discards[label] = tmpFiles.add( "min_sample_presence" )
-            excluded_obs_on_samplePresence( args.input_biom, args.min_sample_presence, discards[label] )
-        """
-        
-        print tmpFiles.files
-        
+        ITSx(args.input_fasta, args.input_biom, args.region, args.out_fasta, args.out_abundance, log_itsx, args ).submit( args.log_file )
         write_summary( args.summary, args.input_biom, args.out_abundance, {} )
-        
-        
         
         # Append independant log files
         log_append_files( args.log_file, [log_itsx] )

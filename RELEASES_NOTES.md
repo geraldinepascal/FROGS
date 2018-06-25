@@ -1,6 +1,7 @@
 # v3.0.0 [DEV]:
 ### Function added:
   * Preprocess : keep and filter non overlapped reads (particularly important for amplicon polymorphe in length)
+  * ITSx : tool available for selecting and trimming ITS sequences based on ITSx tool
 
 ### Modification:
   * Preprocess : add VSEARCH and PEAR (https://sco.h-its.org/exelixis/web/software/pear/) options to merge reads, remove expected-amplicon-length options
