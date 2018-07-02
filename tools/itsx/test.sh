@@ -12,4 +12,4 @@ else
 fi
 
 echo "ITSx"
-./itsx.py --input-fasta data/input.fasta --input-biom data/input.biom --region ITS1 --out-abundance test/itsx.biom --summary test/itsx.html --log-file test/itsx.log --out-fasta test/itsx.fasta
+./itsx.py --input-fasta data/input.fasta --input-biom data/input.biom --region ITS1 --out-abundance test/itsx.biom --summary test/itsx.html --log-file test/itsx.log --out-fasta test/itsx.fasta --excluded test/excluded.tsv

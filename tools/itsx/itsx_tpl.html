@@ -17,11 +17,16 @@
 -->
 <html>
 	<head>
-		<title>FROGS Filters</title>
+		<title>FROGS ITSx</title>
 		<meta charset="UTF-8">
 		<meta name="version" content="2.0.1">
-		<link rel="stylesheet" href="https://cdn.datatables.net/1.10.6/css/jquery.dataTables.css"></link>
-		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css"></link>
+		<link rel="stylesheet" href="https://cdn.datatables.net/1.10.19/css/dataTables.bootstrap4.min.css"></link>
+		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.1.1/css/bootstrap.css"></link>
+		<link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+		
+    
+    
+
 		<style type="text/css">
 			#js-alert {
 				width: 90%;
@@ -42,31 +47,36 @@
 			ul.nav-tabs {
 				margin-bottom: 30px;
 			}
-			#venn-filters {
-				padding: 10px;
-				background-color: #FFF;
-				background-clip: padding-box;
-				border: 1px solid rgba(0, 0, 0, 0.15);
-				border-radius: 4px;
-				box-shadow: 0px 6px 12px rgba(0, 0, 0, 0.176);
-				margin-right: auto;
-				margin-left: auto;
-				margin-bottom: 30px;
+			.page-item.active .page-link {
+				z-index: 1;
+				color: #fff;
+				background-color: #8EADAC;
+				border-color: #8EADAC;
 			}
-			#byFilters-jvenn {
-				margin-right: auto;
-				margin-left: auto;
+			.btn {
+				color: #fff;
+				border:#8EADAC;
+				background-color: #8EADAC;
 			}
-			#venn-filters ul {
-				list-style-type: none;
+			.btn:focus, .btn:active {
+				outline: none !important;
+				box-shadow: none !important;
 			}
-		</style>
+			.btn:hover{
+				color: #fff;
+				border:#648a89;
+				background-color: #648a89;
+			}
+			
+			
+			
 
+		</style>
 		<script type="text/javascript" src="http://code.jquery.com/jquery-2.1.3.min.js"></script>
 		<script type="text/javascript" src="http://code.highcharts.com/4.1.4/highcharts.js"></script>
 		<script type="text/javascript" src="http://code.highcharts.com/4.1.4/modules/exporting.js"></script>
-		<script type="text/javascript" src="https://cdn.datatables.net/1.10.6/js/jquery.dataTables.min.js"></script>
-		<script type="text/javascript" src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
+		<script type="text/javascript" src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
+		<script type="text/javascript" src="https://cdn.datatables.net/1.10.19/js/dataTables.bootstrap4.min.js"></script>
 		<script type="text/javascript">
 			/***************************************************************
 			*  Copyright notice
@@ -191,7 +201,14 @@
 			 	        series: pData,
 			 	        credits: {
 			 	        	enabled: false
-			 	        }
+			 	        },
+			 	        exporting: {
+							buttons: {
+								contextButton: {
+									symbol: 'download',
+								}
+							}
+						}
 			 	}
 			 	if( pXCategories != null ){
 			 		chart['xAxis']['categories'] = pXCategories ;
@@ -235,16 +252,37 @@
 
 			var global_filters_load = function(){
 				// Radializes colors
+				Highcharts.setOptions({
+					 colors : ['#8EADAC', '#DE9F73'] ,
+					});
+					Highcharts.SVGRenderer.prototype.symbols.download = function (x, y, w, h) {
+					var path = [
+						// Arrow stem
+						'M', x + w * 0.5, y,
+						'L', x + w * 0.5, y + h * 0.7,
+						// Arrow head
+						'M', x + w * 0.3, y + h * 0.5,
+						'L', x + w * 0.5, y + h * 0.7,
+						'L', x + w * 0.7, y + h * 0.5,
+						// Box
+						'M', x, y + h * 0.9,
+						'L', x, y + h,
+						'L', x + w, y + h,
+						'L', x + w, y + h * 0.9
+					];
+					return path;
+				};
+				/* Radial gradient ?*/
 			    Highcharts.getOptions().colors = Highcharts.map(Highcharts.getOptions().colors, function (color) {
 			        return {
 			            radialGradient: { cx: 0.5, cy: 0.3, r: 0.7 },
 			            stops: [
 			                [0, color],
-			                [1, Highcharts.Color(color).brighten(-0.3).get('rgb')] // darken
+			                [1, Highcharts.Color(color).brighten(-0.1).get('rgb')] // darken
 			            ]
 			        };
 			    });
-				
+				/**/		
 				// Results by clusters
 				var nb_filtered_data = [
 					['Kept', global_results['nb_clstr_kept']],
@@ -260,88 +298,13 @@
 				$('#abundance-filtered').highcharts( pie_param('Abundance', abundance_filtered_data, 'Sequences') );
 			}
 			
-			var intersections_filters_load = function(){
-				// Set filters in selection list
-				$('#byFilters-jvenn-chkbx').append( function(){
-						var items = "" ;
-						for( var filter_idx = 0 ; filter_idx < processed_filters.length ; filter_idx++ ){
-							items += '' +
-								'<li>' +
-								'	<input type="checkbox" id="byFilters-chk-' + filter_idx + '" name="' + processed_filters[filter_idx] + '"> ' + processed_filters[filter_idx] + 
-								'</li>' ;
-						}
-						return items ;
-					}
-				);
-				
-				// Add listener on click
-				$('#byFilters-jvenn-btn').click(function() {				
-					// Find filters
-					var venn_names_by_tag = new Array();
-					var venn_tags_by_name = new Array();
-					var selected_filters = new Array();
-					var tag_idx = 0 ;
-					$('input[id^="byFilters-chk-"]:checked').each( function(){
-						var filter_name = $(this).attr("name") ;
-						selected_filters.push( filter_name );
-						var venn_tag = String.fromCharCode( 65 + tag_idx );
-						venn_tags_by_name[filter_name] = venn_tag
-						venn_names_by_tag[venn_tag] = filter_name ;
-						tag_idx++ ;
-					});
-					// Find counts
-					var values_by_tag = new Array() ;
-					for( var idx=0 ; idx < by_filters_results.length ; idx++ ){
-						var kept_filters = new Array();
-						for( var filters_idx=0 ; filters_idx < by_filters_results[idx]['filters'].length ; filters_idx++ ){
-							var filter_name = by_filters_results[idx]['filters'][filters_idx] ;
-							if( $.inArray(filter_name, selected_filters) != -1 ){
-								kept_filters.push( venn_tags_by_name[filter_name] );
-							}
-						}
-						if( kept_filters.length > 0 ){
-							var venn_tag = kept_filters.sort().join("") ;
-							if( !values_by_tag.hasOwnProperty(venn_tag) ){
-								values_by_tag[venn_tag] = 0 ;
-							}
-							values_by_tag[venn_tag] += by_filters_results[idx]['count'] ;
-						}
-					}
-					// Display modal
-					$('#byFilters-jvenn').empty();
-					$('#byFilters-jvenn').jvenn({
-						series: [{
-					    	name: venn_names_by_tag,
-					    	values: values_by_tag
-					    }],
-						disableClick: true
-					});
-					$('#byFilters-venn-modal').modal( 'show' );
-				});
-				
-				// Manage click on byFilters checkboxes
-				$('input[id^="byFilters-chk-"]').on('change', function (e) {
-					var nb_checked = $('input[id^="byFilters-chk-"]:checked').size() ;
-					if( nb_checked <= 6 && nb_checked >= 1 ){
-						$('#byFilters-jvenn-btn').prop('disabled', false);
-					} else {
-						$('#byFilters-jvenn-btn').prop('disabled', true);
-					}
-				});
-			}
-			
 			var samples_filters_load = function( container_id ){
-				var sample_table_titles = $.merge( ["Sample name", "Initial", "Kept"], processed_filters );
+				var sample_table_titles = ["Sample name", "Initial", "Kept", "Initial abundance", "Kept abundance"];
 				var sample_table_data = new Array();
 				for( var sample in by_samples_results ){
-					sample_data = [sample, by_samples_results[sample]['initial'], by_samples_results[sample]['kept']] ;
-					for( var filter_idx=0 ; filter_idx < processed_filters.length ; filter_idx++ ){
-						if( by_samples_results[sample]['filtered'].hasOwnProperty(processed_filters[filter_idx]) ){
-							sample_data.push( by_samples_results[sample]['filtered'][processed_filters[filter_idx]] );
-						} else {
-							sample_data.push( 0 );
-						}
-					}
+					sample_data = [sample, by_samples_results[sample]['initial'], by_samples_results[sample]['kept'], by_samples_results[sample]['initial_ab'], by_samples_results[sample]['kept_ab']] ;
+					
+					
 					sample_table_data.push( sample_data );
 				}
 				$('#' + container_id).append( table("OTUs removed by sample", sample_table_titles, sample_table_data) );
@@ -349,23 +312,19 @@
 				$('#' + container_id + ' table').DataTable({
 					"sDom": '<"top"<"#details-csv-export"><"clear">lf>rt<"bottom"ip><"clear">'
 				});
-				$('#details-csv-export').html( '<button class="btn btn-primary"><span class="glyphicon glyphicon-open-file" aria-hidden="true">CSV</span></button>' );
+				$('#details-csv-export').html( '<button class="btn"><span class="fa fa-download" aria-hidden="true"> CSV</span></button>' );
 				$('#details-csv-export').addClass( 'dataTables_filter' );
 				$('#details-csv-export').datatableExport({
 					'table_id': "details-table"
 				});
 			}
 
-
 			///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 			//
 			// Data
 			//
 			///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-			var processed_filters = ###PORCESSED_FILTERS### ;
-			/* Example:
-				['filterA', 'filterB', 'filterC']
-			*/
+			
 			var global_results = ###GLOBAL_RESULTS### ; 
 			/* Example: 
 				{
@@ -395,18 +354,7 @@
 					}
 				}
 			*/
-			var by_filters_results = ###FILTERS_RESULTS### ;
-			/* Example:
-				[
-					{'filters':['filterA'], 'count': 10},
-					{'filters':['filterB'], 'count': 20},
-					{'filters':['filterC'], 'count': 30},
-					{'filters':['filterA', 'filterB'], 'count': 1},
-					{'filters':['filterA', 'filterC'], 'count': 2},
-					{'filters':['filterB', 'filterC'], 'count': 3},
-					{'filters':['filterA', 'filterB', 'filterC'], 'count': 4}
-				];
-			*/
+			
 			
 			///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 			//
@@ -420,17 +368,8 @@
 				
 				// Load active tab
 				global_filters_load();
-				intersections_filters_load();
+				samples_filters_load( "filter-log" );
 				
-				// Add tab listener
-				$('.nav-tabs a').click(function (e) {
-					e.preventDefault();
-					$(this).tab('show');
-					if( $(this).attr('href') == "#view-by-samples" && $('#view-by-samples').hasClass('disabled') ){
-						$('#view-by-samples').removeClass('disabled')
-						samples_filters_load( "filter-log" );
-					}
-				})
 			});
 		</script>
 
@@ -444,61 +383,22 @@
 		
         <!-- Content -->
         <div id="content" class="hidden">
-        	<ul class="nav nav-tabs">
-				<li role="presentation" class="active"><a href="#view-by-filters">Filters by OTUs</a></li>
-				<li role="presentation"><a href="#view-by-samples">Filters by samples</a></li>
-			</ul>
-
+			
 			<div id="tab-content" class="tab-content">
 				<div id="view-by-filters" role="tabpanel" class="tab-pane active">
 					<div id="filter-summary">
-		        		<h1 class="page-header">Filters (ITSx) summary</h1>
+		        		<h1 class="pb-2 mt-4 mb-2 border-bottom">Filters (ITSx) summary</h1>
 		        		<div class="row">
 			        		<div id="nb-filtered" class="col-md-6"></div> 
 			        		<div id="abundance-filtered" class="col-md-6"></div>
 		        		</div>
+		        		<h1 class="pb-2 mt-4 mb-2 border-bottom">Filters (ITSx) by samples</h1>
+		        		<div id="view-by-samples" role="tabpanel" class="tab-pane">
+							<div id="filter-log"></div>
+						</div>
 					</div>
-		<!--
-		       		<div class="row">
-		       			<h1 class="page-header">Filters intersections</h1>
-		       			<div class="col-md-2 col-ld-3"></div>
-						<div id="venn-filters" class="col-md-8 col-ld-6">
-		                    <p> Draw a Venn to see which OTUs had been deleted by the filters chosen (Maximum 6 options): </p>
-		                    <ul id="byFilters-jvenn-chkbx"></ul>
-		                    <button type="button" class="btn btn-primary center-block" id="byFilters-jvenn-btn" disabled>
-		                        <span class="glyphicon glyphicon-stats" aria-hidden="true"> Venn</span>
-		                    </button>
-		                </div>
-		                <div class="col-md-2 col-ld-3"></div>
-		            </div>
-		 -->
 		        </div>
-		    
-                <div id="view-by-samples" role="tabpanel" class="tab-pane disabled">
-		            <div id="filter-log"></div>
-                </div>
             </div>
         </div>
-
-		
-		<!--modal Jvenn by filters-->
-		<!--
-		<div class="modal fade" id="byFilters-venn-modal" tabindex="-1" role="dialog" aria-labelledby="modal-venn" aria-hidden="true">
-		  <div class="modal-dialog modal-lg">
-			<div class="modal-content">
-			  <div class="modal-header">
-				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-				<h4 class="modal-title">Venn on removed OTUs</h4>
-			  </div>
-			  <div class="modal-body">
-				<div id="byFilters-jvenn"></div>
-			  </div>
-			  <div class="modal-footer">
-				<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-			  </div>
-			</div>
-		  </div>
-		</div>
-		-->
 	</body>
 </html>

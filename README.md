@@ -279,6 +279,7 @@
         Step clustering Fri Apr  8 11:45:32 CEST 2016
         Step remove_chimera Fri Apr  8 11:46:02 CEST 2016
         Step filters Fri Apr  8 11:47:11 CEST 2016
+        Step ITSx Fri Apr  8 11:47:11 CEST 2016
         Step affiliation_OTU Fri Apr  8 11:47:12 CEST 2016
         Step clusters_stat Fri Apr  8 11:47:18 CEST 2016
         Step affiliations_stat Fri Apr  8 11:47:20 CEST 2016
@@ -326,6 +327,7 @@
             <tool file="FROGS/app/clustering.xml" />
             <tool file="FROGS/app/remove_chimera.xml" />  
             <tool file="FROGS/app/filters.xml" />
+            <tool file="FROGS/app/itsx.xml" />
             <tool file="FROGS/app/affiliation_OTU.xml" />
             <tool file="FROGS/app/clusters_stat.xml" />
             <tool file="FROGS/app/affiliations_stat.xml" />

@@ -128,8 +128,7 @@ def log_append_files( log_file, appended_files ):
     FH_log.write( "\n" )
     FH_log.close()
 
-
-def write_summary( summary_file, input_biom, output_biom, discards ):
+def write_summary( summary_file, input_biom, output_biom, discard_file ):
     """
     @summary: Writes the process summary.
     @param summary_file: [str] The path to the output file.
@@ -144,8 +143,27 @@ def write_summary( summary_file, input_biom, output_biom, discards ):
         'nb_seq_ini': 0
     }
     samples_results = dict()
-    filters_results = dict()
-
+    
+    
+    h = open(discard_file,"w")
+    ## Retrieve IDs to remove
+    # Get initial observation names
+    in_biom = BiomIO.from_json(input_biom)
+    all_clusters_ids = list()
+    for observation_name in in_biom.get_observations_counts():
+        all_clusters_ids.append(str(observation_name[0]))
+    # Get kept observation names
+    out_biom = BiomIO.from_json( output_biom )
+    kept_clusters_ids = list()
+    for observation_name in out_biom.get_observations_counts():
+        kept_clusters_ids.append(str(observation_name[0]))
+    # Difference between inital and kept
+    lost_clusters = [x for x in all_clusters_ids if x not in kept_clusters_ids]
+    # Write excluded
+    for l in lost_clusters:
+        h.write(l+"\n")
+    h.close()
+    
     # Global before filters
     in_biom = BiomIO.from_json( input_biom )
     for observation_name in in_biom.get_observations_names():
@@ -155,30 +173,30 @@ def write_summary( summary_file, input_biom, output_biom, discards ):
         samples_results[sample_name] = {
             'initial': sum( 1 for x in in_biom.get_observations_by_sample(sample_name) ),
             'filtered': dict(),
-            'kept': 0
+            'kept': 0,
+            'initial_ab': sum ( in_biom.get_count( observation['id'], sample_name ) for observation in in_biom.get_observations_by_sample(sample_name)),
+            'kept_ab':0
         }
-	
+
     # Global after filters
     out_biom = BiomIO.from_json( output_biom )
+    output_biom_test = BiomIO.from_json( output_biom )
     for observation_name in out_biom.get_observations_names():
         global_results['nb_clstr_kept'] += 1
         global_results['nb_seq_kept'] += out_biom.get_observation_count( observation_name )
     for sample_name in out_biom.get_samples_names():
         samples_results[sample_name]['kept'] = sum( 1 for x in out_biom.get_observations_by_sample(sample_name) )
+        samples_results[sample_name]['kept_ab'] = sum ( output_biom_test.get_count( obs['id'], sample_name ) for obs in output_biom_test.get_observations_by_sample(sample_name))
     del out_biom
 
     # Write
     FH_summary_tpl = open( os.path.join(CURRENT_DIR, "itsx_tpl.html") )
     FH_summary_out = open( summary_file, "w" )
     for line in FH_summary_tpl:
-        if "###PORCESSED_FILTERS###" in line:
-            line = line.replace( "###PORCESSED_FILTERS###", json.dumps([filter for filter in discards]) )
-        elif "###GLOBAL_RESULTS###" in line:
+        if "###GLOBAL_RESULTS###" in line:
             line = line.replace( "###GLOBAL_RESULTS###", json.dumps(global_results) )
         elif "###SAMPLES_RESULTS###" in line:
             line = line.replace( "###SAMPLES_RESULTS###", json.dumps(samples_results) )
-        elif "###FILTERS_RESULTS###" in line:
-            line = line.replace( "###FILTERS_RESULTS###", json.dumps(filters_results.values()) )
         FH_summary_out.write( line )
 
     FH_summary_out.close()
@@ -211,6 +229,7 @@ if __name__ == "__main__":
     group_output = parser.add_argument_group( 'Outputs' )
     group_output.add_argument( '-n', '--out-fasta', default='itsx.fasta', help='sequences file out from ITSx (format: fasta). [Default: %(default)s]')
     group_output.add_argument( '-a', '--out-abundance', default=None, help='Abundance file without chimera (format: BIOM or count).')
+    group_output.add_argument( '-o', '--excluded', default='excluded.tsv', help='File containing the discarded OTUs (format: text).')
     group_output.add_argument( '--summary', default="summary.html", help='Report of the results (format: HTML). [Default: %(default)s]')
     group_output.add_argument( '-l', '--log-file', default=sys.stdout, help='This output file will contain several information on executed commands.')
     args = parser.parse_args()
@@ -231,7 +250,7 @@ if __name__ == "__main__":
                 args.out_abundance = "itsx_abundance.count"
         
         ITSx(args.input_fasta, args.input_biom, args.region, args.out_fasta, args.out_abundance, log_itsx, args ).submit( args.log_file )
-        write_summary( args.summary, args.input_biom, args.out_abundance, {} )
+        write_summary( args.summary, args.input_biom, args.out_abundance, args.excluded )
         
         # Append independant log files
         log_append_files( args.log_file, [log_itsx] )

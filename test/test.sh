@@ -100,6 +100,23 @@ then
 	exit 1;
 fi
 
+echo "Step ITSx `date`"
+
+itsx.py \
+ --input-fasta $out_dir/04-filters.fasta \
+ --input-biom $out_dir/04-filters.biom \
+ --region ITS1 \
+ --out-abundance $out_dir/04-itsx.biom \
+ --summary $out_dir/04-itsx.html \
+ --log-file $out_dir/04-itsx.log \
+ --out-fasta $out_dir/04-itsx.fasta \
+ --excluded $out_dir/04-itsx-excluded.tsv
+
+if [ $? -ne 0 ]
+then
+	echo "Error in ITSx" >&2
+	exit 1;
+fi
 
 echo "Step affiliation_OTU `date`"
 
