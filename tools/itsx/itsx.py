@@ -68,7 +68,7 @@ class ITSx(Cmd):
         if param.debug:
             options += " --debug "
         Cmd.__init__(self,
-            '/work/orue/FROGS_dev/libexec/parallelITSx.py',
+            'parallelITSx.py',
             'identifies ITS sequences and extracts the ITS region',
             ' -f ' + in_fasta + ' -b ' + in_biom + options + ' --its '+ target + ' -o ' + out_fasta + ' -a ' + out_count + ' --log-file ' + log_file,
             '--version'

@@ -34,8 +34,8 @@
 		<param format="fasta" name="input_fasta" type="data" label="Sequences file" help="The sequence file to filter (format: fasta)." />
 		<param format="biom1" name="input_biom" type="data" label="Abundance file" help="The abundance file to filter (format: BIOM)." />
 		<param name="region" type="select" label="ITS region" help="Which fungal ITS region is targeted: either ITS1 or ITS2" >
-			<option value="its1">ITS1</option>
-			<option value="its2">ITS2</option>
+			<option value="ITS1">ITS1</option>
+			<option value="ITS2">ITS2</option>
 		</param>
 	</inputs>
 	<outputs>
