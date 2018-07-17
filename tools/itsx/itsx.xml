@@ -25,8 +25,9 @@
 		                --input-biom $input_biom
 		                --out-fasta $out_fasta
 		                --out-abundance $out_abundance_biom
-		                --excluded $out_excluded
+		                --out-removed $out_excluded
 		                --summary $summary_file
+		                $check-only
 		                
 	</command>
 	<inputs>
@@ -37,11 +38,12 @@
 			<option value="ITS1">ITS1</option>
 			<option value="ITS2">ITS2</option>
 		</param>
+		<param name="check-only" type="boolean" checked="false" truevalue="--check-its-only" falsevalue="" label="Check only if sequence detected as ITS ?" help="If checked, only sequences detected as ITS will be kept, and without trimming SSU, LSU or 5.8S regions."/>
 	</inputs>
 	<outputs>
 		<data format="fasta" name="out_fasta" label="${tool.name}: itsx.fasta" from_work_dir="itsx.fasta"/>
 		<data format="biom1" name="out_abundance_biom" label="${tool.name}: itsx.biom" from_work_dir="itsx.biom"/>
-		<data format="tabular" name="out_excluded" label="${tool.name}: itsx_excluded.tsv" from_work_dir="itsx_excluded.tsv"/>
+		<data format="fasta" name="out_excluded" label="${tool.name}: out_removed.fasta" from_work_dir="out_removed.fasta"/>
 		<data format="html" name="summary_file" label="${tool.name}: report.html" from_work_dir="report.html"/>
 	</outputs>
 	<help>
@@ -64,6 +66,8 @@ Context
 As the inclusion of parts of the neighbouring, very conserved, ribosomal genes (SSU, 5S and LSU rRNA sequences) in the sequence identification process can lead to severely misleading results, ITSx identifies and extracts only the ITS regions themselves.
 
 If the ITS1 or ITS2 region is not detected, the observation is discarded.
+
+You can choose to only check if the sequence is detected as an ITS. The sequence is not trimmed, only sequences not detected as ITS are discarded (contaminants by example).
 
 .. class:: infomark page-header h2
 
@@ -88,15 +92,19 @@ Outputs
 
 **Sequence file** (itsx.fasta):
 
- The sequence file with only ITS1 or ITS2 part (format `FASTA &lt;https://en.wikipedia.org/wiki/FASTA_format&gt;`_).
+ The sequence file with only ITS1 or ITS2 part, or with the original sequence if check-its-only is choosen (format `FASTA &lt;https://en.wikipedia.org/wiki/FASTA_format&gt;`_).
 
 **Abundance file** (itsx.biom):
 
  The abundance file with only ITS sequences (format `BIOM &lt;http://biom-format.org/&gt;`_).
+ 
+**Discarded file** (out_removed.fasta)
+
+ The sequence file with discarded sequences
 
 **Summary file** (report.html):
 
- This file presents the number of removed observations (format `HTML &lt;https://en.wikipedia.org/wiki/HTML&gt;`_).
+ This file presents the summary of process (format `HTML &lt;https://en.wikipedia.org/wiki/HTML&gt;`_).
 
 
 .. class:: infomark page-header h2
