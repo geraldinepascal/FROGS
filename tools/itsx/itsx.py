@@ -52,7 +52,7 @@ class ITSx(Cmd):
     """
     @summary: Use ITSx to identifies ITS sequences and extracts the ITS region
     """
-    def __init__(self, in_fasta, in_biom, target, out_fasta, out_count, log_file, param):
+    def __init__(self, in_fasta, in_biom, target, out_fasta, out_count, out_removed, log_file, param):
         """
         @param in_fasta: [str] Path to the fasta to process.
         @param in_count: [str] Path to the associated count file to update.
@@ -67,10 +67,12 @@ class ITSx(Cmd):
             options = " --nb-cpus " + str(param.nb_cpus)
         if param.debug:
             options += " --debug "
+        if param.check_its_only:
+			options += " --check-its-only"
         Cmd.__init__(self,
             'parallelITSx.py',
             'identifies ITS sequences and extracts the ITS region',
-            ' -f ' + in_fasta + ' -b ' + in_biom + options + ' --its '+ target + ' -o ' + out_fasta + ' -a ' + out_count + ' --log-file ' + log_file,
+            ' -f ' + in_fasta + ' -b ' + in_biom + options + ' --its '+ target + ' -o ' + out_fasta + ' -m ' + out_removed + ' -a ' + out_count + ' --log-file ' + log_file,
             '--version'
             )
         self.program_log = log_file
@@ -128,7 +130,7 @@ def log_append_files( log_file, appended_files ):
     FH_log.write( "\n" )
     FH_log.close()
 
-def write_summary( summary_file, input_biom, output_biom, discard_file ):
+def write_summary( summary_file, input_biom, output_biom ):
     """
     @summary: Writes the process summary.
     @param summary_file: [str] The path to the output file.
@@ -145,7 +147,7 @@ def write_summary( summary_file, input_biom, output_biom, discard_file ):
     samples_results = dict()
     
     
-    h = open(discard_file,"w")
+    
     ## Retrieve IDs to remove
     # Get initial observation names
     in_biom = BiomIO.from_json(input_biom)
@@ -159,10 +161,8 @@ def write_summary( summary_file, input_biom, output_biom, discard_file ):
         kept_clusters_ids.append(str(observation_name[0]))
     # Difference between inital and kept
     lost_clusters = [x for x in all_clusters_ids if x not in kept_clusters_ids]
-    # Write excluded
-    for l in lost_clusters:
-        h.write(l+"\n")
-    h.close()
+    
+    
     
     # Global before filters
     in_biom = BiomIO.from_json( input_biom )
@@ -177,7 +177,7 @@ def write_summary( summary_file, input_biom, output_biom, discard_file ):
             'initial_ab': sum ( in_biom.get_count( observation['id'], sample_name ) for observation in in_biom.get_observations_by_sample(sample_name)),
             'kept_ab':0
         }
-
+    
     # Global after filters
     out_biom = BiomIO.from_json( output_biom )
     output_biom_test = BiomIO.from_json( output_biom )
@@ -188,6 +188,8 @@ def write_summary( summary_file, input_biom, output_biom, discard_file ):
         samples_results[sample_name]['kept'] = sum( 1 for x in out_biom.get_observations_by_sample(sample_name) )
         samples_results[sample_name]['kept_ab'] = sum ( output_biom_test.get_count( obs['id'], sample_name ) for obs in output_biom_test.get_observations_by_sample(sample_name))
     del out_biom
+
+    print samples_results
 
     # Write
     FH_summary_tpl = open( os.path.join(CURRENT_DIR, "itsx_tpl.html") )
@@ -221,6 +223,7 @@ if __name__ == "__main__":
     # Inputs
     group_input = parser.add_argument_group( 'Inputs' )
     group_input.add_argument( '--region', type=str, required=True,  choices=['ITS1','ITS2'], help='Which fungal ITS region is targeted: either ITS1 or ITS2' )
+    group_input.add_argument( '--check-its-only', action='store_true', default=False, help='Check only if sequences seem to be an ITS' )
     group_input.add_argument( '-f', '--input-fasta', required=True, help='The cluster sequences (format: fasta).' )
     group_exclusion_abundance = group_input.add_mutually_exclusive_group()
     group_exclusion_abundance.add_argument( '-b', '--input-biom', help='The abundance file for clusters by sample (format: BIOM).' )
@@ -229,7 +232,7 @@ if __name__ == "__main__":
     group_output = parser.add_argument_group( 'Outputs' )
     group_output.add_argument( '-n', '--out-fasta', default='itsx.fasta', help='sequences file out from ITSx (format: fasta). [Default: %(default)s]')
     group_output.add_argument( '-a', '--out-abundance', default=None, help='Abundance file without chimera (format: BIOM or count).')
-    group_output.add_argument( '-o', '--excluded', default='excluded.tsv', help='File containing the discarded OTUs (format: text).')
+    group_output.add_argument( '-m', '--out-removed', default='removed.fasta', help='sequences file removed (format: fasta). [Default: %(default)s]')
     group_output.add_argument( '--summary', default="summary.html", help='Report of the results (format: HTML). [Default: %(default)s]')
     group_output.add_argument( '-l', '--log-file', default=sys.stdout, help='This output file will contain several information on executed commands.')
     args = parser.parse_args()
@@ -249,8 +252,8 @@ if __name__ == "__main__":
             if args.out_abundance == None:
                 args.out_abundance = "itsx_abundance.count"
         
-        ITSx(args.input_fasta, args.input_biom, args.region, args.out_fasta, args.out_abundance, log_itsx, args ).submit( args.log_file )
-        write_summary( args.summary, args.input_biom, args.out_abundance, args.excluded )
+        ITSx(args.input_fasta, args.input_biom, args.region, args.out_fasta, args.out_abundance, args.out_removed, log_itsx, args ).submit( args.log_file )
+        write_summary( args.summary, args.input_biom, args.out_abundance)
         
         # Append independant log files
         log_append_files( args.log_file, [log_itsx] )

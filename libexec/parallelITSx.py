@@ -198,10 +198,17 @@ def parseITSxResult(input_dir, prefix, its, out, log):
     FH_log.write("##Results\n")
     #FH_log.write("Output file :" + os.path.split(out)[1] + "\n" )
     for detection_type in count_ITSx :
-        if detection_type == its:
-            FH_log.write("\tnb "+detection_type+ " (kept): " + str(count_ITSx[detection_type]) + "\n")
-        else : 
-            FH_log.write("\tnb "+detection_type+ " (removed): " + str(count_ITSx[detection_type]) + "\n")
+		if its == 'no_detections':
+			if detection_type == its:
+				FH_log.write("\tnb "+detection_type+ " (removed): " + str(count_ITSx[detection_type]) + "\n")
+			else : 
+				FH_log.write("\tnb "+detection_type+ " (kept): " + str(count_ITSx[detection_type]) + "\n")
+			
+		else:
+			if detection_type == its:
+				FH_log.write("\tnb "+detection_type+ " (kept): " + str(count_ITSx[detection_type]) + "\n")
+			else : 
+				FH_log.write("\tnb "+detection_type+ " (removed): " + str(count_ITSx[detection_type]) + "\n")
     FH_log.close()
 
 def process_ITSx(in_fasta, its, cwd, out, log_file):
@@ -213,7 +220,7 @@ def process_ITSx(in_fasta, its, cwd, out, log_file):
     FH_log = Logger( log_file )
     FH_log.write("## Input file : " + os.path.split(in_fasta)[1] + "\n" ) 
     FH_log.write("## in working directory: " + cwd + "\n")
-    cmd = ["ITSx", "-i", in_fasta, "-o", prefix , "--preserve", "T","-t","F"]
+    cmd = ["ITSx", "-i", in_fasta, "-o", prefix , "--preserve", "T","-t","F","--save_regions","all"]
     FH_log.write("## ITSx command: " + " ".join(cmd) + "\n")
     submit_cmd( cmd , cwd )
     FH_log.close()
@@ -300,9 +307,10 @@ def write_summary( samples_names, log_remove_global, log_remove_spl, out_file ):
     FH_out.write( "\n" )
     FH_out.close()
 
-def remove_itsx_biom( samples, itsx_file, in_biom_file, out_biom_file, global_report, bySample_report, log_file ):
+def remove_itsx_biom(preserve, samples, itsx_file, in_fasta_file, in_biom_file, out_removed, out_biom_file, global_report, bySample_report, log_file ):
     """
     @summary: Removes the chimera observation from BIOM.
+    @param preserve: [boolean] preserve sequences and remove only not found sequences
     @param samples: [list] samples name list
     @param chimera_files : [list] samples chimera files
     @param in_biom_file: [str] The path to the BIOM file to filter.
@@ -328,22 +336,47 @@ def remove_itsx_biom( samples, itsx_file, in_biom_file, out_biom_file, global_re
             'removed_abundance': 0,
             'removed_max_abundance': 0
         }
-    ## Retrieve IDs to remove
-    # Get initial observation names
+    
     in_biom = BiomIO.from_json(in_biom_file)
-    all_clusters_ids = list()
-    for observation_name in in_biom.get_observations_counts():
-        all_clusters_ids.append(str(observation_name[0]))
-    
-    # Get kept observation names
-    record_iter = FastaIO( itsx_file )
     kept_clusters_ids = list()
-    for idx, record in enumerate(record_iter):
-        kept_clusters_ids.append(record.id)
+    FH_out_removed = FastaIO( out_removed, "w" )
     
-    # Difference between initial and kept
-    lost_clusters = [x for x in all_clusters_ids if x not in kept_clusters_ids]
-    
+    if not preserve:
+        ## Retrieve IDs to remove
+        # Get initial observation names
+        all_clusters_ids = list()
+        for observation_name in in_biom.get_observations_counts():
+            all_clusters_ids.append(str(observation_name[0]))
+        
+        # Get kept observation names
+        record_iter = FastaIO( itsx_file )
+        for idx, record in enumerate(record_iter):
+            kept_clusters_ids.append(record.id)
+        # Difference between initial and kept
+        lost_clusters = [x for x in all_clusters_ids if x not in kept_clusters_ids]
+        record_iter = FastaIO( in_fasta_file )
+        for record in record_iter:
+            if record.id in lost_clusters:
+                FH_out_removed.write(record)
+				
+    else:
+        # Retrive IDs to remove
+        record_iter = FastaIO( itsx_file )
+        lost_clusters = list()
+        for idx, record in enumerate(record_iter):
+            lost_clusters.append(record.id)
+        
+        FH_out = FastaIO(itsx_file,"w")
+        record_iter = FastaIO( in_fasta_file )
+        for record in record_iter:
+            if not record.id in lost_clusters:
+                FH_out.write(record)
+                kept_clusters_ids.append(record.id)
+            else:
+				FH_out_removed.write(record)
+
+	FH_out_removed.close()
+
     # Get abundance metrics of lost observations
     for lost_cluster in lost_clusters:
         global_report['nb_removed'] += 1
@@ -384,7 +417,10 @@ def main_process(args):
         if args.nb_cpus == 1 or nb_seq < 10:
             in_fasta = os.path.abspath(args.input_fasta)
             tmp_dir = tmpFiles.add_dir(os.path.split(args.output_fasta)[1])
-            process_ITSx(in_fasta, args.its, tmp_dir, args.output_fasta, args.log_file)
+            if not args.check_its_only:
+                process_ITSx(in_fasta, args.its, tmp_dir, args.output_fasta, args.log_file)
+            else:
+                process_ITSx(in_fasta, 'no_detections', tmp_dir, args.output_fasta, args.log_file)
         else:
             fasta_ITSx_list = list()
             ITSx_outputs = list()
@@ -395,7 +431,10 @@ def main_process(args):
             ITSx_outputs = [tmpFiles.add(os.path.basename(current_fasta) + ".fasta") for current_fasta in fasta_ITSx_list]
             logs_ITSx = [tmpFiles.add(os.path.basename(current_fasta) + "_itsx.log") for current_fasta in fasta_ITSx_list]
             tmp_dirs = [ tmpFiles.add_dir(os.path.split(current_fasta)[1]) for current_fasta in fasta_ITSx_list ]
-            parallel_submission( process_ITSx, fasta_ITSx_list, args.its, tmp_dirs, ITSx_outputs, logs_ITSx, len(fasta_ITSx_list) )
+            if not args.check_its_only:
+                parallel_submission( process_ITSx, fasta_ITSx_list, args.its, tmp_dirs, ITSx_outputs, logs_ITSx, len(fasta_ITSx_list) )
+            else:
+                parallel_submission( process_ITSx, fasta_ITSx_list, 'no_detections', tmp_dirs, ITSx_outputs, logs_ITSx, len(fasta_ITSx_list) )
 
             # Logs
             append_results(ITSx_outputs, logs_ITSx, args.output_fasta, args.log_file)
@@ -407,7 +446,7 @@ def main_process(args):
                             }
         log_remove_spl = {}
         if args.input_biom is not None:
-            remove_itsx_biom( samples, args.output_fasta, args.input_biom, args.output_biom, log_remove_global, log_remove_spl, args.log_file )
+            remove_itsx_biom(args.check_its_only, samples, args.output_fasta, args.input_fasta, args.input_biom, args.out_removed, args.output_biom, log_remove_global, log_remove_spl, args.log_file )
         
         # Summary
         write_summary( samples, log_remove_global, log_remove_spl, summary )
@@ -431,11 +470,13 @@ if __name__ == "__main__":
     parser.add_argument( '--debug', default=False, action='store_true', help="Keep temporary files to debug program." )
     parser.add_argument( '-v', '--version', action='version', version=__version__ + " [ITSx " + get_ITSx_version() + "]" )
     parser.add_argument( '-i', '--its', type=str, required=True, choices=['ITS1','ITS2'], help='Which ITS region are targeted. either ITS1 or ITS2 ')
+    parser.add_argument( '--check-its-only', action='store_true', default=False, help='Check only if sequences seem to be an ITS. No sequence trimming will happen' )
     group_input = parser.add_argument_group( 'Inputs' ) # Inputs
     group_input.add_argument( '-f', '--input-fasta', required=True, help='The fasta input sequences to treat' )
     group_input.add_argument( '-b', '--input-biom', required=True, help='The abundance file for clusters by sample (format: BIOM).' )
     group_output = parser.add_argument_group( 'Outputs' ) # Outputs
     group_output.add_argument( '-o', '--output-fasta', default='ITSX.fasta', help='Fasta with ITS sequences only. [Default: %(default)s]' )
+    group_output.add_argument( '-m', '--out-removed', default='removed.fasta', help='sequences file removed (format: fasta). [Default: %(default)s]')
     group_output.add_argument( '--summary', default='summary.tsv', help='Summary file. [Default: %(default)s]' )
     group_output.add_argument( '-a', '--output-biom', default='ITSX.biom', help='Updated BIOM file. [Default: %(default)s]' )
     group_output.add_argument( '--log-file', default=sys.stdout, help='This output file will contain several information on executed commands.' )
