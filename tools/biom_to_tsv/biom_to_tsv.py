@@ -127,7 +127,7 @@ if __name__ == "__main__":
     # Outputs
     group_output = parser.add_argument_group( 'Outputs' )
     group_output.add_argument( '-t', '--output-tsv', default='abundance.tsv', help='This output file will contain the abundance and metadata (format: TSV). [Default: %(default)s]' )
-    group_output.add_argument( '-m', '--output-multi-affi', default=None, help='This output file will contain information about multiple alignements (format: TSV). Use this option only if your affiliation has been produced by FROGS.' )
+    group_output.add_argument( '-m', '--output-multi-affi', default='multihit.tsv', help='This output file will contain information about multiple alignements (format: TSV). Use this option only if your affiliation has been produced by FROGS.' )
     group_output.add_argument( '-l', '--log-file', default=sys.stdout, help='This output file will contain several information on executed commands.' )
     args = parser.parse_args()
     prevent_shell_injections(args)
