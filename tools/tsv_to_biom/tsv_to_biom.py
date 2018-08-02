@@ -19,7 +19,7 @@
 __author__ = 'Maria Bernard - Sigenae INRA'
 __copyright__ = 'Copyright (C) 2016 INRA'
 __license__ = 'GNU General Public License'
-__version__ = '1.1.0'
+__version__ = '1.2.0'
 __email__ = 'frogs@inra.fr'
 __status__ = 'dev'
 
@@ -63,7 +63,7 @@ class Tsv2biom(Cmd):
         FH.close()
         if header.startswith('#'):
             header=header[1:]
-        header=header.strip().split()
+        header=header.strip().replace('"','').split()
 
         # Sequence file option
         if not out_fasta is None:
