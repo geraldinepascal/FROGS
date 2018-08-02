@@ -2,6 +2,7 @@
 ### Function added:
   * Preprocess : keep and filter non overlapped reads (particularly important for amplicon polymorphe in length)
   * ITSx : tool available for selecting and trimming ITS sequences based on ITSx tool
+  * Affiliation Postprocess : resolve ambiguities due to inclusiv ITS, and aggregated OTU based on taxonomic affiliations
 
 ### Modification:
   * Preprocess : add VSEARCH and PEAR (https://sco.h-its.org/exelixis/web/software/pear/) options to merge reads, remove expected-amplicon-length options

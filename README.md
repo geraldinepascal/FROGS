@@ -329,6 +329,7 @@
             <tool file="FROGS/app/filters.xml" />
             <tool file="FROGS/app/itsx.xml" />
             <tool file="FROGS/app/affiliation_OTU.xml" />
+            <tool file="FROGS/app/affiliation_postprocess.xml" />
             <tool file="FROGS/app/clusters_stat.xml" />
             <tool file="FROGS/app/affiliations_stat.xml" />
             <tool file="FROGS/app/biom_to_stdBiom.xml" />
