@@ -24,6 +24,7 @@ __email__ = 'frogs@inra.fr'
 __status__ = 'prod'
 
 import os
+import re
 import sys
 import copy
 import argparse
@@ -133,10 +134,24 @@ def observation_blast_parts( metadata, obs_mutli_blast):
     # research of blast hit consistent with blast_taxonomy
     for hit in obs_mutli_blast:
         if blast_taxonomy in hit["blast_taxonomy"]:
-            blast_affiliations.append({key.replace("blast_",""):hit[key] for key in hit})
+            affi_dict = dict()
+            for key in hit:
+                if key == "blast_taxonomy": # keep FROGS affiliation as list
+                    affi_dict[key.replace("blast_","")] = hit[key].split(";")
+                else:
+                    # keep type instead of string
+                    if re.search("[a-zA-Z]" , hit[key]) : 
+                        affi_dict[key.replace("blast_","")] = hit[key]
+                    elif "." in hit[key]:
+                        affi_dict[key.replace("blast_","")] = float(hit[key])
+                    else:
+                        affi_dict[key.replace("blast_","")] = int(hit[key])
+            # blast_affiliations.append( { key.replace("blast_",""):hit[key] for key in hit})
+            blast_affiliations.append( affi_dict)
 
     # compute consensus tax from blast_affiliations
-    consensus = get_tax_consensus([ t["taxonomy"].split(";") for t in blast_affiliations])
+    # consensus = get_tax_consensus([ t["taxonomy"].split(";") for t in blast_affiliations])
+    consensus = get_tax_consensus([ t["taxonomy"] for t in blast_affiliations])
 
     return consensus, blast_affiliations
 
