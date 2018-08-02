@@ -19,7 +19,7 @@
 __author__ = 'Olivier Rue - Migale MaIAGE Jouy-en-Josas - Maria Bernard - Sigenae Jouy en Josas'
 __copyright__ = 'Copyright (C) 2015 INRA'
 __license__ = 'GNU General Public License'
-__version__ = '0.7.0'
+__version__ = 'r3.0-v1.0'
 __email__ = 'frogs@inra.fr'
 __status__ = 'prod'
 
