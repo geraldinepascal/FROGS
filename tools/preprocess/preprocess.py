@@ -937,7 +937,8 @@ def process_sample(R1_file, R2_file, sample_name, out_file, art_out_file, length
                     Cutadapt3prim(art_tmp_cutadapt, art_out_cutadapt, art_log_3prim_cutadapt, args).submit(log_file)
                 else: # Custom sequencing primers. The amplicons is full length (Illumina) except PCR primers (it is use as sequencing primers). [Protocol Kozich et al. 2013]
                     art_out_cutadapt = out_artificial_combined
-            MultiFilter(art_out_cutadapt, -1, -1, "X"*100, art_out_Nfilter, art_log_Nfilter, args).submit(log_file)
+            # MultiFilter(art_out_cutadapt, -1, -1, "X"*100, art_out_Nfilter, art_log_Nfilter, args).submit(log_file)
+            MultiFilter(art_out_cutadapt, args.R1_size, -1, None, art_out_Nfilter, art_log_Nfilter, args).submit(log_file)
             ReplaceJoinTag(art_out_Nfilter, "X"*100, "N"*100, art_out_XtoN ).submit(log_file)
             DerepBySample(out_NAndLengthfilter + " " + art_out_XtoN, out_file, out_count).submit(log_file)
         else:
