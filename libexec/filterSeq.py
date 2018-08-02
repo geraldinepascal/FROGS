@@ -165,7 +165,9 @@ def filter_seq( input_file, output_file, log_file, min_length=None, max_length=N
     filter_on_tag = 0
     for seq_record in fh_in:
         nb_seq += 1
-        if not length_is_ok( len(seq_record.string) ):
+        if not tag_seq_is_ok(seq_record.string):
+            filter_on_tag += 1
+        elif not length_is_ok( len(seq_record.string) ):
             filter_on_length += 1
         elif not N_number_is_ok( seq_record.string ):
             filter_on_N += 1
@@ -173,8 +175,6 @@ def filter_seq( input_file, output_file, log_file, min_length=None, max_length=N
             filter_on_homopoly += 1
         elif not quality_is_ok( seq_record.quality ):
             filter_on_quality += 1
-        elif not tag_seq_is_ok(seq_record.string):
-            filter_on_tag += 1
         else:
             fh_out.write( seq_record )
 
