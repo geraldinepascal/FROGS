@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
-<tool name="FROGSSTAT Phyloseq Import Data" id="FROGSSTAT_Phyloseq_Import_Data" version="1.0.1">
+<tool name="FROGSSTAT Phyloseq Import Data" id="FROGSSTAT_Phyloseq_Import_Data" version="r3.0-2.0">
 	<description>from 3 files: biomfile, samplefile, treefile </description>
 	<command interpreter="python2.7">r_import_data.py --biomfile $biomfile
                                                       --samplefile $samplefile 

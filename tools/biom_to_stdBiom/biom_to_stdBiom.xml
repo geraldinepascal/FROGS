@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
-<tool id="FROGS_biom_to_stdBiom" name="FROGS BIOM to std BIOM" version="1.1.0">
+<tool id="FROGS_biom_to_stdBiom" name="FROGS BIOM to std BIOM" version="r3.0-2.0">
 	<description>Converts a FROGS BIOM in fully compatible BIOM.</description>
 	<command interpreter="python2.7">
 		biom_to_stdBiom.py 

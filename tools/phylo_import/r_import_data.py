@@ -18,7 +18,7 @@
 __author__ = ' Ta Thi Ngan & Maria Bernard INRA - SIGENAE '
 __copyright__ = 'Copyright (C) 2017 INRA'
 __license__ = 'GNU General Public License'
-__version__ = '1.2.0'
+__version__ = 'r3.0-2.0'
 __email__ = 'frogs@inra.fr'
 __status__ = 'prod'
 

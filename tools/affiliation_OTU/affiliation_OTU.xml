@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
-<tool id="FROGS_affiliation_OTU" name="FROGS Affiliation OTU" version="0.8.0">
+<tool id="FROGS_affiliation_OTU" name="FROGS Affiliation OTU" version="r3.0-2.0">
 	<description>Step 4 in metagenomics analysis : Taxonomic affiliation of each OTU's seed by RDPtools and BLAST</description>
 	<command interpreter="python2.7">
 		affiliation_OTU.py 

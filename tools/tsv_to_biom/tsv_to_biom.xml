@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
-<tool id="FROGS_tsv_to_biom" name="FROGS TSV_to_BIOM" version="2.0.0">
+<tool id="FROGS_tsv_to_biom" name="FROGS TSV_to_BIOM" version="r3.0-2.0">
 	<description>Converts a TSV file in a BIOM file.</description>
 	<command interpreter="python2.7">
 		tsv_to_biom.py 

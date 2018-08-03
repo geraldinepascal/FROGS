@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
-<tool id="FROGS_affiliations_stat" name="FROGS Affiliations stat" version="1.1.0">
+<tool id="FROGS_affiliations_stat" name="FROGS Affiliations stat" version="r3.0-3.1">
 	<description>Process some metrics on taxonomies.</description>
 	<command interpreter="python2.7">
 		affiliations_stat.py 
