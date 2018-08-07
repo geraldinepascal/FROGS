@@ -17,8 +17,8 @@ fi
                      --output-biom test/Needle_affiliation.biom \
                      --summary test/Needle_summary.html --log-file test/Needle_aff.log
 #Blast and RDP
-#~ echo "#Blast and RDP"
-#~ ./affiliation_OTU.py --reference data/db.fasta --rdp\
-                     #~ --input-biom data/swarm.biom --input-fasta data/swarm.fasta \
-                     #~ --output-biom test/Blast_RDP_affiliation.biom \
-                     #~ --summary test/Blast_RDP_summary.html --log-file test/Blast_RDP_aff.log
+echo "#Blast and RDP"
+./affiliation_OTU.py --reference data/db.fasta --rdp\
+                     --input-biom data/swarm.biom --input-fasta data/swarm.fasta \
+                     --output-biom test/Blast_RDP_affiliation.biom \
+                     --summary test/Blast_RDP_summary.html --log-file test/Blast_RDP_aff.log
