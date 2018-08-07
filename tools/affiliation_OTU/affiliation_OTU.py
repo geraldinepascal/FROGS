@@ -520,10 +520,11 @@ if __name__ == "__main__":
                 needleall_tsv_out_list.append( tmpFiles.add( os.path.basename(fasta_combined) + ".needleall.blast_like" ) )
                 process_needleall(args.reference, fasta_combined, blast_combined_R1, blast_combined_R2, sam_needleall_list[0], log_needleall_list[0], needleall_tsv_out_list[0], args.log_file)
 
-            # local alignment                 
-            #BLAST
-            blast_out_list.append( tmpFiles.add(os.path.basename(fasta_full_length) + ".blast") )
-            Blast(args.reference, fasta_full_length, blast_out_list[0], 1).submit(args.log_file)
+            # local alignment  
+            if nb_seq - nb_combined > 0 :               
+                #BLAST
+                blast_out_list.append( tmpFiles.add(os.path.basename(fasta_full_length) + ".blast") )
+                Blast(args.reference, fasta_full_length, blast_out_list[0], 1).submit(args.log_file)
         # parallelisation
         else:
             # kmer method affiliation
@@ -552,9 +553,10 @@ if __name__ == "__main__":
                 log_process_needl_list = [tmpFiles.add(os.path.basename(current_fasta) + ".process_needle.log", prefix="" ) for current_fasta in fasta_needleall_list ]
                 needleall_parallel_submission( process_needleall, args.reference, fasta_needleall_list, blast_combined_R1, blast_combined_R2, sam_needleall_list, log_needleall_list, needleall_tsv_out_list, log_process_needl_list, len(fasta_needleall_list))
             # BLAST
-            blast_out_list.append(tmpFiles.add(os.path.basename(fasta_full_length) + ".blast") )
-            log_blast_list.append( tmpFiles.add(os.path.basename(fasta_full_length) + "_blast.log") ) 
-            Blast(args.reference, fasta_full_length, blast_out_list[0], args.nb_cpus).submit(log_blast_list[0])
+            if nb_seq - nb_combined > 0 :
+                blast_out_list.append(tmpFiles.add(os.path.basename(fasta_full_length) + ".blast") )
+                log_blast_list.append( tmpFiles.add(os.path.basename(fasta_full_length) + "_blast.log") ) 
+                Blast(args.reference, fasta_full_length, blast_out_list[0], args.nb_cpus).submit(log_blast_list[0])
 
             # Logs
             log_append_files(args.log_file, log_rdp_list + log_process_needl_list + log_blast_list)
