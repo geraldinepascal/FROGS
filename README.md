@@ -360,18 +360,11 @@
         Tool            RAM/CPU     Minimal RAM     Configuration example
         affiliation        -          20 Gb          30 CPUs and 300 GB
         chimera          3 Gb          5 Gb          12 CPUs and 36 GB
+        chimera          3 Gb          5 Gb          12 CPUs and 36 GB
         clustering         -          10 Gb          16 CPUs and 60 GB
         preprocess       8 Gb            -           12 CPUs and 96 GB
 
-    b] Change the number of CPUs used
-        Each tool with parallelisation possibilities contains in its XML an
-        hidden parameter to set the number of used CPUs.
-        Example for 16 CPUs:
-           <param name="nb_cpus" type="hidden" label="CPU number" help="The maximum number of CPUs used." value="1" />
-           Is changed to :
-           <param name="nb_cpus" type="hidden" label="CPU number" help="The maximum number of CPUs used." value="16" />
-
-    c] Change the tool launcher configuration
+    b] Change the tool launcher configuration
         In galaxy the job_conf.xml allows to change the scheduler 
         submission parameters.
         Example for SGE scheduler:
@@ -395,6 +388,12 @@
                     <param id="galaxy_external_chown_script">scripts/external_chown_script.py</param>
                     <param id="nativeSpecification">-clear -q galaxyq -l mem=3G -l h_vmem=4G -pe parallel_smp 12</param>
                 </destination>
+                <destination id="FROGS_itsx_job" runner="drmaa">
+                    <param id="galaxy_external_runjob_script">scripts/drmaa_external_runner.py</param>
+                    <param id="galaxy_external_killjob_script">scripts/drmaa_external_killer.py</param>
+                    <param id="galaxy_external_chown_script">scripts/external_chown_script.py</param>
+                    <param id="nativeSpecification">-clear -q galaxyq -l mem=3G -l h_vmem=4G -pe parallel_smp 12</param>
+                </destination>
                 <destination id="FROGS_affiliation_OTU_job" runner="drmaa">
                     <param id="galaxy_external_runjob_script">scripts/drmaa_external_runner.py</param>
                     <param id="galaxy_external_killjob_script">scripts/drmaa_external_killer.py</param>
@@ -407,6 +406,7 @@
                 <tool id="FROGS_preprocess" destination="FROGS_preprocess_job"/>   
                 <tool id="FROGS_clustering" destination="FROGS_clustering_job"/>     
                 <tool id="FROGS_remove_chimera" destination="FROGS_remove_chimera_job"/> 
+                <tool id="FROGS_itsx" destination="FROGS_itsx_job"/> 
                 <tool id="FROGS_affiliation_OTU" destination="FROGS_affiliation_OTU_job"/>
             </tools>
 
