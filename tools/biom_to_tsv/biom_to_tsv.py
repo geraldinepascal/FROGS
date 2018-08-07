@@ -135,5 +135,7 @@ if __name__ == "__main__":
     # Process
     Logger.static_write(args.log_file, "## Application\nSoftware :" + sys.argv[0] + " (version : " + str(__version__) + ")\nCommand : " + " ".join(sys.argv) + "\n\n")
     Biom2tsv( args.output_tsv, args.input_biom, args.input_fasta ).submit( args.log_file )
-    if args.output_multi_affi is not None:
+    
+    biom = BiomIO.from_json( args.input_biom )
+    if biom.has_metadata("blast_affiliations"):
         Biom2multiAffi( args.output_multi_affi, args.input_biom ).submit( args.log_file )
