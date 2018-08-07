@@ -107,14 +107,15 @@ def process(params):
         - agggregate OTU that share the same affiliation based on threshold on %coverage and %id
     """
     tmpFiles = TmpFiles( os.path.split(args.output_biom)[0] )
-    if params.ITS_reference:
+    if params.reference:
         smallest_its_biom = tmpFiles.add(os.path.basename(args.input_biom + "_resolve_inclusiv_its.biom"))
     aggregate_tmp_log = tmpFiles.add(os.path.basename(args.input_biom + "_aggregation.log"))
     input_biom = params.input_biom
     try:
+        Logger.static_write(params.log_file, "## Application\nSoftware: " + os.path.basename(sys.argv[0]) + " (version: " + str(__version__) + ")\nCommand: " + " ".join(sys.argv) + "\n\n")
         # inclusive ITS case
-        if params.ITS_reference:
-            select_inclusiv_cmd = SelectInclusiv(params.ITS_reference, input_biom, smallest_its_biom)
+        if params.reference:
+            select_inclusiv_cmd = SelectInclusiv(params.reference, input_biom, smallest_its_biom)
             select_inclusiv_cmd.submit(params.log_file)
             input_biom = smallest_its_biom
 
@@ -130,7 +131,7 @@ def process(params):
 ###################################################################################################################
 if __name__ == "__main__":
     # Manage parameters
-    parser = argparse.ArgumentParser(description="Refine affiliations, to manage ITS amplicon included in other ITS sequence, and to deal with surnumerary OTU (OTU with same affiliations.")
+    parser = argparse.ArgumentParser(description="Refine affiliations, to manage amplicon included in other sequence, and to deal with surnumerary OTU (OTU with same affiliations.")
     parser.add_argument( '-i', '--identity', default=90.0, help="Min percentage identity to agggregate OTU. [Default: %(default)s]")
     parser.add_argument( '-c', '--coverage', default=90.0, help="Min percentage coverage to agggregate OTU. [Default: %(default)s]")
     parser.add_argument( '-d', '--debug', default=False, action='store_true', help="Keep temporary files to debug program.")
@@ -140,7 +141,7 @@ if __name__ == "__main__":
     group_input = parser.add_argument_group('Inputs')
     group_input.add_argument('-b', '--input-biom', required=True, help='Abundance table with affiliations metadata from the affiliation_OTU program (format: BIOM).')
     group_input.add_argument('-f', '--input-fasta', required=True, help='OTU seed sequence file (format: Fasta).')
-    group_input.add_argument('-r', '--ITS-reference', required=False, help='reference ITS1 or ITS2 fasta file, to resolve inclusiv ITS affiliation')
+    group_input.add_argument('-r', '--reference', required=False, help='amplicon reference fasta file, to resolve inclusiv amplicon affiliation')
     # Outputs
     group_output = parser.add_argument_group('Outputs')
     group_output.add_argument('--output-biom', default='refined_affiliation.biom', help='File whith refind affiliation annotations. [Default: %(default)s]')

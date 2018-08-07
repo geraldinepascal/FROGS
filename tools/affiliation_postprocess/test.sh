@@ -12,5 +12,6 @@ else
 fi
 
 ./affiliation_postprocess.py -b data/affiliations.biom -f data/filters.fasta -r data/Unite_extract_ITS1.fasta \
+		--identity 65 --coverage 65 \
 		--output-biom test/affiliations_postprocessed.biom --output-compo test/affiliations_postprocessed.compo \
-		--output-fasta test/affiliations_postprocessed.fasta --log-file test/affiliations_postprocess.log
+		--output-fasta test/affiliations_postprocessed.fasta --log-file test/affiliations_postprocess.log --debug

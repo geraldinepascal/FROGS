@@ -121,7 +121,7 @@ def process(params):
                 min_cov = percent_cov
 
         # Add otu because of poor affiliations stat
-        if min_id < params.identity and min_cov < params.coverage :
+        if min_id < params.identity or min_cov < params.coverage :
             otu_out += 1
             biom_out.add_observation( otu_name, observation["metadata"] )
             for sample_name in biom_in.get_samples_names():

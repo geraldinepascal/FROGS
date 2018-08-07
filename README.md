@@ -330,12 +330,12 @@
             <tool file="FROGS/app/itsx.xml" />
             <tool file="FROGS/app/affiliation_OTU.xml" />
             <tool file="FROGS/app/affiliation_postprocess.xml" />
+            <tool file="FROGS/app/normalisation.xml" />
             <tool file="FROGS/app/clusters_stat.xml" />
             <tool file="FROGS/app/affiliations_stat.xml" />
             <tool file="FROGS/app/biom_to_stdBiom.xml" />
             <tool file="FROGS/app/biom_to_tsv.xml" />
             <tool file="FROGS/app/tsv_to_biom.xml" />
-            <tool file="FROGS/app/normalisation.xml" />
             <tool file="FROGS/app/tree.xml" />
         <label text="OTUs structure and composition analysis" id="FROGSSTAT_Phyloseq" />
             <tool file="FROGS/app/r_import_data.xml" />
