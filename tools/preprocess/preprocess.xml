@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
-<tool id="FROGS_preprocess" name="FROGS Pre-process" version="r3.0-2.0">
+<tool id="FROGS_preprocess" name="FROGS Pre-process" version="r3.0-3.0">
 	<description>Step 1 in metagenomics analysis: denoising and dereplication.</description>
 	<command interpreter="python2.7">
 		preprocess.py $sequencer_type.sequencer_selected
@@ -43,6 +43,7 @@
 	        	--merge-software $sequencer_type.input_type.archive_type.merge_software
 	        	#if $sequencer_type.input_type.archive_type.merge_software == "flash"
 					--expected-amplicon-size $sequencer_type.input_type.archive_type.expected_amplicon_size
+				#end if
 	        	#if $sequencer_type.input_type.archive_type.keep_unmerged
 	        		--keep-unmerged
 	        	#end if
@@ -70,6 +71,7 @@
 		            --merge-software $sequencer_type.input_type.files_by_samples_type.merge_software
 		            #if $sequencer_type.input_type.files_by_samples_type.merge_software == "flash"
 						--expected-amplicon-size $sequencer_type.input_type.files_by_samples_type.expected_amplicon_size
+					#end if
 		            #if $sequencer_type.input_type.files_by_samples_type.keep_unmerged
 	        			--keep-unmerged
 	        		#end if
