@@ -423,7 +423,13 @@
         - To use this databank, you need to create a .loc file named
           'phiX_db.loc'. The path provided must be the '.fasta'.
           (see the phiX_db.loc example file)
-
+    b] Hyper variable in length amplicon databank
+        - Upload databank from http://genoweb.toulouse.inra.fr/frogs_databanks/HVL
+        - Extract databank.
+        - To use this databank, you need to create a .loc file named
+          'HVL_db.loc'. The path provided must be the '.fasta'.
+          (see the HVL_db.loc example file)
+          
 ### 9. Tools images
     The tools help contain images. These images must be in galaxy images
     static folder.
