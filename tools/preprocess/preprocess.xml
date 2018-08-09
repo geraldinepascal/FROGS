@@ -179,8 +179,8 @@
 					</when>
 				</conditional>
 				<!-- Amplicons -->
-				<param name="min_amplicon_size" type="integer" label="Minimum amplicon size" help="The minimum size for the amplicons." value="" optional="false" />
-				<param name="max_amplicon_size" type="integer" label="Maximum amplicon size" help="The maximum size for the amplicons." value="" optional="false" />
+				<param name="min_amplicon_size" type="integer" label="Minimum amplicon size" help="The minimum size for the amplicons (with primers)." value="" optional="false" />
+				<param name="max_amplicon_size" type="integer" label="Maximum amplicon size" help="The maximum size for the amplicons (with primers)." value="" optional="false" />
 				<!-- Primers -->
 				<conditional name="sequencing_protocol">
 					<param name="sequencing_protocol_selected" type="select" label="Sequencing protocol" help="The protocol used for sequencing step: standard or custom with PCR primers as sequencing primers.">
