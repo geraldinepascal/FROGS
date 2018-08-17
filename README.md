@@ -257,8 +257,13 @@
         Version : v0.99
         Tools : all FROGSSTAT tools
         Installation : # https://github.com/mahendra-mariadassou/phyloseq-extended/releases
-                       untar archive and copy content of folder "phyloseq-extended/" in <FROGS_PATH>/lib
+                       untar archive and copy or link content of folder "phyloseq-extended/" in <FROGS_PATH>/lib/external-lib
 
+    JavaScript FileSaver.js
+        Version : 1.3.8
+        Tools : all FROGSSTAT tools
+        Installation : # https://github.com/eligrey/FileSaver.js/releases
+                        untar archive and copy or link FileSaver.js-1.3.8/src/FileSaver.js in <FROGS_PATH>/lib/external_lib
 
 
 ### 4. Check intallation

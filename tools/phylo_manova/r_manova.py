@@ -25,15 +25,27 @@ __status__ = 'prod'
 import os
 import sys
 import argparse
+
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
+FROGS_DIR=""
+if CURRENT_DIR.endswith("phylo_manova"):
+    FROGS_DIR = os.path.dirname(os.path.dirname(CURRENT_DIR))
+else:
+    FROGS_DIR = os.path.dirname(CURRENT_DIR)
+
 # PATH
-BIN_DIR = os.path.abspath(os.path.join(os.path.dirname(CURRENT_DIR), "libexec"))
+BIN_DIR = os.path.abspath(os.path.join(FROGS_DIR, "libexec"))
 os.environ['PATH'] = BIN_DIR + os.pathsep + os.environ['PATH']
+APP_DIR = os.path.abspath(os.path.join(FROGS_DIR, "app"))
+os.environ['PATH'] = APP_DIR + os.pathsep + os.environ['PATH']
 # PYTHONPATH
-LIB_DIR = os.path.abspath(os.path.join(os.path.dirname(CURRENT_DIR), "lib"))
+LIB_DIR = os.path.abspath(os.path.join(FROGS_DIR, "lib"))
 sys.path.append(LIB_DIR)
 if os.getenv('PYTHONPATH') is None: os.environ['PYTHONPATH'] = LIB_DIR
 else: os.environ['PYTHONPATH'] = os.environ['PYTHONPATH'] + os.pathsep + LIB_DIR
+# LIBR
+LIBR_DIR = os.path.join(LIB_DIR,"external-lib")
+
 
 from frogsUtils import *
 ##################################################################################################################################################
@@ -61,7 +73,7 @@ class Rscript(Cmd):
         Cmd.__init__( self,
                       'Rscript',
                       'Run 1 code Rmarkdown',
-                       '-e "rmarkdown::render('+"'"+rmd+"',output_file='"+html+"', params=list(data='"+data+"', varExp='"+varExp+"',distance='"+matrix+"', libdir ='"+LIB_DIR+"'), intermediates_dir='"+os.path.dirname(html)+"')"+'" 2> ' + rmd_stderr,
+                       '-e "rmarkdown::render('+"'"+rmd+"',output_file='"+html+"', params=list(data='"+data+"', varExp='"+varExp+"',distance='"+matrix+"', libdir ='"+LIBR_DIR+"'), intermediates_dir='"+os.path.dirname(html)+"')"+'" 2> ' + rmd_stderr,
                        "-e '(sessionInfo()[[1]][13])[[1]][1]; paste(\"Rmarkdown version: \",packageVersion(\"rmarkdown\")) ; library(phyloseq); paste(\"Phyloseq version: \",packageVersion(\"phyloseq\"))'")
     def get_version(self):
         """
