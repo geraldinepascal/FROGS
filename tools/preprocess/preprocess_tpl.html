@@ -42,9 +42,9 @@
             }
         </style>
         <!-- JS -->
-        <script type="text/javascript" src="http://code.jquery.com/jquery-2.1.3.min.js"></script>
-        <script type="text/javascript" src="http://code.highcharts.com/4.1.4/highcharts.js"></script>
-        <script type="text/javascript" src="http://code.highcharts.com/4.1.4/modules/exporting.js"></script>
+        <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.3.min.js"></script>
+        <script type="text/javascript" src="https://code.highcharts.com/4.1.4/highcharts.js"></script>
+        <script type="text/javascript" src="https://code.highcharts.com/4.1.4/modules/exporting.js"></script>
         <script type="text/javascript" src="https://cdn.datatables.net/1.10.6/js/jquery.dataTables.min.js"></script>
         <script type="text/javascript" src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
         <script type="text/javascript">
@@ -55,7 +55,7 @@
              * Licensed under the MIT (http://www.opensource.org/licenses/mit-license.php) license.
              */
             function HTMLtable(e){var t,r,n=e,a=";";this.deleteColumns=function(e){for(var a=n.getElementsByTagName("tr"),o=0;o<a.length;o++){s=0;var i=a[o].getElementsByTagName("td");0==i.length&&(i=a[o].getElementsByTagName("th"));for(var v=0,s=0;s<t[1];s++)if(!r[o][s]){var f=i[v].getAttribute("colspan");if(null!=f)for(var m=0;f>m;m++){if(in_array(s+m,e)){var u=i[v].getAttribute("colspan");u-1==0?i[v].removeAttribute("colspan"):i[v].setAttribute("colspan",u-1)}if(null==i[v].getAttribute("colspan")){var h=i[v];a[o].removeChild(h),v--}}else if(in_array(s,e)){var h=i[v];a[o].removeChild(h),v--}v++}}l(),g()},this.filter=function(e,a){var l=new RegExp(e),g=new Array;null!=a&&a||(g.c0=!0);for(var o=n.getElementsByTagName("tr"),i=0;i<o.length;i++){f=0;var v=o[i].getElementsByTagName("td");if(0!=v.length)for(var s=0,f=0;f<t[1];f++)r[i][f]||(l.test(v[s].innerHTML)&&(g["c"+f]=!0),s++)}for(var m=new Array,u=0;u<t[1];u++)void 0===g["c"+u]&&m.push(u);this.deleteColumns(m)},this.getModel=function(){return n};var l=function(){for(var e=0,r=0,a=n.getElementsByTagName("tr"),l=0;l<a.length;l++){var g=0;e++;var o=a[l].getElementsByTagName("td");0==o.length&&(o=a[l].getElementsByTagName("th"));for(var i=0;i<o.length;i++){var v=o[i].getAttribute("colspan");g+=null==v?1:parseInt(v)}g>r&&(r=g)}t=new Array(2),t[0]=e,t[1]=r},g=function(){r=new Array(t[0]);for(var e=0;e<t[0];e++){r[e]=new Array(t[1]);for(var a=0;a<t[1];a++)r[e][a]=!1}for(var l=n.getElementsByTagName("tr"),g=0;g<l.length;g++){v=0;var o=l[g].getElementsByTagName("td");0==o.length&&(o=l[g].getElementsByTagName("th"));for(var i=0,v=0;v<t[1];v++)if(!r[g][v]){var s=0,f=0,m=o[i].getAttribute("rowspan");null!=m&&(s=parseInt(m)-1);var u=o[i].getAttribute("colspan");null!=u&&(f=parseInt(u)-1);for(var h=s;h>=0;h--)for(var y=f;y>=0;y--)(0!=h||0!=y)&&(r[g+h][v+y]=!0);i++}}};this.replace=function(e,a,l){var g=new RegExp(e);null==a&&(a=""),null==l&&(l="");for(var o=n.getElementsByTagName("tr"),i=0;i<o.length;i++){f=0;var v=o[i].getElementsByTagName("td");if(0!=v.length)for(var s=0,f=0;f<t[1];f++)if(!r[i][f]){var m=g.exec(v[s].innerHTML);null!=m&&(void 0===m[1]&&(m[1]=""),v[s].innerHTML=a+m[1]+l),s++}}},this.toCSV=function(){for(var e="",l=n.getElementsByTagName("tr"),g=0;g<l.length;g++){var o=l[g].getElementsByTagName("td");0==o.length&&(o=l[g].getElementsByTagName("th"));for(var i=0,v=0;v<t[1];v++)r[g][v]||(e+=o[i].innerHTML,i++),e+=a;e=e.substr(0,e.length-1)+"\n"}return e},l(),g()}var in_array=function(e,t){for(var r in t)if(t[r]==e)return!0;return!1};
-            
+
             /*
              * dataTableExtractor.plugin.js 0.1.0 - datatableExport Library
              *
@@ -66,7 +66,7 @@
         </script>
         <script type="text/javascript">
             /**
-             * Returns the string representation of the number. 
+             * Returns the string representation of the number.
              * @param pValue {Float} The number to process.
              * @return {String} The string representation (example: 12856892.11111 => 12,856,892.11).
              */
@@ -79,9 +79,9 @@
                 }
                 return new_val ;
             }
-            
+
             /**
-             * Returns hash use to init HightChart line. 
+             * Returns hash use to init HightChart line.
              * @param pTitle {String} The title of the chart.
              * @param pXTitle {String} The xAxis title.
              * @param pYTitle {String} The yAxis title.
@@ -137,14 +137,14 @@
             }
 
             /**
-             * Returns hash use to init HightChart column. 
+             * Returns hash use to init HightChart column.
              * @param pTitle {String} The title of the chart.
              * @param pYTitle {String} The yAxis title.
              * @param pCategories {Array} x scale labels.
              * @param pSeries {Array} The HightChart series.
              * @param unity {String} Unity used in tooltip.
              * @return {Hash} Parameters to use in Highchart's constructor.
-             */           
+             */
             var histogram_param = function( pTitle, pYTitle, pCategories, pSeries, unity ) {
                 var param = {
                     chart: {
@@ -182,10 +182,10 @@
                     },
                     series: pSeries
                 };
-                
+
                 return param ;
             }
-            
+
             ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
             //
             // Data
@@ -199,7 +199,7 @@
             /* Example:
                 {
                   "sampleA": [90126, 90126, 90126, 89697, 89697, 89697, 89697],
-                  "sampleB": [213043, 209801, 0, 0, 0, 0, 0] 
+                  "sampleB": [213043, 209801, 0, 0, 0, 0, 0]
                 }
             */
              var before_lengths_by_sample = ###BEFORE_LENGTHS_DATA### ;
@@ -217,8 +217,8 @@
                   "sampleB": {}
                 }
             */
-            
-            
+
+
             ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
             //
             // Main
@@ -237,11 +237,11 @@
                     $("#display-after-spl-lengths").addClass( "disabled" );
                 }
             }
-            
+
             /**
-             * Draws for the selected sample(s) the line chart that represents the number of sequences by sequence length. 
+             * Draws for the selected sample(s) the line chart that represents the number of sequences by sequence length.
              */
-            var setLengthsGraph = function(lengths_by_sample,title){ 
+            var setLengthsGraph = function(lengths_by_sample,title){
                 var selected_series = new Array();
                 $('input[id^="filterBySample-chk-"]').each( function(){
                     if( $(this).is(':checked')){
@@ -282,9 +282,9 @@
                 // Draw chart
                 $('#lengths-chart').highcharts( lineplot_param(title, "Length", "Nb sequences", null, selected_series) );
             }
-            
+
             /**
-             * Draws the bar chart that represents the total number of sequences after each filter. 
+             * Draws the bar chart that represents the total number of sequences after each filter.
              */
             var summaryLoad = function(){
                 var global_data = new Array();
@@ -302,7 +302,7 @@
             }
 
             /**
-             * Set the table that represents by sample the number of sequences after each filter. 
+             * Set the table that represents by sample the number of sequences after each filter.
              */
             var sampleDetailsLoad = function(){
                 // Table titles
@@ -316,7 +316,7 @@
                 $('#filterBySample-table tfoot th').each(function(){
                     $(this).attr( "colspan", titles.length );
                 });
-                
+
                 // Table data
                 for( var sample_name in filters_by_sample ){
                     var sample_data = ['<input id="filterBySample-chk-' + sample_name + '" type="checkbox" value="1">', sample_name] ;
@@ -328,7 +328,7 @@
                     // Add row data
                     $('#filterBySample-table tbody').append( '<tr><td>' + sample_data.join("</td><td>") + '</td></tr>' );
                 }
-                
+
                 // Check all management
                 $('#filterBySample-check-all').on('change', function (e) { // Manage check all
                     if( $(this).is(':checked') ){
@@ -346,11 +346,11 @@
                         $('#filterBySample-check-all').prop( 'checked', false );
                     }
                 });
-                
+
                 // Buttons enable/disable management
                 $('input[id^="filterBySample-check-all"]').on( 'change', updateButtonState );
                 $('input[id^="filterBySample-chk-"]').on( 'change', updateButtonState );
-                
+
                 // Datatable
                 $('#filterBySample-table').DataTable({
                     "sDom": '<"top"<"#filterBySample-csv-export"><"clear">lf>rt<"bottom"ip><"clear">',
@@ -385,10 +385,10 @@
                 // Remove alert
                 $('#js-alert').remove();
                 $('#content').removeClass("hidden");
-                
+
                 // Display summary
                 summaryLoad();
-                
+
                 // Display data by sample
                 sampleDetailsLoad();
             });
@@ -400,7 +400,7 @@
             javascript is needed to display data.<br />
             If you try to view this data on galaxy please contact your administrator to authorise javascript or download the file to view.
         </p>
-        
+
         <!-- Content -->
         <div id="content" class="hidden">
             <div id="filter-summary"></div>
@@ -424,7 +424,7 @@
                 </table>
             </div>
         </div>
-        
+
         <!-- Modals -->
         <div class="modal" id="lengths-modal" tabindex="-1" role="dialog" aria-hidden="true">
             <div class="modal-dialog modal-lg">

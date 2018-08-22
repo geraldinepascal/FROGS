@@ -62,9 +62,9 @@
 			}
 		</style>
 
-		<script type="text/javascript" src="http://code.jquery.com/jquery-2.1.3.min.js"></script>
-		<script type="text/javascript" src="http://code.highcharts.com/4.1.4/highcharts.js"></script>
-		<script type="text/javascript" src="http://code.highcharts.com/4.1.4/modules/exporting.js"></script>
+		<script type="text/javascript" src="https://code.jquery.com/jquery-2.1.3.min.js"></script>
+		<script type="text/javascript" src="https://code.highcharts.com/4.1.4/highcharts.js"></script>
+		<script type="text/javascript" src="https://code.highcharts.com/4.1.4/modules/exporting.js"></script>
 		<script type="text/javascript" src="https://cdn.datatables.net/1.10.6/js/jquery.dataTables.min.js"></script>
 		<script type="text/javascript" src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
 		<script type="text/javascript">
@@ -73,15 +73,15 @@
 			*
 			*  (c) 2014 PF bioinformatique de Toulouse
 			*  All rights reserved
-			* 
+			*
 			*
 			*  This script is an adaptation of the venny script developed by
 			*  Juan Carlos Oliveros, BioinfoGP, CNB-CSIC:
-			*  Oliveros, J.C. (2007) VENNY. An interactive tool for comparing 
+			*  Oliveros, J.C. (2007) VENNY. An interactive tool for comparing
 			*  lists with Venn Diagrams.
 			*  http://bioinfogp.cnb.csic.es/tools/venny/index.html.
-			*  It is distributed under the terms of the GNU General Public 
-			*  License as published by the Free Software Foundation; either 
+			*  It is distributed under the terms of the GNU General Public
+			*  License as published by the Free Software Foundation; either
 			*  version 2 of the License, or (at your option) any later version.
 			*
 			*  The GNU General Public License can be found at
@@ -106,7 +106,7 @@
 			 * Licensed under the MIT (http://www.opensource.org/licenses/mit-license.php) license.
 			 */
 			function HTMLtable(e){var t,r,n=e,a=";";this.deleteColumns=function(e){for(var a=n.getElementsByTagName("tr"),o=0;o<a.length;o++){s=0;var i=a[o].getElementsByTagName("td");0==i.length&&(i=a[o].getElementsByTagName("th"));for(var v=0,s=0;s<t[1];s++)if(!r[o][s]){var f=i[v].getAttribute("colspan");if(null!=f)for(var m=0;f>m;m++){if(in_array(s+m,e)){var u=i[v].getAttribute("colspan");u-1==0?i[v].removeAttribute("colspan"):i[v].setAttribute("colspan",u-1)}if(null==i[v].getAttribute("colspan")){var h=i[v];a[o].removeChild(h),v--}}else if(in_array(s,e)){var h=i[v];a[o].removeChild(h),v--}v++}}l(),g()},this.filter=function(e,a){var l=new RegExp(e),g=new Array;null!=a&&a||(g.c0=!0);for(var o=n.getElementsByTagName("tr"),i=0;i<o.length;i++){f=0;var v=o[i].getElementsByTagName("td");if(0!=v.length)for(var s=0,f=0;f<t[1];f++)r[i][f]||(l.test(v[s].innerHTML)&&(g["c"+f]=!0),s++)}for(var m=new Array,u=0;u<t[1];u++)void 0===g["c"+u]&&m.push(u);this.deleteColumns(m)},this.getModel=function(){return n};var l=function(){for(var e=0,r=0,a=n.getElementsByTagName("tr"),l=0;l<a.length;l++){var g=0;e++;var o=a[l].getElementsByTagName("td");0==o.length&&(o=a[l].getElementsByTagName("th"));for(var i=0;i<o.length;i++){var v=o[i].getAttribute("colspan");g+=null==v?1:parseInt(v)}g>r&&(r=g)}t=new Array(2),t[0]=e,t[1]=r},g=function(){r=new Array(t[0]);for(var e=0;e<t[0];e++){r[e]=new Array(t[1]);for(var a=0;a<t[1];a++)r[e][a]=!1}for(var l=n.getElementsByTagName("tr"),g=0;g<l.length;g++){v=0;var o=l[g].getElementsByTagName("td");0==o.length&&(o=l[g].getElementsByTagName("th"));for(var i=0,v=0;v<t[1];v++)if(!r[g][v]){var s=0,f=0,m=o[i].getAttribute("rowspan");null!=m&&(s=parseInt(m)-1);var u=o[i].getAttribute("colspan");null!=u&&(f=parseInt(u)-1);for(var h=s;h>=0;h--)for(var y=f;y>=0;y--)(0!=h||0!=y)&&(r[g+h][v+y]=!0);i++}}};this.replace=function(e,a,l){var g=new RegExp(e);null==a&&(a=""),null==l&&(l="");for(var o=n.getElementsByTagName("tr"),i=0;i<o.length;i++){f=0;var v=o[i].getElementsByTagName("td");if(0!=v.length)for(var s=0,f=0;f<t[1];f++)if(!r[i][f]){var m=g.exec(v[s].innerHTML);null!=m&&(void 0===m[1]&&(m[1]=""),v[s].innerHTML=a+m[1]+l),s++}}},this.toCSV=function(){for(var e="",l=n.getElementsByTagName("tr"),g=0;g<l.length;g++){var o=l[g].getElementsByTagName("td");0==o.length&&(o=l[g].getElementsByTagName("th"));for(var i=0,v=0;v<t[1];v++)r[g][v]||(e+=o[i].innerHTML,i++),e+=a;e=e.substr(0,e.length-1)+"\n"}return e},l(),g()}var in_array=function(e,t){for(var r in t)if(t[r]==e)return!0;return!1};
-			
+
 			/*
 			 * dataTableExtractor.plugin.js 0.1.0 - datatableExport Library
 			 *
@@ -114,11 +114,11 @@
 			 * Licensed under the MIT (http://www.opensource.org/licenses/mit-license.php) license.
 			 */
 			!function(t){t.fn.datatableExport=function(a){var e={anchor_id:t(this).attr("id"),table_id:null,csv_separator:";",omitted_columns:[]},n=t.extend(e,a);if(!t(this).length)throw"The element where the datatableExport is called does not exist.";if(void 0==n.anchor_id)throw"The datatableExport plugin must be called on an element with id.";if(null==n.table_id)throw"You must set the table_id parameter in datatableExport plugin.";if(!t("#"+n.table_id))throw"The datatable '#"+n.table_id+"' cannot be retieve in DOM.";return this.each(function(){var a=t(this);a.on("click",function(){t.fn.datatableExport.csv(n.anchor_id,n.table_id,n.csv_separator,n.omitted_columns)})})},t.fn.datatableExport.cleanCellMarkup=function(a,e){t.parseHTML(e);t("#"+a).append('<div class="hidden data-tmp">'+e+"</div>"),t("#"+a+" .data-tmp").find("input").each(function(){var a="";a=t(this).is(":checkbox")?t(this).is(":checked")?"true":"false":t(this).val(),t(this).replaceWith(a)});var n=t("#"+a+" .data-tmp").text();return t("#"+a+" .data-tmp").remove(),n},t.fn.datatableExport.csv=function(a,e,n,i){var l="",r=t("#"+e).DataTable(),d=t("#"+e+" thead")[0],o=new HTMLtable(d.cloneNode(!0));o.deleteColumns(i),l+=o.toCSV();var c=r.rows().data();t.each(c,function(e,n){for(var r="",d=0;d<n.length;d++)-1==t.inArray(d,i)&&(r+='"'+t.fn.datatableExport.cleanCellMarkup(a,n[d])+'";');""!=r&&(r=r.slice(0,-1)),l+=r+"\n"}),t("#"+a+"-extract-csv").length||t("#"+a).append('<a id="'+a+'-extract-csv" href="data:text/csv;charset=UTF-8,'+encodeURI(l)+'" download="data.csv" style="display:none;"></a>'),t("#"+a+"-extract-csv")[0].click()}}(jQuery);
-		</script>		
-		
+		</script>
+
 		<script type="text/javascript">
 			/**
-			 * Returns the string representation of the number. 
+			 * Returns the string representation of the number.
 			 * @param pValue {Float} The number to process.
 			 * @return {String} The string representation (example: 12856892.11111 => 12,856,892.11).
 			 */
@@ -131,9 +131,9 @@
 		    	}
 		        return new_val ;
 		    }
-		    
+
 			/**
-			 * Returns the HTML table representation of the data. 
+			 * Returns the HTML table representation of the data.
 			 * @param pTitle {String} The title of the table.
 			 * @param pCategories {Array} The title of each column.
 			 * @param pData {Array} 2D matrix with row and column data.
@@ -148,7 +148,7 @@
 				}
 				table_header += "    <tr>\n" + table_header_line + "    </tr>\n" ;
 				table_header = "  <thead>\n" + table_header + "  </thead>\n" ;
-				
+
 				// Body
 				var table_body = '' ;
 				for(var data_idx = 0 ; data_idx < pData.length ; data_idx++){
@@ -166,9 +166,9 @@
 
 				return '<table class="table table-striped">\n' + table_header + table_body + "</table>\n" ;
 			}
-			 
+
 			 /**
-			  * Returns hash use to init HightChart object (without 'type'). 
+			  * Returns hash use to init HightChart object (without 'type').
 			  * @param pTitle {String} The title of the chart.
 			  * @param pXTitle {String} The xAxis title.
 			  * @param pYTitle {String} The yAxis title.
@@ -206,7 +206,7 @@
 			 	}
 			 	return chart ;
 			 }
-			
+
 			var pie_param = function( pTitle, pData, unity ) {
 				var series = [{
 	                type: 'pie',
@@ -244,14 +244,14 @@
 			            ]
 			        };
 			    });
-				
+
 				// Results by clusters
 				var nb_filtered_data = [
 					['Kept', global_results['nb_clstr_kept']],
 					['Removed', (global_results['nb_clstr_ini'] - global_results['nb_clstr_kept'])]
 				];
 				$('#nb-filtered').highcharts( pie_param('OTUs', nb_filtered_data, 'OTUs') );
-				
+
 				// Results by sequences
 				var abundance_filtered_data = [
 					['Kept', global_results['nb_seq_kept']],
@@ -259,7 +259,7 @@
   				];
 				$('#abundance-filtered').highcharts( pie_param('Abundance', abundance_filtered_data, 'Sequences') );
 			}
-			
+
 			var intersections_filters_load = function(){
 				// Set filters in selection list
 				$('#byFilters-jvenn-chkbx').append( function(){
@@ -267,15 +267,15 @@
 						for( var filter_idx = 0 ; filter_idx < processed_filters.length ; filter_idx++ ){
 							items += '' +
 								'<li>' +
-								'	<input type="checkbox" id="byFilters-chk-' + filter_idx + '" name="' + processed_filters[filter_idx] + '"> ' + processed_filters[filter_idx] + 
+								'	<input type="checkbox" id="byFilters-chk-' + filter_idx + '" name="' + processed_filters[filter_idx] + '"> ' + processed_filters[filter_idx] +
 								'</li>' ;
 						}
 						return items ;
 					}
 				);
-				
+
 				// Add listener on click
-				$('#byFilters-jvenn-btn').click(function() {				
+				$('#byFilters-jvenn-btn').click(function() {
 					// Find filters
 					var venn_names_by_tag = new Array();
 					var venn_tags_by_name = new Array();
@@ -318,7 +318,7 @@
 					});
 					$('#byFilters-venn-modal').modal( 'show' );
 				});
-				
+
 				// Manage click on byFilters checkboxes
 				$('input[id^="byFilters-chk-"]').on('change', function (e) {
 					var nb_checked = $('input[id^="byFilters-chk-"]:checked').size() ;
@@ -329,7 +329,7 @@
 					}
 				});
 			}
-			
+
 			var samples_filters_load = function( container_id ){
 				var sample_table_titles = $.merge( ["Sample name", "Initial", "Kept"], processed_filters );
 				var sample_table_data = new Array();
@@ -366,8 +366,8 @@
 			/* Example:
 				['filterA', 'filterB', 'filterC']
 			*/
-			var global_results = ###GLOBAL_RESULTS### ; 
-			/* Example: 
+			var global_results = ###GLOBAL_RESULTS### ;
+			/* Example:
 				{
 					'nb_clstr_kept': 100,
 					'nb_clstr_ini': 300,
@@ -407,7 +407,7 @@
 					{'filters':['filterA', 'filterB', 'filterC'], 'count': 4}
 				];
 			*/
-			
+
 			///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 			//
 			// Main
@@ -417,11 +417,11 @@
 				// Remove alert
 				$('#js-alert').remove();
 				$('#content').removeClass("hidden");
-				
+
 				// Load active tab
 				global_filters_load();
 				intersections_filters_load();
-				
+
 				// Add tab listener
 				$('.nav-tabs a').click(function (e) {
 					e.preventDefault();
@@ -441,7 +441,7 @@
                 javascript is needed to display data.<br />
                 If you try to view this data on galaxy please contact your administrator to authorise javascript or download the file to view.
 		</p>
-		
+
         <!-- Content -->
         <div id="content" class="hidden">
         	<ul class="nav nav-tabs">
@@ -454,11 +454,11 @@
 					<div id="filter-summary">
 		        		<h1 class="page-header">Filters summary</h1>
 		        		<div class="row">
-			        		<div id="nb-filtered" class="col-md-6"></div> 
+			        		<div id="nb-filtered" class="col-md-6"></div>
 			        		<div id="abundance-filtered" class="col-md-6"></div>
 		        		</div>
 					</div>
-		
+
 		       		<div class="row">
 		       			<h1 class="page-header">Filters intersections</h1>
 		       			<div class="col-md-2 col-ld-3"></div>
@@ -472,14 +472,14 @@
 		                <div class="col-md-2 col-ld-3"></div>
 		            </div>
 		        </div>
-		    
+
                 <div id="view-by-samples" role="tabpanel" class="tab-pane disabled">
 		            <div id="filter-log"></div>
                 </div>
             </div>
         </div>
 
-		
+
 		<!--modal Jvenn by filters-->
 		<div class="modal fade" id="byFilters-venn-modal" tabindex="-1" role="dialog" aria-labelledby="modal-venn" aria-hidden="true">
 		  <div class="modal-dialog modal-lg">

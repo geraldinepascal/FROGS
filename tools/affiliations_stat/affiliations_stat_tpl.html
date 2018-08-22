@@ -25,8 +25,8 @@
 		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css"></link>
 		<style type="text/css">
 			/*
-			 * jDistrib 0.1.0 - CSS jDistrib Library	
-			 *		 
+			 * jDistrib 0.1.0 - CSS jDistrib Library
+			 *
 			 * Copyright (c) 2015 Escudie Frederic
 			 * Licensed under the MIT (http://www.opensource.org/licenses/mit-license.php) license.
 			 */
@@ -63,7 +63,7 @@
 			}
 			.fusion-left {
 				position:relative;
-				z-index:2;		
+				z-index:2;
 				margin-right: 0px;
 				margin-bottom: 0px;
 				border-top-left-radius: 4px;
@@ -88,7 +88,7 @@
 			#sunburst-detail table {
 				margin-left: auto;
 				margin-right: auto;
-			}	
+			}
 			#sunburst-detail p {
 				text-align: center;
 			}
@@ -100,11 +100,11 @@
 			}
 		</style>
 		<!-- JS -->
-		<script type="text/javascript" src="http://code.jquery.com/jquery-2.1.3.min.js"></script>
-		<script type="text/javascript" src="http://code.highcharts.com/4.1.4/highcharts.js"></script>
-		<script type="text/javascript" src="http://code.highcharts.com/4.1.4/highcharts-more.js"></script>
-		<script type="text/javascript" src="http://code.highcharts.com/4.1.4/modules/heatmap.js"></script>
-		<script type="text/javascript" src="http://code.highcharts.com/4.1.4/modules/exporting.js"></script>
+		<script type="text/javascript" src="https://code.jquery.com/jquery-2.1.3.min.js"></script>
+		<script type="text/javascript" src="https://code.highcharts.com/4.1.4/highcharts.js"></script>
+		<script type="text/javascript" src="https://code.highcharts.com/4.1.4/highcharts-more.js"></script>
+		<script type="text/javascript" src="https://code.highcharts.com/4.1.4/modules/heatmap.js"></script>
+		<script type="text/javascript" src="https://code.highcharts.com/4.1.4/modules/exporting.js"></script>
 		<script type="text/javascript" src="https://cdn.datatables.net/1.10.6/js/jquery.dataTables.min.js"></script>
 		<script type="text/javascript" src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
 		<script type="text/javascript">
@@ -132,7 +132,7 @@
 			 * ExtendedNode 1.0.0 - JavaScript ExtendedNode Library
 			 *
 			 * Copyright (c) 2015 INRA
-			 * 
+			 *
 			 * @author: Escudié Frédéric
 			 * @license: MIT (http://www.opensource.org/licenses/mit-license.php) license.
 			 */
@@ -146,7 +146,7 @@
 			 * Licensed under the MIT (http://www.opensource.org/licenses/mit-license.php) license.
 			 */
 			function HTMLtable(e){var t,r,n=e,a=";";this.deleteColumns=function(e){for(var a=n.getElementsByTagName("tr"),o=0;o<a.length;o++){s=0;var i=a[o].getElementsByTagName("td");0==i.length&&(i=a[o].getElementsByTagName("th"));for(var v=0,s=0;s<t[1];s++)if(!r[o][s]){var f=i[v].getAttribute("colspan");if(null!=f)for(var m=0;f>m;m++){if(in_array(s+m,e)){var u=i[v].getAttribute("colspan");u-1==0?i[v].removeAttribute("colspan"):i[v].setAttribute("colspan",u-1)}if(null==i[v].getAttribute("colspan")){var h=i[v];a[o].removeChild(h),v--}}else if(in_array(s,e)){var h=i[v];a[o].removeChild(h),v--}v++}}l(),g()},this.filter=function(e,a){var l=new RegExp(e),g=new Array;null!=a&&a||(g.c0=!0);for(var o=n.getElementsByTagName("tr"),i=0;i<o.length;i++){f=0;var v=o[i].getElementsByTagName("td");if(0!=v.length)for(var s=0,f=0;f<t[1];f++)r[i][f]||(l.test(v[s].innerHTML)&&(g["c"+f]=!0),s++)}for(var m=new Array,u=0;u<t[1];u++)void 0===g["c"+u]&&m.push(u);this.deleteColumns(m)},this.getModel=function(){return n};var l=function(){for(var e=0,r=0,a=n.getElementsByTagName("tr"),l=0;l<a.length;l++){var g=0;e++;var o=a[l].getElementsByTagName("td");0==o.length&&(o=a[l].getElementsByTagName("th"));for(var i=0;i<o.length;i++){var v=o[i].getAttribute("colspan");g+=null==v?1:parseInt(v)}g>r&&(r=g)}t=new Array(2),t[0]=e,t[1]=r},g=function(){r=new Array(t[0]);for(var e=0;e<t[0];e++){r[e]=new Array(t[1]);for(var a=0;a<t[1];a++)r[e][a]=!1}for(var l=n.getElementsByTagName("tr"),g=0;g<l.length;g++){v=0;var o=l[g].getElementsByTagName("td");0==o.length&&(o=l[g].getElementsByTagName("th"));for(var i=0,v=0;v<t[1];v++)if(!r[g][v]){var s=0,f=0,m=o[i].getAttribute("rowspan");null!=m&&(s=parseInt(m)-1);var u=o[i].getAttribute("colspan");null!=u&&(f=parseInt(u)-1);for(var h=s;h>=0;h--)for(var y=f;y>=0;y--)(0!=h||0!=y)&&(r[g+h][v+y]=!0);i++}}};this.replace=function(e,a,l){var g=new RegExp(e);null==a&&(a=""),null==l&&(l="");for(var o=n.getElementsByTagName("tr"),i=0;i<o.length;i++){f=0;var v=o[i].getElementsByTagName("td");if(0!=v.length)for(var s=0,f=0;f<t[1];f++)if(!r[i][f]){var m=g.exec(v[s].innerHTML);null!=m&&(void 0===m[1]&&(m[1]=""),v[s].innerHTML=a+m[1]+l),s++}}},this.toCSV=function(){for(var e="",l=n.getElementsByTagName("tr"),g=0;g<l.length;g++){var o=l[g].getElementsByTagName("td");0==o.length&&(o=l[g].getElementsByTagName("th"));for(var i=0,v=0;v<t[1];v++)r[g][v]||(e+=o[i].innerHTML,i++),e+=a;e=e.substr(0,e.length-1)+"\n"}return e},l(),g()}var in_array=function(e,t){for(var r in t)if(t[r]==e)return!0;return!1};
-			
+
 			/*
 			 * dataTableExtractor.plugin.js 0.1.0 - datatableExport Library
 			 *
@@ -155,10 +155,10 @@
 			 */
 			!function(t){t.fn.datatableExport=function(a){var e={anchor_id:t(this).attr("id"),table_id:null,csv_separator:";",omitted_columns:[]},n=t.extend(e,a);if(!t(this).length)throw"The element where the datatableExport is called does not exist.";if(void 0==n.anchor_id)throw"The datatableExport plugin must be called on an element with id.";if(null==n.table_id)throw"You must set the table_id parameter in datatableExport plugin.";if(!t("#"+n.table_id))throw"The datatable '#"+n.table_id+"' cannot be retieve in DOM.";return this.each(function(){var a=t(this);a.on("click",function(){t.fn.datatableExport.csv(n.anchor_id,n.table_id,n.csv_separator,n.omitted_columns)})})},t.fn.datatableExport.cleanCellMarkup=function(a,e){t.parseHTML(e);t("#"+a).append('<div class="hidden data-tmp">'+e+"</div>"),t("#"+a+" .data-tmp").find("input").each(function(){var a="";a=t(this).is(":checkbox")?t(this).is(":checked")?"true":"false":t(this).val(),t(this).replaceWith(a)});var n=t("#"+a+" .data-tmp").text();return t("#"+a+" .data-tmp").remove(),n},t.fn.datatableExport.csv=function(a,e,n,i){var l="",r=t("#"+e).DataTable(),d=t("#"+e+" thead")[0],o=new HTMLtable(d.cloneNode(!0));o.deleteColumns(i),l+=o.toCSV();var c=r.rows().data();t.each(c,function(e,n){for(var r="",d=0;d<n.length;d++)-1==t.inArray(d,i)&&(r+='"'+t.fn.datatableExport.cleanCellMarkup(a,n[d])+'";');""!=r&&(r=r.slice(0,-1)),l+=r+"\n"}),t("#"+a+"-extract-csv").length||t("#"+a).append('<a id="'+a+'-extract-csv" href="data:text/csv;charset=UTF-8,'+encodeURI(l)+'" download="data.csv" style="display:none;"></a>'),t("#"+a+"-extract-csv")[0].click()}}(jQuery);
 		</script>
-		
+
 		<script type="text/javascript">
 			/**
-			 * Returns the string representation of the number. 
+			 * Returns the string representation of the number.
 			 * @param pValue {Float} The number to process.
 			 * @return {String} The string representation (example: 12856892.11111 => 12,856,892.11).
 			 */
@@ -171,9 +171,9 @@
 		    	}
 		        return new_val ;
 		    }
-			
+
 			/**
-			 * Returns hash use to init HightChart object (without 'type'). 
+			 * Returns hash use to init HightChart object (without 'type').
 			 * @param pTitle {String} The title of the chart.
 			 * @param pXTitle {String} The xAxis title.
 			 * @param pYTitle {String} The yAxis title.
@@ -211,9 +211,9 @@
 				}
 				return chart ;
 			}
- 
+
 			/**
-			 * Returns hash use to init HightChart line. 
+			 * Returns hash use to init HightChart line.
 			 * @param pTitle {String} The title of the chart.
 			 * @param pXTitle {String} The xAxis title.
 			 * @param pYTitle {String} The yAxis title.
@@ -223,7 +223,7 @@
 			 */
 			var lineplot_param = function(pTitle, pXTitle, pYTitle, pXCategories, pData) {
 				var chart = chartplot( pTitle, pXTitle, pYTitle, pXCategories, pData );
-				chart['chart'] = { 
+				chart['chart'] = {
 					type: 'line',
                     zoomType: 'x'
 				};
@@ -241,7 +241,7 @@
 			}
 
 			/**
-			 * Returns hash use to init HightChart column. 
+			 * Returns hash use to init HightChart column.
 			 * @param pTitle {String} The title of the chart.
 			 * @param pYTitle {String} The yAxis title.
 			 * @param pCategories {Array} x scale labels.
@@ -288,7 +288,7 @@
 					series: pSeries
 				};
 			}
-			
+
 			/**
 			 * Returns the list of human readable intervals from The list of right threshold.
 			 * @param categories {Array} The list of right threshold.
@@ -312,7 +312,7 @@
 				}
 				return displayed_categories ;
 			}
-			  
+
 			///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 			//
 			// Nav templates
@@ -327,7 +327,7 @@
 			 */
 			var get_alignment_heatmap_data = function( categories_ident, categories_cover, data_type ){
 				var heatmap_data = new Array();
-				
+
 				// Data sum by categories
 				var scores_by_category = new Array();
 				for( var data_idx = 0 ; data_idx < alignment_scores.length ; data_idx++ ){
@@ -347,7 +347,7 @@
 					}
 					scores_by_category[ident_idx][cover_idx] += alignment_scores[data_idx][2][data_type] ;
 				}
-				
+
 				// Data to heatmap data format
 				for( var ident_idx = 0 ; ident_idx < categories_ident.length ; ident_idx++ ){
 					for( var cover_idx = 0 ; cover_idx < categories_cover.length ; cover_idx++ ){
@@ -366,10 +366,10 @@
 						}
 					}
 				}
-				
+
 				return heatmap_data ;
 			}
-			
+
 			/**
 			 * Returns hash use to init an HightChart heatmap with alignment distribution.
 			 * @param data_type {String} The type of count ('seq' or 'clstr') [default: clstr].
@@ -377,7 +377,7 @@
 			 */
 			var alignment_param = function( data_type ){
 				if( data_type == null ){ data_type = "clstr" ; }
-				
+
 				// Parameters
 				var clean_type = {
 					"clstr": "OTUs",
@@ -394,13 +394,13 @@
 					title: {
 						text: 'Number of ' + clean_type[data_type] + ' among their alignment results'
 					},
-					xAxis: { 
+					xAxis: {
 						categories: get_displayed_categories(categories_ident),
-						title: {text: 'Identity'}, 
-					}, 
+						title: {text: 'Identity'},
+					},
 					yAxis: {
 						categories: get_displayed_categories(categories_cover),
-						title: {text: 'Coverage'}, 
+						title: {text: 'Coverage'},
 					},
 					colorAxis: {
 						min: 0,
@@ -415,12 +415,12 @@
 						y: 25,
 						symbolHeight: 280
 					},
-					tooltip: { 
+					tooltip: {
 						formatter: function () {
 							return 'Identity: <b>' + this.series.xAxis.categories[this.point.x] + '</b><br>'
 								+ ' Coverage: <b>' + this.series.yAxis.categories[this.point.y] + '</b><br>'
 								+ ' Nb ' + clean_type[data_type] + ': <b>' + ((this.point.value == "") ? 0 : this.point.value) + '</b>' ;
-						} 
+						}
 					},
 					credits: {enabled: false},
 					exporting: {
@@ -437,10 +437,10 @@
 						}
 					}]
 				};
-				
+
 				return chart ;
 			}
-			
+
 			/**
 			 * Returns from bootstrap data for one taxonomic rank an hash formatted to use in tag data in one barplot series.
 			 * @param bootstrap_categories {Array} The list of right threshold for each x category in barplot.
@@ -450,7 +450,7 @@
 			 */
 			var get_bootstrap_barplot_data = function( bootstrap_categories, scores, data_type ){
 				var formated_data = new Array();
-				
+
 				// Data to hash by category
 				var scores_by_xCategory = new Array();
 				for( var bootstrap in scores ){
@@ -463,7 +463,7 @@
 					}
 					scores_by_xCategory[bootstrap_idx] += scores[bootstrap][data_type] ;
 				}
-				
+
 				// Data to series data format
 				for( var bootstrap_idx = 0 ; bootstrap_idx < bootstrap_categories.length ; bootstrap_idx++ ){
 					if( scores_by_xCategory.hasOwnProperty(bootstrap_idx) ){
@@ -472,10 +472,10 @@
 						formated_data.push( 0 );
 					}
 				}
-				
+
 				return formated_data ;
 			}
-			
+
 			/**
 			 * Returns hash use to init an HightChart barplot with bootstrap distribution.
 			 * @param data_type {String} The type of count ('seq' or 'clstr') [default: clstr].
@@ -483,14 +483,14 @@
 			 */
 			var bootstrap_param = function( data_type ){
 				if( data_type == null ){ data_type = "clstr" ; }
-				
+
 				// Parameters
 				var clean_type = {
 					"clstr": "OTUs",
 					"seq": "sequences"
 				}
 				var bootstrap_categories = [50, 80, 90, 95, 100, 101];
-				
+
 				// Data
 				var histogram_series = new Array();
 				for( var taxonomic_rank in bootstrap_scores ){
@@ -500,7 +500,7 @@
 						"index": taxonomic_ranks.indexOf( taxonomic_rank )
 					});
 				}
-				
+
 				// Chart
 				return(
 					barplot_param(
@@ -512,11 +512,11 @@
 					)
 				);
 			}
-			
+
 			/**
 			 * Add listener to update content of rarefaction-modal.
 			 */
-			var add_rarefaction_listeners = function() {				
+			var add_rarefaction_listeners = function() {
 				$('#rarefaction-modal').on('shown.bs.modal', function (e) { // Draw curves when modal is shown
 					// Select data
 					var selected_level = $('#rarefaction-level').val() ;
@@ -527,7 +527,7 @@
 							var series_data = new Array([0, 0]); // Add the zero point to curve
 							for( var sampling_idx = 0 ; sampling_idx < rarefaction[selected_sample][selected_level].length ; sampling_idx++ ){
 								series_data.push([
-									(sampling_idx+1)*rarefaction_step, 
+									(sampling_idx+1)*rarefaction_step,
 									rarefaction[selected_sample][selected_level][sampling_idx]
 								]);
 							}
@@ -541,7 +541,7 @@
 					$('#rarefaction-chart').highcharts( lineplot_param("Rarefaction curves", "Nb sampled sequences", "Nb " + selected_level, null, selected_series) );
 				});
 			}
-			
+
 			/**
 			 * Add listener to update content of sunburst-modal.
 			 */
@@ -567,7 +567,7 @@
 					}
 
 					// Draw chart
-					cJDistrib( 
+					cJDistrib(
 						tree.toJson(),
 						{
 							"pg_selector": {
@@ -604,7 +604,7 @@
 					$("#display-spl-sunburst").addClass( "disabled" );
 				}
 			}
-			
+
 			/**
 			 * Loads content of "taxonomy distribution" nav.
 			 * @param cotainer_id {String} The ID of the content where the information will be added.
@@ -621,7 +621,7 @@
 				$('#taxBySample-table tfoot th').each(function(){
 					$(this).attr( "colspan", titles.length );
 				});
-				
+
 				// Table data
 				for( var sample_idx = 0 ; sample_idx < samples_names.length ; sample_idx++ ){
 					var sample_name = samples_names[sample_idx] ;
@@ -635,11 +635,11 @@
 					// Add row data
 					$('#taxBySample-table tbody').append( '<tr><td>' + sample_data.join("</td><td>") + '</td></tr>' );
 				}
-				
+
 				// Buttons enable/disable management
 				$('input[id^="taxBySample-check-all"]').on( 'change', updateTaxButtonState );
 				$('input[id^="taxBySample-chk-"]').on( 'change', updateTaxButtonState );
-				
+
 				// Check all management
 				$('#taxBySample-check-all').on('click', function (e) { // Manage check all
 					if( $(this).is(':checked') ){
@@ -657,7 +657,7 @@
 						$('#taxBySample-check-all').prop( 'checked', false );
 					}
 				});
-				
+
 				// Datatable
 				$('#taxBySample-table').DataTable({
 					"sDom": '<"top"<"#taxBySample-csv-export"><"clear">lf>rt<"bottom"ip><"clear">',
@@ -675,7 +675,7 @@
 					'table_id': "taxBySample-table",
 					'omitted_columns': [0]
 				});
-				
+
 				// Rarefaction select options
 				var select_lvl_options = "" ;
 				$.each( rarefaction_ranks, function( idx, level ){
@@ -684,7 +684,7 @@
 					}
 				});
 				$('#rarefaction-level').html( select_lvl_options );
-				
+
 				// Add listeners
 				add_sunburst_listeners() ;
 				add_rarefaction_listeners() ;
@@ -696,7 +696,7 @@
 			 */
 			var alignment_score_load = function( cotainer_id ){
 				$('#' + cotainer_id).highcharts( alignment_param() );
-				
+
 				$('#heatmap-clstr-btn').on('click', function (e) {
 					if( $('#heatmap-clstr-btn').hasClass("btn-default") ){
 						$('#heatmap-clstr-btn').removeClass( "btn-default" );
@@ -708,7 +708,7 @@
 					}
 					$('#' + cotainer_id).highcharts( alignment_param("clstr") );
 				});
-				
+
 				$('#heatmap-seq-btn').on('click', function (e) {
 					if( $('#heatmap-seq-btn').hasClass("btn-default") ){
 						$('#heatmap-seq-btn').removeClass( "btn-default" );
@@ -721,14 +721,14 @@
 					$('#' + cotainer_id).highcharts( alignment_param("seq") );
 				});
 			}
-			
+
 			/**
 			 * Loads content of "bootstrap distribution" nav.
 			 * @param cotainer_id {String} The ID of the content where the information will be added.
 			 */
 			var bootstrap_score_load = function( cotainer_id ){
 				$('#' + cotainer_id).highcharts( bootstrap_param() );
-				
+
 				$('#bootstrap-clstr-btn').on('click', function (e) { // Display view by OTUs
 					if( $('#bootstrap-clstr-btn').hasClass("btn-default") ){
 						$('#bootstrap-clstr-btn').removeClass( "btn-default" );
@@ -740,7 +740,7 @@
 					}
 					$('#' + cotainer_id).highcharts( bootstrap_param("clstr") );
 				});
-				
+
 				$('#bootstrap-seq-btn').on('click', function (e) { // Display view by sequences
 					if( $('#bootstrap-seq-btn').hasClass("btn-default") ){
 						$('#bootstrap-seq-btn').removeClass( "btn-default" );
@@ -753,9 +753,9 @@
 					$('#' + cotainer_id).highcharts( bootstrap_param("seq") );
 				});
 			}
-			
-			
-			
+
+
+
 			///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 			//
 			// Data
@@ -775,7 +775,7 @@
 			/* Example:
 				{
 					"Surface-01": {
-						"nb_seq": 7115, 
+						"nb_seq": 7115,
 						"Genus": [108, 164, 196, 226, 252, 252, 252],
 						"Species": [108, 164, 196, 227, 253, 268, 287],
 						"Family": [85, 119, 133, 146, 154, 163, 169]
@@ -783,7 +783,7 @@
 					"Surface-02": {
 					...
 				}
-			*/	
+			*/
 			var rarefaction_step = ###RAREFACTION_STEP_SIZE### ;
 			/* Example:
 				1000
@@ -822,14 +822,14 @@
 			// Main
 			//
 			///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-			$(function() {			
+			$(function() {
 				// Remove alert
 				$('#js-alert').remove();
 				$('#content').removeClass("hidden");
 
 				// Load active tab
 				taxBySample_load( "tax-distrib" );
-				
+
 				// Hide tab if no data
 				if( alignment_scores == null ){
 					$('#alignment-nav-tab').each( function(){
@@ -841,7 +841,7 @@
 						$(this).addClass("hidden");
 					});
 				}
-				
+
 				// Add tab listener
 				$('.nav-tabs a').click(function (e) {
 					e.preventDefault();
@@ -862,7 +862,7 @@
 			javascript is needed to display data.<br />
 			If you try to view this data on galaxy please contact your administrator to authorise javascript or download the file to view.
 		</p>
-		
+
 		<div id="content" class="hidden">
 			<ul class="nav nav-tabs">
 				<li role="presentation" class="active"><a href="#tax-distrib">Taxonomy distribution</a></li>
@@ -909,7 +909,7 @@
 				</div>
 			</div>
 		</div>
-		
+
 		<div class="modal" id="sunburst-modal" tabindex="-1" role="dialog" aria-hidden="true">
 			<div class="modal-dialog modal-lg">
 				<div class="modal-content">

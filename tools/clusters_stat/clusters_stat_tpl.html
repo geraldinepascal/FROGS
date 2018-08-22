@@ -118,10 +118,10 @@
 			}
 		</style>
 		<!-- JS -->
-		<script type="text/javascript" src="http://code.jquery.com/jquery-2.1.3.min.js"></script>
-		<script type="text/javascript" src="http://code.highcharts.com/4.1.4/highcharts.js"></script>
-		<script type="text/javascript" src="http://code.highcharts.com/4.1.4/highcharts-more.js"></script>
-		<script type="text/javascript" src="http://code.highcharts.com/4.1.4/modules/exporting.js"></script>
+		<script type="text/javascript" src="https://code.jquery.com/jquery-2.1.3.min.js"></script>
+		<script type="text/javascript" src="https://code.highcharts.com/4.1.4/highcharts.js"></script>
+		<script type="text/javascript" src="https://code.highcharts.com/4.1.4/highcharts-more.js"></script>
+		<script type="text/javascript" src="https://code.highcharts.com/4.1.4/modules/exporting.js"></script>
 		<script type="text/javascript" src="https://cdn.datatables.net/1.10.6/js/jquery.dataTables.min.js"></script>
 		<script type="text/javascript" src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
 		<script type="text/javascript">
@@ -152,7 +152,7 @@
 			 * Licensed under the MIT (http://www.opensource.org/licenses/mit-license.php) license.
 			 */
 			function HTMLtable(e){var t,r,n=e,a=";";this.deleteColumns=function(e){for(var a=n.getElementsByTagName("tr"),o=0;o<a.length;o++){s=0;var i=a[o].getElementsByTagName("td");0==i.length&&(i=a[o].getElementsByTagName("th"));for(var v=0,s=0;s<t[1];s++)if(!r[o][s]){var f=i[v].getAttribute("colspan");if(null!=f)for(var m=0;f>m;m++){if(in_array(s+m,e)){var u=i[v].getAttribute("colspan");u-1==0?i[v].removeAttribute("colspan"):i[v].setAttribute("colspan",u-1)}if(null==i[v].getAttribute("colspan")){var h=i[v];a[o].removeChild(h),v--}}else if(in_array(s,e)){var h=i[v];a[o].removeChild(h),v--}v++}}l(),g()},this.filter=function(e,a){var l=new RegExp(e),g=new Array;null!=a&&a||(g.c0=!0);for(var o=n.getElementsByTagName("tr"),i=0;i<o.length;i++){f=0;var v=o[i].getElementsByTagName("td");if(0!=v.length)for(var s=0,f=0;f<t[1];f++)r[i][f]||(l.test(v[s].innerHTML)&&(g["c"+f]=!0),s++)}for(var m=new Array,u=0;u<t[1];u++)void 0===g["c"+u]&&m.push(u);this.deleteColumns(m)},this.getModel=function(){return n};var l=function(){for(var e=0,r=0,a=n.getElementsByTagName("tr"),l=0;l<a.length;l++){var g=0;e++;var o=a[l].getElementsByTagName("td");0==o.length&&(o=a[l].getElementsByTagName("th"));for(var i=0;i<o.length;i++){var v=o[i].getAttribute("colspan");g+=null==v?1:parseInt(v)}g>r&&(r=g)}t=new Array(2),t[0]=e,t[1]=r},g=function(){r=new Array(t[0]);for(var e=0;e<t[0];e++){r[e]=new Array(t[1]);for(var a=0;a<t[1];a++)r[e][a]=!1}for(var l=n.getElementsByTagName("tr"),g=0;g<l.length;g++){v=0;var o=l[g].getElementsByTagName("td");0==o.length&&(o=l[g].getElementsByTagName("th"));for(var i=0,v=0;v<t[1];v++)if(!r[g][v]){var s=0,f=0,m=o[i].getAttribute("rowspan");null!=m&&(s=parseInt(m)-1);var u=o[i].getAttribute("colspan");null!=u&&(f=parseInt(u)-1);for(var h=s;h>=0;h--)for(var y=f;y>=0;y--)(0!=h||0!=y)&&(r[g+h][v+y]=!0);i++}}};this.replace=function(e,a,l){var g=new RegExp(e);null==a&&(a=""),null==l&&(l="");for(var o=n.getElementsByTagName("tr"),i=0;i<o.length;i++){f=0;var v=o[i].getElementsByTagName("td");if(0!=v.length)for(var s=0,f=0;f<t[1];f++)if(!r[i][f]){var m=g.exec(v[s].innerHTML);null!=m&&(void 0===m[1]&&(m[1]=""),v[s].innerHTML=a+m[1]+l),s++}}},this.toCSV=function(){for(var e="",l=n.getElementsByTagName("tr"),g=0;g<l.length;g++){var o=l[g].getElementsByTagName("td");0==o.length&&(o=l[g].getElementsByTagName("th"));for(var i=0,v=0;v<t[1];v++)r[g][v]||(e+=o[i].innerHTML,i++),e+=a;e=e.substr(0,e.length-1)+"\n"}return e},l(),g()}var in_array=function(e,t){for(var r in t)if(t[r]==e)return!0;return!1};
-			
+
 			/*
 			 * dataTableExtractor.plugin.js 0.1.0 - datatableExport Library
 			 *
@@ -167,8 +167,8 @@
 			var d3_tree = null ;
 			var diagonal = null ;
 			var svg_layout = null ;
-			var node_id = 0 ;			
-			
+			var node_id = 0 ;
+
 			/**
 			 * Draw/update linkage tree.
 			 */
@@ -281,7 +281,7 @@
 
 		<script type="text/javascript">
 			/**
-			 * Returns the string representation of the number. 
+			 * Returns the string representation of the number.
 			 * @param pValue {Float} The number to process.
 			 * @return {String} The string representation (example: 12856892.11111 => 12,856,892.11).
 			 */
@@ -294,9 +294,9 @@
 		    	}
 		        return new_val ;
 		    }
-		    
+
 			/**
-			 * Returns the HTML table representation of the data. 
+			 * Returns the HTML table representation of the data.
 			 * @param pTitle {String} The title of the table.
 			 * @param pCategories {Array} The title of each column.
 			 * @param pData {Array} 2D matrix with row and column data.
@@ -311,7 +311,7 @@
 				}
 				table_header += "    <tr>\n" + table_header_line + "    </tr>\n" ;
 				table_header = "  <thead>\n" + table_header + "  </thead>\n" ;
-				
+
 				// Body
 				var table_body = '' ;
 				for(var data_idx = 0 ; data_idx < pData.length ; data_idx++){
@@ -329,9 +329,9 @@
 
 				return '<table class="table table-striped">\n' + table_header + table_body + "</table>\n" ;
 			}
-			
+
 			 /**
-			  * Returns hash use to init HightChart object (without 'type'). 
+			  * Returns hash use to init HightChart object (without 'type').
 			  * @param pTitle {String} The title of the chart.
 			  * @param pXTitle {String} The xAxis title.
 			  * @param pYTitle {String} The yAxis title.
@@ -370,7 +370,7 @@
 			 	return chart ;
 			 }
 			  /**
-			   * Returns hash use to init HightChart boxplot. 
+			   * Returns hash use to init HightChart boxplot.
 			   * @param pTitle {String} The title of the chart.
 			   * @param pXTitle {String} The xAxis title.
 			   * @param pYTitle {String} The yAxis title.
@@ -386,7 +386,7 @@
 			  };
 
 			 /**
-			  * Returns hash use to init HightChart area. 
+			  * Returns hash use to init HightChart area.
 			  * @param pTitle {String} The title of the chart.
 			  * @param pXTitle {String} The xAxis title.
 			  * @param pYTitle {String} The yAxis title.
@@ -402,7 +402,7 @@
 					}
 				}
 			 	var chart = chartplot( pTitle, pXTitle, pYTitle, pXCategories, pData );
-			 	chart['chart'] = { 
+			 	chart['chart'] = {
 			 		type: 'area',
 			 		zoomType:"x"
 			 	};
@@ -417,9 +417,9 @@
 				};
 			 	return chart ;
 			 }
-			 
+
 			/**
-			  * Returns hash use to init HightChart line. 
+			  * Returns hash use to init HightChart line.
 			  * @param pTitle {String} The title of the chart.
 			  * @param pXTitle {String} The xAxis title.
 			  * @param pYTitle {String} The yAxis title.
@@ -429,7 +429,7 @@
 			  */
 			 var lineplot_param = function(pTitle, pXTitle, pYTitle, pXCategories, pData) {
 			 	var chart = chartplot( pTitle, pXTitle, pYTitle, pXCategories, pData );
-			 	chart['chart'] = { 
+			 	chart['chart'] = {
 			 		type: 'line'
 			 	};
 				chart['yAxis']['min'] = 0 ;
@@ -445,9 +445,9 @@
 			 	return chart ;
 			 }
 
-			var get_dispersion = function( values, counts ) { 
+			var get_dispersion = function( values, counts ) {
 				var dispersion = new Array();
-				
+
 				// Unstack list
 		        unstacked_list = new Array();
 		        for( var idx = 0 ; idx < values.length ; idx++ ){
@@ -476,10 +476,10 @@
 				// Quartiles
 				dispersion['lower_quartile'] = unstacked_list[Math.floor((nb_elt/4) + 0.5) -1] ;
 				dispersion['upper_quartile'] = unstacked_list[Math.floor((3*(nb_elt/4)) + 0.5) -1] ;
-				
+
 				return dispersion ;
 	        };
-			
+
 			///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 			//
 			// Nav templates
@@ -487,7 +487,7 @@
 			///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 			var cluster_distrib_load = function( container_id ) {
 				var dispersion = get_dispersion( clusters_sizes, series[0]['data'] );
-				
+
 				// Nb clusters and nb sequences
 				var nb_clusters = 0 ;
 				var nb_sequences = 0 ;
@@ -509,7 +509,7 @@
 					'	<span class="circle-value">' + numberDisplay(nb_sequences) + '</span>' +
 					'</div>'
 				);
-				
+
 				// Boxplot
 				var boxplot_series = [{
 					'name': "Cluster size",
@@ -540,7 +540,7 @@
 				];
 				$('#dispersion').append( '<div class="col-md-4">' );
 				$('#dispersion div').last().append( table("Clusters size distribution (decile)", ["Decile", "Value"], decile_data) );
-				
+
 				// Details
 				var cluster_sum = 0 ;
 				for( var idx=0 ; idx < clusters_sizes.length ; idx++ ){
@@ -564,7 +564,7 @@
 					'table_id': "dispersion-table"
 				});
 			}
-			
+
 			var sample_table_load = function( container_id ){
 				var table_data = new Array();
 				for( sample in samples_distrib ){
@@ -589,7 +589,7 @@
 					'table_id': "samples-table"
 				});
 			}
-			
+
 			var hierarchical_clustering_load = function( container_id ) {
 				var tree = Node.fromNewick( newick );
 				var leaves_names = tree.getLeavesNames();
@@ -597,7 +597,7 @@
 				for( var idx = 0 ; idx < leaves_names.length ; idx++ ) {
 					leaf_name_length = Math.max( leaf_name_length, leaves_names[idx].length );
 				}
-				var width = tree.maxDepth() * 95 + (leaf_name_length * 8) ; // nb_link * width_link + text_length 
+				var width = tree.maxDepth() * 95 + (leaf_name_length * 8) ; // nb_link * width_link + text_length
 				var height = 50 + tree.nbLeaves() * 40 ; //margin_top + nb_terminal_nodes + height_nodes
 
 				// Display tree
@@ -621,9 +621,9 @@
 
 				linkage_data.x0 = height / 2;
 				linkage_data.y0 = 0;
-				
+
 				update_linkage_nodes(linkage_data);
-				
+
 				// Display warnings
 				var excluded_samples = $.grep(
 					Object.keys(samples_distrib),
@@ -649,7 +649,7 @@
 					'</div>'
 				);
 			}
-			
+
 			var sequence_distrib_load = function( container_id ) {
 				var series_cumulative = new Array() ;
 					for( var series_idx = 0 ; series_idx < series.length ; series_idx++ ){
@@ -697,7 +697,7 @@
 					$('#' + container_id).append('<p class="graph-nb">N.B.: Select area to zoom in.</p>');
 			}
 
-			
+
 			///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 			//
 			// Data
@@ -718,14 +718,14 @@
 			// Main
 			//
 			///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-			$(function() {			
+			$(function() {
 				// Remove alert
 				$('#js-alert').remove();
 				$('#content').removeClass("hidden");
 
 				// Load active tab
 				cluster_distrib_load( "cluster-distrib" );
-				
+
 				// Add tab listener
 				$('.nav-tabs a').click(function (e) {
 					e.preventDefault();
@@ -747,7 +747,7 @@
 			javascript is needed to display data.<br />
 			If you try to view this data on galaxy please contact your administrator to authorise javascript or download the file to view.
 		</p>
-		
+
 		<div id="content" class="hidden">
 			<ul class="nav nav-tabs">
 				<li role="presentation" class="active"><a href="#cluster-distrib">Clusters distribution</a></li>
