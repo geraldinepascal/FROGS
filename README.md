@@ -251,7 +251,7 @@
 
 ### 3.2 R lib 
 
-    Dependencies must be accessible in <FROGS_PATH>/lib.
+    Dependencies must be accessible in <FROGS_PATH>/lib/external.
 
     Phyloseq-extended
         Version : v0.99
