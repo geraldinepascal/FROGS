@@ -132,8 +132,8 @@ def process(params):
 if __name__ == "__main__":
     # Manage parameters
     parser = argparse.ArgumentParser(description="Refine affiliations, to manage amplicon included in other sequence, and to deal with surnumerary OTU (OTU with same affiliations.")
-    parser.add_argument( '-i', '--identity', default=90.0, help="Min percentage identity to agggregate OTU. [Default: %(default)s]")
-    parser.add_argument( '-c', '--coverage', default=90.0, help="Min percentage coverage to agggregate OTU. [Default: %(default)s]")
+    parser.add_argument( '-i', '--identity', default=99.0, help="Min percentage identity to agggregate OTU. [Default: %(default)s]")
+    parser.add_argument( '-c', '--coverage', default=99.0, help="Min percentage coverage to agggregate OTU. [Default: %(default)s]")
     parser.add_argument( '-d', '--debug', default=False, action='store_true', help="Keep temporary files to debug program.")
     parser.add_argument( '-v', '--version', action='version', version=__version__)
 
