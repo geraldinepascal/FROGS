@@ -374,6 +374,12 @@
 ### 9. Tools images
     The tools help contain images. These images must be in galaxy images
     static folder.
+    
+    since galaxy 18.05, links are no more authorized.
+        mkdir <GALAXY_DIR>/static/images/tools/frogs
+        cp <FROGS_PATH>/img/* <GALAXY_DIR>/static/images/tools/frogs/.
+        
+    before that release, you can simply link them:
         ln -s <FROGS_PATH>/img <GALAXY_DIR>/static/images/tools/frogs
 
 
