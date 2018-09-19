@@ -1,0 +1,21 @@
+This <FROGS>/lib/external-lib directory must contain the external R and Javascript libraries.
+
+# Phyloseq-extended libraries available at https://github.com/mahendra-mariadassou/phyloseq-extended/releases contains:
+    compute_niche.R
+    copy_number_correction.R
+    edgePCA.R
+    FileSaver.js
+    graphical_methods.R
+    import_frogs.R
+    LICENSE
+    load-extra-functions.R
+    NCM_fit.R
+    phyloseq-extended.Rproj
+    plot_merged_trees.R
+    prevalence.R
+    README.md
+    richness.R
+    specificity_methods.R
+    ternary_plot.R
+    test
+    tree_methods.R
