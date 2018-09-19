@@ -259,12 +259,6 @@
         Installation : # https://github.com/mahendra-mariadassou/phyloseq-extended/releases
                        untar archive and copy or link content of folder "phyloseq-extended/" in <FROGS_PATH>/lib/external-lib
 
-    JavaScript FileSaver.js
-        Version : 1.3.8
-        Tools : all FROGSSTAT tools
-        Installation : # https://github.com/eligrey/FileSaver.js/releases
-                        untar archive and copy or link FileSaver.js-1.3.8/src/FileSaver.js in <FROGS_PATH>/lib/external_lib
-
 
 ### 4. Check intallation
     To check your installation you can type:
@@ -446,6 +440,26 @@
     before that release, you can simply link them:
         ln -s <FROGS_PATH>/img <GALAXY_DIR>/static/images/tools/frogs
 
+
+### 10. Use PEAR as reads merge software in preprocess
+    PEAR is one of the most effective software for read pair merging, but as its licence is not free for private use, we can not distribute it in FROGS.
+    If you work in an academic lab on a private Galaxy server, or if you have payed your licence you can use PEAR in FROGS preprocess.
+    For that you need to:
+    * have PEAR in your PATH or in the FROGS libexec directory
+    * use --merge-software option for command line use
+    * add PEAR in the FROGS preprocess Galaxy wrapper (<FROGS_DIR>/tools/preprocess/preprocess.xml): blok lines 117 tot 125 and block line 150 to 158 : 
+    
+    <conditional name="merge_software_type">
+        <param name="merge_software" type="select" label="Merge software" help="Select the software to merge paired-end reads.">
+            <option value="vsearch" selected="true">Vsearch</option>
+            <option value="flash">Flash</option>
+            <option value="pear">PEAR</option>
+        </param>
+        <when value="flash">
+            <param name="expected_amplicon_size" type="integer" label="Expected amplicon size" help="Maximum amplicon length expected in approximately 90% of the amplicons." value="" />
+        </when>
+    </conditional>
+        
 
 ## Troubleshooting
 ### Abnormal increase memory consumption with CPU number

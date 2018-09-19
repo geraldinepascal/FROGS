@@ -123,10 +123,6 @@
 										<param name="expected_amplicon_size" type="integer" label="Expected amplicon size" help="Maximum amplicon length expected in approximately 90% of the amplicons." value="" />
 									</when>
 								</conditional>
-								<!--<param name="merge_software" type="select" label="Merge software" help="Select the software to merge paired-end reads.">
-									<option value="vsearch" selected="true">Vsearch</option>
-									<option value="flash">Flash</option>
-								</param>-->
 								<param name="keep_unmerged" type="boolean" label="Would you like to keep unmerged reads?" help="No : Unmerged reads will be excluded; Yes : unmerged reads will be artificially combined with 100 N. (default No)" />
 							</when>
 							<when value="already_merged"></when>
@@ -160,11 +156,6 @@
 										<param name="expected_amplicon_size" type="integer" label="Expected amplicon size" help="Maximum amplicon length expected in approximately 90% of the amplicons." value="" />
 									</when>
 								</conditional>
-								<!--
-								<param name="merge_software" type="select" label="Merge software" help="Select the software to merge paired-end reads.">
-									<option value="vsearch" selected="true">Vsearch</option>
-									<option value="flash">Flash</option>
-								</param>-->
 								<param name="keep_unmerged" type="boolean" label="Would you like to keep unmerged reads?" help="No : Unmerged reads will be excluded; Yes : unmerged reads will be artificially combined with 100 N. (default No)" />
 							</when>
 							<when value="already_merged">

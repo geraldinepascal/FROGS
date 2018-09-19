@@ -1053,7 +1053,7 @@ if __name__ == "__main__":
   For samples files:
     preprocess.py illumina
       --input-R1 R1_FILE [R1_FILE ...]
-      --already-contiged | --input-R2 R2_FILE [R2_FILE ...] --R1-size R1_SIZE --R2-size R2_SIZE [--mismatch-rate RATE ] [--quality-scale SCALE ]
+      --already-contiged | --input-R2 R2_FILE [R2_FILE ...] --R1-size R1_SIZE --R2-size R2_SIZE [--mismatch-rate RATE ] [--quality-scale SCALE ] [--merge-software {vsearch,flash,pear} [--expected-amplicon-size]] [--keep-unmerged]
       --min-amplicon-size MIN_AMPLICON_SIZE
       --max-amplicon-size MAX_AMPLICON_SIZE
       --without-primers | --five-prim-primer FIVE_PRIM_PRIMER --three-prim-primer THREE_PRIM_PRIMER
@@ -1066,11 +1066,11 @@ if __name__ == "__main__":
   For samples archive:
     preprocess.py illumina
       --input-archive ARCHIVE_FILE
-      --already-contiged | --R1-size R1_SIZE --R2-size R2_SIZE [--mismatch-rate RATE ] [--quality-scale SCALE ]
+      --already-contiged | --R1-size R1_SIZE --R2-size R2_SIZE [--mismatch-rate RATE ] [--quality-scale SCALE ] [--merge-software {vsearch,flash,pear} [--expected-amplicon-size] ] [--keep-unmerged]
       --min-amplicon-size MIN_AMPLICON_SIZE
       --max-amplicon-size MAX_AMPLICON_SIZE
       --without-primers | --five-prim-primer FIVE_PRIM_PRIMER --three-prim-primer THREE_PRIM_PRIMER
-      [--fungi {ITS1,ITS2}] [--keep-unmerged]
+      [--fungi {ITS1,ITS2}] 
       [-p NB_CPUS] [--debug] [-v]
       [-d DEREPLICATED_FILE] [-c COUNT_FILE] [-c COUNT_FILE] [--artComb-output-dereplicated ART_DEREPLICATED_FILE] [--artComb-output-count ART_COUNT_FILE]
       [-s SUMMARY_FILE] [-l LOG_FILE]
@@ -1087,7 +1087,7 @@ if __name__ == "__main__":
     parser_illumina.add_argument( '--R1-size', type=int, help='The read1 size.' )
     parser_illumina.add_argument( '--R2-size', type=int, help='The read2 size.' )
     parser_illumina.add_argument( '--mismatch-rate', type=float, default=0.1, help='Maxi mismatch rate in overlap region. [Default: %(default)s]' )
-    parser_illumina.add_argument( '--quality-scale', type=str, default="33", choices=["33", "64"], help='The phred base quality scale, either 33 or 64 [Default: %(default)s]' )
+    parser_illumina.add_argument( '--quality-scale', type=str, default="33", choices=["33", "64"], help='The phred base quality scale, either 33 or 64 if using Vsearch as read pair merge software [Default: %(default)s]' )
     parser_illumina.add_argument( '--already-contiged', action='store_true', default=False, help='The archive contains 1 file by sample : Reads 1 and Reads 2 are already contiged by pair.' )
     parser_illumina.add_argument( '-p', '--nb-cpus', type=int, default=1, help="The maximum number of CPUs used. [Default: %(default)s]" )
     parser_illumina.add_argument( '--debug', default=False, action='store_true', help="Keep temporary files to debug program." )
