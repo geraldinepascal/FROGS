@@ -4,6 +4,8 @@ nb_cpu=$2
 java_mem=$3
 out_dir=$4
 
+## CHANGER LE JEU DE DONNEES, PRENDRE ITS1/100, VERIFIER ITS multihit, et aggregation
+
 # Check parameters
 if [ "$#" -ne 4 ]; then
     echo "ERROR: Illegal number of parameters." ;
@@ -23,33 +25,51 @@ then
 fi
 
 
-echo "Step preprocess `date`"
+echo "Step preprocess : Flash `date`"
 
 preprocess.py illumina \
  --min-amplicon-size 380 --max-amplicon-size 460 \
  --five-prim-primer GGCGVACGGGTGAGTAA --three-prim-primer GTGCCAGCNGCNGCGG \
-  --R1-size 250 --R2-size 250 --expected-amplicon-size 420 \
+  --R1-size 250 --R2-size 250 --expected-amplicon-size 420 --merge-software flash\
  --input-archive $frogs_dir/test/data/test_dataset.tar.gz \
- --output-dereplicated $out_dir/01-prepro.fasta \
- --output-count $out_dir/01-prepro.tsv \
- --summary $out_dir/01-prepro.html \
- --log-file $out_dir/01-prepro.log \
+ --output-dereplicated $out_dir/01-prepro-flash.fasta \
+ --output-count $out_dir/01-prepro-flash.tsv \
+ --summary $out_dir/01-prepro-flash.html \
+ --log-file $out_dir/01-prepro-flash.log \
  --nb-cpus $nb_cpu --mismatch-rate 0.15
  
 if [ $? -ne 0 ]
 then
-	echo "Error in preprocess" >&2
+	echo "Error in preprocess : Flash" >&2
 	exit 1;
 fi
 
+echo "Step preprocess : Vsearch `date`"
+
+preprocess.py illumina \
+ --min-amplicon-size 380 --max-amplicon-size 460 \
+ --five-prim-primer GGCGVACGGGTGAGTAA --three-prim-primer GTGCCAGCNGCNGCGG \
+  --R1-size 250 --R2-size 250 --merge-software vsearch --keep-unmerged\
+ --input-archive $frogs_dir/test/data/test_dataset.tar.gz \
+ --output-dereplicated $out_dir/01-prepro-vsearch.fasta \
+ --output-count $out_dir/01-prepro-vsearch.tsv \
+ --summary $out_dir/01-prepro-vsearch.html \
+ --log-file $out_dir/01-prepro-vsearch.log \
+ --nb-cpus $nb_cpu --mismatch-rate 0.15
+ 
+if [ $? -ne 0 ]
+then
+	echo "Error in preprocess : Flash" >&2
+	exit 1;
+fi
 
 echo "Step clustering `date`"
 
 clustering.py \
  --distance 3 \
  --denoising \
- --input-fasta $out_dir/01-prepro.fasta \
- --input-count $out_dir/01-prepro.tsv \
+ --input-fasta $out_dir/01-prepro-vsearch.fasta \
+ --input-count $out_dir/01-prepro-vsearch.tsv \
  --output-biom $out_dir/02-clustering.biom \
  --output-fasta $out_dir/02-clustering.fasta \
  --output-compo $out_dir/02-clustering_compo.tsv \
@@ -106,11 +126,11 @@ itsx.py \
  --input-fasta $out_dir/04-filters.fasta \
  --input-biom $out_dir/04-filters.biom \
  --region ITS1 \
- --out-abundance $out_dir/04-itsx.biom \
- --summary $out_dir/04-itsx.html \
- --log-file $out_dir/04-itsx.log \
- --out-fasta $out_dir/04-itsx.fasta \
- --excluded $out_dir/04-itsx-excluded.tsv
+ --out-abundance $out_dir/05-itsx.biom \
+ --summary $out_dir/05-itsx.html \
+ --log-file $out_dir/05-itsx.log \
+ --out-fasta $out_dir/05-itsx.fasta \
+ --excluded $out_dir/05-itsx-excluded.tsv
 
 if [ $? -ne 0 ]
 then
@@ -124,9 +144,9 @@ affiliation_OTU.py \
  --reference $frogs_dir/test/data/db.fasta \
  --input-fasta $out_dir/04-filters.fasta \
  --input-biom $out_dir/04-filters.biom \
- --output-biom $out_dir/04-affiliation.biom \
- --summary $out_dir/04-affiliation.html \
- --log-file $out_dir/04-affiliation.log \
+ --output-biom $out_dir/06-affiliation.biom \
+ --summary $out_dir/06-affiliation.html \
+ --log-file $out_dir/06-affiliation.log \
  --nb-cpus $nb_cpu --java-mem $java_mem \
  --rdp
 
@@ -136,13 +156,30 @@ then
 	exit 1;
 fi
 
+echo "Step affiliation_postprocess `date`"
+
+affiliation_postprocess.py \
+ --input-biom $out_dir/06-affiliation.biom \ 
+ --input-fasta $out_dir/04-filters.fasta \
+ --reference $frogs_dir/test/data/ITS1.fasta \
+ --output-biom $out_dir/07-affiliation_postprocessed.biom \
+ --output-compo $out_dir/07-affiliation_postprocessed.compo.tsv \
+ --output-fasta $out_dir/07-affiliation_postprocessed.fasta \
+ --log-file $out_dir/07-affiliation_postprocessed.log
+
+if [ $? -ne 0 ]
+then
+	echo "Error in affiliation_postprocess" >&2
+	exit 1;
+fi
+
 
 echo "Step clusters_stat `date`"
 
 clusters_stat.py \
- --input-biom $out_dir/04-affiliation.biom \
- --output-file $out_dir/05-clustersStat.html \
- --log-file $out_dir/05-clustersStat.log
+ --input-biom $out_dir/06-affiliation.biom \
+ --output-file $out_dir/08-clustersStat.html \
+ --log-file $out_dir/08-clustersStat.log
 
 if [ $? -ne 0 ]
 then
@@ -154,9 +191,9 @@ fi
 echo "Step affiliations_stat `date`"
 
 affiliations_stat.py \
- --input-biom $out_dir/04-affiliation.biom \
- --output-file $out_dir/06-affiliationsStat.html \
- --log-file $out_dir/06-affiliationsStat.log \
+ --input-biom $out_dir/06-affiliation.biom \
+ --output-file $out_dir/09-affiliationsStat.html \
+ --log-file $out_dir/09-affiliationsStat.log \
  --tax-consensus-tag "blast_taxonomy" \
  --identity-tag "perc_identity" \
  --coverage-tag "perc_query_coverage" \
@@ -173,11 +210,11 @@ fi
 echo "Step biom_to_tsv `date`"
 
 biom_to_tsv.py \
- --input-biom $out_dir/04-affiliation.biom \
+ --input-biom $out_dir/06-affiliation.biom \
  --input-fasta $out_dir/04-filters.fasta \
- --output-tsv $out_dir/07-biom2tsv.tsv \
- --output-multi-affi $out_dir/07-biom2tsv.multi \
- --log-file $out_dir/07-biom2tsv.log
+ --output-tsv $out_dir/10-biom2tsv.tsv \
+ --output-multi-affi $out_dir/10-biom2tsv-affiliation_multihit.tsv \
+ --log-file $out_dir/10-biom2tsv.log
 
 if [ $? -ne 0 ]
 then
@@ -189,10 +226,10 @@ echo "Step biom_to_stdBiom `date`"
 
 
 biom_to_stdBiom.py \
- --input-biom $out_dir/04-affiliation.biom \
- --output-biom $out_dir/08-affiliation_std.biom \
- --output-metadata $out_dir/08-affiliation_multihit.tsv \
- --log-file $out_dir/08-biom2stdbiom.log
+ --input-biom $out_dir/06-affiliation.biom \
+ --output-biom $out_dir/11-affiliation_std.biom \
+ --output-metadata $out_dir/11-affiliation_multihit.tsv \
+ --log-file $out_dir/11-biom2stdbiom.log
 
 if [ $? -ne 0 ]
 then
@@ -204,11 +241,11 @@ echo "Step tsv_to_biom `date`"
 
 
 tsv_to_biom.py \
- --input-tsv $out_dir/07-biom2tsv.tsv \
- --input-multi-affi $out_dir/07-biom2tsv.multi \
- --output-biom $out_dir/09-tsv2biom.biom \
- --output-fasta $out_dir/09-tsv2biom.fasta \
- --log-file $out_dir/09-tsv2biom.log 
+ --input-tsv $out_dir/10-biom2tsv.tsv \
+ --input-multi-affi $out_dir/10-biom2tsv-affiliation_multihit.tsv \
+ --output-biom $out_dir/12-tsv2biom.biom \
+ --output-fasta $out_dir/12-tsv2biom.fasta \
+ --log-file $out_dir/12-tsv2biom.log 
 
 if [ $? -ne 0 ]
 then
@@ -221,11 +258,11 @@ echo "Step tree : pynast `date`"
 tree.py \
  --nb-cpus $nb_cpu  \
  --input-otu $out_dir/04-filters.fasta \
- --biomfile $out_dir/04-affiliation.biom \
+ --biomfile $out_dir/06-affiliation.biom \
  --template-pynast $frogs_dir/test/data/otus_pynast.fasta \
- --out-tree $out_dir/10a-tree.nwk \
- --html $out_dir/10a-tree.html \
- --log-file $out_dir/10a-tree.log
+ --out-tree $out_dir/13-tree-pynast.nwk \
+ --html $out_dir/13-tree-pynast.html \
+ --log-file $out_dir/13-tree-pynast.log
  
 if [ $? -ne 0 ]
 then
@@ -238,10 +275,10 @@ echo "Step tree : mafft `date`"
 tree.py \
  --nb-cpus $nb_cpu \
  --input-otu $out_dir/04-filters.fasta \
- --biomfile $out_dir/04-affiliation.biom \
- --out-tree $out_dir/10b-tree.nwk \
- --html $out_dir/10b-tree.html \
- --log-file $out_dir/10b-tree.log
+ --biomfile $out_dir/06-affiliation.biom \
+ --out-tree $out_dir/13-tree-mafft.nwk \
+ --html $out_dir/13-tree-mafft.html \
+ --log-file $out_dir/13-tree-mafft.log
 
 if [ $? -ne 0 ]
 then
@@ -255,7 +292,7 @@ r_import_data.py  \
  --biomfile $frogs_dir/test/data/chaillou.biom \
  --samplefile $frogs_dir/test/data/sample_metadata.tsv \
  --treefile $frogs_dir/test/data/tree.nwk \
- --rdata $out_dir/11-phylo_import.Rdata --html $out_dir/11-phylo_import.html --log-file $out_dir/11-phylo_import.log
+ --rdata $out_dir/14-phylo_import.Rdata --html $out_dir/14-phylo_import.html --log-file $out_dir/14-phylo_import.log
 
  
 if [ $? -ne 0 ]
@@ -268,8 +305,8 @@ echo "Step r_composition `date`"
 
 r_composition.py  \
  --varExp EnvType --taxaRank1 Kingdom --taxaSet1 Bacteria --taxaRank2 Phylum --numberOfTaxa 9 \
- --rdata $out_dir/11-phylo_import.Rdata \
- --html $out_dir/12-phylo_composition.html --log-file $out_dir/12-phylo_composition.log
+ --rdata $out_dir/14-phylo_import.Rdata \
+ --html $out_dir/15-phylo_composition.html --log-file $out_dir/15-phylo_composition.log
 
  
 if [ $? -ne 0 ]
@@ -282,8 +319,8 @@ echo "Step r_alpha_diversity `date`"
 
 r_alpha_diversity.py  \
  --varExp EnvType \
- --rdata $out_dir/11-phylo_import.Rdata --alpha-measures Observed Chao1 Shannon \
- --alpha-out $out_dir/13-phylo_alpha_div.tsv --html $out_dir/13-phylo_alpha_div.html --log-file $out_dir/13-phylo_alpha_div.log
+ --rdata $out_dir/14-phylo_import.Rdata --alpha-measures Observed Chao1 Shannon \
+ --alpha-out $out_dir/16-phylo_alpha_div.tsv --html $out_dir/16-phylo_alpha_div.html --log-file $out_dir/16-phylo_alpha_div.log
 
  
 if [ $? -ne 0 ]
@@ -296,8 +333,8 @@ echo "Step r_beta_diversity `date`"
 
 r_beta_diversity.py  \
  --varExp EnvType --distance-methods cc,unifrac \
- --rdata $out_dir/11-phylo_import.Rdata \
- --matrix-outdir $out_dir --html $out_dir/14-phylo_beta_div.html --log-file $out_dir/14-phylo_beta_div.log
+ --rdata $out_dir/14-phylo_import.Rdata \
+ --matrix-outdir $out_dir --html $out_dir/17-phylo_beta_div.html --log-file $out_dir/17-phylo_beta_div.log
 
  
 if [ $? -ne 0 ]
@@ -310,8 +347,8 @@ echo "Step r_structure `date`"
 
 r_structure.py  \
  --varExp EnvType --ordination-method MDS \
- --rdata $out_dir/11-phylo_import.Rdata --distance-matrix $out_dir/Unifrac.tsv \
- --html $out_dir/15-phylo_structure.html --log-file $out_dir/15-phylo_structure.log
+ --rdata $out_dir/14-phylo_import.Rdata --distance-matrix $out_dir/Unifrac.tsv \
+ --html $out_dir/18-phylo_structure.html --log-file $out_dir/18-phylo_structure.log
 
  
 if [ $? -ne 0 ]
@@ -324,8 +361,8 @@ echo "Step r_clustering `date`"
 
 r_clustering.py  \
  --varExp EnvType \
- --rdata $out_dir/11-phylo_import.Rdata --distance-matrix $out_dir/Unifrac.tsv \
- --html $out_dir/16-phylo_clutering.html --log-file $out_dir/16-phylo_clustering.log
+ --rdata $out_dir/14-phylo_import.Rdata --distance-matrix $out_dir/Unifrac.tsv \
+ --html $out_dir/19-phylo_clutering.html --log-file $out_dir/16-phylo_clustering.log
 
  
 if [ $? -ne 0 ]
@@ -338,8 +375,8 @@ echo "Step r_manova `date`"
 
 r_manova.py  \
  --varExp EnvType \
- --rdata $out_dir/11-phylo_import.Rdata --distance-matrix $out_dir/Unifrac.tsv \
- --html $out_dir/17-phylo_manova.html --log-file $out_dir/17-phylo_manova.log
+ --rdata $out_dir/14-phylo_import.Rdata --distance-matrix $out_dir/Unifrac.tsv \
+ --html $out_dir/20-phylo_manova.html --log-file $out_dir/20-phylo_manova.log
 
  
 if [ $? -ne 0 ]
