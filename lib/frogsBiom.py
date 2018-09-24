@@ -712,7 +712,7 @@ class Biom:
             raise ValueError( "The " + subject_type + " '" + query_name + "' doesn't exist." )
         return find_idx
 
-    def add_metadata( self, subject_name, metadata_name, metadata_value, subject_type="sample"):
+    def add_metadata( self, subject_name, metadata_name, metadata_value, subject_type="sample", erase_warning=True):
         """
         @summary: Add a metadata on subject (a sample or an observation).
         @param subject_name : [str] Metadata is added to the sample/observation with this name. 
@@ -737,7 +737,7 @@ class Biom:
         else:
             if subject_list[subject_idx]['metadata'] is None:
                 subject_list[subject_idx]['metadata'] = dict()
-            elif subject_list[subject_idx]['metadata'].has_key( metadata_name ):
+            elif subject_list[subject_idx]['metadata'].has_key( metadata_name ) and erase_warning:
                 sys.stderr.write("[WARNING] You erase previous value of the metadata named '" + metadata_name + "' in " + subject_name + " (OLD:'" + str(subject_list[subject_idx]['metadata'][metadata_name]) + "' => NEW:'" + str(metadata_value) + "').\n")
             subject_list[subject_idx]['metadata'][metadata_name] = metadata_value
 
@@ -980,6 +980,14 @@ class Biom:
         """
         for observation in self.rows:
             yield observation
+
+    # Add by Maria
+    def get_observations_by_name( self, observation_name ):
+        """
+        @summary: Returns an observation.
+        @return: [dict] the dictionnary describing an observations.
+        """
+        return self.rows[self.find_idx("observation", observation_name)]
 
     def get_observations_by_sample( self, sample_name ):
         """

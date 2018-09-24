@@ -251,14 +251,19 @@
 
 ### 3.2 R lib 
 
-    Dependencies must be accessible in <FROGS_PATH>/lib.
+    Dependencies must be accessible in <FROGS_PATH>/lib/external.
 
     Phyloseq-extended
         Version : v0.99
         Tools : all FROGSSTAT tools
         Installation : # https://github.com/mahendra-mariadassou/phyloseq-extended/releases
-                       untar archive and copy content of folder "phyloseq-extended/" in <FROGS_PATH>/lib
+                       untar archive and copy or link content of folder "phyloseq-extended/" in <FROGS_PATH>/lib/external-lib
 
+    JavaScript FileSaver.js
+        Version : 1.3.8
+        Tools : all FROGSSTAT tools
+        Installation : # https://github.com/eligrey/FileSaver.js/releases
+                        untar archive and copy or link FileSaver.js-1.3.8/src/FileSaver.js in <FROGS_PATH>/lib/external_lib
 
 
 ### 4. Check intallation
@@ -329,12 +334,13 @@
             <tool file="FROGS/app/filters.xml" />
             <tool file="FROGS/app/itsx.xml" />
             <tool file="FROGS/app/affiliation_OTU.xml" />
+            <tool file="FROGS/app/affiliation_postprocess.xml" />
+            <tool file="FROGS/app/normalisation.xml" />
             <tool file="FROGS/app/clusters_stat.xml" />
             <tool file="FROGS/app/affiliations_stat.xml" />
             <tool file="FROGS/app/biom_to_stdBiom.xml" />
             <tool file="FROGS/app/biom_to_tsv.xml" />
             <tool file="FROGS/app/tsv_to_biom.xml" />
-            <tool file="FROGS/app/normalisation.xml" />
             <tool file="FROGS/app/tree.xml" />
         <label text="OTUs structure and composition analysis" id="FROGSSTAT_Phyloseq" />
             <tool file="FROGS/app/r_import_data.xml" />
@@ -359,18 +365,11 @@
         Tool            RAM/CPU     Minimal RAM     Configuration example
         affiliation        -          20 Gb          30 CPUs and 300 GB
         chimera          3 Gb          5 Gb          12 CPUs and 36 GB
+        chimera          3 Gb          5 Gb          12 CPUs and 36 GB
         clustering         -          10 Gb          16 CPUs and 60 GB
         preprocess       8 Gb            -           12 CPUs and 96 GB
 
-    b] Change the number of CPUs used
-        Each tool with parallelisation possibilities contains in its XML an
-        hidden parameter to set the number of used CPUs.
-        Example for 16 CPUs:
-           <param name="nb_cpus" type="hidden" label="CPU number" help="The maximum number of CPUs used." value="1" />
-           Is changed to :
-           <param name="nb_cpus" type="hidden" label="CPU number" help="The maximum number of CPUs used." value="16" />
-
-    c] Change the tool launcher configuration
+    b] Change the tool launcher configuration
         In galaxy the job_conf.xml allows to change the scheduler 
         submission parameters.
         Example for SGE scheduler:
@@ -394,6 +393,12 @@
                     <param id="galaxy_external_chown_script">scripts/external_chown_script.py</param>
                     <param id="nativeSpecification">-clear -q galaxyq -l mem=3G -l h_vmem=4G -pe parallel_smp 12</param>
                 </destination>
+                <destination id="FROGS_itsx_job" runner="drmaa">
+                    <param id="galaxy_external_runjob_script">scripts/drmaa_external_runner.py</param>
+                    <param id="galaxy_external_killjob_script">scripts/drmaa_external_killer.py</param>
+                    <param id="galaxy_external_chown_script">scripts/external_chown_script.py</param>
+                    <param id="nativeSpecification">-clear -q galaxyq -l mem=3G -l h_vmem=4G -pe parallel_smp 12</param>
+                </destination>
                 <destination id="FROGS_affiliation_OTU_job" runner="drmaa">
                     <param id="galaxy_external_runjob_script">scripts/drmaa_external_runner.py</param>
                     <param id="galaxy_external_killjob_script">scripts/drmaa_external_killer.py</param>
@@ -406,6 +411,7 @@
                 <tool id="FROGS_preprocess" destination="FROGS_preprocess_job"/>   
                 <tool id="FROGS_clustering" destination="FROGS_clustering_job"/>     
                 <tool id="FROGS_remove_chimera" destination="FROGS_remove_chimera_job"/> 
+                <tool id="FROGS_itsx" destination="FROGS_itsx_job"/> 
                 <tool id="FROGS_affiliation_OTU" destination="FROGS_affiliation_OTU_job"/>
             </tools>
 
@@ -422,10 +428,22 @@
         - To use this databank, you need to create a .loc file named
           'phiX_db.loc'. The path provided must be the '.fasta'.
           (see the phiX_db.loc example file)
-
+    b] Hyper variable in length amplicon databank
+        - Upload databank from http://genoweb.toulouse.inra.fr/frogs_databanks/HVL
+        - Extract databank.
+        - To use this databank, you need to create a .loc file named
+          'HVL_db.loc'. The path provided must be the '.fasta'.
+          (see the HVL_db.loc example file)
+          
 ### 9. Tools images
     The tools help contain images. These images must be in galaxy images
     static folder.
+
+    since galaxy 18.05, links are no more authorized.
+        mkdir <GALAXY_DIR>/static/images/tools/frogs
+        cp <FROGS_PATH>/img/* <GALAXY_DIR>/static/images/tools/frogs/.
+        
+    before that release, you can simply link them:
         ln -s <FROGS_PATH>/img <GALAXY_DIR>/static/images/tools/frogs
 
 

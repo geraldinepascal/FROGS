@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
-<tool id="FROGS_normalisation" name="FROGS Abundance normalisation" version="2.0.0">
+<tool id="FROGS_normalisation" name="FROGS Abundance normalisation" version="r3.0-8.0">
 	<command interpreter="python2.7">
 		normalisation.py 
 		                       --input-biom $input_biom

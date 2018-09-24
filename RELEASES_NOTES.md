@@ -1,15 +1,31 @@
 # v3.0.0 [DEV]:
+### Tools added:
+  * ITSx : tool available for selecting and trimming ITS sequences based on ITSx tool
+  * Affiliation Postprocess : resolve ambiguities due to inclusiv ITS, and aggregated OTU based on 
+  taxonomic affiliations
+
 ### Function added:
   * Preprocess : keep and filter non overlapped reads (particularly important for amplicon polymorphe in length)
-  * ITSx : tool available for selecting and trimming ITS sequences based on ITSx tool
+  * Affiliation : non overlapped read generate FROGS_combined OTU that are affiliated thanks to Needl (http://emboss.sourceforge.net/apps/release/6.6/emboss/apps/needleall.html) global alignment
 
 ### Modification:
-  * Preprocess : add VSEARCH and PEAR (https://sco.h-its.org/exelixis/web/software/pear/) options to merge reads, remove expected-amplicon-length options
-  * FROGSSTAT tools do not call anymore external script from urls. Additionnal library dependancies added : https://github.com/mahendra-mariadassou/phyloseq-extended/releases
-  * Affiliation : non overlapped read generate FROGS_combined OTU that are affiliated thanks to Needl (http://emboss.sourceforge.net/apps/release/6.6/emboss/apps/needleall.html) global alignment
+  * General : Use GALAXY_SLOTS variable in XML. 
+              Upadate version dependancies
+              Remove redirection to /dev/null
+              Update test/test.sh
+              Update XML doc
+              Update graphical charter of HTML output
+  * Preprocess : add VSEARCH and PEAR (https://sco.h-its.org/exelixis/web/software/pear/) options to merge reads
+  * Clustering : deal with artificially combined reads
+  * FROGSSTAT tools do not call anymore external script from urls. Additionnal library dependancies 
+  added : https://github.com/mahendra-mariadassou/phyloseq-extended/releases
+  * FROGSSTAT import : can take FROGS specific biom file
+  * FROGS TSV_to_Biom : keeps original type of metadate (float, int or list instead of string)
+                        remove quotes added by Excel when exporting abundance tsv file in text file
 
 ### Bugs fixes:
   * Phyloseq import: bug when Tree is None
+  * libexec/derepSamples : bug with temporary files name
 
 # v2.0.0  [2017-08-08]
 ### Tools added : 

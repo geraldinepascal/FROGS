@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
-<tool id="FROGS_Tree" name="FROGS Tree" version="1.0.0">
+<tool id="FROGS_Tree" name="FROGS Tree" version="r3.0-1.0">
 	<description>Reconstruction of phylogenetic tree </description>
 	<command interpreter="python2.7">tree.py 
                                             --input-otu $input_otu

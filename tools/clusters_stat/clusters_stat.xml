@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
-<tool id="FROGS_clusters_stat" name="FROGS Clusters stat" version="1.4.0">
+<tool id="FROGS_clusters_stat" name="FROGS Clusters stat" version="r3.0-3.0">
 	<description>Process some metrics on clusters.</description>
 	<command interpreter="python2.7">
 		clusters_stat.py 

@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
-<tool id="FROGS_clustering" name="FROGS Clustering swarm" version="r3.0-v3.0">
+<tool id="FROGS_clustering" name="FROGS Clustering swarm" version="r3.0-1.4">
 	<description>Step 2 in metagenomics analysis : clustering.</description>
 	<command interpreter="python2.7">
 		clustering.py 
