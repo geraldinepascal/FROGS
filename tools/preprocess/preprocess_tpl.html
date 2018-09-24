@@ -185,9 +185,9 @@
 						 
         </style>
         <!-- JS -->
-		<script type="text/javascript" src="https://code.jquery.com/jquery-2.1.3.min.js"></script>
-		<script type="text/javascript" src="https://code.highcharts.com/4.1.4/highcharts.js"></script>
-		<script type="text/javascript" src="https://code.highcharts.com/4.1.4/modules/exporting.js"></script>
+		<script type="text/javascript" src="http://code.jquery.com/jquery-2.1.3.min.js"></script>
+		<script type="text/javascript" src="http://code.highcharts.com/4.1.4/highcharts.js"></script>
+		<script type="text/javascript" src="http://code.highcharts.com/4.1.4/modules/exporting.js"></script>
 		<script type="text/javascript" src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
 		<script type="text/javascript" src="https://cdn.datatables.net/1.10.19/js/dataTables.bootstrap4.min.js"></script>
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.11.0/umd/popper.min.js" integrity="sha384-b/U6ypiBEHpOf/4+1nzFpr53nxSS+GLCkfwBdFNTxtclqqenISfwAzpKaMNFNmj4" crossorigin="anonymous"></script>
@@ -440,18 +440,18 @@
             ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
             var filters_categories = ###FILTERS_CATEGORIES### ;
             /* Example:
-                ["before process", "combined", "with 5' primer", "with 3' primer", "with expected length", "without N"]
+                ["before process", "assembled", "with 5' primer", "with 3' primer", "with expected length", "without N"]
             */
 
             var filters_by_sample = ###FILTERS_DATA### ;
             /* Example:
             var filters_by_sample = {
                 "artificial combined": {
-                    "sampleA": {"with 3' primer": 100, "without N": 100, "with 5' primer": 200, "combined": 300}, 
-                    "sampleB": {"with 3' primer": 0, "without N": 0, "with 5' primer": 0, "combined": 0}}, 
+                    "sampleA": {"with 3' primer": 100, "without N": 100, "with 5' primer": 200, "assembled": 300}, 
+                    "sampleB": {"with 3' primer": 0, "without N": 0, "with 5' primer": 0, "assembled": 0}}, 
                 "combined": {
-                    "sampleA": {"with expected length": 997, "with 3' primer": 997, "without N": 997, "with 5' primer": 997, "combined": 1000}, 
-                    "sampleB": {"with expected length": 634, "with 3' primer": 727, "without N": 619, "with 5' primer": 800, "combined": 834}}, 
+                    "sampleA": {"with expected length": 997, "with 3' primer": 997, "without N": 997, "with 5' primer": 997, "assembled": 1000}, 
+                    "sampleB": {"with expected length": 634, "with 3' primer": 727, "without N": 619, "with 5' primer": 800, "assembled": 834}}, 
                 "before process": {"sampleA": 1300, "sampleB": 834}
             } ;
             */
@@ -545,7 +545,7 @@
                 var extended_data = new Array();
                 var non_overlapped_data = new Array();
 
-                for( var spl_name in filters_by_sample["combined"] ){
+                for( var spl_name in filters_by_sample["merged"] ){
                     total_input += filters_by_sample["before process"][spl_name] ;
                     for ( var cat_idx = 1 ; cat_idx < filters_categories.length ; cat_idx++ ){
                         var cat = filters_categories[cat_idx] ;
@@ -554,8 +554,8 @@
                             non_overlapped_data.push(0);
                         }
                         
-                        if (cat in filters_by_sample["combined"][spl_name]){
-                            extended_data[cat_idx-1] += filters_by_sample["combined"][spl_name][cat] ;    
+                        if (cat in filters_by_sample["merged"][spl_name]){
+                            extended_data[cat_idx-1] += filters_by_sample["merged"][spl_name][cat] ;    
                         }else{
                             extended_data[cat_idx-1] = extended_data[cat_idx-2] ;
                         }
@@ -571,7 +571,7 @@
 
                 }
                 
-                var global_series = [ { name: 'combined', data: extended_data }]
+                var global_series = [ { name: 'merged', data: extended_data }]
                 if ("artificial combined" in filters_by_sample) {
                     global_series.push({name: 'artificial combined', data: non_overlapped_data});
                 }
@@ -709,8 +709,8 @@
                 // Display summary
                 summaryLoad();
                 // Display data by sample
-                if ("combined" in filters_by_sample ){
-                    sampleDetailsLoad("combined",true, "filterBySample-table-combined", true);
+                if ("merged" in filters_by_sample ){
+                    sampleDetailsLoad("merged",true, "filterBySample-table-combined", true);
                 }else{
                     $("#filterBySample-table-combined").remove();
                 }
@@ -745,7 +745,7 @@
             <div id="filter-summary"></div>
             
             <div id="filter-log">
-				<h2 class="pb-2 mt-4 mb-2 border-bottom">Details on full length amplicon reads</h2>
+				<h2 class="pb-2 mt-4 mb-2 border-bottom">Details on merged sequences</h2>
                 <table id="filterBySample-table-combined" class="table table-striped">
                     <thead>
 						<!--
@@ -765,7 +765,7 @@
                         </tr>
                     </tfoot>
                 </table>
-                <h2 class="pb-2 mt-4 mb-2 border-bottom">Details on artificially combined reads</h2>
+                <h2 class="pb-2 mt-4 mb-2 border-bottom">Details on artificial combined sequences</h2>
                 <table id="filterBySample-table-artificialCombined" class="table table-striped">
                     <thead>
                     </thead>

@@ -97,7 +97,7 @@ class Pear(Cmd):
         # Write result
         FH_log = Logger( log_file )
         FH_log.write( 'Results:\n' )
-        FH_log.write( '\tnb seq merged: ' + str(nb_seq_merged) + '\n' )
+        FH_log.write( '\tnb seq paired-end assembled: ' + str(nb_seq_merged) + '\n' )
         FH_log.close()
 
 class Flash(Cmd):
@@ -140,7 +140,7 @@ class Flash(Cmd):
         # Write result
         FH_log = Logger( log_file )
         FH_log.write( 'Results:\n' )
-        FH_log.write( '\tnb seq merged: ' + str(nb_seq_merged) + '\n' )
+        FH_log.write( '\tnb seq paired-end assembled: ' + str(nb_seq_merged) + '\n' )
         FH_log.close()
 
 class Vsearch(Cmd):
@@ -185,7 +185,7 @@ class Vsearch(Cmd):
         # Write result
         FH_log = Logger( log_file )
         FH_log.write( 'Results:\n' )
-        FH_log.write( '\tnb seq merged: ' + str(nb_seq_merged) + '\n' )
+        FH_log.write( '\tnb seq paired-end assembled: ' + str(nb_seq_merged) + '\n' )
         FH_log.close()
 
 class Remove454prim(Cmd):
@@ -420,7 +420,7 @@ class Combined(Cmd):
         # Write result
         FH_log = Logger( log_file )
         FH_log.write( 'Results:\n' )
-        FH_log.write( '\tnb seq merged: ' + str(nb_seq_combined) + '\n' )
+        FH_log.write( '\tnb seq paired-end assembled: ' + str(nb_seq_combined) + '\n' )
         FH_log.close()
 
 
@@ -581,7 +581,7 @@ def summarise_results( samples_names, lengths_files, log_files, param ):
         categories.insert(1,"input sequences")
     elif args.sequencer == "454":
         categories.insert(1,"input sequences")
-    filters_by_sample = {"before process":{}, "combined":{}}
+    filters_by_sample = {"before process":{}, "merged":{}}
     before_lengths_by_sample = dict()
     after_lengths_by_sample = dict()
     
@@ -590,12 +590,12 @@ def summarise_results( samples_names, lengths_files, log_files, param ):
 
         filters = get_sample_results(log_files[spl_idx])
         filters_by_sample["before process"][spl_name] = filters["before process"]
-        filters_by_sample["combined"][spl_name] = filters["combined"]
+        filters_by_sample["merged"][spl_name] = filters["merged"]
         # add input sequences in table
         if args.already_contiged and args.sequencer == "illumina":
-            filters_by_sample["combined"][spl_name]["input sequences"] = filters["before process"]
+            filters_by_sample["merged"][spl_name]["input sequences"] = filters["before process"]
         if args.sequencer == "454":
-            filters_by_sample["combined"][spl_name]["input sequences"] = filters["before process"]
+            filters_by_sample["merged"][spl_name]["input sequences"] = filters["before process"]
 
         if "artificial combined" in filters:
             if not "artificial combined" in filters_by_sample:
@@ -656,9 +656,9 @@ def get_sample_results( log_file ):
     @param log_file: [str] Path to a log file.
     @return: [list] The number of sequences after each filter.
     """
-    nb_seq = {"before process":0, "combined":{}}
+    nb_seq = {"before process":0, "merged":{}}
     FH_input = open(log_file)
-    key="combined"
+    key="merged"
     for line in FH_input:
         if "combine_and_split" in line:
             key="artificial combined"
