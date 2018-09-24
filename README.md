@@ -109,6 +109,7 @@
         Named as: vsearch
         Tools: preprocess and remove_chimera
         Download: https://github.com/torognes/vsearch
+        Warning : zlib and bzlib need to be installed before compilling vsearch to deal with fastq.gz or fastq.bz2 files.
 
     flash
         Version: 1.2.11
