@@ -77,8 +77,10 @@ def to_biom( clusters_file, count_file, output_biom, size_separator ):
         seed_id = line.strip().split()[0]
         if "FROGS_combined" in seed_id:
             cluster_name = "Cluster_" + str(cluster_idx) + "_FROGS_combined"
+            comment = "WARNING"
         else:
             cluster_name = "Cluster_" + str(cluster_idx)
+            comment = "na"
         cluster_count = {key:0 for key in samples}
         line_fields = line.strip().split()
         # Retrieve count by sample
@@ -89,7 +91,7 @@ def to_biom( clusters_file, count_file, output_biom, size_separator ):
                 cluster_count[sample_name] += int(sample_counts[sample_idx])
             preclusters_count[real_seq_id] = None
         # Add cluster on biom
-        biom.add_observation( cluster_name, {'seed_id':line_fields[0].rsplit(size_separator, 1)[0]} )
+        biom.add_observation( cluster_name, {'comment': comment, 'seed_id':line_fields[0].rsplit(size_separator, 1)[0]} )
         observation_idx = biom.find_idx("observation", cluster_name)
         for sample_idx, sample_name in enumerate(samples):
             if cluster_count[sample_name] > 0:
