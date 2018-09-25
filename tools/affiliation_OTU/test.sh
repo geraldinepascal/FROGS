@@ -30,7 +30,7 @@ echo "#Blast and Needleall alignment affiliation methods only"
 ./affiliation_OTU.py --nb-cpus 4 --reference data/ITS1_dataset/Unite_reduced_ITS.fasta \
                      --input-biom data/ITS1_dataset/filters_modified.biom --input-fasta data/ITS1_dataset/filters_modified.fasta \
                      --output-biom test/Blast_Needle_affiliation.biom \
-                     --summary test/Blast_Needle_affiliation.html --log-file test/Blast_Needle_affiliation.log --debug
+                     --summary test/Blast_Needle_affiliation.html --log-file test/Blast_Needle_affiliation.log
 
 #Blast/Needle & RDP
 echo "#Blast and Needleall alignment and RDP kmer affiliation methods"
