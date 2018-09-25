@@ -1168,7 +1168,7 @@ if __name__ == "__main__":
             if args.five_prim_primer or args.three_prim_primer: raise argparse.ArgumentTypeError( "The option '--without-primers' cannot be used with '--five-prim-primer' and '--three-prim-primer'." )
         else:
             if args.five_prim_primer is None or args.three_prim_primer is None: raise argparse.ArgumentTypeError( "'--five-prim-primer/--three-prim-primer' or 'without-primers'  must be setted." )
-            if args.min_amplicon_size <= (len(args.five_prim_primer) + len(args.three_prim_primer)): raise argparse.ArgumentTypeError( "The minimum length of the amplicon (--min-length) must be superior to the size of the two primers." )
+            if args.min_amplicon_size <= (len(args.five_prim_primer) + len(args.three_prim_primer)): raise argparse.ArgumentTypeError( "The minimum length of the amplicon (--min-length) must be superior to the size of the two primers, i.e "+str(len(args.five_prim_primer) + len(args.three_prim_primer)) )
         if (args.already_contiged and args.keep_unmerged): raise Exception("--already-contiged and keep-unmerged options cannot be used together")
         if (not args.already_contiged):
             if args.merge_software == "flash":
