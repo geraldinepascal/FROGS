@@ -119,10 +119,10 @@ def process(params):
 		# length -= N
 
 		# SOLUTION 3 : nombre de match / (longueur de la seed - les 100 N)
-		# pident=str(round((cig_dict["M"]- int(mismatch))*100.00/(len(l[9])-N),2))
+		pident=str(round((cig_dict["M"]- int(mismatch))*100.00/(len(l[9])-N),2))
 
 		# SOLUTION 4 : nombre de match / (longueur de la seed )
-		pident=str(round((cig_dict["M"]- int(mismatch))*100.00/len(l[9]),2))
+		#pident=str(round((cig_dict["M"]- int(mismatch))*100.00/len(l[9]),2))
 
 		# write sorted alignement by bitscore
 		if not qseqid in OTU_list:
