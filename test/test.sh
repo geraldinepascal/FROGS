@@ -4,8 +4,6 @@ nb_cpu=$2
 java_mem=$3
 out_dir=$4
 
-## CHANGER LE JEU DE DONNEES, PRENDRE ITS1/100, VERIFIER ITS multihit, et aggregation
-
 # Check parameters
 if [ "$#" -ne 4 ]; then
     echo "ERROR: Illegal number of parameters." ;
@@ -28,15 +26,15 @@ fi
 echo "Step preprocess : Flash `date`"
 
 preprocess.py illumina \
- --min-amplicon-size 380 --max-amplicon-size 460 \
+ --min-amplicon-size 44 --max-amplicon-size 490 \
  --five-prim-primer GGCGVACGGGTGAGTAA --three-prim-primer GTGCCAGCNGCNGCGG \
-  --R1-size 250 --R2-size 250 --expected-amplicon-size 420 --merge-software flash\
+ --R1-size 267 --R2-size 266 --expected-amplicon-size 420 --merge-software flash\
+ --nb-cpus $nb_cpu --mismatch-rate 0.15 --keep-unmerged \
  --input-archive $frogs_dir/test/data/test_dataset.tar.gz \
  --output-dereplicated $out_dir/01-prepro-flash.fasta \
  --output-count $out_dir/01-prepro-flash.tsv \
  --summary $out_dir/01-prepro-flash.html \
- --log-file $out_dir/01-prepro-flash.log \
- --nb-cpus $nb_cpu --mismatch-rate 0.15
+ --log-file $out_dir/01-prepro-flash.log 
  
 if [ $? -ne 0 ]
 then
@@ -47,19 +45,19 @@ fi
 echo "Step preprocess : Vsearch `date`"
 
 preprocess.py illumina \
- --min-amplicon-size 380 --max-amplicon-size 460 \
+ --min-amplicon-size 44 --max-amplicon-size 490 \
  --five-prim-primer GGCGVACGGGTGAGTAA --three-prim-primer GTGCCAGCNGCNGCGG \
-  --R1-size 250 --R2-size 250 --merge-software vsearch --keep-unmerged\
- --input-archive $frogs_dir/test/data/test_dataset.tar.gz \
+ --R1-size 267 --R2-size 266 --expected-amplicon-size 420 --merge-software flash\
+ --nb-cpus $nb_cpu --mismatch-rate 0.15 --keep-unmerged \
+ --input-archive $frogs_dir/test/data/test_dataset3.tar.gz \
  --output-dereplicated $out_dir/01-prepro-vsearch.fasta \
  --output-count $out_dir/01-prepro-vsearch.tsv \
  --summary $out_dir/01-prepro-vsearch.html \
- --log-file $out_dir/01-prepro-vsearch.log \
- --nb-cpus $nb_cpu --mismatch-rate 0.15
+ --log-file $out_dir/01-prepro-vsearch.log 
  
 if [ $? -ne 0 ]
 then
-	echo "Error in preprocess : Flash" >&2
+	echo "Error in preprocess : Vsearch" >&2
 	exit 1;
 fi
 
@@ -105,7 +103,8 @@ echo "Step filters `date`"
 
 filters.py \
  --min-abundance 0.00005 \
- --min-sample-presence 3\
+ --min-sample-presence 3 \
+ --nb-cpus $nb_cpu \
  --input-biom $out_dir/03-chimera.biom \
  --input-fasta $out_dir/03-chimera.fasta \
  --output-fasta $out_dir/04-filters.fasta \
@@ -125,12 +124,12 @@ echo "Step ITSx `date`"
 itsx.py \
  --input-fasta $out_dir/04-filters.fasta \
  --input-biom $out_dir/04-filters.biom \
- --region ITS1 \
+ --region ITS1 --nb-cpus $nb_cpu \
  --out-abundance $out_dir/05-itsx.biom \
  --summary $out_dir/05-itsx.html \
  --log-file $out_dir/05-itsx.log \
  --out-fasta $out_dir/05-itsx.fasta \
- --excluded $out_dir/05-itsx-excluded.tsv
+ --out-removed $out_dir/05-itsx-excluded.tsv
 
 if [ $? -ne 0 ]
 then
@@ -141,7 +140,7 @@ fi
 echo "Step affiliation_OTU `date`"
 
 affiliation_OTU.py \
- --reference $frogs_dir/test/data/db.fasta \
+ --reference $frogs_dir/test/data/ITS1.rdp.fasta \
  --input-fasta $out_dir/04-filters.fasta \
  --input-biom $out_dir/04-filters.biom \
  --output-biom $out_dir/06-affiliation.biom \
@@ -159,9 +158,9 @@ fi
 echo "Step affiliation_postprocess `date`"
 
 affiliation_postprocess.py \
- --input-biom $out_dir/06-affiliation.biom \ 
+ --input-biom $out_dir/06-affiliation.biom \
  --input-fasta $out_dir/04-filters.fasta \
- --reference $frogs_dir/test/data/ITS1.fasta \
+ --reference $frogs_dir/test/data/Unite_extract_ITS1.fasta \
  --output-biom $out_dir/07-affiliation_postprocessed.biom \
  --output-compo $out_dir/07-affiliation_postprocessed.compo.tsv \
  --output-fasta $out_dir/07-affiliation_postprocessed.fasta \
@@ -257,8 +256,8 @@ echo "Step tree : pynast `date`"
 
 tree.py \
  --nb-cpus $nb_cpu  \
- --input-otu $out_dir/04-filters.fasta \
- --biomfile $out_dir/06-affiliation.biom \
+ --input-otu $frogs_dir/test/data/to_test_pynast.fasta \
+ --biomfile $frogs_dir/test/data/to_test_pynast.biom \
  --template-pynast $frogs_dir/test/data/otus_pynast.fasta \
  --out-tree $out_dir/13-tree-pynast.nwk \
  --html $out_dir/13-tree-pynast.html \
