@@ -104,8 +104,11 @@ def select_smallest(blast_affiliations, ref_size):
     """
     min_size = 0
     smallest_affi = []
+    all_affi = [affi["subject"] for affi in blast_affiliations]
 
     for affi in blast_affiliations:
+        if not affi["subject"] in ref_size:
+            return all_affi
         if min_size == 0 or ref_size[affi["subject"]] < min_size :
             smallest_affi = [affi]
             min_size = ref_size[affi["subject"]]
@@ -133,11 +136,19 @@ def process(params) :
     for sample_name in biom_in.get_samples_names():
         biom_out.add_sample( sample_name )
 
-
+    nb_obs = 0
+    nb_obs_multi_affi = 0
+    nb_obs_multi_affi_resolved = 0
+    nb_multi_affi_removed = 0
     for observation in biom_in.get_observations():
+        nb_obs += 1
         # reduce multiaffiliations list
-        if len(observation['metadata']["blast_affiliations"]) > 0:
+        if len(observation['metadata']["blast_affiliations"]) > 1:
+            nb_obs_multi_affi +=1
             new_blast_affi = select_smallest(observation['metadata']['blast_affiliations'], ref_size)
+            if len(new_blast_affi) < len(observation['metadata']['blast_affiliations']):
+                nb_multi_affi_removed += (len(observation['metadata']["blast_affiliations"]) - len(new_blast_affi))
+                nb_obs_multi_affi_resolved += 1
             observation['metadata']['blast_affiliations'] = new_blast_affi
             consensus_tax = get_tax_consensus( [ affi["taxonomy"] for affi in new_blast_affi])
             observation['metadata']['blast_taxonomy'] = consensus_tax
@@ -147,6 +158,12 @@ def process(params) :
         for sample_name in biom_in.get_samples_names():
             if biom_in.get_count(observation['id'], sample_name) > 0:
                 biom_out.add_count( observation['id'], sample_name, biom_in.get_count(observation['id'], sample_name))    
+
+    # simple log stat
+    Logger.static_write(params.log_file, "# nb OTU : "+str(nb_obs) + "\n")
+    Logger.static_write(params.log_file, "# nb OTU with multiaffiliations : "+str(nb_obs_multi_affi) + "\n")
+    Logger.static_write(params.log_file, "# nb OTU with multiaffiliations resolved : "+str(nb_obs_multi_affi_resolved) + "\n")
+    Logger.static_write(params.log_file, "# nb multiaffiliations removed : "+str(nb_multi_affi_removed) + "\n")
 
     BiomIO.write( params.output_biom, biom_out )
 ###################################################################################################################
