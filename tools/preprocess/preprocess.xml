@@ -281,7 +281,7 @@ Outputs
 
 **Sequence file** (dereplicated.fasta):
 
- Only one file with all samples sequences (format `FASTA &lt;https://en.wikipedia.org/wiki/FASTA_format&gt;`_). These sequences are dereplicated: strictly identical sequence are represented only one and the initial count is kept in count file.
+ Only one file with all samples sequences (format `FASTA &lt;https://en.wikipedia.org/wiki/FASTA_format&gt;`_). These sequences are dereplicated: strictly identical sequence are represented only once and the initial count is kept in count file.
 
 **Count file** (count.tsv):
 
@@ -310,7 +310,7 @@ How it works
    :widths: 5, 150, 150
    :class: table table-striped
 
-   "1", "For un-merged data: merges R1 and R2 with a maximum of M% mismatch in the overlaped region(`VSEARCH &lt;https://github.com/torognes/vsearch/&gt;`_ or `FLASH &lt;https://ccb.jhu.edu/software/FLASH/&gt;`_). Resulting un-merged reads may optionnaly be artificially combined by adding 100 N between the reads", "/"
+   "1", "For un-merged data: merges R1 and R2 with a maximum of M% mismatch in the overlaped region(`VSEARCH &lt;https://github.com/torognes/vsearch/&gt;`_ or `FLASH &lt;https://ccb.jhu.edu/software/FLASH/&gt;`_ or optionnaly `PEAR &lt;https://sco.h-its.org/exelixis/web/software/pear/&gt;`_). Resulting un-merged reads may optionnaly be artificially combined by adding 100 N between the reads", "/"
    "2", "If sequencing protocol is the illumina standard protocol : Removes sequences where the two primers are not present and then remove primers in the remaining sequence (`cutadapt &lt;http://cutadapt.readthedocs.org/en/latest/guide.html&gt;`_). The primer search accepts 10% of differences", "Removes sequences where the two primers are not present, removes primers sequence and reverse complement the sequences on strand -  (`cutadapt &lt;http://cutadapt.readthedocs.org/en/latest/guide.html&gt;`_). The primer search accepts 10% of differences"
    "3", "Filters sequences with ambiguous nucleotides and for merged sequences filters on their length which must be range between 'Minimum amplicon size - primer length' and 'Maximum amplicon size - primer length'", "the tool removes sequences with at least one homopolymer with more than seven nucleotides and with a distance of less than or equal to 10 nucleo-tides between two poor quality positions, i.e. with a Phred quality score lesser than 10" 
    "4", "Dereplicates sequences", "Dereplicates sequences"
@@ -322,9 +322,43 @@ Advices/details on parameters
 
 .. class:: h3
 
+What is the differency between overlapped sequences and combined sequences?
+
+- **Case of a sequencing of overlapping sequences: case of 16S V3-V4 amplicon MiSeq sequencing**
+
+.. image:: ${static_path}/images/tools/frogs/FROGS_preprocess_overlapped_sequence.png
+    :height: 242
+    :width: 583
+
+- **Case of a sequencing of non-overlapping sequences: case of ITS1 amplicon MiSeq sequencing**
+
+.. image:: ${static_path}/images/tools/frogs/FROGS_preprocess_combined_sequence1.png
+	:height: 262
+	:width: 711
+
+.. class:: warningmark
+
+- **“FROGS combined” warning points**
+
+Reads pair are not merged because:
+
+	- the real amplicon length is greater than de number of base sequences (500 bp for MiSeq 2x250bp)
+	- the overlapped region is smaller than 10 (fixed parameter in FROGS).
+
+Thus, “FROGS combined” sequences are artificial and present particular features especially on size.
+Imagine a MiSeq sequencing of 2x250pb with sequences that cannot overlap, the resulting “FROGS combined” sequences length will be 600 bp.
+
+.. image:: ${static_path}/images/tools/frogs/FROGS_preprocess_combined_sequence2.png
+	:height: 322
+	:width: 715
+
+
+.. class:: h3
+
 Keeping or not un-merged paired reads
 
 This option is usefull when and only when, targeted amplicon is longer than the sequencing technology can provide (ITS amplicon for example). In other case, carefully, you will only keep noise in your analysis.
+
 
 .. class:: h3
 
@@ -346,7 +380,7 @@ Example:
 
 .. class:: h3
 
-Amplicons sizes parameters
+FLASH : Amplicons sizes parameters
 
  The two following images show two examples of perfect values fors sizes parameters.
 
