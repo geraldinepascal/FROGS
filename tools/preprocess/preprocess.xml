@@ -384,11 +384,11 @@ FLASH : Amplicons sizes parameters
 
  The two following images show two examples of perfect values fors sizes parameters.
 
- .. image:: ${static_path}/images/tools/frogs/FROGS_preprocess_ampliconSize_unimodal.png
+ .. image:: ${static_path}/images/tools/frogs/FROGS_preprocess_ampliconSize_unimodal_v3.png
     :height: 415
     :width: 676
  
- .. image:: ${static_path}/images/tools/frogs/FROGS_preprocess_ampliconSize_multimodal.png
+ .. image:: ${static_path}/images/tools/frogs/FROGS_preprocess_ampliconSize_multimodal_v3.png
     :height: 415
     :width: 676
 
