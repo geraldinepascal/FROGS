@@ -38,7 +38,7 @@
 			<option value="ITS1">ITS1</option>
 			<option value="ITS2">ITS2</option>
 		</param>
-		<param name="check_only" type="boolean" checked="false" truevalue="--check-its-only" falsevalue="" label="Check only if sequence detected as ITS ?" help="If checked, only sequences detected as ITS will be kept, and without trimming SSU, LSU or 5.8S regions."/>
+		<param name="check_only" type="boolean" checked="false" truevalue="--check-its-only" falsevalue="" label="Check only if sequence detected as ITS ?" help="If checked, only sequences detected as ITS will be kept and without trimming SSU, LSU or 5.8S regions."/>
 	</inputs>
 	<outputs>
 		<data format="fasta" name="out_fasta" label="${tool.name}: itsx.fasta" from_work_dir="itsx.fasta"/>
@@ -63,8 +63,7 @@ Extract the highly variable ITS1 and ITS2 subregions from ITS sequences.
 
 Context
 
-As the inclusion of parts of the neighbouring, very conserved, ribosomal genes (SSU, 5S and LSU rRNA sequences) in the sequence identification process can lead to severely misleading results, ITSx identifies and extracts only the ITS regions themselves.
-
+The ITSx software identifies and extracts only ITS regions. It then excludes the highly conserved neighbouring sequences SSU, 5S and ARNr LSU. These sequences can lead to misleading results if they are conserved.
 If the ITS1 or ITS2 region is not detected, the observation is discarded.
 
 You can choose to only check if the sequence is detected as an ITS. The sequence is not trimmed, only sequences not detected as ITS are discarded (contaminants by example).
@@ -100,7 +99,7 @@ Outputs
  
 **Discarded file** (out_removed.fasta)
 
- The sequence file with discarded sequences
+ The sequence file with discarded sequences.
 
 **Summary file** (report.html):
 
@@ -116,8 +115,8 @@ How it works
    :widths: 10, 90
    :class: table table-striped
    
-   "1", "Predict positions of the ribosomal genes in the sequences (`ITSx &lt;http://microbiology.se/software/itsx/&gt;`_)."
-   "2", "Remove the sequences without prediction of the targeted ITS region (ITS1 or ITS2)"
+   "1", "Predicts positions of the ribosomal genes in the sequences (`ITSx &lt;http://microbiology.se/software/itsx/&gt;`_)."
+   "2", "Removes the sequences without prediction of the targeted ITS region (ITS1 or ITS2)."
 
 
 ----
