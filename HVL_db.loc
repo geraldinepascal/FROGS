@@ -30,4 +30,3 @@
 #then the HVL_db.loc entry would look like this:
 #
 #UNITE 7.1 ITS1     /galaxy_databanks/ITS/UNITE_7.1/UNITE_ITS1.fasta
-UNITE_7.1_ITS1	/home/maria/workspace/git/FROGS/FROGS_dev/tools/affiliation_postprocess/data/Unite_extract_ITS1.fasta
