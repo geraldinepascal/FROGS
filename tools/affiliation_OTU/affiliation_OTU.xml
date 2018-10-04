@@ -100,16 +100,7 @@ Outputs
 
 Reference database
 
-The databases come from `SILVA &lt;http://www.arb-silva.de/&gt;`_ a comprehensive and quality checked rRNA database.
-
-FROGS database(s) pre-process:
-
-1. The non-redondant small sub-unit database is retrieved from SILVA.
-
-2. This database is processed to keep only the taxonomy level: Domain - Phylum - Class - Order - Family - Genus - Species
-
-3. The database is splitted in two databses: prokaryote and eukaryote.
-
+All the databases we format (on demand) for RDPClassifier and NCBI Blast+ are inventoried here: http://genoweb.toulouse.inra.fr/frogs_databanks/assignation/readme.txt
 
 .. class:: infomark page-header h2
 
