@@ -292,14 +292,14 @@ Outputs
  This file reports the number of remaining sequences after each filter (format `HTML &lt;https://en.wikipedia.org/wiki/HTML&gt;`_).
  
  .. image:: ${static_path}/images/tools/frogs/FROGS_preprocess_summary_v3.png 
-     :height: 556
-     :width: 985 
+     :height: 850
+     :width: 831 
 
  It also presents the length distribution of the remaining full amplicon sequences.
  
  .. image:: ${static_path}/images/tools/frogs/FROGS_preprocess_lengthsSamples_v3.png 
-     :height: 350
-     :width: 676 
+     :height: 568
+     :width: 545 
 
 .. class:: infomark page-header h2
 
