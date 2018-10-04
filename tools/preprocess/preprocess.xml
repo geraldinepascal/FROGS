@@ -298,8 +298,8 @@ Outputs
  It also presents the length distribution of the remaining full amplicon sequences.
  
  .. image:: ${static_path}/images/tools/frogs/FROGS_preprocess_lengthsSamples_v3.png 
-     :height: 568
-     :width: 545 
+     :height: 379
+     :width: 364
 
 .. class:: infomark page-header h2
 
