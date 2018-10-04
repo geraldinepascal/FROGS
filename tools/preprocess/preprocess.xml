@@ -342,8 +342,8 @@ What is the differency between overlapped sequences and combined sequences?
 
 Reads pair are not merged because:
 
-- the real amplicon length is greater than de number of base sequences (500 bp for MiSeq 2x250bp)
-- the overlapped region is smaller than 10 (fixed parameter in FROGS).
+	- the real amplicon length is greater than de number of base sequences (500 bp for MiSeq 2x250bp)
+	- the overlapped region is smaller than 10 (fixed parameter in FROGS).
 
 Thus, “FROGS combined” sequences are artificial and present particular features especially on size.
 Imagine a MiSeq sequencing of 2x250pb with sequences that cannot overlap, the resulting “FROGS combined” sequences length will be 600 bp.
