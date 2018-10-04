@@ -16,7 +16,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
 <tool id="FROGS_affiliation_postprocess" name="FROGS Affiliation postprocess" version="r3.0-1.0">
-	<description>Optionnal step to resolve inclusiv amplicon ambiguities and aggregate OTU based on alignment metrics</description>
+	<description>Optionnal step to resolve inclusive amplicon ambiguities and to aggregate OTUs based on alignment metrics</description>
 	<command interpreter="python2.7">
 		affiliation_postprocess.py 
 
@@ -34,10 +34,10 @@
 	</command>
 	<inputs>
 		<!-- Files -->
-		<param format="biom1" name="biom_in" type="data" label="Affiliated OTU Abundance file" help="affiliated OTU abundances (format: BIOM)."/>
+		<param format="biom1" name="biom_in" type="data" label="Abundance file of affiliated OTUs" help="Abundances of affiliated OTUs (format: BIOM)."/>
         <param format="fasta" name="fasta_in" type="data" label="OTU seed sequences" help="OTU sequences (format: fasta)."/>
         <conditional name="is_HVL">
-            <param name="HVL_amplicon" type="boolean" label="Is this an hyper varible in length ampicon" help="Multiaffilition may be resolve by selecting the shortest amplicon reference. For this you need the reference fasta file of your kind of amplicon"/>
+            <param name="HVL_amplicon" type="boolean" label="Is this an hyper variable in length amplicon ?" help="Multi-affiliation tag may be resolve by selecting the shortest amplicon reference. For this you need the reference fasta file of your kind of amplicon."/>
             <when value="true">
                 <param name="ref_file" type="select" label="Using reference database" help="Select reference from the list">
        				<options from_file="HVL_db.loc">
@@ -49,8 +49,8 @@
             <when value="false"/>
         </conditional>
 
-   		<param name="identity" type="float" min="0.0" max="100.0" value="99.0" label="minimum identity for aggregation" help="OTU will be aggregated if they share the same taxonomy with at least X% identity" />
-   		<param name="coverage" type="float" min="0.0" max="100.0" value="99.0" label="minimum coverage for aggregation" help="OTU will be aggregated if they share the same taxonomy with at least X% alignment coverage" />
+   		<param name="identity" type="float" min="0.0" max="100.0" value="99.0" label="minimum identity for aggregation" help="OTUs will be aggregated if they share the same taxonomy with at least X% identity." />
+   		<param name="coverage" type="float" min="0.0" max="100.0" value="99.0" label="minimum coverage for aggregation" help="OTUs will be aggregated if they share the same taxonomy with at least X% alignment coverage." />
 	</inputs>
 	<outputs>
 		<data format="biom1" name="biom_out" label="${tool.name}: affiliation.biom" from_work_dir="affiliation.biom" />
@@ -68,7 +68,7 @@
 
 What it does
 
-Resolve multihit ambiguities if exact amplicon length are available, and aggregrated OTU sharing same taxonomy based on alignment metrics thresholds
+Resolves multi-hit ambiguities if exact amplicon length are available and aggregrated OTUs sharing same taxonomy based on alignment metrics thresholds
 
 
 .. class:: infomark page-header h2
@@ -81,11 +81,11 @@ Inputs
 
 **Abundance file**:
  
-The abundance of each OTU in each sample (format `BIOM &lt;http://biom-format.org/&gt;`_) with taxonomic affiliations metadate.
+The abundance of each OTU in each sample (format `BIOM &lt;http://biom-format.org/&gt;`_) with taxonomic affiliations metadata.
 
 **Sequence file**:
 
-The sequences (format `FASTA &lt;https://en.wikipedia.org/wiki/FASTA_format&gt;`_) of each OTU'seed.
+The sequences (format `FASTA &lt;https://en.wikipedia.org/wiki/FASTA_format&gt;`_) of each OTU seed.
 
 **Reference file** (optionnal):
 
@@ -98,11 +98,11 @@ Outputs
 
 **Abundance file**:
 
- The abundance file with affiliation (format `BIOM &lt;http://biom-format.org/&gt;`_), with potentially less ambiguities and aggregated OTU.
+ The abundance file of OTUs and aggregated OTUs, with their affiliation (format `BIOM &lt;http://biom-format.org/&gt;`_) and with potentially less ambiguities.
 
 **Sequence file**:
 
-The sequences (format `FASTA &lt;https://en.wikipedia.org/wiki/FASTA_format&gt;`_) of each aggregated OTU'seed. 
+The sequences (format `FASTA &lt;https://en.wikipedia.org/wiki/FASTA_format&gt;`_) of each aggregated OTU seed. 
 
 **Composition file**:
 
@@ -112,11 +112,10 @@ The aggregation composition file (format text) describing the composition of eac
 
 How it works
 
-If a reference fasta file is provided, for each OTU with multiaffiliation, only the smallest reference(s) are kept. This is done to resolve ambiguities du to potential inclusiv sequences such as ITS.
+If a reference fasta file is provided, for each OTU with multiaffiliation, among the different possible affiliations, we only keep the affiliation of the sequence with the shorter length. The aim is to resolve ambiguities due to potential inclusive sequences such as ITS.
 
-Second step is to aggregate OTU sharing the same taxonomy based on alignment metrics.
-Starting from the most abundant OTU, if an OTU share at least one affiliation with an OTU previously record with at least I% identity and at least C% alignment coverage, then the OTU is aggregated to the previous one: other affiliations are added, abundance count are summed. The seed of the most abundant OTU is kept.
-
+Second step is the OTUs aggregation that share the same taxonomy inferred on alignment metrics.
+We start with the most abundant OTU. If an OTU shares at least one affiliation with another OTU with at least I% of identity and C% of alignment coverage, so the OTUs are aggregated together (The different affiliations, which then generate the multi-affiliation tag, are merged, abundance counts are summed). The seed of the most abundant OTU is kept.
 ----
 
 **Contact**
