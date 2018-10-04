@@ -37,7 +37,7 @@
 		<param format="biom1" name="biom_in" type="data" label="Abundance file of affiliated OTUs" help="Abundances of affiliated OTUs (format: BIOM)."/>
         <param format="fasta" name="fasta_in" type="data" label="OTU seed sequences" help="OTU sequences (format: fasta)."/>
         <conditional name="is_HVL">
-            <param name="HVL_amplicon" type="boolean" label="Is this an hyper variable in length amplicon ?" help="Multi-affiliation tag may be resolve by selecting the shortest amplicon reference. For this you need the reference fasta file of your kind of amplicon."/>
+            <param name="HVL_amplicon" type="boolean" label="Is this an hyper variable in length amplicon ?" help="Multi-affiliation tag may be resolved by selecting the shortest amplicon reference. For this you need the reference fasta file of your kind of amplicon."/>
             <when value="true">
                 <param name="ref_file" type="select" label="Using reference database" help="Select reference from the list">
        				<options from_file="HVL_db.loc">
