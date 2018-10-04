@@ -291,13 +291,13 @@ Outputs
 
  This file reports the number of remaining sequences after each filter (format `HTML &lt;https://en.wikipedia.org/wiki/HTML&gt;`_).
  
- .. image:: ${static_path}/images/tools/frogs/FROGS_preprocess_summary.png 
+ .. image:: ${static_path}/images/tools/frogs/FROGS_preprocess_summary_v3.png 
      :height: 556
      :width: 985 
 
  It also presents the length distribution of the remaining full amplicon sequences.
  
- .. image:: ${static_path}/images/tools/frogs/FROGS_preprocess_lengthsSamples.png 
+ .. image:: ${static_path}/images/tools/frogs/FROGS_preprocess_lengthsSamples_v3.png 
      :height: 350
      :width: 676 
 
@@ -324,7 +324,7 @@ Advices/details on parameters
 
 Keeping or not un-merged paired reads
 
-This option is usefull when and only when, targeted amplicon is longer than the sequencing technology can provide (ITS amplicon for example). In other case, you will only keep noise in your analysis.
+This option is usefull when and only when, targeted amplicon is longer than the sequencing technology can provide (ITS amplicon for example). In other case, carefully, you will only keep noise in your analysis.
 
 .. class:: h3
 
@@ -358,7 +358,7 @@ Amplicons sizes parameters
     :height: 415
     :width: 676
 
- Don't worry the "Expected amplicon size" does not need to be very accurate.
+ Don't worry the "Expected amplicon size" does not need to be very accurate, and only necessary for sequences merging with FLASH.
 
 .. class:: h3
 
@@ -377,7 +377,7 @@ Contacts: frogs@inra.fr
 Repository: https://github.com/geraldinepascal/FROGS
 website: http://frogs.toulouse.inra.fr/
 
-Please cite the **FROGS article**: *Escudie F., et al. Bioinformatics, 2017. FROGS: Find, Rapidly, OTUs with Galaxy Solution.*
+Please cite the **FROGS article**: *Escudie F., et al. Bioinformatics, 2018. FROGS: Find, Rapidly, OTUs with Galaxy Solution.*
 
 	</help>
 	<citations>
