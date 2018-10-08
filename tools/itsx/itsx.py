@@ -189,7 +189,7 @@ def write_summary( summary_file, input_biom, output_biom ):
         samples_results[sample_name]['kept_ab'] = sum ( output_biom_test.get_count( obs['id'], sample_name ) for obs in output_biom_test.get_observations_by_sample(sample_name))
     del out_biom
 
-    print samples_results
+    # print samples_results
 
     # Write
     FH_summary_tpl = open( os.path.join(CURRENT_DIR, "itsx_tpl.html") )
