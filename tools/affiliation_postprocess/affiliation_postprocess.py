@@ -49,17 +49,29 @@ class SelectInclusiv(Cmd):
     """
     @summary : Select smallest amplicon reference among multiaffiliations
     """
-    def __init__(self, reference, biom_in, biom_out ):
+    def __init__(self, reference, biom_in, biom_out, log ):
         """
         @param reference : [str] Path targeted amplicon reference fasta file
         @param biom_in : [str] Path to biom file to work on
-        @param reference : [str] Path to biom file to work on
+        @param biom_out : [str] Path to biom file to output
+        @param log : [str] Path to log file
         """
         Cmd.__init__( self,
                       'select_inclusive_amplicon.py',
                       'Select smallest reference as affiliation.',
-                      ' --ITS-reference ' + reference + ' -b ' + biom_in + ' -o ' + biom_out,
+                      ' --ITS-reference ' + reference + ' -b ' + biom_in + ' -o ' + biom_out + " --log-file " + log,
                       '--version' )
+        self.inclusiv_log = log
+
+    def parser(self, log_file):
+        FH_in = open(self.inclusiv_log)
+        FH_log = Logger( log_file )
+        for line in FH_in:
+            FH_log.write( '\t'+line )
+        FH_log.write('\n')
+        FH_log.close()
+        FH_in.close()
+
 
     def get_version(self):   
         return Cmd.get_version(self, 'stdout').strip()
@@ -71,9 +83,13 @@ class AggregateOTU(Cmd) :
     def __init__(self, input_biom, input_fasta, identity, coverage, output_biom, output_compo, output_fasta, log):
         """
         @param input_biom : [str] Path to biom file to treat
+        @param input_fasta : [str] Path to fasta file to treat
         @param identity : [float] min percentage identity of taxonomic affiliations to merge OTU
         @param coverage : [float] min percentage coverage of taxonomic affiliations to merge OTU
-        @param input_biom : [str] Path to the resulting biom file
+        @param output_biom : [str] Path to the resulting biom file
+        @param output_compo : [str] Path to the resulting TSV file, containing aggregated OTU composition
+        @param output_fasta : [str] Path to the resulting fasta file
+        @param log : [str] Path to excution log file
         """
         Cmd.__init__( self,
                       'aggregate_affiliated_otus.py',
@@ -109,13 +125,14 @@ def process(params):
     tmpFiles = TmpFiles( os.path.split(args.output_biom)[0] )
     if params.reference:
         smallest_its_biom = tmpFiles.add(os.path.basename(args.input_biom + "_resolve_inclusiv_its.biom"))
+        smallest_its_log = tmpFiles.add(os.path.basename(args.input_biom + "_resolve_inclusiv_its.log"))
     aggregate_tmp_log = tmpFiles.add(os.path.basename(args.input_biom + "_aggregation.log"))
     input_biom = params.input_biom
     try:
         Logger.static_write(params.log_file, "## Application\nSoftware: " + os.path.basename(sys.argv[0]) + " (version: " + str(__version__) + ")\nCommand: " + " ".join(sys.argv) + "\n\n")
         # inclusive ITS case
         if params.reference:
-            select_inclusiv_cmd = SelectInclusiv(params.reference, input_biom, smallest_its_biom)
+            select_inclusiv_cmd = SelectInclusiv(params.reference, input_biom, smallest_its_biom, smallest_its_log)
             select_inclusiv_cmd.submit(params.log_file)
             input_biom = smallest_its_biom
 
