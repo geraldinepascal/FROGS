@@ -49,7 +49,7 @@ preprocess.py illumina \
  --five-prim-primer GGCGVACGGGTGAGTAA --three-prim-primer GTGCCAGCNGCNGCGG \
  --R1-size 267 --R2-size 266 --expected-amplicon-size 420 --merge-software flash\
  --nb-cpus $nb_cpu --mismatch-rate 0.15 --keep-unmerged \
- --input-archive $frogs_dir/test/data/test_dataset3.tar.gz \
+ --input-archive $frogs_dir/test/data/test_dataset.tar.gz \
  --output-dereplicated $out_dir/01-prepro-vsearch.fasta \
  --output-count $out_dir/01-prepro-vsearch.tsv \
  --summary $out_dir/01-prepro-vsearch.html \
