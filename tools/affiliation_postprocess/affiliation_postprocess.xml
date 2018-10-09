@@ -55,7 +55,7 @@
 	<outputs>
 		<data format="biom1" name="biom_out" label="${tool.name}: affiliation.biom" from_work_dir="affiliation.biom" />
 		<data format="fasta" name="fasta_out" label="${tool.name}: sequences.fasta" from_work_dir="sequences.fasta" />
-		<data format="biom1" name="compo_out" label="${tool.name}: aggregation_composition.txt" from_work_dir="aggregation_composition.txt" />
+		<data format="tabular" name="compo_out" label="${tool.name}: aggregation_composition.txt" from_work_dir="aggregation_composition.txt" />
 	</outputs>
   	<help>
 
