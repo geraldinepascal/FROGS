@@ -354,7 +354,6 @@
         Tool            RAM/CPU     Minimal RAM     Configuration example
         affiliation        -          20 Gb          30 CPUs and 300 GB
         chimera          3 Gb          5 Gb          12 CPUs and 36 GB
-        chimera          3 Gb          5 Gb          12 CPUs and 36 GB
         clustering         -          10 Gb          16 CPUs and 60 GB
         preprocess       8 Gb            -           12 CPUs and 96 GB
 
@@ -429,12 +428,6 @@
 ### 9. Tools images
     The tools help contain images. These images must be in galaxy images
     static folder.
-
-    since galaxy 18.05, links are no more authorized.
-        mkdir <GALAXY_DIR>/static/images/tools/frogs
-        cp <FROGS_PATH>/img/* <GALAXY_DIR>/static/images/tools/frogs/.
-        
-    before that release, you can simply link them:
         ln -s <FROGS_PATH>/img <GALAXY_DIR>/static/images/tools/frogs
 
 
@@ -488,11 +481,8 @@
 
 
 ## Citation
-    Escudie F., Auer L., Bernard M., Cauquil L., Vidal K., Maman S.,
-    Mariadassou M., Hernadez-Raquet G., Pascal G., 2015. FROGS: Find Rapidly
-    OTU with Galaxy Solution. In: The environmental genomic Conference, 
-    Montpellier, France
+    Please cite the **FROGS article**: *Escudie F., et al. Bioinformatics, 2018. FROGS: Find, Rapidly, OTUs with Galaxy Solution.*
 
 
 ## Contact
-    frogs@toulouse.inra.fr
+    frogs@inra.fr
