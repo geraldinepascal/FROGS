@@ -13,6 +13,8 @@ params:
       value: x
    ranks : 
       value: x
+   libdir:
+      value: x
 ---
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <style type="text/css">
@@ -41,7 +43,7 @@ h4 {
 }
 </style>
 
-<script src="https://s3-us-west-2.amazonaws.com/s.cdpn.io/14082/FileSaver.js"></script>
+<script src=`r file.path(params$libdir, "FileSaver.js")`></script>
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
@@ -70,7 +72,7 @@ if ((gregexpr('k__', tax))[[1]][1]>0) {
     colnames(tax_table(data)) <- new_rank
 }
 
-sampledata <- read.csv(params$samplefile, sep = "\t", row.names = 1)
+sampledata <- read.csv(params$samplefile, sep = "", row.names = 1)
 ## add sample name to metadata, as SampleID variable
 sampledata$SampleID <- rownames(sampledata)
 sample_data(data) <- sampledata
@@ -169,7 +171,7 @@ if ((gregexpr('k__', tax))[[1]][1]>0) {
     colnames(tax_table(data)) <- new_rank
 }
 
-sampledata <- read.csv(samplefile, sep = "\t", row.names = 1)
+sampledata <- read.csv(samplefile, sep = "", row.names = 1)
 ## add sample name to metadata, as SampleID variable
 sampledata$SampleID <- rownames(sampledata)
 sample_data(data) <- sampledata
@@ -235,7 +237,7 @@ library(phyloseq)
 &#10;    colnames(tax_table(data)) <- new_rank
 &#10;}
 &#10;
-&#10;sampledata <- read.csv(samplefile, sep = \"&#92;t\", row.names = 1)
+&#10;sampledata <- read.csv(samplefile, sep = \"\", row.names = 1)
 &#10;## add sample name to metadata, as SampleID variable
 &#10;sampledata$SampleID <- rownames(sampledata)
 &#10;sample_data(data) <- sampledata

@@ -18,7 +18,7 @@
 __author__ = ' Ta Thi Ngan & Maria Bernard INRA - SIGENAE '
 __copyright__ = 'Copyright (C) 2017 INRA'
 __license__ = 'GNU General Public License'
-__version__ = '1.0.0'
+__version__ = 'r3.0-2.0'
 __email__ = 'frogs@inra.fr'
 __status__ = 'prod'
 
@@ -27,15 +27,24 @@ import sys
 import argparse
 
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
+FROGS_DIR=""
+if CURRENT_DIR.endswith("phylo_import"):
+    FROGS_DIR = os.path.dirname(os.path.dirname(CURRENT_DIR))
+else:
+    FROGS_DIR = os.path.dirname(CURRENT_DIR)
+
 # PATH
-BIN_DIR = os.path.abspath(os.path.join(os.path.dirname(CURRENT_DIR), "libexec"))
+BIN_DIR = os.path.abspath(os.path.join(FROGS_DIR, "libexec"))
 os.environ['PATH'] = BIN_DIR + os.pathsep + os.environ['PATH']
+APP_DIR = os.path.abspath(os.path.join(FROGS_DIR, "app"))
+os.environ['PATH'] = APP_DIR + os.pathsep + os.environ['PATH']
 # PYTHONPATH
-LIB_DIR = os.path.abspath(os.path.join(os.path.dirname(CURRENT_DIR), "lib"))
+LIB_DIR = os.path.abspath(os.path.join(FROGS_DIR, "lib"))
 sys.path.append(LIB_DIR)
 if os.getenv('PYTHONPATH') is None: os.environ['PYTHONPATH'] = LIB_DIR
 else: os.environ['PYTHONPATH'] = os.environ['PYTHONPATH'] + os.pathsep + LIB_DIR
-
+# LIBR
+LIBR_DIR = os.path.join(LIB_DIR,"external-lib")
 from frogsUtils import *
 from frogsBiom import *
 ##################################################################################################################################################
@@ -50,7 +59,7 @@ class Rscript(Cmd):
     @see: http://rmarkdown.rstudio.com/
           https://joey711.github.io/phyloseq/
     """
-    def __init__(self, biomfile, samplefile, treefile, html, normalization, data, ranks):
+    def __init__(self, biomfile, samplefile, treefile, html, normalization, data, ranks, rmd_stderr):
         """
         @param biomfile: [str] The biom file contains the  OTU's informations: abundance and taxonomy. These file is the result of FROGS.
         @param samplefile: [str] The tabular file contains the samples's informations. 
@@ -60,12 +69,13 @@ class Rscript(Cmd):
         @param normalization: [str] To normalize data before analysis.
         @param data: [str] The path to store one phyloseq-class object in Rdata file.
         @param ranks: [str] The ordered taxonomic ranks levels stored in BIOM. Each rank is separated by one space.
+        @param rmd_stderr: [str] Path to temporary Rmarkdown stderr output file
         """ 
         rmd = os.path.join(CURRENT_DIR, "r_import_data.Rmd")
         Cmd.__init__( self,
                       'Rscript',
                       'Run r_import_data.Rmd',
-                      '-e "rmarkdown::render('+"'"+rmd+"',output_file='"+html+"', params=list(biomfile='"+biomfile+"', samplefile='"+samplefile+"', treefile='"+treefile+"', normalization="+normalization+", outputRdata='"+data+"', ranks='"+ranks+"'), intermediates_dir='"+os.path.dirname(html)+"')"+'" 2> /dev/null',
+                      '-e "rmarkdown::render('+"'"+rmd+"',output_file='"+html+"', params=list(biomfile='"+biomfile+"', samplefile='"+samplefile+"', treefile='"+treefile+"', normalization="+normalization+", outputRdata='"+data+"', ranks='"+ranks+"', libdir ='"+LIBR_DIR+"'), intermediates_dir='"+os.path.dirname(html)+"')"+'" 2> ' + rmd_stderr,
                        "-e '(sessionInfo()[[1]][13])[[1]][1]; paste(\"Rmarkdown version: \",packageVersion(\"rmarkdown\")) ; library(phyloseq); paste(\"Phyloseq version: \",packageVersion(\"phyloseq\"))'")
     def get_version(self):
         """
@@ -73,6 +83,24 @@ class Rscript(Cmd):
         @return: [str] Version number if this is possible, otherwise this method return 'unknown'.
         """
         return Cmd.get_version(self, 'stdout')
+
+class FROGSBiomToStdBiom(Cmd):
+    """
+    @summary : standardize FROGS biom file by keeping blast affiliation consensus as final taxonomy
+    """
+    def __init__(self, biom_in, biom_out, blast_metadata):
+        """
+        @param biom_in : [str] The FROGS input biom file path
+        @param biom_out : [str] The output standard biom file path
+        @param blast_metadata : [str] Output tsv file containing blast detailed affiliations
+        """    
+        Cmd.__init__(self,
+                    'biom_to_stdBiom.py',
+                    'standardize FROGS biom file',
+                    '--input-biom ' + biom_in + ' --output-biom ' + biom_out + ' --output-metadata ' + blast_metadata,
+                    '--version'
+        )
+
 
 ##################################################################################################################################################
 #
@@ -84,6 +112,7 @@ if __name__ == "__main__":
    
     # Manage parameters
     parser = argparse.ArgumentParser( description='Launch Rmardown script to import data from 3 files: biomfile, samplefile, treefile into a phyloseq object')
+    parser.add_argument( '--debug', default=False, action='store_true', help="Keep temporary files to debug program." )   
     parser.add_argument( '-n','--normalization', default=False, action='store_true', help='To normalize data before analysis. Use this option if you didnt do it in FROGS Abundance normalisation. [Default: %(default)s]')
     parser.add_argument( '-r','--ranks', type=str, nargs='*', default=['Kingdom', 'Phylum', 'Class', 'Order','Family','Genus', 'Species'], help='The ordered taxonomic ranks levels stored in BIOM. Each rank is separated by one space. [Default: %(default)s]')      
     # Inputs
@@ -106,12 +135,30 @@ if __name__ == "__main__":
     data=os.path.abspath(args.rdata)
     biomfile=os.path.abspath(args.biomfile)
     samplefile=os.path.abspath(args.samplefile)
+
     biom = BiomIO.from_json(biomfile)
+    to_standardize = False
     if not biom.has_metadata("taxonomy"):
-        raise Exception("Your biom input file has no standard taxonomy metadata. Coming from FROGS, did you forget to standardize your biom with FROGS Biom to std Biom ?\n")
+        if not biom.has_metadata("blast_taxonomy"):
+            raise Exception("Your biom input file is not comming from FROGS and has no standard taxonomy metadata.\n")
+        else:
+            to_standardize=True
+
     if (args.treefile is None) :
         treefile="None"
     else:
         treefile=os.path.abspath(args.treefile)
     ranks=" ".join(args.ranks)
-    Rscript(biomfile, samplefile, treefile, html, str(args.normalization).upper(), data, ranks).submit(args.log_file)
+
+    try : 
+        tmpFiles = TmpFiles(os.path.dirname(html))
+        if to_standardize:
+            std_biom = tmpFiles.add(os.path.basename(os.path.splitext(biomfile)[0])+".stdBiom")
+            blast_metadata = tmpFiles.add(os.path.basename(os.path.splitext(biomfile)[0])+".blast_metadata")
+            FROGSBiomToStdBiom(biomfile, std_biom, blast_metadata).submit(args.log_file)
+            biomfile = std_biom
+        rmd_stderr = tmpFiles.add("rmarkdown.stderr")
+        Rscript(biomfile, samplefile, treefile, html, str(args.normalization).upper(), data, ranks, rmd_stderr).submit(args.log_file)
+    finally :
+        if not args.debug:
+            tmpFiles.deleteAll()

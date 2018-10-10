@@ -1,0 +1,137 @@
+<?xml version="1.0"?>
+<!--
+# Copyright (C) 2015 INRA
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+-->
+<tool id="FROGS_affiliation_postprocess" name="FROGS Affiliation postprocess" version="r3.0-1.0">
+	<description>Optionnal step to resolve inclusive amplicon ambiguities and to aggregate OTUs based on alignment metrics</description>
+	<command interpreter="python2.7">
+		affiliation_postprocess.py 
+
+		        #if $is_HVL.HVL_amplicon
+                    --reference $is_HVL.ref_file
+                #end if
+				
+				--identity $identity
+				--coverage $coverage
+                --input-biom $biom_in
+                --input-fasta $fasta_in
+                --output-biom $biom_out
+                --output-fasta $fasta_out
+                --output-compo $compo_out
+	</command>
+	<inputs>
+		<!-- Files -->
+		<param format="biom1" name="biom_in" type="data" label="Abundance file of affiliated OTUs" help="Abundances of affiliated OTUs (format: BIOM)."/>
+        <param format="fasta" name="fasta_in" type="data" label="OTU seed sequences" help="OTU sequences (format: fasta)."/>
+        <conditional name="is_HVL">
+            <param name="HVL_amplicon" type="boolean" label="Is this an hyper variable in length amplicon ?" help="Multi-affiliation tag may be resolved by selecting the shortest amplicon reference. For this you need the reference fasta file of your kind of amplicon."/>
+            <when value="true">
+                <param name="ref_file" type="select" label="Using reference database" help="Select reference from the list">
+       				<options from_file="HVL_db.loc">
+          				<column name="name" index="0"/>
+          				<column name="value" index="1"/>
+       				</options>
+   				</param> 
+            </when>
+            <when value="false"/>
+        </conditional>
+
+   		<param name="identity" type="float" min="0.0" max="100.0" value="99.0" label="minimum identity for aggregation" help="OTUs will be aggregated if they share the same taxonomy with at least X% identity." />
+   		<param name="coverage" type="float" min="0.0" max="100.0" value="99.0" label="minimum coverage for aggregation" help="OTUs will be aggregated if they share the same taxonomy with at least X% alignment coverage." />
+	</inputs>
+	<outputs>
+		<data format="biom1" name="biom_out" label="${tool.name}: affiliation.biom" from_work_dir="affiliation.biom" />
+		<data format="fasta" name="fasta_out" label="${tool.name}: sequences.fasta" from_work_dir="sequences.fasta" />
+		<data format="tabular" name="compo_out" label="${tool.name}: aggregation_composition.txt" from_work_dir="aggregation_composition.txt" />
+	</outputs>
+  	<help>
+
+.. image:: ${static_path}/images/tools/frogs/FROGS_logo.png 
+   :height: 144
+   :width: 110
+
+
+.. class:: infomark page-header h2
+
+What it does
+
+Resolves multi-hit ambiguities if exact amplicon length are available and aggregrated OTUs sharing same taxonomy based on alignment metrics thresholds
+
+
+.. class:: infomark page-header h2
+
+Inputs/outputs
+
+.. class:: h3
+
+Inputs
+
+**Abundance file**:
+ 
+The abundance of each OTU in each sample (format `BIOM &lt;http://biom-format.org/&gt;`_) with taxonomic affiliations metadata.
+
+**Sequence file**:
+
+The sequences (format `FASTA &lt;https://en.wikipedia.org/wiki/FASTA_format&gt;`_) of each OTU seed.
+
+**Reference file** (optionnal):
+
+The exact amplicon reference sequences (format `FASTA &lt;https://en.wikipedia.org/wiki/FASTA_format&gt;`_).
+
+
+.. class:: h3
+
+Outputs
+
+**Abundance file**:
+
+ The abundance file of OTUs and aggregated OTUs, with their affiliation (format `BIOM &lt;http://biom-format.org/&gt;`_) and with potentially less ambiguities.
+
+**Sequence file**:
+
+The sequences (format `FASTA &lt;https://en.wikipedia.org/wiki/FASTA_format&gt;`_) of each aggregated OTU seed. 
+
+**Composition file**:
+
+The aggregation composition file (format text) describing the composition of each resulting OTU.
+
+.. class:: infomark page-header h2
+
+How it works
+
+If a reference fasta file is provided, for each OTU with multiaffiliation, among the different possible affiliations, we only keep the affiliation of the sequence with the shorter length. The aim is to resolve ambiguities due to potential inclusive sequences such as ITS.
+
+Second step is the OTUs aggregation that share the same taxonomy inferred on alignment metrics.
+We start with the most abundant OTU. If an OTU shares at least one affiliation with another OTU with at least I% of identity and C% of alignment coverage, so the OTUs are aggregated together (The different affiliations, which then generate the multi-affiliation tag, are merged, abundance counts are summed). The seed of the most abundant OTU is kept.
+----
+
+**Contact**
+
+Support: please contact first your galaxy support team. 
+
+Contacts: frogs@inra.fr
+
+Repository: https://github.com/geraldinepascal/FROGS
+website: http://frogs.toulouse.inra.fr/
+
+Please cite the **FROGS article**: *Escudie F., et al. Bioinformatics, 2018. FROGS: Find, Rapidly, OTUs with Galaxy Solution.*
+
+	</help>
+	<citations>
+		<citation type="doi">10.1093/bioinformatics/btx791</citation>
+	</citations>
+
+</tool>

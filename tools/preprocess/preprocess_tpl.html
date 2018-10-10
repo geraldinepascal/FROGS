@@ -19,10 +19,13 @@
     <head>
         <title>FROGS Pre-process</title>
         <meta charset="UTF-8">
-        <meta name="version" content="1.2.1">
+        <meta name="version" content="r3.0-v1.0">
         <!-- CSS -->
-        <link rel="stylesheet" href="https://cdn.datatables.net/1.10.6/css/jquery.dataTables.css"></link>
-        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css"></link>
+        
+        
+		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.1.1/css/bootstrap.css"></link>
+		<link rel="stylesheet" href="https://cdn.datatables.net/1.10.19/css/dataTables.bootstrap4.min.css"></link>
+		<link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet"></link>
         <style type="text/css">
             #js-alert {
                 width: 90%;
@@ -40,31 +43,196 @@
                 width: 100%;
                 float: none !important;
             }
+            ul.nav-tabs {
+				margin-bottom: 30px;
+			}
+			.page-item.active .page-link {
+				z-index: 1;
+				color: #fff;
+				background-color: #8EADAC;
+				border-color: #8EADAC;
+				outline: none !important;
+				box-shadow: none !important;
+			}
+			.btn {
+				color: #fff;
+				border:#8EADAC;
+				background-color: #8EADAC;
+			}
+			.btn:focus, .btn:active {
+				outline: none !important;
+				box-shadow: none !important;
+			}
+			.btn:hover:enabled{
+				color: #fff;
+				border:#648a89;
+				background-color: #648a89;
+				cursor:pointer !important;
+			}
+			.pb-2, .py-2 {
+				padding-bottom: 1.5rem !important;
+				margin-bottom: 2rem !important;
+				margin-top: 4rem !important;
+			}
+			.pb-2-first{
+				padding-bottom: 1.5rem !important;
+				margin-bottom: 2rem !important;
+				margin-top: 1rem !important;
+			}
+			/* ##### THEME FOR CHECKBOXES ##### */
+			.container {
+				position: relative;
+				padding-left: 0px;
+				margin-bottom: 15px;
+				cursor: pointer;
+				-webkit-user-select: none;
+				-moz-user-select: none;
+				-ms-user-select: none;
+				user-select: none;
+			}
+
+			/* Hide the browser's default checkbox */
+			.container input {
+				position: absolute;
+				opacity: 0;
+				cursor: pointer;
+			}
+
+			/* Create a custom checkbox */
+			.checkmark {
+				position: absolute;
+				top: 0;
+				left: 0;
+				height: 20px;
+				width: 20px;
+				background-color: #8EADAC;
+				border-radius: 5px;
+				opacity:0.65;
+			}
+
+			/* On mouse-over, add a grey background color */
+			.container:hover input ~ .checkmark {
+				background-color: #648a89;
+			}
+
+			/* When the checkbox is checked, add a blue background */
+			.container input:checked ~ .checkmark {
+				background-color: #8EADAC;
+				opacity:1;
+			}
+
+			/* Create the checkmark/indicator (hidden when not checked) */
+			.checkmark:after {
+				content: "";
+				position: absolute;
+				display: none;
+			}
+
+			/* Show the checkmark when checked */
+			.container input:checked ~ .checkmark:after {
+				display: block;
+			}
+
+			/* Style the checkmark/indicator */
+			.container .checkmark:after {
+				left: 7px;
+				top: 3px;
+				width: 6px;
+				height: 10px;
+				border: solid white;
+				border-width: 0 3px 3px 0;
+				-webkit-transform: rotate(45deg);
+				-ms-transform: rotate(45deg);
+				transform: rotate(45deg);
+			}
+			.highcharts-button > path{
+				stroke:#fff !important;
+				fill:#8EADAC !important;
+			}
+			g.highcharts-button{
+				cursor:pointer !important;
+			}
+			g.highcharts-button:hover{
+				color: #fff;
+				border:#648a89;
+				background-color: #648a89;
+				background-color: #648a89;
+				cursor:pointer !important;
+			}
+			<!--
+			.selectpicker{
+				 	background-color:rgb(100, 138, 137,0.25);
+				 	border-color:#8EADAC;
+			}
+			.selectpicker:hover{
+				 	background-color:rgb(100, 138, 137,0.25);
+				 	border-color:#8EADAC;
+			}
+			-->
+			option{
+				color:green
+			}
+			option:active, option:hover {
+			  outline: none !important;
+			}
+
+			/* make it red instead (with with same width and style) */
+			option:active, option:hover {
+			  box-shadow:red !important;
+			  outline-color: red !important;
+			}
+			select { -webkit-border-radius:25px; -moz-border-radius:25px; border-radius:25px; } select:hover { background-color:gren; } option:hover { background-color:yellow; } option { -webkit-border-radius:25px; -moz-border-radius:25px; border-radius:25px; color:blue; background-color:yellow; }
+						 
         </style>
         <!-- JS -->
-        <script type="text/javascript" src="http://code.jquery.com/jquery-2.1.3.min.js"></script>
-        <script type="text/javascript" src="http://code.highcharts.com/4.1.4/highcharts.js"></script>
-        <script type="text/javascript" src="http://code.highcharts.com/4.1.4/modules/exporting.js"></script>
-        <script type="text/javascript" src="https://cdn.datatables.net/1.10.6/js/jquery.dataTables.min.js"></script>
-        <script type="text/javascript" src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
+		<script type="text/javascript" src="http://code.jquery.com/jquery-2.1.3.min.js"></script>
+		<script type="text/javascript" src="http://code.highcharts.com/4.1.4/highcharts.js"></script>
+		<script type="text/javascript" src="http://code.highcharts.com/4.1.4/modules/exporting.js"></script>
+		<script type="text/javascript" src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
+		<script type="text/javascript" src="https://cdn.datatables.net/1.10.19/js/dataTables.bootstrap4.min.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.11.0/umd/popper.min.js" integrity="sha384-b/U6ypiBEHpOf/4+1nzFpr53nxSS+GLCkfwBdFNTxtclqqenISfwAzpKaMNFNmj4" crossorigin="anonymous"></script>
+		<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js" integrity="sha384-smHYKdLADwkXOn1EmN1qk/HfnUcbVRZyYmZ4qpPea6sjB/pTJ0euyQp0Mk8ck+5T" crossorigin="anonymous"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.12.4/js/bootstrap-select.min.js"></script>
+		
+
+ 
+            <script type="text/javascript">
+			/*
+			 * HTMLTable.js 0.1.0 - HTMLTable Library
+			 *
+			 * Copyright (c) 2015 Escudie Frederic
+			 * Licensed under the MIT (http://www.opensource.org/licenses/mit-license.php) license.
+			 */
+			function HTMLtable(e){var t,r,n=e,a=";";this.deleteColumns=function(e){for(var a=n.getElementsByTagName("tr"),o=0;o<a.length;o++){s=0;var i=a[o].getElementsByTagName("td");0==i.length&&(i=a[o].getElementsByTagName("th"));for(var v=0,s=0;s<t[1];s++)if(!r[o][s]){var f=i[v].getAttribute("colspan");if(null!=f)for(var m=0;f>m;m++){if(in_array(s+m,e)){var u=i[v].getAttribute("colspan");u-1==0?i[v].removeAttribute("colspan"):i[v].setAttribute("colspan",u-1)}if(null==i[v].getAttribute("colspan")){var h=i[v];a[o].removeChild(h),v--}}else if(in_array(s,e)){var h=i[v];a[o].removeChild(h),v--}v++}}l(),g()},this.filter=function(e,a){var l=new RegExp(e),g=new Array;null!=a&&a||(g.c0=!0);for(var o=n.getElementsByTagName("tr"),i=0;i<o.length;i++){f=0;var v=o[i].getElementsByTagName("td");if(0!=v.length)for(var s=0,f=0;f<t[1];f++)r[i][f]||(l.test(v[s].innerHTML)&&(g["c"+f]=!0),s++)}for(var m=new Array,u=0;u<t[1];u++)void 0===g["c"+u]&&m.push(u);this.deleteColumns(m)},this.getModel=function(){return n};var l=function(){for(var e=0,r=0,a=n.getElementsByTagName("tr"),l=0;l<a.length;l++){var g=0;e++;var o=a[l].getElementsByTagName("td");0==o.length&&(o=a[l].getElementsByTagName("th"));for(var i=0;i<o.length;i++){var v=o[i].getAttribute("colspan");g+=null==v?1:parseInt(v)}g>r&&(r=g)}t=new Array(2),t[0]=e,t[1]=r},g=function(){r=new Array(t[0]);for(var e=0;e<t[0];e++){r[e]=new Array(t[1]);for(var a=0;a<t[1];a++)r[e][a]=!1}for(var l=n.getElementsByTagName("tr"),g=0;g<l.length;g++){v=0;var o=l[g].getElementsByTagName("td");0==o.length&&(o=l[g].getElementsByTagName("th"));for(var i=0,v=0;v<t[1];v++)if(!r[g][v]){var s=0,f=0,m=o[i].getAttribute("rowspan");null!=m&&(s=parseInt(m)-1);var u=o[i].getAttribute("colspan");null!=u&&(f=parseInt(u)-1);for(var h=s;h>=0;h--)for(var y=f;y>=0;y--)(0!=h||0!=y)&&(r[g+h][v+y]=!0);i++}}};this.replace=function(e,a,l){var g=new RegExp(e);null==a&&(a=""),null==l&&(l="");for(var o=n.getElementsByTagName("tr"),i=0;i<o.length;i++){f=0;var v=o[i].getElementsByTagName("td");if(0!=v.length)for(var s=0,f=0;f<t[1];f++)if(!r[i][f]){var m=g.exec(v[s].innerHTML);null!=m&&(void 0===m[1]&&(m[1]=""),v[s].innerHTML=a+m[1]+l),s++}}},this.toCSV=function(){for(var e="",l=n.getElementsByTagName("tr"),g=0;g<l.length;g++){var o=l[g].getElementsByTagName("td");0==o.length&&(o=l[g].getElementsByTagName("th"));for(var i=0,v=0;v<t[1];v++)r[g][v]||(e+=o[i].innerHTML,i++),e+=a;e=e.substr(0,e.length-1)+"\n"}return e},l(),g()}var in_array=function(e,t){for(var r in t)if(t[r]==e)return!0;return!1};
+			
+			/*
+			 * dataTableExtractor.plugin.js 0.1.0 - datatableExport Library
+			 *
+			 * Copyright (c) 2015 Escudie Frederic
+			 * Licensed under the MIT (http://www.opensource.org/licenses/mit-license.php) license.
+			 */
+			!function(t){t.fn.datatableExport=function(a){var e={anchor_id:t(this).attr("id"),table_id:null,csv_separator:";",omitted_columns:[]},n=t.extend(e,a);if(!t(this).length)throw"The element where the datatableExport is called does not exist.";if(void 0==n.anchor_id)throw"The datatableExport plugin must be called on an element with id.";if(null==n.table_id)throw"You must set the table_id parameter in datatableExport plugin.";if(!t("#"+n.table_id))throw"The datatable '#"+n.table_id+"' cannot be retieve in DOM.";return this.each(function(){var a=$(this).find("button");a.on("click",function(){t.fn.datatableExport.csv(n.anchor_id,n.table_id,n.csv_separator,n.omitted_columns)})})},t.fn.datatableExport.cleanCellMarkup=function(a,e){t.parseHTML(e);t("#"+a).append('<div class="hidden data-tmp">'+e+"</div>"),t("#"+a+" .data-tmp").find("input").each(function(){var a="";a=t(this).is(":checkbox")?t(this).is(":checked")?"true":"false":t(this).val(),t(this).replaceWith(a)});var n=t("#"+a+" .data-tmp").text();return t("#"+a+" .data-tmp").remove(),n},t.fn.datatableExport.csv=function(a,e,n,i){var l="",r=t("#"+e).DataTable(),d=t("#"+e+" thead")[0],o=new HTMLtable(d.cloneNode(!0));o.deleteColumns(i),l+=o.toCSV();var c=r.rows().data();t.each(c,function(e,n){for(var r="",d=0;d<n.length;d++)-1==t.inArray(d,i)&&(r+='"'+t.fn.datatableExport.cleanCellMarkup(a,n[d])+'";');""!=r&&(r=r.slice(0,-1)),l+=r+"\n"}),t("#"+a+"-extract-csv").length||t("#"+a).append('<a id="'+a+'-extract-csv" href="data:text/csv;charset=UTF-8,'+encodeURI(l)+'" download="data.csv" style="display:none;"></a>'),t("#"+a+"-extract-csv")[0].click()}}(jQuery);
+		</script>	
+        
         <script type="text/javascript">
-            /*
-             * HTMLTable.js 0.1.0 - HTMLTable Library
-             *
-             * Copyright (c) 2015 Escudie Frederic
-             * Licensed under the MIT (http://www.opensource.org/licenses/mit-license.php) license.
-             */
-            function HTMLtable(e){var t,r,n=e,a=";";this.deleteColumns=function(e){for(var a=n.getElementsByTagName("tr"),o=0;o<a.length;o++){s=0;var i=a[o].getElementsByTagName("td");0==i.length&&(i=a[o].getElementsByTagName("th"));for(var v=0,s=0;s<t[1];s++)if(!r[o][s]){var f=i[v].getAttribute("colspan");if(null!=f)for(var m=0;f>m;m++){if(in_array(s+m,e)){var u=i[v].getAttribute("colspan");u-1==0?i[v].removeAttribute("colspan"):i[v].setAttribute("colspan",u-1)}if(null==i[v].getAttribute("colspan")){var h=i[v];a[o].removeChild(h),v--}}else if(in_array(s,e)){var h=i[v];a[o].removeChild(h),v--}v++}}l(),g()},this.filter=function(e,a){var l=new RegExp(e),g=new Array;null!=a&&a||(g.c0=!0);for(var o=n.getElementsByTagName("tr"),i=0;i<o.length;i++){f=0;var v=o[i].getElementsByTagName("td");if(0!=v.length)for(var s=0,f=0;f<t[1];f++)r[i][f]||(l.test(v[s].innerHTML)&&(g["c"+f]=!0),s++)}for(var m=new Array,u=0;u<t[1];u++)void 0===g["c"+u]&&m.push(u);this.deleteColumns(m)},this.getModel=function(){return n};var l=function(){for(var e=0,r=0,a=n.getElementsByTagName("tr"),l=0;l<a.length;l++){var g=0;e++;var o=a[l].getElementsByTagName("td");0==o.length&&(o=a[l].getElementsByTagName("th"));for(var i=0;i<o.length;i++){var v=o[i].getAttribute("colspan");g+=null==v?1:parseInt(v)}g>r&&(r=g)}t=new Array(2),t[0]=e,t[1]=r},g=function(){r=new Array(t[0]);for(var e=0;e<t[0];e++){r[e]=new Array(t[1]);for(var a=0;a<t[1];a++)r[e][a]=!1}for(var l=n.getElementsByTagName("tr"),g=0;g<l.length;g++){v=0;var o=l[g].getElementsByTagName("td");0==o.length&&(o=l[g].getElementsByTagName("th"));for(var i=0,v=0;v<t[1];v++)if(!r[g][v]){var s=0,f=0,m=o[i].getAttribute("rowspan");null!=m&&(s=parseInt(m)-1);var u=o[i].getAttribute("colspan");null!=u&&(f=parseInt(u)-1);for(var h=s;h>=0;h--)for(var y=f;y>=0;y--)(0!=h||0!=y)&&(r[g+h][v+y]=!0);i++}}};this.replace=function(e,a,l){var g=new RegExp(e);null==a&&(a=""),null==l&&(l="");for(var o=n.getElementsByTagName("tr"),i=0;i<o.length;i++){f=0;var v=o[i].getElementsByTagName("td");if(0!=v.length)for(var s=0,f=0;f<t[1];f++)if(!r[i][f]){var m=g.exec(v[s].innerHTML);null!=m&&(void 0===m[1]&&(m[1]=""),v[s].innerHTML=a+m[1]+l),s++}}},this.toCSV=function(){for(var e="",l=n.getElementsByTagName("tr"),g=0;g<l.length;g++){var o=l[g].getElementsByTagName("td");0==o.length&&(o=l[g].getElementsByTagName("th"));for(var i=0,v=0;v<t[1];v++)r[g][v]||(e+=o[i].innerHTML,i++),e+=a;e=e.substr(0,e.length-1)+"\n"}return e},l(),g()}var in_array=function(e,t){for(var r in t)if(t[r]==e)return!0;return!1};
-            
-            /*
-             * dataTableExtractor.plugin.js 0.1.0 - datatableExport Library
-             *
-             * Copyright (c) 2015 Escudie Frederic
-             * Licensed under the MIT (http://www.opensource.org/licenses/mit-license.php) license.
-             */
-            !function(t){t.fn.datatableExport=function(a){var e={anchor_id:t(this).attr("id"),table_id:null,csv_separator:";",omitted_columns:[]},n=t.extend(e,a);if(!t(this).length)throw"The element where the datatableExport is called does not exist.";if(void 0==n.anchor_id)throw"The datatableExport plugin must be called on an element with id.";if(null==n.table_id)throw"You must set the table_id parameter in datatableExport plugin.";if(!t("#"+n.table_id))throw"The datatable '#"+n.table_id+"' cannot be retieve in DOM.";return this.each(function(){var a=t(this);a.on("click",function(){t.fn.datatableExport.csv(n.anchor_id,n.table_id,n.csv_separator,n.omitted_columns)})})},t.fn.datatableExport.cleanCellMarkup=function(a,e){t.parseHTML(e);t("#"+a).append('<div class="hidden data-tmp">'+e+"</div>"),t("#"+a+" .data-tmp").find("input").each(function(){var a="";a=t(this).is(":checkbox")?t(this).is(":checked")?"true":"false":t(this).val(),t(this).replaceWith(a)});var n=t("#"+a+" .data-tmp").text();return t("#"+a+" .data-tmp").remove(),n},t.fn.datatableExport.csv=function(a,e,n,i){var l="",r=t("#"+e).DataTable(),d=t("#"+e+" thead")[0],o=new HTMLtable(d.cloneNode(!0));o.deleteColumns(i),l+=o.toCSV();var c=r.rows().data();t.each(c,function(e,n){for(var r="",d=0;d<n.length;d++)-1==t.inArray(d,i)&&(r+='"'+t.fn.datatableExport.cleanCellMarkup(a,n[d])+'";');""!=r&&(r=r.slice(0,-1)),l+=r+"\n"}),t("#"+a+"-extract-csv").length||t("#"+a).append('<a id="'+a+'-extract-csv" href="data:text/csv;charset=UTF-8,'+encodeURI(l)+'" download="data.csv" style="display:none;"></a>'),t("#"+a+"-extract-csv")[0].click()}}(jQuery);
-        </script>
-        <script type="text/javascript">
+			Highcharts.SVGRenderer.prototype.symbols.download = function (x, y, w, h) {
+				var path = [
+					// Arrow stem
+					'M', x + w * 0.5, y,
+					'L', x + w * 0.5, y + h * 0.7,
+					// Arrow head
+					'M', x + w * 0.3, y + h * 0.5,
+					'L', x + w * 0.5, y + h * 0.7,
+					'L', x + w * 0.7, y + h * 0.5,
+					// Box
+					'M', x, y + h * 0.9,
+					'L', x, y + h,
+					'L', x + w, y + h,
+					'L', x + w, y + h * 0.9
+				];
+				return path;
+			};
+			
             /**
              * Returns the string representation of the number. 
              * @param pValue {Float} The number to process.
@@ -79,7 +247,9 @@
                 }
                 return new_val ;
             }
-            
+            Highcharts.setOptions({
+					 colors : ['#8EADAC', '#DE9F73','#7cb5ec','#434348','#90ed7d','#f7a35c','#8085e9','#f15c80','#e4d354','#2b908f','#f45b5b','#91e8e1'] 
+					});
             /**
              * Returns hash use to init HightChart line. 
              * @param pTitle {String} The title of the chart.
@@ -93,7 +263,8 @@
                 return {
                     chart: {
                         type: 'line',
-                        zoomType: 'x'
+                        zoomType: 'x',
+                        selectionMarkerFill: "rgb(222,159,115,0.25)"
                     },
                     title: {
                         text: pTitle
@@ -109,6 +280,26 @@
                             text: pYTitle
                         }
                     },
+                    exporting:{buttons: {contextButton: { symbol: 'download' }}},
+                    buttons: {contextButton: {menuItems: ['downloadPNG', 'downloadSVG']}},
+                    navigation: {
+						buttonOptions: {
+							theme: {
+								r: 4,
+								fill:'#8EADAC',
+								states: {
+									hover: {
+										fill: 'rgb(100, 138, 137)',
+										stroke:'#8EADAC'
+									},
+									select: {
+										stroke: '#8EADAC',
+										fill: 'rgb(100, 138, 137)',
+									}
+								}
+							}
+						}
+					},
                     series: pData,
                     tooltip: {
                         formatter:function() {
@@ -144,35 +335,91 @@
              * @param pSeries {Array} The HightChart series.
              * @param unity {String} Unity used in tooltip.
              * @return {Hash} Parameters to use in Highchart's constructor.
-             */           
-            var histogram_param = function( pTitle, pYTitle, pCategories, pSeries, unity ) {
+             */
+             // couleur des diapos : bleu #8EADAC, vert : #A2A32F, orange1 #C6792B , taupe #9A866C, orange pastel : #DE9F73
+            var histogram_param = function( pTitle, nb, pYTitle, pCategories, pSeries, unity ) {
                 var param = {
                     chart: {
                         type: 'column'
                     },
+                    exporting:{buttons: {contextButton: { symbol: 'download' }}},
+                    buttons: {contextButton: {menuItems: ['downloadPNG', 'downloadSVG']}},
+                    navigation: {
+						buttonOptions: {
+							theme: {
+								r: 4,
+								fill:'#8EADAC',
+								states: {
+									hover: {
+										fill: 'rgb(100, 138, 137)',
+										stroke:'#8EADAC'
+									},
+									select: {
+										stroke: '#8EADAC',
+										fill: 'rgb(100, 138, 137)',
+									}
+								}
+							}
+						}
+					},
                     title: {
                         text: pTitle
                     },
-                    xAxis: {
-                        categories: pCategories,
-                        crosshair: true
+                    subtitle: {
+                        text: 'starting from : ' + nb + ' sequences'
                     },
+                    xAxis: [{
+                        categories: pCategories,
+                        crosshair: true,
+						crosshair: {
+							color: "rgb(142,173,172,0.25)"
+						}
+                    }],
                     yAxis: {
                         min: 0,
                         title: {
                             text: pYTitle
-                        }
+                        },
+                        stackLabels: {
+							enabled: true,
+							style: {
+								fontWeight: 'bold',
+								color: (Highcharts.theme && Highcharts.theme.textColor) || 'gray'
+							}
+						},
+                        plotLines:[{
+                            color: "#A2A32F",
+                            width: 2,
+                            value: nb
+                        }]
                     },
                     tooltip: {
-                        headerFormat: '<span style="font-size:10px">{point.key}</span><table>',
-                        pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' +
-                            '<td style="padding:0"><b>{point.y} ' + unity + '</b></td></tr>',
-                        footerFormat: '</table>',
+                        formatter: function() {
+                            var s = '<b> ' + this.x + '</b>' ,
+                            sum = 0;
+                            $.each(this.points, 
+                                function(i, point) {
+                                s += '<br/>'+ '<span style="color: ' + point.series.color + '"> ' + point.series.name +' : </span>'+
+                                point.y + " " + unity;
+                                sum += point.y;
+                                }
+                            );
+                            s += '<br/>total : '+ sum + ' (' + Number(Math.round(sum*100/nb + "e+2")  + "e-2")  + '%)'
+                            return s;
+                        },
                         shared: true,
                         useHTML: true
                     },
                     plotOptions: {
                         column: {
+							stacking: 'normal',
+							dataLabels: {
+								enabled: true,
+								style: {
+									textShadow: false,
+									color: (Highcharts.theme && Highcharts.theme.textColor) || 'white'
+								}
+							},
                             pointPadding: 0.2,
                             borderWidth: 0
                         }
@@ -193,16 +440,23 @@
             ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
             var filters_categories = ###FILTERS_CATEGORIES### ;
             /* Example:
-                ["before process", "overlapped", "with expected length", "with 5' primer", "with 3' primer", "with expected length", "without N"]
+                ["before process", "assembled", "with 5' primer", "with 3' primer", "with expected length", "without N"]
             */
+
             var filters_by_sample = ###FILTERS_DATA### ;
             /* Example:
-                {
-                  "sampleA": [90126, 90126, 90126, 89697, 89697, 89697, 89697],
-                  "sampleB": [213043, 209801, 0, 0, 0, 0, 0] 
-                }
+            var filters_by_sample = {
+                "artificial combined": {
+                    "sampleA": {"with 3' primer": 100, "without N": 100, "with 5' primer": 200, "assembled": 300}, 
+                    "sampleB": {"with 3' primer": 0, "without N": 0, "with 5' primer": 0, "assembled": 0}}, 
+                "combined": {
+                    "sampleA": {"with expected length": 997, "with 3' primer": 997, "without N": 997, "with 5' primer": 997, "assembled": 1000}, 
+                    "sampleB": {"with expected length": 634, "with 3' primer": 727, "without N": 619, "with 5' primer": 800, "assembled": 834}}, 
+                "before process": {"sampleA": 1300, "sampleB": 834}
+            } ;
             */
-             var before_lengths_by_sample = ###BEFORE_LENGTHS_DATA### ;
+
+            var before_lengths_by_sample = ###BEFORE_LENGTHS_DATA### ;
             /* Example:
                 {
                   "sampleA": {"395": 1, "381": 192, "382": 1790, "383": 2903, "384": 1078, "385": 10536, "386": 18182, "387": 8613, "388": 1097, "389": 7},
@@ -228,13 +482,13 @@
              * Disables/enables buttons in datatable.
              */
             var updateButtonState = function(){
-                $("#display-spl-lengths").removeClass( "disabled" );
+                $("#display-spl-lengths").prop( "disabled", false );
                 if( $('input[id^="filterBySample-chk-"]:checked').length == 0 ){
-                    $("#display-spl-lengths").addClass( "disabled" );
+                    $("#display-spl-lengths").prop( "disabled", true );
                 }
-                $("#display-after-spl-lengths").removeClass( "disabled" );
+                $("#display-after-spl-lengths").prop( "disabled", false );
                 if( $('input[id^="filterBySample-chk-"]:checked').length == 0 ){
-                    $("#display-after-spl-lengths").addClass( "disabled" );
+                    $("#display-after-spl-lengths").prop( "disabled", true );
                 }
             }
             
@@ -287,47 +541,95 @@
              * Draws the bar chart that represents the total number of sequences after each filter. 
              */
             var summaryLoad = function(){
-                var global_data = new Array();
-                for( var spl_name in filters_by_sample ){
-                    var nb_by_step = filters_by_sample[spl_name] ;
-                    for( var step_idx = 0 ; step_idx < filters_by_sample[spl_name].length ; step_idx++ ){
-                        if( global_data.length < step_idx+1 ){
-                            global_data.push(0);
+                var total_input = 0;
+                var extended_data = new Array();
+                var non_overlapped_data = new Array();
+
+                for( var spl_name in filters_by_sample["merged"] ){
+                    total_input += filters_by_sample["before process"][spl_name] ;
+                    for ( var cat_idx = 1 ; cat_idx < filters_categories.length ; cat_idx++ ){
+                        var cat = filters_categories[cat_idx] ;
+                        if(extended_data.length <= cat_idx-1){
+                            extended_data.push(0);
+                            non_overlapped_data.push(0);
                         }
-                        global_data[step_idx] += nb_by_step[step_idx] ;
-                    }
+                        
+                        if (cat in filters_by_sample["merged"][spl_name]){
+                            extended_data[cat_idx-1] += filters_by_sample["merged"][spl_name][cat] ;    
+                        }else{
+                            extended_data[cat_idx-1] = extended_data[cat_idx-2] ;
+                        }
+
+                        if ("artificial combined" in filters_by_sample) {
+                            if ( cat in filters_by_sample["artificial combined"][spl_name] ){
+                                non_overlapped_data[cat_idx-1] += filters_by_sample["artificial combined"][spl_name][cat] ;
+                            }else{
+                                non_overlapped_data[cat_idx-1] = non_overlapped_data[cat_idx-2] ;
+                            }
+                        }
+                    } 
+
                 }
-                var global_series = [{ name: 'All samples', data: global_data }];
-                $('#filter-summary').highcharts( histogram_param('Filtering summary', 'Nb sequences', filters_categories, global_series, 'seq') );
+                
+                var global_series = [ { name: 'merged', data: extended_data }]
+                if ("artificial combined" in filters_by_sample) {
+                    global_series.push({name: 'artificial combined', data: non_overlapped_data});
+                }
+                $('#filter-summary').highcharts( histogram_param('Summary', total_input, 'Nb sequences', filters_categories.slice(0-filters_categories.length+1), global_series, 'seq') );
             }
 
             /**
              * Set the table that represents by sample the number of sequences after each filter. 
+             * Use key to select one subhashtable
              */
-            var sampleDetailsLoad = function(){
+            var sampleDetailsLoad = function(key, checkBox, tableId, distrib_length){
                 // Table titles
-                var titles = [ '<input id="filterBySample-check-all" type="checkbox" value="1">', "Samples" ];
-                titles.push( '% kept' );
-                for( var rank = 0 ; rank < filters_categories.length ; rank++ ){
-                    titles.push( filters_categories[rank] );
+                if (checkBox){
+                    var titles = [ '<label class="container"><input id="filterBySample-check-all" type="checkbox" value="1"><span class="checkmark"></span></label>', "Samples"];
+                }else{
+                    var titles = ["Samples"];    
                 }
-                $('#filterBySample-table thead').append( '<tr><th>' + titles.join("</th><th>") + '</th></tr>' );
-                $('#filterBySample-table .title').attr( "colspan", titles.length );
-                $('#filterBySample-table tfoot th').each(function(){
+                
+                titles.push( '% kept' );
+                var filters = filters_by_sample[key] ;
+
+                for( var sample_name in filters ){
+                    if (checkBox) {
+                        var sample_data = ['<label class="container"><input id="filterBySample-chk-' + sample_name + '" type="checkbox" value="1"><span class="checkmark"></span></label>', sample_name];
+                    }else{
+                        var sample_data = [sample_name];
+                    }
+                    
+                    var last_idx = 0; 
+                    for ( var cat_idx = 0 ; cat_idx < filters_categories.length ; cat_idx++ ){
+                        var cat = filters_categories[cat_idx] ;
+                        if ( cat in filters[sample_name]) {
+                            last_idx = cat_idx
+                            if (!( titles.includes(cat) )){
+                                titles.push(cat);
+                            }
+                            sample_data.push( numberDisplay(filters[sample_name][cat]) );
+                        }
+                    }
+                    
+                    var prct_kept = filters[sample_name][filters_categories[last_idx]]*100/filters[sample_name][filters_categories[1]]
+                    if (isNaN(prct_kept)){
+                        prct_kept = 0
+                    }
+                    if (checkBox) {
+                        sample_data.splice(2, 0, numberDisplay(prct_kept));
+                    }else{
+                        sample_data.splice(1, 0, numberDisplay(prct_kept));
+                    }
+
+                    $('#'+tableId+' tbody').append( '<tr><td>' + sample_data.join("</td><td>") + '</td></tr>' );
+                }
+
+                $('#'+tableId+' thead').append( '<tr><th>' + titles.join("</th><th>") + '</th></tr>' );
+                $('#'+tableId+' .title').attr( "colspan", titles.length );
+                $('#'+tableId+' tfoot th').each(function(){
                     $(this).attr( "colspan", titles.length );
                 });
-                
-                // Table data
-                for( var sample_name in filters_by_sample ){
-                    var sample_data = ['<input id="filterBySample-chk-' + sample_name + '" type="checkbox" value="1">', sample_name] ;
-                    var prct_kept = filters_by_sample[sample_name][filters_categories.length-1]/filters_by_sample[sample_name][0]*100
-                    sample_data.push( numberDisplay(prct_kept) );
-                    for( var idx = 0 ; idx < filters_by_sample[sample_name].length ; idx++){
-                        sample_data.push( numberDisplay(filters_by_sample[sample_name][idx]) );
-                    }
-                    // Add row data
-                    $('#filterBySample-table tbody').append( '<tr><td>' + sample_data.join("</td><td>") + '</td></tr>' );
-                }
                 
                 // Check all management
                 $('#filterBySample-check-all').on('change', function (e) { // Manage check all
@@ -352,33 +654,51 @@
                 $('input[id^="filterBySample-chk-"]').on( 'change', updateButtonState );
                 
                 // Datatable
-                $('#filterBySample-table').DataTable({
-                    "sDom": '<"top"<"#filterBySample-csv-export"><"clear">lf>rt<"bottom"ip><"clear">',
-                    'order': [[1, 'asc']],
+                var start_col_idx = 0
+                if(checkBox){
+                    start_col_idx = 1
+                }
+                $('#'+tableId+'').DataTable({
+                    //"sDom": '<"top"<"#'+tableId+'-export"><"clear">lf>rt<"bottom"ip><"clear">',
+                    dom: 	"<'#"+tableId+"-export'><'row'<'col-sm-5'l><'col-sm-7'f>>" +
+							"<'row'<'col-sm-12'tr>>" +
+							"<'row'<'col-sm-5'i><'col-sm-7'p>>",
+                    'order': [[start_col_idx, 'asc']],
+                    "pagingType": "simple",
                     'columnDefs': [{
                         'targets': [0],
                         'orderable': false
                     }],
                     "fnDrawCallback": updateButtonState
                 });
+                
                 // Datatable export
-                $('#filterBySample-csv-export').html( '<button class="btn btn-primary"><span class="glyphicon glyphicon-open-file" aria-hidden="true">CSV</span></button>' );
-                $('#filterBySample-csv-export').addClass( 'dataTables_filter' );
-                $('#filterBySample-csv-export').datatableExport({
-                    'table_id': "filterBySample-table",
-                    'omitted_columns': [0]
-                });
-
+                $('#'+tableId+'-export').html( '<button id="btn-exp" class="btn"><span class="fa fa-download" aria-hidden="true"> CSV</span></button>' );
+                $('#'+tableId+'-export').addClass( 'dataTables_filter' );
+			
+				if ( checkBox){
+					$('#'+tableId+'-export').datatableExport({
+					'table_id': tableId,
+					'omitted_columns': [0]
+					});
+				}else{
+					$('#'+tableId+'-export').datatableExport({
+					'table_id': tableId,
+					});
+				}
+			
                 // Add modal listener
-                $('#lengths-modal').on('shown.bs.modal', function (event) {
-                    var button = $(event.relatedTarget); // Button that triggered the modal
-                    var data_type = button.data('whatever');
-                    if( data_type == "before-process" ){
-                        setLengthsGraph(before_lengths_by_sample,"Amplicon length distribution before trimming and filtering");
-                    } else {
-                        setLengthsGraph(after_lengths_by_sample,"Preprocessed Amplicon Length distribution");
-                    }
-                });
+                if (distrib_length){
+                    $('#lengths-modal').on('shown.bs.modal', function (event) {
+                        var button = $(event.relatedTarget); // Button that triggered the modal
+                        var data_type = button.data('whatever');
+                        if( data_type == "before-process" ){
+                            setLengthsGraph(before_lengths_by_sample,"Amplicon length distribution before trimming and filtering");
+                        } else {
+                            setLengthsGraph(after_lengths_by_sample,"Preprocessed Amplicon Length distribution");
+                        }
+                    });
+                }
             }
 
             $(function() {
@@ -388,9 +708,27 @@
                 
                 // Display summary
                 summaryLoad();
-                
                 // Display data by sample
-                sampleDetailsLoad();
+                if ("merged" in filters_by_sample ){
+                    sampleDetailsLoad("merged",true, "filterBySample-table-combined", true);
+                }else{
+                    $("#filterBySample-table-combined").remove();
+                }
+                if ("artificial combined" in filters_by_sample ){
+                    sampleDetailsLoad("artificial combined", false, "filterBySample-table-artificialCombined", false);    
+                }else{
+                    $("#filterBySample-table-artificialCombined").prev("h2").remove();
+                    $("#filterBySample-table-artificialCombined").remove();
+                }
+                /*$("select").addClass("selectpicker");
+                $(".dataTables_length select").selectpicker({
+					style: 'btn-info',
+					size: 2,
+					width : '60px'
+				});
+				$('.selectpicker').selectpicker('refresh');
+				//$('select').selectpicker('refresh');
+				*/
             });
         </script>
     </head>
@@ -403,41 +741,56 @@
         
         <!-- Content -->
         <div id="content" class="hidden">
+			<h2 class="pb-2-first mt-4 mb-2 border-bottom" style="margin-top: 1rem">Preprocess summary</h2>
             <div id="filter-summary"></div>
+            
             <div id="filter-log">
-                <table id="filterBySample-table" class="table table-striped">
+				<h2 class="pb-2 mt-4 mb-2 border-bottom">Details on merged sequences</h2>
+                <table id="filterBySample-table-combined" class="table table-striped">
                     <thead>
+						<!--
                         <tr>
-                            <th class="title">Filtering by sample</th>
+                            <th class="title">Filtering by sample : details on full length amplicon reads</th>
                         </tr>
+                        -->
                     </thead>
                     <tbody></tbody>
                     <tfoot>
                         <tr>
                             <th>
-                                <span class="table-action">With selection:</span>
-                                <button id="display-spl-lengths" class="btn btn-primary table-action fusion-right disabled" data-toggle="modal" data-target="#lengths-modal" data-whatever="before-process">Display amplicon lengths </button>
-                                <button id="display-after-spl-lengths" class="btn btn-primary table-action disabled" data-toggle="modal" data-target="#lengths-modal" data-whatever="after-process">Display preprocessed amplicon lengths</button>
+                                <span class="table-action">With selection:</span>                                
+                                <button id="display-spl-lengths" class="btn table-action fusion-right" disabled data-toggle="modal" data-target="#lengths-modal" data-whatever="before-process" ><span class="fa fa-line-chart" aria-hidden="true"> Display amplicon lengths</span> </button>
+                                <button id="display-after-spl-lengths" class="btn table-action" disabled data-toggle="modal" data-target="#lengths-modal" data-whatever="after-process" ><span class="fa fa-line-chart" aria-hidden="true"> Display preprocessed amplicon lengths</span></button>
                             </th>
                         </tr>
                     </tfoot>
                 </table>
+                <h2 class="pb-2 mt-4 mb-2 border-bottom">Details on artificial combined sequences</h2>
+                <table id="filterBySample-table-artificialCombined" class="table table-striped">
+                    <thead>
+                    </thead>
+                    <tbody></tbody>
+                </table>
             </div>
         </div>
+        
+       
         
         <!-- Modals -->
         <div class="modal" id="lengths-modal" tabindex="-1" role="dialog" aria-hidden="true">
             <div class="modal-dialog modal-lg">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                         <h4 class="modal-title">Amplicons lengths</h4>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                        
+                        
                     </div>
                     <div class="modal-body">
                         <div id="lengths-chart"></div>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                        <button class="btn table-action fusion-right" data-dismiss="modal"><span class="fa fa-close" aria-hidden="true"> Close</span> </button>
                     </div>
                 </div>
             </div>

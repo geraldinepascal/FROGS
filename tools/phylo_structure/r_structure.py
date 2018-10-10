@@ -18,7 +18,7 @@
 __author__ = 'Ta Thi Ngan & Maria Bernard INRA - SIGENAE'
 __copyright__ = 'Copyright (C) 2017 INRA'
 __license__ = 'GNU General Public License'
-__version__ = '1.0.0'
+__version__ = 'r3.0-1.0'
 __email__ = 'frogs@inra.fr'
 __status__ = 'prod'
 
@@ -27,14 +27,24 @@ import sys
 import argparse
 
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
+FROGS_DIR=""
+if CURRENT_DIR.endswith("phylo_structure"):
+    FROGS_DIR = os.path.dirname(os.path.dirname(CURRENT_DIR))
+else:
+    FROGS_DIR = os.path.dirname(CURRENT_DIR)
+
 # PATH
-BIN_DIR = os.path.abspath(os.path.join(os.path.dirname(CURRENT_DIR), "libexec"))
+BIN_DIR = os.path.abspath(os.path.join(FROGS_DIR, "libexec"))
 os.environ['PATH'] = BIN_DIR + os.pathsep + os.environ['PATH']
+APP_DIR = os.path.abspath(os.path.join(FROGS_DIR, "app"))
+os.environ['PATH'] = APP_DIR + os.pathsep + os.environ['PATH']
 # PYTHONPATH
-LIB_DIR = os.path.abspath(os.path.join(os.path.dirname(CURRENT_DIR), "lib"))
+LIB_DIR = os.path.abspath(os.path.join(FROGS_DIR, "lib"))
 sys.path.append(LIB_DIR)
 if os.getenv('PYTHONPATH') is None: os.environ['PYTHONPATH'] = LIB_DIR
 else: os.environ['PYTHONPATH'] = os.environ['PYTHONPATH'] + os.pathsep + LIB_DIR
+# LIBR
+LIBR_DIR = os.path.join(LIB_DIR,"external-lib")
 
 from frogsUtils import *
 ##################################################################################################################################################
@@ -50,19 +60,20 @@ class Rscript(Cmd):
           https://joey711.github.io/phyloseq/
     @return: the html file containing the plots.
     """
-    def __init__(self, html, data, varExp, method, distance):
+    def __init__(self, html, data, varExp, method, distance, rmd_stderr):
         """
         @params html: [str] Path to store resulting html file containing ordination plot and heatmap plot.
         @param data: [str] One phyloseq object in rdata file, the result of FROGS Phyloseq Import Data.
         @param varExp: [str] The experiment variable.
         @param method: [str] The ordination method,the method in list (MDS, NMDS, DCA, CCA, RDA, CAP, DPCoA).
         @param distance: [str] Path of data file containing beta diversity distance matrix. These file is the result of FROGS Phyloseq Beta Diversity.
+        @param rmd_stderr: [str] Path to temporary Rmarkdown stderr output file
         """ 
         rmd = os.path.join(CURRENT_DIR, "r_structure.Rmd")
         Cmd.__init__( self,
                       'Rscript',
                       'Run 1 code Rmarkdown',
-                       '-e "rmarkdown::render('+"'"+rmd+"',output_file='"+html+"', params=list(data='"+data+"', varExp='"+varExp+"',method='"+method+"',distance='"+distance+"'), intermediates_dir='"+os.path.dirname(html)+"')"+'" 2> /dev/null',
+                       '-e "rmarkdown::render('+"'"+rmd+"',output_file='"+html+"', params=list(data='"+data+"', varExp='"+varExp+"',method='"+method+"',distance='"+distance+"', libdir ='"+LIBR_DIR+"'), intermediates_dir='"+os.path.dirname(html)+"')"+'" 2> ' + rmd_stderr,
                        "-e '(sessionInfo()[[1]][13])[[1]][1]; paste(\"Rmarkdown version: \",packageVersion(\"rmarkdown\")) ; library(phyloseq); paste(\"Phyloseq version: \",packageVersion(\"phyloseq\"))'")
     def get_version(self):
         """
@@ -80,6 +91,7 @@ if __name__ == "__main__":
    
     # Manage parameters
     parser = argparse.ArgumentParser( description='Visulization of data structure with heatmap plot and ordination plot of Phyloseq.')
+    parser.add_argument( '--debug', default=False, action='store_true', help="Keep temporary files to debug program." )   
     parser.add_argument('-v', '--varExp', type=str, required=True, default=None, help='The experiment variable you want to analyse.')
     parser.add_argument('-m','--ordination-method', type=str, default='MDS', choices=["MDS", "NMDS", "DPCoA", "PCoA"], help="The ordination methods. [Default: %(default)s]")
     # Inputs
@@ -97,4 +109,10 @@ if __name__ == "__main__":
     html=os.path.abspath(args.html)
     rdata=os.path.abspath(args.rdata)
     distance=os.path.abspath(args.distance_matrix)
-    Rscript(html, rdata, args.varExp, args.ordination_method, distance).submit( args.log_file )
+    try:
+        tmpFiles = TmpFiles(os.path.dirname(html))
+        rmd_stderr = tmpFiles.add("rmarkdown.stderr")
+        Rscript(html, rdata, args.varExp, args.ordination_method, distance,rmd_stderr).submit( args.log_file )
+    finally :
+        if not args.debug:
+            tmpFiles.deleteAll()

@@ -88,6 +88,9 @@
     PATH and 'lib' must be accessible in the PYTHONPATH.
 
 ### 3. Install dependencies
+
+### 3.1 lib exec and additionnal packages
+
     Dependencies must be accessible in the PATH or added in <FROGS_PATH>/libexec.
     
     python interpreter
@@ -100,34 +103,56 @@
     perl interpreter
         Version: 5
         Tools: demultiplex
+    
+    vsearch
+        Version: 1.1.3
+        Named as: vsearch
+        Tools: preprocess and remove_chimera
+        Download: https://github.com/torognes/vsearch
+        Warning : zlib and bzlib need to be installed before compilling vsearch to deal with fastq.gz or fastq.bz2 files.
 
     flash
         Version: 1.2.11
         Named as: flash
         Tools: preprocess
-        Download: http://sourceforge.net/projects/flashpage/files
+        Download: https://sourceforge.net/projects/flashpage/files/
+
+    pear (optional)
+        Version: 0.9.10
+        Named as: pear
+        Tools: preprocess
+        Download: https://sco.h-its.org/exelixis/web/software/pear/
 
     cutadapt
         Version: 1.8.3
             Note : With the cutadapt version 1.12, the memory usage increases drastically. 
-                   We advise our user to install, at most, the cutadapt version  1.11
+                   We advise our user to install, at most, the cutadapt version  1.11       
         Named as: cutadapt
         Tools: preprocess
         Download: https://github.com/marcelm/cutadapt
                   OR
                   https://pypi.python.org/pypi/cutadapt
-
+        
     swarm
         Version: 2.1.1
         Named as: swarm
         Tools: clustering
         Download: https://github.com/torognes/swarm
 
-    vsearch
-        Version: 1.1.3
-        Named as: vsearch
-        Tools: remove_chimera
-        Download: https://github.com/torognes/vsearch
+    ITSx
+        Version : 1.0.11
+        Named : ITSx
+        Tools : preprocess
+        Download : http://microbiology.se/software/itsx/
+        Remark : ITSx_db folder need to be in the PATH or in <FROGS_PATH>/libexec
+                 depend on HMMER 3 or later (only for hmmpress and hmmscan)
+                 if ITSx test command line failed it's may be due to a difference in HMMER version used to prepare HMM models: hmmpress the ITSx_db/HMMs/*.hmm with your own HMMER version
+
+    swarm
+        Version: 2.1.1
+        Named as: swarm
+        Tools: clustering
+        Download: https://github.com/torognes/swarm
 
     NCBI Blast+ blastn
         Version: 2.2.30+
@@ -149,6 +174,12 @@
                  OR
                  sudo yum install util-linux
 
+    Needlall
+        Version: EMBOSS:6.6.0.0
+        Named as: needleall
+        Tools : affiliation_OTU
+        Download : ftp://emboss.open-bio.org/pub/EMBOSS/
+
     Pynast
         Version: 1.2.2
         Named as: pynast
@@ -168,9 +199,9 @@
         Download: http://www.microbesonline.org/fasttree/#Install
 
     RScript
-        Version : 3.4.0
+        Version : = 3.4.0
         Named as : RScript
-        Tools : all FROGS_Phyloseq
+        Tools : all FROGSSTAT_Phyloseq
         Download : https://cran.r-project.org/
 
     Phangorn R package
@@ -182,36 +213,46 @@
 
     Rmarkdown R package
         Version : 1.5
-        Tools : all FROGS_Phyloseq
+        Tools : all FROGSSTAT_Phyloseq
         Install in R session : # https://cran.r-project.org/web/packages/rmarkdown/index.html
                                install.packages("rmarkdown")
 
     Pandoc
         Version : 1.17.2
         Named as : pandoc
-        Tools : all FROGS_Phyloseq
+        Tools : all FROGSSTAT_Phyloseq
         Download/Installation : # http://pandoc.org/installing.html#linux or simply soft-link pandoc binary from RStudio path (if you have Rstudio installed)
 
     Phyloseq R package
         Version : 1.20.0
-        Tools : all FROGS_Phyloseq
+        Tools : all FROGSSTAT_Phyloseq
         Installation in R session : # https://joey711.github.io/phyloseq/install.html
                                     source("https://bioconductor.org/biocLite.R") ; biocLite("phyloseq")
         Test in R session : library(phyloseq)
 
     Plotly R package
         Version : 4.7.0
-        Tools : FROGS_Phyloseq_composition and FROGS_Phyloseq_structure
+        Tools : FROGSSTAT_Phyloseq_composition and FROGSSTAT_Phyloseq_structure
         Installation in R session : # https://plot.ly/r/getting-started/
                                     install.packages("plotly")
         Test in R session : library(plotly)
 
     GridExtra R package
         Version : 2.2.1
-        Tools : FROGS_Phyloseq_Beta_Diversity, FROGS_Phyloseq_Sample_Clustering, FROGS_Phyloseq_composition and FROGS_Phyloseq_structure
+        Tools : FROGSSTAT_Phyloseq_Beta_Diversity, FROGSSTAT_Phyloseq_Sample_Clustering, FROGSSTAT_Phyloseq_composition and FROGSSTAT_Phyloseq_structure
         Installation in R session : # https://cran.r-project.org/web/packages/gridExtra/index.html
                                     install.packages("gridExtra")
         Test in R session : library(gridExtra)
+
+### 3.2 R lib 
+
+    Dependencies must be accessible in <FROGS_PATH>/lib/external.
+
+    Phyloseq-extended
+        Version : v0.99
+        Tools : all FROGSSTAT tools
+        Installation : # https://github.com/mahendra-mariadassou/phyloseq-extended/releases
+                       untar archive and copy or link content of folder "phyloseq-extended/" in <FROGS_PATH>/lib/external-lib
 
 
 ### 4. Check intallation
@@ -219,6 +260,9 @@
         cd <FROGS_PATH>/test
         bash test.sh <FROGS_PATH> <NB_CPU> <JAVA_MEM> <OUT_FOLDER>
     
+    "Bioinformatic" tools are performed on a small simulated dataset of one sample replicated three times.
+    "Statistical" tools are performed on an extract of the published results of Chaillou et al, ISME 2014, doi:10.1038/ismej.2014.202
+
     This test executes the FROGS tools in command line mode.
     Note:
         JAVA_MEM must be at least 4 (= 4Gb of RAM).
@@ -229,6 +273,7 @@
         Step clustering Fri Apr  8 11:45:32 CEST 2016
         Step remove_chimera Fri Apr  8 11:46:02 CEST 2016
         Step filters Fri Apr  8 11:47:11 CEST 2016
+        Step ITSx Fri Apr  8 11:47:11 CEST 2016
         Step affiliation_OTU Fri Apr  8 11:47:12 CEST 2016
         Step clusters_stat Fri Apr  8 11:47:18 CEST 2016
         Step affiliations_stat Fri Apr  8 11:47:20 CEST 2016
@@ -276,15 +321,17 @@
             <tool file="FROGS/app/clustering.xml" />
             <tool file="FROGS/app/remove_chimera.xml" />  
             <tool file="FROGS/app/filters.xml" />
+            <tool file="FROGS/app/itsx.xml" />
             <tool file="FROGS/app/affiliation_OTU.xml" />
+            <tool file="FROGS/app/affiliation_postprocess.xml" />
+            <tool file="FROGS/app/normalisation.xml" />
             <tool file="FROGS/app/clusters_stat.xml" />
             <tool file="FROGS/app/affiliations_stat.xml" />
             <tool file="FROGS/app/biom_to_stdBiom.xml" />
             <tool file="FROGS/app/biom_to_tsv.xml" />
             <tool file="FROGS/app/tsv_to_biom.xml" />
-            <tool file="FROGS/app/normalisation.xml" />
             <tool file="FROGS/app/tree.xml" />
-        <label text="OTUs structure and composition analysis" id="FROGS_Phyloseq" />
+        <label text="OTUs structure and composition analysis" id="FROGSSTAT_Phyloseq" />
             <tool file="FROGS/app/r_import_data.xml" />
             <tool file="FROGS/app/r_composition.xml" />
             <tool file="FROGS/app/r_alpha_diversity.xml" />
@@ -310,15 +357,7 @@
         clustering         -          10 Gb          16 CPUs and 60 GB
         preprocess       8 Gb            -           12 CPUs and 96 GB
 
-    b] Change the number of CPUs used
-        Each tool with parallelisation possibilities contains in its XML an
-        hidden parameter to set the number of used CPUs.
-        Example for 16 CPUs:
-           <param name="nb_cpus" type="hidden" label="CPU number" help="The maximum number of CPUs used." value="1" />
-           Is changed to :
-           <param name="nb_cpus" type="hidden" label="CPU number" help="The maximum number of CPUs used." value="16" />
-
-    c] Change the tool launcher configuration
+    b] Change the tool launcher configuration
         In galaxy the job_conf.xml allows to change the scheduler 
         submission parameters.
         Example for SGE scheduler:
@@ -342,6 +381,12 @@
                     <param id="galaxy_external_chown_script">scripts/external_chown_script.py</param>
                     <param id="nativeSpecification">-clear -q galaxyq -l mem=3G -l h_vmem=4G -pe parallel_smp 12</param>
                 </destination>
+                <destination id="FROGS_itsx_job" runner="drmaa">
+                    <param id="galaxy_external_runjob_script">scripts/drmaa_external_runner.py</param>
+                    <param id="galaxy_external_killjob_script">scripts/drmaa_external_killer.py</param>
+                    <param id="galaxy_external_chown_script">scripts/external_chown_script.py</param>
+                    <param id="nativeSpecification">-clear -q galaxyq -l mem=3G -l h_vmem=4G -pe parallel_smp 12</param>
+                </destination>
                 <destination id="FROGS_affiliation_OTU_job" runner="drmaa">
                     <param id="galaxy_external_runjob_script">scripts/drmaa_external_runner.py</param>
                     <param id="galaxy_external_killjob_script">scripts/drmaa_external_killer.py</param>
@@ -354,6 +399,7 @@
                 <tool id="FROGS_preprocess" destination="FROGS_preprocess_job"/>   
                 <tool id="FROGS_clustering" destination="FROGS_clustering_job"/>     
                 <tool id="FROGS_remove_chimera" destination="FROGS_remove_chimera_job"/> 
+                <tool id="FROGS_itsx" destination="FROGS_itsx_job"/> 
                 <tool id="FROGS_affiliation_OTU" destination="FROGS_affiliation_OTU_job"/>
             </tools>
 
@@ -364,24 +410,46 @@
         - To use these databank, you need to create a .loc file named
           'frogs_db.loc'. The path provided must be the '.fasta'.
           (see the frogs_db.loc example file)
+          
     b] Contaminant databank
         - Upload databank and indexes from http://genoweb.toulouse.inra.fr/frogs_databanks/contaminants
         - Extract databank.
         - To use this databank, you need to create a .loc file named
           'phiX_db.loc'. The path provided must be the '.fasta'.
           (see the phiX_db.loc example file)
-
+          
+    c] Hyper variable in length amplicon databank
+        - Upload databank from http://genoweb.toulouse.inra.fr/frogs_databanks/HVL
+        - Extract databank.
+        - To use this databank, you need to create a .loc file named
+          'HVL_db.loc'. The path provided must be the '.fasta'.
+          (see the HVL_db.loc example file)
+          
 ### 9. Tools images
     The tools help contain images. These images must be in galaxy images
     static folder.
-    
-    since galaxy 18.05, links are no more authorized.
-        mkdir <GALAXY_DIR>/static/images/tools/frogs
-        cp <FROGS_PATH>/img/* <GALAXY_DIR>/static/images/tools/frogs/.
-        
-    before that release, you can simply link them:
         ln -s <FROGS_PATH>/img <GALAXY_DIR>/static/images/tools/frogs
 
+
+### 10. Use PEAR as reads merge software in preprocess
+    PEAR is one of the most effective software for read pair merging, but as its licence is not free for private use, we can not distribute it in FROGS.
+    If you work in an academic lab on a private Galaxy server, or if you have payed your licence you can use PEAR in FROGS preprocess.
+    For that you need to:
+    * have PEAR in your PATH or in the FROGS libexec directory
+    * use --merge-software option for command line use
+    * add PEAR in the FROGS preprocess Galaxy wrapper (<FROGS_DIR>/tools/preprocess/preprocess.xml): blok lines 117 tot 125 and block line 150 to 158 : 
+    
+    <conditional name="merge_software_type">
+        <param name="merge_software" type="select" label="Merge software" help="Select the software to merge paired-end reads.">
+            <option value="vsearch" selected="true">Vsearch</option>
+            <option value="flash">Flash</option>
+            <option value="pear">PEAR</option>
+        </param>
+        <when value="flash">
+            <param name="expected_amplicon_size" type="integer" label="Expected amplicon size" help="Maximum amplicon length expected in approximately 90% of the amplicons." value="" />
+        </when>
+    </conditional>
+        
 
 ## Troubleshooting
 ### Abnormal increase memory consumption with CPU number
@@ -413,7 +481,7 @@
 
 
 ## Citation
-    Frédéric Escudié, Lucas Auer, Maria Bernard, Mahendra Mariadassou, Laurent Cauquil, Katia Vidal, Sarah Maman, Guillermina Hernandez-Raquet, Sylvie Combes, Géraldine Pascal; FROGS: Find, Rapidly, OTUs with Galaxy Solution, Bioinformatics, 2017, btx791, https://doi.org/10.1093/bioinformatics/btx791
+    Please cite the **FROGS article**: *Escudie F., et al. Bioinformatics, 2018. FROGS: Find, Rapidly, OTUs with Galaxy Solution.*
 
 
 ## Contact

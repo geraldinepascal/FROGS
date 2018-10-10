@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
-<tool id="FROGS_normalisation" name="FROGS Abundance normalisation" version="2.0.0">
+<tool id="FROGS_normalisation" name="FROGS Abundance normalisation" version="r3.0-8.0">
 	<command interpreter="python2.7">
 		normalisation.py 
 		                       --input-biom $input_biom
@@ -97,11 +97,10 @@ Contacts: frogs@inra.fr
 Repository: https://github.com/geraldinepascal/FROGS
 website: http://frogs.toulouse.inra.fr/
 
-Please cite the **FROGS article**: *Escudie F., et al. Bioinformatics, 2017. FROGS: Find, Rapidly, OTUs with Galaxy Solution.*
+Please cite the **FROGS article**: *Escudie F., et al. Bioinformatics, 2018. FROGS: Find, Rapidly, OTUs with Galaxy Solution.*
 
 	</help>
 	<citations>
 		<citation type="doi">10.1093/bioinformatics/btx791</citation>
 	</citations>
-
 </tool>

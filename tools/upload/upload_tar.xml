@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
-<tool id="FROGS_upload_tar" name="FROGS Upload archive" version="1.1.0" workflow_compatible="false">
+<tool id="FROGS_upload_tar" name="FROGS Upload archive" version="r3.0-1.1" workflow_compatible="false">
 	<description>from your computer</description>
 	<action module="galaxy.tools.actions.upload" class="UploadToolAction"/>
 	<command interpreter="python">
@@ -75,7 +75,7 @@ Contacts: frogs@inra.fr
 Repository: https://github.com/geraldinepascal/FROGS
 website: http://frogs.toulouse.inra.fr/
 
-Please cite the **FROGS article**: *Escudie F., et al. Bioinformatics, 2017. FROGS: Find, Rapidly, OTUs with Galaxy Solution.*
+Please cite the **FROGS article**: *Escudie F., et al. Bioinformatics, 2018. FROGS: Find, Rapidly, OTUs with Galaxy Solution.*
 
 	</help>
 	<citations>

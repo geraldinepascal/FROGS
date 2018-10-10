@@ -1,0 +1,32 @@
+# Copyright (C) 2014 INRA
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+#
+#This is a sample file that enables tools FROGS_affiliations_postprocess to solve
+#inclusive amplicon sequence by selecting the smallest reference among multihit
+#You will need to create or download exact amplicon sequence reference fasta file
+#download link : http://genoweb.toulouse.inra.fr/frogs_databanks/HVL_reference
+#Finally you will need to create HVL_db.loc file similar to this one in your galaxy
+#tool-data directory.The HVL_db.loc file has this format (longer white space characters are
+#TAB characters):
+#
+#<unique_database_name>   <file_path>
+#
+#First column will be the visible name in galaxy.
+#So, for example, if you have  UNITE 7.1 ITS1 (only!) stored 
+#in /galaxy_databanks/ITS/UNITE_7.1/UNITE_ITS1.fasta 
+#then the HVL_db.loc entry would look like this:
+#
+#UNITE 7.1 ITS1     /galaxy_databanks/ITS/UNITE_7.1/UNITE_ITS1.fasta

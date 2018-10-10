@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
-<tool name="FROGSSTAT Phyloseq Multivariate Analysis Of Variance" id="FROGSSTAT_Phyloseq_Multivariate_Analysis_Of_Variance" version="1.0.0">
+<tool name="FROGSSTAT Phyloseq Multivariate Analysis Of Variance" id="FROGSSTAT_Phyloseq_Multivariate_Analysis_Of_Variance" version="r3.0-1.0">
 	<command interpreter="python">r_manova.py 
                                     --rdata $data
                                     --varExp "$varExp"
@@ -83,7 +83,7 @@ Contacts: frogs@inra.fr
 Repository: https://github.com/geraldinepascal/FROGS
 website: http://frogs.toulouse.inra.fr/
 
-Please cite the **FROGS article**: *Escudie F., et al. Bioinformatics, 2017. FROGS: Find, Rapidly, OTUs with Galaxy Solution.*
+Please cite the **FROGS article**: *Escudie F., et al. Bioinformatics, 2018. FROGS: Find, Rapidly, OTUs with Galaxy Solution.*
 
 	</help>
 	<citations>

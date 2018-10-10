@@ -21,8 +21,9 @@
 		<meta charset="UTF-8">
 		<meta name="version" content="1.4.1">
 		<!-- CSS -->
-		<link rel="stylesheet" href="https://cdn.datatables.net/1.10.6/css/jquery.dataTables.css"></link>
-		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css"></link>
+		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.1.1/css/bootstrap.css"></link>
+		<link rel="stylesheet" href="https://cdn.datatables.net/1.10.19/css/dataTables.bootstrap4.min.css"></link>
+		<link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
 		<style type="text/css">
 			#js-alert {
 				width: 90%;
@@ -60,26 +61,31 @@
 				margin-top: 10px;
 			}
 			#dispersion {
-				height: 500px;
+				height: 1000px;
+			}
+			#twofigs{
+				height: 600px;
 			}
 			.label-badge {
 				position: absolute;
 				top: -10px;
 				left: -10px;
 			}
+			.badge-primary{
+				background-color:#8EADAC;
+			}
 			.graph-nb {
 				color: #95959C;
 				font-style: italic;
 				text-align: center;
 			}
-
 			.circle {
 				border-style: solid;
 				border-width: 3px;
 				border-radius: 50px;
 				box-shadow: 2px 2px 2px #555;
-				border-color: #3871A8;
-				background: radial-gradient( #649DD4, #3871A8);
+				border-color: #648a89;
+				background: radial-gradient( #8EADAC, #648a89);
 				color: white;
 				padding: 10px;
 				width: 180px;
@@ -94,18 +100,17 @@
 			.circle-value {
 				font-weight: bold;
 			}
-
 			.d3-node {
 				cursor: pointer;
 			}
 			.d3-node-dot {
 				fill: #fff;
-				stroke: steelblue;
+				stroke: #8EADAC;
 				stroke-width: 3px;
 			}
 			.d3-collapsed-node {
-				fill: #B0C4DE;
-				stroke: #663399;
+				fill: #8EADAC;
+				stroke: #648a89;
 				stroke-width: 3px;
 			}
 			.d3-node text {
@@ -113,17 +118,85 @@
 			}
 			.d3-link {
 				fill: none;
-				stroke: #ccc;
+				stroke: #648a89;
 				stroke-width: 2px;
+			}
+			.page-item.active .page-link {
+				z-index: 1;
+				color: #fff;
+				background-color: #8EADAC;
+				border-color: #8EADAC;
+			}
+			.btn {
+				color: #fff;
+				border:#8EADAC;
+				background-color: #8EADAC;
+			}
+			.btn:focus, .btn:active {
+				outline: none !important;
+				box-shadow: none !important;
+			}
+			.btn:hover{
+				color: #fff;
+				border:#648a89;
+				background-color: #648a89;
+			}
+			.pb-2, .py-2 {
+				padding-bottom: 1.5rem !important;
+				margin-bottom: 2rem !important;
+				margin-top: 4rem !important;
+			}
+			.pb-2-first{
+				padding-bottom: 1.5rem !important;
+				margin-bottom: 2rem !important;
+				margin-top: 1rem !important;
+			}
+			.nav-tabs .nav-link.active, .nav-tabs .nav-item.show .nav-link{
+				color: #fff;
+				background-color: #8EADAF;
+				border-color: #dee2e6 #dee2e6 #fff;
+			}
+			a {
+				color: #8EAEAF;
+			}
+			a:hover{
+				color:#648a89;
+			}
+			.page-link{
+				color: #8EAEAF;
+			}
+			.page-link:hover{
+				
+			}
+			.page-link:not(:disabled):not(.disabled) {
+				color: #8EAEAF;
+			}
+			.page-item.active .page-link {
+				color: #fff;
+			}
+			.highcharts-button > path{
+				stroke:#fff !important;
+				fill:#8EADAC !important;
+			}
+			g.highcharts-button{
+				cursor:pointer !important;
+			}
+			g.highcharts-button:hover{
+				color: #fff;
+				border:#648a89;
+				background-color: #648a89;
+				background-color: #648a89;
+				cursor:pointer !important;
 			}
 		</style>
 		<!-- JS -->
-		<script type="text/javascript" src="http://code.jquery.com/jquery-2.1.3.min.js"></script>
-		<script type="text/javascript" src="http://code.highcharts.com/4.1.4/highcharts.js"></script>
-		<script type="text/javascript" src="http://code.highcharts.com/4.1.4/highcharts-more.js"></script>
-		<script type="text/javascript" src="http://code.highcharts.com/4.1.4/modules/exporting.js"></script>
-		<script type="text/javascript" src="https://cdn.datatables.net/1.10.6/js/jquery.dataTables.min.js"></script>
-		<script type="text/javascript" src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
+		<script type="text/javascript" src="https://code.jquery.com/jquery-2.1.3.min.js"></script>
+		<script type="text/javascript" src="https://code.highcharts.com/4.1.4/highcharts.js"></script>
+		<script type="text/javascript" src="https://code.highcharts.com/4.1.4/highcharts-more.js"></script>
+		<script type="text/javascript" src="https://code.highcharts.com/4.1.4/modules/exporting.js"></script>
+		<script type="text/javascript" src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
+		<script type="text/javascript" src="https://cdn.datatables.net/1.10.19/js/dataTables.bootstrap4.min.js"></script>
+		<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js" integrity="sha384-smHYKdLADwkXOn1EmN1qk/HfnUcbVRZyYmZ4qpPea6sjB/pTJ0euyQp0Mk8ck+5T" crossorigin="anonymous"></script>
 		<script type="text/javascript">
 			/*
 			 * d3 v3 - JavaScript d3 Library
@@ -304,7 +377,7 @@
 			 */
 			var table = function( pTitle, pCategories, pData  ) {
 				// Header
-				var table_header = '    <tr>\n<th colspan="' + pCategories.length + '">' + pTitle + '</th>    </tr>\n' ;
+				var table_header = '' ;
 				var table_header_line = "" ;
 				for(var idx = 0 ; idx < pCategories.length ; idx++){
 					table_header_line += "      <th>" + pCategories[idx] + "</th>\n" ;
@@ -327,7 +400,7 @@
 				}
 				table_body = "  <tbody>\n" + table_body + "  </tbody>\n" ;
 
-				return '<table class="table table-striped">\n' + table_header + table_body + "</table>\n" ;
+				return '<table class="table table-striped table-bordered">\n' + table_header + table_body + "</table>\n" ;
 			}
 			
 			 /**
@@ -380,8 +453,27 @@
 			   */
 			  var boxplot_param = function(pTitle, pXTitle, pYTitle, pXCategories, pData) {
 			  	var chart = chartplot( pTitle, null, pYTitle, pXCategories, pData );
-			  	chart['chart'] = { type: 'boxplot', zoomType: 'y' };
+			  	chart['chart'] = { type: 'boxplot', zoomType: 'y',selectionMarkerFill: "rgb(222,159,115,0.25)" };
 			  	chart['yAxis']['min'] = 0 ;
+			  	chart['exporting'] = {buttons: {contextButton: { symbol: 'download' }}};
+			  	chart['navigation'] =  {
+        buttonOptions: {
+            theme: {
+                r: 4,
+                fill:'#8EADAC',
+                states: {
+                    hover: {
+                        fill: 'rgb(100, 138, 137)',
+                        stroke:'#8EADAC'
+                    },
+                    select: {
+                        stroke: '#8EADAC',
+                        fill: 'rgb(100, 138, 137)',
+                    }
+                }
+            }
+        }
+    };
 			  	return chart ;
 			  };
 
@@ -404,7 +496,8 @@
 			 	var chart = chartplot( pTitle, pXTitle, pYTitle, pXCategories, pData );
 			 	chart['chart'] = { 
 			 		type: 'area',
-			 		zoomType:"x"
+			 		zoomType:"x",
+			 		selectionMarkerFill: "rgb(222,159,115,0.25)"
 			 	};
 			 	chart['xAxis']['tickInterval'] = Math.max(1, parseInt(x_max/10));
 				chart['plotOptions'] = {
@@ -486,6 +579,39 @@
 			//
 			///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 			var cluster_distrib_load = function( container_id ) {
+				// Radializes colors
+				Highcharts.setOptions({
+					 colors : ['#8EADAC', '#DE9F73'] ,
+					});
+					Highcharts.SVGRenderer.prototype.symbols.download = function (x, y, w, h) {
+					var path = [
+						// Arrow stem
+						'M', x + w * 0.5, y,
+						'L', x + w * 0.5, y + h * 0.7,
+						// Arrow head
+						'M', x + w * 0.3, y + h * 0.5,
+						'L', x + w * 0.5, y + h * 0.7,
+						'L', x + w * 0.7, y + h * 0.5,
+						// Box
+						'M', x, y + h * 0.9,
+						'L', x, y + h,
+						'L', x + w, y + h,
+						'L', x + w, y + h * 0.9
+					];
+					return path;
+				};
+				/* Radial gradient ?*/
+				/*
+			    Highcharts.getOptions().colors = Highcharts.map(Highcharts.getOptions().colors, function (color) {
+			        return {
+			            radialGradient: { cx: 0.5, cy: 0.3, r: 0.7 },
+			            stops: [
+			                [0, color],
+			                [1, Highcharts.Color(color).brighten(-0.1).get('rgb')] // darken
+			            ]
+			        };
+			    });
+			    */
 				var dispersion = get_dispersion( clusters_sizes, series[0]['data'] );
 				
 				// Nb clusters and nb sequences
@@ -520,8 +646,10 @@
 					          dispersion['max']]]
 				}];
 				$('#' + container_id).append( '<div id="dispersion"></div>' );
-				$('#dispersion').append( '<h1 class="page-header">Clusters size summary<h1/>' );
-				$('#dispersion').append( '<div class="col-md-8" style="height:100%;">' );
+				$('#dispersion').append( '<h2 class="pb-2 mt-4 mb-2 border-bottom">Clusters size summary</h2>');
+				//$('#dispersion').append( '<h1 class="page-header">Clusters size summary<h1/>' );
+				$('#dispersion').append('<div id="twofigs" class="row"></div>');
+				$('#twofigs').append( '<div class="col-12 col-md-8"" style="height:100%;">' );
 				$('#dispersion div').last().highcharts( boxplot_param("Clusters size distribution", null, "Cluster size", ["All"], boxplot_series) );
 
 				// Deciles
@@ -538,7 +666,7 @@
 					[9, dispersion['9_decile']],
 					["Max", dispersion['max']]
 				];
-				$('#dispersion').append( '<div class="col-md-4">' );
+				$('#twofigs').append( '<div class="col-12 col-md-4"">' );
 				$('#dispersion div').last().append( table("Clusters size distribution (decile)", ["Decile", "Value"], decile_data) );
 				
 				// Details
@@ -551,15 +679,19 @@
 					var cluster_prct = Math.round((series[0]['data'][idx]/cluster_sum)*10000)/100 ;
 					distrib_data.push([ clusters_sizes[idx], series[0]['data'][idx], cluster_prct ]);
 				}
+				$('#dispersion').append( '<h2 class="pb-2 mt-4 mb-2 border-bottom">Clusters size details</h2>');
 				$('#dispersion').append( '<div class="col-md-12"></div>' );
-				$('#dispersion div').last().append( '<h1 class="page-header">Clusters size details<h1/>' );
+				//$('#dispersion div').last().append( '<h1 class="page-header">Clusters size details<h1/>' );
 				$('#dispersion div').last().append( table("Clusters size", ["Cluster size", "Number of cluster", "% of all clusters"], distrib_data) );
 				$('#dispersion table').last().prop( 'id', 'dispersion-table' );
 				$('#' + container_id + ' table').last().DataTable({
-					"sDom": '<"top"<"#dispersion-csv-export"><"clear">lf>rt<"bottom"ip><"clear">'
+					dom: 	"<'#dispersion-csv-export'><'row'<'col-sm-5'l><'col-sm-7'f>>" +
+							"<'row'<'col-sm-12'tr>>" +
+							"<'row'<'col-sm-5'i><'col-sm-7'p>>"
+					//"sDom": '<"top"<"#dispersion-csv-export"><"clear">lf>rt<"bottom"ip><"clear">'
 				});
 				$('#dispersion-csv-export').addClass( 'dataTables_filter' );
-				$('#dispersion-csv-export').html( '<button class="btn btn-primary"><span class="glyphicon glyphicon-open-file" aria-hidden="true">CSV</span></button>' );
+				$('#dispersion-csv-export').html( '<button class="btn"><span class="fa fa-download" aria-hidden="true"> CSV</span></button>' );
 				$('#dispersion-csv-export').datatableExport({
 					'table_id': "dispersion-table"
 				});
@@ -581,10 +713,13 @@
 				$('#' + container_id).html( table("Samples information", ["Sample", "Total clusters", "Shared clusters", "Own clusters", "Total sequences", "Shared sequences", "Own sequences"], table_data) );
 				$('#' + container_id + ' table').prop( 'id', 'samples-table' );
 				$('#' + container_id + ' table').DataTable({
-					"sDom": '<"top"<"#samples-csv-export"><"clear">lf>rt<"bottom"ip><"clear">'
+					dom: 	"<'#samples-csv-export'><'row'<'col-sm-5'l><'col-sm-7'f>>" +
+							"<'row'<'col-sm-12'tr>>" +
+							"<'row'<'col-sm-5'i><'col-sm-7'p>>"
+					//"sDom": '<"top"<"#samples-csv-export"><"clear">lf>rt<"bottom"ip><"clear">'
 				});
 				$('#samples-csv-export').addClass( 'dataTables_filter' );
-				$('#samples-csv-export').html( '<button class="btn btn-primary"><span class="glyphicon glyphicon-open-file" aria-hidden="true">CSV</span></button>' );
+				$('#samples-csv-export').html( '<button class="btn"><span class="fa fa-download" aria-hidden="true"> CSV</span></button>' );
 				$('#samples-csv-export').datatableExport({
 					'table_id': "samples-table"
 				});
@@ -644,7 +779,7 @@
 				// Display newick
 				$('#' + container_id).append( '' +
 					'<div id="hc-newick">' +
-					'    <span class="label label-primary label-badge">Newick</span>' +
+					'    <span class="badge badge-primary label-badge">Newick</span>' +
 					'    <span>' + newick + '</span>' +
 					'</div>'
 				);
@@ -750,9 +885,9 @@
 		
 		<div id="content" class="hidden">
 			<ul class="nav nav-tabs">
-				<li role="presentation" class="active"><a href="#cluster-distrib">Clusters distribution</a></li>
-				<li role="presentation"><a href="#sequence-distrib">Sequences distribution</a></li>
-				<li role="presentation"><a href="#samples-distrib">Samples distribution</a></li>
+				<li class="nav-item active"><a class="nav-link active" href="#cluster-distrib">Clusters distribution</a></li>
+				<li class="nav-item active"><a class="nav-link" href="#sequence-distrib">Sequences distribution</a></li>
+				<li class="nav-item active"><a class="nav-link" href="#samples-distrib">Samples distribution</a></li>
 			</ul>
 			<div class="tab-content">
 				<div id="cluster-distrib" role="tabpanel" class="tab-pane active">
@@ -766,11 +901,11 @@
 				<div id="sequence-distrib" role="tabpanel" class="tab-pane disabled"></div>
 				<div id="samples-distrib" role="tabpanel" class="tab-pane disabled">
 					<div>
-						<h1 class="page-header">Sequences count</h1>
+						<h2 class="pb-2 mt-4 mb-2 border-bottom">Sequences count</h2>
 						<div id="samples-distrib-table"></div>
 					</div>
 					<div>
-						<h1 class="page-header">Hierarchical clustering</h1>
+						<h2 class="pb-2 mt-4 mb-2 border-bottom">Hierarchical clustering</h2>
 						<div id="samples-distrib-hc"></div>
 					</div>
 				</div>

@@ -561,7 +561,7 @@ def get_vsearch_version():
         cmd = ["vsearch", "--version"]
         p = Popen(cmd, stdout=PIPE, stderr=PIPE)
         stdout, stderr = p.communicate()
-        version = stdout.split(",")[0].split()[1] # vsearch v1.1.3_linux_x86_64, 126.0GB RAM, 32 cores
+        version = stderr.split(",")[0].split()[1] # vsearch v1.1.3_linux_x86_64, 126.0GB RAM, 32 cores           
     except:
         version = "unknown"
     return version

@@ -15,11 +15,11 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
-<tool id="FROGS_filters" name="FROGS Filters" version="1.3.0">
+<tool id="FROGS_filters" name="FROGS Filters" version="r3.0-3.2">
 	<description>Filters OTUs on several criteria.</description>
 	<command interpreter="python2.7">
 		filters.py
-			--nb-cpus $nb_cpu 
+			--nb-cpus \${GALAXY_SLOTS:-1} 
 			--input-biom $input_biom  
 			--input-fasta $input_fasta
 			--output-fasta $output_fasta
@@ -65,9 +65,6 @@
 		<!-- Files -->
 		<param format="fasta" name="input_fasta" type="data" label="Sequences file" help="The sequence file to filter (format: fasta)." />
 		<param format="biom1" name="input_biom" type="data" label="Abundance file" help="The abundance file to filter (format: BIOM)." />
-
-   		<!-- Parameters -->
-		<param name="nb_cpu" type="hidden" label="CPU number" help="The maximum number of CPUs used." value="1"></param>
 		
 		<conditional name="abundance_filters">
 			<param name="abundance_filters_areApplied" type="select" label=" *** THE FILTERS ON OTUS IN SAMPLES, OTUS SIZE and SEQUENCE PERCENTAGE" help="If you want to filter OTUs on their abundance and occurrence." >
@@ -117,7 +114,7 @@
 		</conditional>
 		
 		<conditional name="contaminations_filter">
-			<param name="contaminations_filter_isApplied" type="select" label=" *** THE FILTERS ON CONTAMINATIONS" help="If you want to filter OTUs on classical contaminations.">
+			<param name="contaminations_filter_isApplied" type="select" label="Contaminant databank" help="The phiX databank (the phiX is a control added in Illumina sequencing technologies).">
 				<option value="no">No filters</option>
 				<option value="yes">Apply filters</option>
 			</param>
@@ -251,11 +248,10 @@ Contacts: frogs@inra.fr
 Repository: https://github.com/geraldinepascal/FROGS
 website: http://frogs.toulouse.inra.fr/
 
-Please cite the **FROGS article**: *Escudie F., et al. Bioinformatics, 2017. FROGS: Find, Rapidly, OTUs with Galaxy Solution.*
+Please cite the **FROGS article**: *Escudie F., et al. Bioinformatics, 2018. FROGS: Find, Rapidly, OTUs with Galaxy Solution.*
 
 	</help>
 	<citations>
 		<citation type="doi">10.1093/bioinformatics/btx791</citation>
 	</citations>
-
 </tool>

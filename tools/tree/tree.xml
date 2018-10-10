@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
-<tool id="FROGS_Tree" name="FROGS Tree" version="1.0.0">
+<tool id="FROGS_Tree" name="FROGS Tree" version="r3.0-1.0">
 	<description>Reconstruction of phylogenetic tree </description>
 	<command interpreter="python2.7">tree.py 
                                             --input-otu $input_otu
@@ -23,7 +23,7 @@
                                             --template-pynast ${template.template_pynast}
                                               #end if
                                             --biomfile $biomfile
-                                            --nb-cpus $nb_cpus
+                                            --nb-cpus \${GALAXY_SLOTS:-1}
                                             --out-tree $out_tree
                                             --html $html
 	</command>
@@ -42,8 +42,6 @@
         <param format="biom1" name="biomfile" type="data" label="Biom file" help="The abundance table of OTUs (format: biom)." optional="false">
             <validator type="empty_field" message="This parameter is required." />
         </param>
-        <!-- Parameter -->
-        <param name="nb_cpus" type="hidden" label="CPU number" help="The maximum number of CPUs used." value="1" />	
     </inputs>
 	<outputs>
 		<data format="nhx" name="out_tree" label="${tool.name}: tree.nwk" from_work_dir="tree.nwk"/>
@@ -110,7 +108,7 @@ Contacts: frogs@inra.fr
 Repository: https://github.com/geraldinepascal/FROGS
 website: http://frogs.toulouse.inra.fr/
 
-Please cite the **FROGS article**: *Escudie F., et al. Bioinformatics, 2017. FROGS: Find, Rapidly, OTUs with Galaxy Solution.*
+Please cite the **FROGS article**: *Escudie F., et al. Bioinformatics, 2018. FROGS: Find, Rapidly, OTUs with Galaxy Solution.*
 
 	</help>
 	<citations>

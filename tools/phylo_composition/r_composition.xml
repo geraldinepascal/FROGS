@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
-<tool id="FROGSSTAT_Phyloseq_Composition_Visualisation" name="FROGSSTAT Phyloseq Composition Visualisation" version="1.0.0">
+<tool id="FROGSSTAT_Phyloseq_Composition_Visualisation" name="FROGSSTAT Phyloseq Composition Visualisation" version="r3.0-1.0">
 	<description>with bar plot and composition plot</description>
 	<command interpreter="python2.7">r_composition.py 
                                               --rdata $data 
@@ -113,7 +113,7 @@ Contacts: frogs@inra.fr
 Repository: https://github.com/geraldinepascal/FROGS
 website: http://frogs.toulouse.inra.fr/
 
-Please cite the **FROGS article**: *Escudie F., et al. Bioinformatics, 2017. FROGS: Find, Rapidly, OTUs with Galaxy Solution.*
+Please cite the **FROGS article**: *Escudie F., et al. Bioinformatics, 2018. FROGS: Find, Rapidly, OTUs with Galaxy Solution.*
 
 	</help>
 	<citations>

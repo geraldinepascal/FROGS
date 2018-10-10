@@ -19,7 +19,7 @@
 __author__ = 'Plateforme bioinformatique Toulouse and SIGENAE'
 __copyright__ = 'Copyright (C) 2015 INRA'
 __license__ = 'GNU General Public License'
-__version__ = '1.2.0'
+__version__ = 'r3.0-2.0'
 __email__ = 'frogs@inra.fr'
 __status__ = 'prod'
 

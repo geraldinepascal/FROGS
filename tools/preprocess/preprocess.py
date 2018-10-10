@@ -16,10 +16,10 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-__author__ = 'Frederic Escudie - Plateforme bioinformatique Toulouse'
+__author__ = 'Frederic Escudie - Plateforme bioinformatique Toulouse / Maria Bernard - SIGENAE Jouy en Josas'
 __copyright__ = 'Copyright (C) 2015 INRA'
 __license__ = 'GNU General Public License'
-__version__ = '1.7.0'
+__version__ = 'r3.0-3.0'
 __email__ = 'frogs@inra.fr'
 __status__ = 'prod'
 
@@ -45,7 +45,7 @@ if os.getenv('PYTHONPATH') is None: os.environ['PYTHONPATH'] = LIB_DIR
 else: os.environ['PYTHONPATH'] = os.environ['PYTHONPATH'] + os.pathsep + LIB_DIR
 
 from frogsUtils import *
-from frogsSequenceIO import SequenceFileReader
+from frogsSequenceIO import *
 
 
 ##################################################################################################################################################
@@ -53,25 +53,32 @@ from frogsSequenceIO import SequenceFileReader
 # COMMAND LINES
 #
 ##################################################################################################################################################
-class Flash(Cmd):
+
+class Pear(Cmd):
     """
-    @summary: Overlapping and merging mate pairs from fragments shorter than twice the length of reads. The others fragments are discarded.
+    @summary: Overlapping and merging mate pairs from fragments shorter than twice the length of reads.
     """
-    def __init__(self, in_R1, in_R2, out_join, param):
+    def __init__(self, in_R1, in_R2, out_prefix, pear_log, param):
         """
         @param in_R1: [str] Path to the R1 fastq file.
         @param in_R2: [str] Path to the R2 fastq file.
-        @param out_join: [str] Path to the output fastq file.
-        @param param: [Namespace] The 'param.min_amplicon_size', 'param.max_amplicon_size', 'param.expected_amplicon_size' and param.mismatch_rate'
+        @param out_prefix: [str] Prefix of path to the output fastq files.
+        @param pear_log: [str] Path to log file
+        @param param: [Namespace] The 'param.min_amplicon_size', 'param.max_amplicon_size', 'param.R1_size', 'param.R2_size'
         """
-        min_overlap = max(1,(param.R1_size + param.R2_size) - param.max_amplicon_size )
-        max_expected_overlap = (param.R1_size + param.R2_size) - param.expected_amplicon_size + min(20, int((param.expected_amplicon_size - param.min_amplicon_size)/2))
-        Cmd.__init__( self,
-                      'flash',
-                      'Join overlapping paired reads.',
-                      '--threads 1 --min-overlap ' + str(min_overlap) + ' --max-overlap ' + str(max_expected_overlap) + '  --max-mismatch-density ' + str(param.mismatch_rate) +' --compress ' + in_R1 + ' ' + in_R2 + ' --to-stdout > ' + out_join + ' 2> /dev/null',
-                      '--version' )
-        self.output = out_join
+        min_overlap=max(param.R1_size+param.R2_size-param.max_amplicon_size, 10)
+        max_assembly_length=min(param.max_amplicon_size, param.R1_size + param.R2_size -10)
+        min_assembly_length=param.min_amplicon_size 
+
+        Cmd.__init__(self,
+            'pear',
+            'join overlapping paired reads',
+             ' --forward-fastq ' + in_R1 + ' --reverse-fastq ' + in_R2 +' --output ' + out_prefix \
+             + ' --min-overlap ' + str(min_overlap) + ' --max-assembly-length ' + str(max_assembly_length) + ' --min-assembly-length ' + str(min_assembly_length) \
+             + ' --keep-original > ' + pear_log,
+             ' --version')
+
+        self.output = out_prefix + '.assembled.fastq'
 
     def get_version(self):
         """
@@ -86,31 +93,42 @@ class Flash(Cmd):
         @log_file: [str] Path to the sample process log file.
         """
         # Parse output
-        nb_seq = get_fastq_nb_seq(self.output)
+        nb_seq_merged = get_nb_seq(self.output)
         # Write result
         FH_log = Logger( log_file )
         FH_log.write( 'Results:\n' )
-        FH_log.write( '\tnb seq overlapped: ' + str(nb_seq) + '\n' )
+        FH_log.write( '\tnb seq paired-end assembled: ' + str(nb_seq_merged) + '\n' )
         FH_log.close()
 
-
-class LengthFilter(Cmd):
+class Flash(Cmd):
     """
-    @summary: Filters sequences by length.
+    @summary: Overlapping and merging mate pairs from fragments shorter than twice the length of reads. The others fragments are discarded.
     """
-    def __init__(self, in_fastq, out_fastq, log_file, param):
+    def __init__(self, in_R1, in_R2, out_join_prefix , flash_err, param):
         """
-        @param in_fastq: [str] Path to the processed fastq.
-        @param out_fastq: [str] Path to the fastq with valid sequences.
-        @param log_file: [str] Path to the log file.
-        @param param: [Namespace] The 'param.min_amplicon_size' and 'param.max_amplicon_size'.
+        @param in_R1: [str] Path to the R1 fastq file.
+        @param in_R2: [str] Path to the R2 fastq file.
+        @param out_join_prefix: [str] Path to the output fastq file.
+        @param flash_err: [str] Path to the temporary stderr output file
+        @param param: [Namespace] The 'param.min_amplicon_size', 'param.max_amplicon_size', 'param.expected_amplicon_size', 'param.fungi' and param.mismatch_rate'
         """
+        #min_overlap = max(1,(param.R1_size + param.R2_size) - param.max_amplicon_size )
+        min_overlap=max(param.R1_size+param.R2_size-param.max_amplicon_size, 10)
+        max_expected_overlap = (param.R1_size + param.R2_size) - param.expected_amplicon_size + min(20, int((param.expected_amplicon_size - param.min_amplicon_size)/2))
+        
         Cmd.__init__( self,
-                      'filterSeq.py',
-                      'Filters amplicons by length.',
-                      '--compress --min-length ' + str(param.min_amplicon_size) + ' --max-length ' + str(param.max_amplicon_size) + ' --input-file ' + in_fastq + ' --output-file ' + out_fastq + ' --log-file ' + log_file,
-                      '--version' )
-        self.program_log = log_file
+                      'flash',
+                      'Join overlapping paired reads.',
+                      '--threads 1 --allow-outies --min-overlap ' + str(min_overlap) + ' --max-overlap ' + str(max_expected_overlap) + ' --max-mismatch-density ' + str(param.mismatch_rate) +'  --compress ' + in_R1 + ' ' + in_R2 + ' --output-directory '+ os.path.dirname(out_join_prefix) + ' --output-prefix ' + os.path.basename(out_join_prefix) +' 2> ' + flash_err,
+                      ' --version' )
+        self.output = out_join_prefix + ".extendedFrags.fastq.gz"
+
+    def get_version(self):
+        """
+        @summary: Returns the program version number.
+        @return: version number if this is possible, otherwise this method return 'unknown'.
+        """
+        return Cmd.get_version(self, 'stdout').split()[1].strip()
 
     def parser(self, log_file):
         """
@@ -118,21 +136,57 @@ class LengthFilter(Cmd):
         @log_file: [str] Path to the sample process log file.
         """
         # Parse output
-        FH_log_filter = open( self.program_log )
-        nb_processed = 0
-        filtered_on_length = 0
-        for line in FH_log_filter:
-            if line.startswith('Nb seq filtered on length'):
-                filtered_on_length = int(line.split(':')[1].strip())
-            elif line.startswith('Nb seq processed'):
-                nb_processed = int(line.split(':')[1].strip())
-        FH_log_filter.close()
+        nb_seq_merged = get_nb_seq(self.output)
         # Write result
         FH_log = Logger( log_file )
         FH_log.write( 'Results:\n' )
-        FH_log.write( '\tnb seq with expected length : ' + str(nb_processed - filtered_on_length) + '\n' )
+        FH_log.write( '\tnb seq paired-end assembled: ' + str(nb_seq_merged) + '\n' )
         FH_log.close()
 
+class Vsearch(Cmd):
+    """
+    @summary: Overlapping and merging mate pairs from fragments shorter than twice the length of reads.
+    """
+    def __init__(self, in_R1, in_R2, out_prefix, log, param):
+        """
+        @param in_R1: [str] Path to the R1 fastq file.
+        @param in_R2: [str] Path to the R2 fastq file.
+        @param out_prefix: [str] Prefix of path to the output fastq files.
+        @param pear_log: [str] Path to log file
+        @param param: [Namespace] The 'param.min_amplicon_size', 'param.max_amplicon_size', 'param.R1_size', 'param.R2_size'
+        """
+        min_overlap=max(param.R1_size+param.R2_size-param.max_amplicon_size, 10)
+        max_diff = int(min(param.R1_size, param.R2_size)*param.mismatch_rate)
+
+        Cmd.__init__(self,
+            'vsearch',
+            'join overlapping paired reads',
+             ' --threads 1 --fastq_mergepairs ' + in_R1 + ' --reverse ' + in_R2 \
+             + ' --fastqout ' + out_prefix + '.assembled.fastq ' + ' --fastqout_notmerged_fwd ' + out_prefix + '.unassembled_R1.fastq ' + ' --fastqout_notmerged_rev ' + out_prefix + '.unassembled_R2.fastq '\
+             + ' --fastq_allowmergestagger --fastq_ascii ' + param.quality_scale + ' --fastq_maxdiffs ' + str(max_diff) + ' --fastq_minovlen ' + str(min_overlap) \
+             + ' 2> ' + log,
+             '--version')
+
+        self.output = out_prefix + '.assembled.fastq'
+
+    def get_version(self):
+        """
+        @summary: Returns the program version number.
+        @return: version number if this is possible, otherwise this method return 'unknown'.
+        """
+        return Cmd.get_version(self, 'stderr').split(",")[0].split()[1] # vsearch v1.1.3_linux_x86_64, 126.0GB RAM, 32 cores           
+
+    def parser(self, log_file):
+        """
+        @summary: Parse the command results to add information in log_file.
+        @log_file: [str] Path to the sample process log file.
+        """
+        nb_seq_merged = get_nb_seq(self.output)
+        # Write result
+        FH_log = Logger( log_file )
+        FH_log.write( 'Results:\n' )
+        FH_log.write( '\tnb seq paired-end assembled: ' + str(nb_seq_merged) + '\n' )
+        FH_log.close()
 
 class Remove454prim(Cmd):
     """
@@ -259,25 +313,31 @@ class MultiFilter(Cmd):
     """
     @summary : Filters sequences.
     """
-    def __init__(self, in_fastq, out_fasta, log_file, param):
+    def __init__(self, in_fastq, min_len, max_len, tag, out_fasta, log_file, param):
         """
         @param in_fastq: [str] Path to the processed fastq.
+        @param min_len, max_len [int] : minimum and maximum length filter criteria
+        @param tag [str] : check the presence of tag in sequence.
         @param out_fasta: [str] Path to the fasta with valid sequences.
         @param log_file: [str] Path to the log file.
-        @param param: [Namespace] The 'param.min_amplicon_size', ['param.five_prim_primer'], ['param.three_prim_primer'].
+        @param param: [Namespace] The 'param.sequencer'
         """
         cmd_description = 'Filters amplicons without primers by length and N count.',
         add_options = ""
         if param.sequencer == "454":
             cmd_description = 'Filters amplicons without primers by length, N count, homopolymer length and distance between quality low quality.',
-            add_options = " --max-homopolymer 7 --qual-window threshold:10 win_size:10"
-        primers_size = 0
-        if param.five_prim_primer is not None: primers_size += len(param.five_prim_primer)
-        if param.three_prim_primer is not None: primers_size += len(param.three_prim_primer)
+            add_options = ' --max-homopolymer 7 --qual-window threshold:10 win_size:10'
+        if min_len > -1:
+            add_options += ' --min-length ' + str(min_len)
+        if max_len > -1:
+            add_options += ' --max-length ' + str(max_len)
+        if not tag is None:
+            add_options += ' --tag ' + tag
+
         Cmd.__init__( self,
                       'filterSeq.py',
                       'Filters amplicons without primers by length and N count.',
-                      '--force-fasta --max-N 0 --min-length ' + str(param.min_amplicon_size - primers_size) +  ' --max-length ' + str(param.max_amplicon_size - primers_size) + add_options + ' --input-file ' + in_fastq + ' --output-file ' + out_fasta + ' --log-file ' + log_file,
+                      '--force-fasta --max-N 0' + add_options + ' --input-file ' + in_fastq + ' --output-file ' + out_fasta + ' --log-file ' + log_file,
                       '--version' )
         self.program_log = log_file
 
@@ -290,12 +350,15 @@ class MultiFilter(Cmd):
         FH_log_filter = open( self.program_log )
         nb_processed = 0
         filtered_on_length = None
+        filtered_on_tag = None
         filtered_on_N = None
         filtered_on_homopolymer = None
         filtered_on_quality = None
         for line in FH_log_filter:
             if line.startswith('Nb seq filtered on length'):
                 filtered_on_length = int(line.split(':')[1].strip())
+            if line.startswith('Nb seq filtered on absence of tag'):
+                filtered_on_tag = int(line.split(':')[1].strip())
             elif line.startswith('Nb seq filtered on N'):
                 filtered_on_N = int(line.split(':')[1].strip())
             elif line.startswith('Nb seq filtered on homopolymer'):
@@ -309,6 +372,9 @@ class MultiFilter(Cmd):
         previous_nb_seq = nb_processed
         FH_log = Logger( log_file )
         FH_log.write( 'Results:\n' )
+        if filtered_on_tag is not None:
+            FH_log.write( '\t(nb seq with expected tag : ' + str(previous_nb_seq - filtered_on_tag) + ')\n' )
+            previous_nb_seq -= filtered_on_tag
         if filtered_on_length is not None:
             FH_log.write( '\tnb seq with expected length : ' + str(previous_nb_seq - filtered_on_length) + '\n' )
             previous_nb_seq -= filtered_on_length
@@ -323,6 +389,60 @@ class MultiFilter(Cmd):
             previous_nb_seq -= filtered_on_quality
         FH_log.close()
 
+class Combined(Cmd):
+    """
+    @summary : Artificially combined reads by adding a combined tag
+    """
+    def __init__(self, in_R1, in_R2, join_tag , out_join_file ):
+        """
+        @param input1  : [str] Path to sequence 5' (fasta/q format)
+        @param input2  : [str] Path to sequence 3' (fasta/q format)
+        @param join_tag     : [str] the sequence tag to add between sequences
+        @param out_join_file     : [str] Path to fasta/q combined sequence output file
+        """
+        Cmd.__init__( self,
+                      'combine_and_split.py',
+                      'Concatenate paired reads.',
+                      ' --reads1 ' + in_R1+ ' --reads2 ' + in_R2 + ' -c ' + join_tag + ' --combined-output ' + out_join_file,
+                      '--version' )
+        self.output = out_join_file
+
+    def get_version(self):   
+        return Cmd.get_version(self, 'stdout').strip()
+
+    def parser(self, log_file):
+        """
+        @summary: Parse the command results to add information in log_file.
+        @log_file: [str] Path to the sample process log file.
+        """
+        # Parse output
+        nb_seq_combined = get_nb_seq(self.output)
+        # Write result
+        FH_log = Logger( log_file )
+        FH_log.write( 'Results:\n' )
+        FH_log.write( '\tnb seq paired-end assembled: ' + str(nb_seq_combined) + '\n' )
+        FH_log.close()
+
+
+class ReplaceJoinTag(Cmd):
+    """
+    @summary : Replace join tag
+    """
+    def __init__(self, combined_input , split_tag , join_tag , out_join_file ):
+        """
+        @param combined_input  : [str] Path to combined sequence 
+        @param split_tag     : [str] the sequence tag on which to split sequences
+        @param join_tag     : [str] the sequence tag to add between sequences
+        @param out_join_file     : [str] Path to fasta/q combined sequence output file
+        """
+        Cmd.__init__( self,
+                      'combine_and_split.py',
+                      'Replace join tag.',
+                      ' --reads1 ' + combined_input + ' -s ' + split_tag + ' -c ' + join_tag + ' --combined-output ' + out_join_file,
+                      '--version' )
+
+    def get_version(self):   
+        return Cmd.get_version(self, 'stdout').strip()
 
 class DerepBySample(Cmd):
     """
@@ -341,7 +461,7 @@ class DerepBySample(Cmd):
                       '--version' )
 
 
-class DerepGlobal(Cmd):
+class DerepGlobalMultiFasta(Cmd):
     """
     @summary: Dereplicates together sequences from several files.
     """
@@ -367,6 +487,24 @@ class DerepGlobal(Cmd):
                       "--nb-cpus " + str(param.nb_cpus) + " --size-separator ';size=' --samples-ref " + out_samples_ref + " --dereplicated-file " + out_fasta + " --count-file " + out_count,
                       '--version' )
 
+class DerepGlobalFastaCount(Cmd):
+    """
+    @summary: Dereplicates together sequences from several files.
+    """
+    def __init__(self, fasta, count, out_fasta, out_count, param):
+        """
+        @param fasta: [str] Path to the processed fasta.
+        @param count: [str] Path to the processed count.
+        @param out_fasta: [str] Path to the dereplicated fasta.
+        @param out_count: [str] Path to the count file. It contains the count by sample for each representative sequence.
+        @param param: [str] The 'param.nb_cpus'.
+        """
+        # Init
+        Cmd.__init__( self,
+                      'derepSamples.py',
+                      'Dereplicates together sequences from several samples based on one fasta file and one count file.',
+                      "--nb-cpus " + str(param.nb_cpus) + " --size-separator ';size=' --sequences-file " + fasta + " --samples-count " + count + " --dereplicated-file " + out_fasta + " --count-file " + out_count,
+                      '--version' )
 
 ##################################################################################################################################################
 #
@@ -393,29 +531,96 @@ def get_seq_length( input_file, size_separator=None ):
     FH_seq.close()
     return nb_by_length
 
-def summarise_results( summary_file, samples_names, lengths_files, log_files ):
+def get_seq_length_by_sample( input_file, count_file):
+    """
+    @summary: Returns the number of sequences by sequences lengths.
+    @param input_file: [str] The sequence file path.
+    @param count_file: [str] The sequence abondance count file by sample.
+    @param size_separator: [str] If it exists the size separator in sequence ID.
+    @return: [dict] By sample and by sequences lengths the number of sequence.
+    """
+    nb_by_length = dict()
+    samples_names = list()
+    sample_by_seq = dict()
+
+    FH_count = open(count_file)
+    for line in FH_count :
+        if line.startswith("#id") : 
+            samples_names = line.strip().split("\t")[1:]
+            nb_by_length = {s:{} for s in samples_names}
+        else:
+            seq_id = line.split()[0]
+            if not "FROGS_combined" in seq_id :
+                sample_by_seq[seq_id]= { samples_names[idx-1]:int(count) for idx,count in enumerate(line.strip().split()[1:]) if int(count) > 0 }
+    FH_count.close()
+
+    FH_seq = SequenceFileReader.factory( input_file )
+    for record in FH_seq:
+        if "FROGS_combined" in record.id:
+            continue
+        nb_seq = sample_by_seq[record.id.split(";size=")[0]]
+        seq_length = len(record.string)
+        for sample_name in nb_seq :
+            if not nb_by_length[sample_name].has_key(str(seq_length)):
+                nb_by_length[sample_name][str(seq_length)] = 0
+            nb_by_length[sample_name][str(seq_length)] += nb_seq[sample_name]
+    FH_seq.close()
+    return nb_by_length
+
+def summarise_results( samples_names, lengths_files, log_files, param ):
     """
     @summary: Writes one summary of results from several logs.
-    @param summary_file: [str] The output file.
     @param samples_names: [list] The samples names.
-    @param log_files: [list] The list of path to log files (in samples_names order).
     @param lengths_files: [list] The list of path to files containing the contiged sequences lengths (in samples_names order).
+    @param log_files: [list] The list of path to log files (in samples_names order).
+    @param param: [str] The 'param.summary' .
     """
     # Get data
     categories = get_filter_steps(log_files[0])
-    filters_by_sample = dict()
+    if args.already_contiged and args.sequencer == "illumina":
+        categories.insert(1,"input sequences")
+    elif args.sequencer == "454":
+        categories.insert(1,"input sequences")
+    filters_by_sample = {"before process":{}, "merged":{}}
     before_lengths_by_sample = dict()
     after_lengths_by_sample = dict()
+    
+    # recover all filter by sample
     for spl_idx, spl_name in enumerate(samples_names):
-        filters_by_sample[spl_name] = get_sample_resuts(log_files[spl_idx])
+
+        filters = get_sample_results(log_files[spl_idx])
+        filters_by_sample["before process"][spl_name] = filters["before process"]
+        filters_by_sample["merged"][spl_name] = filters["merged"]
+        # add input sequences in table
+        if args.already_contiged and args.sequencer == "illumina":
+            filters_by_sample["merged"][spl_name]["input sequences"] = filters["before process"]
+        if args.sequencer == "454":
+            filters_by_sample["merged"][spl_name]["input sequences"] = filters["before process"]
+
+        if "artificial combined" in filters:
+            if not "artificial combined" in filters_by_sample:
+                filters_by_sample["artificial combined"] = {}
+            filters_by_sample["artificial combined"][spl_name] = filters["artificial combined"]
+        
+        # length distribution
         with open(lengths_files[spl_idx]) as FH_lengths:
             lenghts = json.load(FH_lengths)
             before_lengths_by_sample[spl_name] = lenghts["before"]
             after_lengths_by_sample[spl_name] = lenghts["after"]
 
+    # check length
+    b_count= 0
+    a_count = 0
+    
+    for sample in samples_names:
+        for l in before_lengths_by_sample[sample]:
+            b_count += before_lengths_by_sample[sample][l]
+        for l in after_lengths_by_sample[sample]:
+            a_count += after_lengths_by_sample[sample][l]
+    
     # Write
     FH_summary_tpl = open( os.path.join(CURRENT_DIR, "preprocess_tpl.html") )
-    FH_summary_out = open( summary_file, "w" )
+    FH_summary_out = open( param.summary, "w" )
     for line in FH_summary_tpl:
         if "###FILTERS_CATEGORIES###" in line:
             line = line.replace( "###FILTERS_CATEGORIES###", json.dumps(categories) )
@@ -439,23 +644,31 @@ def get_filter_steps( log_file ):
     FH_input = open(log_file)
     for line in FH_input:
         if line.strip().startswith('nb seq') and not line.strip().startswith('nb seq before process'):
-            steps.append( line.split('nb seq')[1].split(':')[0].strip() )
+            step = line.split('nb seq')[1].split(':')[0].strip()
+            if not step in steps:
+                steps.append( step )
     FH_input.close()
     return steps
 
-def get_sample_resuts( log_file ):
+def get_sample_results( log_file ):
     """
     @summary: Returns the sample results (number of sequences after each filters).
     @param log_file: [str] Path to a log file.
     @return: [list] The number of sequences after each filter.
     """
-    nb_seq = list()
+    nb_seq = {"before process":0, "merged":{}}
     FH_input = open(log_file)
+    key="merged"
     for line in FH_input:
+        if "combine_and_split" in line:
+            key="artificial combined"
+            if not nb_seq.has_key(key):
+                nb_seq[key]={}
         if line.strip().startswith('nb seq before process'):
-            nb_seq.append( int(line.split(':')[1].strip()) )
+            nb_seq["before process"] = int(line.split(':')[1].strip())
         elif line.strip().startswith('nb seq'):
-            nb_seq.append( int(line.split(':')[1].strip()) )
+            step = line.split('nb seq')[1].split(':')[0].strip() 
+            nb_seq[key][step] = int(line.split(':')[1].strip()) 
     FH_input.close()
     return nb_seq
 
@@ -550,81 +763,111 @@ def is_gzip( file ):
         FH_input.close()
     return is_gzip
 
-def get_fastq_nb_seq( fastq_file ):
+def get_nb_seq( reads_file ):
     """
-    @summary: Returns the number of sequences in fastq_file.
-    @param fastq_file: [str] Path to the fastq file processed.
+    @summary: Returns the number of sequences
+    @param reads_file: [str] Path to the fasta/q file processed.
     @return: [int] The number of sequences.
     """
     FH_input = None
-    if not is_gzip(fastq_file):
-        FH_input = open( fastq_file )
+    if not is_gzip(reads_file):
+        FH_input = open( reads_file )
     else:
-        FH_input = gzip.open( fastq_file )
+        FH_input = gzip.open( reads_file )
     nb_line = 0
     for line in FH_input:
         nb_line += 1
     FH_input.close()
-    nb_seq = nb_line/4
+
+    format = "fastq" if FastqIO.is_valid(reads_file) else "fasta"
+    nb_seq = nb_line/4 if format == "fastq" else nb_line/2
     return nb_seq
 
-def get_fasta_nb_seq( fasta_file ):
-    """
-    @summary: Returns the number of sequences in fasta_file.
-    @param fasta_file: [str] Path to the fasta file processed.
-    @return: [int] The number of sequences.
-    """
-    FH_input = None
-    if not is_gzip(fasta_file):
-        FH_input = open( fasta_file )
-    else:
-        FH_input = gzip.open( fasta_file )
-    nb_seq = 0
-    for line in FH_input:
-        if line.startswith(">"):
-            nb_seq += 1
-    FH_input.close()
-    return nb_seq
 
-def filter_process_multiples_files(R1_files, R2_files, samples_names, out_files, lengths_files, log_files, args):
+def filter_process_multiples_files(R1_files, R2_files, samples_names, out_files, out_art_files, lengths_files, log_files, args):
     """
     @summary: filters sequences of samples.
     @param R1_files: [list] List of path to reads 1 fastq files or contiged files (one by sample).
     @param R2_files: [list] List of path to reads 2 fastq files (one by sample).
     @param samples_names: [list] The list of sample name for each R1/R2-files.
     @param out_files: [list] List of path to the filtered files (one by sample).
+    @param out_art_files: [list] List of path to the artificial combined filtered files (one by sample).
     @param lengths_files: [list] List of path to the outputted files containing the contiged sequences lengths.
     @param log_files: [list] List of path to the outputted log (one by sample). It contains a trace of all the operations and results.
     @param args: [Namespace] Global parameters.
     """
     for idx in range(len(out_files)):
         if args.already_contiged:
-            process_sample( R1_files[idx], None, samples_names[idx], out_files[idx], lengths_files[idx], log_files[idx], args )
+            process_sample( R1_files[idx], None, samples_names[idx], out_files[idx], None, lengths_files[idx], log_files[idx], args )
         else:
-            process_sample( R1_files[idx], R2_files[idx], samples_names[idx], out_files[idx], lengths_files[idx], log_files[idx], args )
+            process_sample( R1_files[idx], R2_files[idx], samples_names[idx], out_files[idx], out_art_files[idx], lengths_files[idx], log_files[idx], args )
 
-def process_sample(R1_file, R2_file, sample_name, out_file, lengths_file, log_file, args):
+def process_sample(R1_file, R2_file, sample_name, out_file, art_out_file, lengths_file, log_file, args):
     """
     @summary: Merges, filters and dereplicates all sequences of one sample.
     @param R1_file: [str] Path to reads 1 fastq file or contiged file of the sample.
     @param R2_file: [str] Path to reads 2 fastq file of the sample.
     @param sample_name: [str] The sample name.
     @param out_file: [str] Path to the filtered file.
+    @param art_out_file: [str] Path to the artificial combined filtered file.
     @param lengths_file: [str] Path to the outputted file containing the contiged sequences lengths.
     @param log_file: [str] Path to the outputted log. It contains a trace of all the operations and results.
     @param args: [Namespace] Global parameters.
     """
+
     tmp_files = TmpFiles( os.path.split(out_file)[0] )
-    out_flash = tmp_files.add( sample_name + '_flash.fastq.gz' )
-    out_lengthFilter = tmp_files.add( sample_name + '_length_filter.fastq.gz' )
-    log_lengthFilter = tmp_files.add( sample_name + '_length_filter_log.txt' )
+    
+    if args.sequencer == "illumina":
+        # FLASH
+        if args.merge_software == "flash":
+            out_contig = tmp_files.add( sample_name + '_flash.extendedFrags.fastq.gz' )
+            out_notcombined_R1 = tmp_files.add( sample_name + '_flash.notCombined_1.fastq.gz' )
+            out_notcombined_R2 = tmp_files.add( sample_name + '_flash.notCombined_2.fastq.gz' )
+            out_contig_log = tmp_files.add(sample_name + '_flash.stderr')
+            # other files to remove
+            tmp_files.add(sample_name + '_flash.hist')
+            tmp_files.add(sample_name + '_flash.histogram')
+
+        # PEAR
+        elif args.merge_software == "pear":
+            out_contig = tmp_files.add( sample_name + '_pear.assembled.fastq' )
+            out_notcombined_R1 = tmp_files.add( sample_name + '_pear.unassembled.forward.fastq' )
+            out_notcombined_R2 = tmp_files.add( sample_name + '_pear.unassembled.reverse.fastq' )
+            out_contig_log = tmp_files.add(sample_name + '_pear.log')
+            tmp_files.add(sample_name + '_pear.discarded.fastq')   # other file to remove
+
+        # VSEARCH
+        elif args.merge_software == "vsearch":
+            out_contig = tmp_files.add( sample_name + '_vsearch.assembled.fastq' )
+            out_notcombined_R1 = tmp_files.add( sample_name + '_vsearch.unassembled_R1.fastq' )
+            out_notcombined_R2 = tmp_files.add( sample_name + '_vsearch.unassembled_R2.fastq' )
+            out_contig_log = tmp_files.add(sample_name + '_vsearch.log')
+
+        out_artificial_combined = tmp_files.add( sample_name + '_artificial_combined.fastq.gz' )
+
+    # CUTADAPT ON COMBINED FILTER
     tmp_cutadapt = tmp_files.add( sample_name + '_cutadapt_5prim_trim.fastq.gz' )
     log_5prim_cutadapt = tmp_files.add( sample_name + '_cutadapt_5prim_log.txt' )
     log_3prim_cutadapt = tmp_files.add( sample_name + '_cutadapt_3prim_log.txt' )
     out_cutadapt = tmp_files.add( sample_name + '_cutadapt.fastq.gz' )
+    # CUTADAPT ON ARTIFICIAL COMBINED
+    art_tmp_cutadapt = tmp_files.add( sample_name + '_art_comb_cutadapt_5prim_trim.fastq.gz' )
+    art_log_5prim_cutadapt = tmp_files.add( sample_name + '_art_comb_cutadapt_5prim_log.txt' )
+    art_log_3prim_cutadapt = tmp_files.add( sample_name + '_art_comb_cutadapt_3prim_log.txt' )
+    art_out_cutadapt = tmp_files.add( sample_name + '_art_comb_cutadapt.fastq.gz' )
+    # MULTIFILTER ON COMBINED FILTERED CUTADAPTED
     out_NAndLengthfilter = tmp_files.add( sample_name + '_N_and_length_filter.fasta' )
     log_NAndLengthfilter = tmp_files.add( sample_name + '_N_and_length_filter_log.txt' )
+    # MULTIFILTER ON ARTIFICIAL COMBINED CUTADAPTED
+    art_out_Nfilter = tmp_files.add( sample_name + '_art_N_filter.fasta' )
+    art_log_Nfilter = tmp_files.add( sample_name + '_art_N_filter_log.txt' )
+    # REPLACE COMBINED TAG X BY N
+    art_out_XtoN = tmp_files.add( sample_name + '_art_XtoN.fasta' )
+    art_log_XtoN = tmp_files.add( sample_name + '_art_XtoN_log.txt' )
+    # FINAL COUNT ON COMBINED FILTERED CUTADAPTED MULTIFILTERED
     out_count = tmp_files.add( sample_name + '_derep_count.tsv' )
+    # FINAL COUNT ON ARTIFICIAL COMBINED CUTADAPTED
+    art_out_count = tmp_files.add( sample_name + '_derep_count.tsv' )
 
     try:
         # Start log
@@ -633,38 +876,74 @@ def process_sample(R1_file, R2_file, sample_name, out_file, lengths_file, log_fi
             FH_log.write('##Sample\nR1 : ' + R1_file + '\nR2 : ' + R2_file + '\nSample name : ' + sample_name + '\n')
         else:
             FH_log.write('##Sample\nContiged file : ' + R1_file + '\nSample name : ' + sample_name + '\n')
-        FH_log.write('nb seq before process : ' + str(get_fastq_nb_seq(R1_file)) +'\n' )
+        FH_log.write('nb seq before process : ' + str(get_nb_seq(R1_file)) +'\n' )
         FH_log.write('##Commands\n')
         FH_log.close()
 
         # Commands execution
         if not args.already_contiged:
-            flash_cmd = Flash(R1_file, R2_file, out_flash, args)
-            flash_cmd.submit(log_file)
+            if args.merge_software == "vsearch":
+                vsearch_cmd = Vsearch(R1_file, R2_file, out_contig.replace(".assembled.fastq",""), out_contig_log, args)
+                vsearch_cmd.submit(log_file)
+            elif args.merge_software == "flash":
+                flash_cmd = Flash(R1_file, R2_file, out_contig.replace(".extendedFrags.fastq.gz",""), out_contig_log, args)
+                flash_cmd.submit(log_file)
+            elif args.merge_software == "pear":
+                pear_cmd = Pear(R1_file, R2_file, out_contig.replace(".assembled.fastq",""), out_contig_log, args)
+                pear_cmd.submit(log_file)
+                
         else:
-            out_flash = R1_file
+            out_contig = R1_file
         if args.sequencer == "454": # 454
-            if is_gzip( out_flash ):
-                renamed_out_flash = tmp_files.add( sample_name + '_454.fastq.gz' ) # prevent cutadapt problem (type of file is checked by extension)
+            if is_gzip( out_contig ):
+                renamed_out_contig = tmp_files.add( sample_name + '_454.fastq.gz' ) # prevent cutadapt problem (type of file is checked by extension)
             else:
-                renamed_out_flash = tmp_files.add( sample_name + '_454.fastq' ) # prevent cutadapt problem (type of file is checked by extension)
-            shutil.copyfile( out_flash, renamed_out_flash ) # prevent symlink problem
-            Remove454prim(renamed_out_flash, out_cutadapt, log_3prim_cutadapt, args).submit(log_file)
+                renamed_out_contig = tmp_files.add( sample_name + '_454.fastq' ) # prevent cutadapt problem (type of file is checked by extension)
+            shutil.copyfile( out_contig, renamed_out_contig ) # prevent symlink problem
+            Remove454prim(renamed_out_contig, out_cutadapt, log_3prim_cutadapt, args).submit(log_file)
         else: # Illumina
             if args.five_prim_primer and args.three_prim_primer: # Illumina standard sequencing protocol
-                LengthFilter(out_flash, out_lengthFilter, log_lengthFilter, args).submit(log_file)
-                Cutadapt5prim(out_lengthFilter, tmp_cutadapt, log_5prim_cutadapt, args).submit(log_file)
+                Cutadapt5prim(out_contig, tmp_cutadapt, log_5prim_cutadapt, args).submit(log_file)
                 Cutadapt3prim(tmp_cutadapt, out_cutadapt, log_3prim_cutadapt, args).submit(log_file)
             else: # Custom sequencing primers. The amplicons is full length (Illumina) except PCR primers (it is use as sequencing primers). [Protocol Kozich et al. 2013]
-                out_cutadapt = out_flash
-        MultiFilter(out_cutadapt, out_NAndLengthfilter, log_NAndLengthfilter, args).submit(log_file)
-        DerepBySample(out_NAndLengthfilter, out_file, out_count).submit(log_file)
+                out_cutadapt = out_contig
 
+        primers_size = 0
+        if args.five_prim_primer is not None: primers_size += len(args.five_prim_primer)
+        if args.three_prim_primer is not None: primers_size += len(args.three_prim_primer)
+        min_len = args.min_amplicon_size - primers_size
+        max_len = args.max_amplicon_size - primers_size
+        MultiFilter(out_cutadapt, min_len, max_len, None, out_NAndLengthfilter, log_NAndLengthfilter, args).submit(log_file)
+        
         # Get length before and after process
-        nb_before_by_legnth = get_seq_length( out_flash )
-        nb_after_by_legnth = get_seq_length( out_file, ';size=' )
+        length_dict = dict()
+        nb_before_by_legnth = get_seq_length( out_contig )
+        length_dict["before"]=nb_before_by_legnth
+        
+        nb_after_by_legnth = get_seq_length( out_NAndLengthfilter )
+        length_dict["after"] = nb_after_by_legnth
+        
         with open(lengths_file, "w") as FH_lengths:
-            FH_lengths.write( json.dumps({"before":nb_before_by_legnth, "after":nb_after_by_legnth}) )
+            FH_lengths.write( json.dumps(length_dict))
+
+        # dealing with uncontiged reads.
+        if args.keep_unmerged:
+            Combined(out_notcombined_R1, out_notcombined_R2, "X"*100, out_artificial_combined ).submit(log_file)
+            if args.sequencer == "454" :
+                Remove454prim(out_artificial_combined, art_out_cutadapt, art_log_3prim_cutadapt, args).submit(log_file)
+            else:
+                if args.five_prim_primer and args.three_prim_primer: # Illumina standard sequencing protocol
+                    Cutadapt5prim(out_artificial_combined, art_tmp_cutadapt, art_log_5prim_cutadapt, args).submit(log_file)
+                    Cutadapt3prim(art_tmp_cutadapt, art_out_cutadapt, art_log_3prim_cutadapt, args).submit(log_file)
+                else: # Custom sequencing primers. The amplicons is full length (Illumina) except PCR primers (it is use as sequencing primers). [Protocol Kozich et al. 2013]
+                    art_out_cutadapt = out_artificial_combined
+            # MultiFilter(art_out_cutadapt, -1, -1, "X"*100, art_out_Nfilter, art_log_Nfilter, args).submit(log_file)
+            MultiFilter(art_out_cutadapt, args.R1_size, -1, None, art_out_Nfilter, art_log_Nfilter, args).submit(log_file)
+            ReplaceJoinTag(art_out_Nfilter, "X"*100, "N"*100, art_out_XtoN ).submit(log_file)
+            DerepBySample(out_NAndLengthfilter + " " + art_out_XtoN, out_file, out_count).submit(log_file)
+        else:
+            DerepBySample(out_NAndLengthfilter, out_file, out_count).submit(log_file)
+        
     finally:
         if not args.debug:
             tmp_files.deleteAll()
@@ -696,15 +975,16 @@ def process( args ):
 
         # Tmp files
         filtered_files = [tmp_files.add(current_sample + '_filtered.fasta') for current_sample in samples_names]
+        art_filtered_files = [tmp_files.add(current_sample + '_artComb_filtered.fasta') for current_sample in samples_names]
         lengths_files = [tmp_files.add(current_sample + '_lengths.json') for current_sample in samples_names]
         log_files = [tmp_files.add(current_sample + '_log.txt') for current_sample in samples_names]
 
         # Filter
         nb_processses_used = min( len(R1_files), args.nb_cpus )
         if nb_processses_used == 1:
-            filter_process_multiples_files( R1_files, R2_files, samples_names, filtered_files, lengths_files, log_files, args )
+            filter_process_multiples_files( R1_files, R2_files, samples_names, filtered_files, art_filtered_files, lengths_files, log_files, args )
         else:
-            processes = [{'process':None, 'R1_files':[], 'R2_files':[], 'samples_names':[], 'filtered_files':[], 'lengths_files':[], 'log_files':[]} for idx in range(nb_processses_used)]
+            processes = [{'process':None, 'R1_files':[], 'R2_files':[], 'samples_names':[], 'filtered_files':[], 'art_filtered_files':[], 'lengths_files':[], 'log_files':[]} for idx in range(nb_processses_used)]
             # Set processes
             for idx in range(len(R1_files)):
                 process_idx = idx % nb_processses_used
@@ -713,16 +993,17 @@ def process( args ):
                     processes[process_idx]['R2_files'].append(R2_files[idx])
                 processes[process_idx]['samples_names'].append(samples_names[idx])
                 processes[process_idx]['filtered_files'].append(filtered_files[idx])
+                processes[process_idx]['art_filtered_files'].append(art_filtered_files[idx])
                 processes[process_idx]['lengths_files'].append(lengths_files[idx])
                 processes[process_idx]['log_files'].append(log_files[idx])
             # Launch processes
             for current_process in processes:
                 if idx == 0: # First process is threaded with parent job
                     current_process['process'] = threading.Thread( target=filter_process_multiples_files, 
-                                                                   args=(current_process['R1_files'], current_process['R2_files'], current_process['samples_names'], current_process['filtered_files'], current_process['lengths_files'], current_process['log_files'], args) )
+                                                                   args=(current_process['R1_files'], current_process['R2_files'], current_process['samples_names'], current_process['filtered_files'], current_process['art_filtered_files'], current_process['lengths_files'], current_process['log_files'], args) )
                 else: # Others processes are processed on different CPU
                     current_process['process'] = multiprocessing.Process( target=filter_process_multiples_files, 
-                                                                   args=(current_process['R1_files'], current_process['R2_files'], current_process['samples_names'], current_process['filtered_files'], current_process['lengths_files'], current_process['log_files'], args) )
+                                                                   args=(current_process['R1_files'], current_process['R2_files'], current_process['samples_names'], current_process['filtered_files'], current_process['art_filtered_files'], current_process['lengths_files'], current_process['log_files'], args) )
                 current_process['process'].start()
             # Wait processes end
             for current_process in processes:
@@ -733,15 +1014,16 @@ def process( args ):
                     raise Exception( "Error in sub-process execution." )
 
         # Write summary
-        summarise_results( args.summary, samples_names, lengths_files, log_files )
         log_append_files( args.log_file, log_files )
 
-        # Dereplicate global
+        # Dereplicate global on combined filtered cutadapted multifiltered derep
         Logger.static_write(args.log_file, '##Sample\nAll\n##Commands\n')
-        DerepGlobal(filtered_files, samples_names, tmp_files.add('derep_inputs.tsv'), args.output_dereplicated, args.output_count, args).submit( args.log_file )
+        DerepGlobalMultiFasta(filtered_files, samples_names, tmp_files.add('derep_inputs.tsv'), args.output_dereplicated, args.output_count, args).submit( args.log_file )
+        summarise_results( samples_names, lengths_files, log_files, args )
 
         # Check the number of sequences after filtering
-        if get_fasta_nb_seq(args.output_dereplicated) == 0:
+        nb_seq = get_nb_seq(args.output_dereplicated)
+        if  nb_seq == 0:
             raise Exception( "The filters have eliminated all sequences (see summary for more details)." )
 
     # Remove temporary files
@@ -767,42 +1049,45 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser( description='Pre-process amplicons to use reads in diversity analysis.' )
     parser.add_argument( '-v', '--version', action='version', version=__version__ )
     subparsers = parser.add_subparsers()
-
-    # Illumina
     parser_illumina = subparsers.add_parser( 'illumina', help='Illumina sequencers.', usage='''
   For samples files:
     preprocess.py illumina
       --input-R1 R1_FILE [R1_FILE ...]
-      --already-contiged | --input-R2 R2_FILE [R2_FILE ...] --R1-size R1_SIZE --R2-size R2_SIZE --expected-amplicon-size SIZE
+      --already-contiged | --input-R2 R2_FILE [R2_FILE ...] --R1-size R1_SIZE --R2-size R2_SIZE [--mismatch-rate RATE ] [--quality-scale SCALE ] [--merge-software {vsearch,flash,pear} [--expected-amplicon-size]] [--keep-unmerged]
       --min-amplicon-size MIN_AMPLICON_SIZE
       --max-amplicon-size MAX_AMPLICON_SIZE
       --without-primers | --five-prim-primer FIVE_PRIM_PRIMER --three-prim-primer THREE_PRIM_PRIMER
+      [--fungi {ITS1,ITS2}] [--keep-unmerged]
       [--samples-names SAMPLE_NAME [SAMPLE_NAME ...]]
       [-p NB_CPUS] [--debug] [-v]
-      [-d DEREPLICATED_FILE] [-c COUNT_FILE]
+      [-d DEREPLICATED_FILE] [-c COUNT_FILE] 
       [-s SUMMARY_FILE] [-l LOG_FILE]
 
   For samples archive:
     preprocess.py illumina
       --input-archive ARCHIVE_FILE
-      --already-contiged | --R1-size R1_SIZE --R2-size R2_SIZE --expected-amplicon-size SIZE
+      --already-contiged | --R1-size R1_SIZE --R2-size R2_SIZE [--mismatch-rate RATE ] [--quality-scale SCALE ] [--merge-software {vsearch,flash,pear} [--expected-amplicon-size] ] [--keep-unmerged]
       --min-amplicon-size MIN_AMPLICON_SIZE
       --max-amplicon-size MAX_AMPLICON_SIZE
       --without-primers | --five-prim-primer FIVE_PRIM_PRIMER --three-prim-primer THREE_PRIM_PRIMER
+      [--fungi {ITS1,ITS2}] 
       [-p NB_CPUS] [--debug] [-v]
-      [-d DEREPLICATED_FILE] [-c COUNT_FILE]
+      [-d DEREPLICATED_FILE] [-c COUNT_FILE] [-c COUNT_FILE] [--artComb-output-dereplicated ART_DEREPLICATED_FILE] [--artComb-output-count ART_COUNT_FILE]
       [-s SUMMARY_FILE] [-l LOG_FILE]
 ''')
     #     Illumina parameters
-    parser_illumina.add_argument( '--min-amplicon-size', type=int, required=True, help='The minimum size for the amplicons.' )
-    parser_illumina.add_argument( '--max-amplicon-size', type=int, required=True, help='The maximum size for the amplicons.' )
+    parser_illumina.add_argument( '--merge-software', default="vsearch", choices=["vsearch","flash","pear"], help='Software used to merge paired reads' )
+    parser_illumina.add_argument( '--keep-unmerged', default=False, action='store_true', help='In case of uncontiged paired reads, keep unmerged, and artificially combined them with 100 Ns.' )
+    parser_illumina.add_argument( '--min-amplicon-size', type=int, required=True, help='The minimum size for the amplicons (with primers).' )
+    parser_illumina.add_argument( '--max-amplicon-size', type=int, required=True, help='The maximum size for the amplicons (with primers).' )
+    parser_illumina.add_argument( '--expected-amplicon-size', type=int, help='The expected size for the majority of the amplicons (with primers), if using Flash as read pair merge software.' )
     parser_illumina.add_argument( '--five-prim-primer', type=str, help="The 5' primer sequence (wildcards are accepted)." )
     parser_illumina.add_argument( '--three-prim-primer', type=str, help="The 3' primer sequence (wildcards are accepted)." )
     parser_illumina.add_argument( '--without-primers', action='store_true', default=False, help="Use this option when you use custom sequencing primers and these primers are the PCR primers. In this case the reads do not contain the PCR primers." )
     parser_illumina.add_argument( '--R1-size', type=int, help='The read1 size.' )
     parser_illumina.add_argument( '--R2-size', type=int, help='The read2 size.' )
-    parser_illumina.add_argument( '--expected-amplicon-size', type=int, help='The expected size for the majority of the amplicons (with primers).' )
     parser_illumina.add_argument( '--mismatch-rate', type=float, default=0.1, help='Maxi mismatch rate in overlap region. [Default: %(default)s]' )
+    parser_illumina.add_argument( '--quality-scale', type=str, default="33", choices=["33", "64"], help='The phred base quality scale, either 33 or 64 if using Vsearch as read pair merge software [Default: %(default)s]' )
     parser_illumina.add_argument( '--already-contiged', action='store_true', default=False, help='The archive contains 1 file by sample : Reads 1 and Reads 2 are already contiged by pair.' )
     parser_illumina.add_argument( '-p', '--nb-cpus', type=int, default=1, help="The maximum number of CPUs used. [Default: %(default)s]" )
     parser_illumina.add_argument( '--debug', default=False, action='store_true', help="Keep temporary files to debug program." )
@@ -828,6 +1113,7 @@ if __name__ == "__main__":
     --max-amplicon-size MAX_AMPLICON_SIZE
     --five-prim-primer FIVE_PRIM_PRIMER
     --three-prim-primer THREE_PRIM_PRIMER
+    [--fungi {ITS1,ITS2}]
     [-p NB_CPUS] [--debug] [-v]
     [-d DEREPLICATED_FILE] [-c COUNT_FILE]
     [-s SUMMARY_FILE] [-l LOG_FILE]
@@ -851,7 +1137,7 @@ if __name__ == "__main__":
     group_454_output.add_argument( '-s', '--summary', default='summary.html', help='HTML file with summary of filters results. [Default: %(default)s]')
     group_454_output.add_argument( '-l', '--log-file', default=sys.stdout, help='This output file will contain several information on executed commands.')
     parser_454.set_defaults( sequencer='454' )
-    parser_454.set_defaults( already_contiged=True )
+    parser_454.set_defaults( already_contiged=True, keep_unmerged=False )
 
     # Parse parameters
     args = parser.parse_args()
@@ -865,6 +1151,7 @@ if __name__ == "__main__":
         if args.samples_names is not None: raise argparse.ArgumentTypeError( "With '--archive-file' parameter you cannot set the parameter '--samples-names'." )
         if args.sequencer == "illumina":
             if args.input_R2 is not None: raise argparse.ArgumentTypeError( "With '--archive-file' parameter you cannot set the parameter '--R2-files'." )
+            
     else:  # inputs are files
         if args.input_R1 is None: raise argparse.ArgumentTypeError( "'--R1-files' is required." )
         if args.samples_names is not None:
@@ -874,13 +1161,18 @@ if __name__ == "__main__":
                 raise argparse.ArgumentTypeError( 'Samples names must be unique (duplicated: "' + '", "'.join(duplicated_samples) + '").' )
         if args.sequencer == "illumina":
             if not args.already_contiged and args.input_R2 is None: raise argparse.ArgumentTypeError( "'--R2-files' is required." )
+
     if args.sequencer == "illumina":
-        if (args.R1_size is None or args.R2_size is None or args.expected_amplicon_size is None) and not args.already_contiged: raise Exception( "'--R1-size/--R2-size/--expected-amplicon-size' or '--already-contiged' must be setted." )
+        if (args.R1_size is None or args.R2_size is None ) and not args.already_contiged: raise Exception( "'--R1-size/--R2-size' or '--already-contiged' must be setted." )
         if args.without_primers:
             if args.five_prim_primer or args.three_prim_primer: raise argparse.ArgumentTypeError( "The option '--without-primers' cannot be used with '--five-prim-primer' and '--three-prim-primer'." )
         else:
             if args.five_prim_primer is None or args.three_prim_primer is None: raise argparse.ArgumentTypeError( "'--five-prim-primer/--three-prim-primer' or 'without-primers'  must be setted." )
-            if args.min_amplicon_size < (len(args.five_prim_primer) + len(args.five_prim_primer)): raise argparse.ArgumentTypeError( "The minimum length of the amplicon (--min-length) must be superior to the size of the two primers." )
+            if args.min_amplicon_size <= (len(args.five_prim_primer) + len(args.three_prim_primer)): raise argparse.ArgumentTypeError( "The minimum length of the amplicon (--min-length) must be superior to the size of the two primers, i.e "+str(len(args.five_prim_primer) + len(args.three_prim_primer)) )
+        if (args.already_contiged and args.keep_unmerged): raise Exception("--already-contiged and keep-unmerged options cannot be used together")
+        if (not args.already_contiged):
+            if args.merge_software == "flash":
+                if args.expected_amplicon_size is None: raise argparse.ArgumentTypeError( "With '--merge-software flash' you need to set the parameter '--expected-amplicon-size'." )
 
     # Process
     process( args )

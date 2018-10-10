@@ -18,7 +18,7 @@
 __author__ = ' Ta Thi Ngan & Maria Bernard INRA - SIGENAE '
 __copyright__ = 'Copyright (C) 2017 INRA'
 __license__ = 'GNU General Public License'
-__version__ = '1.0.0'
+__version__ = 'r3.0-1.0'
 __email__ = 'frogs@inra.fr'
 __status__ = 'prod'
 
@@ -27,14 +27,24 @@ import sys
 import argparse
 
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
+FROGS_DIR=""
+if CURRENT_DIR.endswith("phylo_composition"):
+    FROGS_DIR = os.path.dirname(os.path.dirname(CURRENT_DIR))
+else:
+    FROGS_DIR = os.path.dirname(CURRENT_DIR)
+
 # PATH
-BIN_DIR = os.path.abspath(os.path.join(os.path.dirname(CURRENT_DIR), "libexec"))
+BIN_DIR = os.path.abspath(os.path.join(FROGS_DIR, "libexec"))
 os.environ['PATH'] = BIN_DIR + os.pathsep + os.environ['PATH']
+APP_DIR = os.path.abspath(os.path.join(FROGS_DIR, "app"))
+os.environ['PATH'] = APP_DIR + os.pathsep + os.environ['PATH']
 # PYTHONPATH
-LIB_DIR = os.path.abspath(os.path.join(os.path.dirname(CURRENT_DIR), "lib"))
+LIB_DIR = os.path.abspath(os.path.join(FROGS_DIR, "lib"))
 sys.path.append(LIB_DIR)
 if os.getenv('PYTHONPATH') is None: os.environ['PYTHONPATH'] = LIB_DIR
 else: os.environ['PYTHONPATH'] = os.environ['PYTHONPATH'] + os.pathsep + LIB_DIR
+# LIBR
+LIBR_DIR = os.path.join(LIB_DIR,"external-lib")
 
 from frogsUtils import *
 ##################################################################################################################################################
@@ -50,7 +60,7 @@ class Rscript(Cmd):
           https://joey711.github.io/phyloseq/
     @return: bar plot and composition plot in one html file.
     """
-    def __init__(self, html, data, varExp,taxaRank1,taxaSet1,taxaRank2,numberOfTaxa):
+    def __init__(self, html, data, varExp,taxaRank1,taxaSet1,taxaRank2,numberOfTaxa, rmd_stderr):
         """
         @param html: [str] path to store resulting html file.
         @param data: [str] path to phyloseq object in RData file, the result of FROGS Phyloseq Import Data.
@@ -59,12 +69,13 @@ class Rscript(Cmd):
         @param taxaSet1: [str] The taxon name among taxaRank1 to subset your data.
         @param taxaRank2: [str] The sub taxonomic rank name to aggregate your data.
         @param numberOfTaxa: [str] The number of the most abundant taxa to keep at level taxaRank2.
+        @param rmd_stderr: [str] Path to temporary Rmarkdown stderr output file
         """ 
         rmd = os.path.join(CURRENT_DIR, "r_composition.Rmd")
         Cmd.__init__( self,
                       'Rscript',
                       'Run 1 code Rmarkdown',
-                       '-e "rmarkdown::render('+"'"+rmd+"',output_file='"+html+"', params=list(data='"+data+"', varExp='"+varExp+"',taxaRank1='"+taxaRank1+"',taxaSet1='"+taxaSet1+"',taxaRank2='"+taxaRank2+"',numberOfTaxa="+str(numberOfTaxa)+"), intermediates_dir='"+os.path.dirname(html)+"')"+'" 2> /dev/null',
+                       '-e "rmarkdown::render('+"'"+rmd+"',output_file='"+html+"', params=list(data='"+data+"', varExp='"+varExp+"',taxaRank1='"+taxaRank1+"',taxaSet1='"+taxaSet1+"',taxaRank2='"+taxaRank2+"',numberOfTaxa="+str(numberOfTaxa)+", libdir ='"+LIBR_DIR+"'), intermediates_dir='"+os.path.dirname(html)+"')"+'" 2> ' + rmd_stderr,
                        "-e '(sessionInfo()[[1]][13])[[1]][1]; paste(\"Rmarkdown version: \",packageVersion(\"rmarkdown\")) ; library(phyloseq); paste(\"Phyloseq version: \",packageVersion(\"phyloseq\"))'")
     def get_version(self):
         """
@@ -83,6 +94,7 @@ if __name__ == "__main__":
    
     # Manage parameters
     parser = argparse.ArgumentParser( description='Present the composition of data with package phyloseq' )
+    parser.add_argument( '--debug', default=False, action='store_true', help="Keep temporary files to debug program." )   
     parser.add_argument('-v', '--varExp', type=str, required=True, help='The experiment variable used to split plot.' )
     parser.add_argument('-r1', '--taxaRank1', type=str, required=True, help='Select taxonomic rank name to subset your data. [ex: Kingdom]' )
     parser.add_argument('-s1', '--taxaSet1', type=str ,nargs='*', required=True, help='Select taxon name among taxaRank1 to subset your data. [ex: Bacteria]' )
@@ -104,4 +116,12 @@ if __name__ == "__main__":
     html=os.path.abspath(args.html)
     data=os.path.abspath(args.rdata)
     taxaSet1=" ".join(args.taxaSet1)
-    Rscript(html, data, args.varExp, args.taxaRank1.strip(), str(taxaSet1.strip()), args.taxaRank2.strip(), args.numberOfTaxa).submit( args.log_file )
+
+    try : 
+        tmpFiles = TmpFiles(os.path.dirname(html))
+        rmd_stderr = tmpFiles.add("rmarkdown.stderr")
+        Rscript(html, data, args.varExp, args.taxaRank1.strip(), str(taxaSet1.strip()), args.taxaRank2.strip(), args.numberOfTaxa, rmd_stderr).submit( args.log_file )
+
+    finally :
+        if not args.debug:
+            tmpFiles.deleteAll()

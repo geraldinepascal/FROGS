@@ -19,13 +19,14 @@
 __author__ = 'Maria Bernard - SIGENAE AND Frederic Escudie - Plateforme bioinformatique Toulouse'
 __copyright__ = 'Copyright (C) 2015 INRA'
 __license__ = 'GNU General Public License'
-__version__ = '1.3.0'
+__version__ = 'r3.0-1.4'
 __email__ = 'frogs@inra.fr'
 __status__ = 'prod'
 
 import os
 import sys
 import argparse
+import re
 from operator import itemgetter
 
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -148,7 +149,8 @@ def resizeSeed(seed_in, seed_in_compo, seed_out):
     with open(seed_in_compo,"r") as f:
         for idx,line in enumerate(f.readlines()):
             if not line.startswith("#"):
-                dict_cluster_abond["Cluster_"+str(idx+1)]=sum([ int(n.split("_")[-1]) for n in line.strip().split()])
+                cluster_name = "Cluster_" + str(idx+1) if not "FROGS_combined" in line.split()[0] else "Cluster_" + str(idx+1) + "_FROGS_combined"
+                dict_cluster_abond[cluster_name]=sum([ int(n.split("_")[-1]) for n in line.strip().split()])
     f.close()
 
     FH_input = FastaIO( seed_in )
@@ -170,7 +172,10 @@ def agregate_composition(step1_compo , step2_compo, out_compo):
     dict_cluster1_compo=dict()
     with open(step1_compo,"r") as f:
         for idx,line in enumerate(f.readlines()):
-            dict_cluster1_compo["Cluster_"+str(idx+1)]=line.strip()
+            if "FROGS_combined" in line.split()[0]:
+                dict_cluster1_compo["Cluster_"+str(idx+1)+"_FROGS_combined"]=line.strip()
+            else:
+                dict_cluster1_compo["Cluster_"+str(idx+1)]=line.strip()
     f.close()
 
     FH_out=open(out_compo,"w")
@@ -178,6 +183,57 @@ def agregate_composition(step1_compo , step2_compo, out_compo):
         for line in f.readlines():
             compo=" ".join([dict_cluster1_compo["_".join(n.split('_')[0:-1])] for n in line.strip().split(" ")])
             FH_out.write(compo+"\n")
+
+
+def replaceNtags(in_fasta, out_fasta):
+    """
+    @summary : for FROGS_combined sequence, replace N tags by A and record start and stop positions in description
+    @param : [str] Path to input fasta file
+    @param : [str] Path to output fasta file
+    """
+
+    FH_in = FastaIO(in_fasta)
+    FH_out = FastaIO(out_fasta, "w")
+    for record in FH_in:
+        if "FROGS_combined" in record.id and "N" in record.string:
+            N_idx1 = record.string.find("N")
+            N_idx2 = record.string.rfind("N")
+            record.string = record.string.replace("N","A")
+
+            if record.description :
+                record.description += "A:" + str(N_idx1) + ":" + str(N_idx2)
+            else:
+                record.description = "A:" + str(N_idx1) + ":" + str(N_idx2)
+        FH_out.write(record)
+
+    FH_in.close()
+    FH_out.close()
+
+def addNtags(in_fasta, output_fasta):
+    """
+    @summary : replace sequence indicated in seed description by N : ex A:10:110 replace 100A from 10 to 110 by N
+    @param : [str] Path to input fasta file
+    @param : [str] Path to output fasta file
+    """
+
+    FH_in = FastaIO(in_fasta)
+    FH_out = FastaIO(output_fasta, "w")
+    regexp = re.compile('A:\d+:\d+$')
+
+    for record in FH_in:
+        if "FROGS_combined" in record.id and record.description:
+            search = regexp.search(record.description)
+            if search is None :
+                continue 
+            
+            desc = search.group()
+            [N_idx1,N_idx2] = desc.split(":")[1:]
+            record.string = record.string[:int(N_idx1)]+"N"*(int(N_idx2)-int(N_idx1)+1)+record.string[int(N_idx2)+1:]
+            record.description = record.description.replace(desc,"")
+        FH_out.write(record)
+
+    FH_out.close()
+    FH_in.close()
 
 
 ##################################################################################################################################################
@@ -211,8 +267,10 @@ if __name__ == "__main__":
     filename_woext = os.path.split(args.input_fasta)[1].split('.')[0]
     swarm_log = tmpFiles.add( filename_woext + '_swarm_log.txt' )
     sorted_fasta = tmpFiles.add( filename_woext + '_sorted.fasta' )
-    final_sorted_fasta = sorted_fasta
+    replaceN_fasta = tmpFiles.add( filename_woext + '_sorted_NtoA.fasta' )
+    final_sorted_fasta = replaceN_fasta
     swarms_file = args.output_compo
+    swarms_seeds = tmpFiles.add( filename_woext + '_final_seeds.fasta' )
     denoising_compo = None
 
     # Process
@@ -220,6 +278,8 @@ if __name__ == "__main__":
         Logger.static_write(args.log_file, "## Application\nSoftware :" + sys.argv[0] + " (version : " + str(__version__) + ")\nCommand : " + " ".join(sys.argv) + "\n\n")
 
         SortFasta( args.input_fasta, sorted_fasta ).submit( args.log_file )
+        Logger.static_write(args.log_file, "repalce N tags by A. in: " + sorted_fasta + " out : "+ replaceN_fasta +"\n")
+        replaceNtags(sorted_fasta, replaceN_fasta)
 
         if args.denoising and args.distance > 1:
             # Denoising
@@ -229,8 +289,9 @@ if __name__ == "__main__":
             denoising_resized_seeds = tmpFiles.add( filename_woext + '_denoising_resizedSeeds.fasta' )
             swarms_file = tmpFiles.add( filename_woext + '_swarmD' + str(args.distance) + '_composition.txt' )
             final_sorted_fasta = tmpFiles.add( filename_woext + '_denoising_sortedSeeds.fasta' )
-            Swarm( sorted_fasta, denoising_compo, denoising_log, 1 , args.nb_cpus ).submit( args.log_file )
-            ExtractSwarmsFasta( sorted_fasta, denoising_compo, denoising_seeds ).submit( args.log_file )
+
+            Swarm( replaceN_fasta, denoising_compo, denoising_log, 1 , args.nb_cpus ).submit( args.log_file )
+            ExtractSwarmsFasta( replaceN_fasta, denoising_compo, denoising_seeds ).submit( args.log_file )
             resizeSeed( denoising_seeds, denoising_compo, denoising_resized_seeds ) # add size to seeds name
             SortFasta( denoising_resized_seeds, final_sorted_fasta, "_" ).submit( args.log_file )
 
@@ -241,7 +302,9 @@ if __name__ == "__main__":
             agregate_composition(denoising_compo, swarms_file, args.output_compo)
 
         Swarm2Biom( args.output_compo, args.input_count, args.output_biom ).submit( args.log_file )
-        ExtractSwarmsFasta( final_sorted_fasta, swarms_file, args.output_fasta ).submit( args.log_file )
+        ExtractSwarmsFasta( final_sorted_fasta, swarms_file, swarms_seeds ).submit( args.log_file )
+        Logger.static_write(args.log_file, "repalce A tags by N. in: " + swarms_seeds + " out : "+ args.output_fasta +"\n")
+        addNtags(swarms_seeds, args.output_fasta)
 
     # Remove temporary files
     finally:

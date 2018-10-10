@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
-<tool id="FROGS_affiliation_OTU" name="FROGS Affiliation OTU" version="0.8.0">
+<tool id="FROGS_affiliation_OTU" name="FROGS Affiliation OTU" version="r3.0-2.0">
 	<description>Step 4 in metagenomics analysis : Taxonomic affiliation of each OTU's seed by RDPtools and BLAST</description>
 	<command interpreter="python2.7">
 		affiliation_OTU.py 
@@ -24,7 +24,7 @@
 		                       --input-fasta $fasta_sequences
 		                       --output-biom $biom_affiliation 
 		                       --summary $summary 
-		                       --nb-cpus $nb_cpu
+		                       --nb-cpus \${GALAXY_SLOTS:-1}
 		                       --java-mem $mem 
 		                       #if $rdp
 		                       		--rdp
@@ -32,7 +32,6 @@
 	</command>
 	<inputs>
 		<!-- JOB Parameter -->
-		<param name="nb_cpu" type="hidden" label="CPU number" help="The maximum number of CPUs used." value="1"></param>
 		<param name="mem" type="hidden" label="Memory allocation" help="The number of Go to allocation for java" value="20"></param>
 		<!-- Database Choice -->
 		<param name="ref_file" type="select" label="Using reference database" help="Select reference from the list">
@@ -92,7 +91,7 @@ Outputs
 
  This file presents the number of sequences affiliated by blast, and the number of multi-affiliation (format `HTML &lt;https://en.wikipedia.org/wiki/HTML&gt;`_).
  
- .. image:: ${static_path}/images/tools/frogs/FROGS_affiliation_summary.png 
+ .. image:: ${static_path}/images/tools/frogs/FROGS_affiliation_summary_v3.png 
     :height: 800
     :width: 600
 
@@ -101,16 +100,7 @@ Outputs
 
 Reference database
 
-The databases come from `SILVA &lt;http://www.arb-silva.de/&gt;`_ a comprehensive and quality checked rRNA database.
-
-FROGS database(s) pre-process:
-
-1. The non-redondant small sub-unit database is retrieved from SILVA.
-
-2. This database is processed to keep only the taxonomy level: Domain - Phylum - Class - Order - Family - Genus - Species
-
-3. The database is splitted in two databses: prokaryote and eukaryote.
-
+All the databases we format (on demand) for RDPClassifier and NCBI Blast+ are inventoried here: http://genoweb.toulouse.inra.fr/frogs_databanks/assignation/readme.txt
 
 .. class:: infomark page-header h2
 
@@ -144,7 +134,7 @@ Contacts: frogs@inra.fr
 Repository: https://github.com/geraldinepascal/FROGS
 website: http://frogs.toulouse.inra.fr/
 
-Please cite the **FROGS article**: *Escudie F., et al. Bioinformatics, 2017. FROGS: Find, Rapidly, OTUs with Galaxy Solution.*
+Please cite the **FROGS article**: *Escudie F., et al. Bioinformatics, 2018. FROGS: Find, Rapidly, OTUs with Galaxy Solution.*
 
 	</help>
 	<citations>

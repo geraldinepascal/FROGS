@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
-<tool id="FROGS_biom_to_tsv" name="FROGS BIOM to TSV" version="2.1.0">
+<tool id="FROGS_biom_to_tsv" name="FROGS BIOM to TSV" version="r3.0-3.0">
 	<description>Converts a BIOM file in TSV file.</description>
 	<command interpreter="python2.7">
 		biom_to_tsv.py 
@@ -104,7 +104,7 @@ Contacts: frogs@inra.fr
 Repository: https://github.com/geraldinepascal/FROGS
 website: http://frogs.toulouse.inra.fr/
 
-Please cite the **FROGS article**: *Escudie F., et al. Bioinformatics, 2017. FROGS: Find, Rapidly, OTUs with Galaxy Solution.*
+Please cite the **FROGS article**: *Escudie F., et al. Bioinformatics, 2018. FROGS: Find, Rapidly, OTUs with Galaxy Solution.*
 
 	</help>
 	<citations>
