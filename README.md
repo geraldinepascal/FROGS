@@ -105,13 +105,13 @@
         Tools: demultiplex
     
     vsearch
-        Version: 1.1.3
+        Version: 2.6.2
         Named as: vsearch
         Tools: preprocess and remove_chimera
         Download: https://github.com/torognes/vsearch
         Warning : zlib and bzlib need to be installed before compilling vsearch to deal with fastq.gz or fastq.bz2 files.
 
-    flash
+    flash (optional, but recommended for user that used FROGS 2.0)
         Version: 1.2.11
         Named as: flash
         Tools: preprocess
@@ -142,17 +142,11 @@
     ITSx
         Version : 1.0.11
         Named : ITSx
-        Tools : preprocess
+        Tools : itsx
         Download : http://microbiology.se/software/itsx/
         Remark : ITSx_db folder need to be in the PATH or in <FROGS_PATH>/libexec
                  depend on HMMER 3 or later (only for hmmpress and hmmscan)
                  if ITSx test command line failed it's may be due to a difference in HMMER version used to prepare HMM models: hmmpress the ITSx_db/HMMs/*.hmm with your own HMMER version
-
-    swarm
-        Version: 2.1.1
-        Named as: swarm
-        Tools: clustering
-        Download: https://github.com/torognes/swarm
 
     NCBI Blast+ blastn
         Version: 2.2.30+
@@ -199,7 +193,7 @@
         Download: http://www.microbesonline.org/fasttree/#Install
 
     RScript
-        Version : = 3.4.0
+        Version : 3.4.0
         Named as : RScript
         Tools : all FROGSSTAT_Phyloseq
         Download : https://cran.r-project.org/
