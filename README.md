@@ -132,12 +132,6 @@
         Download: https://github.com/marcelm/cutadapt
                   OR
                   https://pypi.python.org/pypi/cutadapt
-                  
-    vsearch
-        Version: 1.1.3
-        Named as: vsearch
-        Tools: remove_chimera
-        Download: https://github.com/torognes/vsearch
         
     swarm
         Version: 2.1.1
