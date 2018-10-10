@@ -105,13 +105,13 @@
         Tools: demultiplex
     
     vsearch
-        Version: 1.1.3
+        Version: 2.6.2
         Named as: vsearch
         Tools: preprocess and remove_chimera
         Download: https://github.com/torognes/vsearch
         Warning : zlib and bzlib need to be installed before compilling vsearch to deal with fastq.gz or fastq.bz2 files.
 
-    flash
+    flash (optional, but recommended for user that used FROGS 2.0)
         Version: 1.2.11
         Named as: flash
         Tools: preprocess
@@ -142,17 +142,11 @@
     ITSx
         Version : 1.0.11
         Named : ITSx
-        Tools : preprocess
+        Tools : itsx
         Download : http://microbiology.se/software/itsx/
         Remark : ITSx_db folder need to be in the PATH or in <FROGS_PATH>/libexec
                  depend on HMMER 3 or later (only for hmmpress and hmmscan)
                  if ITSx test command line failed it's may be due to a difference in HMMER version used to prepare HMM models: hmmpress the ITSx_db/HMMs/*.hmm with your own HMMER version
-
-    swarm
-        Version: 2.1.1
-        Named as: swarm
-        Tools: clustering
-        Download: https://github.com/torognes/swarm
 
     NCBI Blast+ blastn
         Version: 2.2.30+
@@ -199,7 +193,7 @@
         Download: http://www.microbesonline.org/fasttree/#Install
 
     RScript
-        Version : = 3.4.0
+        Version : 3.4.0
         Named as : RScript
         Tools : all FROGSSTAT_Phyloseq
         Download : https://cran.r-project.org/
@@ -269,17 +263,28 @@
     Example:
         [user@computer:/home/user]$cd /home/user/frogs_git/test
         [user@computer:/home/user/frogs_git/test]$bash test.sh /home/user/frogs_git/ 2 4 /tmp/results
-        Step preprocess Fri Apr  8 11:44:10 CEST 2016
-        Step clustering Fri Apr  8 11:45:32 CEST 2016
-        Step remove_chimera Fri Apr  8 11:46:02 CEST 2016
-        Step filters Fri Apr  8 11:47:11 CEST 2016
-        Step ITSx Fri Apr  8 11:47:11 CEST 2016
-        Step affiliation_OTU Fri Apr  8 11:47:12 CEST 2016
-        Step clusters_stat Fri Apr  8 11:47:18 CEST 2016
-        Step affiliations_stat Fri Apr  8 11:47:20 CEST 2016
-        Step biom_to_tsv Fri Apr  8 11:47:40 CEST 2016
-        Step biom_to_stdBiom Fri Apr  8 11:47:41 CEST 2016
-        Step tsv_to_biom Fri Apr  8 11:47:42 CEST 2016
+        Step preprocess : Flash mercredi 10 octobre 2018, 14:11:30 (UTC+0200)
+        Step preprocess : Vsearch mercredi 10 octobre 2018, 14:13:33 (UTC+0200)
+        Step clustering mercredi 10 octobre 2018, 14:15:36 (UTC+0200)
+        Step remove_chimera mercredi 10 octobre 2018, 14:18:43 (UTC+0200)
+        Step filters mercredi 10 octobre 2018, 14:22:36 (UTC+0200)
+        Step ITSx mercredi 10 octobre 2018, 14:22:42 (UTC+0200)
+        Step affiliation_OTU mercredi 10 octobre 2018, 14:22:42 (UTC+0200)
+        Step affiliation_postprocess mercredi 10 octobre 2018, 14:23:08 (UTC+0200)
+        Step clusters_stat mercredi 10 octobre 2018, 14:23:08 (UTC+0200)
+        Step affiliations_stat mercredi 10 octobre 2018, 14:23:09 (UTC+0200)
+        Step biom_to_tsv mercredi 10 octobre 2018, 14:23:12 (UTC+0200)
+        Step biom_to_stdBiom mercredi 10 octobre 2018, 14:23:12 (UTC+0200)
+        Step tsv_to_biom mercredi 10 octobre 2018, 14:23:12 (UTC+0200)
+        Step tree : pynast mercredi 10 octobre 2018, 14:23:12 (UTC+0200)
+        Step tree : mafft mercredi 10 octobre 2018, 14:23:26 (UTC+0200)
+        Step r_import_data mercredi 10 octobre 2018, 14:25:25 (UTC+0200)
+        Step r_composition mercredi 10 octobre 2018, 14:25:39 (UTC+0200)
+        Step r_alpha_diversity mercredi 10 octobre 2018, 14:25:53 (UTC+0200)
+        Step r_beta_diversity mercredi 10 octobre 2018, 14:26:19 (UTC+0200)
+        Step r_structure mercredi 10 octobre 2018, 14:26:31 (UTC+0200)
+        Step r_clustering mercredi 10 octobre 2018, 14:26:47 (UTC+0200)
+        Step r_manova mercredi 10 octobre 2018, 14:26:57 (UTC+0200)
         Completed with success
 
 ### 5. New datatype

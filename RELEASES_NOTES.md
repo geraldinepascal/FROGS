@@ -1,4 +1,6 @@
-# v3.0.0 [DEV]:
+# v3.1 [DEV]
+
+# v3.0.0 [2018-10-10]
 ### Tools added:
   * ITSx : tool available for selecting and trimming ITS sequences based on ITSx tool
   * Affiliation Postprocess : resolve ambiguities due to inclusiv ITS, and aggregated OTU based on 
