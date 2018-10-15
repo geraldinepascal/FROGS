@@ -163,7 +163,7 @@ def process(params):
                 biom_out.add_metadata( equivalent_otu_name, "blast_affiliations", aggregated_blast_affi , subject_type="observation", erase_warning=False)
                 # update consensus tax
                 consensus_tax = get_tax_consensus([ affi["taxonomy"] for affi in aggregated_blast_affi ])
-                biom_out.add_metadata( equivalent_otu_name, "taxonomy", consensus_tax , subject_type="observation", erase_warning=False)
+                biom_out.add_metadata( equivalent_otu_name, "blast_taxonomy", consensus_tax , subject_type="observation", erase_warning=False)
                 # update counts
                 for sample_name in biom_in.get_samples_names():
                     count = biom_out.get_count(equivalent_otu_name, sample_name) + biom_in.get_count(otu_name,sample_name)
