@@ -143,10 +143,10 @@ With the classical method of %id calculation, filtering on %id will systematical
 
 For the precedent use cases we will obtain:
 
-* Case 1: 16S V3V4  overlapped sequence
-	% sequenced bases identity = 400 matches / 400 bp = 100 %
+* Case 1: 16S V3V4 overlapped sequence
+	% sequenced bases identity = 400 matches / 400 bp = 100%
 
-* Case 2: very large ITS1  “FROGS combined” shorter than the real sequence
+* Case 2: very large ITS1 “FROGS combined” shorter than the real sequence
 	% sequenced bases identity = (250 + 250 ) / (600 - 100) = 100%
 
 This calculation allows to return 100% of identity on sequenced bases for “FROGS combined” shorter or longer than reality in case of perfect sequencing, and a smaller percentage of identity in the case of small overlap repeat kept in FROGS combined sequence. 
