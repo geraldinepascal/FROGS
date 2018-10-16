@@ -1,4 +1,4 @@
-#!/usr/bin/perl
+#!/usr/bin/env perl
 
 #    FASTX-toolkit - FASTA/FASTQ preprocessing tools. fastx_barcode_splitter.pl
 #    Copyright (C) 2009  A. Gordon (gordon@cshl.edu)

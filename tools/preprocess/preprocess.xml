@@ -239,7 +239,6 @@ What it does
 
 FROGS Pre-process filters and dereplicates amplicons for use in diversity analysis.
 
-
 .. class:: infomark page-header h2
 
 Inputs/Outputs
@@ -327,14 +326,14 @@ What is the differency between overlapped sequences and combined sequences?
 - **Case of a sequencing of overlapping sequences: case of 16S V3-V4 amplicon MiSeq sequencing**
 
 .. image:: ${static_path}/images/tools/frogs/FROGS_preprocess_overlapped_sequence.png
-    :height: 242
-    :width: 583
+     :height: 261
+     :width: 531
 
 - **Case of a sequencing of non-overlapping sequences: case of ITS1 amplicon MiSeq sequencing**
 
 .. image:: ${static_path}/images/tools/frogs/FROGS_preprocess_combined_sequence1.png
-	:height: 262
-	:width: 711
+     :height: 279
+     :width: 797
 
 .. class:: warningmark
 
@@ -349,9 +348,8 @@ Thus, “FROGS combined” sequences are artificial and present particular featu
 Imagine a MiSeq sequencing of 2x250pb with sequences that cannot overlap, the resulting “FROGS combined” sequences length will be 600 bp.
 
 .. image:: ${static_path}/images/tools/frogs/FROGS_preprocess_combined_sequence2.png
-	:height: 322
-	:width: 715
-
+     :height: 357
+     :width: 798
 
 .. class:: h3
 
