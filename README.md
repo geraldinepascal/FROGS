@@ -145,8 +145,10 @@
         Tools : itsx
         Download : http://microbiology.se/software/itsx/
         Remark : ITSx_db folder need to be in the PATH or in <FROGS_PATH>/libexec
-                 depend on HMMER 3 or later (only for hmmpress and hmmscan)
-                 if ITSx test command line failed it's may be due to a difference in HMMER version used to prepare HMM models: hmmpress the ITSx_db/HMMs/*.hmm with your own HMMER version
+                 it depends on HMMER 3 or later (only for hmmpress and hmmscan need to be linked in <FROGS_PATH>/libexec or available in the PATH)
+                 if ITSx test command line failed it's may be due to a difference in HMMER version used to prepare HMM models: 
+                        cd <ITSx_DIR> ; rm ITSx_db/HMMs/*.h3*
+                        for hmm in `ls  ITSx_db/HMMs/*.hmm `; do hmmpress $hmm; done
 
     NCBI Blast+ blastn
         Version: 2.2.30+
