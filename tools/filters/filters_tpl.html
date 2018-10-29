@@ -446,7 +446,7 @@
 						for( var filter_idx = 0 ; filter_idx < processed_filters.length ; filter_idx++ ){
 							items += '' +
 								'<li>' +
-								'<label class="container">'+processed_filters[filter_idx]+'<input type="checkbox" id="byFilters-chk-' + filter_idx + '" name="'+processed_filters[filter_idx]+'radio"><span class="checkmark"></span></label>' +
+								'<label class="container">'+processed_filters[filter_idx]+'<input type="checkbox" id="byFilters-chk-' + filter_idx + '" name="'+processed_filters[filter_idx]+'"><span class="checkmark"></span></label>' +
 								<!--'	<input type="checkbox" id="byFilters-chk-' + filter_idx + '" name="' + processed_filters[filter_idx] + '"> ' + processed_filters[filter_idx] + -->
 								'</li>' ;
 						}
@@ -462,7 +462,7 @@
 				*/
 				
 				// Add listener on click
-				$('#byFilters-jvenn-btn').click(function() {				
+				$('#byFilters-jvenn-btn').click(function() {			
 					// Find filters
 					var venn_names_by_tag = new Array();
 					var venn_tags_by_name = new Array();
@@ -509,7 +509,6 @@
 				// Manage click on byFilters checkboxes
 				$('input[id^="byFilters-chk-"]').on('change', function (e) {
 					var nb_checked = $('input[id^="byFilters-chk-"]:checked').size() ;
-					console.log(nb_checked);
 					if( nb_checked <= 6 && nb_checked >= 1 ){
 						//$('#byFilters-jvenn-btn').removeClass('disabled');
 						$('#byFilters-jvenn-btn').prop( "disabled", false );
@@ -621,7 +620,6 @@
 					if( $(this).attr('href') == "#view-by-samples" && $('#view-by-samples').hasClass('disabled') ){
 						$('#view-by-samples').removeClass('disabled')
 						samples_filters_load( "filter-log" );
-						console.log("OK");
 					}
 				})
 			});
