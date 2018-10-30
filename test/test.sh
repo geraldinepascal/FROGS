@@ -361,7 +361,7 @@ echo "Step r_clustering `date`"
 r_clustering.py  \
  --varExp EnvType \
  --rdata $out_dir/14-phylo_import.Rdata --distance-matrix $out_dir/Unifrac.tsv \
- --html $out_dir/19-phylo_clutering.html --log-file $out_dir/16-phylo_clustering.log
+ --html $out_dir/19-phylo_clutering.html --log-file $out_dir/19-phylo_clustering.log
 
  
 if [ $? -ne 0 ]
