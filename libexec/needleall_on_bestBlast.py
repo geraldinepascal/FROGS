@@ -158,21 +158,22 @@ def get_needleall_version():
         version = "unknown"
     return version
 
-def process_needleall(ref_fasta, query_fasta, output_sam, needle_out, needle_err, log_file):
+def process_needleall(ref_fasta, query_fasta, output_sam, needle_err, cmd_out, cmd_err, log_file):
 
-    cmd = ["needleall", "-asequence", ref_fasta, "-bsequence", query_fasta, "-outfile", output_sam, "-aformat3", "sam", "-gapopen", "10.0", "-gapextend", "0.5"]
+    cmd = ["needleall", "-asequence", ref_fasta, "-bsequence", query_fasta, "-outfile", output_sam, "-aformat3", "sam", "-gapopen", "10.0", "-gapextend", "0.5", "-errfile", needle_err ]
     FH_log = Logger( log_file )
     FH_log.write("# Needlall version: " + get_needleall_version() + "\n")
     FH_log.write("# Needlall command: " + " ".join(cmd) + "\n")
-    submit_cmd( cmd, needle_out, needle_err )
+    submit_cmd( cmd, cmd_out, cmd_err )
     FH_log.close()
 
 def process(params):
 
     tmpFiles = TmpFiles( os.path.split(params.output_sam)[0] )
     extract_fasta_ref = tmpFiles.add(os.path.basename(params.reference))
-    needle_out = tmpFiles.add(os.path.basename(params.output_sam)+"needle.out")
-    needle_err = tmpFiles.add(os.path.basename(params.output_sam)+"needle.err")
+    needle_err = tmpFiles.add(os.path.basename(params.output_sam)+"_needle_errorfile.txt")
+    cmd_out = tmpFiles.add(os.path.basename(params.output_sam)+"_needle.out")
+    cmd_err = tmpFiles.add(os.path.basename(params.output_sam)+"_needle.err")
     
     # Extract best blast ref
     try :
@@ -182,7 +183,7 @@ def process(params):
         # Launch needleall
         if nb_ref > 0 :
             Logger.static_write(params.log_file, "\tReducing reference databases to " + str(nb_ref) + " sequences\n\n")
-            process_needleall(extract_fasta_ref, params.query_fasta, params.output_sam, needle_out, needle_err, params.log_file)
+            process_needleall(extract_fasta_ref, params.query_fasta, params.output_sam, needle_err, cmd_out, cmd_err, params.log_file)
         else:
             Logger.static_write(params.log_file, "\tNeedle alignment not performed because no blast alignment available\n")
             open(params.output_sam, 'w').close()
