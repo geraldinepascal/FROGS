@@ -827,6 +827,11 @@ def process_sample(R1_file, R2_file, sample_name, out_file, art_out_file, length
             # other files to remove
             tmp_files.add(sample_name + '_flash.hist')
             tmp_files.add(sample_name + '_flash.histogram')
+            tmp_files.add(sample_name + '_flash.hist.outie')
+            tmp_files.add(sample_name + '_flash.hist.innie')
+            tmp_files.add(sample_name + '_flash.histogram.outie')
+            tmp_files.add(sample_name + '_flash.histogram.innie')
+
 
         # PEAR
         elif args.merge_software == "pear":
