@@ -16,7 +16,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
 <tool id="FROGS_clustering" name="FROGS Clustering swarm" version="r3.0-1.4">
-	<description>Step 2 in metagenomics analysis : clustering.</description>
+	<description>amplicon sequence clustering.</description>
 	<command interpreter="python2.7">
 		clustering.py 
 		                --nb-cpus \${GALAXY_SLOTS:-1}

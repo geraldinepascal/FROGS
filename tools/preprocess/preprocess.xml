@@ -16,7 +16,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
 <tool id="FROGS_preprocess" name="FROGS Pre-process" version="r3.0-3.0">
-	<description>Step 1 in metagenomics analysis: denoising and dereplication.</description>
+	<description>merging, denoising and dereplication.</description>
 	<command interpreter="python2.7">
 		preprocess.py $sequencer_type.sequencer_selected
 		--output-dereplicated $dereplicated_file --output-count $count_file --summary $summary_file 
