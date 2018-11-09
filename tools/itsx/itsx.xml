@@ -41,9 +41,9 @@
 		<param name="check_only" type="boolean" checked="false" truevalue="--check-its-only" falsevalue="" label="Check only if sequence detected as ITS ?" help="If Yes, sequences with ITS signature will be kept without trimming SSU, LSU or 5.8S regions."/>
 	</inputs>
 	<outputs>
+		<data format="fasta" name="out_excluded" label="${tool.name}: out_removed.fasta" from_work_dir="out_removed.fasta"/>
 		<data format="fasta" name="out_fasta" label="${tool.name}: itsx.fasta" from_work_dir="itsx.fasta"/>
 		<data format="biom1" name="out_abundance_biom" label="${tool.name}: itsx.biom" from_work_dir="itsx.biom"/>
-		<data format="fasta" name="out_excluded" label="${tool.name}: out_removed.fasta" from_work_dir="out_removed.fasta"/>
 		<data format="html" name="summary_file" label="${tool.name}: report.html" from_work_dir="report.html"/>
 	</outputs>
 	<help>
