@@ -42,7 +42,7 @@
 	        	--mismatch-rate $sequencer_type.input_type.archive_type.mm_rate
 	        	--merge-software $sequencer_type.input_type.archive_type.merge_software_type.merge_software_selected
 	        	#if $sequencer_type.input_type.archive_type.merge_software_type.merge_software_selected == "flash"
-					--expected-amplicon-size $sequencer_type.input_type.archive_type.expected_amplicon_size
+					--expected-amplicon-size $sequencer_type.input_type.archive_type.merge_software_type.expected_amplicon_size
 				#end if
 	        	#if $sequencer_type.input_type.archive_type.keep_unmerged
 	        		--keep-unmerged
@@ -70,7 +70,7 @@
 		            --mismatch-rate $sequencer_type.input_type.files_by_samples_type.mm_rate
 		            --merge-software $sequencer_type.input_type.files_by_samples_type.merge_software_type.merge_software_selected
 		            #if $sequencer_type.input_type.files_by_samples_type.merge_software_type.merge_software_selected == "flash"
-						--expected-amplicon-size $sequencer_type.input_type.files_by_samples_type.expected_amplicon_size
+						--expected-amplicon-size $sequencer_type.input_type.files_by_samples_type.merge_software_type.expected_amplicon_size
 					#end if
 		            #if $sequencer_type.input_type.files_by_samples_type.keep_unmerged
 	        			--keep-unmerged

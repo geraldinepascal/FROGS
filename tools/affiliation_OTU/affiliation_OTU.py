@@ -500,6 +500,8 @@ if __name__ == "__main__":
     try:
         Logger.static_write(args.log_file, "## Application\nSoftware: " + os.path.basename(sys.argv[0]) + " (version: " + str(__version__) + ")\nCommand: " + " ".join(sys.argv) + "\n\n")
         nb_seq, nb_combined = extract_FROGS_combined(args.input_fasta, fasta_full_length, fasta_combined)
+        if nb_seq == 0 : 
+            raise Exception("Your input fasta file is empty!")
         Logger.static_write(args.log_file, "Nb seq : " + str(nb_seq) + "\n")
         if nb_combined > 0 :
             Logger.static_write(args.log_file, "\t with nb seq artificially combined :" + str(nb_combined) +"\n")
