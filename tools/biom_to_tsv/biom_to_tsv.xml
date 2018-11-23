@@ -33,7 +33,7 @@
 		<param format="biom1" name="biom_file" type="data" label="Abundance file" help="The BIOM file to convert (format: BIOM)." optional="false" />
 		<param format="fasta" name="sequence_file" type="data" label="Sequences file" help="The sequences file (format: fasta). If you use this option the sequences will be add in TSV." optional="true" />
 		<!-- Parameters -->
-		<param name="extract_multi_align" type="boolean" label="Extract multi-alignments" help="If you have used FROGS affiliation on your data, you can extract information about multiple alignements in a second TSV." />
+		<param name="extract_multi_align" type="boolean" label="Extract multi-alignments" help="If you have used FROGS affiliation on your data, you can extract information about multiple alignements in a second TSV." checked="true" />
 	</inputs>
 	<outputs>
 		<data format="tabular" name="tsv_file" label="${tool.name}: abundance.tsv" from_work_dir="abundance.tsv"/>
