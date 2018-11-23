@@ -81,8 +81,8 @@ class Tsv2biom(Cmd):
         observation_sum_index = header.index("observation_sum")
         if (observation_sum_index - observation_name_index) != 1:
             raise Exception( "You change the order of columns. TSV file must ended with observation_name, observation_sum, sample1, sample2 ... \n" )
-        samples_names = "'" + "' '".join(header[observation_sum_index+1:]) + "'"
-        fields = "'" + "' '".join(header[:observation_sum_index]) + "'"
+        samples_names = " ".join(header[observation_sum_index+1:])
+        fields = " ".join(header[:observation_sum_index])
         # Set command
         Cmd.__init__( self,
                       'tsv2biom.py',
