@@ -1,5 +1,8 @@
 # v3.1 [DEV]
 
+### Bug fixed
+    * Tsv_to_Biom : manage quotes added by Excel
+
 # v3.0.0 [2018-10-10]
 ### Tools added:
   * ITSx : tool available for selecting and trimming ITS sequences based on ITSx tool

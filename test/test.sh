@@ -28,7 +28,7 @@ echo "Step preprocess : Flash `date`"
 preprocess.py illumina \
  --min-amplicon-size 44 --max-amplicon-size 490 \
  --five-prim-primer GGCGVACGGGTGAGTAA --three-prim-primer GTGCCAGCNGCNGCGG \
- --R1-size 267 --R2-size 266 --expected-amplicon-size 420 --merge-software flash\
+ --R1-size 267 --R2-size 266 --expected-amplicon-size 420 --merge-software flash \
  --nb-cpus $nb_cpu --mismatch-rate 0.15 --keep-unmerged \
  --input-archive $frogs_dir/test/data/test_dataset.tar.gz \
  --output-dereplicated $out_dir/01-prepro-flash.fasta \
@@ -47,7 +47,7 @@ echo "Step preprocess : Vsearch `date`"
 preprocess.py illumina \
  --min-amplicon-size 44 --max-amplicon-size 490 \
  --five-prim-primer GGCGVACGGGTGAGTAA --three-prim-primer GTGCCAGCNGCNGCGG \
- --R1-size 267 --R2-size 266 --expected-amplicon-size 420 --merge-software flash\
+ --R1-size 267 --R2-size 266 --merge-software vsearch \
  --nb-cpus $nb_cpu --mismatch-rate 0.15 --keep-unmerged \
  --input-archive $frogs_dir/test/data/test_dataset.tar.gz \
  --output-dereplicated $out_dir/01-prepro-vsearch.fasta \
