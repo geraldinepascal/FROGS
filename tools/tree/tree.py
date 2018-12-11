@@ -64,7 +64,7 @@ class Pynast(Cmd):
         Cmd.__init__( self,
                       'pynast',
                       'Pynast multiple alignment.',
-                      "--input_fp " + in_candi_pynast + " --template_fp " + in_templ_pynast + " --min_len " + min_len + " --fasta_out "+ pynast_align + " --failure_fp " + pynast_fail + " --log_fp " + pynast_log ,
+                      "--input_fp " + in_candi_pynast + " --template_fp " + in_templ_pynast + " --min_len " + min_len + " --pairwise_alignment_method mafft --fasta_out "+ pynast_align + " --failure_fp " + pynast_fail + " --log_fp " + pynast_log ,
                       "--version")
 
     def get_version(self):
