@@ -19,7 +19,7 @@
 __author__ = 'Frederic Escudie - Plateforme bioinformatique Toulouse / Maria Bernard - SIGENAE Jouy en Josas'
 __copyright__ = 'Copyright (C) 2015 INRA'
 __license__ = 'GNU General Public License'
-__version__ = 'r3.0-3.0'
+__version__ = '3.1'
 __email__ = 'frogs@inra.fr'
 __status__ = 'prod'
 
@@ -115,11 +115,11 @@ class Flash(Cmd):
         #min_overlap = max(1,(param.R1_size + param.R2_size) - param.max_amplicon_size )
         min_overlap=max(param.R1_size+param.R2_size-param.max_amplicon_size, 10)
         max_expected_overlap = (param.R1_size + param.R2_size) - param.expected_amplicon_size + min(20, int((param.expected_amplicon_size - param.min_amplicon_size)/2))
-        
+        out_dir=os.path.dirname(out_join_prefix) if os.path.dirname(out_join_prefix)!= "" else "."
         Cmd.__init__( self,
                       'flash',
                       'Join overlapping paired reads.',
-                      '--threads 1 --allow-outies --min-overlap ' + str(min_overlap) + ' --max-overlap ' + str(max_expected_overlap) + ' --max-mismatch-density ' + str(param.mismatch_rate) +'  --compress ' + in_R1 + ' ' + in_R2 + ' --output-directory '+ os.path.dirname(out_join_prefix) + ' --output-prefix ' + os.path.basename(out_join_prefix) +' 2> ' + flash_err,
+                      '--threads 1 --allow-outies --min-overlap ' + str(min_overlap) + ' --max-overlap ' + str(max_expected_overlap) + ' --max-mismatch-density ' + str(param.mismatch_rate) +'  --compress ' + in_R1 + ' ' + in_R2 + ' --output-directory '+ out_dir + ' --output-prefix ' + os.path.basename(out_join_prefix) +' 2> ' + flash_err,
                       ' --version' )
         self.output = out_join_prefix + ".extendedFrags.fastq.gz"
 
@@ -1041,7 +1041,7 @@ def spl_name_type( arg_value ):
     @summary: Argparse type for samples-names.
     """
     if re.search("\s", arg_value): raise argparse.ArgumentTypeError( "A sample name must not contain white spaces." )
-    return arg_value
+    return str(arg_value)
 
 
 ##################################################################################################################################################
