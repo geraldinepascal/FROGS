@@ -19,7 +19,7 @@
 	<head>
 		<title>FROGS Tree</title>
 		<meta charset="UTF-8">
-		<meta name="version" content="2.0.1">
+		<meta name="version" content="3.1">
 		<!-- CSS -->
 		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.1.1/css/bootstrap.css"></link>
 		<link rel="stylesheet" href="https://cdn.datatables.net/1.10.19/css/dataTables.bootstrap4.min.css"></link>
@@ -406,9 +406,18 @@
 
 				
 			$(function() {
-				var detection_categories = ###DETECTION_CATEGORIES### ;
-				var detection_series = ###DETECTION_DATA### ;
-				var remove_info = ###REMOVE_DATA### ;	
+				// var summary = {"otu_removed": 4, "abundance_removed": 22025, "abundance_kept": 233756, "otu_kept": 48, "number_otu_all": 52, "number_abundance_all": 255781} ;	
+				var summary = ###SUMMARY### ;
+				// var removed_details_categories = ["Taxonomic Information", "Abundance Number", "% with abundance total", "Sequence length"] ;
+				var removed_details_categories = ###REMOVED_DETAILS_CATEGORIES### ;
+				// var removed_details_data = [
+				// 	{"data": ["k__Bacteria;p__Tenericutes;c__Mollicutes;o__Mycoplasmatales;f__Mycoplasmataceae;g__Candidatus Lumbricincola;s__NA", 200, 0.07819189071901353, 558], "name": "otu_01778"}, 
+				// 	{"data": ["k__Bacteria;p__Firmicutes;c__Bacilli;o__Lactobacillales;f__Carnobacteriaceae;g__Carnobacterium;s__Funditum", 459, 0.17945038920013606, 506], "name": "otu_00186"}, 
+				// 	{"data": ["k__Bacteria;p__Proteobacteria;c__Gammaproteobacteria;o__Vibrionales;f__Vibrionaceae;g__Photobacterium;s__Aquimaris", 1044, 0.4081616695532506, 538], "name": "otu_01097"}, 
+				// 	{"data": ["k__Bacteria;p__CK-1C4-19;c__NA;o__NA;f__NA;g__NA;s__NA", 20322, 7.9450780159589645, 501], "name": "otu_01918"}
+				// ] ;
+				var removed_details_data = ###REMOVED_DETAILS_DATA### ;
+				
                 // Remove alert
 				$('#js-alert').remove();
 				$('#content').removeClass("hidden");
@@ -428,23 +437,23 @@
 				
 			 	// Display summary
 				var nb_otu = [
-					['In Tree', remove_info['otu_kept']],
-					['Out of Tree', remove_info['otu_removed']]
+					['In Tree', summary['otu_kept']],
+					['Out of Tree', summary['otu_removed']]
 				];
 				$('#nb-otu').highcharts( pie_param('OTUs', nb_otu, 'OTUs') );
 				var nb_abundance = [
-  					['In Tree', remove_info['abundance_kept']],
-  					['Out of Tree', remove_info['abundance_removed']]
+  					['In Tree', summary['abundance_kept']],
+  					['Out of Tree', summary['abundance_removed']]
   				];
 				$('#nb-abundance').highcharts( pie_param('Abundance', nb_abundance, 'Sequences') );
 				
 				// Display failed OTUs table
-				var table_categories = detection_categories.slice() ;
+				var table_categories = removed_details_categories.slice() ;
 				table_categories.unshift( "OTU Name" );
 				var table_series = new Array();
-				for( var spl_idx = 0 ; spl_idx < detection_series.length ; spl_idx++ ){
-					var nb_by_step = detection_series[spl_idx]['data'].slice() ;
-					nb_by_step.unshift( detection_series[spl_idx]['name'] );
+				for( var spl_idx = 0 ; spl_idx < removed_details_data.length ; spl_idx++ ){
+					var nb_by_step = removed_details_data[spl_idx]['data'].slice() ;
+					nb_by_step.unshift( removed_details_data[spl_idx]['name'] );
 					table_series.push( nb_by_step );
 				};
 				$('#OTUs-fail').append( table(table_categories, table_series) );
