@@ -252,23 +252,6 @@ then
 	exit 1;
 fi
 
-echo "Step tree : pynast `date`"
-
-tree.py \
- --nb-cpus $nb_cpu  \
- --input-otu $frogs_dir/test/data/to_test_pynast.fasta \
- --biomfile $frogs_dir/test/data/to_test_pynast.biom \
- --template-pynast $frogs_dir/test/data/otus_pynast.fasta \
- --out-tree $out_dir/13-tree-pynast.nwk \
- --html $out_dir/13-tree-pynast.html \
- --log-file $out_dir/13-tree-pynast.log
- 
-if [ $? -ne 0 ]
-then
-	echo "Error in tree : pynast" >&2
-	exit 1;
-fi
-
 echo "Step tree : mafft `date`"
 
 tree.py \
