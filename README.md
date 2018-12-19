@@ -10,7 +10,7 @@
 
 FROGS is a CLI workflow designed to produce an OTU count matrix from high depth sequencing amplicon data.
 
-FROGS-wrapper allows to add FROGS on a Galaxy instance. (see https://github.com/geraldinepascal/FROGS-wrappers)
+FROGS-wrappers allow to add FROGS on a Galaxy instance. (see https://github.com/geraldinepascal/FROGS-wrappers)
 
 This workflow is focused on:
 
@@ -23,10 +23,26 @@ This workflow is focused on:
 
 # Table of content
 
-[TOC]
-
+* [Convenient input data](#convenient-input-data)
+* [Installation](#installation)
+  * [Tools dependancies](#tools-dependancies)
+    * [Use PEAR as read pairs merging software in preprocess](#use-pear-as-read-pairs-merging-software-in-preprocess)
+  * [FROGS and dependancies installation](#frogs-and-dependancies-installation)
+    * [From bioconda](#from-bioconda)
+    * [From source](#from-source)
+  * [Check intallation](#check-intallation)
+* [Memory and parallelisation advices](#memory-and-parallelisation-advices)
+* [Download databanks](#download-databanks)
+* [Troubleshooting](#troubleshooting)
+  * [Abnormal increase memory consumption with CPU number](#abnormal-increase-memory-consumption-with-cpu-number)
+  * [Abnormal threads consumption in RDPClassifier](#abnormal-threads-consumption-in-rdpclassifier)
+* [License](#license)
+* [Copyright](#copyright)
+* [Citation](#citation)
+* [Contact](#contact)
 
 # Convenient input data
+
 Legend for the next schemas:
 ```
 .: Complete nucleic sequence
