@@ -1,6 +1,6 @@
 #!/usr/bin/env python2.7
 #
-# Copyright (C) 2017 INRA
+# Copyright (C) 2018 INRA
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -18,7 +18,7 @@
 __author__ = ' Ta Thi Ngan & Maria Bernard INRA - SIGENAE '
 __copyright__ = 'Copyright (C) 2017 INRA'
 __license__ = 'GNU General Public License'
-__version__ = 'r3.0-1.0'
+__version__ = '3.1'
 __email__ = 'frogs@inra.fr'
 __status__ = 'prod'
 
