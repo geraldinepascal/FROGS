@@ -10,11 +10,11 @@
 
 FROGS is a CLI workflow designed to produce an OTU count matrix from high depth sequencing amplicon data.
 
-FROGS-wrapper allow to add FROGS on a Galaxy instance. (see https://github.com/geraldinepascal/FROGS-wrappers)
+FROGS-wrapper allows to add FROGS on a Galaxy instance. (see https://github.com/geraldinepascal/FROGS-wrappers)
 
 This workflow is focused on:
 
-- User-friendliness with lots of rich graphic outputs and the integration in galaxy thanks to FROGS-wrappers
+- User-friendliness with lots of rich graphic outputs and the integration in Galaxy thanks to FROGS-wrappers
 - Accuracy with a clustering without global similarity threshold, the management of multi-affiliations and management of separated PCRs in the chimera removal step
 - Speed with fast algorithms and an easy to use parallelisation
 - Scalability with algorithms designed to support the data growth
@@ -35,7 +35,7 @@ Legend for the next schemas:
 ```
 * Paired-end classical protocol:
 In the paired-end protocol R1 and R2 must share a nucleic region. 
-For example the amplicons on V3-V4 regions can have a length between 350 and 500nt, with 2*300pb sequencing the overlap is between 250nt and 100nt. 
+For example the amplicons on 16S V3-V4 regions can have a length between 350 and 500nt, with 2*300pb sequencing the overlap is between 250nt and 100nt. 
 ```
         From:                                    To:
          rDNA .........!!!!!!................    ......!!!!!!!!!!!!!!!!!!!.....
@@ -48,7 +48,7 @@ For example the amplicons on V3-V4 regions can have a length between 350 and 500
 
 In any case, the maximum overlap between R1 and R2 can be the complete overlap.
 
-The minimum overlap between R1 and R2 can have 10nt. With less, the overlap can be incorrect, it will be rejected or considered as non overlap reads
+The minimum authorized overlap between R1 and R2 is 10nt. With less, the overlap can be incorrect, it will be rejected or considered as non overlap reads.
 
 * Single-end classical protocol:
 
@@ -72,7 +72,7 @@ The amplicons can have a high length variability such as ITS.  The R1 and R2 can
 
 ## Tools dependancies
 
-FROGS is written in Python 2.7, use one home made scripts written in PERL5 and use on external Python library, Scipy.
+FROGS is written in Python 2.7, uses on home-made scripts written in PERL5 and uses on external Python library, Scipy.
 
 FROGS relies on different specific tools for each of the analysis step.
 
@@ -98,10 +98,10 @@ FROGS relies on different specific tools for each of the analysis step.
 | FROGSSTAT Phyloseq tools      | [R package Phyloseq-extend](https://github.com/mahendra-mariadassou/phyloseq-extended) |                               0.99 |
 | FROGSSTAT Phyloseq tools      |                [pandoc](https://pandoc.org/)                 |                           1.19.2.1 |
 
-### **Use PEAR as reads merge software in preprocess**
+### **Use PEAR as read pairs merging software in preprocess**
 
-[PEAR](https://cme.h-its.org/exelixis/web/software/pear/) is one of the most effective software for read pair merging, but as its licence is not free for private use, we can not distribute it in FROGS.
-If you work in an academic lab on a private Galaxy server, or if you have payed your licence you can use PEAR in FROGS preprocess.
+[PEAR](https://cme.h-its.org/exelixis/web/software/pear/) is one of the most effective software for read pairs merging, but as its licence is not free for private use, we can not distribute it in FROGS.
+If you work in an academic lab on a private Galaxy server, or if you have paid your licence you can use PEAR in FROGS preprocess.
 For that you need to:
 
 - have PEAR in your PATH or in the FROGS libexec directory. We have tested PEAR 0.9.10 version.
@@ -195,11 +195,11 @@ Reference database are needed to filter contaminants, assign taxonomy to each OT
 
 We propose some databanks, that you simply need to download and extract.
 
-Please take time to readme individual README.txt and LICENCE.txt files.
+Please take time to read individual README.txt and LICENCE.txt files.
 
 * Assignation databank
 
-  these banks are formatted for NCBI Blast+ and RDP Classifier
+  these databanks are formatted for NCBI Blast+ and RDP Classifier
 
   [available databases](http://genoweb.toulouse.inra.fr/frogs_databanks/assignation/readme.txt) : http://genoweb.toulouse.inra.fr/frogs_databanks/assignation
 
@@ -220,7 +220,7 @@ Please take time to readme individual README.txt and LICENCE.txt files.
 
 # Troubleshooting
 ## Abnormal increase memory consumption with CPU number
-With certain old versions of glibc the virtual memory used by CPU is multiplicative.
+With some old versions of glibc the virtual memory used by CPU is multiplicative.
 
 | Nb CPUs | expected RAM consumtion | observed RAM consumption |
 | :-----: | :---------------------: | :----------------------: |
@@ -233,7 +233,7 @@ With certain old versions of glibc the virtual memory used by CPU is multiplicat
 The parameters memory and CPU provided in examples take into account this problem.
 
 ## Abnormal threads consumption in RDPClassifier
-With large database like silva NR the RDPClassifier opens automatically a large number of threads. These threads use all the available CPU ressources. This is not an acceptable behaviour in multi-user context.
+With large databases like silva NR the RDPClassifier opens automatically a large number of threads. These threads use all the available CPU ressources. This is not an acceptable behaviour in multi-user context.
 To prevent this behaviour the tool 'affiliation_OTU' uses taskset to force RDPClassifier to run only on the specified number of CPUs. The number of threads is not changed but the CPU consumption is controled.
 
 
