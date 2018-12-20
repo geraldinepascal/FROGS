@@ -7,24 +7,23 @@ It has been tested on a Xubuntu 16.04 virtual machine.
 Here we suppose to install dependancies in the same directory as FROGS.
 
 ```
+version=3.1.0
 DIR=`pwd`
 BIN_DIR=$DIR/bin
 mkdir -p $BIN_DIR
-FROGS_libexec=$DIR/FROGS/libexec
-FROGS_lib=$DIR/FROGS/lib
-FROGS_test=$DIR/FROGS/test
+FROGS_libexec=$DIR/FROGS-$version/libexec
+FROGS_lib=$DIR/FROGS-$version/lib
+FROGS_test=$DIR/FROGS-$version/test
 ```
 
 ## Download FROGS
 
-**require**:  git
-
-`sudo apt install git`
-
 **download**
 
 ```
-git clone https://github.com/geraldinepascal/FROGS.git
+cd $DIR
+wget https://github.com/geraldinepascal/FROGS/archive/v$version.tar.gz
+tar -xvzf v$version.tar.gz
 ```
 
 ## Installing python and perl dependancies
@@ -69,7 +68,7 @@ cd vsearch-2.9.1
 make
 # test installation
 ./bin/vsearch -version
-# add vsearch in FROGS/libexec directory
+# add to FROGS
 ln -s $BIN_DIR/vsearch-2.9.1/bin/vsearch $FROGS_libexec/.
 ```
 
@@ -98,21 +97,28 @@ ask for download link and follow installation instructions
 
 ## 4) cutadpat 1.18, for FROGS Preprocess
 
-**require** :  cython
-`sudo apt-get install cython`
+**require** :  pip
+`sudo apt-get install python-pip`
 
 **installation**
 ```
 cd $BIN_DIR
-wget https://github.com/marcelm/cutadapt/archive/v1.18.tar.gz
-tar xvf v1.18.tar.gz
+mkdir cutadapt-1.18
 cd cutadapt-1.18
-sudo python setup.py install
-# check installation
-cutadapt --version
-# add to FROGS
-link=`which cutadapt`
-ln -s $link $FROGS_libexec/.
+# solution 1 precise directory
+  sudo pip install --prefix=$BIN_DIR/cutadapt-1.18 cutadat==1.18
+  # check installation
+  ./bin/cutadapt --version
+  # add to FROGS
+  ln -s $BIN_DIR/cutadapt-1.18/bin/cutadapt $FROGS_libexec/.
+# solution 2 let pip install cutadapt (binary will be available in your PATH)
+  #   in your home directory ~/.local/bin
+      pip install cutadat==1.18
+  #   using sudo in /usr/local/bin
+      sudo pip install cutadat==1.18
+  # add to FROGS
+  link=`which cutadapt`
+  ln -s $link $FROGS_libexec/.
 ```
 ## 5) swarm 2.2.2, for FROGS Clustering
 
@@ -132,20 +138,20 @@ ln -s $BIN_DIR/swarm-2.2.2/bin/swarm $FROGS_libexec/.
 
 ## 6) ITSx 1.0.11, , for FROGS ITSx
 
-**require** HMMER3
+**require** HMMER >= 3.0
 ```
 cd $BIN_DIR
-wget http://eddylab.org/software/hmmer/hmmer-3.0.tar.gz
-tar xvzf hmmer-3.0.tar.gz
-cd hmmer-3.0/
+wget http://eddylab.org/software/hmmer/hmmer-3.2.1.tar.gz
+tar xvzf hmmer-3.2.1.tar.gz
+cd hmmer-3.2.1/
 ./configure
 make
 # check installation
 ./src/hmmpress -h
 ./src/hmmscan -h
 # add to FROGS
-ln -s $BIN_DIR/hmmer-3.0/src/hmmpress $FROGS_libexec/.
-ln -s $BIN_DIR/hmmer-3.0/src/hmmscan $FROGS_libexec/.
+ln -s $BIN_DIR/hmmer-3.2.1/src/hmmpress $FROGS_libexec/.
+ln -s $BIN_DIR/hmmer-3.2.1/src/hmmscan $FROGS_libexec/.
 ```
 
 **installation**
@@ -165,8 +171,9 @@ cd $BIN_DIR/ITSx_1.0.11/
 rm ITSx_db/HMMs/*.h3*
 for file in ITSx_db/HMMs/*.hmm
 do
-$BIN_DIR/hmmer-3.0/src/hmmpress $file
+$BIN_DIR/hmmer-3.2.1/src/hmmpress $file
 done
+# this will return an error because of empty N.hmm file, not our fault
 ```
 
 ## 7) NCBI Blast+ blastn 2.7.1, for FROGS Affiliation_OTU
@@ -193,6 +200,7 @@ ln -s $BIN_DIR/ncbi-blast-2.2.30+/bin/blastn $FROGS_libexec/.
 cd $BIN_DIR
 git clone https://github.com/rdpstaff/RDPTools.git
 cd RDPTools
+git checkout 2.0.2
 git submodule init
 git submodule update
 make
@@ -364,7 +372,7 @@ sh test.sh ~/FROGS <NB_CPU> <JAVA_MEM> <OUT_FOLDER>
 This test executes the FROGS tools in command line mode.
 Example:
 ```
-[user@computer:/home/frogs/FROGS/test/]$ sh test.sh ~/FROGS 2 4 res
+[user@computer:/home/frogs/FROGS-$version/test/]$ sh test.sh ~/FROGS 2 4 res
 Step preprocess : Flash mercredi 10 octobre 2018, 14:11:30 (UTC+0200)
 Step preprocess : Vsearch mercredi 10 octobre 2018, 14:13:33 (UTC+0200)
 Step clustering mercredi 10 octobre 2018, 14:15:36 (UTC+0200)
