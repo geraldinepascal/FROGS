@@ -106,16 +106,18 @@ cd $BIN_DIR
 mkdir cutadapt-1.18
 cd cutadapt-1.18
 # solution 1 precise directory
-  sudo pip install --prefix=$BIN_DIR/cutadapt-1.18 cutadat==1.18
+  sudo pip install --prefix=$BIN_DIR/cutadapt-1.18 cutadapt==1.18
+  # add cutadapt python library to your PYTHONPATH
+  echo export PYTHONPATH="$BIN_DIR/cutadapt-1.18/lib/python2.7/site-packages:\$PYTHONPATH" >> ~/.bashrc
   # check installation
   ./bin/cutadapt --version
   # add to FROGS
   ln -s $BIN_DIR/cutadapt-1.18/bin/cutadapt $FROGS_libexec/.
 # solution 2 let pip install cutadapt (binary will be available in your PATH)
   #   in your home directory ~/.local/bin
-      pip install cutadat==1.18
+      pip install cutadapt==1.18
   #   using sudo in /usr/local/bin
-      sudo pip install cutadat==1.18
+      sudo pip install cutadapt==1.18
   # add to FROGS
   link=`which cutadapt`
   ln -s $link $FROGS_libexec/.
@@ -165,7 +167,7 @@ cd ITSx_1.0.11/
 ln -s $BIN_DIR/ITSx_1.0.11/ITSx $FROGS_libexec/.
 ln -s $BIN_DIR/ITSx_1.0.11/ITSx_db $FROGS_libexec/.
 ```
-**recompile ISx hmm files with your HMMER version
+**recompile ITSx hmm files with your HMMER version
 ```
 cd $BIN_DIR/ITSx_1.0.11/
 rm ITSx_db/HMMs/*.h3*
@@ -187,7 +189,7 @@ tar xvzf ncbi-blast-2.7.1+-x64-linux.tar.gz
 cd ncbi-blast-2.7.1+/bin/
 ./blastn -version
 # add to FROGS
-ln -s $BIN_DIR/ncbi-blast-2.2.30+/bin/blastn $FROGS_libexec/.
+ln -s $BIN_DIR/ncbi-blast-2.7.1+/bin/blastn $FROGS_libexec/.
 ```
 
 ## 8) RDPClassifier 2.0.2.1, for FROGS Affiliation_OTU
@@ -233,7 +235,7 @@ emboss/needleall -h
 ln -s $BIN_DIR/EMBOSS-6.6.0/emboss/needleall $FROGS_libexec/.
 ```
 
-## 11) MAfft 7.407, , for FROGS Tree
+## 11) MAfft 7.407, for FROGS Tree
 **installation**
 ```
 cd $BIN_DIR
