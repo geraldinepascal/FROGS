@@ -53,8 +53,8 @@ sudo apt-get install python-scipy
 
 ## 1) vsearch 2.9.1, for FROGS Preprocess and FROGS Remove_chimera
 
-**require** :  autoconf
-`sudo apt-get install autoconf`
+**require** :  autoconf, zlib and bzip2 libraries
+`sudo apt-get install autoconf zlib1g libbz2-dev`
 
 **installation**
 
@@ -246,28 +246,27 @@ cd core
 ```
 Edit Makefile
 * change `PREFIX = /usr/local` with your $DIR (like `# PREFIX = /home/frogs/bin/mafft-7.407-with-extensions/`
-* change `BINDIR = $(PREFIX)/bin` with your $DIR (like `# BINDIR = /home/frogs/bin/mafft-7.407-with-extensions/bin`
 
 ```
 make clean
 make
 # check installation
-$BIN_DIR/mafft-7.310-with-extensions/bin/mafft -h
+$BIN_DIR/mafft-7.407-with-extensions/scripts/mafft -h
 # add to FROGS
-ln -s $BIN_DIR/mafft-7.310-with-extensions/bin/mafft $FROGS_libexec/.
+ln -s $BIN_DIR/mafft-7.407-with-extensions/scripts/mafft $FROGS_libexec/.
 ```
 
 ## 12) FastTree 2.1.10, for FROGS Tree
 
 **installation**
 ```
-$BIN_DIR
+cd $BIN_DIR
 mkdir Fasttree
 cd Fasttree
 wget http://www.microbesonline.org/fasttree/FastTree # this may change the version!
 chmod 777 FastTree
 # check install
-FastTree -h
+./FastTree -h
 # add to FROGS
 ln -s $BIN_DIR/Fasttree/FastTree $FROGS_libexec/.
 ```
@@ -276,23 +275,23 @@ ln -s $BIN_DIR/Fasttree/FastTree $FROGS_libexec/.
 
 **installation**
 ```
-# add repository to /etc/apt/sources.list :
-sudo echo "deb https://cloud.r-project.org/bin/linux/ubuntu xenial/" >> /etc/apt/sources.list
+# add repository to /etc/apt/sources.list : # update with your ubuntu version! (see https://pbil.univ-lyon1.fr/CRAN/ )
+write `deb https://cloud.r-project.org/bin/linux/ubuntu xenial-cran35/ `at the end of the sources.list file
 sudo apt-get update
 sudo apt-get install r-base
 # check installation
 R --version
 # add to FROGS
 link=`which Rscript`
-ln -s $link FROGS_libexec/.
+ln -s $link $FROGS_libexec/.
 ```
 ### R package dependancies
 
 **require (outside R) **  : httr which need openssl and curl (for plotly)
-`sudo apt-get install libssl libcurl4-openssl-dev`
+`sudo apt-get install libssl-dev libcurl4-openssl-dev`
 
 **installation**
-inside R:
+inside R (use sudo if you want to share installation, else packages will be installed in ~/R):
 `R`
 
 * plotly
@@ -322,20 +321,23 @@ install.packages("gridExtra")
 library(gridExtra)
 ```
 
-* phyloseq
+* phyloseq (this will take some times)
 ```
 source("https://bioconductor.org/biocLite.R")
 biocLite("phyloseq")
+# it should install automatically package dependancies
 # check installation
 library(phyloseq)
+
 ```
 
-### validation
+### validation 
 ```
 sessionInfo()
-# [1] phyloseq_1.22.3      BiocInstaller_1.28.0 phangorn_2.4.0      
-# [4] ape_5.2              rmarkdown_1.10       gridExtra_2.3       
-# [7] plotly_4.8.0         ggplot2_3.1.0 
+other attached packages:
+[1] phyloseq_1.24.2      gridExtra_2.3        rmarkdown_1.11      
+[4] phangorn_2.4.0       ape_5.2              plotly_4.8.0        
+[7] ggplot2_3.1.0        BiocInstaller_1.30.0
 ```
 versions may change!
 
@@ -374,7 +376,7 @@ sh test.sh ~/FROGS <NB_CPU> <JAVA_MEM> <OUT_FOLDER>
 This test executes the FROGS tools in command line mode.
 Example:
 ```
-[user@computer:/home/frogs/FROGS-$version/test/]$ sh test.sh ~/FROGS 2 4 res
+[user@computer:/home/frogs/FROGS-3.0.0/test/]$ sh test.sh $DIR/FROGS-$version 2 4 res
 Step preprocess : Flash mercredi 10 octobre 2018, 14:11:30 (UTC+0200)
 Step preprocess : Vsearch mercredi 10 octobre 2018, 14:13:33 (UTC+0200)
 Step clustering mercredi 10 octobre 2018, 14:15:36 (UTC+0200)
