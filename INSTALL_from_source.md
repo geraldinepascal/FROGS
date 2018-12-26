@@ -54,7 +54,8 @@ sudo apt-get install python-scipy
 ## 1) vsearch 2.9.1, for FROGS Preprocess and FROGS Remove_chimera
 
 **require** :  autoconf, zlib and bzip2 libraries
-`sudo apt-get install autoconf zlib1g libbz2-dev`
+
+`sudo apt-get install autoconf libz-dev libbz2-dev`
 
 **installation**
 
@@ -73,9 +74,6 @@ ln -s $BIN_DIR/vsearch-2.9.1/bin/vsearch $FROGS_libexec/.
 ```
 
 ## 2) FLASH 1.2.11 (optional), for FROGS Preprocess
-
-**require** : zlib
-`sudo apt-get install libz-dev`
 
 **installation**
 
