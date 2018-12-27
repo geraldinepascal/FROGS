@@ -88,6 +88,8 @@ The amplicons can have a high length variability such as ITS.  The R1 and R2 can
 
 # Installation
 
+This FROGS repository is for command line user. If you want to install FROGS on Galaxy, please refer to [FROGS-wrappers](https://github.com/geraldinepascal/FROGS-wrappers).
+
 ## Tools dependancies
 
 FROGS is written in Python 2.7, uses on home-made scripts written in PERL5 and uses on external Python library, Scipy.
