@@ -103,7 +103,7 @@ ask for download link and follow installation instructions
 cd $BIN_DIR
 mkdir cutadapt-1.18
 cd cutadapt-1.18
-# solution 1 precise directory
+# solution 1 : precise directory (not recommended if you want to use Galaxy)
   sudo pip install --prefix=$BIN_DIR/cutadapt-1.18 cutadapt==1.18
   # add cutadapt python library to your PYTHONPATH
   echo export PYTHONPATH="$BIN_DIR/cutadapt-1.18/lib/python2.7/site-packages:\$PYTHONPATH" >> ~/.bashrc
