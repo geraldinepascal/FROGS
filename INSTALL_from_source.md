@@ -233,23 +233,23 @@ emboss/needleall -h
 ln -s $BIN_DIR/EMBOSS-6.6.0/emboss/needleall $FROGS_libexec/.
 ```
 
-## 11) MAfft 7.407, for FROGS Tree
+## 11) MAFFT 7.407, for FROGS Tree
 **installation**
 ```
 cd $BIN_DIR
 wget https://mafft.cbrc.jp/alignment/software/mafft-7.407-with-extensions-src.tgz
 tar -xvzf mafft-7.407-with-extensions-src.tgz
-cd mafft-7.407-with-extensions/
+cd mafft-7.407-with-extensions
+```
+Edit core/Makefile
+* change `PREFIX = /usr/local` with your MAFFT directory (like `# PREFIX = /home/frogs/bin/mafft-7.407-with-extensions/`
+```
 cd core
-```
-Edit Makefile
-* change `PREFIX = /usr/local` with your $DIR (like `# PREFIX = /home/frogs/bin/mafft-7.407-with-extensions/`
-
-```
 make clean
 make
+make install
 # check installation
-$BIN_DIR/mafft-7.407-with-extensions/scripts/mafft -h
+$BIN_DIR/mafft-7.407-with-extensions/bin/mafft -h
 # add to FROGS
 ln -s $BIN_DIR/mafft-7.407-with-extensions/scripts/mafft $FROGS_libexec/.
 ```
@@ -375,26 +375,26 @@ This test executes the FROGS tools in command line mode.
 Example:
 ```
 [user@computer:/home/frogs/FROGS-3.0.0/test/]$ sh test.sh $DIR/FROGS-$version 2 4 res
-Step preprocess : Flash mercredi 10 octobre 2018, 14:11:30 (UTC+0200)
-Step preprocess : Vsearch mercredi 10 octobre 2018, 14:13:33 (UTC+0200)
-Step clustering mercredi 10 octobre 2018, 14:15:36 (UTC+0200)
-Step remove_chimera mercredi 10 octobre 2018, 14:18:43 (UTC+0200)
-Step filters mercredi 10 octobre 2018, 14:22:36 (UTC+0200)
-Step ITSx mercredi 10 octobre 2018, 14:22:42 (UTC+0200)
-Step affiliation_OTU mercredi 10 octobre 2018, 14:22:42 (UTC+0200)
-Step affiliation_postprocess mercredi 10 octobre 2018, 14:23:08 (UTC+0200)
-Step clusters_stat mercredi 10 octobre 2018, 14:23:08 (UTC+0200)
-Step affiliations_stat mercredi 10 octobre 2018, 14:23:09 (UTC+0200)
-Step biom_to_tsv mercredi 10 octobre 2018, 14:23:12 (UTC+0200)
-Step biom_to_stdBiom mercredi 10 octobre 2018, 14:23:12 (UTC+0200)
-Step tsv_to_biom mercredi 10 octobre 2018, 14:23:12 (UTC+0200)
-Step tree : mafft mercredi 10 octobre 2018, 14:23:26 (UTC+0200)
-Step r_import_data mercredi 10 octobre 2018, 14:25:25 (UTC+0200)
-Step r_composition mercredi 10 octobre 2018, 14:25:39 (UTC+0200)
-Step r_alpha_diversity mercredi 10 octobre 2018, 14:25:53 (UTC+0200)
-Step r_beta_diversity mercredi 10 octobre 2018, 14:26:19 (UTC+0200)
-Step r_structure mercredi 10 octobre 2018, 14:26:31 (UTC+0200)
-Step r_clustering mercredi 10 octobre 2018, 14:26:47 (UTC+0200)
-Step r_manova mercredi 10 octobre 2018, 14:26:57 (UTC+0200)
+Step preprocess : Flash jeudi 27 décembre 2018, 10:26:09 (UTC+0100)
+Step preprocess : Vsearch jeudi 27 décembre 2018, 10:29:13 (UTC+0100)
+Step clustering jeudi 27 décembre 2018, 10:32:33 (UTC+0100)
+Step remove_chimera jeudi 27 décembre 2018, 10:41:35 (UTC+0100)
+Step filters jeudi 27 décembre 2018, 10:48:16 (UTC+0100)
+Step ITSx jeudi 27 décembre 2018, 10:48:29 (UTC+0100)
+Step affiliation_OTU jeudi 27 décembre 2018, 10:48:50 (UTC+0100)
+Step affiliation_postprocess jeudi 27 décembre 2018, 10:49:33 (UTC+0100)
+Step clusters_stat jeudi 27 décembre 2018, 10:49:33 (UTC+0100)
+Step affiliations_stat jeudi 27 décembre 2018, 10:49:35 (UTC+0100)
+Step biom_to_tsv jeudi 27 décembre 2018, 10:49:38 (UTC+0100)
+Step biom_to_stdBiom jeudi 27 décembre 2018, 10:49:39 (UTC+0100)
+Step tsv_to_biom jeudi 27 décembre 2018, 10:49:39 (UTC+0100)
+Step tree : mafft jeudi 27 décembre 2018, 10:49:39 (UTC+0100)
+Step r_import_data jeudi 27 décembre 2018, 10:50:59 (UTC+0100)
+Step r_composition jeudi 27 décembre 2018, 10:52:02 (UTC+0100)
+Step r_alpha_diversity jeudi 27 décembre 2018, 10:53:01 (UTC+0100)
+Step r_beta_diversity jeudi 27 décembre 2018, 10:53:33 (UTC+0100)
+Step r_structure jeudi 27 décembre 2018, 10:53:48 (UTC+0100)
+Step r_clustering jeudi 27 décembre 2018, 10:54:45 (UTC+0100)
+Step r_manova jeudi 27 décembre 2018, 10:54:59 (UTC+0100)
 Completed with success
 ```
