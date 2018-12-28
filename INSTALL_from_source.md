@@ -111,6 +111,7 @@ cd cutadapt-1.18
   ./bin/cutadapt --version
   # add to FROGS
   ln -s $BIN_DIR/cutadapt-1.18/bin/cutadapt $FROGS_libexec/.
+
 # solution 2 let pip install cutadapt (binary will be available in your PATH)
   #   in your home directory ~/.local/bin
       pip install cutadapt==1.18
@@ -138,7 +139,8 @@ ln -s $BIN_DIR/swarm-2.2.2/bin/swarm $FROGS_libexec/.
 
 ## 6) ITSx 1.0.11, , for FROGS ITSx
 
-**require** HMMER >= 3.0
+**require** : HMMER >= 3.0
+
 ```
 cd $BIN_DIR
 wget http://eddylab.org/software/hmmer/hmmer-3.2.1.tar.gz
@@ -165,7 +167,8 @@ cd ITSx_1.0.11/
 ln -s $BIN_DIR/ITSx_1.0.11/ITSx $FROGS_libexec/.
 ln -s $BIN_DIR/ITSx_1.0.11/ITSx_db $FROGS_libexec/.
 ```
-**recompile ITSx hmm files with your HMMER version
+**recompile ITSx hmm files with your HMMER version**
+
 ```
 cd $BIN_DIR/ITSx_1.0.11/
 rm ITSx_db/HMMs/*.h3*
@@ -192,7 +195,7 @@ ln -s $BIN_DIR/ncbi-blast-2.7.1+/bin/blastn $FROGS_libexec/.
 
 ## 8) RDPClassifier 2.0.2.1, for FROGS Affiliation_OTU
 
-**require** : ant java se jdk
+**require** : ant and java se jdk
 `sudo apt-get install ant default-jdk`
 
 **installation**
@@ -210,15 +213,16 @@ ln -s $BIN_DIR/RDPTools/classifier.jar $FROGS_libexec/.
 
 ## 9) taskset, for FROGS Affiliation_OTU
 
-** intallation**
+**intallation**
 `sudo apt-get install util-linux`
 
 ## 10) Needlall 6.6.0.0, for FROGS Affiliation_OTU
 
-**require** : pdf, png support
-` sudo apt-get install libhpdf-dev libpng-dev
+**require** : pdf and png support
+` sudo apt-get install libhpdf-dev libpng-dev` 
 
 **installation**
+
 ```
 cd $BIN_DIR
 wget ftp://emboss.open-bio.org/pub/EMBOSS/EMBOSS-6.6.0.tar.gz
@@ -272,9 +276,9 @@ ln -s $BIN_DIR/Fasttree/FastTree $FROGS_libexec/.
 ## 13) R 3.5.1, for all FROGSSTAT Phyloseq tools
 
 **installation**
+
+add repository to `/etc/apt/sources.list` for  your ubuntu version! (see https://pbil.univ-lyon1.fr/CRAN/ ), write `deb https://cloud.r-project.org/bin/linux/ubuntu xenial-cran35/ `at the end of the sources.list file
 ```
-# add repository to /etc/apt/sources.list : # update with your ubuntu version! (see https://pbil.univ-lyon1.fr/CRAN/ )
-write `deb https://cloud.r-project.org/bin/linux/ubuntu xenial-cran35/ `at the end of the sources.list file
 sudo apt-get update
 sudo apt-get install r-base
 # check installation
@@ -373,8 +377,9 @@ sh test.sh ~/FROGS <NB_CPU> <JAVA_MEM> <OUT_FOLDER>
 
 This test executes the FROGS tools in command line mode.
 Example:
+
 ```
-[user@computer:/home/frogs/FROGS-3.0.0/test/]$ sh test.sh $DIR/FROGS-$version 2 4 res
+[user@computer]$ sh test.sh $DIR/FROGS-$version 2 4 res
 Step preprocess : Flash jeudi 27 décembre 2018, 10:26:09 (UTC+0100)
 Step preprocess : Vsearch jeudi 27 décembre 2018, 10:29:13 (UTC+0100)
 Step clustering jeudi 27 décembre 2018, 10:32:33 (UTC+0100)
