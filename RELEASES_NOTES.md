@@ -2,6 +2,7 @@
 
 ### Bug fixed
   * Tsv_to_Biom : manage quotes added by Excel
+  * Affiliation_postprocess : bug when references are not in the troncated amplicon database.
 
 ### Modifications:
   * Tree do no longer support Pynast alignment thanks to a template file
