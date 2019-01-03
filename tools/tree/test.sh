@@ -15,14 +15,6 @@ fi
 # FROGS_tree #
 ##############
 
-# arbre pynast
-mkdir -p test/pynast
-python tree.py -i data/sequences.fasta \
-    -t data/otus_pynast.fasta \
-    -b data/sequences.biom \
-    -s test/pynast/summary.html \
-    -o test/pynast/frogs.nwk -l test/pynast/tree.log
-
 # # arbre mafft
 mkdir -p test/mafft
 python tree.py -i data/sequences.fasta \

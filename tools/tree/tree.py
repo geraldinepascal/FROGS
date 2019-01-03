@@ -221,7 +221,7 @@ def write_summary( summary_file, fasta_in, align_out, biomfile, treefile):
     summary_info['abundance_kept'] = number_abundance_all - summary_info['abundance_removed']
     
     # Write
-    FH_summary_tpl = open( os.path.join(CURRENT_DIR, "tree_tpl2.html") )
+    FH_summary_tpl = open( os.path.join(CURRENT_DIR, "tree_tpl.html") )
     FH_summary_out = open( summary_file, "w" )
     for line in FH_summary_tpl:
         if "###HEIGHT###" in line:
