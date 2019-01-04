@@ -28,7 +28,7 @@ echo "Step preprocess : Flash `date`"
 preprocess.py illumina \
  --min-amplicon-size 44 --max-amplicon-size 490 \
  --five-prim-primer GGCGVACGGGTGAGTAA --three-prim-primer GTGCCAGCNGCNGCGG \
- --R1-size 267 --R2-size 266 --expected-amplicon-size 420 --merge-software flash\
+ --R1-size 267 --R2-size 266 --expected-amplicon-size 420 --merge-software flash \
  --nb-cpus $nb_cpu --mismatch-rate 0.15 --keep-unmerged \
  --input-archive $frogs_dir/test/data/test_dataset.tar.gz \
  --output-dereplicated $out_dir/01-prepro-flash.fasta \
@@ -47,7 +47,7 @@ echo "Step preprocess : Vsearch `date`"
 preprocess.py illumina \
  --min-amplicon-size 44 --max-amplicon-size 490 \
  --five-prim-primer GGCGVACGGGTGAGTAA --three-prim-primer GTGCCAGCNGCNGCGG \
- --R1-size 267 --R2-size 266 --expected-amplicon-size 420 --merge-software flash\
+ --R1-size 267 --R2-size 266 --merge-software vsearch \
  --nb-cpus $nb_cpu --mismatch-rate 0.15 --keep-unmerged \
  --input-archive $frogs_dir/test/data/test_dataset.tar.gz \
  --output-dereplicated $out_dir/01-prepro-vsearch.fasta \
@@ -249,23 +249,6 @@ tsv_to_biom.py \
 if [ $? -ne 0 ]
 then
 	echo "Error in tsv_to_biom" >&2
-	exit 1;
-fi
-
-echo "Step tree : pynast `date`"
-
-tree.py \
- --nb-cpus $nb_cpu  \
- --input-otu $frogs_dir/test/data/to_test_pynast.fasta \
- --biomfile $frogs_dir/test/data/to_test_pynast.biom \
- --template-pynast $frogs_dir/test/data/otus_pynast.fasta \
- --out-tree $out_dir/13-tree-pynast.nwk \
- --html $out_dir/13-tree-pynast.html \
- --log-file $out_dir/13-tree-pynast.log
- 
-if [ $? -ne 0 ]
-then
-	echo "Error in tree : pynast" >&2
 	exit 1;
 fi
 

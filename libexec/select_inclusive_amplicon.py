@@ -108,7 +108,7 @@ def select_smallest(blast_affiliations, ref_size):
 
     for affi in blast_affiliations:
         if not affi["subject"] in ref_size:
-            return all_affi
+            return blast_affiliations
         if min_size == 0 or ref_size[affi["subject"]] < min_size :
             smallest_affi = [affi]
             min_size = ref_size[affi["subject"]]

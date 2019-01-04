@@ -45,25 +45,29 @@ from frogsSequenceIO import *
 #
 ##################################################################################################################################################
 def store_multihits(input_multihits):
+    
     multi_hit_dict=dict()
     FH_in = open(input_multihits)
-    header_line = FH_in.readline()
+    
     #to insure colnames transpositions in multiAffiFromBiom.py
     # from 1.1.0 :
     v1_1_0 = ["OTU", "Subject_taxonomy", "Blast_subject", "Prct_identity", "Prct_query_coverage", "e-value", "Alignment_length"]
     # to 1.1.2 (same as in TSV file):
     v1_2_0 = ["observation_name", "blast_taxonomy", "blast_subject", "blast_perc_identity", "blast_perc_query_coverage", "blast_evalue", "blast_aln_length"]
+    
+    header_line = FH_in.readline()
+    
     for i in range(0,len(v1_1_0)):
         header_line = header_line.replace(v1_1_0[i],v1_2_0[i])
 
-    header_line = header_line.replace("#","").strip().split()
+    header_line = header_line.replace("#","").replace('"','').strip().split()
 
     for colname in header_line:
         if colname not in ["observation_name", "blast_taxonomy", "blast_subject", "blast_perc_identity", "blast_perc_query_coverage", "blast_evalue", "blast_aln_length"] :
             raise Exception("\n"+colname+" is not a valid FROGS TSV column name.\nPlease restore the default column names: "+", ".join(["observation_name", "blast_taxonomy", " blast_subject", "blast_perc_identity", "blast_perc_query_coverage", "blast_evalue", "blast_aln_length"])+"\n\n")
 
     for line in FH_in.readlines():
-        line = line.strip().split("\t")
+        line = line.strip().replace('"','').split("\t")
         d=dict(zip(header_line,line))
         observation_name = d.pop("observation_name")
         if observation_name in multi_hit_dict:
@@ -150,7 +154,6 @@ def observation_blast_parts( metadata, obs_mutli_blast):
             blast_affiliations.append( affi_dict)
 
     # compute consensus tax from blast_affiliations
-    # consensus = get_tax_consensus([ t["taxonomy"].split(";") for t in blast_affiliations])
     consensus = get_tax_consensus([ t["taxonomy"] for t in blast_affiliations])
 
     return consensus, blast_affiliations
@@ -192,7 +195,7 @@ def tsv_to_biom( input_tsv, multi_hit_dict, fields, samples_names, output_biom, 
     for line in in_fh:
 
         cluster_name=""
-        line_list=line.strip().split("\t")
+        line_list=line.replace('"','').strip().split("\t")
         count_by_sample = {}
         metadata_dict = {}
         # parse columns

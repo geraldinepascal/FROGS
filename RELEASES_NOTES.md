@@ -1,8 +1,18 @@
+# v3.1 [DEV]
+
+### Bug fixed
+  * Tsv_to_Biom : manage quotes added by Excel
+  * Affiliation_postprocess : bug when references are not in the troncated amplicon database.
+
+### Modifications:
+  * Tree do no longer support Pynast alignment thanks to a template file
+  * XML wrappers, images and loc files are externalized to [FROGS-wrappers](https://github.com/geraldinepascal/FROGS-wrappers) (FROGS is now available on Toolshed and conda )
+
 # v3.0.0 [2018-10-10]
 ### Tools added:
   * ITSx : tool available for selecting and trimming ITS sequences based on ITSx tool
   * Affiliation Postprocess : resolve ambiguities due to inclusiv ITS, and aggregated OTU based on 
-  taxonomic affiliations
+    taxonomic affiliations
 
 ### Functions added:
   * Preprocess : keep and filter non overlapped reads (particularly important for amplicon polymorphe in length)
@@ -19,7 +29,7 @@
   * Preprocess : add VSEARCH and PEAR (https://sco.h-its.org/exelixis/web/software/pear/ only for command line usage because of PEAR licence) options to merge reads
   * Clustering : deal with artificially combined reads
   * FROGSSTAT tools do not call anymore external script from urls. Additionnal library dependancies 
-  added : https://github.com/mahendra-mariadassou/phyloseq-extended/releases
+    added : https://github.com/mahendra-mariadassou/phyloseq-extended/releases
   * FROGSSTAT import : can take FROGS specific biom file
   * FROGS TSV_to_Biom : keeps original type of metadata (float, int or list instead of string)
                         remove quotes added by Excel when exporting abundance tsv file in text file

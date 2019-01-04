@@ -1,6 +1,6 @@
 #!/usr/bin/env python2.7
 #
-# Copyright (C) 2016 INRA
+# Copyright (C) 2018 INRA
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -19,7 +19,7 @@
 __author__ = 'Maria Bernard - Sigenae INRA'
 __copyright__ = 'Copyright (C) 2016 INRA'
 __license__ = 'GNU General Public License'
-__version__ = 'r3.0-2.0'
+__version__ = '3.1'
 __email__ = 'frogs@inra.fr'
 __status__ = 'dev'
 
@@ -81,8 +81,8 @@ class Tsv2biom(Cmd):
         observation_sum_index = header.index("observation_sum")
         if (observation_sum_index - observation_name_index) != 1:
             raise Exception( "You change the order of columns. TSV file must ended with observation_name, observation_sum, sample1, sample2 ... \n" )
-        samples_names = "'" + "' '".join(header[observation_sum_index+1:]) + "'"
-        fields = "'" + "' '".join(header[:observation_sum_index]) + "'"
+        samples_names = " ".join(header[observation_sum_index+1:])
+        fields = " ".join(header[:observation_sum_index])
         # Set command
         Cmd.__init__( self,
                       'tsv2biom.py',
