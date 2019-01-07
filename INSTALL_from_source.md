@@ -132,7 +132,7 @@ cd swarm-2.2.2/src
 make
 cd ../
 # check installation
-./bin/swarm -version
+./bin/swarm --version
 # add to FROGS
 ln -s $BIN_DIR/swarm-2.2.2/bin/swarm $FROGS_libexec/.
 ```
