@@ -228,7 +228,7 @@ cd $BIN_DIR
 wget ftp://emboss.open-bio.org/pub/EMBOSS/EMBOSS-6.6.0.tar.gz
 tar xvf EMBOSS-6.6.0.tar.gz
 cd EMBOSS-6.6.0 
-./configure --prefix=/home/frogs/bin/EMBOSS-6.6.0
+./configure --prefix=$BIN_DIR/EMBOSS-6.6.0
 make 
 make install
 # check installation
@@ -277,7 +277,7 @@ ln -s $BIN_DIR/Fasttree/FastTree $FROGS_libexec/.
 
 **installation**
 
-add repository to `/etc/apt/sources.list` for  your ubuntu version! (see https://pbil.univ-lyon1.fr/CRAN/ ), write `deb https://cloud.r-project.org/bin/linux/ubuntu xenial-cran35/ `at the end of the sources.list file
+add repository to `/etc/apt/sources.list` for  your ubuntu version! (see https://pbil.univ-lyon1.fr/CRAN/ , this is a french mirror), write `deb https://cloud.r-project.org/bin/linux/ubuntu xenial-cran35/ `at the end of the sources.list file
 ```
 sudo apt-get update
 sudo apt-get install r-base
@@ -368,8 +368,7 @@ ln -s /usr/bin/pandoc $FROGS_libexec/.
 To check your installation you can type:
 ```
 cd $FROGS_test
-
-sh test.sh ~/FROGS <NB_CPU> <JAVA_MEM> <OUT_FOLDER>
+sh test.sh ../ <NB_CPU> <JAVA_MEM> <OUT_FOLDER>
 # Note: JAVA_MEM must be at least 4 (= 4Gb of RAM).
 ```
 "Bioinformatic" tools are performed on a small simulated dataset of one sample replicated three times.
