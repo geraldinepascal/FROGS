@@ -1,6 +1,4 @@
-# v3.2 [DEV]
-
-# v3.1 [2018-01-07]
+# v3.1 [2018-01-08]
 
 ### Bug fixed
   * Tsv_to_Biom : manage quotes added by Excel
