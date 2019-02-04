@@ -72,7 +72,7 @@ if ((gregexpr('k__', tax))[[1]][1]>0) {
     colnames(tax_table(data)) <- new_rank
 }
 
-sampledata <- read.csv(params$samplefile, sep = "", row.names = 1)
+sampledata <- read.csv(params$samplefile, sep = "\t", row.names = 1)
 ## add sample name to metadata, as SampleID variable
 sampledata$SampleID <- rownames(sampledata)
 sample_data(data) <- sampledata
