@@ -469,7 +469,8 @@ def process( args ):
         write_summary( args.summary, args.input_biom, args.output_biom, discards )
 
     finally:
-        tmpFiles.deleteAll()
+        if not args.debug : 
+            tmpFiles.deleteAll()
 
 
 ##################################################################################################################################################
@@ -481,6 +482,7 @@ if __name__ == '__main__':
     # Parameters
     parser = argparse.ArgumentParser(description='Filters an abundance file')
     parser.add_argument('-p', '--nb-cpus', type=int, default=1, help="The maximum number of CPUs used. [Default: %(default)s]")
+    parser.add_argument( '--debug', default=False, action='store_true', help="Keep temporary files to debug program." )
     parser.add_argument( '-v', '--version', action='version', version=__version__ )
     #     Filters
     group_filter = parser.add_argument_group( 'Filters' )
