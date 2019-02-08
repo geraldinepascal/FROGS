@@ -178,7 +178,7 @@ def get_conta( min_identity, min_coverage, blast_file ):
 
     return contaminated_ids, alignment_heatmap
 
-def write_log( log_file, processed_count, removed_count, alignment_heatmap ):
+def write_log( log_file, blast_cmd,  processed_count, removed_count, alignment_heatmap ):
     """
     @summary: Write log.
     @param log_file: [str] Path to the log file.
@@ -189,6 +189,7 @@ def write_log( log_file, processed_count, removed_count, alignment_heatmap ):
     # Write logs
     FH_log = open(log_file, "w")
     FH_log.write("##Global info\n")
+    FH_log.write("#Blast command line : " + " ".join(blast_cmd) + "\n")
     FH_log.write("#Processed :\t" + str(processed_count) + "\n")
     FH_log.write("#Contaminated :\t" + str(removed_count) + "\n")
     FH_log.write("#Clean :\t" + str(processed_count - removed_count) + "\n")
@@ -284,7 +285,7 @@ if __name__ == "__main__":
             filter_biom( contaminated_ids, args.input_biom, args.clean_biom )
 
         # Log
-        write_log( args.log_file, nb_seq_ini, len(contaminated_ids), alignment_heatmap )
+        write_log( args.log_file, blast_cmd, nb_seq_ini, len(contaminated_ids), alignment_heatmap )
     finally:
         if not args.debug:
             tmp_files.deleteAll()
