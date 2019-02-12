@@ -227,11 +227,10 @@ if __name__ == "__main__":
     group_input.add_argument( '-f', '--input-fasta', required=True, help='The cluster sequences (format: fasta).' )
     group_exclusion_abundance = group_input.add_mutually_exclusive_group()
     group_exclusion_abundance.add_argument( '-b', '--input-biom', help='The abundance file for clusters by sample (format: BIOM).' )
-    group_exclusion_abundance.add_argument( '-c', '--input-count', help='The abundance file for clusters by sample (format: count).' )
     # Outputs
     group_output = parser.add_argument_group( 'Outputs' )
     group_output.add_argument( '-n', '--out-fasta', default='itsx.fasta', help='sequences file out from ITSx (format: fasta). [Default: %(default)s]')
-    group_output.add_argument( '-a', '--out-abundance', default=None, help='Abundance file without chimera (format: BIOM or count).')
+    group_output.add_argument( '-a', '--out-abundance', default="itsx_abundance.biom", help='Abundance file without chimera (format: BIOM ).')
     group_output.add_argument( '-m', '--out-removed', default='removed.fasta', help='sequences file removed (format: fasta). [Default: %(default)s]')
     group_output.add_argument( '--summary', default="summary.html", help='Report of the results (format: HTML). [Default: %(default)s]')
     group_output.add_argument( '-l', '--log-file', default=sys.stdout, help='This output file will contain several information on executed commands.')
@@ -245,12 +244,6 @@ if __name__ == "__main__":
     try:
         Logger.static_write(args.log_file, "## Application\nSoftware :" + sys.argv[0] + " (version : " + str(__version__) + ")\nCommand : " + " ".join(sys.argv) + "\n\n")
         log_itsx = tmpFiles.add("ITSx.log")
-        if args.input_count is None:
-            if args.out_abundance == None:
-                args.out_abundance = "itsx_abundance.biom"
-        else:
-            if args.out_abundance == None:
-                args.out_abundance = "itsx_abundance.count"
         
         ITSx(args.input_fasta, args.input_biom, args.region, args.out_fasta, args.out_abundance, args.out_removed, log_itsx, args ).submit( args.log_file )
         write_summary( args.summary, args.input_biom, args.out_abundance)
