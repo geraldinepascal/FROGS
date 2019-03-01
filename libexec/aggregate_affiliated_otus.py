@@ -141,7 +141,7 @@ def process(params):
                     if equivalent_otu_name == "":
                         equivalent_otu_name = otu_by_tax[taxonomy]
                     elif otu_by_tax[taxonomy] != equivalent_otu_name:
-                        Logger.static_write("\tWarning: observation " + otu_name + " shares taxonomy with an other OTU : " + otu_by_tax[taxonomy] + ", first detected OTU will be kept : " + equivalent_otu_name + "\n" )
+                        Logger.static_write(params.log_file, "\tWarning: observation " + otu_name + " shares taxonomy with an other OTU : " + otu_by_tax[taxonomy] + ", first detected OTU will be kept : " + equivalent_otu_name + "\n" )
             # if new tax, add OTU and save taxonomies
             if is_new_tax:
                 otu_out += 1
