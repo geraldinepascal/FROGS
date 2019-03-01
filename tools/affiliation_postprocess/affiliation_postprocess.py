@@ -74,7 +74,7 @@ class SelectInclusiv(Cmd):
 
 
     def get_version(self):   
-        return Cmd.get_version(self, 'stdout').strip()
+        return Cmd.get_version(self, 'stderr').strip()
 
 class AggregateOTU(Cmd) : 
     """
@@ -110,7 +110,7 @@ class AggregateOTU(Cmd) :
         FH_in.close()
 
     def get_version(self):   
-        return Cmd.get_version(self, 'stdout').strip()
+        return Cmd.get_version(self, 'stderr').strip()
 
 ###################################################################################################################
 ###                                           FUNCTIONS                                                         ###
