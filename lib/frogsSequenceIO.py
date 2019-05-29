@@ -1,3 +1,4 @@
+#!/usr/bin/env python2.7
 #
 # Copyright (C) 2014 INRA
 #
@@ -19,7 +20,7 @@ __author__ = 'Frederic Escudie - Plateforme bioinformatique Toulouse'
 __copyright__ = 'Copyright (C) 2015 INRA'
 __license__ = 'GNU General Public License'
 __version__ = '1.0.2'
-__email__ = 'frogs@inra.fr'
+__email__ = 'frogs-support@inra.fr'
 __status__ = 'prod'
 
 import gzip

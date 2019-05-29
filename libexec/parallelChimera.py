@@ -20,7 +20,7 @@ __author__ = 'Frederic Escudie - Plateforme bioinformatique Toulouse - Maria Ber
 __copyright__ = 'Copyright (C) 2015 INRA'
 __license__ = 'GNU General Public License'
 __version__ = '0.7.1'
-__email__ = 'frogs@inra.fr'
+__email__ = 'frogs-support@inra.fr'
 __status__ = 'prod'
 
 import os

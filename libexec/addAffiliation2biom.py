@@ -20,7 +20,7 @@ __author__ = 'Maria Bernard - Sigenae AND Frederic Escudie - Plateforme bioinfor
 __copyright__ = 'Copyright (C) 2015 INRA'
 __license__ = 'GNU General Public License'
 __version__ = '2.3.0'
-__email__ = 'frogs@inra.fr'
+__email__ = 'frogs-support@inra.fr'
 __status__ = 'prod'
 
 import os
@@ -180,6 +180,7 @@ def get_bests_blast_affi( blast_files, taxonomy_by_subject ):
                     'evalue': parts[10],
                     'aln_length': int(parts[3]),
                     'perc_identity': float(parts[2]),
+                    # (end - start + 1) / qlen *100
                     'perc_query_coverage': (int(parts[7]) - int(parts[6]) + 1) / float(parts[12]) * 100
                 })
         FH_blast.close()
