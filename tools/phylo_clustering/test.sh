@@ -10,7 +10,7 @@ else
   mkdir test
 fi 
 
-python r_clustering.py \
+./r_clustering.py \
     --rdata data/data.Rdata \
     --varExp EnvType \
     --distance-matrix data/Unifrac.tsv \

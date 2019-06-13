@@ -10,7 +10,7 @@ else
   mkdir test
 fi 
 
-python r_beta_diversity.py \
+./r_beta_diversity.py \
            --rdata data/data.Rdata \
            --varExp EnvType \
            --distance-methods bray,unifrac,euclidean \

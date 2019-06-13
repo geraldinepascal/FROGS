@@ -17,7 +17,7 @@ fi
 
 # # arbre mafft
 mkdir -p test/mafft
-python tree.py -i data/sequences.fasta \
+./tree.py -i data/sequences.fasta \
     -b data/sequences.biom \
     -s test/mafft/summary.html \
     -o test/mafft/frogs.nwk -l test/mafft/tree.log

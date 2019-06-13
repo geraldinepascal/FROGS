@@ -10,7 +10,7 @@ else
   mkdir test
 fi 
 
-python r_manova.py --rdata data/data.Rdata \
+./r_manova.py --rdata data/data.Rdata \
                    --varExp "EnvType + FoodType" \
                    --distance-matrix data/Unifrac.tsv \
                    --html test/phylo_manova.html \

@@ -10,7 +10,7 @@ else
   mkdir test
 fi 
 
-python r_structure.py \
+./r_structure.py \
      --rdata data/data.Rdata \
      --varExp EnvType \
      --ordination-method MDS \
