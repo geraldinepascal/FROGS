@@ -577,10 +577,6 @@ def summarise_results( samples_names, lengths_files, log_files, param ):
     """
     # Get data
     categories = get_filter_steps(log_files[0])
-    if args.already_contiged and args.sequencer == "illumina":
-        categories.insert(1,"input sequences")
-    elif args.sequencer == "454":
-        categories.insert(1,"input sequences")
     filters_by_sample = {"before process":{}, "merged":{}}
     before_lengths_by_sample = dict()
     after_lengths_by_sample = dict()
@@ -591,11 +587,6 @@ def summarise_results( samples_names, lengths_files, log_files, param ):
         filters = get_sample_results(log_files[spl_idx])
         filters_by_sample["before process"][spl_name] = filters["before process"]
         filters_by_sample["merged"][spl_name] = filters["merged"]
-        # add input sequences in table
-        if args.already_contiged and args.sequencer == "illumina":
-            filters_by_sample["merged"][spl_name]["input sequences"] = filters["before process"]
-        if args.sequencer == "454":
-            filters_by_sample["merged"][spl_name]["input sequences"] = filters["before process"]
 
         if "artificial combined" in filters:
             if not "artificial combined" in filters_by_sample:
