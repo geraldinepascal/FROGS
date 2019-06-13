@@ -93,6 +93,7 @@ if __name__ == "__main__":
     # Manage parameters
     parser = argparse.ArgumentParser( description='Clustering of samples using different linkage method.' )
     parser.add_argument( '--debug', default=False, action='store_true', help="Keep temporary files to debug program." )   
+    parser.add_argument( '--version', action='version', version=__version__ )
     parser.add_argument('-v', '--varExp', type=str, required=True, default=None, help='The experiment variable you want to analyse.')
     # Inputs
     group_input = parser.add_argument_group( 'Inputs' )

@@ -253,6 +253,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser( description='Phylogenetic tree reconstruction' )
     parser.add_argument( '--debug', default=False, action='store_true', help="Keep temporary files to debug program." )   
     parser.add_argument( '-p', '--nb-cpus', type=int, default=1, help="The maximum number of CPUs used. [Default: %(default)s]" )
+    parser.add_argument( '-v', '--version', action='version', version=__version__ )
 
     # Inputs
     group_input = parser.add_argument_group( 'Inputs' )

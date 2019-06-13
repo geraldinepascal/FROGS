@@ -94,6 +94,7 @@ if __name__ == "__main__":
     # Manage parameters
     parser = argparse.ArgumentParser( description='To compute and present the data alpha diversity with plot_richness of Phyloseq.' )
     parser.add_argument( '--debug', default=False, action='store_true', help="Keep temporary files to debug program." )   
+    parser.add_argument( '--version', action='version', version=__version__ )
     parser.add_argument('-v', '--varExp', type=str, required=True, default=None, help='The experiment variable used to aggregate sample diversities.' )
     parser.add_argument('-m', '--alpha-measures', type=str, nargs="*", default=['Observed','Chao1','Shannon','InvSimpson'], help='The indices of alpha diversity. Available indices : Observed, Chao1, Shannon, InvSimpson, Simpson, ACE, Fisher. [Default: %(default)s]')
   

@@ -92,7 +92,8 @@ if __name__ == "__main__":
    
     # Manage parameters
     parser = argparse.ArgumentParser( description='Multivariate Analysis of Variance (MANOVA) test with CAP (Canonical Analysis of Principal Coordinates) by adonis.' )
-    parser.add_argument( '--debug', default=False, action='store_true', help="Keep temporary files to debug program." )   
+    parser.add_argument( '--debug', default=False, action='store_true', help="Keep temporary files to debug program." )
+    parser.add_argument( '--version', action='version', version=__version__ )
     parser.add_argument('-v', '--varExp', type=str, required=True, default=None, help='The experiment variable you want to analyse.')
     
     # Inputs

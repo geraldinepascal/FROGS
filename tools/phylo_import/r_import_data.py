@@ -113,6 +113,7 @@ if __name__ == "__main__":
     # Manage parameters
     parser = argparse.ArgumentParser( description='Launch Rmardown script to import data from 3 files: biomfile, samplefile, treefile into a phyloseq object')
     parser.add_argument( '--debug', default=False, action='store_true', help="Keep temporary files to debug program." )   
+    parser.add_argument( '--version', action='version', version=__version__ )
     parser.add_argument( '-n','--normalization', default=False, action='store_true', help='To normalize data before analysis. Use this option if you didnt do it in FROGS Abundance normalisation. [Default: %(default)s]')
     parser.add_argument( '-r','--ranks', type=str, nargs='*', default=['Kingdom', 'Phylum', 'Class', 'Order','Family','Genus', 'Species'], help='The ordered taxonomic ranks levels stored in BIOM. Each rank is separated by one space. [Default: %(default)s]')      
     # Inputs

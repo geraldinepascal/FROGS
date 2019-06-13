@@ -95,6 +95,7 @@ if __name__ == "__main__":
     # Manage parameters
     parser = argparse.ArgumentParser( description='Present the composition of data with package phyloseq' )
     parser.add_argument( '--debug', default=False, action='store_true', help="Keep temporary files to debug program." )   
+    parser.add_argument( '--version', action='version', version=__version__ )
     parser.add_argument('-v', '--varExp', type=str, required=True, help='The experiment variable used to split plot.' )
     parser.add_argument('-r1', '--taxaRank1', type=str, required=True, help='Select taxonomic rank name to subset your data. [ex: Kingdom]' )
     parser.add_argument('-s1', '--taxaSet1', type=str ,nargs='*', required=True, help='Select taxon name among taxaRank1 to subset your data. [ex: Bacteria]' )
