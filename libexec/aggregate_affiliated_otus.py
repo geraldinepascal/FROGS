@@ -104,6 +104,7 @@ def process(params):
 
     # parse otu from most abondant to less ones
     for otu_name in sorted(otu_sums, key=lambda i: int(otu_sums[i]), reverse = True):
+        print otu_name
         otu_in += 1
         observation = biom_in.get_observations_by_name(otu_name)
 
@@ -112,7 +113,10 @@ def process(params):
         min_cov = 100
         tax = list()
         for affiliation in observation["metadata"]["blast_affiliations"] : 
-            tax.append(affiliation["taxonomy"])
+            if params.taxon_ignored and any(t in affiliation["taxonomy"] for t in params.taxon_ignored):
+                continue
+            if not affiliation["taxonomy"] in tax:
+                tax.append(affiliation["taxonomy"])
             percent_id = affiliation["perc_identity"]
             percent_cov = affiliation["perc_identity"]
             if percent_id < min_id : 
@@ -120,8 +124,10 @@ def process(params):
             if percent_cov < min_cov : 
                 min_cov = percent_cov
 
+        print "number of tax", len(tax)
         # Add otu because of poor affiliations stat
         if min_id < params.identity or min_cov < params.coverage :
+            print "add because poor affiliation stat"
             otu_out += 1
             biom_out.add_observation( otu_name, observation["metadata"] )
             for sample_name in biom_in.get_samples_names():
@@ -130,20 +136,25 @@ def process(params):
             aggregated_otu[otu_name] = list()
         # for confident taxonomy
         else:
-            # check if taxonomies are new
+            # check if all taxonomies are new
             is_new_tax = True
             equivalent_otu_name = ""
+
             for taxonomy in tax:
+                print "\t" , ";".join(taxonomy)
                 if isinstance(taxonomy,list):
                     taxonomy = ";".join(taxonomy)
                 if taxonomy in otu_by_tax:
                     is_new_tax = False
+                    print "\t\tequivalent otu :",otu_by_tax[taxonomy]
                     if equivalent_otu_name == "":
                         equivalent_otu_name = otu_by_tax[taxonomy]
                     elif otu_by_tax[taxonomy] != equivalent_otu_name:
-                        Logger.static_write(params.log_file, "\tWarning: observation " + otu_name + " shares taxonomy with an other OTU : " + otu_by_tax[taxonomy] + ", first detected OTU will be kept : " + equivalent_otu_name + "\n" )
+                        Logger.static_write(params.log_file, '\tWarning: observation ' + otu_name + ' shares taxonomy ( '+ taxonomy +' with an other OTU : ' + otu_by_tax[taxonomy] + ', first detected OTU will be kept : ' + equivalent_otu_name + '\n' )
+
             # if new tax, add OTU and save taxonomies
             if is_new_tax:
+                print "all new taxes"
                 otu_out += 1
                 biom_out.add_observation( otu_name, observation["metadata"] )
                 for sample_name in biom_in.get_samples_names():
@@ -176,7 +187,9 @@ def process(params):
                         taxonomy = ";".join(taxonomy)
                     if not taxonomy in otu_by_tax:
                         otu_by_tax[taxonomy] = equivalent_otu_name
-
+        print "update otu_by_tax"
+        for tax in otu_by_tax:
+            print "\t", tax, otu_by_tax[tax]
     # write biom output file
     BiomIO.write( params.output_biom, biom_out )
 
@@ -208,6 +221,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Refine affiliations by aggregating OTU that share taxonomic affiliation with at least I% identity and C% coverage")
     parser.add_argument( '-i', '--identity', default=99.0, type=float, help="Min percentage identity to agggregate OTU. [Default: %(default)s]")
     parser.add_argument( '-c', '--coverage', default=99.0, type=float, help="Min percentage coverage to agggregate OTU. [Default: %(default)s]")
+    parser.add_argument( '-t', '--taxon-ignored', type=str, nargs='*', help="Taxon list to ignore when OTUs agggregation")
     parser.add_argument( '-d', '--debug', default=False, action='store_true', help="Keep temporary files to debug program.")
     parser.add_argument( '-v', '--version', action='version', version=__version__)
     # Inputs
