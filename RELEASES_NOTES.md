@@ -1,3 +1,8 @@
+# v3.2 [DEV]
+
+## Function added
+  * Affiliation_postprocess : taxon-ignore option added, to ignore some taxon like "unknown species" during the aggreagation process.
+  
 # v3.1 [2018-01-08]
 
 ### Bug fixed
