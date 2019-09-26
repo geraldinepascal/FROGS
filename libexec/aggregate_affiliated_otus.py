@@ -142,7 +142,6 @@ def process(params):
                     taxonomy = ";".join(taxonomy)
                 if taxonomy in otu_by_tax:
                     is_new_tax = False
-                    print taxonomy
                     if equivalent_otu_name == "":
                         equivalent_otu_name = otu_by_tax[taxonomy]
                     elif otu_by_tax[taxonomy] != equivalent_otu_name:
