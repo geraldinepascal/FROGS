@@ -19,7 +19,7 @@
 __author__ = 'Maria Bernard INRA - SIGENAE'
 __copyright__ = 'Copyright (C) 2018 INRA'
 __license__ = 'GNU General Public License'
-__version__ = 'v1.0'
+__version__ = 'v2.1'
 __email__ = 'frogs-support@inra.fr'
 __status__ = 'prod'
 
@@ -117,7 +117,7 @@ def process(params):
             if not affiliation["taxonomy"] in tax:
                 tax.append(affiliation["taxonomy"])
             percent_id = affiliation["perc_identity"]
-            percent_cov = affiliation["perc_identity"]
+            percent_cov = affiliation["perc_query_coverage"]
             if percent_id < min_id : 
                 min_id = percent_id
             if percent_cov < min_cov : 

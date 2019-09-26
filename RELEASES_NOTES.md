@@ -2,7 +2,10 @@
 
 ## Function added
   * Affiliation_postprocess : taxon-ignore option added, to ignore some taxon like "unknown species" during the aggreagation process.
-  
+
+### Bug fixed
+  * Affiliation_postprocess : correctly compare de %coverage and the coverage threshold.
+
 # v3.1 [2018-01-08]
 
 ### Bug fixed
