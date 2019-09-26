@@ -19,7 +19,7 @@
 __author__ = 'Maria Bernard INRA - SIGENAE'
 __copyright__ = 'Copyright (C) 2018 INRA'
 __license__ = 'GNU General Public License'
-__version__ = 'v2.1'
+__version__ = 'v3.1'
 __email__ = 'frogs-support@inra.fr'
 __status__ = 'prod'
 
@@ -112,7 +112,7 @@ def process(params):
         min_cov = 100
         tax = list()
         for affiliation in observation["metadata"]["blast_affiliations"] : 
-            if params.taxon_ignored and any(t in affiliation["taxonomy"] for t in params.taxon_ignored):
+            if params.taxon_ignored and any(t in ";".join(affiliation["taxonomy"]) for t in params.taxon_ignored):
                 continue
             if not affiliation["taxonomy"] in tax:
                 tax.append(affiliation["taxonomy"])
@@ -142,6 +142,7 @@ def process(params):
                     taxonomy = ";".join(taxonomy)
                 if taxonomy in otu_by_tax:
                     is_new_tax = False
+                    print taxonomy
                     if equivalent_otu_name == "":
                         equivalent_otu_name = otu_by_tax[taxonomy]
                     elif otu_by_tax[taxonomy] != equivalent_otu_name:
