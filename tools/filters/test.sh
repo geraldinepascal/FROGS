@@ -15,7 +15,7 @@ echo ""
 OUT=test/all_filters
 echo $OUT
 mkdir -p $OUT
-./ilters.py \
+./filters.py \
 --input-biom data/fake_affiliation.biom --input-fasta data/fake_affiliation.fasta \
 --output-biom $OUT/filtered.biom --output-fasta $OUT/filtered.fasta \
 --summary $OUT/summary.html --excluded $OUT/excluded.tsv \
