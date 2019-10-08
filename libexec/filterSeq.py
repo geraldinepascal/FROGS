@@ -149,8 +149,8 @@ def filter_seq( input_file, output_file, log_file, min_length=None, max_length=N
         tag_seq_is_ok = check_tag
 
     # Process
-    # fh_in = SequenceFileReader.factory(input_file)
-    fh_in = FastqIO(input_file)
+    fh_in = SequenceFileReader.factory(input_file)
+    # fh_in = FastqIO(input_file)
     if force_fasta:
         fh_out = FastaIO(output_file, "w")
     elif issubclass(fh_in.__class__, FastqIO):
