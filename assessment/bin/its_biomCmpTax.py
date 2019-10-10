@@ -101,6 +101,10 @@ def getCleanedTaxonomy( taxonomy ):
                 rank_idx += 1
             tmp_tax.append(taxa)
             rank_idx += 1
+        while rank_idx != len(ranks):
+            tmp_tax.append(ranks[rank_idx] + "unknown_taxa")
+            rank_idx += 1
+        
         cleaned_taxonomy = tmp_tax
     return cleaned_taxonomy
 
@@ -119,7 +123,7 @@ def getRealAbunByRank( taxonomy_key, input_biom, sample ):
         count = biom.get_count( observation["id"], sample )
         if count > 0:
             taxonomy_clean = getCleanedTaxonomy(observation["metadata"][taxonomy_key])
-            if not taxonomy_clean in tax_list:
+            if not ";".join(taxonomy_clean) in tax_list:
                 tax_list.append(";".join(taxonomy_clean))
             for depth in range(len(taxonomy_clean)):
                 if len(abund_by_rank) < depth+1:
@@ -158,18 +162,21 @@ def getCheckedAbunByRank( real_tax, input_biom, sample, taxonomy_key, multi_affi
     """
     abund_by_rank = list()
     tax_list = list()
+    nb_seq = 0
     biom = BiomIO.from_json( input_biom )
     for observation in biom.get_observations():
         count = biom.get_count( observation["id"], sample )
         if count > 0:
+            nb_seq += 1 
             # Get taxonomy
             if not multi_affiliation: # Standard affiliation
                 taxonomy_clean = getCleanedTaxonomy(observation["metadata"][taxonomy_key])
             else: # Multi-affiliation
                 possible_taxonomies = [getCleanedTaxonomy(affi["taxonomy"]) for affi in observation["metadata"]["blast_affiliations"]]
                 taxonomy_clean = selectOneMultiaffiliation(real_tax, observation["id"], possible_taxonomies)
-            if taxonomy_clean not in tax_list:
+            if ";".join(taxonomy_clean) not in tax_list:
                 tax_list.append(";".join(taxonomy_clean))
+
             # Store count
             for depth in range(len(taxonomy_clean)):
                 if len(abund_by_rank) < depth+1:
@@ -178,7 +185,7 @@ def getCheckedAbunByRank( real_tax, input_biom, sample, taxonomy_key, multi_affi
                 if not abund_by_rank[depth].has_key(taxon):
                     abund_by_rank[depth][taxon] = 0
                 abund_by_rank[depth][taxon] += count
-    return tax_list, abund_by_rank
+    return nb_seq, tax_list, abund_by_rank
 
 
 def cmpTaxAbund( expected, obtained, depth ):
@@ -244,10 +251,10 @@ if __name__ == "__main__":
 
     real_tax , real_tax_abundance = getRealAbunByRank( args.real_tax_key, args.real_biom, args.sample )
 
-    checked_tax, checked_tax_abundance = getCheckedAbunByRank( real_tax, args.checked_biom, args.sample, args.checked_tax_key, args.multi_affiliations )
+    nb_seq , checked_tax, checked_tax_abundance = getCheckedAbunByRank( real_tax, args.checked_biom, args.sample, args.checked_tax_key, args.multi_affiliations )
     
-    print "#Expected_tax\tDetected_tax\tRetrieved_tax"
-    print str(len(real_tax)) + "\t" + str(len(checked_tax)) + "\t" + str(len(set(real_tax).intersection(checked_tax)))
+    print "#Expected_tax\tSeq\tDetected_tax\tRetrieved_tax"
+    print str(len(real_tax)) + "\t" + str(nb_seq) + "\t" + str(len(checked_tax)) + "\t" + str(len(set(real_tax).intersection(checked_tax)))
     
     print ""
 

@@ -101,6 +101,10 @@ def getCleanedTaxonomy( taxonomy ):
                 rank_idx += 1
             tmp_tax.append(taxa)
             rank_idx += 1
+        while rank_idx != len(ranks):
+            tmp_tax.append(ranks[rank_idx] + "unknown_taxa")
+            rank_idx += 1
+            
         cleaned_taxonomy = tmp_tax
     return cleaned_taxonomy
 
@@ -111,9 +115,11 @@ def get_realTax( taxonomy_key, input_biom ):
     @return: [dict] The dictionary of count by taxa in dictionary by rank.
     """
     tax_list = list()
+    nb_seq = 0
     biom = BiomIO.from_json( input_biom )
     
     for observation in biom.get_observations():
+        nb_seq += 1
         taxonomy_clean = getCleanedTaxonomy(observation["metadata"][taxonomy_key])
         if not taxonomy_clean in tax_list:
             tax_list.append(";".join(taxonomy_clean))
@@ -145,19 +151,21 @@ def get_checkedTax( real_tax, input_biom, taxonomy_key, multi_affiliation ):
     @param multi_affiliation: [bool] ************************************************************************************
     @return: [dict] The dictionary of count by taxa in dictionary by rank.   
     """
+    nb_seq = 0
     tax_list = list()
     biom = BiomIO.from_json( input_biom )
     for observation in biom.get_observations():
+        nb_seq += 1
         # Get taxonomy
         if not multi_affiliation: # Standard affiliation
             taxonomy_clean = getCleanedTaxonomy(observation["metadata"][taxonomy_key])
         else: # Multi-affiliation
             possible_taxonomies = [getCleanedTaxonomy(affi["taxonomy"]) for affi in observation["metadata"]["blast_affiliations"]]
             taxonomy_clean = selectOneMultiaffiliation(real_tax, observation["id"], possible_taxonomies)
-        if taxonomy_clean not in tax_list:
+        if ";".join(taxonomy_clean) not in tax_list:
             tax_list.append(";".join(taxonomy_clean))
 
-    return tax_list
+    return nb_seq , tax_list
 
 ##################################################################################################################################################
 #
@@ -179,8 +187,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     real_tax = get_realTax(args.real_tax_key, args.real_biom)
-    checked_tax = get_checkedTax(real_tax, args.checked_biom, args.checked_tax_key, args.multi_affiliations)
+    nb_seq , checked_tax = get_checkedTax(real_tax, args.checked_biom, args.checked_tax_key, args.multi_affiliations)
 
-    print "#Expected_tax\tDetected_tax\tRetrieved_tax"
-    print str(len(real_tax)) + "\t" + str(len(checked_tax)) + "\t" + str(len(set(real_tax).intersection(checked_tax)))
-    
+    print "#Expected_tax\tSeq\tDetected_tax\tRetrieved_tax"
+    print str(len(real_tax)) + "\t" + str(nb_seq) + "\t" + str(len(checked_tax)) + "\t" + str(len(set(real_tax).intersection(checked_tax)))
