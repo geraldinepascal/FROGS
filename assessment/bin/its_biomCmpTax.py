@@ -96,7 +96,7 @@ def getCleanedTaxonomy( taxonomy ):
         rank_idx = 0
         ranks = ["d:", "p:", "c:", "o:", "f:", "g:","s:"]
         for taxa in cleaned_taxonomy:
-            while not taxa.startswith(ranks[rank_idx]) and taxa != "Multi-affiliation" and taxa != "unclassified":
+            while not taxa.startswith(ranks[rank_idx]) and taxa != "Multi-affiliation" and taxa != "unclassified" and taxa != "NA":
                 tmp_tax.append(ranks[rank_idx] + "unknown_taxa")
                 rank_idx += 1
             tmp_tax.append(taxa)
