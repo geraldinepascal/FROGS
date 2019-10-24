@@ -1,7 +1,12 @@
 # v3.2 [DEV]
+### Tools added:
+  * DESeq2 preprocess : Compute differential abundancy analysis
+  * DESeq2 visualization : Create table and plots to explore and illustrate the differential abundant OTUs
 
 ## Function added
   * Affiliation_postprocess : taxon-ignore option added, to ignore some taxon like "unknown species" during the aggreagation process. Multiple taxon may be provided as well as partial taxon, like "sp."
+
+  * Preprocess : now accept input sequence file as Fasta format (format automatically detected) for already contiged input.
 
 ### Bug fixed
   * Affiliation_postprocess : correctly compare de %coverage and the coverage threshold.

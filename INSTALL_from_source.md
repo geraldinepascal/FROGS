@@ -6,7 +6,7 @@ It has been tested on a Xubuntu 16.04 virtual machine.
 
 Here we suppose to install dependancies in the same directory as FROGS.
 
-```
+```bash
 version=3.1.0
 DIR=`pwd`
 BIN_DIR=$DIR/bin
@@ -20,7 +20,7 @@ FROGS_test=$DIR/FROGS-$version/test
 
 **download**
 
-```
+```bash
 cd $DIR
 wget https://github.com/geraldinepascal/FROGS/archive/v$version.tar.gz
 tar -xvzf v$version.tar.gz
@@ -29,23 +29,23 @@ tar -xvzf v$version.tar.gz
 ## Installing python and perl dependancies
 
 check python 2.7 and perl 5 installed (should be done by default on this system )
-```
+```bash
 python --version
 perl --version
 ```
 else 
-```
+```bash
 sudo apt-get install python perl
 ```
 
 check python package scipy
-```
+```python
 python
 import scipy
 # Ctrl + D to quit
 ```
 else
-```
+```bash
 sudo apt-get install python-scipy
 ```
 
@@ -55,11 +55,13 @@ sudo apt-get install python-scipy
 
 **require** :  autoconf, zlib and bzip2 libraries
 
-`sudo apt-get install autoconf libz-dev libbz2-dev`
+```bash
+sudo apt-get install autoconf libz-dev libbz2-dev
+```
 
 **installation**
 
-```
+```bash
 cd $BIN_DIR
 wget https://github.com/torognes/vsearch/archive/v2.9.1.tar.gz
 tar xzf v2.9.1.tar.gz
@@ -77,7 +79,7 @@ ln -s $BIN_DIR/vsearch-2.9.1/bin/vsearch $FROGS_libexec/.
 
 **installation**
 
-```
+```bash
 cd $BIN_DIR
 wget https://vorboss.dl.sourceforge.net/project/flashpage/FLASH-1.2.11.tar.gz
 tar xvzf FLASH-1.2.11.tar.gz
@@ -96,10 +98,12 @@ ask for download link and follow installation instructions
 ## 4) cutadpat 1.18, for FROGS Preprocess
 
 **require** :  pip
-`sudo apt-get install python-pip`
+```bash
+sudo apt-get install python-pip
+```
 
 **installation**
-```
+```bash
 cd $BIN_DIR
 mkdir cutadapt-1.18
 cd cutadapt-1.18
@@ -124,7 +128,7 @@ cd cutadapt-1.18
 ## 5) swarm 2.2.2, for FROGS Clustering
 
 **installation**
-```
+```bash
 cd $BIN_DIR
 wget https://github.com/torognes/swarm/archive/v2.2.2.tar.gz
 tar -vxzf v2.2.2.tar.gz
@@ -141,7 +145,7 @@ ln -s $BIN_DIR/swarm-2.2.2/bin/swarm $FROGS_libexec/.
 
 **require** : HMMER >= 3.0
 
-```
+```bash
 cd $BIN_DIR
 wget http://eddylab.org/software/hmmer/hmmer-3.2.1.tar.gz
 tar xvzf hmmer-3.2.1.tar.gz
@@ -157,7 +161,7 @@ ln -s $BIN_DIR/hmmer-3.2.1/src/hmmscan $FROGS_libexec/.
 ```
 
 **installation**
-```
+```bash
 cd $BIN_DIR
 wget http://microbiology.se/sw/ITSx_1.0.11.tar.gz
 tar -xvzf ITSx_1.0.11.tar.gz
@@ -169,7 +173,7 @@ ln -s $BIN_DIR/ITSx_1.0.11/ITSx_db $FROGS_libexec/.
 ```
 **recompile ITSx hmm files with your HMMER version**
 
-```
+```bash
 cd $BIN_DIR/ITSx_1.0.11/
 rm ITSx_db/HMMs/*.h3*
 for file in ITSx_db/HMMs/*.hmm
@@ -182,7 +186,7 @@ done
 ## 7) NCBI Blast+ blastn 2.7.1, for FROGS Affiliation_OTU
 
 **installation**
-```
+```bash
 cd $BIN_DIR
 wget ftp://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/2.7.1/ncbi-blast-2.7.1+-x64-linux.tar.gz
 tar xvzf ncbi-blast-2.7.1+-x64-linux.tar.gz
@@ -196,10 +200,12 @@ ln -s $BIN_DIR/ncbi-blast-2.7.1+/bin/blastn $FROGS_libexec/.
 ## 8) RDPClassifier 2.0.2.1, for FROGS Affiliation_OTU
 
 **require** : ant and java se jdk
-`sudo apt-get install ant default-jdk`
+```bash
+sudo apt-get install ant default-jdk
+```
 
 **installation**
-```
+```bash
 cd $BIN_DIR
 git clone https://github.com/rdpstaff/RDPTools.git
 cd RDPTools
@@ -214,16 +220,20 @@ ln -s $BIN_DIR/RDPTools/classifier.jar $FROGS_libexec/.
 ## 9) taskset, for FROGS Affiliation_OTU
 
 **intallation**
-`sudo apt-get install util-linux`
+```bash
+sudo apt-get install util-linux
+```
 
 ## 10) Needlall 6.6.0.0, for FROGS Affiliation_OTU
 
 **require** : pdf and png support
-` sudo apt-get install libhpdf-dev libpng-dev` 
+```bash
+sudo apt-get install libhpdf-dev libpng-dev
+```
 
 **installation**
 
-```
+```bash
 cd $BIN_DIR
 wget ftp://emboss.open-bio.org/pub/EMBOSS/EMBOSS-6.6.0.tar.gz
 tar xvf EMBOSS-6.6.0.tar.gz
@@ -239,7 +249,7 @@ ln -s $BIN_DIR/EMBOSS-6.6.0/emboss/needleall $FROGS_libexec/.
 
 ## 11) MAFFT 7.407, for FROGS Tree
 **installation**
-```
+```bash
 cd $BIN_DIR
 wget https://mafft.cbrc.jp/alignment/software/mafft-7.407-with-extensions-src.tgz
 tar -xvzf mafft-7.407-with-extensions-src.tgz
@@ -247,7 +257,7 @@ cd mafft-7.407-with-extensions
 ```
 Edit core/Makefile
 * change `PREFIX = /usr/local` with your MAFFT directory (like `# PREFIX = /home/frogs/bin/mafft-7.407-with-extensions/`
-```
+```bash
 cd core
 make clean
 make
@@ -261,7 +271,7 @@ ln -s $BIN_DIR/mafft-7.407-with-extensions/scripts/mafft $FROGS_libexec/.
 ## 12) FastTree 2.1.10, for FROGS Tree
 
 **installation**
-```
+```bash
 cd $BIN_DIR
 mkdir Fasttree
 cd Fasttree
@@ -273,12 +283,12 @@ chmod 777 FastTree
 ln -s $BIN_DIR/Fasttree/FastTree $FROGS_libexec/.
 ```
 
-## 13) R 3.5.1, for all FROGSSTAT Phyloseq tools
+## 13) R 3.6.1, for all FROGSSTAT Phyloseq tools
 
 **installation**
 
 add repository to `/etc/apt/sources.list` for  your ubuntu version! (see https://pbil.univ-lyon1.fr/CRAN/ , this is a french mirror), write `deb https://cloud.r-project.org/bin/linux/ubuntu xenial-cran35/ `at the end of the sources.list file
-```
+```bash
 sudo apt-get update
 sudo apt-get install r-base
 # check installation
@@ -287,59 +297,111 @@ R --version
 link=`which Rscript`
 ln -s $link $FROGS_libexec/.
 ```
-### R package dependancies
+### R package dependencies
 
 **require (outside R) **  : httr which need openssl and curl (for plotly)
-`sudo apt-get install libssl-dev libcurl4-openssl-dev`
+
+```bash
+sudo apt-get install libssl-dev libcurl4-openssl-dev
+```
 
 **installation**
 inside R (use sudo if you want to share installation, else packages will be installed in ~/R):
 `R`
 
 * plotly
-```
+```R
 install.packages("plotly")
 # check installation
 library(plotly)
 ```
 
 * phangorn
-```
-install.packages("phangorn")
+```R
+install.packages("phangorn", dependencies = TRUE)
 # check installation
 library(phangorn)
 ```
 * rmarkdown
-```
-install.packages("rmarkdown")
+```R
+install.packages("rmarkdown", dependencies = TRUE)
 # check installation
 library(rmarkdown)
 ```
 
-* gridextra
-```
-install.packages("gridExtra")
-# check installation
-library(gridExtra)
-```
-
 * phyloseq (this will take some times)
-```
-source("https://bioconductor.org/biocLite.R")
-biocLite("phyloseq")
+```R
+if (!requireNamespace("BiocManager", quietly = TRUE))
+    install.packages("BiocManager")
+BiocManager::install("phyloseq")
 # it should install automatically package dependancies
 # check installation
 library(phyloseq)
 
+# I had to previously (re)install cluster for vegan 
+# install.packages("cluster")
+# install.packages("vegan")
+
 ```
 
+* DESeq2
+
+  ```R
+  BiocManager::install("DESeq2")
+  
+  # I had to previously (re)install foreign for Hmisc
+  # install.packages("foreign")
+  # install.packages("Hmisc")
+  
+  library(DESeq2)
+  ```
+
+* optparse
+
+  ```R
+  install.packages("optparse")
+  # check installation
+  library(optparse)
+  ```
+
+* calibrate
+
+  ```R
+  install.packages("calibrate")
+  # check installation
+  library(calibrate)
+  ```
+
+* formattable
+
+  ```R
+  install.packages("calibrate")
+  # check installation
+  library(calibrate)
+  ```
+
+* DT
+
+  ```R
+  install.packages("DT")
+  # check installation
+  library(DT)
+  ```
+
+
 ### validation 
+
 ```
 sessionInfo()
+
 other attached packages:
-[1] phyloseq_1.24.2      gridExtra_2.3        rmarkdown_1.11      
-[4] phangorn_2.4.0       ape_5.2              plotly_4.8.0        
-[7] ggplot2_3.1.0        BiocInstaller_1.30.0
+
+DESeq2_1.24.0            SummarizedExperiment_1.14.1      DelayedArray_0.10.0  
+BiocParallel_1.18.1      matrixStats_0.55.0               Biobase_2.44.0              
+GenomicRanges_1.36.1     GenomeInfoDb_1.20.0              IRanges_2.18.3              
+S4Vectors_0.22.1         BiocGenerics_0.30.0              phyloseq_1.28.0            
+gridExtra_2.3            rmarkdown_1.16                   phangorn_2.5.5              
+ape_5.3                  plotly_4.9.0                     ggplot2_3.2.1 
 ```
 versions may change!
 
