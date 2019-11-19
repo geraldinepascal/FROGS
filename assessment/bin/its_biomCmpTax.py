@@ -253,7 +253,7 @@ if __name__ == "__main__":
 
     nb_seq , checked_tax, checked_tax_abundance = getCheckedAbunByRank( real_tax, args.checked_biom, args.sample, args.checked_tax_key, args.multi_affiliations )
     
-    print "#Expected_tax\tSeq\tDetected_tax\tRetrieved_tax"
+    print "#Expected_tax\tCluster\tDetected_tax\tRetrieved_tax"
     print str(len(real_tax)) + "\t" + str(nb_seq) + "\t" + str(len(checked_tax)) + "\t" + str(len(set(real_tax).intersection(checked_tax)))
     
     print ""
