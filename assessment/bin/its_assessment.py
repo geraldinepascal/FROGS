@@ -98,7 +98,7 @@ if __name__ == "__main__":
 
     # Compare detailed expected to obtained
     for current_sample in samples:
-        print current_sample['name']
+        print "#Sample "+current_sample['name']
         cmd_compareSample = "its_biomCmpTax.py" \
             + " --real-biom " + os.path.abspath(real_biom) \
             + " --real-tax-key 'real_taxonomy'" \
