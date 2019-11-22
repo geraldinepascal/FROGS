@@ -71,6 +71,7 @@ class Rscript(Cmd):
         @param ranks: [str] The ordered taxonomic ranks levels stored in BIOM. Each rank is separated by one space.
         @param rmd_stderr: [str] Path to temporary Rmarkdown stderr output file
         """ 
+        # rmd = os.path.join(CURRENT_DIR, "r_import_data_notebook.Rmd")
         rmd = os.path.join(CURRENT_DIR, "r_import_data.Rmd")
         Cmd.__init__( self,
                       'Rscript',
@@ -125,7 +126,7 @@ if __name__ == "__main__":
     # output
     group_output = parser.add_argument_group( 'Outputs' ) 
     group_output.add_argument('--rdata', default='phyloseq_data.Rdata', help="path to store phyloseq-class object in Rdata file. [Default: %(default)s]" )
-    group_output.add_argument('-o','--html', default='summary.html', help="path to store resulting html file. [Default: %(default)s]" )
+    group_output.add_argument('-o','--html', default='summary.nb.html', help="path to store resulting notebook html file : .nb.html [Default: %(default)s]" )
     group_output.add_argument( '-l', '--log-file', default=sys.stdout, help='This output file will contain several information on executed commands.')   
     args = parser.parse_args()
     prevent_shell_injections(args)
