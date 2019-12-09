@@ -3,7 +3,7 @@ output:
   html_notebook:
     code_folding : hide
 params:
-  data:
+  phyloseq:
     value: x
   varExp:
     value: x
@@ -59,18 +59,58 @@ knitr::opts_chunk$set(echo = TRUE)
 
  Phyloseq `r packageVersion("phyloseq")`
 
-```{r package_import, message=FALSE}
+```{r import, message=FALSE}
+## Import functions
 library(plotly)
 library(phyloseq)
 source(file.path(params$libdir, "graphical_methods.R")) 
-load(params$data)
+## Alternative to source all extra function from a github repo
+# source("https://raw.githubusercontent.com/mahendra-mariadassou/phyloseq-extended/master/load-extra-functions.R")
+
+## Setting variables
+  ## Phyloseq object (rdata file)
+  # phyloseq <- ""
+  
+  ## Experimental variable used to group samples (Treatment, Host type, etc).
+  # varExp <- "" 
+  
+  ## Taxonomic level to filter your data" help="ex: Kingdom, Phylum, Class, Order, Family, Genus, Species
+  # taxaRank1 <- ""
+  
+  ## Taxa (at the above taxonomic level) to keep in the dataset"
+  ## ex: Bacteria (when filtering at the Kingdom level), Firmicutes (when filtering at the Phylum level). 
+  ## Multiple taxa (separated by a space) can be specified, i.e. Firmicutes Proteobacteria 
+  # taxaSet1 <- "" 
+  
+  ## Taxonomic level used for aggregation" help="ex: Family (when filtering at the Phylum level). 
+  ## The aggregation level must be below the filtering level.
+  # taxaRank2 <- ""
+  
+  ## Number of most abundant taxa to keep", 
+  ## ex: 9, i.e. Tool keeps the 9 most abundant taxa and the remaining taxa are aggregated in a group 'Other
+  # numberOfTaxa = 
+
+  ## Create input and parameters dataframe
+  # params <- data.frame("phyloseq"=phyloseq, 
+  #                      "varExp"=varExp, 
+  #                      "taxaRank1" = taxaRank1, 
+  #                      "taxaSet1" = taxaSet1, 
+  #                      "taxaRank2" = taxaRank2, 
+  #                      "numberOfTaxa"=numberOfTaxa )
+
+## Load Phyloseq object
+load(params$phyloseq)
+
+
 ```
 
 #{.tabset .tabset-fade .tabset-pills}
 ##Bar plot
 ```{r bar_plot, fig.width=10, fig.height=8}
 e <- paste('facet_wrap(~', params$varExp,', scales = "free_x", nrow = 1)')
-p <- plot_bar(data,fill= rank_names(data)[2]) + eval(parse(text = e)) + ggtitle(paste("Bar plot colored by", rank_names(data)[2]))+         theme(plot.title = element_text(hjust = 0.5))
+p <- plot_bar(data,fill= rank_names(data)[2]) + eval(parse(text = e)) + 
+        ggtitle(paste("Bar plot colored by", rank_names(data)[2])) + 
+        theme(plot.title = element_text(hjust = 0.5))
 plot(p)
 ```
 
@@ -79,6 +119,7 @@ plot(p)
 taxaSet1 <- unlist(strsplit(params$taxaSet1, " "))
 p        <- plot_composition(data, params$taxaRank1, taxaSet1, params$taxaRank2, params$numberOfTaxa, fill=params$taxaRank2) 
 p        <- p + eval(parse(text = e)) + theme(plot.title = element_text(hjust = 0.5))
+
 gp <- ggplotly(p, tooltip = c("x", "y", "fill"))
 gp$x$layout$annotations[[1]]$x <- -0.08
 gp$x$layout$margin$l = 75
