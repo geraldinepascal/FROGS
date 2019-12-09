@@ -15,10 +15,10 @@ python deseq2_visualization.py --phyloseqData data/phyloseq.Rdata --dds data/Env
                             --var EnvType --mod1 BoeufHache --mod2 SaumonFume \
                             --debug \
                             --log-file test/deseq2_preprocess_EnvType.log \
-                            --html test/BoeufHache_SaumonFume.html
+                            --html test/EnvType_BoeufHache_SaumonFume.html
 
 python deseq2_visualization.py --phyloseqData data/phyloseq.Rdata --dds data/FoodType_DESeq_dds.Rdata \
                             --var FoodType \
                             --debug \
                             --log-file test/deseq2_preprocess_FoodType.log \
-                            --html test/BoeufHache_SaumonFume.html
+                            --html test/FoodType.html
