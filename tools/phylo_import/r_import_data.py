@@ -18,7 +18,7 @@
 __author__ = ' Ta Thi Ngan & Maria Bernard INRA - SIGENAE '
 __copyright__ = 'Copyright (C) 2017 INRA'
 __license__ = 'GNU General Public License'
-__version__ = '3.1'
+__version__ = '3.2'
 __email__ = 'frogs-support@inra.fr'
 __status__ = 'prod'
 
@@ -59,7 +59,7 @@ class Rscript(Cmd):
     @see: http://rmarkdown.rstudio.com/
           https://joey711.github.io/phyloseq/
     """
-    def __init__(self, biomfile, samplefile, treefile, html, normalization, data, ranks, rmd_stderr):
+    def __init__(self, biomfile, samplefile, treefile, html, normalization, phyloseq, ranks, rmd_stderr):
         """
         @param biomfile: [str] The biom file contains the  OTU's informations: abundance and taxonomy. These file is the result of FROGS.
         @param samplefile: [str] The tabular file contains the samples's informations. 
@@ -67,7 +67,7 @@ class Rscript(Cmd):
         @param treefile: [str] The Newick file contains the tree's informations from Frogs Tree.
         @param html: [str] The path to store resulting html file.
         @param normalization: [str] To normalize data before analysis.
-        @param data: [str] The path to store one phyloseq-class object in Rdata file.
+        @param phyloseq: [str] The path to store one phyloseq-class object in Rdata file.
         @param ranks: [str] The ordered taxonomic ranks levels stored in BIOM. Each rank is separated by one space.
         @param rmd_stderr: [str] Path to temporary Rmarkdown stderr output file
         """ 
@@ -76,7 +76,9 @@ class Rscript(Cmd):
         Cmd.__init__( self,
                       'Rscript',
                       'Run r_import_data.Rmd',
-                      '-e "rmarkdown::render('+"'"+rmd+"',output_file='"+html+"', params=list(biomfile='"+biomfile+"', samplefile='"+samplefile+"', treefile='"+treefile+"', normalization="+normalization+", outputRdata='"+data+"', ranks='"+ranks+"', libdir ='"+LIBR_DIR+"'), intermediates_dir='"+os.path.dirname(html)+"')"+'" 2> ' + rmd_stderr,
+                      '-e "rmarkdown::render(' + "'" + rmd + "',output_file='" + html + \
+                      "', params=list(biomfile='" + biomfile + "', samplefile='" + samplefile + "', treefile='"+ treefile + \
+                      "', normalization=" + normalization + ", outputRdata='" + phyloseq + "', ranks='" + ranks +"', libdir ='" + LIBR_DIR + "'), intermediates_dir='" + os.path.dirname(html) + "')" + '" 2> ' + rmd_stderr,
                        "-e '(sessionInfo()[[1]][13])[[1]][1]; paste(\"Rmarkdown version: \",packageVersion(\"rmarkdown\")) ; library(phyloseq); paste(\"Phyloseq version: \",packageVersion(\"phyloseq\"))'")
     def get_version(self):
         """
@@ -134,7 +136,7 @@ if __name__ == "__main__":
     # Process  
     Logger.static_write(args.log_file, "## Application\nSoftware :" + sys.argv[0] + " (version : " + str(__version__) + ")\nCommand : " + " ".join(sys.argv) + "\n\n")
     html=os.path.abspath(args.html)
-    data=os.path.abspath(args.rdata)
+    phyloseq=os.path.abspath(args.rdata)
     biomfile=os.path.abspath(args.biomfile)
     samplefile=os.path.abspath(args.samplefile)
 
@@ -160,7 +162,7 @@ if __name__ == "__main__":
             FROGSBiomToStdBiom(biomfile, std_biom, blast_metadata).submit(args.log_file)
             biomfile = std_biom
         rmd_stderr = tmpFiles.add("rmarkdown.stderr")
-        Rscript(biomfile, samplefile, treefile, html, str(args.normalization).upper(), data, ranks, rmd_stderr).submit(args.log_file)
+        Rscript(biomfile, samplefile, treefile, html, str(args.normalization).upper(), phyloseq, ranks, rmd_stderr).submit(args.log_file)
     finally :
         if not args.debug:
             tmpFiles.deleteAll()
