@@ -1,25 +1,26 @@
 ---
 output: 
-    html_notebook
+  html_notebook:
+    code_folding: hide
 params:
-    # Path to phyloseq_object
-    phyloseq_data:
-        value: x
-    # DESeq2 preprocessed input
-    dds:
-        value: x
-    # tested variable
-    var:
-        value: x
-    # optionnal value 1 of the variable to be compared, default== "None"
-    mod1:
-        value: x
-    # optionnal value 2 of the variable to be compared, default== "None"
-    mod2:
-        value: x
-    # adjusted pvalue threshold
-    padj:
-        value: x
+  # Path to phyloseq_object
+  phyloseq_data:
+    value: x
+  # DESeq2 preprocessed input
+  dds:
+    value: x
+  # tested variable
+  var:
+    value: x
+  # optionnal value 1 of the variable to be compared, default== "None"
+  mod1:
+    value: x
+  # optionnal value 2 of the variable to be compared, default== "None"
+  mod2:
+    value: x
+  # adjusted pvalue threshold
+  padj:
+    value: x
 ---
 
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
