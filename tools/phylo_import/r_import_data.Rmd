@@ -61,7 +61,7 @@ knitr::opts_chunk$set(error = TRUE)
 
  Phyloseq `r packageVersion("phyloseq")`
  
-```{r package_import, code_folding="hide", message=FALSE, warning=FALSE}
+```{r package_import, message=FALSE, warning=FALSE}
 library(phyloseq)
 library(ggplot2)
 #library(biom)
