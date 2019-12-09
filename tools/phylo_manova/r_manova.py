@@ -104,7 +104,7 @@ if __name__ == "__main__":
 
     # output
     group_output = parser.add_argument_group( 'Outputs' )
-    group_output.add_argument('-o','--html', default='manova.html', help="The path to store resulting html file. [Default: %(default)s]" )   
+    group_output.add_argument('-o','--html', default='manova.nb.html', help="path to store resulting notebook html file : .nb.html [Default: %(default)s]" )   
     group_output.add_argument( '-l', '--log-file', default=sys.stdout, help='This output file will contain several information on executed commands.')    
     
     args = parser.parse_args()

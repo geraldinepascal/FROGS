@@ -15,5 +15,5 @@ fi
      --varExp EnvType \
      --ordination-method MDS \
      --distance-matrix data/Unifrac.tsv \
-     --html test/phylo_structure.html \
+     --html test/phylo_structure.nb.html \
      --log-file test/phylo_structure.log

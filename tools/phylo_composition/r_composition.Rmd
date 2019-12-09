@@ -101,14 +101,15 @@ source(file.path(params$libdir, "graphical_methods.R"))
 ## Load Phyloseq object
 load(params$phyloseq)
 
+# custum graphical facetting
+facet <- paste('facet_wrap(~', params$varExp,', scales = "free_x", nrow = 1)')
 
 ```
 
 #{.tabset .tabset-fade .tabset-pills}
 ##Bar plot
 ```{r bar_plot, fig.width=10, fig.height=8}
-e <- paste('facet_wrap(~', params$varExp,', scales = "free_x", nrow = 1)')
-p <- plot_bar(data,fill= rank_names(data)[2]) + eval(parse(text = e)) + 
+p <- plot_bar(data,fill= rank_names(data)[2]) + eval(parse(text = facet)) + 
         ggtitle(paste("Bar plot colored by", rank_names(data)[2])) + 
         theme(plot.title = element_text(hjust = 0.5))
 plot(p)
@@ -118,7 +119,7 @@ plot(p)
 ```{r composion_plot, fig.width=10, fig.height=8}
 taxaSet1 <- unlist(strsplit(params$taxaSet1, " "))
 p        <- plot_composition(data, params$taxaRank1, taxaSet1, params$taxaRank2, params$numberOfTaxa, fill=params$taxaRank2) 
-p        <- p + eval(parse(text = e)) + theme(plot.title = element_text(hjust = 0.5))
+p        <- p + eval(parse(text = facet)) + theme(plot.title = element_text(hjust = 0.5))
 
 gp <- ggplotly(p, tooltip = c("x", "y", "fill"))
 gp$x$layout$annotations[[1]]$x <- -0.08

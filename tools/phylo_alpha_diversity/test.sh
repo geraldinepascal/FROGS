@@ -12,4 +12,4 @@ fi
 
 ./r_alpha_diversity.py -r data/data.Rdata \
 	-v EnvType -m Observed Chao1 Shannon  \
-	-l test/phylo_alpha.log -o test/phylo_alpha.html -a test/phylo_alpha.tsv
+	-l test/phylo_alpha.log -o test/phylo_alpha.nb.html -a test/phylo_alpha.tsv --debug

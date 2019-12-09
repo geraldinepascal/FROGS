@@ -71,7 +71,7 @@ library(vegan)
   # params <- data.frame( "phyloseq" = phylose, "distance" = distance, "varExp" = varExp)
 
 ## Load data
-  ## the phyloseq object
+  ## the phyloseq object, nammed data in FROGSSTAT Phyloseq Import data
 load(params$phyloseq)
   ## Convert sample_data to data.frame
 metadata <- as(sample_data(data), "data.frame") 

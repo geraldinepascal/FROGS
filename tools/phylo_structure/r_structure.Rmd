@@ -1,7 +1,9 @@
 ---
-output: html_document
+output: 
+  html_notebook:
+    code_folding: hide
 params:
-   data:
+   phyloseq:
       value: x
    varExp:
       value: x
@@ -45,43 +47,96 @@ h4 {
 }
 </style>
 
-<script src=`r file.path(params$libdir, "FileSaver.js")`></script>
-
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
-<h3>FROGS Phyloseq: Structure Visualization</h3>
+<h3>FROGS Phyloseq: Structure Visualization (version 3.2)</h3>
 
  Phyloseq `r packageVersion("phyloseq")`
 
 
-```{r include=FALSE, echo=FALSE}
+```{r import, message=FALSE}
+## Import packages
 library(phyloseq)
-source(file.path(params$libdir, "graphical_methods.R"))
 library(plotly)
-load(params$data)
+source(file.path(params$libdir, "graphical_methods.R"))
+## Alternative to source all extra function from a github repo
+# source("https://raw.githubusercontent.com/mahendra-mariadassou/phyloseq-extended/master/load-extra-functions.R")
 
-# Add SampleID variable to physeq metadata
-sample_data(data)$SampleID <- sample_names(data)
+## Setting variables
+  ## The Phyloseq object (format rdata)
+  # phyloseq <- ""
 
-#get dist object from distance matrix file
+  ## The beta diversity distance matrix file
+  # distance <- ""
+
+  ## The ordination method you want to use
+  ## You can choose between "MDS" (for MDS/PCoA), "NMDS" or "DPCoA"
+  # method <- ""
+
+  ## The experiment variable that you want to analyse
+  # varExp <- ""
+
+## Create input and parameters dataframe
+  # params <- data.frame( "phyloseq" = phylose, "distance" = distance, "method" = method, "varExp" = varExp)
+
+## Load data
+  ## the phyloseq object
+load(params$phyloseq)
+
+  ## the distance matrix file
 A    <- read.table(file=params$distance, row.names=1)
 dist <- as.dist(A)
+
+## Add SampleID variable to physeq metadata
+sample_data(data)$SampleID <- sample_names(data)
+
 ord  <- ordinate(data, method = params$method, distance = dist)
 var  <- get_variable(data, params$varExp)
+```
 
+#{.tabset .tabset-fade .tabset-pills}
+##Ordination plot
+
+<h1 id="plot1">
+```{r ord1, fig.width=8, fig.height=6}
+## plot(p1)
 p1 <- plot_ordination(data, ord, color = params$varExp) + 
                       geom_text(aes(label = SampleID), alpha = 0) + ## add invisible labels
                       theme_bw() + ggtitle(paste(params$method,"")) +
                       theme(plot.title = element_text(hjust = 0.5)) 
+ggplotly(p1, tooltip = c("colour", "label"))
+```
+</h1>
+
+<h1 id="plot2" style="display: none;">
+```{r ord2, fig.width=8, fig.height=6}
+## plot(p2)
 p2 <- plot_samples(data, ord, color = params$varExp) +
                       geom_text(aes(label = SampleID), alpha = 0) + ## add invisible labels  
                       theme_bw() +
                       ggtitle(paste(params$method,"")) +
                       theme(plot.title = element_text(hjust = 0.5))
+
+ggplotly(p2, tooltip = c("colour", "label"))
+```
+</h1>
+
+<h1 id="plot22" style="display: none;">
+```{r ord22, fig.width=8, fig.height=6}
+## p2 is obtained with plot samples see previously
 g <- paste('p22 <- p2 +  stat_ellipse(aes(group =', params$varExp,'))')
 eval(parse(text = g))
+ggplotly(p22, tooltip = c("colour", "label"))
+```
+</h1>
 
+<button class="button" onclick="document.getElementById('plot1').style.display='' ; document.getElementById('plot2').style.display='none'; document.getElementById('plot22').style.display='none' ">Without variable names</button>
+<button class="button" onclick="document.getElementById('plot2').style.display='' ; document.getElementById('plot1').style.display='none'; document.getElementById('plot22').style.display='none' ">With variable names</button>
+<button class="button" onclick="document.getElementById('plot22').style.display='' ; document.getElementById('plot2').style.display='none'; document.getElementById('plot1').style.display='none'">With ellipses</button>
+
+##Heatmap plot
+```{r heatmap, fig.width=9, fig.height=7,message=FALSE, warning=FALSE}
 p3 <- plot_heatmap(data) + scale_fill_gradient2(low = "#ffff00", 
                                                 mid = "#ffa500",
                                                high = "#ff0000", 
@@ -92,204 +147,5 @@ e  <- paste('~', params$varExp)
 p3 <- p3 + facet_grid(e, scales = "free_x") +
            theme(plot.title = element_text(hjust = 0.5)) +
            ggtitle(paste("Heatmap plot with", params$varExp))
-```
-
-#{.tabset .tabset-fade .tabset-pills}
-##Ordination plot
-
-<h1 id="plot1">
-```{r, fig.width=8, fig.height=6, echo=FALSE, cache=FALSE, message = FALSE}
-## plot(p1)
-ggplotly(p1, tooltip = c("colour", "label"))
-```
-<br>
-<button id="dwn-plot1" class="button">
-Download image
-</button>
-</h1>
-
-<h1 id="plot2" style="display: none;">
-```{r, fig.width=8, fig.height=6, echo=FALSE, cache=FALSE, message = FALSE}
-## plot(p2)
-ggplotly(p2, tooltip = c("colour", "label"))
-```
-<br>
-<button id="dwn-plot2" class="button">
-Download image
-</button>
-</h1>
-
-<h1 id="plot22" style="display: none;">
-```{r, fig.width=8, fig.height=6, echo=FALSE, cache=FALSE, comment=NA, message=FALSE}
-## plot(p22)
-ggplotly(p22, tooltip = c("colour", "label"))
-```
-<br>
-<button id="dwn-plot22" class="button">
-Download image
-</button>
-</h1>
-
-<button class="button" onclick="document.getElementById('plot1').style.display='' ; document.getElementById('plot2').style.display='none'; document.getElementById('plot22').style.display='none' ">Without variable names</button>
-
-<button class="button" onclick="document.getElementById('plot2').style.display='' ; document.getElementById('plot1').style.display='none'; document.getElementById('plot22').style.display='none' ">With variable names</button>
-
-<button class="button" onclick="document.getElementById('plot22').style.display='' ; document.getElementById('plot2').style.display='none'; document.getElementById('plot1').style.display='none'">With ellipses</button>
-
-##Heatmap plot
-```{r, fig.width=9, fig.height=7, echo=FALSE, cache=FALSE, warning=FALSE}
 plot(p3)
 ```
-<br>
-<button id="dwn-heatmap-plot" class="button">
-Download image
-</button>
-
-##R code
-<h4>Loading packages & data</h4>
-```{r, eval=FALSE}
-library(phyloseq)
-source("https://raw.githubusercontent.com/mahendra-mariadassou/phyloseq-extended/master/load-extra-functions.R")
-#if you want to generate interactiv plot, load plotly and use ggplotly() instead of plot()
-#library(plotly)
-
-#if in new session
-#data <- path to Rdata file containing phyloseq object
-#load(data)
-#distance <- path to tsv file containing beta diversity distance matrix to use
-# A <- read.table(file=distance, row.names=1)
-# dist <- as.dist(A)
-```
-<h4>Ordianation plots </h4>
-```{r, comment=NA, cache=FALSE, echo=FALSE}
-cat(paste(sep="","ord <- ordinate(data, method =", '"', params$method,'"', ", distance = dist)"))
-
-cat(paste(sep="","p1 <- plot_ordination(data, ord, color = ", '"', params$varExp, '"', ") + theme_bw() + ggtitle(", '"', params$method, '")', '+ theme(plot.title = element_text(hjust = 0.5))','\nplot(p1)'))
-
-cat(paste(sep="","p2 <- plot_samples(data, ord, color = ", '"', params$varExp, '"', ") + theme_bw()+ ggtitle(", '"', params$method, '")', '+ theme(plot.title = element_text(hjust = 0.5))','\nplot(p2)'))
-
-cat(paste(sep="",'p22 <- p2 +  stat_ellipse(aes(group = ', params$varExp,'))', '\nplot(p22)'))
-```
-
-<h4>Heatmap plot</h4>
-```{r, comment=NA, cache=FALSE, echo=FALSE}
-cat('# change heatmap color scale with color name or hexadecimal code. see http://tools.medialab.sciences-po.fr/iwanthue/ \nlowCol <- "#ffff00" # yellow\nmidCol <-  "#ffa500" # orange\nhighCol <- "#ff0000" # red\nnaCol <- "white" # white!')
-
-cat(paste(sep="",'p3 <- plot_heatmap(data) + scale_fill_gradient2(low = lowCol, mid = midCol, high = highCol, na.value = naCol, trans = log_trans(4), midpoint = log(100, base = 4))+ facet_grid(~', params$varExp, ', scales = "free_x") + theme(plot.title = element_text(hjust = 0.5)) + ggtitle("Heatmap plot")','\nplot(p3)'))
-```
-
-
-<div id="code-r-file" style="display:none;">
-# ######### Loading packages & data & parameter setting #########
-&#10;library(phyloseq)
-&#10;source(\"https://raw.githubusercontent.com/mahendra-mariadassou/phyloseq-extended/master/load-extra-functions.R" )
-&#10;#if you want to generate interactiv plot, load plotly and use ggplotly() instead of plot()
-&#10;#library(plotly)
-&#10;
-&#10;#if in new session, uncomment and complete
-&#10;#data <- # path to Rdata file
-&#10;#load(data)
-&#10;
-&#10;#distance <- # path to Beta diversity tsv file
-&#10;#A <- read.table(file=distance, row.names=1)
-&#10;#dist <- as.dist(A)
-&#10;
-&#10;# to be complete
-&#10;varExp <- #Experiment variable
-&#10;method <- \"MDS\" # ordination method, ex \"MDS\" (default), \"NMDS\", \"DCA\", \"CCA\", \"RDA\", \"CAP\", \"DPCoA\" or \"PCoA\" 
-&#10;
-&#10;######### Ordiantion plots #########
-&#10;ord <- ordinate(data, method =method, distance = dist)
-&#10;
-&#10;p1 <- plot_ordination(data, ord, color = varExp) + theme_bw() + ggtitle(method)+ theme(plot.title = element_text(hjust = 0.5))
-&#10;plot(p1)
-&#10;
-&#10;p2 <- plot_samples(data, ord, color = varExp) + theme_bw()+ ggtitle(method)+ theme(plot.title = element_text(hjust = 0.5))
-&#10;plot(p2)
-&#10;
-&#10;g <- paste(\'p22 <- p2 +  stat_ellipse(aes(group =\', varExp,\'))\')
-&#10;eval(parse(text = g))
-&#10;plot(p22)
-&#10;
-&#10;######### Heatmap Plot #########
-&#10;# change heatmap color scale with color name or hexadecimal code. see http://tools.medialab.sciences-po.fr/iwanthue/
-&#10;lowCol <- \"#ffff00\" # yellow
-&#10;midCol <-  \"#ffa500\" # orange
-&#10;highCol <- \"#ff0000\" # red
-&#10;naCol <- \"white\" # white!
-&#10;
-&#10;p3 <- plot_heatmap(data) + scale_fill_gradient2(low = lowCol, mid = midCol, high = highCol, 
-&#10;                              na.value = naCol, trans = log_trans(4), 
-&#10;                              midpoint = log(100, base = 4))
-&#10;e <- paste(\'~\', varExp) 
-&#10;p3 <- p3 + facet_grid(e, scales = \"free_x\")+ theme(plot.title = element_text(hjust = 0.5))
-&#10;plot(p3)
-&#10;
-</div>
-
-<button id="dwn-btn" class="button">Download R code file</button>
-
-<script>
-function download1(filename, text) {
-    var element = document.createElement('a');
-    element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
-    element.setAttribute('download', filename);
-
-    element.style.display = 'none';
-    document.body.appendChild(element);
-    element.click();
-    document.body.removeChild(element);
-}
-
-// Start file download.
-document.getElementById("dwn-btn").addEventListener("click", function(){
-    // Generate download of hello.txt file with some content
-    var text = document.getElementById("code-r-file").innerText;
-    var filename = "structure_visualization_code.R";
-    download1(filename, text);
-}, false);
-</script>
-
-<script>
-function download(filename, mysrc) {
-var element = document.createElement('a');
-    element.setAttribute('href', mysrc);
-    element.setAttribute('download', filename);
-    element.style.display = 'none';
-    document.body.appendChild(element);
-    element.click();
-    document.body.removeChild(element);
-}
-document.getElementById("dwn-plot1").addEventListener("click", function(){
-    var div = document.getElementById('plot1');
-    var myimg = div.getElementsByTagName('img')[0];
-    var mysrc = myimg.src;
-    var filename = "ordination_plot_no_sample_name.png";
-    download(filename, mysrc);
-}, false);
-
-document.getElementById("dwn-plot2").addEventListener("click", function(){
-    var div = document.getElementById('plot2');
-    var myimg = div.getElementsByTagName('img')[0];
-    var mysrc = myimg.src;
-    var filename = "ordination_plot_with_sample_name.png";
-    download(filename, mysrc);
-}, false);
-
-document.getElementById("dwn-plot22").addEventListener("click", function(){
-    var div = document.getElementById('plot22');
-    var myimg = div.getElementsByTagName('img')[0];
-    var mysrc = myimg.src;
-    var filename = "ordination_plot_with_sample_name_and_ellipse.png";
-    download(filename, mysrc);
-}, false);
-
-document.getElementById("dwn-heatmap-plot").addEventListener("click", function(){
-    var div = document.getElementById('heatmap-plot');
-    var myimg = div.getElementsByTagName('img')[0];
-    var mysrc = myimg.src;
-    var filename = "heatmap_plot.png";
-    download(filename, mysrc);
-}, false);
-
-</script>
