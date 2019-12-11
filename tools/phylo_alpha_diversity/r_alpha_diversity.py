@@ -18,7 +18,7 @@
 __author__ = 'Ta Thi Ngan & Maria Bernard INRA - SIGENAE'
 __copyright__ = 'Copyright (C) 2017 INRA'
 __license__ = 'GNU General Public License'
-__version__ = '3.1'
+__version__ = '3.2'
 __email__ = 'frogs-support@inra.fr'
 __status__ = 'prod'
 
@@ -61,9 +61,9 @@ class Rscript(Cmd):
     @return: html file containing the plots
              alpha divesity table
     """
-    def __init__(self, data, html, varExp, measures, alphaOut, rmd_stderr):
+    def __init__(self, phyloseq, html, varExp, measures, alphaOut, rmd_stderr):
         """
-        @param data: [str] path to phyloseq object in RData file, the result of FROGS Phyloseq Import Data.
+        @param phyloseq: [str] path to phyloseq object in RData file, the result of FROGS Phyloseq Import Data.
         @param html: [str] Path to store resulting html file.
         @param varExp: [str] Experiment variable used to aggregate sample diversities.
         @param measures: [str] The indexes of alpha diversity, in list (Observed, Chao1, Shannon, Simpson, InvSimpson, ACE, Fisher).
@@ -74,7 +74,8 @@ class Rscript(Cmd):
         Cmd.__init__( self,
                       'Rscript',
                       'Run 1 code Rmarkdown',
-                       '-e "rmarkdown::render('+"'"+rmd+"',output_file='"+html+"', params=list(data='"+data+"', measures='"+measures+"', varExp='"+varExp+"',fileAlpha='"+alphaOut+"', libdir ='"+LIBR_DIR+"'), intermediates_dir='"+os.path.dirname(html)+"')"+'" 2> ' + rmd_stderr,
+                       '-e "rmarkdown::render(' + "'" + rmd + "',output_file='" + html + \
+                       "', params=list(phyloseq='" + phyloseq + "', measures='" + measures + "', varExp='" + varExp + "',fileAlpha='" + alphaOut + "', libdir ='" + LIBR_DIR + "'), intermediates_dir='" + os.path.dirname(html) + "')" + '" 2> ' + rmd_stderr,
                        "-e '(sessionInfo()[[1]][13])[[1]][1]; paste(\"Rmarkdown version: \",packageVersion(\"rmarkdown\")) ; library(phyloseq); paste(\"Phyloseq version: \",packageVersion(\"phyloseq\"))'")
     def get_version(self):
         """
@@ -104,7 +105,7 @@ if __name__ == "__main__":
 
     # output
     group_output = parser.add_argument_group( 'Outputs' )
-    group_output.add_argument('-o','--html', default='alpha_diversity.html', help="The path to store resulting html file. [Default: %(default)s]" )
+    group_output.add_argument('-o','--html', default='alpha_diversity.nb.html', help="path to store resulting notebook html file : .nb.html [Default: %(default)s]" )
     group_output.add_argument('-a','--alpha-out', default='alpha_diversity.tsv', help="The path to store resulting data file containing alpha diversity table. [Default: %(default)s]" )    
     group_output.add_argument( '-l', '--log-file', default=sys.stdout, help="This output file will contain several information on executed commands.")    
     args = parser.parse_args()
@@ -120,14 +121,14 @@ if __name__ == "__main__":
             if m not in ["Observed", "Chao1", "Shannon", "InvSimpson", "Simpson", "ACE", "Fisher"] :
                 raise Exception("Measure, " + m + " is not a valid alpha diversity indice\n")
 
-    data=os.path.abspath(args.rdata)
+    phyloseq=os.path.abspath(args.rdata)
     html=os.path.abspath(args.html)
     alphaOut=os.path.abspath(args.alpha_out)
     measures=",".join(args.alpha_measures)
     try:
         tmpFiles = TmpFiles(os.path.dirname(html))
         rmd_stderr = tmpFiles.add("rmarkdown.stderr")
-        Rscript(data, html, args.varExp, measures, alphaOut, rmd_stderr).submit( args.log_file )
+        Rscript(phyloseq, html, args.varExp, measures, alphaOut, rmd_stderr).submit( args.log_file )
     finally :
         if not args.debug:
             tmpFiles.deleteAll()

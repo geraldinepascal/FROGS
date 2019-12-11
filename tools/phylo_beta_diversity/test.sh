@@ -15,5 +15,5 @@ fi
            --varExp EnvType \
            --distance-methods bray,unifrac,euclidean \
            --matrix-outdir test \
-           --html test/phylo_beta.html \
+           --html test/phylo_beta.nb.html \
            --log-file test/phylo_beta.log

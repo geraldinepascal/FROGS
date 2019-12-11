@@ -14,5 +14,5 @@ fi
     --rdata data/data.Rdata \
     --varExp EnvType \
     --distance-matrix data/Unifrac.tsv \
-    --html test/phylo_clustering.html \
+    --html test/phylo_clustering.nb.html \
     -l test/phylo_clustering.log

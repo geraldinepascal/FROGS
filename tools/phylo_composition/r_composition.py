@@ -18,7 +18,7 @@
 __author__ = ' Ta Thi Ngan & Maria Bernard INRA - SIGENAE '
 __copyright__ = 'Copyright (C) 2017 INRA'
 __license__ = 'GNU General Public License'
-__version__ = '3.1'
+__version__ = '3.2'
 __email__ = 'frogs-support@inra.fr'
 __status__ = 'prod'
 
@@ -60,10 +60,10 @@ class Rscript(Cmd):
           https://joey711.github.io/phyloseq/
     @return: bar plot and composition plot in one html file.
     """
-    def __init__(self, html, data, varExp,taxaRank1,taxaSet1,taxaRank2,numberOfTaxa, rmd_stderr):
+    def __init__(self, html, phyloseq, varExp,taxaRank1,taxaSet1,taxaRank2,numberOfTaxa, rmd_stderr):
         """
         @param html: [str] path to store resulting html file.
-        @param data: [str] path to phyloseq object in RData file, the result of FROGS Phyloseq Import Data.
+        @param phyloseq: [str] path to phyloseq object in RData file, the result of FROGS Phyloseq Import Data.
         @param varExp: [str] The experiment variable used to split plot.
         @param taxaRank1: [str] Taxonomic rank name to subset your data. 
         @param taxaSet1: [str] The taxon name among taxaRank1 to subset your data.
@@ -75,7 +75,10 @@ class Rscript(Cmd):
         Cmd.__init__( self,
                       'Rscript',
                       'Run 1 code Rmarkdown',
-                       '-e "rmarkdown::render('+"'"+rmd+"',output_file='"+html+"', params=list(data='"+data+"', varExp='"+varExp+"',taxaRank1='"+taxaRank1+"',taxaSet1='"+taxaSet1+"',taxaRank2='"+taxaRank2+"',numberOfTaxa="+str(numberOfTaxa)+", libdir ='"+LIBR_DIR+"'), intermediates_dir='"+os.path.dirname(html)+"')"+'" 2> ' + rmd_stderr,
+                       '-e "rmarkdown::render(' + "'" + rmd + "',output_file='" + html + \
+                       "', params=list(phyloseq='" + phyloseq + "', varExp='" + varExp + \
+                       "',taxaRank1='" + taxaRank1 + "',taxaSet1='" + taxaSet1 + "',taxaRank2='" + taxaRank2 + \
+                       "',numberOfTaxa=" + str(numberOfTaxa) + ", libdir ='" + LIBR_DIR + "'), intermediates_dir='" + os.path.dirname(html) + "')" + '" 2> ' + rmd_stderr,
                        "-e '(sessionInfo()[[1]][13])[[1]][1]; paste(\"Rmarkdown version: \",packageVersion(\"rmarkdown\")) ; library(phyloseq); paste(\"Phyloseq version: \",packageVersion(\"phyloseq\"))'")
     def get_version(self):
         """
@@ -108,20 +111,20 @@ if __name__ == "__main__":
 
     # output
     group_output = parser.add_argument_group( 'Outputs' )
-    group_output.add_argument('-o','--html', default='composition.html', help="The path to store resulting html file. [Default: %(default)s]" )
+    group_output.add_argument('-o','--html', default='composition.nb.html', help="path to store resulting notebook html file : .nb.html [Default: %(default)s]" )
     group_output.add_argument( '-l', '--log-file', default=sys.stdout, help='This output file will contain several information on executed commands.')    
     args = parser.parse_args()
     prevent_shell_injections(args)   
     # Process 
     Logger.static_write(args.log_file, "## Application\nSoftware :" + sys.argv[0] + " (version : " + str(__version__) + ")\nCommand : " + " ".join(sys.argv) + "\n\n")
     html=os.path.abspath(args.html)
-    data=os.path.abspath(args.rdata)
+    phyloseq=os.path.abspath(args.rdata)
     taxaSet1=" ".join(args.taxaSet1)
 
     try : 
         tmpFiles = TmpFiles(os.path.dirname(html))
         rmd_stderr = tmpFiles.add("rmarkdown.stderr")
-        Rscript(html, data, args.varExp, args.taxaRank1.strip(), str(taxaSet1.strip()), args.taxaRank2.strip(), args.numberOfTaxa, rmd_stderr).submit( args.log_file )
+        Rscript(html, phyloseq, args.varExp, args.taxaRank1.strip(), str(taxaSet1.strip()), args.taxaRank2.strip(), args.numberOfTaxa, rmd_stderr).submit( args.log_file )
 
     finally :
         if not args.debug:
