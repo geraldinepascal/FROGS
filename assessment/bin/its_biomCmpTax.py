@@ -66,6 +66,7 @@ def getCleanedTaxonomy( taxonomy ):
            "Bacteria(1.0000);Proteobacteria(0.9997);Epsilonproteobacteria(1.0000);Campylobacterales(1.0000);Helicobacteraceae(0.9898);Helicobacter(0.9912);"
     """
     cleaned_taxonomy = list()
+    first_rank = "d:"
     # Get taxonomy as a r/w list
     if isinstance(taxonomy, list) or isinstance(taxonomy, tuple): # Copy the list
         cleaned_taxonomy = [taxon.strip() for taxon in taxonomy]
@@ -91,10 +92,12 @@ def getCleanedTaxonomy( taxonomy ):
     if cleaned_taxonomy[0].lower() == "root" or cleaned_taxonomy[0].lower() == "rootrank" or cleaned_taxonomy[0].lower() == "r:root":
         cleaned_taxonomy = cleaned_taxonomy[1:]
     # Complete taxonomy for uparse db
-    if cleaned_taxonomy[0].startswith("d:"):
+    if cleaned_taxonomy[0].startswith("k:"):
+        firs_rank = "k:"
+    if cleaned_taxonomy[0].startswith(firs_rank):
         tmp_tax = list()
         rank_idx = 0
-        ranks = ["d:", "p:", "c:", "o:", "f:", "g:","s:"]
+        ranks = [firs_rank, "p:", "c:", "o:", "f:", "g:","s:"]
         for taxa in cleaned_taxonomy:
             while not taxa.startswith(ranks[rank_idx]) and taxa != "Multi-affiliation" and taxa != "unclassified" and taxa != "NA":
                 tmp_tax.append(ranks[rank_idx] + "unknown_taxa")
