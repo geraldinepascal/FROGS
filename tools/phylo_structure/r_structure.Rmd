@@ -137,7 +137,7 @@ ggplotly(p22, tooltip = c("colour", "label"))
 
 ##Heatmap plot
 ```{r heatmap, fig.width=9, fig.height=7,message=FALSE, warning=FALSE}
-p3 <- plot_heatmap(data) + scale_fill_gradient2(low = "#ffff00", 
+p3 <- plot_heatmap(data, method = params$method, distance = dist) + scale_fill_gradient2(low = "#ffff00", 
                                                 mid = "#ffa500",
                                                high = "#ff0000", 
                                            na.value = "white",
