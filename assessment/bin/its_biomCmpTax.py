@@ -93,11 +93,11 @@ def getCleanedTaxonomy( taxonomy ):
         cleaned_taxonomy = cleaned_taxonomy[1:]
     # Complete taxonomy for uparse db
     if cleaned_taxonomy[0].startswith("k:"):
-        firs_rank = "k:"
-    if cleaned_taxonomy[0].startswith(firs_rank):
+        first_rank = "k:"
+    if cleaned_taxonomy[0].startswith(first_rank):
         tmp_tax = list()
         rank_idx = 0
-        ranks = [firs_rank, "p:", "c:", "o:", "f:", "g:","s:"]
+        ranks = [first_rank, "p:", "c:", "o:", "f:", "g:","s:"]
         for taxa in cleaned_taxonomy:
             while not taxa.startswith(ranks[rank_idx]) and taxa != "Multi-affiliation" and taxa != "unclassified" and taxa != "NA":
                 tmp_tax.append(ranks[rank_idx] + "unknown_taxa")
