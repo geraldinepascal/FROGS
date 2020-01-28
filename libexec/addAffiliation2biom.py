@@ -173,7 +173,8 @@ def get_bests_blast_affi( blast_files, taxonomy_by_subject ):
                     'alignments': list(),
                 }
             if blast_annot[query_id]['score'] == score: # select best HSP
-                subject_id = parts[1].split("#")[0]  # Subject field : <ID>#<PARTIAL_DESC>
+                # ~ subject_id = parts[1].split("#")[0]  # Subject field : <ID>#<PARTIAL_DESC> # why do not take into account the partial description ?
+                subject_id = parts[1]
                 blast_annot[query_id]['alignments'].append({
                     'subject': subject_id,
                     'taxonomy': taxonomy_by_subject[subject_id],
