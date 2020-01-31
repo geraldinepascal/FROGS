@@ -92,7 +92,8 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser( description='Launch Rscript to generate dataframe of DESEq2 from a phyloseq object in RData file')
     parser.add_argument( '--debug', default=False, action='store_true', help="Keep temporary files to debug program." )   
     parser.add_argument( '--version', action='version', version=__version__ )
-    parser.add_argument('-v', '--var', type=str, required=True, help='Experimental variable suspected to have an impact on OTUs abundances.' )   
+    parser.add_argument('-v', '--var', type=str, required=True, help='Experimental variable suspected to have an impact on OTUs abundances. \
+    	You may precise complexe string such as variables with confounding effect (ex: Treatment+Gender or Treatmet*Gender)' )   
     # Inputs
     group_input = parser.add_argument_group( 'Inputs' )
     group_input.add_argument('-d','--data', required=True, default=None, help="The path of RData file containing a phyloseq object, result of FROGS Phyloseq Import Data")

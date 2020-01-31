@@ -26,13 +26,8 @@ if (is.null(opt$inRdata)){
 
 
 load(opt$inRdata)
-data_deseq2 <- data
 
-## Add 1 to all count to eliminite huge number of 0
-otu_table(data_deseq2) <- otu_table(data) + 1
+cds <- phyloseq_to_deseq2(data, as.formula(paste("~", opt$var)))
 
-import_cmd <- paste('cds <- phyloseq_to_deseq2(data_deseq2, ~', opt$var, ')')
-eval(parse(text = import_cmd))
-
-dds <- DESeq2::DESeq(cds)
+dds <- DESeq2::DESeq(cds, sfType = "poscounts")
 save(dds, file=opt$outRdata)

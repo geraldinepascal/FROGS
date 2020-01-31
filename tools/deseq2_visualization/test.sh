@@ -13,12 +13,15 @@ fi
 
 python deseq2_visualization.py --phyloseqData data/phyloseq.Rdata --dds data/EnvType_DESeq_dds.Rdata \
                             --var EnvType --mod1 BoeufHache --mod2 SaumonFume \
-                            --debug \
                             --log-file test/deseq2_preprocess_EnvType.log \
                             --html test/EnvType_BoeufHache_SaumonFume.html
 
+# variables with 2 modes only
 python deseq2_visualization.py --phyloseqData data/phyloseq.Rdata --dds data/FoodType_DESeq_dds.Rdata \
                             --var FoodType \
-                            --debug \
                             --log-file test/deseq2_preprocess_FoodType.log \
                             --html test/FoodType.html
+
+# test on quantitative variables
+
+# test on variables with counfounding effect

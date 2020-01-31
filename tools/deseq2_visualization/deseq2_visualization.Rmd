@@ -34,14 +34,12 @@ knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
 ## Diferentially abundant OTU table
 
 ```{r packages, code_folding="show"}
-library(DESeq2)
 library(phyloseq)
 # dealing with plots
-library(plotly)
 library(ggplot2)
 # dealing with table
 library(formattable) ## implies DT to be installed
-library(tidyverse)
+library(dplyr)
 ```
 
 Since we only have a binary factor we can use the following syntax to format the log2 fold change from the fitted model
@@ -51,10 +49,10 @@ if not, we will use the other syntax with contrast=c()
 # Import input files
 phyloseq_input <- get(load(params$phyloseq_data))
 dds_input     <- get(load(params$dds))
-
-if(length(resultsNames(dds_input)) == 2 || params$mod1 == "None"){
-     results <- DESeq2::results(dds, name = resultsNames(dds_input)[1] )
-}else if(length(resultsNames(dds_input))>=3){
+result_names <- DESeq2::resultsNames(dds_input)
+if(length(result_names) == 2 || params$mod1 == "None"){
+     results <- DESeq2::results(dds, name = result_names[1] )
+}else if(length(result_names)>=3){
      results <- DESeq2::results(dds_input, contrast = c(params$var, params$mod1, params$mod2) ) 
 }
 
@@ -64,7 +62,7 @@ Then we extract significant OTUs at the p-value adjusted threshold level (after 
 ```{r da_otus}
 
 da.otus_table <- results %>% as_tibble(rownames = "OTU") %>% 
-    merge( data.frame(tax_table(phyloseq_input)), by.x="OTU", by.y="row.names")  %>%  
+	inner_join(tax_table(phyloseq_input) %>% as.data.frame() %>% mutate(OTU = taxa_names(phyloseq_input)), by = "OTU") %>% 
     filter(padj < params$padj) %>%  
     arrange(padj)
 
@@ -76,11 +74,12 @@ Using customize datatable we can explore the table of differentially expressed O
 # function to attribute a color in function of a score, here negativ, 0 and positiv
 sign_formatter <- formatter("span", style = x ~ style(color = ifelse(x > 0, "red", ifelse(x < 0, "green", "black"))))
 
-DT_foldchange <- da.otus_table%>% formattable(list(log2FoldChange = sign_formatter, 
+DT_foldchange <- da.otus_table %>% formattable(list(
+				   log2FoldChange = sign_formatter, 
                    baseMean = color_tile("transparent", "lightpink"),
-                   IfcSE = color_tile("lightblue", "transparent" ),
-                   padj = color_tile("lightblue", "transparent" ),
-                   pvalue = color_tile("lightblue", "transparent")
+                   lfcSE    = color_tile("lightblue", "transparent" ),
+                   padj     = color_tile("lightblue", "transparent" ),
+                   pvalue   = color_tile("lightblue", "transparent")
                    )
               ) %>%  as.datatable(filter = "top",                # ==> add filter for each column
                                   extensions = 'Buttons' , 
@@ -100,8 +99,8 @@ DT_foldchange
 ```{r pie, fig.width=8, fig.height=6}
 
 da_pie <- data.frame(
-    OTUs=c("Differentially Abundant (>0)",
-            "Differentially Abundant (<0)",
+    OTUs=c("Differentially Abundant (log-fold change > 0)",
+            "Differentially Abundant (log-fold change < 0)",
             "Not Differentiallly Abundant"
         ),
     Number=c(sum(da.otus_table$log2FoldChange > 0), 
@@ -131,9 +130,9 @@ Pie
 # Add the -log10 pvalue 
 # Add the pre-calculated log2 fold change
 da_volcano <- data.frame(
-    otu = row.names(results),
-    pvalue = -log10(results$padj), 
-    lfc = results$log2FoldChange)
+    otu      = row.names(results),
+    evidence = -log10(results$padj), 
+    lfc      = results$log2FoldChange)
 
 # Remove rows that have NA values
 da_volcano <- na.omit(da_volcano)
@@ -143,24 +142,23 @@ y_axix_volcano_line <- -log10(params$padj)
 # Modify dataset to add new coloumn of colors
 da_volcano <- da_volcano %>%
     mutate(
-        color = ifelse( da_volcano$lfc > 0 & da_volcano$pvalue > y_axix_volcano_line, 
-            yes = "More", 
-            no = ifelse(da_volcano$lfc < 0 & da_volcano$pvalue > y_axix_volcano_line, 
-                yes = "Less", 
-                no = "Equal")
-            )
-        )
+    	color = case_when(
+    		lfc > 0 & evidence > y_axix_volcano_line ~ "More", 
+    		lfc < 0 & evidence > y_axix_volcano_line ~ "Less", 
+    		TRUE                                     ~ "Equal"
+    	)
+    )
 
 # Color corresponds to fold change directionality
-volcano_plot <- ggplot(da_volcano, aes(x = lfc, y = pvalue)) + 
+volcano_plot <- ggplot(da_volcano, aes(x = lfc, y = evidence)) + 
     geom_point(aes(color = factor(color)), size = 1.75, alpha = 0.8, na.rm = T) + # add gene points
     theme_bw(base_size = 16) +                                                    # clean up theme
     theme(legend.position = "none") +                                             # remove legend 
-    ggtitle(label = "Volcano Plot", subtitle = "Colored by directionality") +     # add title
+    ggtitle(label = "Volcano Plot", subtitle = "Colored by effect sign") +        # add title
     xlab(expression(log[2]("FoldChange"))) +                                      # x-axis label
     ylab(expression(-log[10]("adjusted p-value"))) +                              # y-axis label
-    geom_vline(xintercept = 0, colour = "black") +                                # add line at 0
-    geom_hline(aes(yintercept = y_axix_volcano_line), yintercept = y_axix_volcano_line, colour = "black") +
+    geom_vline(xintercept = 0, colour = "grey80", linetype = 2) +                                # add line at 0
+    geom_hline(aes(yintercept = y_axix_volcano_line), yintercept = y_axix_volcano_line, colour = "grey80", linetype = 2) +
     annotate(geom = "text", 
         label = paste("padj =", params$padj), 
         x = min(da_volcano$lfc), 
@@ -191,31 +189,31 @@ DESeq2::plotMA(results, ylim = c(-10,10),
 
 da.otus_table <- da.otus_table %>% arrange(log2FoldChange)
 
-if ( length(resultsNames(dds_input))==2 || params$mod1 != "None"){
+if ( length(result_names)==2 || params$mod1 != "None"){
 
-    subtitle <- resultsNames(dds_input)[2]
+    subtitle <- result_names[2]
     if ( params$mod1!= "None" ){
-        subset_cmd <- paste(sep="", 'phyloseq_input <- subset_samples(phyloseq_input,',
-                             params$var, '%in%c("' ,params$mod1, '","', params$mod2, '"))')
-        eval(parse(text = subset_cmd))
+    	phyloseq_input <- prune_samples(get_variable(phyloseq_input, params$var) %in% c(params$mod1, params$mod2), phyloseq_input)
         subtitle <- paste(sep="", params$var, "_", params$mod1, "_vs_", params$mod2)
     }
 
     ##Heatmap plot with 2 conditions
-    hplot_cmd <- paste(sep="", 
-        'hplot <- plot_heatmap(prune_taxa(da.otus_table$OTU, phyloseq_input), taxa.label="Family", ',
-        ',taxa.order = da.otus_table$OTU, low = "yellow", high = "red", na.value = "white") + facet_grid(~', params$var, 
-        ', scales = "free_x") + ggtitle("Heatmap plot (DA otus only between 2 conditions", subtitle ="',subtitle,'")')
+	hplot <- plot_heatmap(prune_taxa(da.otus_table$OTU, phyloseq_input), 
+						  taxa.label = NULL,
+						  taxa.order = da.otus_table$OTU, low = "yellow", high = "red", na.value = "white") + 
+				facet_grid(as.formula(paste("~", params$var)), scales = "free_x") + 
+				ggtitle("Heatmap plot of DA otus, between 2 conditions", subtitle = subtitle)
 ## Quantitative variable
-}else {
+} else {
     idx <- order(get_variable(phyloseq_input, params$var))
     my.sample.order <- sample_names(phyloseq_input)[idx]
     ##Heatmap plot with all conditions of variable
-    hplot_cmd <- paste(sep="", 'hplot <-plot_heatmap(taxa.label="Family", prune_taxa(da.otus_table$OTU, phyloseq_input), taxa.order = da.otus_table$OTU, sample.order = my.sample.order, low = "yellow", high = "red", na.value = "white")  + facet_grid(~', params$var, ', scales = "free_x") + ggtitle("Heatmap plot (DA otus only)  with all conditions of ', params$var, ' ")')
+    hplot <- plot_heatmap(prune_taxa(da.otus_table$OTU, phyloseq_input), 
+    					  taxa.label = NULL,
+    	                  taxa.order = da.otus_table$OTU, sample.order = my.sample.order, 
+    	                  low = "yellow", high = "red", na.value = "white") + 
+             ggtitle(paste0("Heatmap plot of DA otus with samples ordered according to ", params$var))
 }
-eval(parse(text = hplot_cmd))
 # ggplotly(hplot)
 hplot
 ```
-
-</script>
