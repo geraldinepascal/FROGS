@@ -56,14 +56,16 @@ def process( in_biom, out_biom, out_metadata ):
     biom = BiomIO.from_json( in_biom )
     for observation in biom.get_observations():
         for metadata_key in observation["metadata"].keys():
-            if metadata_key == "blast_affiliations": # Extract blast_affiliations metadata in metadata_file
+            # Extract blast_affiliations metadata in metadata_file
+            if metadata_key == "blast_affiliations": 
                 if observation["metadata"][metadata_key] is not None:
                     for current_affi in observation["metadata"][metadata_key]:
                         if isinstance(current_affi["taxonomy"], list) or isinstance(current_affi["taxonomy"], tuple):
                             current_affi["taxonomy"] = ";".join( current_affi["taxonomy"] )
                         FH_metadata.write( observation["id"] + "\t" + "\t".join([str(current_affi[item]) for item in ordered_blast_keys]) + "\n" )
                 del observation["metadata"][metadata_key]
-            elif observation["metadata"][metadata_key] is not None: # All list are transformed in string
+            # All list are transformed in string (including blast_taxonomy)
+            elif observation["metadata"][metadata_key] is not None: 
                 if isinstance(observation["metadata"][metadata_key], list) or isinstance(observation["metadata"][metadata_key], tuple):
                     observation["metadata"][metadata_key] = ";".join( map(str, observation["metadata"][metadata_key]) )
         if observation["metadata"].has_key( "blast_taxonomy" ):
