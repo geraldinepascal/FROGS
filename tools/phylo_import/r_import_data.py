@@ -141,12 +141,24 @@ if __name__ == "__main__":
     samplefile=os.path.abspath(args.samplefile)
 
     biom = BiomIO.from_json(biomfile)
+    # biom file need to be standardize
     to_standardize = False
-    if not biom.has_metadata("taxonomy"):
+    if not biom.has_metadata("taxonomy") :
         if not biom.has_metadata("blast_taxonomy"):
             raise Exception("Your biom input file is not comming from FROGS and has no standard taxonomy metadata.\n")
         else:
             to_standardize=True
+    # check sample names compatibility between input biom and sample metadata file
+    sample_metadata_list = set()
+    FH_in = open(args.samplefile)
+    FH_in.readline()
+    for line in FH_in:
+        sample_metadata_list.add(line.split()[0])
+
+    biom_sample_list = set([name for name in biom.get_samples_names()])
+
+    if sample_metadata_list.difference(biom_sample_list) or biom_sample_list.difference(sample_metadata_list):
+        raise Exception("Samples names are not consistent between sample metadata file and biom file\n" + "samples specific from sample metadata file are :" + ", ".join([str(s) for s in sample_metadata_list.difference(biom_sample_list) ]) + "\n" + "samples specific from biom file are : " + ", ".join([str(s) for s in biom_sample_list.difference(sample_metadata_list) ]))
 
     if (args.treefile is None) :
         treefile="None"
