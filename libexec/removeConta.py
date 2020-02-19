@@ -29,6 +29,7 @@ import time
 import argparse
 import subprocess
 from subprocess import Popen, PIPE
+from shutil import copyfile
 
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
 LIB_DIR = os.path.abspath(os.path.join(os.path.dirname(CURRENT_DIR), "lib"))
@@ -272,10 +273,22 @@ if __name__ == "__main__":
         blast_stderr = tmp_files.add("blast.stderr")
         contaminated_fasta = args.conta_fasta if args.conta_fasta is not None else tmp_files.add("contaminated.fasta")
 
+        # makeblastdb
+        contaminant_db = args.contaminant_db
+        if not os.path.exists(contaminant_db + "nhr"):
+            contaminant_db = tmp_files.add("contaminant_db.fasta")
+            tmp_files.add("contaminant_db.fasta.nsq")
+            tmp_files.add("contaminant_db.fasta.nhr")
+            tmp_files.add("contaminant_db.fasta.nin")
+            copyfile(args.contaminant_db,contaminant_db)
+            makeblastdb_cmd = ["makeblastdb","-in",contaminant_db,"-dbtype","nucl"]
+            makeblastdb_stdout = tmp_files.add("makeblastdb.stdout")
+            makeblastdb_stderr = tmp_files.add("makeblastdb.stderr")
+            submit_cmd( makeblastdb_cmd, makeblastdb_stdout, makeblastdb_stderr )
         # Blast
         blast_cmd = ["blastn", "-num_threads", str(args.nb_cpus), "-word_size", str(args.word_size), "-max_target_seqs", "1",
                      "-outfmt", "6 qseqid sseqid pident length mismatch gapopen qstart qend sstart send evalue bitscore qlen",
-                     "-query", args.input_fasta, "-out", blast_output, "-db", args.contaminant_db]
+                     "-query", args.input_fasta, "-out", blast_output, "-db", contaminant_db]
         submit_cmd( blast_cmd, blast_stdout, blast_stderr )
 
         # Split contaminants
