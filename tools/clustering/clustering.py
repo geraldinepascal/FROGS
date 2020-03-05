@@ -198,12 +198,16 @@ def replaceNtags(in_fasta, out_fasta):
         if "FROGS_combined" in record.id and "N" in record.string:
             N_idx1 = record.string.find("N")
             N_idx2 = record.string.rfind("N")
-            record.string = record.string.replace("N","A")
+            replaced_nucl = "A"
+            if record.string[N_idx1-1] == "A" and record.string[N_idx2+1] == "A" : 
+                replaced_nucl ="C"
+            
+            record.string = record.string.replace("N",replaced_nucl)
 
             if record.description :
-                record.description += "A:" + str(N_idx1) + ":" + str(N_idx2)
+                record.description += replaced_nucl + str(N_idx1) + ":" + str(N_idx2)
             else:
-                record.description = "A:" + str(N_idx1) + ":" + str(N_idx2)
+                record.description = replaced_nucl + str(N_idx1) + ":" + str(N_idx2)
         FH_out.write(record)
 
     FH_in.close()
@@ -218,13 +222,16 @@ def addNtags(in_fasta, output_fasta):
 
     FH_in = FastaIO(in_fasta)
     FH_out = FastaIO(output_fasta, "w")
-    regexp = re.compile('A:\d+:\d+$')
+    regexpA = re.compile('A:\d+:\d+$')
+    regexpC = re.compile('C:\d+:\d+$')
 
     for record in FH_in:
         if "FROGS_combined" in record.id and record.description:
-            search = regexp.search(record.description)
+            search = regexpA.search(record.description)
             if search is None :
-                continue 
+                search = regexpC.search(record.description)
+                if search is None:
+                    continue 
             
             desc = search.group()
             [N_idx1,N_idx2] = desc.split(":")[1:]
@@ -303,7 +310,7 @@ if __name__ == "__main__":
 
         Swarm2Biom( args.output_compo, args.input_count, args.output_biom ).submit( args.log_file )
         ExtractSwarmsFasta( final_sorted_fasta, swarms_file, swarms_seeds ).submit( args.log_file )
-        Logger.static_write(args.log_file, "repalce A tags by N. in: " + swarms_seeds + " out : "+ args.output_fasta +"\n")
+        Logger.static_write(args.log_file, "replace A tags by N. in: " + swarms_seeds + " out : "+ args.output_fasta +"\n")
         addNtags(swarms_seeds, args.output_fasta)
 
     # Remove temporary files
