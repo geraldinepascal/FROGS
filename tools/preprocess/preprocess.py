@@ -877,6 +877,7 @@ def process_sample(R1_file, R2_file, sample_name, out_file, art_out_file, length
         FH_log.close()
 
         # Commands execution
+        #read pair assembly
         if not args.already_contiged:
             if args.merge_software == "vsearch":
                 vsearch_cmd = Vsearch(R1_file, R2_file, out_contig.replace(".assembled.fastq",""), out_contig_log, args)
@@ -890,6 +891,8 @@ def process_sample(R1_file, R2_file, sample_name, out_file, art_out_file, length
                 
         else:
             out_contig = R1_file
+
+        # remove primer
         if args.sequencer == "454": # 454
             if is_gzip( out_contig ):
                 renamed_out_contig = tmp_files.add( sample_name + '_454.fastq.gz' ) # prevent cutadapt problem (type of file is checked by extension)
@@ -909,6 +912,7 @@ def process_sample(R1_file, R2_file, sample_name, out_file, art_out_file, length
         if args.three_prim_primer is not None: primers_size += len(args.three_prim_primer)
         min_len = args.min_amplicon_size - primers_size
         max_len = args.max_amplicon_size - primers_size
+        # filter on length, N 
         MultiFilter(out_cutadapt, min_len, max_len, None, out_NAndLengthfilter, log_NAndLengthfilter, args).submit(log_file)
         
         # Get length before and after process
@@ -924,7 +928,9 @@ def process_sample(R1_file, R2_file, sample_name, out_file, art_out_file, length
 
         # dealing with uncontiged reads.
         if args.keep_unmerged:
+            # read pair assembly
             Combined(out_notcombined_R1, out_notcombined_R2, "X"*100, out_artificial_combined ).submit(log_file)
+            # remove primers
             if args.sequencer == "454" :
                 Remove454prim(out_artificial_combined, art_out_cutadapt, art_log_3prim_cutadapt, args).submit(log_file)
             else:
@@ -933,7 +939,7 @@ def process_sample(R1_file, R2_file, sample_name, out_file, art_out_file, length
                     Cutadapt3prim(art_tmp_cutadapt, art_out_cutadapt, art_log_3prim_cutadapt, args).submit(log_file)
                 else: # Custom sequencing primers. The amplicons is full length (Illumina) except PCR primers (it is use as sequencing primers). [Protocol Kozich et al. 2013]
                     art_out_cutadapt = out_artificial_combined
-            # MultiFilter(art_out_cutadapt, -1, -1, "X"*100, art_out_Nfilter, art_log_Nfilter, args).submit(log_file)
+            # filter on length, N 
             MultiFilter(art_out_cutadapt, args.R1_size, -1, None, art_out_Nfilter, art_log_Nfilter, args).submit(log_file)
             ReplaceJoinTag(art_out_Nfilter, "X"*100, "N"*100, art_out_XtoN ).submit(log_file)
             DerepBySample(out_NAndLengthfilter + " " + art_out_XtoN, out_file, out_count).submit(log_file)
