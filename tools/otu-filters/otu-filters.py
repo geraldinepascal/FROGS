@@ -351,7 +351,13 @@ def process( args ):
             excluded_obs_on_samplePresence( args.input_biom, args.min_sample_presence, discards[label] )
 
         if args.min_abundance is not None:
-            label = "Abundance < " + str(args.min_abundance)
+            
+            if type(args.min_abundance) == float:
+                biom = BiomIO.from_json( args.input_biom )
+                min_nb_seq = int(biom.get_total_count() * args.min_abundance) + 1
+                label = "Abundance < " + str(args.min_abundance*100) + "% (i.e " + str(min_nb_seq) + " sequences )"
+            else:
+                label = "Abundance < " + str(args.min_abundance)
             discards[label] = tmpFiles.add( "min_abundance" )
             excluded_obs_on_abundance( args.input_biom, args.min_abundance, discards[label] )
 
