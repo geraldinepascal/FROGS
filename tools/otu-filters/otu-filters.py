@@ -346,7 +346,7 @@ def process( args ):
         discards = dict() # by filter the discard file path
 
         if args.min_sample_presence is not None:
-            label = "Present in minus of " + str(args.min_sample_presence) + " samples"
+            label = "Present in less than " + str(args.min_sample_presence) + " samples"
             discards[label] = tmpFiles.add( "min_sample_presence" )
             excluded_obs_on_samplePresence( args.input_biom, args.min_sample_presence, discards[label] )
 
