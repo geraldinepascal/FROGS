@@ -19,7 +19,7 @@
 __author__ = 'Maria Bernard - Sigenae INRA'
 __copyright__ = 'Copyright (C) 2016 INRA'
 __license__ = 'GNU General Public License'
-__version__ = '1.1.0'
+__version__ = '1.2.0'
 __email__ = 'frogs-support@inra.fr'
 __status__ = 'prod'
 
@@ -28,6 +28,7 @@ import re
 import sys
 import copy
 import argparse
+from collections import OrderedDict 
 
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
 LIB_DIR = os.path.abspath(os.path.join(os.path.dirname(CURRENT_DIR), "lib"))
@@ -175,7 +176,7 @@ def tsv_to_biom( input_tsv, multi_hit_dict, fields, samples_names, output_biom, 
     seed_seq_idx = -1 
     metadata_index = dict()
     sample_index = dict()
-    clusters_count = dict()
+    clusters_count = OrderedDict()
     clusters_metadata = dict()
     in_fh = open( input_tsv )
 
