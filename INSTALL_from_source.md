@@ -217,14 +217,7 @@ make
 ln -s $BIN_DIR/RDPTools/classifier.jar $FROGS_libexec/.
 ```
 
-## 9) taskset, for FROGS Affiliation_OTU
-
-**intallation**
-```bash
-sudo apt-get install util-linux
-```
-
-## 10) Needlall 6.6.0.0, for FROGS Affiliation_OTU
+## 9) Needlall 6.6.0.0, for FROGS Affiliation_OTU
 
 **require** : pdf and png support
 ```bash
@@ -247,7 +240,7 @@ emboss/needleall -h
 ln -s $BIN_DIR/EMBOSS-6.6.0/emboss/needleall $FROGS_libexec/.
 ```
 
-## 11) MAFFT 7.407, for FROGS Tree
+## 10) MAFFT 7.407, for FROGS Tree
 **installation**
 ```bash
 cd $BIN_DIR
@@ -268,7 +261,7 @@ $BIN_DIR/mafft-7.407-with-extensions/bin/mafft -h
 ln -s $BIN_DIR/mafft-7.407-with-extensions/scripts/mafft $FROGS_libexec/.
 ```
 
-## 12) FastTree 2.1.10, for FROGS Tree
+## 11) FastTree 2.1.10, for FROGS Tree
 
 **installation**
 ```bash
@@ -283,7 +276,7 @@ chmod 777 FastTree
 ln -s $BIN_DIR/Fasttree/FastTree $FROGS_libexec/.
 ```
 
-## 13) R 3.6.1, for all FROGSSTAT Phyloseq tools
+## 12) R 3.6.1, for all FROGSSTAT Phyloseq tools
 
 **installation**
 
@@ -414,7 +407,7 @@ mv phyloseq-extended-0.99/* .
 rm -r phyloseq-extended-0.99/
 ```
 
-## 14) pandoc 1.19.2.1,  for all FROGSSTAT Phyloseq tools
+## 13) pandoc 1.19.2.1,  for all FROGSSTAT Phyloseq tools
 **installation**
 ```
 cd $BIN_DIR

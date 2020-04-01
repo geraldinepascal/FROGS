@@ -168,7 +168,8 @@ class RDPAffiliation(Cmd):
         Cmd.__init__( self,
                       which("classifier.jar"),
                       "rdp taxonomic affiliation" ,
-                      "taskset -c " + self._get_cpu_id() + " java -Xmx" + str(memory) + "g -jar ##PROGRAM## classify -c 0.0 -t " + ref + ".properties -o " + output + " " + query_fasta,
+                      #~ "taskset -c " + self._get_cpu_id() + " java -Xmx" + str(memory) + "g -jar ##PROGRAM## classify -c 0.0 -t " + ref + ".properties -o " + output + " " + query_fasta,
+                      "java -Xmx" + str(memory) + "g -jar ##PROGRAM## classify -c 0.0 -t " + ref + ".properties -o " + output + " " + query_fasta,
                       None)
         self.output = output
 
