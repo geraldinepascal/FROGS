@@ -19,7 +19,7 @@
 __author__ = 'Maria Bernard - Sigenae AND Frederic Escudie - Plateforme bioinformatique Toulouse'
 __copyright__ = 'Copyright (C) 2015 INRA'
 __license__ = 'GNU General Public License'
-__version__ = '1.4.1'
+__version__ = '1.5.0'
 __email__ = 'frogs-support@inra.fr'
 __status__ = 'prod'
 
