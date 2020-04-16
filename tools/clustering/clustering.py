@@ -205,9 +205,9 @@ def replaceNtags(in_fasta, out_fasta):
             record.string = record.string.replace("N",replaced_nucl)
 
             if record.description :
-                record.description += replaced_nucl + str(N_idx1) + ":" + str(N_idx2)
+                record.description += replaced_nucl + ":" + str(N_idx1) + ":" + str(N_idx2)
             else:
-                record.description = replaced_nucl + str(N_idx1) + ":" + str(N_idx2)
+                record.description = replaced_nucl + ":" + str(N_idx1) + ":" + str(N_idx2)
         FH_out.write(record)
 
     FH_in.close()
@@ -231,7 +231,7 @@ def addNtags(in_fasta, output_fasta):
             if search is None :
                 search = regexpC.search(record.description)
                 if search is None:
-                    continue 
+                    raise Exception("\n" + record.id + " is a FROGS_combined cluster but has not comining tag 100 As or 100 Cs to replace with 100 Ns\n")
             
             desc = search.group()
             [N_idx1,N_idx2] = desc.split(":")[1:]
