@@ -95,7 +95,7 @@ class Swarm(Cmd):
             stdout, stderr = p.communicate()
             return stderr.split()[1]
         except:
-            raise Exception( "Version cannot be retrieve for the software '" + self.program + "'." )
+            raise Exception( "\nVersion cannot be retrieve for the software '" + self.program + "'.\n\n" )
 
 
 class Swarm2Biom(Cmd):

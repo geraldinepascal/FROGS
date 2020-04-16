@@ -150,7 +150,7 @@ class Archive(Cmd):
             os.makedirs(tmp_folder)
             
         if len(archived_files) == 0:
-            raise Exception( "At least one file must be add to the archive '" + archive_path + "'." )
+            raise Exception( "\nAt least one file must be add to the archive '" + archive_path + "'.\n\n" )
     
         archived_basenames = list()
         for current in archived_files:
