@@ -20,7 +20,7 @@ __author__ = 'Maria Bernard - Sigenae AND Frederic Escudie - Plateforme bioinfor
 __copyright__ = 'Copyright (C) 2015 INRA'
 __license__ = 'GNU General Public License'
 __version__ = '2.3.0'
-__email__ = 'frogs@inra.fr'
+__email__ = 'frogs-support@inra.fr'
 __status__ = 'prod'
 
 import os
@@ -173,13 +173,15 @@ def get_bests_blast_affi( blast_files, taxonomy_by_subject ):
                     'alignments': list(),
                 }
             if blast_annot[query_id]['score'] == score: # select best HSP
-                subject_id = parts[1].split("#")[0]  # Subject field : <ID>#<PARTIAL_DESC>
+                # ~ subject_id = parts[1].split("#")[0]  # Subject field : <ID>#<PARTIAL_DESC> # why do not take into account the partial description ?
+                subject_id = parts[1]
                 blast_annot[query_id]['alignments'].append({
                     'subject': subject_id,
                     'taxonomy': taxonomy_by_subject[subject_id],
                     'evalue': parts[10],
                     'aln_length': int(parts[3]),
                     'perc_identity': float(parts[2]),
+                    # (end - start + 1) / qlen *100
                     'perc_query_coverage': (int(parts[7]) - int(parts[6]) + 1) / float(parts[12]) * 100
                 })
         FH_blast.close()

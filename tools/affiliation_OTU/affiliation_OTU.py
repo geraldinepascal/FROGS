@@ -19,8 +19,8 @@
 __author__ = 'Maria Bernard INRA - SIGENAE AND Frederic Escudie - Plateforme bioinformatique Toulouse'
 __copyright__ = 'Copyright (C) 2015 INRA'
 __license__ = 'GNU General Public License'
-__version__ = '3.1'
-__email__ = 'frogs@inra.fr'
+__version__ = '3.2'
+__email__ = 'frogs-support@inra.fr'
 __status__ = 'prod'
 
 import os
@@ -168,21 +168,22 @@ class RDPAffiliation(Cmd):
         Cmd.__init__( self,
                       which("classifier.jar"),
                       "rdp taxonomic affiliation" ,
-                      "taskset -c " + self._get_cpu_id() + " java -Xmx" + str(memory) + "g -jar ##PROGRAM## classify -c 0.0 -t " + ref + ".properties -o " + output + " " + query_fasta,
+                      #~ "taskset -c " + self._get_cpu_id() + " java -Xmx" + str(memory) + "g -jar ##PROGRAM## classify -c 0.0 -t " + ref + ".properties -o " + output + " " + query_fasta,
+                      "java -Xmx" + str(memory) + "g -jar ##PROGRAM## classify -c 0.0 -t " + ref + ".properties -o " + output + " " + query_fasta,
                       None)
         self.output = output
 
-    def _get_cpu_id(self):
-        python_pid = str(os.getpid())
-        python_cpuid = None
-        ps_stdout = subprocess.check_output('ps -o pid,cpuid', shell=True)
-        for line in ps_stdout.strip().split("\n"):
-            pid, cpuid = line.split()
-            if pid == python_pid:
-                python_cpuid = cpuid
-        if python_cpuid is None:
-            raise Exception( "CPUID cannot be retrieved" )
-        return str(python_cpuid)
+    # def _get_cpu_id(self):
+    #     python_pid = str(os.getpid())
+    #     python_cpuid = None
+    #     ps_stdout = subprocess.check_output('ps -o pid,cpuid', shell=True)
+    #     for line in ps_stdout.strip().split("\n"):
+    #         pid, cpuid = line.split()
+    #         if pid == python_pid:
+    #             python_cpuid = cpuid
+    #     if python_cpuid is None:
+    #         raise Exception( "\nCPUID cannot be retrieved\n\n" )
+    #     return str(python_cpuid)
 
 
 class AddAffiliation2Biom(Cmd):
@@ -401,7 +402,7 @@ def rdp_parallel_submission( function, inputs, outputs, logs, cpu_used, referenc
     # Check processes status
     for current_process in processes:
         if issubclass(current_process['process'].__class__, multiprocessing.Process) and current_process['process'].exitcode != 0:
-            raise Exception("Error in sub-process execution.")
+            raise Exception("\nError in sub-process execution.\n\n")
 
 def process_needleall(reference, input_fasta, input_blast_R1, input_blast_R2, temp_sam, temp_log, output, log_file, debug):
     """
@@ -448,7 +449,7 @@ def needleall_parallel_submission( function, reference, inputs_fasta, input_blas
     # Check processes status
     for current_process in processes:
         if issubclass(current_process['process'].__class__, multiprocessing.Process) and current_process['process'].exitcode != 0:
-            raise Exception("Error in sub-process execution.")
+            raise Exception("\nError in sub-process execution.\n\n")
 
 ###################################################################################################################
 ###                                              MAIN                                                           ###
@@ -501,7 +502,7 @@ if __name__ == "__main__":
         Logger.static_write(args.log_file, "## Application\nSoftware: " + os.path.basename(sys.argv[0]) + " (version: " + str(__version__) + ")\nCommand: " + " ".join(sys.argv) + "\n\n")
         nb_seq, nb_combined = extract_FROGS_combined(args.input_fasta, fasta_full_length, fasta_combined)
         if nb_seq == 0 : 
-            raise Exception("Your input fasta file is empty!")
+            raise Exception("\nYour input fasta file is empty!\n\n")
         Logger.static_write(args.log_file, "Nb seq : " + str(nb_seq) + "\n")
         if nb_combined > 0 :
             Logger.static_write(args.log_file, "\t with nb seq artificially combined :" + str(nb_combined) +"\n")

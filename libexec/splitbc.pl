@@ -483,9 +483,11 @@ sub match_sequences {
 					$cut_len=$seq_len-$barcodes_length-$adapt;
 				}
 			} else {
-				$sequence_fragment = substr $seq_bases_r2, - $barcodes_length;
+				#~ $sequence_fragment = substr $seq_bases_r2, - $barcodes_length;
+                $sequence_fragment = substr $seq_bases_r2, 0, $barcodes_length;
 				if (defined $rad){	
-					$sequence_fragment_radTAG = substr $seq_bases_r2, - ($barcodes_length+$adapt+$radTAG_length), $radTAG_length;
+					#~ $sequence_fragment_radTAG = substr $seq_bases_r2, - ($barcodes_length+$adapt+$radTAG_length), $radTAG_length;
+					$sequence_fragment_radTAG = substr $seq_bases_r2, $barcodes_length, $radTAG_length;
 				}
 				if ($trim){
 					$start2=0 ;

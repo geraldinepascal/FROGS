@@ -19,8 +19,8 @@
 __author__ = 'Frederic Escudie - Plateforme bioinformatique Toulouse / Maria Bernard - SIGENAE Jouy en Josas'
 __copyright__ = 'Copyright (C) 2015 INRA'
 __license__ = 'GNU General Public License'
-__version__ = '3.1'
-__email__ = 'frogs@inra.fr'
+__version__ = '3.2'
+__email__ = 'frogs-support@inra.fr'
 __status__ = 'prod'
 
 import re
@@ -577,10 +577,6 @@ def summarise_results( samples_names, lengths_files, log_files, param ):
     """
     # Get data
     categories = get_filter_steps(log_files[0])
-    if args.already_contiged and args.sequencer == "illumina":
-        categories.insert(1,"input sequences")
-    elif args.sequencer == "454":
-        categories.insert(1,"input sequences")
     filters_by_sample = {"before process":{}, "merged":{}}
     before_lengths_by_sample = dict()
     after_lengths_by_sample = dict()
@@ -591,11 +587,6 @@ def summarise_results( samples_names, lengths_files, log_files, param ):
         filters = get_sample_results(log_files[spl_idx])
         filters_by_sample["before process"][spl_name] = filters["before process"]
         filters_by_sample["merged"][spl_name] = filters["merged"]
-        # add input sequences in table
-        if args.already_contiged and args.sequencer == "illumina":
-            filters_by_sample["merged"][spl_name]["input sequences"] = filters["before process"]
-        if args.sequencer == "454":
-            filters_by_sample["merged"][spl_name]["input sequences"] = filters["before process"]
 
         if "artificial combined" in filters:
             if not "artificial combined" in filters_by_sample:
@@ -703,7 +694,7 @@ def samples_from_tar( archive, contiged, global_tmp_files, R1_files, R2_files, s
     R2_tmp = list()
     tmp_folder = os.path.join( global_tmp_files.tmp_dir, global_tmp_files.prefix + "_tmp" )
     if not tarfile.is_tarfile(archive):
-        raise Exception("The archive '" + archive + "' is not a tar file.")
+        raise Exception("\nThe archive '" + archive + "' is not a tar file.\n\n")
     FH_tar = tarfile.open(archive)
     # List R1_files, R2_files and samples_names
     archive_members = sorted(FH_tar.getmembers(), key=lambda member: member.name)
@@ -722,14 +713,14 @@ def samples_from_tar( archive, contiged, global_tmp_files, R1_files, R2_files, s
                     R2_files.append( global_tmp_files.add(file_info.name) )
                     R2_tmp.append( os.path.join(tmp_folder, file_info.name) )
                 else:
-                    raise Exception("The file '" + file_info.name + "' in archive '" + archive + "' is invalid. The files names must contain '_R1' or '_R2'.")
+                    raise Exception("\nThe file '" + file_info.name + "' in archive '" + archive + "' is invalid. The files names must contain '_R1' or '_R2'.\n\n")
         else:
-            raise Exception("The archive '" + archive + "' must not contain folders.")
+            raise Exception("\nThe archive '" + archive + "' must not contain folders.")
     if len(R1_files) != len(R2_files) and not contiged:
         if len(R1_files) > len(R2_files):
-            raise Exception( str(len(R1_files) - len(R2_files)) + " R2 file(s) are missing in arhive '" + archive + "'. R1 file : [" + ", ".join(R1_files) + "] ; R2 files : [" + ", ".join(R2_files) + "]" )
+            raise Exception( "\n" + str(len(R1_files) - len(R2_files)) + " R2 file(s) are missing in arhive '" + archive + "'. R1 file : [" + ", ".join(R1_files) + "] ; R2 files : [" + ", ".join(R2_files) + "]\n\n" )
         else:
-            raise Exception( str(len(R2_files) - len(R1_files)) + " R1 file(s) are missing in arhive '" + archive + "'. R1 file : [" + ", ".join(R1_files) + "] ; R2 files : [" + ", ".join(R2_files) + "]" )
+            raise Exception( "\n" + str(len(R2_files) - len(R1_files)) + " R1 file(s) are missing in arhive '" + archive + "'. R1 file : [" + ", ".join(R1_files) + "] ; R2 files : [" + ", ".join(R2_files) + "]\n\n" )
     try:
         # Extract
         FH_tar.extractall(tmp_folder)
@@ -886,6 +877,7 @@ def process_sample(R1_file, R2_file, sample_name, out_file, art_out_file, length
         FH_log.close()
 
         # Commands execution
+        #read pair assembly
         if not args.already_contiged:
             if args.merge_software == "vsearch":
                 vsearch_cmd = Vsearch(R1_file, R2_file, out_contig.replace(".assembled.fastq",""), out_contig_log, args)
@@ -899,6 +891,8 @@ def process_sample(R1_file, R2_file, sample_name, out_file, art_out_file, length
                 
         else:
             out_contig = R1_file
+
+        # remove primer
         if args.sequencer == "454": # 454
             if is_gzip( out_contig ):
                 renamed_out_contig = tmp_files.add( sample_name + '_454.fastq.gz' ) # prevent cutadapt problem (type of file is checked by extension)
@@ -918,6 +912,7 @@ def process_sample(R1_file, R2_file, sample_name, out_file, art_out_file, length
         if args.three_prim_primer is not None: primers_size += len(args.three_prim_primer)
         min_len = args.min_amplicon_size - primers_size
         max_len = args.max_amplicon_size - primers_size
+        # filter on length, N 
         MultiFilter(out_cutadapt, min_len, max_len, None, out_NAndLengthfilter, log_NAndLengthfilter, args).submit(log_file)
         
         # Get length before and after process
@@ -933,7 +928,9 @@ def process_sample(R1_file, R2_file, sample_name, out_file, art_out_file, length
 
         # dealing with uncontiged reads.
         if args.keep_unmerged:
+            # read pair assembly
             Combined(out_notcombined_R1, out_notcombined_R2, "X"*100, out_artificial_combined ).submit(log_file)
+            # remove primers
             if args.sequencer == "454" :
                 Remove454prim(out_artificial_combined, art_out_cutadapt, art_log_3prim_cutadapt, args).submit(log_file)
             else:
@@ -942,7 +939,7 @@ def process_sample(R1_file, R2_file, sample_name, out_file, art_out_file, length
                     Cutadapt3prim(art_tmp_cutadapt, art_out_cutadapt, art_log_3prim_cutadapt, args).submit(log_file)
                 else: # Custom sequencing primers. The amplicons is full length (Illumina) except PCR primers (it is use as sequencing primers). [Protocol Kozich et al. 2013]
                     art_out_cutadapt = out_artificial_combined
-            # MultiFilter(art_out_cutadapt, -1, -1, "X"*100, art_out_Nfilter, art_log_Nfilter, args).submit(log_file)
+            # filter on length, N 
             MultiFilter(art_out_cutadapt, args.R1_size, -1, None, art_out_Nfilter, art_log_Nfilter, args).submit(log_file)
             ReplaceJoinTag(art_out_Nfilter, "X"*100, "N"*100, art_out_XtoN ).submit(log_file)
             DerepBySample(out_NAndLengthfilter + " " + art_out_XtoN, out_file, out_count).submit(log_file)
@@ -976,7 +973,7 @@ def process( args ):
             if args.samples_names is not None:
                 samples_names = args.samples_names
         if len(samples_names) != len(set(samples_names)):
-            raise Exception( 'Impossible to retrieve unique samples names from files. The sample name must be before the first dot.' )
+            raise Exception( '\nImpossible to retrieve unique samples names from files. The sample name must be before the first dot.\n\n' )
 
         # Tmp files
         filtered_files = [tmp_files.add(current_sample + '_filtered.fasta') for current_sample in samples_names]
@@ -1016,7 +1013,7 @@ def process( args ):
             # Check processes status
             for current_process in processes:
                 if issubclass(current_process['process'].__class__, multiprocessing.Process) and current_process['process'].exitcode != 0:
-                    raise Exception( "Error in sub-process execution." )
+                    raise Exception( "\nError in sub-process execution.\n\n" )
 
         # Write summary
         log_append_files( args.log_file, log_files )
@@ -1029,7 +1026,7 @@ def process( args ):
         # Check the number of sequences after filtering
         nb_seq = get_nb_seq(args.output_dereplicated)
         if  nb_seq == 0:
-            raise Exception( "The filters have eliminated all sequences (see summary for more details)." )
+            raise Exception( "\nThe filters have eliminated all sequences (see summary for more details).\n\n" )
 
     # Remove temporary files
     finally:
@@ -1040,7 +1037,7 @@ def spl_name_type( arg_value ):
     """
     @summary: Argparse type for samples-names.
     """
-    if re.search("\s", arg_value): raise argparse.ArgumentTypeError( "A sample name must not contain white spaces." )
+    if re.search("\s", arg_value): raise argparse.ArgumentTypeError( "\nA sample name must not contain white spaces.\n\n" )
     return str(arg_value)
 
 
@@ -1152,32 +1149,32 @@ if __name__ == "__main__":
     
     # Check parameters
     if args.input_archive is not None: # input is an archive
-        if args.input_R1 is not None: raise argparse.ArgumentTypeError( "With '--archive-file' parameter you cannot set the parameter '--R1-files'." )
-        if args.samples_names is not None: raise argparse.ArgumentTypeError( "With '--archive-file' parameter you cannot set the parameter '--samples-names'." )
+        if args.input_R1 is not None: raise argparse.ArgumentTypeError( "\nWith '--archive-file' parameter you cannot set the parameter '--R1-files'.\n\n" )
+        if args.samples_names is not None: raise argparse.ArgumentTypeError( "\nWith '--archive-file' parameter you cannot set the parameter '--samples-names'.\n\n" )
         if args.sequencer == "illumina":
-            if args.input_R2 is not None: raise argparse.ArgumentTypeError( "With '--archive-file' parameter you cannot set the parameter '--R2-files'." )
+            if args.input_R2 is not None: raise argparse.ArgumentTypeError( "\nWith '--archive-file' parameter you cannot set the parameter '--R2-files'.\n\n" )
             
     else:  # inputs are files
-        if args.input_R1 is None: raise argparse.ArgumentTypeError( "'--R1-files' is required." )
+        if args.input_R1 is None: raise argparse.ArgumentTypeError( "\n'--R1-files' is required.\n\n" )
         if args.samples_names is not None:
-            if len(args.samples_names) != len(args.input_R1): raise argparse.ArgumentTypeError( "With '--samples-names' all samples must have a name." )
+            if len(args.samples_names) != len(args.input_R1): raise argparse.ArgumentTypeError( "\nWith '--samples-names' all samples must have a name.\n\n" )
             if len(args.samples_names) != len(set(args.samples_names)):
                 duplicated_samples = set([name for name in args.samples_names if args.samples_names.count(name) > 1])
-                raise argparse.ArgumentTypeError( 'Samples names must be unique (duplicated: "' + '", "'.join(duplicated_samples) + '").' )
+                raise argparse.ArgumentTypeError( '\nSamples names must be unique (duplicated: "' + '", "'.join(duplicated_samples) + '").\n\n' )
         if args.sequencer == "illumina":
-            if not args.already_contiged and args.input_R2 is None: raise argparse.ArgumentTypeError( "'--R2-files' is required." )
+            if not args.already_contiged and args.input_R2 is None: raise argparse.ArgumentTypeError( "\n'--R2-files' is required.\n\n" )
 
     if args.sequencer == "illumina":
-        if (args.R1_size is None or args.R2_size is None ) and not args.already_contiged: raise Exception( "'--R1-size/--R2-size' or '--already-contiged' must be setted." )
+        if (args.R1_size is None or args.R2_size is None ) and not args.already_contiged: raise Exception( "\n'--R1-size/--R2-size' or '--already-contiged' must be setted.\n\n" )
         if args.without_primers:
-            if args.five_prim_primer or args.three_prim_primer: raise argparse.ArgumentTypeError( "The option '--without-primers' cannot be used with '--five-prim-primer' and '--three-prim-primer'." )
+            if args.five_prim_primer or args.three_prim_primer: raise argparse.ArgumentTypeError( "\nThe option '--without-primers' cannot be used with '--five-prim-primer' and '--three-prim-primer'.\n\n" )
         else:
-            if args.five_prim_primer is None or args.three_prim_primer is None: raise argparse.ArgumentTypeError( "'--five-prim-primer/--three-prim-primer' or 'without-primers'  must be setted." )
-            if args.min_amplicon_size <= (len(args.five_prim_primer) + len(args.three_prim_primer)): raise argparse.ArgumentTypeError( "The minimum length of the amplicon (--min-length) must be superior to the size of the two primers, i.e "+str(len(args.five_prim_primer) + len(args.three_prim_primer)) )
-        if (args.already_contiged and args.keep_unmerged): raise Exception("--already-contiged and keep-unmerged options cannot be used together")
+            if args.five_prim_primer is None or args.three_prim_primer is None: raise argparse.ArgumentTypeError( "\n'--five-prim-primer/--three-prim-primer' or 'without-primers'  must be setted.\n\n" )
+            if args.min_amplicon_size <= (len(args.five_prim_primer) + len(args.three_prim_primer)): raise argparse.ArgumentTypeError( "\nThe minimum length of the amplicon (--min-length) must be superior to the size of the two primers, i.e "+str(len(args.five_prim_primer) + len(args.three_prim_primer)) + "\n\n")
+        if (args.already_contiged and args.keep_unmerged): raise Exception("\n--already-contiged and keep-unmerged options cannot be used together\n\n")
         if (not args.already_contiged):
             if args.merge_software == "flash":
-                if args.expected_amplicon_size is None: raise argparse.ArgumentTypeError( "With '--merge-software flash' you need to set the parameter '--expected-amplicon-size'." )
+                if args.expected_amplicon_size is None: raise argparse.ArgumentTypeError( "\nWith '--merge-software flash' you need to set the parameter '--expected-amplicon-size'.\n\n" )
 
     # Process
     process( args )

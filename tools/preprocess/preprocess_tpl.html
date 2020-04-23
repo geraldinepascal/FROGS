@@ -340,7 +340,8 @@
             var histogram_param = function( pTitle, nb, pYTitle, pCategories, pSeries, unity ) {
                 var param = {
                     chart: {
-                        type: 'column'
+                        type: 'column',
+                        zoomType: 'y'
                     },
                     exporting:{buttons: {contextButton: { symbol: 'download' }}},
                     buttons: {contextButton: {menuItems: ['downloadPNG', 'downloadSVG']}},
@@ -377,6 +378,7 @@
                     }],
                     yAxis: {
                         min: 0,
+                        max: nb + 10,
                         title: {
                             text: pYTitle
                         },
@@ -440,35 +442,37 @@
             ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
             var filters_categories = ###FILTERS_CATEGORIES### ;
             /* Example:
-                ["before process", "assembled", "with 5' primer", "with 3' primer", "with expected length", "without N"]
+                ["before process", "paired-end assembled", "with 5' primer", "with 3' primer", "with expected length", "without N"] ;
             */
 
             var filters_by_sample = ###FILTERS_DATA### ;
             /* Example:
             var filters_by_sample = {
-                "artificial combined": {
-                    "sampleA": {"with 3' primer": 100, "without N": 100, "with 5' primer": 200, "assembled": 300}, 
-                    "sampleB": {"with 3' primer": 0, "without N": 0, "with 5' primer": 0, "assembled": 0}}, 
-                "combined": {
-                    "sampleA": {"with expected length": 997, "with 3' primer": 997, "without N": 997, "with 5' primer": 997, "assembled": 1000}, 
-                    "sampleB": {"with expected length": 634, "with 3' primer": 727, "without N": 619, "with 5' primer": 800, "assembled": 834}}, 
-                "before process": {"sampleA": 1300, "sampleB": 834}
+            	"artificial combined": {
+            		"sampleA": {"with expected length": 1, "with 3' primer": 1, "with 5' primer": 2, "without N": 1, "paired-end assembled": 3}, 
+            		"sampleB": {"with expected length": 0, "with 3' primer": 0, "with 5' primer": 0, "without N": 0, "paired-end assembled": 0}
+            	}, 
+            	"before process": {"sampleA": 1003, "sampleB": 1000}, 
+            	"merged": {
+            		"sampleA": {"with expected length": 997, "with 3' primer": 997, "with 5' primer": 997, "without N": 997, "paired-end assembled": 1000},
+            		"sampleB": {"with expected length": 997, "with 3' primer": 997, "with 5' primer": 997, "without N": 997, "paired-end assembled": 1000}
+            	}
             } ;
             */
 
             var before_lengths_by_sample = ###BEFORE_LENGTHS_DATA### ;
             /* Example:
                 {
-                  "sampleA": {"395": 1, "381": 192, "382": 1790, "383": 2903, "384": 1078, "385": 10536, "386": 18182, "387": 8613, "388": 1097, "389": 7},
-                  "sampleB": {}
+                  sampleA": {"414": 446, "415": 54, "410": 99, "411": 4, "412": 46, "413": 347, "409": 4}, 
+                  "sampleB": {"414": 446, "415": 54, "410": 99, "411": 4, "412": 46, "413": 347, "409": 4}
                 }
             */
 
             var after_lengths_by_sample = ###AFTER_LENGTHS_DATA### ;
             /* Example:
                 {
-                  "sampleA": {"395": 1, "381": 192, "382": 1790, "383": 2903, "384": 1078, "385": 10536, "386": 18182, "387": 8613, "388": 1097, "389": 7},
-                  "sampleB": {}
+                  "sampleA": {"381": 4, "382": 57, "383": 45, "384": 17, "385": 245, "386": 370, "387": 233, "388": 26}, 
+                  "sampleB": {"381": 4, "382": 57, "383": 45, "384": 17, "385": 245, "386": 370, "387": 233, "388": 26}
                 }
             */
             
@@ -585,9 +589,9 @@
             var sampleDetailsLoad = function(key, checkBox, tableId, distrib_length){
                 // Table titles
                 if (checkBox){
-                    var titles = [ '<label class="container"><input id="filterBySample-check-all" type="checkbox" value="1"><span class="checkmark"></span></label>', "Samples"];
+                    var titles = [ '<label class="container"><input id="filterBySample-check-all" type="checkbox" value="1"><span class="checkmark"></span></label>', "Samples","before process"];
                 }else{
-                    var titles = ["Samples"];    
+                    var titles = ["Samples","before process"];    
                 }
                 
                 titles.push( '% kept' );
@@ -595,9 +599,9 @@
 
                 for( var sample_name in filters ){
                     if (checkBox) {
-                        var sample_data = ['<label class="container"><input id="filterBySample-chk-' + sample_name + '" type="checkbox" value="1"><span class="checkmark"></span></label>', sample_name];
+                        var sample_data = ['<label class="container"><input id="filterBySample-chk-' + sample_name + '" type="checkbox" value="1"><span class="checkmark"></span></label>', sample_name, numberDisplay(filters_by_sample["before process"][sample_name])];
                     }else{
-                        var sample_data = [sample_name];
+                        var sample_data = [sample_name, numberDisplay(filters_by_sample["before process"][sample_name])];
                     }
                     
                     var last_idx = 0; 
@@ -612,14 +616,14 @@
                         }
                     }
                     
-                    var prct_kept = filters[sample_name][filters_categories[last_idx]]*100/filters[sample_name][filters_categories[1]]
+                    var prct_kept = filters[sample_name][filters_categories[last_idx]]*100/filters_by_sample["before process"][sample_name]
                     if (isNaN(prct_kept)){
                         prct_kept = 0
                     }
                     if (checkBox) {
-                        sample_data.splice(2, 0, numberDisplay(prct_kept));
+                        sample_data.splice(3, 0, numberDisplay(prct_kept));
                     }else{
-                        sample_data.splice(1, 0, numberDisplay(prct_kept));
+                        sample_data.splice(2, 0, numberDisplay(prct_kept));
                     }
 
                     $('#'+tableId+' tbody').append( '<tr><td>' + sample_data.join("</td><td>") + '</td></tr>' );

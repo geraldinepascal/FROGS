@@ -16,11 +16,11 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-__author__ = 'Katia Vidal - Team NED Toulouse AND Frederic Escudie - Plateforme bioinformatique Toulouse'
-__copyright__ = 'Copyright (C) 2015 INRA'
+__author__ = 'Katia Vidal - Team NED Toulouse AND Frederic Escudie - Plateforme bioinformatique Toulouse AND Maria Bernard - Sigenae Jouy en Josas'
+__copyright__ = 'Copyright (C) 2020 INRAE'
 __license__ = 'GNU General Public License'
-__version__ = '3.1'
-__email__ = 'frogs@inra.fr'
+__version__ = '3.2'
+__email__ = 'frogs-support@inrae.fr'
 __status__ = 'prod'
 
 
@@ -67,7 +67,7 @@ class UpdateFasta(Cmd):
                       '--version' )
 
 class RemoveConta(Cmd):
-    def __init__(self, contaminant_db, in_fasta, in_biom, cleaned_fasta, cleaned_biom, contaminated_fasta, log, nb_cpus ):
+    def __init__(self, contaminant_db, in_fasta, in_biom, cleaned_fasta, cleaned_biom, contaminated_fasta, log, nb_cpus, debug ):
         """
         @param contaminant_db: [str] Path to the databank.
         @param in_fasta: [str] Path to the sequences file.
@@ -78,10 +78,13 @@ class RemoveConta(Cmd):
         @param log: [str] Path to the log file.
         @param nb_cpus: [int] Number of usable CPUs.
         """
+        command_opt = "--nb-cpus " + str(nb_cpus) + " --word-size 40 --min-identity 0.8 --min-coverage 0.8 --input-fasta " + in_fasta + " --contaminant-db " + contaminant_db + " --input-biom " + in_biom + " --clean-fasta " + cleaned_fasta + " --clean-biom " + cleaned_biom + " --conta-fasta " + contaminated_fasta + " --log-file " + log
+        if debug:
+            command_opt += " --debug"
         Cmd.__init__( self,
                       "removeConta.py",
                       "Removes contaminant sequences.",
-                      "--nb-cpus " + str(nb_cpus) + " --word-size 40 --min-identity 0.8 --min-coverage 0.8 --input-fasta " + in_fasta + " --contaminant-db " + contaminant_db + " --input-biom " + in_biom + " --clean-fasta " + cleaned_fasta + " --clean-biom " + cleaned_biom + " --conta-fasta " + contaminated_fasta + " --log-file " + log,
+                      command_opt,
                       "--version")
         self.process_log = log
         self.contaminated_fasta = contaminated_fasta
@@ -122,23 +125,6 @@ class RemoveConta(Cmd):
 # FUNCTIONS
 #
 ##################################################################################################################################################
-def excluded_obs_on_rdpBootstrap(input_biom, taxonomic_depth, min_bootstrap, excluded_file):
-    """
-    @summary: Writes the list of the observations with an insufficient bootstrap on the specified taxonomic rank.
-    @param input_biom: [str] The path to the BIOM file to check.
-    @param taxonomic_depth: [int] The taxonomic rank depth to check (example: 6 for Species in system "Domain, Phylum, Class, Order, Family, Genus, Species").
-    @param min_bootstrap: [float] The observations with a value inferior to this threshold at the specified taxonomic depth are reported in the excluded file.
-    @param excluded_file: [str] The path to the output file.
-    """
-    biom = BiomIO.from_json( input_biom )
-    FH_excluded_file = open( excluded_file, "w" )
-    for observation in biom.get_observations():
-        bootstrap = observation["metadata"]["rdp_bootstrap"]
-        if issubclass(bootstrap.__class__, str):
-            bootstrap = bootstrap.split(";")
-        if bootstrap[taxonomic_depth] < min_bootstrap:
-            FH_excluded_file.write( str(observation["id"]) + "\n" )
-    FH_excluded_file.close()
 
 def excluded_obs_on_samplePresence(input_biom, min_sample_presence, excluded_file):
     """
@@ -174,31 +160,6 @@ def excluded_obs_on_abundance(input_biom, min_abundance, excluded_file):
             FH_excluded_file.write( str(observation["id"]) + "\n" )
     FH_excluded_file.close()
 
-def excluded_obs_on_blastMetrics( input_biom, tag, cmp_operator, threshold, excluded_file ):
-    """
-    @summary: Writes the list of the observations with no affiliations with sufficient blast value.
-    @param input_biom: [str] The path to the BIOM file to check.
-    @param tag: [str] The metadata checked.
-    @param cmp_operator: [str] The operator use in comparison (tag_value ">=" thresold or tag_value "<=" thresold ).
-    @param threshold: [float] The limit for the tag value.
-    @param excluded_file: [str] The path to the output file.
-    """
-    valid_operators = {
-        ">=": operator.__ge__,
-        "<=": operator.__le__
-    }
-    cmp_func = valid_operators[cmp_operator]
-    biom = BiomIO.from_json( input_biom )
-    FH_excluded_file = open( excluded_file, "w" )
-    for observation in biom.get_observations():
-        alignments = observation["metadata"]["blast_affiliations"]
-        is_discarded = True
-        for current_alignment in alignments:
-            if cmp_func(float(current_alignment[tag]), threshold):
-                is_discarded = False
-        if is_discarded:
-            FH_excluded_file.write( str(observation["id"]) + "\n" )
-    FH_excluded_file.close()
 
 def excluded_obs_on_nBiggest( input_biom, nb_selected, excluded_file ):
     """
@@ -339,7 +300,7 @@ def write_summary( summary_file, input_biom, output_biom, discards ):
     del out_biom
 
     # Write
-    FH_summary_tpl = open( os.path.join(CURRENT_DIR, "filters_tpl.html") )
+    FH_summary_tpl = open( os.path.join(CURRENT_DIR, "otu-filters_tpl.html") )
     FH_summary_out = open( summary_file, "w" )
     for line in FH_summary_tpl:
         if "###PORCESSED_FILTERS###" in line:
@@ -355,18 +316,18 @@ def write_summary( summary_file, input_biom, output_biom, discards ):
     FH_summary_out.close()
     FH_summary_tpl.close()
 
-def ratioParameter( arg_value ):
-    """
-    @summary: Argparse type for ratio (float between 0 and 1).
-    """
-    float_arg_value = None
-    try:
-        float_arg_value = float(arg_value)
-        if float_arg_value < 0.0 or float_arg_value > 1.0:
-            raise argparse.ArgumentTypeError("must be between 0.0 and 1.0.")
-    except:
-        raise argparse.ArgumentTypeError("must be between 0.0 and 1.0.")
-    return float_arg_value
+# def ratioParameter( arg_value ):
+#     """
+#     @summary: Argparse type for ratio (float between 0 and 1).
+#     """
+#     float_arg_value = None
+#     try:
+#         float_arg_value = float(arg_value)
+#         if float_arg_value < 0.0 or float_arg_value > 1.0:
+#             raise argparse.ArgumentTypeError("must be between 0.0 and 1.0.")
+#     except:
+#         raise argparse.ArgumentTypeError("must be between 0.0 and 1.0.")
+#     return float_arg_value
 
 def minAbundParameter( arg_value ):
     """
@@ -376,27 +337,7 @@ def minAbundParameter( arg_value ):
     cleaned_value = float(str_value) if "." in str_value or "e-" in str_value else int(str_value)
     return cleaned_value
 
-class BootstrapParameter(argparse.Action):
-    """
-    @summary : Argparse parameter for min-rdp-bootstrap parameter.
-    """
-    def __call__(self, parser, namespace, value, option_string=None):
-        # Set parser
-        output = getattr(namespace, self.dest)
-        if output is None:
-            output = {
-                "rank": None,
-                "value": None
-            }
-        if len(value.split(":")) != 2:
-            raise argparse.ArgumentTypeError("The parameter '--min-rdp-bootstrap' must be in format 'TAXONOMIC_LEVEL:MIN_BOOTSTRAP'.")
-        output["rank"] = value.split(":")[0]
-        output["value"] = value.split(":")[1]
-        try:
-            output["value"] = ratioParameter(output["value"])
-        except:
-            raise argparse.ArgumentTypeError("The value for the MIN_BOOTSTRAP in parameter '--min-rdp-bootstrap' must be between 0.0 and 1.0.")
-        setattr(namespace, self.dest, output)
+
 
 def process( args ):
     tmpFiles = TmpFiles( os.path.split(args.output_biom)[0] )
@@ -405,39 +346,20 @@ def process( args ):
         discards = dict() # by filter the discard file path
 
         if args.min_sample_presence is not None:
-            label = "Present in minus of " + str(args.min_sample_presence) + " samples"
+            label = "Present in less than " + str(args.min_sample_presence) + " samples"
             discards[label] = tmpFiles.add( "min_sample_presence" )
             excluded_obs_on_samplePresence( args.input_biom, args.min_sample_presence, discards[label] )
 
         if args.min_abundance is not None:
-            label = "Abundance < " + str(args.min_abundance)
+            
+            if type(args.min_abundance) == float:
+                biom = BiomIO.from_json( args.input_biom )
+                min_nb_seq = int(biom.get_total_count() * args.min_abundance) + 1
+                label = "Abundance < " + str(args.min_abundance*100) + "% (i.e " + str(min_nb_seq) + " sequences )"
+            else:
+                label = "Abundance < " + str(args.min_abundance)
             discards[label] = tmpFiles.add( "min_abundance" )
             excluded_obs_on_abundance( args.input_biom, args.min_abundance, discards[label] )
-
-        if args.min_rdp_bootstrap is not None:
-            label = "RDP bootstrap for " + args.min_rdp_bootstrap["rank"] + " < " + str(args.min_rdp_bootstrap["value"])
-            discards[label] = tmpFiles.add( "min_rdp_bootstrap" )
-            excluded_obs_on_rdpBootstrap( args.input_biom, args.rdp_taxonomy_ranks.index(args.min_rdp_bootstrap["rank"]), args.min_rdp_bootstrap["value"], discards[label] )
-
-        if args.min_blast_length is not None:
-            label = "All blast length < " + str(args.min_blast_length)
-            discards[label] = tmpFiles.add( "min_blast_length" )
-            excluded_obs_on_blastMetrics( args.input_biom, "aln_length", ">=", args.min_blast_length, discards[label] )
-
-        if args.max_blast_evalue is not None:
-            label = "All blast evalue > " + str(args.max_blast_evalue)
-            discards[label] = tmpFiles.add( "max_blast_evalue" )
-            excluded_obs_on_blastMetrics( args.input_biom, "evalue", "<=", args.max_blast_evalue, discards[label] )
-
-        if args.min_blast_identity is not None:
-            label = "All blast identity < " + str(args.min_blast_identity)
-            discards[label] = tmpFiles.add( "min_blast_identity" )
-            excluded_obs_on_blastMetrics( args.input_biom, "perc_identity", ">=", 100*args.min_blast_identity, discards[label] )
-
-        if args.min_blast_coverage is not None:
-            label = "All blast coverage < " + str(args.min_blast_coverage)
-            discards[label] = tmpFiles.add( "min_blast_coverage" )
-            excluded_obs_on_blastMetrics( args.input_biom, "perc_query_coverage", ">=", 100*args.min_blast_coverage, discards[label] )
 
         if args.contaminant is not None:
             label = "Present in databank of contaminants"
@@ -446,7 +368,7 @@ def process( args ):
             cleaned_biom = tmpFiles.add( "cleaned_abundance.biom" )
             contaminated_seq = tmpFiles.add( "contaminated_sequences.fasta" )
             remove_log = tmpFiles.add( "clean.log" )
-            cmd = RemoveConta(args.contaminant, args.input_fasta, args.input_biom, cleaned_seq, cleaned_biom, contaminated_seq, remove_log, args.nb_cpus)
+            cmd = RemoveConta(args.contaminant, args.input_fasta, args.input_biom, cleaned_seq, cleaned_biom, contaminated_seq, remove_log, args.nb_cpus, args.debug)
             cmd.submit( args.log_file )
             cmd.write_conta_list( discards[label] )
 
@@ -469,7 +391,8 @@ def process( args ):
         write_summary( args.summary, args.input_biom, args.output_biom, discards )
 
     finally:
-        tmpFiles.deleteAll()
+        if not args.debug : 
+            tmpFiles.deleteAll()
 
 
 ##################################################################################################################################################
@@ -481,18 +404,14 @@ if __name__ == '__main__':
     # Parameters
     parser = argparse.ArgumentParser(description='Filters an abundance file')
     parser.add_argument('-p', '--nb-cpus', type=int, default=1, help="The maximum number of CPUs used. [Default: %(default)s]")
+    parser.add_argument( '--debug', default=False, action='store_true', help="Keep temporary files to debug program." )
     parser.add_argument( '-v', '--version', action='version', version=__version__ )
     #     Filters
     group_filter = parser.add_argument_group( 'Filters' )
     group_filter.add_argument( '--nb-biggest-otu', type=int, default=None, required=False, help="Number of most abundant OTUs you want to keep.") 
     group_filter.add_argument( '-s', '--min-sample-presence', type=int, help="Keep OTU present in at least this number of samples.") 
-    group_filter.add_argument( '-a', '--min-abundance', type=minAbundParameter, default=None, required=False, help="Minimum percentage/number of sequences, comparing to the total number of sequences, of an OTU (between 0 and 1 if percentage desired)." )  
-    group_filter.add_argument( '-b', '--min-rdp-bootstrap', type=str, action=BootstrapParameter, metavar=("TAXONOMIC_LEVEL:MIN_BOOTSTRAP"), help="The minimal RDP bootstrap must be superior to this value (between 0 and 1)." )
-    group_filter.add_argument( '-t', '--rdp-taxonomy-ranks', nargs='*', default=["Domain", "Phylum", "Class", "Order", "Family", "Genus", "Species"], help='The ordered ranks levels present in the reference databank. [Default: %(default)s]' )
-    group_filter.add_argument( '-i', '--min-blast-identity', type=ratioParameter, help="The number corresponding to the blast percentage identity (between 0 and 1)." )
-    group_filter.add_argument( '-c', '--min-blast-coverage', type=ratioParameter, help="The number corresponding to the blast percentage coverage (between 0 and 1)." )
-    group_filter.add_argument( '-e', '--max-blast-evalue', type=float, help="The number corresponding to the blast e value (between 0 and 1).")
-    group_filter.add_argument( '-l', '--min-blast-length', type=int, default=None, required=False, help="The number corresponding to the blast length." )
+    group_filter.add_argument( '-a', '--min-abundance', type=minAbundParameter, default=None, required=False, help="Minimum percentage/number of sequences, comparing to the total number of sequences, of an OTU (between 0 and 1 if percentage desired)." )
+    # group_filter.add_argument( '--abundance-by-sample', type=bool, default=False, action='store_true', help="Abundance threshold is applied by default on the total abundance of OTU. Activate this option if you want to applied the threshold on sample abundances (if float, each OTU must be present in a " )
     #     Inputs
     group_input = parser.add_argument_group( 'Inputs' )
     group_input.add_argument('--input-biom', required=True, help="The input biom file.")
@@ -510,26 +429,10 @@ if __name__ == '__main__':
 
     Logger.static_write(args.log_file, "## Application\nSoftware: " + os.path.basename(sys.argv[0]) + " (version: " + str(__version__) + ")\nCommand: " + " ".join(sys.argv) + "\n\n")
 
-    if args.nb_biggest_otu is None and args.min_sample_presence is None and args.min_abundance is None and args.min_rdp_bootstrap is None and args.min_blast_identity is None and args.min_blast_coverage is None and args.max_blast_evalue is None and args.min_blast_length is None and args.contaminant is None:
-        raise argparse.ArgumentTypeError( "At least one filter must be set to run " + os.path.basename(sys.argv[0]) )
+    if args.nb_biggest_otu is None and args.min_sample_presence is None and args.min_abundance is None and args.contaminant is None:
+        raise argparse.ArgumentTypeError( "\nAt least one filter must be set to run " + os.path.basename(sys.argv[0]) + "\n\n")
     if not args.min_abundance is None and (args.min_abundance <= 0 or (type(args.min_abundance) == float and args.min_abundance >= 1.0 ) ):
-        raise argparse.ArgumentTypeError( "If filtering on abundance, you must indicate a positiv threshold and if percentage abundance threshold must be smaller than 1.0. " )
-    in_biom = BiomIO.from_json( args.input_biom )
-    if args.min_rdp_bootstrap is not None:
-        if not in_biom.has_observation_metadata("rdp_bootstrap"):
-            raise argparse.ArgumentTypeError( "The BIOM input does not contain the metadata 'rdp_bootstrap'. You cannot use the parameter '--min-rdp-bootstrap' on this file." )
-        if not args.min_rdp_bootstrap["rank"] in args.rdp_taxonomy_ranks:
-            raise argparse.ArgumentTypeError( "The taxonomic rank choosen in '--min-rdp-bootstrap' must be in '--rdp-taxonomy-ranks' (" + ";".join(args.rdp_taxonomy_ranks) + ")." )
-    if not in_biom.has_observation_metadata("blast_affiliations"):
-        if args.min_blast_length is not None:
-            raise argparse.ArgumentTypeError( "The BIOM input does not contain the metadata 'blast_affiliations'. You cannot use the parameter '--min-blast-length' on this file." )
-        if args.max_blast_evalue is not None:
-            raise argparse.ArgumentTypeError( "The BIOM input does not contain the metadata 'blast_affiliations'. You cannot use the parameter '--max-blast-evalue' on this file." )
-        if args.min_blast_identity is not None:
-            raise argparse.ArgumentTypeError( "The BIOM input does not contain the metadata 'blast_affiliations'. You cannot use the parameter '--min-blast-identity' on this file." )
-        if args.min_blast_coverage is not None:
-            raise argparse.ArgumentTypeError( "The BIOM input does not contain the metadata 'blast_affiliations'. You cannot use the parameter '--max-blast-coverage' on this file." )
-    del in_biom
+        raise argparse.ArgumentTypeError( "\nIf filtering on abundance, you must indicate a positiv threshold and if percentage abundance threshold must be smaller than 1.0. \n\n" )
 
     # Process
     process( args )

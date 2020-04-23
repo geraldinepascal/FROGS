@@ -18,8 +18,8 @@
 __author__ = ' Ta Thi Ngan & Maria Bernard INRA - SIGENAE '
 __copyright__ = 'Copyright (C) 2017 INRA'
 __license__ = 'GNU General Public License'
-__version__ = '3.1'
-__email__ = 'frogs@inra.fr'
+__version__ = '3.2'
+__email__ = 'frogs-support@inra.fr'
 __status__ = 'prod'
 
 import os
@@ -254,6 +254,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser( description='Phylogenetic tree reconstruction' )
     parser.add_argument( '--debug', default=False, action='store_true', help="Keep temporary files to debug program." )   
     parser.add_argument( '-p', '--nb-cpus', type=int, default=1, help="The maximum number of CPUs used. [Default: %(default)s]" )
+    parser.add_argument( '-v', '--version', action='version', version=__version__ )
 
     # Inputs
     group_input = parser.add_argument_group( 'Inputs' )
@@ -288,10 +289,10 @@ if __name__ == "__main__":
         nb_seq = get_fasta_nb_seq(args.input_otu)
         biom = BiomIO.from_json(args.biomfile)
         if nb_seq > len(biom.rows):
-            raise Exception("Your fasta input file contains more OTU than your biom file.\n")
+            raise Exception("\nYour fasta input file contains more OTU than your biom file.\\nn")
         Logger.static_write(args.log_file, "Number of input OTUs sequences: " + str(nb_seq) + "\n\n")
         if nb_seq >10000:
-            raise Exception( "FROGS Tree is only working on less than 10 000 sequences!" )
+            raise Exception( "\nFROGS Tree is only working on less than 10 000 sequences!\n\n" )
         
         # alignment step
         mafftMet=get_methods_mafft(args.input_otu)

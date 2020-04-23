@@ -19,8 +19,8 @@
 __author__ = 'Maria Bernard INRA - SIGENAE'
 __copyright__ = 'Copyright (C) 2018 INRA'
 __license__ = 'GNU General Public License'
-__version__ = '3.1'
-__email__ = 'frogs@inra.fr'
+__version__ = '3.2'
+__email__ = 'frogs-support@inra.fr'
 __status__ = 'prod'
 
 import os
@@ -74,27 +74,31 @@ class SelectInclusiv(Cmd):
 
 
     def get_version(self):   
-        return Cmd.get_version(self, 'stdout').strip()
+        return Cmd.get_version(self, 'stderr').strip()
 
 class AggregateOTU(Cmd) : 
     """
     @summary : aggregate OTU that share at least one taxonomic affiliation
     """
-    def __init__(self, input_biom, input_fasta, identity, coverage, output_biom, output_compo, output_fasta, log):
+    def __init__(self, input_biom, input_fasta, identity, coverage, ignored_list, output_biom, output_compo, output_fasta, log):
         """
         @param input_biom : [str] Path to biom file to treat
         @param input_fasta : [str] Path to fasta file to treat
         @param identity : [float] min percentage identity of taxonomic affiliations to merge OTU
         @param coverage : [float] min percentage coverage of taxonomic affiliations to merge OTU
+        @param ignored_list : [str] list of taxon ignored for OTU aggregation
         @param output_biom : [str] Path to the resulting biom file
         @param output_compo : [str] Path to the resulting TSV file, containing aggregated OTU composition
         @param output_fasta : [str] Path to the resulting fasta file
         @param log : [str] Path to excution log file
         """
+        opt = ""
+        if ignored_list:
+            opt += ' --taxon-ignored ' + ' '.join(['\"' + t + '\"' for t in ignored_list]) + ''
         Cmd.__init__( self,
                       'aggregate_affiliated_otus.py',
                       'Aggregate OTU that share taxonomic affiliation with at least I% identity and C% coverage',
-                      ' -b ' + input_biom + ' -f ' + input_fasta + ' --identity ' + str(identity) + ' --coverage ' + str(coverage) \
+                      ' -b ' + input_biom + ' -f ' + input_fasta + opt + ' --identity ' + str(identity) + ' --coverage ' + str(coverage) \
                       + ' --output-biom ' + output_biom +' --output-compo ' +  output_compo + ' --output-fasta ' + output_fasta + " --log-file " + log,
                       '--version' )
 
@@ -110,7 +114,7 @@ class AggregateOTU(Cmd) :
         FH_in.close()
 
     def get_version(self):   
-        return Cmd.get_version(self, 'stdout').strip()
+        return Cmd.get_version(self, 'stderr').strip()
 
 ###################################################################################################################
 ###                                           FUNCTIONS                                                         ###
@@ -137,7 +141,7 @@ def process(params):
             input_biom = smallest_its_biom
 
         # aggregate OTU
-        aggregate_cmd = AggregateOTU(input_biom, params.input_fasta, params.identity, params.coverage, params.output_biom, params.output_compo, params.output_fasta, aggregate_tmp_log)
+        aggregate_cmd = AggregateOTU(input_biom, params.input_fasta, params.identity, params.coverage, params.taxon_ignored, params.output_biom, params.output_compo, params.output_fasta, aggregate_tmp_log)
         aggregate_cmd.submit(params.log_file)
     finally:
         if not args.debug:
@@ -151,6 +155,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Refine affiliations, to manage amplicon included in other sequence, and to deal with surnumerary OTU (OTU with same affiliations.")
     parser.add_argument( '-i', '--identity', default=99.0, help="Min percentage identity to agggregate OTU. [Default: %(default)s]")
     parser.add_argument( '-c', '--coverage', default=99.0, help="Min percentage coverage to agggregate OTU. [Default: %(default)s]")
+    parser.add_argument( '-t', '--taxon-ignored', type=str, nargs='*', help="Taxon list to ignore when OTUs agggregation")
     parser.add_argument( '-d', '--debug', default=False, action='store_true', help="Keep temporary files to debug program.")
     parser.add_argument( '-v', '--version', action='version', version=__version__)
 

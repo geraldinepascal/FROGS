@@ -19,8 +19,8 @@
 __author__ = 'Frederic Escudie - Plateforme bioinformatique Toulouse - Maria Bernard - Sigenae Jouy en Josas'
 __copyright__ = 'Copyright (C) 2015 INRA'
 __license__ = 'GNU General Public License'
-__version__ = '3.1'
-__email__ = 'frogs@inra.fr'
+__version__ = '3.2'
+__email__ = 'frogs-support@inra.fr'
 __status__ = 'prod'
 
 import os
@@ -51,14 +51,15 @@ class ParallelChimera(Cmd):
     """
     @summary: Removes PCR chimera by samples.
     """
-    def __init__(self, in_fasta, in_abundance, out_fasta, out_abundance, out_summary, abundance_type, nb_cpus, log, size_separator=None):
+    def __init__(self, in_fasta, in_abundance, out_fasta, out_abundance, out_summary, abundance_type, nb_cpus, log, debug, size_separator=None):
         """
         """
         size_separator_option = "" if size_separator is None else "--size-separator '" + size_separator + "' "
+        debug_option = " --debug " if debug else ""
         Cmd.__init__( self,
                       'parallelChimera.py',
                       'Removes PCR chimera by samples.',
-                      size_separator_option + "--lenient-filter --nb-cpus " + str(nb_cpus) + " --sequences " + in_fasta + " --" + abundance_type + " " + in_abundance + " --non-chimera " + out_fasta + " --out-abundance " + out_abundance + " --summary " + out_summary + " --log-file " + log,
+                      debug_option + size_separator_option + "--lenient-filter --nb-cpus " + str(nb_cpus) + " --sequences " + in_fasta + " --" + abundance_type + " " + in_abundance + " --non-chimera " + out_fasta + " --out-abundance " + out_abundance + " --summary " + out_summary + " --log-file " + log,
                       '--version' )
 
 
@@ -211,11 +212,11 @@ if __name__ == "__main__":
         if args.input_count is None:
             if args.out_abundance == None:
                 args.out_abundance = "non_chimera_abundance.biom"
-            ParallelChimera( args.input_fasta, args.input_biom, args.non_chimera, args.out_abundance, tmp_chimera_summary, "biom", args.nb_cpus, tmp_log, size_separator ).submit( args.log_file )
+            ParallelChimera( args.input_fasta, args.input_biom, args.non_chimera, args.out_abundance, tmp_chimera_summary, "biom", args.nb_cpus, tmp_log, args.debug, size_separator ).submit( args.log_file )
         else:
             if args.out_abundance == None:
                 args.out_abundance = "non_chimera_abundance.count"
-            ParallelChimera( args.input_fasta, args.input_count, args.non_chimera, args.out_abundance, tmp_chimera_summary, "count", args.nb_cpus, tmp_log, size_separator ).submit( args.log_file )
+            ParallelChimera( args.input_fasta, args.input_count, args.non_chimera, args.out_abundance, tmp_chimera_summary, "count", args.nb_cpus, tmp_log, args.debug, size_separator ).submit( args.log_file )
         write_summary( args.summary, tmp_chimera_summary )
         
         # Append independant log files

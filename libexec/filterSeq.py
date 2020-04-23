@@ -19,8 +19,8 @@
 __author__ = 'Frederic Escudie - Plateforme bioinformatique Toulouse'
 __copyright__ = 'Copyright (C) 2015 INRA'
 __license__ = 'GNU General Public License'
-__version__ = '1.5.0'
-__email__ = 'frogs@inra.fr'
+__version__ = '1.6.0'
+__email__ = 'frogs-support@inra.fr'
 __status__ = 'prod'
 
 import os
@@ -149,8 +149,8 @@ def filter_seq( input_file, output_file, log_file, min_length=None, max_length=N
         tag_seq_is_ok = check_tag
 
     # Process
-    #~ fh_in = SequenceFileReader.factory(input_file)
-    fh_in = FastqIO(input_file)
+    fh_in = SequenceFileReader.factory(input_file)
+    # fh_in = FastqIO(input_file)
     if force_fasta:
         fh_out = FastaIO(output_file, "w")
     elif issubclass(fh_in.__class__, FastqIO):

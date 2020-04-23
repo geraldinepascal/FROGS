@@ -20,7 +20,7 @@ __author__ = 'Plateforme bioinformatique Toulouse'
 __copyright__ = 'Copyright (C) 2016 INRA'
 __license__ = 'GNU General Public License'
 __version__ = '1.0.0'
-__email__ = 'support.genopole@toulouse.inra.fr'
+__email__ = 'frogs-support@inra.fr'
 __status__ = 'beta'
 
 import re
@@ -81,7 +81,7 @@ def getCleanedTaxonomy( taxonomy ):
     if cleaned_taxonomy[0].startswith("d:"):
         tmp_tax = list()
         rank_idx = 0
-        ranks = ["d:", "p:", "c:", "o:", "f:", "g:"]
+        ranks = ["d:", "p:", "c:", "o:", "f:", "g:","s:"]
         for taxa in cleaned_taxonomy:
             while not taxa.startswith(ranks[rank_idx]) and taxa != "Multi-affiliation" and taxa != "unclassified":
                 tmp_tax.append(ranks[rank_idx] + "unknown_taxa")

@@ -18,8 +18,8 @@
 __author__ = 'Ta Thi Ngan & Maria Bernard INRA - SIGENAE'
 __copyright__ = 'Copyright (C) 2017 INRA'
 __license__ = 'GNU General Public License'
-__version__ = '3.1'
-__email__ = 'frogs@inra.fr'
+__version__ = '3.2'
+__email__ = 'frogs-support@inra.fr'
 __status__ = 'prod'
 
 import os
@@ -61,10 +61,10 @@ class Rscript(Cmd):
     @return: html file containing the plots
              beta divesity distance matrix tsv file(s)
     """
-    def __init__(self, html, data, varExp, methods, outdir, rmd_stderr):
+    def __init__(self, html, phyloseq, varExp, methods, outdir, rmd_stderr):
         """
         @param html: [str] path to store resulting html file.
-        @param data: [str] path to phyloseq object in RData file, the result of FROGS Phyloseq Import Data.
+        @param phyloseq: [str] path to phyloseq object in RData file, the result of FROGS Phyloseq Import Data.
         @param varExp: [str] Experiment variable to split plot.
         @param methods: [str] one or more of beta diversity method.        
         @param outdir: [str] The path to store resulting beta diversity distance matrix.
@@ -74,7 +74,8 @@ class Rscript(Cmd):
         Cmd.__init__( self,
                       'Rscript',
                       'Run 1 code Rmarkdown',
-                       '-e "rmarkdown::render('+"'"+rmd+"',knit_root_dir='"+outdir+ "',output_file='"+html+"', params=list(data='"+data+"', varExp='"+varExp+ "', methods='"+methods+"', libdir ='"+LIBR_DIR+"'), intermediates_dir='"+os.path.dirname(html)+"')"+'" 2> ' + rmd_stderr,
+                       '-e "rmarkdown::render(' + "'" + rmd + "',knit_root_dir='" + outdir + "',output_file='" + html + \
+                       "', params=list(phyloseq='" + phyloseq + "', varExp='" + varExp + "', methods='" + methods + "', libdir ='" + LIBR_DIR + "'), intermediates_dir='" + os.path.dirname(html) + "')" + '" 2> ' + rmd_stderr,
                        "-e '(sessionInfo()[[1]][13])[[1]][1]; paste(\"Rmarkdown version: \",packageVersion(\"rmarkdown\")) ; library(phyloseq); paste(\"Phyloseq version: \",packageVersion(\"phyloseq\"))'")
     def get_version(self):
         """
@@ -94,6 +95,7 @@ if __name__ == "__main__":
     # Manage parameters
     parser = argparse.ArgumentParser( description='To present the data beta diversity with phyloseq.')    
     parser.add_argument( '--debug', default=False, action='store_true', help="Keep temporary files to debug program." )   
+    parser.add_argument( '--version', action='version', version=__version__ )
     parser.add_argument('-v', '--varExp', type=str, required=True, default=None, help='The experiment variable you want to analyse.')
     parser.add_argument('-m', '--distance-methods', required=True, type=str, default='bray,cc,unifrac,wunifrac', help='Comma separated values beta diversity methods available in Phyloseq (see https://www.bioconductor.org/packages/devel/bioc/manuals/phyloseq/man/phyloseq.pdf). [Default: %(default)s].')
     # Inputs
@@ -102,7 +104,7 @@ if __name__ == "__main__":
     # output
     group_output = parser.add_argument_group( 'Outputs' )    
     group_output.add_argument('--matrix-outdir', required=True, action="store", type=str, help="Path to output matrix file")       
-    group_output.add_argument('-o','--html', default='beta_diversity.html', help="Path to store resulting html file. [Default: %(default)s]" )
+    group_output.add_argument('-o','--html', default='beta_diversity.nb.html', help="path to store resulting notebook html file : .nb.html [Default: %(default)s]" )
     group_output.add_argument( '-l', '--log-file', default=sys.stdout, help='This output file will contain several information on executed commands.')    
     args = parser.parse_args()
     prevent_shell_injections(args)   
@@ -114,18 +116,18 @@ if __name__ == "__main__":
     methods = args.distance_methods.strip() if not args.distance_methods.strip()[-1]=="," else args.distance_methods.strip()[:-1]
     for method in methods.split(","):
         if method not in list_distance:
-            raise Exception( 'Your method "'+str(method)+'", name is not correct !!! Please make sure that it is in the list:'+str(list_distance))
+            raise Exception( '\nYour method "'+str(method)+'", name is not correct !!! Please make sure that it is in the list:'+str(list_distance)+"\n\n")
 
     # Process 
     outdir = os.path.abspath(args.matrix_outdir)
     if not os.path.exists(outdir):
         os.makedirs(outdir)
-    data=os.path.abspath(args.rdata)
+    phyloseq=os.path.abspath(args.rdata)
     html=os.path.abspath(args.html)
     try:
         tmpFiles = TmpFiles(os.path.dirname(html))
         rmd_stderr = tmpFiles.add("rmarkdown.stderr")
-        Rscript(html, data, args.varExp, methods, outdir, rmd_stderr).submit( args.log_file )
+        Rscript(html, phyloseq, args.varExp, methods, outdir, rmd_stderr).submit( args.log_file )
     finally :
         if not args.debug:
             tmpFiles.deleteAll()

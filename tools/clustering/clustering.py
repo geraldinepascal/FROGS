@@ -19,8 +19,8 @@
 __author__ = 'Maria Bernard - SIGENAE AND Frederic Escudie - Plateforme bioinformatique Toulouse'
 __copyright__ = 'Copyright (C) 2015 INRA'
 __license__ = 'GNU General Public License'
-__version__ = '3.1'
-__email__ = 'frogs@inra.fr'
+__version__ = '3.2'
+__email__ = 'frogs-support@inra.fr'
 __status__ = 'prod'
 
 import os
@@ -95,7 +95,7 @@ class Swarm(Cmd):
             stdout, stderr = p.communicate()
             return stderr.split()[1]
         except:
-            raise Exception( "Version cannot be retrieve for the software '" + self.program + "'." )
+            raise Exception( "\nVersion cannot be retrieve for the software '" + self.program + "'.\n\n" )
 
 
 class Swarm2Biom(Cmd):
@@ -198,12 +198,16 @@ def replaceNtags(in_fasta, out_fasta):
         if "FROGS_combined" in record.id and "N" in record.string:
             N_idx1 = record.string.find("N")
             N_idx2 = record.string.rfind("N")
-            record.string = record.string.replace("N","A")
+            replaced_nucl = "A"
+            if record.string[N_idx1-1] == "A" and record.string[N_idx2+1] == "A" : 
+                replaced_nucl ="C"
+            
+            record.string = record.string.replace("N",replaced_nucl)
 
             if record.description :
-                record.description += "A:" + str(N_idx1) + ":" + str(N_idx2)
+                record.description += replaced_nucl + ":" + str(N_idx1) + ":" + str(N_idx2)
             else:
-                record.description = "A:" + str(N_idx1) + ":" + str(N_idx2)
+                record.description = replaced_nucl + ":" + str(N_idx1) + ":" + str(N_idx2)
         FH_out.write(record)
 
     FH_in.close()
@@ -218,13 +222,16 @@ def addNtags(in_fasta, output_fasta):
 
     FH_in = FastaIO(in_fasta)
     FH_out = FastaIO(output_fasta, "w")
-    regexp = re.compile('A:\d+:\d+$')
+    regexpA = re.compile('A:\d+:\d+$')
+    regexpC = re.compile('C:\d+:\d+$')
 
     for record in FH_in:
         if "FROGS_combined" in record.id and record.description:
-            search = regexp.search(record.description)
+            search = regexpA.search(record.description)
             if search is None :
-                continue 
+                search = regexpC.search(record.description)
+                if search is None:
+                    raise Exception("\n" + record.id + " is a FROGS_combined cluster but has not comining tag 100 As or 100 Cs to replace with 100 Ns\n")
             
             desc = search.group()
             [N_idx1,N_idx2] = desc.split(":")[1:]
@@ -303,7 +310,7 @@ if __name__ == "__main__":
 
         Swarm2Biom( args.output_compo, args.input_count, args.output_biom ).submit( args.log_file )
         ExtractSwarmsFasta( final_sorted_fasta, swarms_file, swarms_seeds ).submit( args.log_file )
-        Logger.static_write(args.log_file, "repalce A tags by N. in: " + swarms_seeds + " out : "+ args.output_fasta +"\n")
+        Logger.static_write(args.log_file, "replace A tags by N. in: " + swarms_seeds + " out : "+ args.output_fasta +"\n")
         addNtags(swarms_seeds, args.output_fasta)
 
     # Remove temporary files

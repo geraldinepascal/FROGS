@@ -19,8 +19,8 @@
 __author__ = 'Maria Bernard - Sigenae INRA'
 __copyright__ = 'Copyright (C) 2016 INRA'
 __license__ = 'GNU General Public License'
-__version__ = '3.1'
-__email__ = 'frogs@inra.fr'
+__version__ = '3.2'
+__email__ = 'frogs-support@inra.fr'
 __status__ = 'dev'
 
 import os
@@ -80,7 +80,7 @@ class Tsv2biom(Cmd):
         observation_name_index = header.index("observation_name")
         observation_sum_index = header.index("observation_sum")
         if (observation_sum_index - observation_name_index) != 1:
-            raise Exception( "You change the order of columns. TSV file must ended with observation_name, observation_sum, sample1, sample2 ... \n" )
+            raise Exception( "\nYou change the order of columns. TSV file must ended with observation_name, observation_sum, sample1, sample2 ... \n\n" )
         samples_names = " ".join(header[observation_sum_index+1:])
         fields = " ".join(header[:observation_sum_index])
         # Set command

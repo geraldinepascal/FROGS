@@ -19,8 +19,8 @@
 __author__ = 'Plateforme bioinformatique Toulouse and SIGENAE'
 __copyright__ = 'Copyright (C) 2015 INRA'
 __license__ = 'GNU General Public License'
-__version__ = '3.1'
-__email__ = 'frogs@inra.fr'
+__version__ = '3.2'
+__email__ = 'frogs-support@inra.fr'
 __status__ = 'prod'
 
 import os
@@ -150,7 +150,7 @@ class Archive(Cmd):
             os.makedirs(tmp_folder)
             
         if len(archived_files) == 0:
-            raise Exception( "At least one file must be add to the archive '" + archive_path + "'." )
+            raise Exception( "\nAt least one file must be add to the archive '" + archive_path + "'.\n\n" )
     
         archived_basenames = list()
         for current in archived_files:

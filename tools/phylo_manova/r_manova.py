@@ -18,8 +18,8 @@
 __author__ = 'Ta Thi Ngan & Maria Bernard INRA - SIGENAE'
 __copyright__ = 'Copyright (C) 2017 INRA'
 __license__ = 'GNU General Public License'
-__version__ = '3.1'
-__email__ = 'frogs@inra.fr'
+__version__ = '3.2'
+__email__ = 'frogs-support@inra.fr'
 __status__ = 'prod'
 
 import os
@@ -61,10 +61,10 @@ class Rscript(Cmd):
           https://joey711.github.io/phyloseq/
     @return: the html file containing manova test result.
     """
-    def __init__(self, html, data, varExp, matrix,rmd_stderr):
+    def __init__(self, html, phyloseq, varExp, matrix,rmd_stderr):
         """
         @param html: [str] The path to store resulting html file.
-        @param data: [str] One phyloseq object in Rdata file, the result of FROGS Phyloseq Import Data.
+        @param phyloseq: [str] One phyloseq object in Rdata file, the result of FROGS Phyloseq Import Data.
         @param varExp: [str] The experiment variable.
         @param matrix: [str] Path of data file containing beta diversity distance matrix. These file is the result of FROGS Phyloseq Beta Diversity.
         @param rmd_stderr: [str] Path to temporary Rmarkdown stderr output file
@@ -73,7 +73,8 @@ class Rscript(Cmd):
         Cmd.__init__( self,
                       'Rscript',
                       'Run 1 code Rmarkdown',
-                       '-e "rmarkdown::render('+"'"+rmd+"',output_file='"+html+"', params=list(data='"+data+"', varExp='"+varExp+"',distance='"+matrix+"', libdir ='"+LIBR_DIR+"'), intermediates_dir='"+os.path.dirname(html)+"')"+'" 2> ' + rmd_stderr,
+                       '-e "rmarkdown::render(' + "'" + rmd + "', output_file='" + html + \
+                       "', params=list(phyloseq='" + phyloseq + "', varExp='" + varExp + "',distance='" + matrix + "', libdir ='" + LIBR_DIR + "'), intermediates_dir='" +os.path.dirname(html)+ "')" +'" 2> ' + rmd_stderr,
                        "-e '(sessionInfo()[[1]][13])[[1]][1]; paste(\"Rmarkdown version: \",packageVersion(\"rmarkdown\")) ; library(phyloseq); paste(\"Phyloseq version: \",packageVersion(\"phyloseq\"))'")
     def get_version(self):
         """
@@ -92,7 +93,8 @@ if __name__ == "__main__":
    
     # Manage parameters
     parser = argparse.ArgumentParser( description='Multivariate Analysis of Variance (MANOVA) test with CAP (Canonical Analysis of Principal Coordinates) by adonis.' )
-    parser.add_argument( '--debug', default=False, action='store_true', help="Keep temporary files to debug program." )   
+    parser.add_argument( '--debug', default=False, action='store_true', help="Keep temporary files to debug program." )
+    parser.add_argument( '--version', action='version', version=__version__ )
     parser.add_argument('-v', '--varExp', type=str, required=True, default=None, help='The experiment variable you want to analyse.')
     
     # Inputs
@@ -102,7 +104,7 @@ if __name__ == "__main__":
 
     # output
     group_output = parser.add_argument_group( 'Outputs' )
-    group_output.add_argument('-o','--html', default='manova.html', help="The path to store resulting html file. [Default: %(default)s]" )   
+    group_output.add_argument('-o','--html', default='manova.nb.html', help="path to store resulting notebook html file : .nb.html [Default: %(default)s]" )   
     group_output.add_argument( '-l', '--log-file', default=sys.stdout, help='This output file will contain several information on executed commands.')    
     
     args = parser.parse_args()
@@ -116,12 +118,12 @@ if __name__ == "__main__":
 
     Logger.static_write(args.log_file, "## Application\nSoftware :" + sys.argv[0] + " (version : " + str(__version__) + ")\nCommand : " + cmd + "\n\n")
     html=os.path.abspath(args.html)
-    data=os.path.abspath(args.rdata)
+    phyloseq=os.path.abspath(args.rdata)
     matrix=os.path.abspath(args.distance_matrix)    
     try:
         tmpFiles = TmpFiles(os.path.dirname(html))
         rmd_stderr = tmpFiles.add("rmarkdown.stderr")
-        Rscript(html, data, args.varExp, matrix, rmd_stderr).submit( args.log_file )   
+        Rscript(html, phyloseq, args.varExp, matrix, rmd_stderr).submit( args.log_file )   
     finally:
         if not args.debug:
             tmpFiles.deleteAll()

@@ -19,8 +19,8 @@
 __author__ = 'Maria Bernard INRA - SIGENAE'
 __copyright__ = 'Copyright (C) 2018 INRA'
 __license__ = 'GNU General Public License'
-__version__ = 'v1.0'
-__email__ = 'frogs@inra.fr'
+__version__ = 'v3.1'
+__email__ = 'frogs-support@inra.fr'
 __status__ = 'prod'
 
 import os
@@ -112,9 +112,12 @@ def process(params):
         min_cov = 100
         tax = list()
         for affiliation in observation["metadata"]["blast_affiliations"] : 
-            tax.append(affiliation["taxonomy"])
+            if params.taxon_ignored and any(t in ";".join(affiliation["taxonomy"]) for t in params.taxon_ignored):
+                continue
+            if not affiliation["taxonomy"] in tax:
+                tax.append(affiliation["taxonomy"])
             percent_id = affiliation["perc_identity"]
-            percent_cov = affiliation["perc_identity"]
+            percent_cov = affiliation["perc_query_coverage"]
             if percent_id < min_id : 
                 min_id = percent_id
             if percent_cov < min_cov : 
@@ -130,9 +133,10 @@ def process(params):
             aggregated_otu[otu_name] = list()
         # for confident taxonomy
         else:
-            # check if taxonomies are new
+            # check if all taxonomies are new
             is_new_tax = True
             equivalent_otu_name = ""
+
             for taxonomy in tax:
                 if isinstance(taxonomy,list):
                     taxonomy = ";".join(taxonomy)
@@ -141,7 +145,8 @@ def process(params):
                     if equivalent_otu_name == "":
                         equivalent_otu_name = otu_by_tax[taxonomy]
                     elif otu_by_tax[taxonomy] != equivalent_otu_name:
-                        Logger.static_write("\tWarning: observation " + otu_name + " shares taxonomy with an other OTU : " + otu_by_tax[taxonomy] + ", first detected OTU will be kept : " + equivalent_otu_name + "\n" )
+                        Logger.static_write(params.log_file, '\tWarning: observation ' + otu_name + ' shares taxonomy ( '+ taxonomy +' with an other OTU : ' + otu_by_tax[taxonomy] + ', first detected OTU will be kept : ' + equivalent_otu_name + '\n' )
+
             # if new tax, add OTU and save taxonomies
             if is_new_tax:
                 otu_out += 1
@@ -208,6 +213,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Refine affiliations by aggregating OTU that share taxonomic affiliation with at least I% identity and C% coverage")
     parser.add_argument( '-i', '--identity', default=99.0, type=float, help="Min percentage identity to agggregate OTU. [Default: %(default)s]")
     parser.add_argument( '-c', '--coverage', default=99.0, type=float, help="Min percentage coverage to agggregate OTU. [Default: %(default)s]")
+    parser.add_argument( '-t', '--taxon-ignored', type=str, nargs='*', help="Taxon list to ignore when OTUs agggregation")
     parser.add_argument( '-d', '--debug', default=False, action='store_true', help="Keep temporary files to debug program.")
     parser.add_argument( '-v', '--version', action='version', version=__version__)
     # Inputs
