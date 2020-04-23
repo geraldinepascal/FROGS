@@ -1,10 +1,10 @@
-​									[<img src="FROGS_logo.png" width="20%" style="display: block; margin: auto;"/>](http://frogs.toulouse.inra.fr/)
+									[<img src="FROGS_logo.png" width="20%" style="display: block; margin: auto;"/>](http://frogs.toulouse.inra.fr/)
 
 Visit our web site : http://frogs.toulouse.inra.fr/
 
 
 
-[![Release](https://img.shields.io/badge/release-3.1.0-blue.svg)![Date](https://img.shields.io/badge/date-January%202018-red.svg)](https://github.com/geraldinepascal/FROGS-wrappers/releases) [<img src="https://www.podcastscience.fm/wp-content/uploads/2017/12/deezer.png" width="5%" style="display: block; margin: auto;"/>](https://www.deezer.com/fr/playlist/5233843102?utm_source=deezer&utm_content=playlist-5233843102&utm_term=18632989_1545296531&utm_medium=web)
+[![Release](https://img.shields.io/badge/release-3.2.0-blue.svg)![Date](https://img.shields.io/badge/date-May%202020-red.svg)](https://github.com/geraldinepascal/FROGS-wrappers/releases) [<img src="https://www.podcastscience.fm/wp-content/uploads/2017/12/deezer.png" width="5%" style="display: block; margin: auto;"/>](https://www.deezer.com/fr/playlist/5233843102?utm_source=deezer&utm_content=playlist-5233843102&utm_term=18632989_1545296531&utm_medium=web)
 
 
 
@@ -92,31 +92,23 @@ This FROGS repository is for command line user. If you want to install FROGS on 
 
 ## Tools dependancies
 
-FROGS is written in Python 2.7, uses on home-made scripts written in PERL5 and uses on external Python library, Scipy.
+FROGS is written in Python 2.7, uses home-made scripts written in PERL5 and R3.6 and uses external Python library, numpy and Scipy.
 
 FROGS relies on different specific tools for each of the analysis step.
 
-| FROGS Tools                   |                          Dependancy                          |                 version tested |
-| ----------------------------- | :----------------------------------------------------------: | -----------------------------: |
-| Preprocess and Remove_chimera |        [vsearch](https://github.com/torognes/vsearch)        |                          2.9.1 |
-| Preprocess                    | [flash](https://sourceforge.net/projects/flashpage/files/) (optional) |                         1.2.11 |
-| Preprocess                    |       [cutadapt](https://github.com/marcelm/cutadapt)        |                           1.18 |
-| Clustering                    |          [swarm](https://github.com/torognes/swarm)          |                          2.2.2 |
-| ITSx                          |        [ITSx](http://microbiology.se/software/itsx/)         | 1.0.11, 1.1b is also validated |
-| Affiliation_OTU               | [NCBI BLAST+](http://blast.ncbi.nlm.nih.gov/Blast.cgi?PAGE_TYPE=BlastDocs&DOC_TYPE=Download) |                          2.7.1 |
-| Affiliation_OTU               |    [RDP Classifier](https://github.com/rdpstaff/RDPTools)    |                        2.0.2.1 |
-| Affiliation_OTU               |                           taskset                            |                           2.21 |
-| Affiliation_OTU               | [EMBOSS needleall](http://emboss.sourceforge.net/apps/release/6.6/emboss/apps/needleall.html) |                          6.6.0 |
-| Tree                          |       [MAFFT](https://mafft.cbrc.jp/alignment/server/)       |                          7.407 |
-| Tree                          |     [FastTree](http://www.microbesonline.org/fasttree/)      |                         2.1.10 |
-| FROGSSTAT Phyloseq tools      |               [R](https://www.r-project.org/)                |                          3.5.1 |
-| FROGSSTAT Phyloseq tools      | [R package phangorn](https://cran.r-project.org/web/packages/phangorn/index.html) |                          2.4.0 |
-| FROGSSTAT Phyloseq tools      | [R package rmarkdown](https://cran.r-project.org/web/packages/rmarkdown/index.html) |                           1.10 |
-| FROGSSTAT Phyloseq tools      | [R package plotly](https://cran.r-project.org/web/packages/plotly/index.html) |                          4.8.0 |
-| FROGSSTAT Phyloseq tools      | [R package gridExtra](https://cran.r-project.org/web/packages/gridExtra/index.html) |                            2.3 |
-| FROGSSTAT Phyloseq tools      | [R package Phyloseq](https://joey711.github.io/phyloseq/index.html) |                         1.24.2 |
-| FROGSSTAT Phyloseq tools      | [R package Phyloseq-extend](https://github.com/mahendra-mariadassou/phyloseq-extended) |                           0.99 |
-| FROGSSTAT Phyloseq tools      |                [pandoc](https://pandoc.org/)                 |                       1.19.2.1 |
+| FROGS Tools                   |                          Dependancy                          |       version tested | last version |
+| ----------------------------- | :----------------------------------------------------------: | -------------------: | ------------ |
+| Preprocess and Remove_chimera |        [vsearch](https://github.com/torognes/vsearch)        | from 2.9.1 to 2.13.1 | 2.14.2       |
+| Preprocess                    | [flash](https://sourceforge.net/projects/flashpage/files/) (optional) |               1.2.11 | last         |
+| Preprocess                    |       [cutadapt](https://github.com/marcelm/cutadapt)        |                 1.18 | 2.9          |
+| Clustering                    |          [swarm](https://github.com/torognes/swarm)          |                2.2.2 | 3.0.0        |
+| ITSx                          |        [ITSx](http://microbiology.se/software/itsx/)         |      1.0.11 and 1.1b | last         |
+| Affiliation_OTU               | [NCBI BLAST+](http://blast.ncbi.nlm.nih.gov/Blast.cgi?PAGE_TYPE=BlastDocs&DOC_TYPE=Download) |                2.7.1 | 2.9.0        |
+| Affiliation_OTU               |    [RDP Classifier](https://github.com/rdpstaff/RDPTools)    |                2.0.3 | last         |
+| Affiliation_OTU               | [EMBOSS needleall](http://emboss.sourceforge.net/apps/release/6.6/emboss/apps/needleall.html) |                6.6.0 | last         |
+| Tree                          |       [MAFFT](https://mafft.cbrc.jp/alignment/server/)       |                7.407 | 7.464        |
+| Tree                          |     [Fasttree](http://www.microbesonline.org/fasttree/)      |               2.1.10 | last         |
+| Tree / FROGSSTAT              | [plotly](https://plotly.com/r/), [phangorn](https://cran.r-project.org/web/packages/phangorn/index.html), [rmarkdown](https://cran.r-project.org/web/packages/rmarkdown/index.html), [phyloseq](https://joey711.github.io/phyloseq/), [DESeq2](https://bioconductor.org/packages/release/bioc/html/DESeq2.html), [optparse](https://cran.r-project.org/web/packages/optparse/index.html), [calibrate](https://cran.r-project.org/web/packages/calibrate/index.html), [formattable](https://cran.r-project.org/web/packages/formattable/), [DT](https://cran.r-project.org/web/packages/DT/index.html) |  depend on R version |              |
 
 ### **Use PEAR as read pairs merging software in preprocess**
 
@@ -133,20 +125,12 @@ For that you need to:
 
 FROGS is now available on bioconda (https://anaconda.org/bioconda/frogs).
 
-* to install the last version of FROGS, and add it in your PATH
-
-```
-  conda install -c bioconda frogs 
-  # to update frogs
-  conda update frogs
-```
-
   * to create a specific environment for a specific FROGS version
 
 ```
-conda create --name FROGS_3.1 frogs=3.1.0
+conda create --name __frogs@3.2.0 frogs=3.2.0
 # to use FROGS, first you need to activate your environment
-source activate FROGS_3.1
+source activate __frogs@3.2.0
 ```
 
 ### From source

@@ -1,10 +1,10 @@
-We present here guidelines to install dependancies from sources.
+We present here guidelines to install dependencies from sources.
 
 It has been tested on a Xubuntu 16.04 virtual machine.
 
 ## Installation directories
 
-Here we suppose to install dependancies in the same directory as FROGS.
+Here we suppose to install dependencies in the same directory as FROGS.
 
 ```bash
 version=3.1.0
@@ -26,7 +26,7 @@ wget https://github.com/geraldinepascal/FROGS/archive/v$version.tar.gz
 tar -xvzf v$version.tar.gz
 ```
 
-## Installing python and perl dependancies
+## Installing python and perl dependencies
 
 check python 2.7 and perl 5 installed (should be done by default on this system )
 ```bash
@@ -327,7 +327,7 @@ library(rmarkdown)
 if (!requireNamespace("BiocManager", quietly = TRUE))
     install.packages("BiocManager")
 BiocManager::install("phyloseq")
-# it should install automatically package dependancies
+# it should install automatically package dependencies
 # check installation
 library(phyloseq)
 
