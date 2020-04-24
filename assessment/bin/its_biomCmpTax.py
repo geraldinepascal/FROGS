@@ -137,23 +137,32 @@ def getRealAbunByRank( taxonomy_key, input_biom, sample ):
                 abund_by_rank[depth][taxon] += count
     return tax_list, abund_by_rank
 
-def selectOneMultiaffiliation(real_tax, observation_id, possible_taxonomies):
+def selectOneMultiaffiliation(real_tax, observation_id, possible_taxonomies, logfile):
     
-    nb_select = 0
-    selected = None
+    if len(possible_taxonomies) == 0:
+        raise Exception ("\n" + observation_id + " has no blast_affiliations!\n")
+        
+    selected = list()
     for tax in possible_taxonomies:
-        if tax in real_tax:
-            selected = tax
-            nb_select += 1
+        if ";".join(tax) in real_tax and ";".join(tax) not in selected:
+            selected.append(";".join(tax))
             
-    if nb_select == 1:
-        return selected
-    else:
-        if nb_select == 2:
-            print "WARN : " + observation_id + " has multiple real correspondances"
+    if len(selected) > 0:
+        if len(selected) > 1:
+            FH = open(logfile,"a")
+            FH.write("WARN : " + observation_id + " has multiple real correspondances: \n")
+            for tax in selected:
+                FH.write("\t" + tax + "\n")
+            FH.close()
+        return selected[0].split(";")
+    else :
+        FH = open(logfile,"a")
+        FH.write("WARN : " + observation_id + " has no real correspondances, return first multiaffiliation\n")
+        FH.close()
         return possible_taxonomies[0]
     
-def getCheckedAbunByRank( real_tax, input_biom, sample, taxonomy_key, multi_affiliation ):
+    
+def getCheckedAbunByRank( real_tax, input_biom, sample, taxonomy_key, multi_affiliation, logfile):
     """
     @summary:
     @param real_tax: [dict] Taxonomy by reference IDs.
@@ -165,6 +174,7 @@ def getCheckedAbunByRank( real_tax, input_biom, sample, taxonomy_key, multi_affi
     """
     abund_by_rank = list()
     tax_list = list()
+    full_tax_list = list()
     nb_seq = 0
     biom = BiomIO.from_json( input_biom )
     for observation in biom.get_observations():
@@ -174,9 +184,15 @@ def getCheckedAbunByRank( real_tax, input_biom, sample, taxonomy_key, multi_affi
             # Get taxonomy
             if not multi_affiliation: # Standard affiliation
                 taxonomy_clean = getCleanedTaxonomy(observation["metadata"][taxonomy_key])
+                if ";".join(taxonomy_clean) not in full_tax_list:
+                        full_tax_list.append(";".join(taxonomy_clean))
             else: # Multi-affiliation
                 possible_taxonomies = [getCleanedTaxonomy(affi["taxonomy"]) for affi in observation["metadata"]["blast_affiliations"]]
-                taxonomy_clean = selectOneMultiaffiliation(real_tax, observation["id"], possible_taxonomies)
+                for taxonomy_clean in possible_taxonomies:
+                    if ";".join(taxonomy_clean) not in full_tax_list:
+                        full_tax_list.append(";".join(taxonomy_clean))
+                taxonomy_clean = selectOneMultiaffiliation(real_tax, observation["id"], possible_taxonomies, logfile)
+            
             if ";".join(taxonomy_clean) not in tax_list:
                 tax_list.append(";".join(taxonomy_clean))
 
@@ -188,7 +204,7 @@ def getCheckedAbunByRank( real_tax, input_biom, sample, taxonomy_key, multi_affi
                 if not abund_by_rank[depth].has_key(taxon):
                     abund_by_rank[depth][taxon] = 0
                 abund_by_rank[depth][taxon] += count
-    return nb_seq, tax_list, abund_by_rank
+    return nb_seq, full_tax_list, tax_list, abund_by_rank
 
 
 def cmpTaxAbund( expected, obtained, depth ):
@@ -248,16 +264,19 @@ if __name__ == "__main__":
     group_input = parser.add_argument_group( 'Inputs' )
     group_input.add_argument( '-r', '--real-biom', required=True, help='Path to the theoretical abundance file (format: BIOM).' )
     group_input.add_argument( '-f', '--checked-biom', required=True, help='Path to the checked abundance file (format: BIOM).' )
+    # Outputs
+    group_output = parser.add_argument_group( 'Outputs' )
+    group_output.add_argument( '-l', '--log-file', required=True, help='Path to log file.' )
     args = parser.parse_args()
 
     #decimal_precision = "%.5f"
 
     real_tax , real_tax_abundance = getRealAbunByRank( args.real_tax_key, args.real_biom, args.sample )
 
-    nb_seq , checked_tax, checked_tax_abundance = getCheckedAbunByRank( real_tax, args.checked_biom, args.sample, args.checked_tax_key, args.multi_affiliations )
+    nb_seq , all_checked_tax, checked_tax, checked_tax_abundance = getCheckedAbunByRank( real_tax, args.checked_biom, args.sample, args.checked_tax_key, args.multi_affiliations, args.log_file )
     
     print "#Expected_tax\tCluster\tDetected_tax\tRetrieved_tax"
-    print str(len(real_tax)) + "\t" + str(nb_seq) + "\t" + str(len(checked_tax)) + "\t" + str(len(set(real_tax).intersection(checked_tax)))
+    print str(len(real_tax)) + "\t" + str(nb_seq) + "\t" + str(len(all_checked_tax)) + "\t" + str(len(set(real_tax).intersection(all_checked_tax)))
     
     print ""
 

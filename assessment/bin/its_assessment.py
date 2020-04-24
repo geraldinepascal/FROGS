@@ -42,7 +42,7 @@ else: os.environ['PYTHONPATH'] = os.environ['PYTHONPATH'] + os.pathsep + LIB_DIR
 
 from frogsBiom import BiomIO
 from frogsSequenceIO import FastaIO
-
+from frogsUtils import *
 
 ##################################################################################################################################################
 #
@@ -57,13 +57,17 @@ if __name__ == "__main__":
     parser.add_argument( '-k', '--taxonomy-key', type=str, default="taxonomy", help="The metadata tag used for store taxonomy in checked biom. [Default: taxonomy]" )
     parser.add_argument( '-m', '--multi-affiliations', action='store_true', help='The taxonomy is produced by FROGS multi-affiliations.' )
     parser.add_argument( '-v', '--version', action='version', version=__version__ )
+    parser.add_argument( '--debug', default=False, action='store_true', help="Keep temporary files to debug program." )
     # Inputs
     group_input = parser.add_argument_group( 'Inputs' )
     group_input.add_argument( '--databank', required=True, help='Path to the databank source for simulated sequence (format: fasta). The description of sequences must be the taxonomy.' ) 
     group_input.add_argument( '--checked-biom', required=True, help='Path to the abundance file produced by assessed workflow on simulated data (format: BIOM).' )
     group_input.add_argument( '--checked-fasta', required=False, help='Path to the sequence file produced by assessed workflow on simulated data (format: fasta).' )
     group_input.add_argument( '--grinder-dir', required=True, help='Path to the directory with count by initial sequence in simulation.' )
+    group_input.add_argument( '-l', '--log-file', default=sys.stdout, help='This output file will contain several information on executed commands.')
     args = parser.parse_args()
+
+    Logger.static_write(args.log_file, "## Application\nSoftware: " + os.path.basename(sys.argv[0]) + " (version: " + str(__version__) + ")\nCommand: " + " ".join(sys.argv) + "\n\n")
 
     real_biom = os.path.join( args.tmp_dir, str(time.time()) + "_" + str(os.getpid()) + "_real.biom" )
     checked_biom = os.path.join( args.tmp_dir, str(time.time()) + "_" + str(os.getpid()) + "_checked.biom" )
@@ -83,32 +87,41 @@ if __name__ == "__main__":
         " --samples"
     for current_sample in samples:
         cmd_grinder2biom += " '" + current_sample['name'] + ":" + current_sample['path'] + "'"
+    Logger.static_write(args.log_file, "\n" + cmd_grinder2biom + "\n")
     subprocess.check_call( cmd_grinder2biom, shell=True )
 
     # Global Comparison of tax
-    cmd_Globalcompare = "its_GlobalTaxCmp.py" \
-            + " --real-biom " + os.path.abspath(real_biom) \
-            + " --real-tax-key 'real_taxonomy'" \
-            + " --checked-biom " + os.path.abspath(args.checked_biom) \
-            + " --checked-tax-key '" + args.taxonomy_key + "'" \
-            + (" --multi-affiliations" if args.multi_affiliations else "")
-    print subprocess.check_output( cmd_Globalcompare, shell=True )
-    print ""
-    
-
-    # Compare detailed expected to obtained
-    for current_sample in samples:
-        print "#Sample "+current_sample['name']
-        cmd_compareSample = "its_biomCmpTax.py" \
+    print "#Global metrics"
+    cmd_Globalcompare = "its_GlobalTaxCmp2.py" \
             + " --real-biom " + os.path.abspath(real_biom) \
             + " --real-tax-key 'real_taxonomy'" \
             + " --checked-biom " + os.path.abspath(args.checked_biom) \
             + " --checked-tax-key '" + args.taxonomy_key + "'" \
             + (" --multi-affiliations" if args.multi_affiliations else "") \
-            + " --sample " + current_sample['name']
-        #~ print cmd_compareSample
+            + " --log-file " + args.log_file
+    
+    Logger.static_write(args.log_file, "\n" + cmd_Globalcompare + "\n")
+    
+    print subprocess.check_output( cmd_Globalcompare, shell=True )
+
+
+    # Compare detailed expected to obtained
+    for current_sample in samples:
+        Logger.static_write(args.log_file, "\n#Sample "+current_sample['name'] + "\n")
+        print "#Sample "+current_sample['name']
+        cmd_compareSample = "its_biomCmpTax2.py" \
+            + " --real-biom " + os.path.abspath(real_biom) \
+            + " --real-tax-key 'real_taxonomy'" \
+            + " --checked-biom " + os.path.abspath(args.checked_biom) \
+            + " --checked-tax-key '" + args.taxonomy_key + "'" \
+            + (" --multi-affiliations" if args.multi_affiliations else "") \
+            + " --sample " + current_sample['name'] \
+            + " --log-file " + args.log_file
+        Logger.static_write(args.log_file, cmd_compareSample + "\n")
+        
         print subprocess.check_output( cmd_compareSample, shell=True )
-        print ""
+
 
     # Remove tmp files
-    os.remove( real_biom )
+    if not args.debug :
+        os.remove( real_biom )
