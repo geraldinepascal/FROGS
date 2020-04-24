@@ -30,6 +30,7 @@ import copy
 import json
 import operator
 import argparse
+import re
 
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
 # PATH
@@ -198,14 +199,20 @@ def impacted_obs_by_undesired_taxon(input_biom, undesired_taxon_list, in_all_or_
         # update blast_affiliations without ignored taxon and recompute de blast_taxonomy
         new_blast_affi = list()
         for affiliation in observation['metadata']['blast_affiliations']:
-            if not any(t in ";".join(affiliation["taxonomy"]) for t in undesired_taxon_list):
+            keep=True
+            for t in undesired_taxon_list:
+                regexp = re.compile(t)
+                if regexp.search(";".join(affiliation["taxonomy"])):
+                    keep=False
+            #~ if not any(t in ";".join(affiliation["taxonomy"]) for t in undesired_taxon_list):
+            if keep:
                 new_blast_affi.append(affiliation)
 
         # if some affi are masked, update blast_affiliations and blast_taxonomy
         if len(new_blast_affi) != len(observation['metadata']['blast_affiliations']):
             observation['metadata']['blast_affiliations'] = new_blast_affi
             new_consensus = get_tax_consensus([affi['taxonomy'] for affi in new_blast_affi] )
-            # delete mode if all affiliations belons to one of undesired taxon
+            # delete mode if all affiliations belong to one of undesired taxon
             if in_all_or_in_consensus and len(new_blast_affi) == 0 : 
                 FH_impacted_file.write( str(observation["id"]) + "\n" )
             # masking mode if the new consensus is changed because of ignoring undesired taxon
