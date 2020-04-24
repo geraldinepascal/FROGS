@@ -59,7 +59,7 @@ def multiAffiFromBiom( biom, output_tsv ):
                 line_parts = [
                     current_observation["id"],
                     taxonomy,
-                    current_aln["subject"],
+                    str(current_aln["subject"]),
                     str(current_aln["perc_identity"]),
                     str(current_aln["perc_query_coverage"]),
                     str(current_aln["evalue"]),
