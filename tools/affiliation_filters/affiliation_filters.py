@@ -100,13 +100,13 @@ class BootstrapParameter(argparse.Action):
                 "value": None
             }
         if len(value.split(":")) != 2:
-            raise argparse.ArgumentTypeError("The parameter '--min-rdp-bootstrap' must be in format 'TAXONOMIC_LEVEL:MIN_BOOTSTRAP'.")
+            raise argparse.ArgumentTypeError("\nThe parameter '--min-rdp-bootstrap' must be in format 'TAXONOMIC_LEVEL:MIN_BOOTSTRAP'.\n\n")
         output["rank"] = value.split(":")[0]
         output["value"] = value.split(":")[1]
         try:
             output["value"] = ratioParameter(output["value"])
         except:
-            raise argparse.ArgumentTypeError("The value for the MIN_BOOTSTRAP in parameter '--min-rdp-bootstrap' must be between 0.0 and 1.0.")
+            raise argparse.ArgumentTypeError("\nThe value for the MIN_BOOTSTRAP in parameter '--min-rdp-bootstrap' must be between 0.0 and 1.0.\n\n")
         setattr(namespace, self.dest, output)
 
 
@@ -517,18 +517,18 @@ if __name__ == '__main__':
     Logger.static_write(args.log_file, "## Application\nSoftware: " + os.path.basename(sys.argv[0]) + " (version: " + str(__version__) + ")\nCommand: " + " ".join(cmd) + "\n\n")
 
     if not args.delete and not args.mask:
-        raise argparse.ArgumentTypeError("You must precise if you want to mask affiliations of delete OTU with --mask or --delete options.")
+        raise argparse.ArgumentTypeError("\nYou must precise if you want to mask affiliations of delete OTU with --mask or --delete options.\n\n")
 
     if args.min_rdp_bootstrap is None and args.min_blast_identity is None and args.min_blast_coverage is None and args.max_blast_evalue is None and args.min_blast_length is None and args.taxon_ignored is None:
-        raise argparse.ArgumentTypeError( "At least one filter must be set to run " + os.path.basename(sys.argv[0]) )
+        raise argparse.ArgumentTypeError( "\nAt least one filter must be set to run " + os.path.basename(sys.argv[0]) + "\n\n")
     
     in_biom = BiomIO.from_json( args.input_biom )
 
     if args.min_rdp_bootstrap is not None:
         if not in_biom.has_observation_metadata("rdp_bootstrap"):
-            raise argparse.ArgumentTypeError( "The BIOM input does not contain the metadata 'rdp_bootstrap'. You cannot use the parameter '--min-rdp-bootstrap' on this file." )
+            raise argparse.ArgumentTypeError( "\nThe BIOM input does not contain the metadata 'rdp_bootstrap'. You cannot use the parameter '--min-rdp-bootstrap' on this file.\n\n" )
         elif not args.min_rdp_bootstrap["rank"] in args.rdp_taxonomy_ranks:
-            raise argparse.ArgumentTypeError( "The taxonomic rank choosen in '--min-rdp-bootstrap' must be in '--rdp-taxonomy-ranks' (" + ";".join(args.rdp_taxonomy_ranks) + ")." )
+            raise argparse.ArgumentTypeError( "\nThe taxonomic rank choosen in '--min-rdp-bootstrap' must be in '--rdp-taxonomy-ranks' (" + ";".join(args.rdp_taxonomy_ranks) + ").\n\n" )
         else:
             nb_rank = 0
             for observation in in_biom.get_observations():
@@ -536,18 +536,18 @@ if __name__ == '__main__':
                     nb_rank = len(observation['metadata']['rdp_bootstrap'])
                     break
             if nb_rank != len(args.taxonomic_ranks):
-                raise argparse.ArgumentTypeError("RDP taxonomic metadata is defined on " + str(nb_rank) + " and you precise " + str(len(args.taxonomic_ranks)) + " ranks name (see --taxonomic-ranks)")
+                raise argparse.ArgumentTypeError("\nRDP taxonomic metadata is defined on " + str(nb_rank) + " and you precise " + str(len(args.taxonomic_ranks)) + " ranks name (see --taxonomic-ranks)\n\n")
     if not in_biom.has_observation_metadata("blast_affiliations"):
         if args.min_blast_length is not None:
-            raise argparse.ArgumentTypeError( "The BIOM input does not contain the metadata 'blast_affiliations'. You cannot use the parameter '--min-blast-length' on this file." )
+            raise argparse.ArgumentTypeError( "\nThe BIOM input does not contain the metadata 'blast_affiliations'. You cannot use the parameter '--min-blast-length' on this file.\n\n" )
         if args.max_blast_evalue is not None:
-            raise argparse.ArgumentTypeError( "The BIOM input does not contain the metadata 'blast_affiliations'. You cannot use the parameter '--max-blast-evalue' on this file." )
+            raise argparse.ArgumentTypeError( "\nThe BIOM input does not contain the metadata 'blast_affiliations'. You cannot use the parameter '--max-blast-evalue' on this file.\n\n" )
         if args.min_blast_identity is not None:
-            raise argparse.ArgumentTypeError( "The BIOM input does not contain the metadata 'blast_affiliations'. You cannot use the parameter '--min-blast-identity' on this file." )
+            raise argparse.ArgumentTypeError( "\nThe BIOM input does not contain the metadata 'blast_affiliations'. You cannot use the parameter '--min-blast-identity' on this file.\n\n" )
         if args.min_blast_coverage is not None:
-            raise argparse.ArgumentTypeError( "The BIOM input does not contain the metadata 'blast_affiliations'. You cannot use the parameter '--max-blast-coverage' on this file." )
+            raise argparse.ArgumentTypeError( "\nThe BIOM input does not contain the metadata 'blast_affiliations'. You cannot use the parameter '--max-blast-coverage' on this file.\n\n" )
         if args.taxon_ignored is not None:
-            raise argparse.ArgumentTypeError( "The BIOM input does not contain the metadata 'blast_affiliations'. You cannot use the parameter '--taxon-ignored' on this file." )
+            raise argparse.ArgumentTypeError( "\nThe BIOM input does not contain the metadata 'blast_affiliations'. You cannot use the parameter '--taxon-ignored' on this file.\n\n" )
     del in_biom
 
     # Process
