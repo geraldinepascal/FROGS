@@ -1,4 +1,4 @@
-#!/usr/bin/env python2.7
+#!/usr/bin/env python3.7
 #
 # Copyright (C) 2014 INRA
 #
@@ -47,7 +47,7 @@ def multiAffiFromBiom( biom, output_tsv ):
     @param input_biom: [Biom] The BIOM object.
     @param output_tsv: [str] Path to the output file (format : TSV).
     """
-    out_fh = open( output_tsv, "w" )
+    out_fh = open( output_tsv, "wt" )
 #     out_fh.write( "#" + "\t".join(["OTU", "Subject_taxonomy", "Blast_subject", "Prct_identity", "Prct_query_coverage", "e-value", "Alignment_length"]) + "\n" )
     out_fh.write( "#" + "\t".join(["observation_name", "blast_taxonomy", " blast_subject", "blast_perc_identity", "blast_perc_query_coverage", "blast_evalue", "blast_aln_length"]) + "\n" )
     for current_observation in biom.get_observations():

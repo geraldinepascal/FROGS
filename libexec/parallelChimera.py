@@ -1,4 +1,4 @@
-#!/usr/bin/env python2.7
+#!/usr/bin/env python3.7
 #
 # Copyright (C) 2014 INRA
 #
@@ -83,7 +83,7 @@ def write_summary( samples_names, sample_logs, log_remove_global, log_remove_spl
         detection_results[sample] = get_sample_resuts(sample_logs[idx])
 
     # Writes output
-    FH_out = open(out_file, "w")
+    FH_out = open(out_file, "wt")
 
     global_remove_results = [ log_remove_global['nb_removed'], log_remove_global['nb_kept'],
                               log_remove_global['abundance_removed'], log_remove_global['abundance_kept'],
@@ -153,30 +153,30 @@ def submit_cmd( cmd, stdout_path, stderr_path):
     stdout, stderr = p.communicate()
 
     # write down the stdout
-    stdoh = open(stdout_path, "w")
-    stdoh.write(stdout)
+    stdoh = open(stdout_path, "wt")
+    stdoh.write(stdout.decode('utf-8'))
     stdoh.close()
 
     # write down the stderr
-    stdeh = open(stderr_path, "w")
-    stdeh.write(stderr)
+    stdeh = open(stderr_path, "wt")
+    stdeh.write(stderr.decode('utf-8'))
     stdeh.close()
 
     # check error status
     if p.returncode != 0:
-        stdeh = open(stderr_path)
+        stdeh = open(stderr_path,'rt')
         error_msg = "".join( map(str, stdeh.readlines()) )
         stdeh.close()
-        raise StandardError( error_msg )
+        raise Exception( error_msg )
 
 def remove_chimera_fasta( in_fasta, out_fasta, kept_observ, user_size_separator ):
     in_fasta_fh = FastaIO( in_fasta )
-    out_fasta_fh = FastaIO( out_fasta, "w")
+    out_fasta_fh = FastaIO( out_fasta, "wt")
     for record in in_fasta_fh:
         real_id = record.id
         if user_size_separator is not None and user_size_separator in record.id:
             real_id = record.id.rsplit(user_size_separator, 1)[0]
-        if kept_observ.has_key(real_id):
+        if real_id in kept_observ:
             record.id = real_id
             if user_size_separator is not None:
                 record.id = real_id + user_size_separator + str(kept_observ[real_id])
@@ -223,7 +223,7 @@ def remove_chimera_biom( samples, chimera_files, in_biom_file, out_biom_file, le
         chimera_fh = open( chimera_file)
         for line in chimera_fh:
             observation_name = line.strip()
-            if not nb_sample_by_chimera.has_key(observation_name):
+            if observation_name not in nb_sample_by_chimera:
                 nb_sample_by_chimera[observation_name] = 0
             nb_sample_by_chimera[observation_name] += 1
         chimera_fh.close()
@@ -231,7 +231,7 @@ def remove_chimera_biom( samples, chimera_files, in_biom_file, out_biom_file, le
     # Remove chimera
     removed_chimera = list()
     biom = BiomIO.from_json(in_biom_file)
-    for chimera_name in nb_sample_by_chimera.keys():
+    for chimera_name in list(nb_sample_by_chimera.keys()):
         is_always_chimera = True
         nb_sample_with_obs = sum( 1 for sample in biom.get_samples_by_observation(chimera_name) )
         observation_abundance = biom.get_observation_count(chimera_name)
@@ -293,21 +293,21 @@ def remove_chimera_count( samples, chimera_files, in_count_file, out_count_file,
         chimera_fh = open( chimera_files[idx] )
         for line in chimera_fh:
             observation_name = line.strip()
-            if not chimera.has_key(observation_name):
+            if observation_name not in chimera:
                 chimera[observation_name] = dict()
             chimera[observation_name][sample_name] = True
         chimera_fh.close()
 
     # Remove chimera
     in_count_fh = open( in_count_file )
-    out_count_fh = open( out_count_file, "w" )
+    out_count_fh = open( out_count_file, "wt" )
     samples_pos = dict()
     #    header
     header = in_count_fh.readline()
     out_count_fh.write(header)
     for idx, sample_name in enumerate(header.strip().split()[1:]):
         samples_pos[sample_name] = idx
-        if not bySample_report.has_key( sample_name ):
+        if sample_name not in bySample_report:
             bySample_report[sample_name] = {
                 'nb_kept': 0,
                 'kept_abundance': 0,
@@ -320,20 +320,20 @@ def remove_chimera_count( samples, chimera_files, in_count_file, out_count_file,
         line_fields = line.strip().split()
         observation_name = line_fields[0]
         observation_counts = [int(sample_count) for sample_count in line_fields[1:]]
-        if not chimera.has_key(observation_name):
+        if observation_name not in chimera:
             out_count_fh.write( line )
             global_report['nb_kept'] += 1
             global_report['abundance_kept'] += sum(observation_counts)
             # By sample metrics
-            for sample_name in samples_pos.keys():
+            for sample_name in list(samples_pos.keys()):
                 sample_count = int(observation_counts[samples_pos[sample_name]])
                 if sample_count > 0:
                     bySample_report[sample_name]['nb_kept'] += 1
                     bySample_report[sample_name]['kept_abundance'] += sample_count
         else: # is chimera in at least one sample
             is_always_chimera = True
-            for sample_name in samples_pos.keys():
-                if not chimera[observation_name].has_key(sample_name) and int(observation_counts[samples_pos[sample_name]]) != 0:
+            for sample_name in list(samples_pos.keys()):
+                if sample_name not in chimera[observation_name] and int(observation_counts[samples_pos[sample_name]]) != 0:
                     is_always_chimera = False
             if not is_always_chimera: # is not chimera in all samples where it is find
                 global_report['nb_ambiguous'] += 1
@@ -343,7 +343,7 @@ def remove_chimera_count( samples, chimera_files, in_count_file, out_count_file,
                 global_report['nb_removed'] += 1
                 global_report['abundance_removed'] += sum(observation_counts)
                 # By sample metrics
-                for sample_name in samples_pos.keys():
+                for sample_name in list(samples_pos.keys()):
                     sample_count = int(observation_counts[samples_pos[sample_name]])
                     if sample_count > 0:
                         bySample_report[sample_name]['nb_removed'] += 1
@@ -354,7 +354,7 @@ def remove_chimera_count( samples, chimera_files, in_count_file, out_count_file,
                 global_report['abundance_kept'] += sum(observation_counts)
                 out_count_fh.write( line )
                 # By sample metrics
-                for sample_name in samples_pos.keys():
+                for sample_name in list(samples_pos.keys()):
                     sample_count = int(observation_counts[samples_pos[sample_name]])
                     if sample_count > 0:
                         bySample_report[sample_name]['nb_kept'] += 1
@@ -378,7 +378,7 @@ def chimera_by_sample( sample_name, input_fasta, input_abund, output_fasta, outp
     count_by_obs = dict()
 
     try:
-        FH_log = open(log_chimera,"w")
+        FH_log = open(log_chimera,"wt")
         FH_log.write("##Sample : " + sample_name + "\n")
         # Get count by obs
         in_obs_fh = open( input_abund )
@@ -393,12 +393,12 @@ def chimera_by_sample( sample_name, input_fasta, input_abund, output_fasta, outp
         # Write fasta with observation size
         nb_seq_sample = 0
         in_fasta_fh = FastaIO( input_fasta )
-        tmp_fasta_fh = FastaIO( tmp_fasta, "w")
+        tmp_fasta_fh = FastaIO( tmp_fasta, "wt")
         for record in in_fasta_fh:
             real_id = record.id
             if user_size_separator is not None and user_size_separator in record.id:
                 real_id = record.id.rsplit(user_size_separator, 1)[0]
-            if count_by_obs.has_key(real_id):
+            if real_id in count_by_obs:
                 nb_seq_sample += 1
                 record.id = real_id + size_separator + str(count_by_obs[real_id])
                 tmp_fasta_fh.write(record)
@@ -411,8 +411,8 @@ def chimera_by_sample( sample_name, input_fasta, input_abund, output_fasta, outp
             submit_cmd( ["vsearch", "--uchime_denovo", tmp_fasta, "--nonchimeras", output_fasta, "--uchimeout", tmp_log], tmp_stdout, tmp_stderr )
         else: # The sample is empty
             FH_log.write("## Empty sample, no chimera research\n")
-            open( output_fasta, "w" ).close()
-            open( tmp_log, "w" ).close()
+            open( output_fasta, "wt" ).close()
+            open( tmp_log, "wt" ).close()
 
         # Log
         nb_chimera = 0
@@ -421,7 +421,7 @@ def chimera_by_sample( sample_name, input_fasta, input_abund, output_fasta, outp
         nb_non_chimera = 0
         non_chimera_abun = 0
         in_log_fh = open( tmp_log )
-        out_chimera_fh = open( output_chimera, "w" )
+        out_chimera_fh = open( output_chimera, "wt" )
         for line in in_log_fh:
             line_fields = line.strip().split()
             observation_name, size = line_fields[1].rsplit( size_separator, 1 )

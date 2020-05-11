@@ -1,4 +1,4 @@
-#!/usr/bin/env python2.7
+#!/usr/bin/env python3.7
 #
 # Copyright (C) 2018 INRA
 #
@@ -64,7 +64,7 @@ def process(params):
 	OTU_list=list()
 	temp_dict=dict()
 	FH_in = open(params.needle)
-	FH_out = open(params.blast_like,"w" )
+	FH_out = open(params.blast_like,"wt" )
 	for line in FH_in:
 		if line.startswith("@"):
 			continue

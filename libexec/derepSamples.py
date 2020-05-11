@@ -1,4 +1,4 @@
-#!/usr/bin/env python2.7
+#!/usr/bin/env python3.7
 #
 # Copyright (C) 2014 INRA
 #
@@ -54,7 +54,7 @@ def getSamplesFromDescFile( samples_desc_file ):
     """
     sequence_files = list()
     samples_names = list()
-    FH_samples_desc_file = open( samples_desc_file )
+    FH_samples_desc_file = open( samples_desc_file, 'rt' )
     for line in FH_samples_desc_file:
         if not line.startswith("#"):
             sample_path, sample_name = line.strip().split("\t", 1)
@@ -78,7 +78,7 @@ def splitFileBySample(input_count, fasta, size_separator, working_dir, process_p
 
     # count file saving
     dict_count = dict()
-    FH_count = open(input_count)
+    FH_count = open(input_count, 'rt')
     for line in FH_count:
         if line.startswith("#id"):
             samples_names = line.strip().split("\t")[1:]
@@ -89,7 +89,7 @@ def splitFileBySample(input_count, fasta, size_separator, working_dir, process_p
     FH_count.close()
 
     # split fasta file
-    print fasta
+    print(fasta)
     FH_in = FastaIO(fasta)
     FH_out = dict()
 
@@ -98,7 +98,7 @@ def splitFileBySample(input_count, fasta, size_separator, working_dir, process_p
         samples = [ s for s in dict_count[record.id] if dict_count[record.id][s] > 0 ]
         for s in samples:
             if not s in FH_out :
-                FH_out[s] = FastaIO(os.path.join(working_dir, process_prefix + "tmp_sample_" + s + '.fasta'), 'a')
+                FH_out[s] = FastaIO(os.path.join(working_dir, process_prefix + "tmp_sample_" + s + '.fasta'), 'at')
             sample_record = Sequence(record.id, record.string, record.description)
             sample_record.id = sample_record.id + size_separator + str(dict_count[sample_record.id][s])
             FH_out[s].write(sample_record)
@@ -133,11 +133,11 @@ def splitFileByLength(initial_file, sample_name, working_dir, process_prefix):
         else:
             record.description = " sample_name=" + sample_name
         seq_length = len(record.string)
-        if not splits_FH.has_key( seq_length ):
-            splits_FH[seq_length] = FastaIO(os.path.join(working_dir, process_prefix + "tmp_" + os.path.basename(initial_file) + '_length_' + str(seq_length) + '.fasta'), 'a')
+        if seq_length not in splits_FH:
+            splits_FH[seq_length] = FastaIO(os.path.join(working_dir, process_prefix + "tmp_" + os.path.basename(initial_file) + '_length_' + str(seq_length) + '.fasta'), 'at')
         splits_FH[seq_length].write( record )
 
-    for length in splits_FH.keys():
+    for length in list(splits_FH.keys()):
         splits_FH[length].close()
 
 def dereplicateMultiplesLengths( working_dir, lengths, samples_names, process_prefix, size_separator ):
@@ -176,8 +176,8 @@ def dereplicateLength( working_dir, length, all_samples, process_prefix, size_se
     records_list.sort(key=operator.itemgetter('seq'))
 
     # Dereplicate
-    FH_derep = FastaIO(derep_fasta, "w")
-    FH_count = open(count_file, "w")
+    FH_derep = FastaIO(derep_fasta, "wt")
+    FH_count = open(count_file, "wt")
     prev_record = None
     prev_seq = None
     for idx, record in enumerate(records_list):
@@ -191,7 +191,7 @@ def dereplicateLength( working_dir, length, all_samples, process_prefix, size_se
                 count = count[:-1]
             count = int(count)
         if record['seq'] == prev_seq:
-            if not prev_record['count'].has_key(sample_name):
+            if sample_name not in prev_record['count']:
                 prev_record['count'][sample_name] = 0
             prev_record['count'][sample_name] += count
             records_list[idx] = None
@@ -309,9 +309,9 @@ if __name__ == "__main__":
                 lengths[current_length] = True
 
         # Dereplicate by length
-        nb_processes_used = min( len(lengths.keys()), args.nb_cpus )
+        nb_processes_used = min( len(list(lengths.keys())), args.nb_cpus )
         if nb_processes_used == 1:
-            dereplicateMultiplesLengths( working_dir, lengths.keys(), args.samples_names, process_prefix, args.size_separator )
+            dereplicateMultiplesLengths( working_dir, list(lengths.keys()), args.samples_names, process_prefix, args.size_separator )
         else:
             processes = [{'process':None, 'length':[]} for idx in range(nb_processes_used)]
             # Set processes
@@ -336,18 +336,18 @@ if __name__ == "__main__":
                     raise Exception( "Error in sub-process execution." )
 
         # Merge results
-        FH_derepli = open(args.dereplicated_file, "w")
-        FH_count = open(args.count_file, "w")
+        FH_derepli = open(args.dereplicated_file, "wt")
+        FH_count = open(args.count_file, "wt")
         FH_count.write( "#id\t" + "\t".join(args.samples_names) + "\n" )
         for item in sorted(os.listdir(working_dir)):
             if os.path.isfile(os.path.join(working_dir, item)):
                 if re.match(process_prefix + 'tmp_count_\d+.tsv', item):
-                    FH_count_part = open(os.path.join(working_dir, item))
+                    FH_count_part = open(os.path.join(working_dir, item), 'rt')
                     for line in FH_count_part:
                         FH_count.write( line )
                     FH_count_part.close()
                 elif re.match(process_prefix + 'tmp_derep_\d+.fasta', item):
-                    FH_derepli_part = open(os.path.join(working_dir, item))
+                    FH_derepli_part = open(os.path.join(working_dir, item), 'rt')
                     for line in FH_derepli_part:
                         FH_derepli.write( line )
                     FH_derepli_part.close()

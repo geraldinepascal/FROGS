@@ -1,4 +1,4 @@
-#!/usr/bin/env python2.7
+#!/usr/bin/env python3.7
 #
 # Copyright (C) 2015 INRA
 #
@@ -201,10 +201,10 @@ if __name__ == "__main__":
                 to_rvc[record.id] = 1
             fh_in_excluded.close()
 
-        fh_rvc_out = FastqIO( tmp_rvc_fastq, "w" )
+        fh_rvc_out = FastqIO( tmp_rvc_fastq, "wt" )
         fh_initial_in = FastqIO( args.input )
         for record in fh_initial_in:
-            if to_rvc.has_key( record.id ):
+            if record.id in to_rvc:
                 record.string = rvc(record.string)
                 fh_rvc_out.write( record )
         fh_initial_in.close()
@@ -229,7 +229,7 @@ if __name__ == "__main__":
                                " > " + tmp_rvc_3prim_log, shell=True )
 
         # Merge
-        fh_final_out = FastqIO( args.output, "w" )
+        fh_final_out = FastqIO( args.output, "wt" )
         for trimmed in [tmp_3prim_trimmed, tmp_rvc_3prim_trimmed]:
             fh_in_trimmed = FastqIO( trimmed )
             for record in fh_in_trimmed:

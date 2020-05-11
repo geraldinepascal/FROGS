@@ -1,4 +1,4 @@
-#!/usr/bin/env python2.7
+#!/usr/bin/env python3.7
 #
 # Copyright (C) 2014 INRA
 #
@@ -32,7 +32,7 @@ def is_gzip(file):
     @param file : [str] Path to processed file.
     """
     is_gzip = None
-    FH_input = gzip.open( file )
+    FH_input = gzip.open( file, 'rt' )
     try:
         FH_input.readline()
         is_gzip = True
@@ -69,14 +69,14 @@ class SequenceFileReader(object):
 
 
 class FastqIO:
-    def __init__(self, filepath, mode="r"):
+    def __init__(self, filepath, mode="rt"):
         """
         @param filepath : [str] The filepath.
-        @param mode : [str] Mode to open the file ('r', 'w', 'a').
+        @param mode : [str] Mode to open the file ('rt', 'wt', 'at').
         """
         self.filepath = filepath
         self.mode = mode
-        if (mode in ["w", "a"] and filepath.endswith('.gz')) or (mode not in ["w", "a"] and is_gzip(filepath)):
+        if (mode in ["wt", "at"] and filepath.endswith('.gz')) or (mode not in ["wt", "at"] and is_gzip(filepath)):
             self.file_handle = gzip.open( filepath, mode )
         else:
             self.file_handle = open( filepath, mode )
@@ -188,14 +188,14 @@ class FastqIO:
 
 
 class FastaIO:
-    def __init__(self, filepath, mode="r"):
+    def __init__(self, filepath, mode="rt"):
         """
         @param filepath : [str] The filepath.
-        @param mode : [str] Mode to open the file ('r', 'w', 'a').
+        @param mode : [str] Mode to open the file ('rt', 'wt', 'at').
         """
         self.filepath = filepath
         self.mode = mode
-        if (mode in ["w", "a"] and filepath.endswith('.gz')) or (mode not in ["w", "a"] and is_gzip(filepath)):
+        if (mode in ["wt", "at"] and filepath.endswith('.gz')) or (mode not in ["wt", "at"] and is_gzip(filepath)):
             self.file_handle = gzip.open( filepath, mode )
         else:
             self.file_handle = open( filepath, mode )

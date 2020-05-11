@@ -1,4 +1,4 @@
-#!/usr/bin/env python2.7
+#!/usr/bin/env python3.7
 #
 # Copyright (C) 2018 INRA
 #
@@ -121,7 +121,7 @@ if __name__ == "__main__":
     parser.add_argument( '-r','--ranks', type=str, nargs='*', default=['Kingdom', 'Phylum', 'Class', 'Order','Family','Genus', 'Species'], help='The ordered taxonomic ranks levels stored in BIOM. Each rank is separated by one space. [Default: %(default)s]')      
     # Inputs
     group_input = parser.add_argument_group( 'Inputs' )
-    group_input.add_argument( '-b', '--biomfile', required=True, help='path to standard biom file (format: biom1). These file is the result of FROGS.' )
+    group_input.add_argument( '-b', '--biomfile', required=True, help='path to the abundance biom file.' )
     group_input.add_argument( '-s', '--samplefile', required=True, help='path to sample file (format: tabular).' )
     group_input.add_argument( '-t', '--treefile', default=None, help='path to tree file from FROGS Tree (format: Newich "nhx" or "nwk" ).' )
    

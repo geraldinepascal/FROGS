@@ -1,4 +1,4 @@
-#!/usr/bin/env python2.7
+#!/usr/bin/env python3.7
 #
 # Copyright (C) 2018 INRA
 #
@@ -28,7 +28,7 @@ import os
 import sys
 import json
 import shutil
-import urllib
+import urllib.request, urllib.parse, urllib.error
 import tarfile
 import argparse
 # Galaxy dependencies
@@ -66,7 +66,7 @@ def url_upload(dataset):
     @param dataset: [Bunch] The dataset for the uploaded file.
     """
     url = dataset.path
-    page = urllib.urlopen( url )
+    page = urllib.request.urlopen( url )
     temp_name, dataset.is_multi_byte = sniff.stream_to_file( page, prefix='url_paste', source_encoding=util.get_charset_from_http_headers( page.headers ) )
     dataset.path = temp_name
     dataset.name = url.split('/')[-1]
@@ -77,7 +77,7 @@ def safe_dict(d):
     http://mellowmachines.com/blog/2009/06/exploding-dictionary-with-unicode-keys-as-python-arguments/
     """
     if isinstance(d, dict):
-        return dict([(k.encode('utf-8'), safe_dict(v)) for k,v in d.iteritems()])
+        return dict([(k.encode('utf-8'), safe_dict(v)) for k,v in list(d.items())])
     elif isinstance(d, list):
         return [safe_dict(x) for x in d]
     else:

@@ -1,4 +1,4 @@
-#!/usr/bin/env python2.7
+#!/usr/bin/env python3.7
 #
 # Copyright (C) 2018 INRA
 #
@@ -119,7 +119,7 @@ def impacted_obs_on_rdpBootstrap(input_biom, taxonomic_depth, min_bootstrap, imp
     @param impacted_file: [str] The path to the output file.
     """
     biom = BiomIO.from_json( input_biom )
-    FH_impacted_file = open( impacted_file, "w" )
+    FH_impacted_file = open( impacted_file, "wt" )
     for observation in biom.get_observations():
         bootstrap = observation["metadata"]["rdp_bootstrap"]
         if issubclass(bootstrap.__class__, str):
@@ -144,7 +144,7 @@ def impacted_obs_on_blastMetrics( input_biom, tag, cmp_operator, threshold, impa
     }
     cmp_func = valid_operators[cmp_operator]
     biom = BiomIO.from_json( input_biom )
-    FH_impacted_file = open( impacted_file, "w" )
+    FH_impacted_file = open( impacted_file, "wt" )
     for observation in biom.get_observations():
         alignments = observation["metadata"]["blast_affiliations"]
         is_discarded = True
@@ -192,7 +192,7 @@ def impacted_obs_by_undesired_taxon(input_biom, undesired_taxon_list, in_all_or_
     @param impacted_file: [str] The path to the output file.
     """
     biom = BiomIO.from_json( input_biom )
-    FH_impacted_file = open( impacted_file, "w" )
+    FH_impacted_file = open( impacted_file, "wt" )
 
     for observation in biom.get_observations():
 
@@ -246,7 +246,7 @@ def uniq_from_files_lists( in_files ):
         for line in FH_current_file:
             uniq[line.strip()] = 1
         FH_current_file.close()
-    return uniq.keys()
+    return list(uniq.keys())
 
 def mask_observation(rdp_clusters_discards, blast_clusters_discards, input_biom, output_biom):
     """
@@ -281,7 +281,7 @@ def write_impact( discards, impacted_file ):
     @param discards: [dict] By filter the path of the file that contains the list of the removed observations.
     @param impacted_file: [str] The path to the output file.
     """
-    FH_impacted = open( impacted_file, "w" )
+    FH_impacted = open( impacted_file, "wt" )
     list_FH_discards = list()
 
     # Header
@@ -339,20 +339,20 @@ def write_summary( summary_file, input_biom, output_biom, discards, params ):
 
     # By sample and by filters
     filters_intersections = dict()
-    for filter in discards.keys():
+    for filter in list(discards.keys()):
         FH_filter = open( discards[filter] )
         for line in FH_filter:
             observation_name = line.strip()
-            if not filters_intersections.has_key( observation_name ):
+            if observation_name not in filters_intersections:
                 filters_intersections[observation_name] = dict()
             filters_intersections[observation_name][filter] = 1
         FH_filter.close()
-    for observation_name in filters_intersections.keys():
+    for observation_name in list(filters_intersections.keys()):
         # Removed intersection
         intersections_key = "--@@--".join(sorted( filters_intersections[observation_name].keys() ))
-        if not filters_results.has_key( intersections_key ):
+        if intersections_key not in filters_results:
             filters_results[intersections_key] = {
-                'filters': filters_intersections[observation_name].keys(),
+                'filters': list(filters_intersections[observation_name].keys()),
                 'count': 0
             }
         filters_results[intersections_key]['count'] += 1
@@ -360,7 +360,7 @@ def write_summary( summary_file, input_biom, output_biom, discards, params ):
         # Filters by samples
         for sample in in_biom.get_samples_by_observation(observation_name):
             for filter in filters_intersections[observation_name]:
-                if not samples_results[sample['id']]['filtered'].has_key(filter):
+                if filter not in samples_results[sample['id']]['filtered']:
                     samples_results[sample['id']]['filtered'][filter] = 0
                 samples_results[sample['id']]['filtered'][filter] += 1
     del in_biom
@@ -376,7 +376,7 @@ def write_summary( summary_file, input_biom, output_biom, discards, params ):
 
     # Write
     FH_summary_tpl = open( os.path.join(CURRENT_DIR, "affiliation_filters_tpl.html") )
-    FH_summary_out = open( summary_file, "w" )
+    FH_summary_out = open( summary_file, "wt" )
     for line in FH_summary_tpl:
         if "###PORCESSED_FILTERS###" in line:
             line = line.replace( "###PORCESSED_FILTERS###", json.dumps([filter for filter in discards]) )
@@ -385,7 +385,7 @@ def write_summary( summary_file, input_biom, output_biom, discards, params ):
         elif "###SAMPLES_RESULTS###" in line:
             line = line.replace( "###SAMPLES_RESULTS###", json.dumps(samples_results) )
         elif "###FILTERS_RESULTS###" in line:
-            line = line.replace( "###FILTERS_RESULTS###", json.dumps(filters_results.values()) )
+            line = line.replace( "###FILTERS_RESULTS###", json.dumps(list(filters_results.values())) )
         elif "Draw a Venn to see which OTUs had been deleted by the filters chosen (Maximum 6 options): " in line and params.mask:
             line = "Draw a Venn to see which OTUs had its taxonomy masked by the filters chosen (Maximum 6 options): "
         FH_summary_out.write( line )

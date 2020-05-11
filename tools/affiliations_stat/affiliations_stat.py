@@ -1,4 +1,4 @@
-#!/usr/bin/env python2.7
+#!/usr/bin/env python3.7
 #
 # Copyright (C) 2018 INRA
 #
@@ -91,7 +91,7 @@ class Rarefaction(Cmd):
         counts = sorted(counts)
         nb_samples = len(counts)
         # Finds the lower quartile number of sequences
-        lower_quartile_idx = nb_samples/4
+        lower_quartile_idx = int(nb_samples/4)
         nb_seq = counts[lower_quartile_idx]
         # If lower quartile sample is empty
         if nb_seq == 0:
@@ -156,18 +156,18 @@ def get_bootstrap_distrib( input_biom, bootstrap_tag, multiple_tag ):
         observation_metadata = observation['metadata']
         bootstrap = None
         if multiple_tag is not None:
-            if observation_metadata.has_key(multiple_tag) and len(observation_metadata[multiple_tag]) > 0:
+            if multiple_tag in observation_metadata and len(observation_metadata[multiple_tag]) > 0:
                 bootstrap = observation_metadata[multiple_tag][0][bootstrap_tag]
         else:
-            if observation_metadata.has_key(bootstrap_tag):
+            if bootstrap_tag in observation_metadata:
                 bootstrap = observation_metadata[bootstrap_tag]
         if bootstrap is not None:
             for taxonomy_depth, rank_bootstrap in enumerate( bootstrap ):
                 rank_bootstrap = rank_bootstrap * 100
                 rank = args.taxonomic_ranks[taxonomy_depth]
-                if not bootstrap_results.has_key(rank):
+                if rank not in bootstrap_results:
                     bootstrap_results[rank] = dict()
-                if not bootstrap_results[rank].has_key(rank_bootstrap):
+                if rank_bootstrap not in bootstrap_results[rank]:
                     bootstrap_results[rank][rank_bootstrap] = {
                         "clstr": 0,
                         "seq": 0
@@ -200,24 +200,24 @@ def get_alignment_distrib( input_biom, identity_tag, coverage_tag, multiple_tag 
         identity = 0
         coverage = 0
         if args.multiple_tag is not None:
-            if observation_metadata.has_key(multiple_tag) and len(observation_metadata[multiple_tag]) > 0:
+            if multiple_tag in observation_metadata and len(observation_metadata[multiple_tag]) > 0:
                 identity = observation_metadata[multiple_tag][0][identity_tag]
                 coverage = observation_metadata[multiple_tag][0][coverage_tag]
         else:
-            if observation_metadata.has_key(identity_tag) and observation_metadata.has_key(coverage_tag):
+            if identity_tag in observation_metadata and coverage_tag in observation_metadata:
                 identity = observation_metadata[identity_tag]
                 coverage = observation_metadata[coverage_tag]
-        if not aln_results_hash.has_key( identity ):
+        if identity not in aln_results_hash:
             aln_results_hash[identity] = dict()
-        if not aln_results_hash[identity].has_key( coverage ):
+        if coverage not in aln_results_hash[identity]:
             aln_results_hash[identity][coverage] = {
                 "clstr": 0,
                 "seq": 0
             }
         aln_results_hash[identity][coverage]["clstr"] += 1
         aln_results_hash[identity][coverage]["seq"] += biom.get_observation_count( observation['id'] )
-    for ident in aln_results_hash.keys():
-        for cover in aln_results_hash[ident].keys():
+    for ident in list(aln_results_hash.keys()):
+        for cover in list(aln_results_hash[ident].keys()):
             aln_results.append([
                 ident,
                 cover,
@@ -265,7 +265,7 @@ def write_summary( summary_file, input_biom, tree_count_file, tree_ids_file, rar
         rank = args.rarefaction_ranks[rank_idx]
         FH_rarefaction = open( current_file )
         for line in FH_rarefaction:
-            fields = map(str.strip, line.split("\t"))
+            fields = list(map(str.strip, line.split("\t")))
             if line.startswith('#'):
                 samples = fields[1:]
                 if rarefaction is None:
@@ -278,7 +278,7 @@ def write_summary( summary_file, input_biom, tree_count_file, tree_ids_file, rar
             else:
                 if rarefaction_step_size is None:
                     rarefaction_step_size = int(fields[0])
-                if not rarefaction[sample].has_key( rank ):
+                if rank not in rarefaction[sample]:
                     rarefaction[sample][rank] = list()
                 for idx, sample in enumerate(samples):
                     if fields[idx+1] != "":
@@ -288,7 +288,7 @@ def write_summary( summary_file, input_biom, tree_count_file, tree_ids_file, rar
 
     # Write
     FH_summary_tpl = open( os.path.join(CURRENT_DIR, "affiliations_stat_tpl.html") )
-    FH_summary_out = open( summary_file, "w" )
+    FH_summary_out = open( summary_file, "wt" )
     for line in FH_summary_tpl:
         if "###TAXONOMIC_RANKS###" in line:
             line = line.replace( "###TAXONOMIC_RANKS###", json.dumps(args.taxonomic_ranks) )

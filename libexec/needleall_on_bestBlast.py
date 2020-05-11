@@ -1,4 +1,4 @@
-#!/usr/bin/env python2.7
+#!/usr/bin/env python3.7
 #
 # Copyright (C) 2018 INRA
 #
@@ -106,7 +106,7 @@ def extract_ref(input_fasta, input_blast_R1, input_blast_R2, input_ref, output_r
     # extract ref
     if len(best_ref) > 0 :
         FH_in = FastaIO(input_ref)
-        FH_out = FastaIO(output_ref,"w")
+        FH_out = FastaIO(output_ref,"wt")
         for record in FH_in:
             if record.id in best_ref:
                 FH_out.write(record)
@@ -127,21 +127,21 @@ def submit_cmd( cmd, stdout_path, stderr_path):
     stdout, stderr = p.communicate()
 
     # write down the stdout
-    stdoh = open(stdout_path, "w")
-    stdoh.write(stdout)
+    stdoh = open(stdout_path, "wt")
+    stdoh.write(stdout.decode('utf-8'))
     stdoh.close()
 
     # write down the stderr
-    stdeh = open(stderr_path, "w")
-    stdeh.write(stderr)
+    stdeh = open(stderr_path, "wt")
+    stdeh.write(stderr.decode('utf-8'))
     stdeh.close()
 
     # check error status
     if p.returncode != 0:
-        stdeh = open(stderr_path)
+        stdeh = open(stderr_path,'rt')
         error_msg = "".join( map(str, stdeh.readlines()) )
         stdeh.close()
-        raise StandardError( error_msg )
+        raise Exception( error_msg )
 
 def get_needleall_version():
     """
@@ -153,7 +153,7 @@ def get_needleall_version():
         cmd = ["needleall", "--version"]
         p = Popen(cmd, stdout=PIPE, stderr=PIPE)
         stdout, stderr = p.communicate()
-        version = stderr.strip()
+        version = stderr.decode('utf-8').strip()
     except:
         version = "unknown"
     return version

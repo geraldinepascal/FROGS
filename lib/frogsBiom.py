@@ -1,4 +1,4 @@
-#!/usr/bin/env python2.7
+#!/usr/bin/env python3.7
 #
 # Copyright (C) 2015 INRA
 #
@@ -223,7 +223,7 @@ class DenseData( list ):
             self.subtract(row_idx-1, col_idx, 1)
             nb_col_elt -= 1
             nb_selected += 1
-            if not selected_rows.has_key(row_idx-1):
+            if row_idx-1 not in selected_rows:
                 selected_rows[row_idx-1] = 0
             selected_rows[row_idx-1] += 1
         return( selected_rows )
@@ -276,7 +276,7 @@ class SparseData( dict ):
         """
         ini_list = matrix if matrix is not None else list()
         for data in ini_list:
-            if not self.has_key( data[0] ):
+            if data[0] not in self:
                 self[data[0]] = dict()
             self[data[0]][data[1]] = data[2]
         self.nb_rows = nb_rows
@@ -290,7 +290,7 @@ class SparseData( dict ):
                    [ 9, 1, 521 ]]  # The column 1 of the row 9 has a count of 521.
         """
         sparse = list()
-        for rows_idx in sorted(self.keys(), key=int):
+        for rows_idx in sorted(list(self.keys()), key=int):
             for columns_idx in sorted(self[rows_idx].keys()):
                 sparse.append([ rows_idx, columns_idx, self[rows_idx][columns_idx] ])
         return sparse
@@ -306,12 +306,12 @@ class SparseData( dict ):
         @summary: Remove all the count for the column provided.
         @param remove_idx: [int] The real index of the column to remove.
         """
-        for rows_idx in self.keys():
+        for rows_idx in list(self.keys()):
             # Remove data
-            if self[rows_idx].has_key( remove_idx ):
+            if remove_idx in self[rows_idx]:
                 del self[rows_idx][remove_idx]
             # Change index
-            row_columns_idx = sorted( self[rows_idx].keys(), key=int )
+            row_columns_idx = sorted( list(self[rows_idx].keys()), key=int )
             for column_idx in row_columns_idx:
                 if column_idx > remove_idx:
                     self[rows_idx][column_idx -1] = self[rows_idx][column_idx]
@@ -326,10 +326,10 @@ class SparseData( dict ):
         remove_idx.sort(key=int)
         # Remove data
         for idx in remove_idx:
-            if self.has_key( idx ):
+            if idx in self:
                 del self[idx]
         # Change indexes
-        all_rows_idx = sorted( self.keys(), key=int )
+        all_rows_idx = sorted( list(self.keys()), key=int )
         nb_removed = len(remove_idx)
         offset = 0
         next_idx_in_removed = 0
@@ -350,8 +350,8 @@ class SparseData( dict ):
         """
         # Merge counts
         added_values = dict()
-        for row_idx in self.keys():
-            if self[row_idx].has_key( added_idx ):
+        for row_idx in list(self.keys()):
+            if added_idx in self[row_idx]:
                 self.add( row_idx, sum_idx, self[row_idx][added_idx] )
         # Remove column
         self.remove_col( added_idx )
@@ -363,7 +363,7 @@ class SparseData( dict ):
         @param col_idx: [int] The index of the column.
         """
         nb = 0
-        if self.has_key(row_idx) and self[row_idx].has_key(col_idx):
+        if row_idx in self and col_idx in self[row_idx]:
             nb = self[row_idx][col_idx]
         return nb
 
@@ -373,8 +373,8 @@ class SparseData( dict ):
         @param col_idx : [int] The index of the column.
         """
         total = 0
-        for row_idx in self.keys():
-            if self[row_idx].has_key( col_idx ):
+        for row_idx in list(self.keys()):
+            if col_idx in self[row_idx]:
                 total += self[row_idx][col_idx]
         return total
 
@@ -384,8 +384,8 @@ class SparseData( dict ):
         @param row_idx: [int] The index of the row.
         """
         total = 0
-        if self.has_key( row_idx ):
-            for column_idx in self[row_idx].keys():
+        if row_idx in self:
+            for column_idx in list(self[row_idx].keys()):
                 total += self[row_idx][column_idx]
         return total
 
@@ -395,8 +395,8 @@ class SparseData( dict ):
                  specidied column.
         @param col_idx: [int] The index of the column.
         """
-        for row_idx in self.keys():
-            if self[row_idx].has_key( col_idx ):
+        for row_idx in list(self.keys()):
+            if col_idx in self[row_idx]:
                 yield row_idx
 
     def get_col_idx_by_row( self, row_idx ):
@@ -405,7 +405,7 @@ class SparseData( dict ):
                  specidied row.
         @param row_idx: [int] The index of the column.
         """
-        if self.has_key(row_idx):
+        if row_idx in self:
             for col_idx in self[row_idx]:
                 yield col_idx
 
@@ -416,7 +416,7 @@ class SparseData( dict ):
         @note: In return '[0, 2, 0, 0]' only the second column has an observation.
         """
         array = [0 for current in range(self.nb_columns)]
-        if self.has_key( row_idx ):
+        if row_idx in self:
             for column_idx in sorted( self[row_idx].keys() ):
                 array[column_idx] = self[row_idx][column_idx]
         return array
@@ -429,7 +429,7 @@ class SparseData( dict ):
         """
         array = [0 for current in range(self.nb_rows)]
         for row_idx in self:
-            if self[row_idx].has_key(col_idx):
+            if col_idx in self[row_idx]:
                 array[row_idx] = self[row_idx][col_idx]
         return array
 
@@ -440,9 +440,9 @@ class SparseData( dict ):
         @param col_idx : [int] The index of the column.
         @param value : [int] The value to add.
         """
-        if not self.has_key( row_idx ):
+        if row_idx not in self:
             self[row_idx] = { col_idx : 0 }
-        elif not self[row_idx].has_key( col_idx ):
+        elif col_idx not in self[row_idx]:
             self[row_idx][col_idx] = 0
         self[row_idx][col_idx] += value
 
@@ -453,7 +453,7 @@ class SparseData( dict ):
         @param col_idx: [int] The index of the column.
         @param value: [int] The value to subtract.
         """
-        if self.has_key( row_idx ) and self[row_idx].has_key( col_idx ) and self[row_idx][col_idx] >= value:
+        if row_idx in self and col_idx in self[row_idx] and self[row_idx][col_idx] >= value:
             self[row_idx][col_idx] -= value
         else:
             raise Exception( "'" + str(value) + "' cannot be subtract from row " + str(row_idx) + " column " + str(col_idx) + "." ) 
@@ -466,12 +466,12 @@ class SparseData( dict ):
         @param value: [int] The new value.
         """
         if value != 0:
-            if not self.has_key( row_idx ):
+            if row_idx not in self:
                 self[row_idx] = { col_idx : value }
             else:
                 self[row_idx][col_idx] = value
         else:
-            if self.has_key( row_idx ) and self[row_idx].has_key( col_idx ) :
+            if row_idx in self and col_idx in self[row_idx] :
                 del self[row_idx][col_idx]
 
     def random_by_col( self, col_idx ):
@@ -518,7 +518,7 @@ class SparseData( dict ):
             self.subtract(row_idx-1, col_idx, 1)
             nb_col_elt -= 1
             nb_selected += 1
-            if not selected_rows.has_key(row_idx-1):
+            if row_idx-1 not in selected_rows:
                 selected_rows[row_idx-1] = 0
             selected_rows[row_idx-1] += 1
         return( selected_rows )
@@ -663,7 +663,7 @@ class Biom:
         final_idx = self.find_idx( "sample", samples[0] )
         final_sample = self.columns[final_idx]
         if final_sample['metadata'] is not None:
-            metadata_names = final_sample['metadata'].keys()
+            metadata_names = list(final_sample['metadata'].keys())
             for metadata_name in metadata_names:
                 final_sample['metadata'][final_sample['id'] + ":" + metadata_name] = final_sample['metadata'][metadata_name]
                 del final_sample['metadata'][metadata_name]
@@ -676,7 +676,7 @@ class Biom:
             current_idx = self.find_idx( "sample", current_name )
             current_sample = self.columns[current_idx]
             # Update metadata history
-            if final_sample['metadata'].has_key( "merge_history" ):
+            if "merge_history" in final_sample['metadata']:
                 final_sample['metadata']['merge_history'] += " AND " + current_sample['id']
             else:
                 final_sample['metadata']['merge_history'] = final_sample['id'] + " AND " + current_sample['id']
@@ -701,7 +701,7 @@ class Biom:
         """
         find_idx = None
         if subject_type == "observation":
-            if self._obs_index.has_key(query_name):
+            if query_name in self._obs_index:
                 find_idx = self._obs_index[query_name]
         else:
             idx = 0
@@ -738,7 +738,7 @@ class Biom:
         else:
             if subject_list[subject_idx]['metadata'] is None:
                 subject_list[subject_idx]['metadata'] = dict()
-            elif subject_list[subject_idx]['metadata'].has_key( metadata_name ) and erase_warning:
+            elif metadata_name in subject_list[subject_idx]['metadata'] and erase_warning:
                 sys.stderr.write("[WARNING] You erase previous value of the metadata named '" + metadata_name + "' in " + subject_name + " (OLD:'" + str(subject_list[subject_idx]['metadata'][metadata_name]) + "' => NEW:'" + str(metadata_value) + "').\n")
             subject_list[subject_idx]['metadata'][metadata_name] = metadata_value
 
@@ -837,7 +837,7 @@ class Biom:
             self.rows.append( {'id':observation_name, 'metadata':None } )
             self._obs_index[observation_name] = len(self.rows) - 1
             self.data.add_row()
-            for metadata_name in ini_metadata.keys():
+            for metadata_name in list(ini_metadata.keys()):
                 self.add_metadata( observation_name, metadata_name, ini_metadata[metadata_name], "observation" )
         # Observation already exists
         else:
@@ -856,7 +856,7 @@ class Biom:
         except ValueError:
             self.columns.append( {'id':sample_name, 'metadata':None } )
             self.data.add_col()
-            for metadata_name in ini_metadata.keys():
+            for metadata_name in list(ini_metadata.keys()):
                 self.add_metadata( sample_name, metadata_name, ini_metadata[metadata_name], "sample" )
         # Sample already exists
         else:
@@ -1024,7 +1024,7 @@ class Biom:
         sample_idx = self.find_idx( "sample", sample_name )
         selected_rows = self.data.random_extract_by_col(sample_idx, nb_selected)
         selected_obs = list()
-        for idx in selected_rows.keys():
+        for idx in list(selected_rows.keys()):
             selected_obs.append({ 'observation':self.rows[idx], 'count': selected_rows[idx] })
         return selected_obs
 
@@ -1270,10 +1270,10 @@ class BiomIO:
         # Names and type of metadata
         for metadata_name in title_fields[1:]:
             metadata_type = "str"
-            if ini_types.has_key( metadata_name ):
+            if metadata_name in ini_types:
                 metadata_type = ini_types[metadata_name]
             metadata_list_sep = None
-            if ini_list_sep.has_key( metadata_name ):
+            if metadata_name in ini_list_sep:
                 metadata_list_sep = ini_list_sep[metadata_name]
             metadata.append( {
                               'name'     : metadata_name,

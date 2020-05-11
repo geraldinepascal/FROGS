@@ -1,4 +1,4 @@
-#!/usr/bin/env python2.7
+#!/usr/bin/env python3.7
 #
 # Copyright (C) 2018 INRA
 #
@@ -187,7 +187,7 @@ def process(params):
 
     # update fasta
     FH_in = FastaIO(params.input_fasta)
-    FH_out = FastaIO(params.output_fasta, "w")
+    FH_out = FastaIO(params.output_fasta, "wt")
     for record in FH_in:
         if record.id in aggregated_otu:
             FH_out.write(record)
@@ -195,7 +195,7 @@ def process(params):
     FH_out.close()
 
     # write otu composition
-    FH_compo = open(params.output_compo, "w")
+    FH_compo = open(params.output_compo, "wt")
     for OTU in aggregated_otu:
         FH_compo.write(OTU + " " + " ".join(aggregated_otu[OTU]) + "\n")
     FH_compo.close()

@@ -1,4 +1,4 @@
-#!/usr/bin/env python2.7
+#!/usr/bin/env python3.7
 #
 # Copyright (C) 2018 INRA
 #
@@ -68,7 +68,7 @@ class ITSx(Cmd):
         if param.debug:
             options += " --debug "
         if param.check_its_only:
-			options += " --check-its-only"
+            options += " --check-its-only"
         Cmd.__init__(self,
             'parallelITSx.py',
             'identifies ITS sequences and extracts the ITS region',
@@ -193,7 +193,7 @@ def write_summary( summary_file, input_biom, output_biom ):
 
     # Write
     FH_summary_tpl = open( os.path.join(CURRENT_DIR, "itsx_tpl.html") )
-    FH_summary_out = open( summary_file, "w" )
+    FH_summary_out = open( summary_file, "wt" )
     for line in FH_summary_tpl:
         if "###GLOBAL_RESULTS###" in line:
             line = line.replace( "###GLOBAL_RESULTS###", json.dumps(global_results) )

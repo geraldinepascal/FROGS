@@ -1,4 +1,4 @@
-#!/usr/bin/env python2.7
+#!/usr/bin/env python3.7
 #
 # Copyright (C) 2018 INRA
 #
@@ -220,8 +220,8 @@ def extract_FROGS_combined(input_fasta, fasta_full_length, fasta_combined):
     """
 
     FH_input = FastaIO(input_fasta)
-    FH_FL = FastaIO(fasta_full_length, "w")
-    FH_AC = FastaIO(fasta_combined, "w")
+    FH_FL = FastaIO(fasta_full_length, "wt")
+    FH_AC = FastaIO(fasta_combined, "wt")
 
     nb = 0
     nb_combined = 0
@@ -258,7 +258,7 @@ def split_fasta(fasta_file, tmp_files_manager, nb_file, out_list, log_file):
             else: 
                 new_out_file = tmp_files_manager.add( os.path.basename(fasta_file) + "_" + str(out_file_idx) )
             out_files.append({ 'file_path': new_out_file,
-                               'file_handle': FastaIO(new_out_file, "w"),
+                               'file_handle': FastaIO(new_out_file, "wt"),
                                'nb_seq': 0
             })
             out_list.append( new_out_file )
@@ -287,7 +287,7 @@ def summarise_results( summary_file, biom_file, taxonomy_ranks ):
 
     # Write
     FH_summary_tpl = open( os.path.join(CURRENT_DIR, "affiliation_OTU_tpl.html") )
-    FH_summary_out = open( summary_file, "w" )
+    FH_summary_out = open( summary_file, "wt" )
     for line in FH_summary_tpl:
         if "###GLOBAL_DATA###" in line:
             line = line.replace( "###GLOBAL_DATA###", json.dumps(global_results) )
@@ -333,7 +333,7 @@ def get_results( biom_file ):
         # Samples results
         for sample in biom.get_samples_by_observation( cluster["id"] ):
             sample_name = sample["id"]
-            if not samples_results.has_key( sample_name ):
+            if sample_name not in samples_results:
                 samples_results[sample_name] = {
                     "nb_clstr": 0,
                     "nb_seq": 0,
@@ -557,10 +557,10 @@ if __name__ == "__main__":
                 Blast(args.reference, split_combined_R2, blast_combined_R2, 1).submit(args.log_file)
 
                 split_fasta(fasta_combined, tmpFiles, max(1, int(args.nb_cpus/2)), fasta_needleall_list, args.log_file)
-                sam_needleall_list = [tmpFiles.add(os.path.basename(current_fasta) + ".needleall.sam", prefix="") for current_fasta in fasta_needleall_list ]
-                log_needleall_list = [tmpFiles.add(os.path.basename(current_fasta) + ".needleall.log", prefix="" ) for current_fasta in fasta_needleall_list ]
-                needleall_tsv_out_list = [tmpFiles.add(os.path.basename(current_fasta) + ".needleall.blast_like", prefix="") for current_fasta in fasta_needleall_list ]
-                log_process_needl_list = [tmpFiles.add(os.path.basename(current_fasta) + ".process_needle.log", prefix="" ) for current_fasta in fasta_needleall_list ]
+                sam_needleall_list = [tmpFiles.add(os.path.basename(current_fasta) + ".needleall.sam") for current_fasta in fasta_needleall_list ]
+                log_needleall_list = [tmpFiles.add(os.path.basename(current_fasta) + ".needleall.log" ) for current_fasta in fasta_needleall_list ]
+                needleall_tsv_out_list = [tmpFiles.add(os.path.basename(current_fasta) + ".needleall.blast_like") for current_fasta in fasta_needleall_list ]
+                log_process_needl_list = [tmpFiles.add(os.path.basename(current_fasta) + ".process_needle.log" ) for current_fasta in fasta_needleall_list ]
                 needleall_parallel_submission( process_needleall, args.reference, fasta_needleall_list, blast_combined_R1, blast_combined_R2, sam_needleall_list, log_needleall_list, needleall_tsv_out_list, log_process_needl_list, args.debug, len(fasta_needleall_list))
             # BLAST
             if nb_seq - nb_combined > 0 :

@@ -1,4 +1,4 @@
-#!/usr/bin/env python2.7
+#!/usr/bin/env python3.7
 #
 # Copyright (C) 2018 INRA
 #
@@ -52,17 +52,18 @@ class SortFasta(Cmd):
     """
     @summary: Sort dereplicated sequences by decreasing abundance.
     """
-    def __init__(self, in_fasta, out_fasta, size_separator=';size='):
+    def __init__(self, in_fasta, out_fasta, debug, size_separator=';size='):
         """
         @param in_fasta: [str] Path to unsorted file.
         @param out_fasta: [str] Path to file after sort.
         @param size_separator: [str] Each sequence in in_fasta is see as a pre-cluster. The number of sequences represented by the pre-cluster is stored in sequence ID.
                Sequence ID format : '<REAL_ID><size_separator><NB_SEQ>'. If this size separator is missing in ID, the number of sequences represented is 1.
         """
+        opt = ' --debug ' if debug else ''
         Cmd.__init__( self,
                       'sortAbundancies.py',
                       'Sort pre-clusters by abundancies.',
-                      "--size-separator '" + size_separator + "' --input-file " + in_fasta + ' --output-file ' + out_fasta,
+                      "--size-separator '" + size_separator + "' --input-file " + in_fasta + ' --output-file ' + out_fasta + opt,
                       '--version' )
 
 
@@ -90,12 +91,7 @@ class Swarm(Cmd):
         @summary: Returns the program version number.
         @return: [str] Version number if this is possible, otherwise this method return 'unknown'.
         """
-        try:
-            p = Popen(self.program + ' ' + self.version_parameters, shell=True, stdout=PIPE, stderr=PIPE)
-            stdout, stderr = p.communicate()
-            return stderr.split()[1]
-        except:
-            raise Exception( "\nVersion cannot be retrieve for the software '" + self.program + "'.\n\n" )
+        return Cmd.get_version(self, 'stderr').split()[1]
 
 
 class Swarm2Biom(Cmd):
@@ -146,7 +142,7 @@ def resizeSeed(seed_in, seed_in_compo, seed_out):
     @param seed_out : [str] Path to seed output fasta file with abundance in name and sorted
     """
     dict_cluster_abond=dict()
-    with open(seed_in_compo,"r") as f:
+    with open(seed_in_compo,"rt") as f:
         for idx,line in enumerate(f.readlines()):
             if not line.startswith("#"):
                 cluster_name = "Cluster_" + str(idx+1) if not "FROGS_combined" in line.split()[0] else "Cluster_" + str(idx+1) + "_FROGS_combined"
@@ -154,7 +150,7 @@ def resizeSeed(seed_in, seed_in_compo, seed_out):
     f.close()
 
     FH_input = FastaIO( seed_in )
-    FH_out=FastaIO(seed_out , "w" )
+    FH_out=FastaIO(seed_out , "wt" )
     for record in FH_input:
         record.id += "_" + str(dict_cluster_abond[record.id])
         FH_out.write( record )
@@ -170,7 +166,7 @@ def agregate_composition(step1_compo , step2_compo, out_compo):
     @param out_composition : [str] Path to cluster2 composition in read
     """
     dict_cluster1_compo=dict()
-    with open(step1_compo,"r") as f:
+    with open(step1_compo,"rt") as f:
         for idx,line in enumerate(f.readlines()):
             if "FROGS_combined" in line.split()[0]:
                 dict_cluster1_compo["Cluster_"+str(idx+1)+"_FROGS_combined"]=line.strip()
@@ -178,8 +174,8 @@ def agregate_composition(step1_compo , step2_compo, out_compo):
                 dict_cluster1_compo["Cluster_"+str(idx+1)]=line.strip()
     f.close()
 
-    FH_out=open(out_compo,"w")
-    with open(step2_compo,"r") as f:
+    FH_out=open(out_compo,"wt")
+    with open(step2_compo,"rt") as f:
         for line in f.readlines():
             compo=" ".join([dict_cluster1_compo["_".join(n.split('_')[0:-1])] for n in line.strip().split(" ")])
             FH_out.write(compo+"\n")
@@ -193,7 +189,7 @@ def replaceNtags(in_fasta, out_fasta):
     """
 
     FH_in = FastaIO(in_fasta)
-    FH_out = FastaIO(out_fasta, "w")
+    FH_out = FastaIO(out_fasta, "wt")
     for record in FH_in:
         if "FROGS_combined" in record.id and "N" in record.string:
             N_idx1 = record.string.find("N")
@@ -221,7 +217,7 @@ def addNtags(in_fasta, output_fasta):
     """
 
     FH_in = FastaIO(in_fasta)
-    FH_out = FastaIO(output_fasta, "w")
+    FH_out = FastaIO(output_fasta, "wt")
     regexpA = re.compile('A:\d+:\d+$')
     regexpC = re.compile('C:\d+:\d+$')
 
@@ -284,7 +280,7 @@ if __name__ == "__main__":
     try:
         Logger.static_write(args.log_file, "## Application\nSoftware :" + sys.argv[0] + " (version : " + str(__version__) + ")\nCommand : " + " ".join(sys.argv) + "\n\n")
 
-        SortFasta( args.input_fasta, sorted_fasta ).submit( args.log_file )
+        SortFasta( args.input_fasta, sorted_fasta, args.debug ).submit( args.log_file )
         Logger.static_write(args.log_file, "repalce N tags by A. in: " + sorted_fasta + " out : "+ replaceN_fasta +"\n")
         replaceNtags(sorted_fasta, replaceN_fasta)
 
@@ -300,12 +296,13 @@ if __name__ == "__main__":
             Swarm( replaceN_fasta, denoising_compo, denoising_log, 1 , args.nb_cpus ).submit( args.log_file )
             ExtractSwarmsFasta( replaceN_fasta, denoising_compo, denoising_seeds ).submit( args.log_file )
             resizeSeed( denoising_seeds, denoising_compo, denoising_resized_seeds ) # add size to seeds name
-            SortFasta( denoising_resized_seeds, final_sorted_fasta, "_" ).submit( args.log_file )
+            SortFasta( denoising_resized_seeds, final_sorted_fasta, args.debug, "_" ).submit( args.log_file )
 
         Swarm( final_sorted_fasta, swarms_file, swarm_log, args.distance, args.nb_cpus ).submit( args.log_file )
 
         if args.denoising and args.distance > 1:
             # convert cluster composition in read composition ==> final swarm composition
+            print(denoising_compo, swarms_file, args.output_compo)
             agregate_composition(denoising_compo, swarms_file, args.output_compo)
 
         Swarm2Biom( args.output_compo, args.input_count, args.output_biom ).submit( args.log_file )

@@ -1,4 +1,4 @@
-#!/usr/bin/env python2.7
+#!/usr/bin/env python3.7
 #
 # Copyright (C) 2018 INRA
 #
@@ -227,7 +227,7 @@ class Cutadapt5prim(Cmd):
     """
     @summary: Removes reads without the 5' primer and removes primer sequence.
     """
-    def __init__(self, in_fastq, out_fastq, cutadapt_log, param):
+    def __init__(self, in_fastq, out_fastq, cutadapt_log, cutadapt_err, param):
         """
         @param in_fastq: [str] Path to the processed fastq.
         @param out_fastq: [str] Path to the fastq with valid sequences.
@@ -237,7 +237,7 @@ class Cutadapt5prim(Cmd):
         Cmd.__init__( self,
                       'cutadapt',
                       "Removes reads without the 5' primer and removes primer sequence.",
-                      '-g ' + param.five_prim_primer + ' --error-rate 0.1 --discard-untrimmed --match-read-wildcards --overlap ' + str(len(param.five_prim_primer) -1) + ' -o ' + out_fastq + ' ' + in_fastq + ' > ' + cutadapt_log,
+                      '-g ' + param.five_prim_primer + ' --error-rate 0.1 --discard-untrimmed --match-read-wildcards --overlap ' + str(len(param.five_prim_primer) -1) + ' -o ' + out_fastq + ' ' + in_fastq + ' > ' + cutadapt_log + ' 2> ' + cutadapt_err,
                       '--version' )
         self.output_seq = out_fastq
 
@@ -270,7 +270,7 @@ class Cutadapt3prim(Cmd):
     """
     @summary: Removes reads without the 3' primer and removes primer sequence.
     """
-    def __init__(self, in_fastq, out_fastq, cutadapt_log, param):
+    def __init__(self, in_fastq, out_fastq, cutadapt_log, cutadapt_err, param):
         """
         @param in_fastq: [str] Path to the processed fastq.
         @param out_fastq: [str] Path to the fastq with valid sequences.
@@ -280,7 +280,7 @@ class Cutadapt3prim(Cmd):
         Cmd.__init__( self,
                       'cutadapt',
                       "Removes reads without the 3' primer and removes primer sequence.",
-                      '-a ' + param.three_prim_primer + ' --error-rate 0.1 --discard-untrimmed --match-read-wildcards --overlap ' + str(len(param.three_prim_primer) -1) + ' -o ' + out_fastq + ' ' + in_fastq + ' > ' + cutadapt_log,
+                      '-a ' + param.three_prim_primer + ' --error-rate 0.1 --discard-untrimmed --match-read-wildcards --overlap ' + str(len(param.three_prim_primer) -1) + ' -o ' + out_fastq + ' ' + in_fastq + ' > ' + cutadapt_log + ' 2> ' + cutadapt_err,
                       '--version' )
         self.output_seq = out_fastq
 
@@ -475,7 +475,7 @@ class DerepGlobalMultiFasta(Cmd):
         @param param: [str] The 'param.nb_cpus'.
         """
         # Write sample description
-        FH_ref = open(out_samples_ref, "w")
+        FH_ref = open(out_samples_ref, "wt")
         FH_ref.write( "#Sequence_file\tSample_name\n" )
         for idx, current_name in enumerate(samples_names):
             FH_ref.write( all_fasta[idx] + "\t" + current_name + "\n" )
@@ -525,7 +525,7 @@ def get_seq_length( input_file, size_separator=None ):
         if size_separator is not None:
             nb_seq = int(record.id.rsplit(size_separator, 1)[-1])
         seq_length = len(record.string)
-        if not nb_by_length.has_key(str(seq_length)):
+        if str(seq_length) not in nb_by_length:
             nb_by_length[str(seq_length)] = 0
         nb_by_length[str(seq_length)] += nb_seq
     FH_seq.close()
@@ -561,7 +561,7 @@ def get_seq_length_by_sample( input_file, count_file):
         nb_seq = sample_by_seq[record.id.split(";size=")[0]]
         seq_length = len(record.string)
         for sample_name in nb_seq :
-            if not nb_by_length[sample_name].has_key(str(seq_length)):
+            if str(seq_length) not in nb_by_length[sample_name]:
                 nb_by_length[sample_name][str(seq_length)] = 0
             nb_by_length[sample_name][str(seq_length)] += nb_seq[sample_name]
     FH_seq.close()
@@ -611,7 +611,7 @@ def summarise_results( samples_names, lengths_files, log_files, param ):
     
     # Write
     FH_summary_tpl = open( os.path.join(CURRENT_DIR, "preprocess_tpl.html") )
-    FH_summary_out = open( param.summary, "w" )
+    FH_summary_out = open( param.summary, "wt" )
     for line in FH_summary_tpl:
         if "###FILTERS_CATEGORIES###" in line:
             line = line.replace( "###FILTERS_CATEGORIES###", json.dumps(categories) )
@@ -653,7 +653,7 @@ def get_sample_results( log_file ):
     for line in FH_input:
         if "combine_and_split" in line:
             key="artificial combined"
-            if not nb_seq.has_key(key):
+            if key not in nb_seq:
                 nb_seq[key]={}
         if line.strip().startswith('nb seq before process'):
             nb_seq["before process"] = int(line.split(':')[1].strip())
@@ -772,7 +772,7 @@ def get_nb_seq( reads_file ):
 
     format = "fastq" if FastqIO.is_valid(reads_file) else "fasta"
     nb_seq = nb_line/4 if format == "fastq" else nb_line/2
-    return nb_seq
+    return int(nb_seq)
 
 
 def filter_process_multiples_files(R1_files, R2_files, samples_names, out_files, out_art_files, lengths_files, log_files, args):
@@ -844,12 +844,16 @@ def process_sample(R1_file, R2_file, sample_name, out_file, art_out_file, length
     # CUTADAPT ON COMBINED FILTER
     tmp_cutadapt = tmp_files.add( sample_name + '_cutadapt_5prim_trim.fastq.gz' )
     log_5prim_cutadapt = tmp_files.add( sample_name + '_cutadapt_5prim_log.txt' )
+    err_5prim_cutadapt = tmp_files.add( sample_name + '_cutadapt_5prim_err.txt' )
     log_3prim_cutadapt = tmp_files.add( sample_name + '_cutadapt_3prim_log.txt' )
+    err_3prim_cutadapt = tmp_files.add( sample_name + '_cutadapt_3prim_err.txt' )
     out_cutadapt = tmp_files.add( sample_name + '_cutadapt.fastq.gz' )
     # CUTADAPT ON ARTIFICIAL COMBINED
     art_tmp_cutadapt = tmp_files.add( sample_name + '_art_comb_cutadapt_5prim_trim.fastq.gz' )
     art_log_5prim_cutadapt = tmp_files.add( sample_name + '_art_comb_cutadapt_5prim_log.txt' )
+    art_err_5prim_cutadapt = tmp_files.add( sample_name + '_art_comb_cutadapt_5prim_err.txt' )
     art_log_3prim_cutadapt = tmp_files.add( sample_name + '_art_comb_cutadapt_3prim_log.txt' )
+    art_err_3prim_cutadapt = tmp_files.add( sample_name + '_art_comb_cutadapt_3prim_err.txt' )
     art_out_cutadapt = tmp_files.add( sample_name + '_art_comb_cutadapt.fastq.gz' )
     # MULTIFILTER ON COMBINED FILTERED CUTADAPTED
     out_NAndLengthfilter = tmp_files.add( sample_name + '_N_and_length_filter.fasta' )
@@ -867,7 +871,7 @@ def process_sample(R1_file, R2_file, sample_name, out_file, art_out_file, length
 
     try:
         # Start log
-        FH_log = open(log_file, "w")
+        FH_log = open(log_file, "wt")
         if not args.already_contiged:
             FH_log.write('##Sample\nR1 : ' + R1_file + '\nR2 : ' + R2_file + '\nSample name : ' + sample_name + '\n')
         else:
@@ -902,8 +906,8 @@ def process_sample(R1_file, R2_file, sample_name, out_file, art_out_file, length
             Remove454prim(renamed_out_contig, out_cutadapt, log_3prim_cutadapt, args).submit(log_file)
         else: # Illumina
             if args.five_prim_primer and args.three_prim_primer: # Illumina standard sequencing protocol
-                Cutadapt5prim(out_contig, tmp_cutadapt, log_5prim_cutadapt, args).submit(log_file)
-                Cutadapt3prim(tmp_cutadapt, out_cutadapt, log_3prim_cutadapt, args).submit(log_file)
+                Cutadapt5prim(out_contig, tmp_cutadapt, log_5prim_cutadapt, err_5prim_cutadapt, args).submit(log_file)
+                Cutadapt3prim(tmp_cutadapt, out_cutadapt, log_3prim_cutadapt, err_3prim_cutadapt, args).submit(log_file)
             else: # Custom sequencing primers. The amplicons is full length (Illumina) except PCR primers (it is use as sequencing primers). [Protocol Kozich et al. 2013]
                 out_cutadapt = out_contig
 
@@ -923,7 +927,7 @@ def process_sample(R1_file, R2_file, sample_name, out_file, art_out_file, length
         nb_after_by_legnth = get_seq_length( out_NAndLengthfilter )
         length_dict["after"] = nb_after_by_legnth
         
-        with open(lengths_file, "w") as FH_lengths:
+        with open(lengths_file, "wt") as FH_lengths:
             FH_lengths.write( json.dumps(length_dict))
 
         # dealing with uncontiged reads.
@@ -935,8 +939,8 @@ def process_sample(R1_file, R2_file, sample_name, out_file, art_out_file, length
                 Remove454prim(out_artificial_combined, art_out_cutadapt, art_log_3prim_cutadapt, args).submit(log_file)
             else:
                 if args.five_prim_primer and args.three_prim_primer: # Illumina standard sequencing protocol
-                    Cutadapt5prim(out_artificial_combined, art_tmp_cutadapt, art_log_5prim_cutadapt, args).submit(log_file)
-                    Cutadapt3prim(art_tmp_cutadapt, art_out_cutadapt, art_log_3prim_cutadapt, args).submit(log_file)
+                    Cutadapt5prim(out_artificial_combined, art_tmp_cutadapt, art_log_5prim_cutadapt, art_err_5prim_cutadapt, args).submit(log_file)
+                    Cutadapt3prim(art_tmp_cutadapt, art_out_cutadapt, art_log_3prim_cutadapt, art_err_3prim_cutadapt, args).submit(log_file)
                 else: # Custom sequencing primers. The amplicons is full length (Illumina) except PCR primers (it is use as sequencing primers). [Protocol Kozich et al. 2013]
                     art_out_cutadapt = out_artificial_combined
             # filter on length, N 

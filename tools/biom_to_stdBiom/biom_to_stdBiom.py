@@ -1,4 +1,4 @@
-#!/usr/bin/env python2.7
+#!/usr/bin/env python3.7
 #
 # Copyright (C) 2018 INRA
 #
@@ -51,11 +51,11 @@ def process( in_biom, out_biom, out_metadata ):
     taxonomy_depth = 0
     unclassified_observations = list()
 
-    FH_metadata = open( out_metadata, "w" )
+    FH_metadata = open( out_metadata, "wt" )
     FH_metadata.write( "#OTUID\t" + "\t".join([item for item in ordered_blast_keys]) + "\n" )
     biom = BiomIO.from_json( in_biom )
     for observation in biom.get_observations():
-        for metadata_key in observation["metadata"].keys():
+        for metadata_key in list(observation["metadata"].keys()):
             # Extract blast_affiliations metadata in metadata_file
             if metadata_key == "blast_affiliations": 
                 if observation["metadata"][metadata_key] is not None:
@@ -68,7 +68,7 @@ def process( in_biom, out_biom, out_metadata ):
             elif observation["metadata"][metadata_key] is not None: 
                 if isinstance(observation["metadata"][metadata_key], list) or isinstance(observation["metadata"][metadata_key], tuple):
                     observation["metadata"][metadata_key] = ";".join( map(str, observation["metadata"][metadata_key]) )
-        if observation["metadata"].has_key( "blast_taxonomy" ):
+        if "blast_taxonomy" in observation["metadata"]:
             if observation["metadata"]["blast_taxonomy"] is None:
                 unclassified_observations.append( observation["id"] )
                 observation["metadata"]["taxonomy"] = list()

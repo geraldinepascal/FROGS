@@ -1,4 +1,4 @@
-#!/usr/bin/env python2.7
+#!/usr/bin/env python3.7
 #
 # Copyright (C) 2014 INRA
 #
@@ -46,13 +46,13 @@ def task_treeCount( args ):
     tree, ordered_samples = get_tree_with_count( args.input_file, (args.output_samples is not None), args.taxonomy_key )
 
     # Writes the extended newick
-    FH_enewick = open( args.output_enewick, "w" )
+    FH_enewick = open( args.output_enewick, "wt" )
     FH_enewick.write( tree.to_extended_newick() )
     FH_enewick.close()
 
     # Writes the link between samples names and samples IDs
     if args.output_samples is not None:
-        FH_samples_ids = open( args.output_samples, "w" )
+        FH_samples_ids = open( args.output_samples, "wt" )
         for id, sample_name in enumerate( ordered_samples ):
             FH_samples_ids.write( str(id) + "\t" + str(sample_name) + "\n" )
         FH_samples_ids.close()
@@ -86,7 +86,7 @@ def update_tree_for_sample( biom, tree, sample_name, taxonomy_key, sample_id=Non
     sample_key = sample_name if sample_id is None else str(sample_id)
     for observation in biom.get_observations_by_sample( sample_name ):
         current_node = tree
-        if observation["metadata"].has_key(taxonomy_key) and observation["metadata"][taxonomy_key] is not None:
+        if taxonomy_key in observation["metadata"] and observation["metadata"][taxonomy_key] is not None:
             # Get taxonomy
             taxonomy = biom.get_observation_taxonomy( observation["id"], taxonomy_key )
             # Add taxon in tree
@@ -95,7 +95,7 @@ def update_tree_for_sample( biom, tree, sample_name, taxonomy_key, sample_id=Non
                     current_node.add_child( Node(taxon) )
                 current_node = current_node.get_child( taxon )
             # Add sample count in node
-            if not current_node.metadata.has_key(sample_key):
+            if sample_key not in current_node.metadata:
                 current_node.metadata[sample_key] = 0
             current_node.metadata[sample_key] += biom.get_count( observation["id"], sample_name )
     return tree
@@ -142,7 +142,7 @@ def sampling_by_sample( input_biom, output_biom, nb_sampled=None, sampled_ratio=
                 selected_observation_id = selected_observation['id']
                 initial_biom.subtract_count( selected_observation_id, sample_name, 1 )
                 # Put in new BIOM
-                if not observations_already_added.has_key(selected_observation_id):
+                if selected_observation_id not in observations_already_added:
                     new_biom.add_observation( selected_observation_id, initial_biom.get_observation_metadata(selected_observation_id) )
                     observations_already_added[selected_observation_id] = True
                 new_biom.add_count( selected_observation_id, sample_name, 1 )
@@ -198,12 +198,12 @@ def rarefaction( input_biom, interval=10000, ranks=None, taxonomy_key="taxonomy"
             sample_rarefaction[current_rank][sample] = list()
             taxa[current_rank] = dict()
         sample_count = biom.get_sample_count( sample )
-        expected_nb_iter = sample_count/interval
+        expected_nb_iter = int(sample_count/interval)
         for current_nb_iter in range(expected_nb_iter):
             selected_observations = biom.random_obs_extract_by_sample(sample, interval)
             for current_selected in selected_observations:
                 taxonomy = list()
-                if current_selected['observation']["metadata"].has_key(taxonomy_key) and current_selected['observation']["metadata"][taxonomy_key] is not None:
+                if taxonomy_key in current_selected['observation']["metadata"] and current_selected['observation']["metadata"][taxonomy_key] is not None:
                     taxonomy = biom.get_observation_taxonomy( current_selected['observation']["id"], taxonomy_key )
                 for idx, taxon in enumerate(taxonomy):
                     if taxon.lower().startswith("unknown"):
@@ -233,7 +233,7 @@ def write_output( output_path, rarefaction_data, interval, joiner="\t" ):
               400    12    5
               500    12
     """
-    FH_out = open( output_path, "w" )
+    FH_out = open( output_path, "wt" )
     FH_out.write( "#Nb_sampled" + joiner + joiner.join(sorted(rarefaction_data.keys())) + "\n" )
 
     stop = False
@@ -347,7 +347,7 @@ def samples_hclassification( input_biom, output_newick, distance_method, linkage
     for col_idx, current_sample in enumerate(biom.columns):
         sum_on_sample = biom.data.get_col_sum( col_idx )
         if sum_on_sample < min_count:
-			excluded_samples.append( current_sample['id'] )
+            excluded_samples.append( current_sample['id'] )
         else:
             processed_samples.append( current_sample['id'] )
             OTUs_norm = list()
@@ -362,7 +362,7 @@ def samples_hclassification( input_biom, output_newick, distance_method, linkage
         raise Exception("All samples have a count lower than threshold (" + str(min_count) + ").")
     elif len(processed_samples) == 1:
         # Write newick
-        out_fh = open( output_newick, "w" )
+        out_fh = open( output_newick, "wt" )
         out_fh.write( "(" + processed_samples[0] + ");\n" )
         out_fh.close()
     else:
@@ -371,17 +371,17 @@ def samples_hclassification( input_biom, output_newick, distance_method, linkage
         data_link = linkage( data_dist, linkage_method )
         # Write newick
         scipy_hc_tree = scipy.cluster.hierarchy.to_tree( data_link , rd=False )
-        id_2_name = dict( zip(range(len(processed_samples)), processed_samples) )
-        out_fh = open( output_newick, "w" )
+        id_2_name = dict( list(zip(list(range(len(processed_samples))), processed_samples)) )
+        out_fh = open( output_newick, "wt" )
         out_fh.write( to_newick(scipy_hc_tree, id_2_name) + "\n" )
         out_fh.close()
 
     # Display log
-    print "# Hierarchical clustering log:\n" + \
+    print(("# Hierarchical clustering log:\n" + \
           "\tNumber of samples in BIOM: " + str(nb_samples) + "\n" + \
-          "\tNumber of processed samples: " + str(len(processed_samples))
+          "\tNumber of processed samples: " + str(len(processed_samples))))
     if nb_samples > len(processed_samples):
-        print "\n\tExcluded samples (count < " + str(min_count) + "): " + ", ".join(sorted(excluded_samples))
+        print(("\n\tExcluded samples (count < " + str(min_count) + "): " + ", ".join(sorted(excluded_samples))))
 
 
 ####################################################################################################################
@@ -402,7 +402,7 @@ def biom_to_tsv( input_biom, output_tsv, fields, list_separator ):
     @param list_separator: [str] Separator for complex metadata.
     """
     biom = BiomIO.from_json( input_biom )
-    out_fh = open( output_tsv, "w" )
+    out_fh = open( output_tsv, "wt" )
     # Header
     line = list()
     for current_field in fields:

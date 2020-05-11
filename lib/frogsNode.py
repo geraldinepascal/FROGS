@@ -1,4 +1,4 @@
-#!/usr/bin/env python2.7
+#!/usr/bin/env python3.7
 #
 # Copyright (C) 2015 INRA
 #
@@ -55,7 +55,7 @@ class Node:
         """
         node_str = self.name
         node_str += "\n\tParent=" + (self.parent.name if self.parent is not None else "-")
-        node_str += "\n\tChilds=" + ", ".join(self.children.keys())
+        node_str += "\n\tChilds=" + ", ".join(list(self.children.keys()))
         metadata = list()
         for key in sorted(self.metadata.keys()):
             metadata.append(key + ":" + str(self.metadata[key]))
@@ -71,7 +71,7 @@ class Node:
         if name is None:
             return len(self.children) > 0
         else:
-            return self.children.has_key( name )
+            return name in self.children
 
     def get_child(self, name):
         """
@@ -88,7 +88,7 @@ class Node:
         @summary: Returns the children of the node.
         @return: [list] The list of children nodes.
         """
-        return self.children.values()
+        return list(self.children.values())
 
     def get_parent(self):
         """
@@ -150,7 +150,7 @@ class Node:
         @summary: Adds node as child.
         @param child: [Node] the node added.
         """
-        if self.children.has_key( child.name ):
+        if child.name in self.children:
             raise Exception( "Duplicated child name '" + child.name + "' in node '" + self.name + "'." )
         child.parent = self
         self.children[child.name] = child
@@ -163,7 +163,7 @@ class Node:
         """
         if distance_tag is None: distance_tag = "dist"
         if not self.has_child():
-            if self.metadata.has_key( distance_tag ):
+            if distance_tag in self.metadata:
                 return '"' + self.name + '":' + str(self.metadata[distance_tag])
             else:
                 return '"' + self.name + '"'
@@ -180,7 +180,7 @@ class Node:
         @returns: [str] the extended newick representation of the tree.
         """
         if not self.has_child():
-            if len(self.metadata.keys()) != 0:
+            if len(list(self.metadata.keys())) != 0:
                 return '"' + self.name + '":' + json.dumps(self.metadata)
             else:
                 return '"' + self.name + '"'
@@ -189,7 +189,7 @@ class Node:
             for child_name in self.children:
                 child = self.children[child_name]
                 children_newick.append( child.to_extended_newick() )
-            if len(self.metadata.keys()) != 0:
+            if len(list(self.metadata.keys())) != 0:
                 return '(' + ','.join(children_newick) + ')"' + self.name + '":' + json.dumps(self.metadata)
             else:
                 return '(' + ','.join(children_newick) + ')"' + self.name + '"'

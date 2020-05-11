@@ -1,4 +1,4 @@
-#!/usr/bin/env python2.7
+#!/usr/bin/env python3.7
 #
 # Copyright (C) 2014 INRA
 #
@@ -65,10 +65,10 @@ def filter_seq( input_fasta, clusters_file, cluster_fasta ):
 
     # Filter sequences
     FH_in = FastaIO( input_fasta )
-    FH_out = FastaIO( cluster_fasta, "w" )
+    FH_out = FastaIO( cluster_fasta, "wt" )
     for record in FH_in:
-        print record.description
-        if cluster_representative.has_key(record.id):
+        print((record.description))
+        if record.id in cluster_representative:
             record.id = cluster_representative[record.id]
             FH_out.write( record )
 

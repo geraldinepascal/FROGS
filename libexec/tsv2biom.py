@@ -1,4 +1,4 @@
-#!/usr/bin/env python2.7
+#!/usr/bin/env python3.7
 #
 # Copyright (C) 2016 INRA
 #
@@ -69,7 +69,7 @@ def store_multihits(input_multihits):
 
     for line in FH_in.readlines():
         line = line.strip().replace('"','').split("\t")
-        d=dict(zip(header_line,line))
+        d=dict(list(zip(header_line,line)))
         observation_name = d.pop("observation_name")
         if observation_name in multi_hit_dict:
             multi_hit_dict[observation_name].append(d)
@@ -181,7 +181,7 @@ def tsv_to_biom( input_tsv, multi_hit_dict, fields, samples_names, output_biom, 
     in_fh = open( input_tsv )
 
     if not output_fasta is None:
-        Fasta_fh=FastaIO(output_fasta , "w" )
+        Fasta_fh=FastaIO(output_fasta , "wt" )
 
     # parse header and store column index 
     header=in_fh.readline()
@@ -208,7 +208,7 @@ def tsv_to_biom( input_tsv, multi_hit_dict, fields, samples_names, output_biom, 
                 else:
                     metadata_dict[metadata_index[idx]] = val
             # recover samples count
-            elif idx in sample_index and val > 0:
+            elif idx in sample_index and int(val) > 0:
                 count_by_sample[sample_index[idx]] = int(val)
             # recover seed sequence
             elif idx == seed_seq_idx:

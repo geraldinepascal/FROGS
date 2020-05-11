@@ -1,4 +1,4 @@
-#!/usr/bin/env python2.7
+#!/usr/bin/env python3.7
 #
 # Copyright (C) 2018 INRA
 #
@@ -164,7 +164,7 @@ def write_summary( summary_file, input_biom, depth_file, classif_file ):
 
     # Write
     FH_summary_tpl = open( os.path.join(CURRENT_DIR, "clusters_stat_tpl.html") )
-    FH_summary_out = open( summary_file, "w" )
+    FH_summary_out = open( summary_file, "wt" )
     for line in FH_summary_tpl:
         if "###CLUSTERS_SIZES###" in line:
             line = line.replace( "###CLUSTERS_SIZES###", json.dumps(clusters_size) )

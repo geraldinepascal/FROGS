@@ -1,4 +1,4 @@
-#!/usr/bin/env python2.7
+#!/usr/bin/env python3.7
 #
 # Copyright (C) 2018 INRA
 #
@@ -97,14 +97,14 @@ class Demultiplex(Cmd):
             Cmd.__init__( self,
                           'splitbc.pl',
                           'Demultiplex reads.',
-                          R1_input_file + ' ' + R2_input_file + ' --' + end + ' --bcfile ' + barcode_file + ' --mismatches ' + `mismatches` + ' --trim --no_adapt --prefix-r1 ' + os.path.join(tmp_folder, '%_R1.fastq') +\
+                          R1_input_file + ' ' + R2_input_file + ' --' + end + ' --bcfile ' + barcode_file + ' --mismatches ' + repr(mismatches) + ' --trim --no_adapt --prefix-r1 ' + os.path.join(tmp_folder, '%_R1.fastq') +\
                           ' --prefix-r2 ' + os.path.join(tmp_folder, '%_R2.fastq') + ' >> ' + demultiplex_log,
                           None )
         else:
             Cmd.__init__( self,
                           'splitbc.pl',
                           'Demultiplex reads.',
-                          R1_input_file + ' --' + end + ' --bcfile ' + barcode_file + ' --mismatches ' + `mismatches` + ' --trim --no_adapt --prefix-r1 ' + os.path.join(tmp_folder, '%_R1.fastq') +\
+                          R1_input_file + ' --' + end + ' --bcfile ' + barcode_file + ' --mismatches ' + repr(mismatches) + ' --trim --no_adapt --prefix-r1 ' + os.path.join(tmp_folder, '%_R1.fastq') +\
                           ' >> ' + demultiplex_log,
                           None )
         
@@ -202,7 +202,7 @@ def split_barcode_file( barcode_file, barcodes_file_list, global_tmp_files ):
     @param out_dir: [str] path to the output directory to write barcode files
     """
     out_dir = global_tmp_files.tmp_dir 
-    barcode_input = open(barcode_file,"r")
+    barcode_input = open(barcode_file,"rt")
     barcode_dict={}
     for l in barcode_input.readlines():
         [s,f,r]=l.strip().split()
@@ -218,14 +218,14 @@ def split_barcode_file( barcode_file, barcodes_file_list, global_tmp_files ):
     f=barcode_dict.pop("forward_bc")
     barcodes_file_list.append(os.path.join(out_dir,"forward_bc"))
     global_tmp_files.files.append(os.path.join(out_dir,"forward_bc"))
-    FH_out = open(os.path.join(out_dir,"forward_bc"),"w")
+    FH_out = open(os.path.join(out_dir,"forward_bc"),"wt")
     FH_out.write("\n".join(f)+"\n")
     FH_out.close()
 
     for bc_file in barcode_dict:
         barcodes_file_list.append(os.path.join(out_dir,bc_file))
         global_tmp_files.files.append(os.path.join(out_dir,bc_file))
-        FH_out = open(os.path.join(out_dir,bc_file),"w")
+        FH_out = open(os.path.join(out_dir,bc_file),"wt")
         FH_out.write("\n".join(barcode_dict[bc_file])+"\n")
         FH_out.close()
 
@@ -249,7 +249,7 @@ def get_fastq_nb_seq( fastq_file ):
 
 def concat_files(list_input, output_file):
     
-    FH_out=open(output_file,"w")
+    FH_out=open(output_file,"wt")
     for f in list_input :
         FH_in = open(f)
         string=""
@@ -277,9 +277,9 @@ def summarise_results( summary_file, barcode_file, log_file ):
     for line in FH_barcode:
         sample_dict[line.split()[0]]=0
     
-    FH_summary = open(summary_file, "w")
+    FH_summary = open(summary_file, "wt")
     FH_summary.write( "#sample\tcount\n")
-    FH_log = open(log_file,"r")
+    FH_log = open(log_file,"rt")
     sample_dict["unmatched"]=0
     sample_dict["ambiguous"]=0
     

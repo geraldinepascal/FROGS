@@ -1,4 +1,4 @@
-#!/usr/bin/env python2.7
+#!/usr/bin/env python3.7
 #
 # Copyright (C) 2014 INRA
 #
@@ -173,7 +173,7 @@ def process( input_fasta, input_tax, output_fasta, output_tax, domains_filtered=
     taxonomy_ref, taxonomy_tree, new_taxon_id = silva_tax_2_tree( input_tax, ranks, domains_filtered )
 
     # Write fasta
-    FH_cleanFasta = open( output_fasta, "w" )
+    FH_cleanFasta = open( output_fasta, "wt" )
     FH_fasta = open( input_fasta )
     is_filtered = None
     for line in FH_fasta:
@@ -183,9 +183,9 @@ def process( input_fasta, input_tax, output_fasta, output_tax, domains_filtered=
             evaluated_taxonomy = " ".join(line_fields[1:]).split(";")
             if domains_filtered is not None and evaluated_taxonomy[0].strip().lower() in domains_filtered:
                 is_filtered = True
-            elif not taxonomy_ref.has_key( ";".join(evaluated_taxonomy[:-1]).lower() ):
+            elif ";".join(evaluated_taxonomy[:-1]).lower() not in taxonomy_ref:
                 is_filtered = True
-                print "The sequence '" + evaluated_id + "' is skipped because the node for '" + ";".join(evaluated_taxonomy) + "' does not exist in the taxonomy file."
+                print(("The sequence '" + evaluated_id + "' is skipped because the node for '" + ";".join(evaluated_taxonomy) + "' does not exist in the taxonomy file."))
             else:
                 is_filtered = False
                 clean_taxonomy = get_taxonomy(taxonomy_ref[";".join(evaluated_taxonomy[:-1]).lower()])
@@ -219,7 +219,7 @@ def process( input_fasta, input_tax, output_fasta, output_tax, domains_filtered=
     FH_cleanFasta.close()
 
     # Write RDP tax file
-    FH_cleanTax = open( output_tax, "w" )
+    FH_cleanTax = open( output_tax, "wt" )
     write_rdp_tax( FH_cleanTax, taxonomy_tree )
     FH_cleanTax.close()
 

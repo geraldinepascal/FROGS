@@ -1,4 +1,4 @@
-#!/usr/bin/env python2.7
+#!/usr/bin/env python3.7
 #
 # Copyright (C) 2018 INRA
 #
@@ -178,7 +178,7 @@ def write_summary( summary_file, fasta_in, align_out, biomfile, treefile):
     list_out_tree=[]
 
     biom=BiomIO.from_json(biomfile)
-    treefile = open(treefile, "r")
+    treefile = open(treefile, "rt")
     newick = treefile.read().strip()
 
     # record nb OTU and abundance
@@ -223,7 +223,7 @@ def write_summary( summary_file, fasta_in, align_out, biomfile, treefile):
     
     # Write
     FH_summary_tpl = open( os.path.join(CURRENT_DIR, "tree_tpl.html") )
-    FH_summary_out = open( summary_file, "w" )
+    FH_summary_out = open( summary_file, "wt" )
     for line in FH_summary_tpl:
         if "###HEIGHT###" in line:
             line = line.replace( "###HEIGHT###", json.dumps(summary_info['otu_kept']*11+166))

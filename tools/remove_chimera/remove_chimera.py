@@ -1,4 +1,4 @@
-#!/usr/bin/env python2.7
+#!/usr/bin/env python3.7
 #
 # Copyright (C) 2018 INRA
 #
@@ -143,7 +143,7 @@ def write_summary( summary_file, results_chimera ):
                     line_fields = line.split("\t")
                     detection_data.append({
                              'name': line_fields[0],
-                             'data': map(int, line_fields[1:])
+                             'data': list(map(int, line_fields[1:]))
                     })
             elif in_remove_metrics:
                 if section_first_line:
@@ -157,7 +157,7 @@ def write_summary( summary_file, results_chimera ):
 
     # Write
     FH_summary_tpl = open( os.path.join(CURRENT_DIR, "remove_chimera_tpl.html") )
-    FH_summary_out = open( summary_file, "w" )
+    FH_summary_out = open( summary_file, "wt" )
     for line in FH_summary_tpl:
         if "###DETECTION_CATEGORIES###" in line:
             line = line.replace( "###DETECTION_CATEGORIES###", json.dumps(detection_categories) )

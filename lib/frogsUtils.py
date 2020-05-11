@@ -1,4 +1,4 @@
-#!/usr/bin/env python2.7
+#!/usr/bin/env python3.7
 #
 # Copyright (C) 2014 INRA
 #
@@ -53,16 +53,16 @@ def prevent_shell_injections(argparse_namespace, excluded_args=None):
     @param excluded_args: [list] List of unchecked parameters.
     """
     exceptions = list() if excluded_args is None else excluded_args
-    for param_name in argparse_namespace.__dict__.keys():
+    for param_name in list(argparse_namespace.__dict__.keys()):
         if not param_name in exceptions:
             param_val = getattr(argparse_namespace, param_name)
             if issubclass(param_val.__class__, list):
                 new_param_val = list()
                 for val in param_val:
-                    if ';' in val.encode('utf8') or '`' in val.encode('utf8') or '|' in val.encode('utf8'):
+                    if ';' in val.encode('utf8').decode('utf8') or '`' in val.encode('utf8').decode('utf8') or '|' in val.encode('utf8').decode('utf8'):
                         raise Exception( "';' and '`' are unauthorized characters." ) 
             elif param_val is not None and issubclass(param_val.__class__, str):
-                if ';' in param_val.encode('utf8') or '`' in param_val.encode('utf8') or '|' in param_val.encode('utf8'):
+                if ';' in param_val.encode('utf8').decode('utf8') or '`' in param_val.encode('utf8').decode('utf8') or '|' in param_val.encode('utf8').decode('utf8'):
                     raise Exception( "';' and '`' are unauthorized characters." )
 
 
@@ -112,9 +112,9 @@ class Cmd:
                 p = Popen(cmd, shell=True, stdout=PIPE, stderr=PIPE)
                 stdout, stderr = p.communicate()
                 if location == 'stderr':
-                    return stderr.strip()
+                    return stderr.decode('utf-8').strip()
                 else:
-                    return stdout.strip()
+                    return stdout.decode('utf-8').strip()
             except:
                 raise Exception( "Version cannot be retrieve for the software '" + self.program + "'." )
 
@@ -160,7 +160,7 @@ class Logger:
         """
         self.filepath = filepath
         if self.filepath is not None and self.filepath is not sys.stdout:
-            self.file_handle = open( self.filepath, "a" )
+            self.file_handle = open( self.filepath, "ta" )
         else:
             self.file_handle = sys.stdout
 

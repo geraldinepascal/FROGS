@@ -1,4 +1,4 @@
-#!/usr/bin/env python2.7
+#!/usr/bin/env python3.7
 #
 # Copyright (C) 2014 INRA
 #
@@ -105,32 +105,32 @@ class TmpFiles:
         for tmp_file in all_tmp_files:
             self.delete(tmp_file)
 
-def submit_cmd( cmd, stdout_path, stderr_path ):
+def submit_cmd( cmd, stdout_path, stderr_path):
     """
-    @summary: Submits the command and checks its exit status.
+    @summary: Submits a command on system.
     @param cmd: [list] The command.
-    @param stdout_path: [str] Filepath to the stdout.
-    @param stderr_path: [str] Filepath to the stderr.
+    @param stdout_path: The path to the file where the standard outputs will be written.
+    @param stderr_path: The path to the file where the error outputs will be written.
     """
     p = Popen(cmd, stdout=PIPE, stderr=PIPE)
     stdout, stderr = p.communicate()
 
     # write down the stdout
-    stdoh = open(stdout_path, "w")
-    stdoh.write(stdout)
+    stdoh = open(stdout_path, "wt")
+    stdoh.write(stdout.decode('utf-8'))
     stdoh.close()
 
     # write down the stderr
-    stdeh = open(stderr_path, "w")
-    stdeh.write(stderr)
+    stdeh = open(stderr_path, "wt")
+    stdeh.write(stderr.decode('utf-8'))
     stdeh.close()
 
     # check error status
     if p.returncode != 0:
-        stdeh = open(stderr_path)
+        stdeh = open(stderr_path,'rt')
         error_msg = "".join( map(str, stdeh.readlines()) )
         stdeh.close()
-        raise StandardError( error_msg )
+        raise Exception( error_msg )
 
 def get_conta( min_identity, min_coverage, blast_file ):
     """
@@ -188,7 +188,7 @@ def write_log( log_file, blast_cmd,  processed_count, removed_count, alignment_h
     @param alignment_heatmap: [list] The alignment heatmap (coverage by identity).
     """
     # Write logs
-    FH_log = open(log_file, "w")
+    FH_log = open(log_file, "wt")
     FH_log.write("##Global info\n")
     FH_log.write("#Blast command line : " + " ".join(blast_cmd) + "\n")
     FH_log.write("#Processed :\t" + str(processed_count) + "\n")
@@ -224,11 +224,11 @@ def split_fasta( contaminated, in_fasta, cleaned_fasta, removed_fasta ):
     nb_seq = 0
 
     FH_total = FastaIO(in_fasta)
-    FH_cleaned = FastaIO(cleaned_fasta, "w")
-    FH_removed = FastaIO(removed_fasta, "w")
+    FH_cleaned = FastaIO(cleaned_fasta, "wt")
+    FH_removed = FastaIO(removed_fasta, "wt")
     for record in FH_total:
         nb_seq += 1
-        if contaminated.has_key(record.id):
+        if record.id in contaminated:
             FH_removed.write( record )
         else:
             FH_cleaned.write( record )
