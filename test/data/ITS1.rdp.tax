@@ -1,243 +1,242 @@
 0*Root*-1*0*rootrank
-1*Root*0*1*root
-2*k__Fungi [id: 1] [id: 2]*1*2*domain
-3*p__Basidiomycota [id: 8] [id: 3]*2*3*phylum
-4*c__Agaricomycetes [id: 9] [id: 4]*3*4*class
-44*o__Thelephorales [id: 101] [id: 44]*4*5*order
-45*f__Bankeraceae [id: 102] [id: 45]*44*6*family
-46*g__Sarcodon [id: 2623] [id: 46]*45*7*genus
-47*s__Sarcodon_quercophilus [id: 5557] [id: 47]*46*8*species
-77*g__Hydnellum [id: 1832] [id: 77]*45*7*genus
-91*s__Hydnellum_suaveolens [id: 6660] [id: 91]*77*8*species
-78*s__Hydnellum_peckii [id: 5194] [id: 78]*77*8*species
-99*f__Thelephoraceae [id: 395] [id: 99]*44*6*family
-100*g__Thelephora [id: 1009] [id: 100]*99*7*genus
-101*s__Thelephora_atra [id: 12419] [id: 101]*100*8*species
-5*o__Russulales [id: 32] [id: 5]*4*5*order
-6*f__Russulaceae [id: 33] [id: 6]*5*6*family
-7*g__Lactarius [id: 407] [id: 7]*6*7*genus
-9*s__Lactarius_lanceolatus [id: 21786] [id: 9]*7*8*species
-106*s__Lactarius_semisanguifluus [id: 12599] [id: 106]*7*8*species
-8*s__Lactarius_sp [id: 1060] [id: 8]*7*8*species
-236*s__Lactarius_cyathuliformis [id: 23791] [id: 236]*7*8*species
-112*o__Polyporales [id: 92] [id: 112]*4*5*order
-113*f__Meruliaceae [id: 93] [id: 113]*112*6*family
-114*g__Junghuhnia [id: 5553] [id: 114]*113*7*genus
-115*s__Junghuhnia_nitida [id: 14589] [id: 115]*114*8*species
-21*o__Hymenochaetales [id: 73] [id: 21]*4*5*order
-22*f__Hymenochaetaceae [id: 74] [id: 22]*21*6*family
-23*g__Pseudochaete [id: 1171] [id: 23]*22*7*genus
-24*s__Pseudochaete_subrigidula [id: 1172] [id: 24]*23*8*species
-62*g__Hymenochaete [id: 1143] [id: 62]*22*7*genus
-63*s__Hymenochaete_longispora [id: 7446] [id: 63]*62*8*species
-64*o__Boletales [id: 10] [id: 64]*4*5*order
-82*f__Sclerodermataceae [id: 2915] [id: 82]*64*6*family
-83*g__Pisolithus [id: 3087] [id: 83]*82*7*genus
-84*s__Pisolithus_capsulifer [id: 10289] [id: 84]*83*8*species
-65*f__Boletaceae [id: 418] [id: 65]*64*6*family
-66*g__Xerocomus [id: 906] [id: 66]*65*7*genus
-67*s__Xerocomus_porophyllus [id: 7573] [id: 67]*66*8*species
-136*f__Suillaceae [id: 712] [id: 136]*64*6*family
-137*g__Truncocolumella [id: 2710] [id: 137]*136*7*genus
-138*s__Truncocolumella_rubra [id: 2711] [id: 138]*137*8*species
-186*f__Paxillaceae [id: 3915] [id: 186]*64*6*family
-187*g__Alpova [id: 14086] [id: 187]*186*7*genus
-191*s__Alpova_corsicus [id: 21462] [id: 191]*187*8*species
-188*s__Alpova_alpestris [id: 20625] [id: 188]*187*8*species
-48*o__Agaricales [id: 14] [id: 48]*4*5*order
-74*f__Tricholomataceae [id: 389] [id: 74]*48*6*family
-175*g__Gamundia [id: 19071] [id: 175]*74*7*genus
-176*s__Gamundia_leucophylla [id: 19072] [id: 176]*175*8*species
-75*g__Tricholoma [id: 830] [id: 75]*74*7*genus
-76*s__Tricholoma_portentosum [id: 9774] [id: 76]*75*8*species
-196*f__Agaricaceae [id: 296] [id: 196]*48*6*family
-197*g__Lepiota [id: 1372] [id: 197]*196*7*genus
-198*s__Lepiota_geogenia [id: 22781] [id: 198]*197*8*species
-107*f__Marasmiaceae [id: 15] [id: 107]*48*6*family
-108*g__Megacollybia [id: 3474] [id: 108]*107*7*genus
-109*s__Megacollybia_subfurfuracea [id: 13884] [id: 109]*108*8*species
-119*f__Amanitaceae [id: 39] [id: 119]*48*6*family
-120*g__Amanita [id: 40] [id: 120]*119*7*genus
-190*s__Amanita_friabilis [id: 10628] [id: 190]*120*8*species
-121*s__Amanita_franchetii [id: 14864] [id: 121]*120*8*species
-116*f__Strophariaceae [id: 98] [id: 116]*48*6*family
-117*g__Hypholoma [id: 1891] [id: 117]*116*7*genus
-118*s__Hypholoma_capnoides [id: 14701] [id: 118]*117*8*species
-184*g__Pholiota [id: 2704] [id: 184]*116*7*genus
-185*s__Pholiota_highlandensis [id: 14001] [id: 185]*184*8*species
-56*f__Omphalotaceae [id: 261] [id: 56]*48*6*family
-57*g__Gymnopus [id: 262] [id: 57]*56*7*genus
-58*s__Gymnopus_hybridus [id: 6077] [id: 58]*57*8*species
-86*f__Entolomataceae [id: 18] [id: 86]*48*6*family
-87*g__Entoloma [id: 19] [id: 87]*86*7*genus
-88*s__Entoloma_sp [id: 1533] [id: 88]*87*8*species
-122*f__Inocybaceae [id: 277] [id: 122]*48*6*family
-123*g__Inocybe [id: 278] [id: 123]*122*7*genus
-124*s__Inocybe_sindonia [id: 13037] [id: 124]*123*8*species
-49*f__Cortinariaceae [id: 140] [id: 49]*48*6*family
-72*g__Phaeocollybia [id: 2838] [id: 72]*49*7*genus
-73*s__Phaeocollybia_kauffmanii [id: 8922] [id: 73]*72*8*species
-50*g__Cortinarius [id: 141] [id: 50]*49*7*genus
-222*s__Cortinarius_amnicola [id: 23329] [id: 222]*50*8*species
-51*s__Cortinarius_subexitiosus [id: 5647] [id: 51]*50*8*species
-125*s__Cortinarius_caesiocolor [id: 15030] [id: 125]*50*8*species
-98*s__Cortinarius_calojanthinus [id: 12270] [id: 98]*50*8*species
-189*s__Cortinarius_savegrensis [id: 20854] [id: 189]*50*8*species
-234*s__Cortinarius_aurantiobasis [id: 23727] [id: 234]*50*8*species
-179*s__Cortinarius_gentianeus [id: 19219] [id: 179]*50*8*species
-194*s__Cortinarius_limonius [id: 12520] [id: 194]*50*8*species
-203*s__Cortinarius_disjungendus [id: 22992] [id: 203]*50*8*species
-195*s__Cortinarius_parkeri [id: 22451] [id: 195]*50*8*species
-213*s__Cortinarius_sinapivelus [id: 23219] [id: 213]*50*8*species
-167*s__Cortinarius_aavae [id: 18399] [id: 167]*50*8*species
-59*f__Psathyrellaceae [id: 649] [id: 59]*48*6*family
-60*g__Coprinopsis [id: 650] [id: 60]*59*7*genus
-180*s__Coprinopsis_pachyderma [id: 19335] [id: 180]*60*8*species
-61*s__Coprinopsis_candidolanata [id: 6579] [id: 61]*60*8*species
-110*g__Psathyrella [id: 737] [id: 110]*59*7*genus
-169*s__Psathyrella_multipedata [id: 18700] [id: 169]*110*8*species
-111*s__Psathyrella_sublatispora [id: 14000] [id: 111]*110*8*species
-159*c__Exobasidiomycetes [id: 530] [id: 159]*3*4*class
-160*o__Microstromatales [id: 876] [id: 160]*159*5*order
-161*f__Microstromataceae [id: 8162] [id: 161]*160*6*family
-162*g__Microstroma [id: 8344] [id: 162]*161*7*genus
-163*s__Microstroma_phylloplanum [id: 8345] [id: 163]*162*8*species
-39*c__Pucciniomycetes [id: 513] [id: 39]*3*4*class
-40*o__Pucciniales [id: 514] [id: 40]*39*5*order
-41*f__Uropyxidaceae [id: 2860] [id: 41]*40*6*family
-42*g__Dasyspora [id: 2861] [id: 42]*41*7*genus
-43*s__Dasyspora_mesoamericana [id: 5324] [id: 43]*42*8*species
-10*p__Ascomycota [id: 2] [id: 10]*2*3*phylum
-16*c__Pezizomycetes [id: 114] [id: 16]*10*4*class
-17*o__Pezizales [id: 115] [id: 17]*16*5*order
-18*f__Tuberaceae [id: 116] [id: 18]*17*6*family
-19*g__Tuber [id: 117] [id: 19]*18*7*genus
-20*s__Tuber_latisporum [id: 1138] [id: 20]*19*8*species
-205*f__Pezizaceae [id: 258] [id: 205]*17*6*family
-206*g__Terfezia [id: 2977] [id: 206]*205*7*genus
-207*s__Terfezia_claveryi [id: 10920] [id: 207]*206*8*species
-217*c__Saccharomycetes [id: 203] [id: 217]*10*4*class
-218*o__Saccharomycetales [id: 204] [id: 218]*217*5*order
-219*f__Lipomycetaceae [id: 1432] [id: 219]*218*6*family
-220*g__Lipomyces [id: 1433] [id: 220]*219*7*genus
-221*s__Lipomyces_orientalis [id: 23297] [id: 221]*220*8*species
-34*c__Sordariomycetes [id: 3] [id: 34]*10*4*class
-223*o__Calosphaeriales [id: 1042] [id: 223]*34*5*order
-224*f__Calosphaeriaceae [id: 6211] [id: 224]*223*6*family
-225*g__Jattaea [id: 8864] [id: 225]*224*7*genus
-226*s__Jattaea_taediosa [id: 23382] [id: 226]*225*8*species
-52*o__Hypocreales [id: 57] [id: 52]*34*5*order
-53*f__Hypocreaceae [id: 322] [id: 53]*52*6*family
-145*g__Sepedonium [id: 8533] [id: 145]*53*7*genus
-146*s__Sepedonium_laevigatum [id: 16416] [id: 146]*145*8*species
-170*g__Hypomyces [id: 718] [id: 170]*53*7*genus
-171*s__Hypomyces_australasiaticus [id: 18777] [id: 171]*170*8*species
-54*g__Trichoderma [id: 323] [id: 54]*53*7*genus
-204*s__Trichoderma_aggressivum [id: 23019] [id: 204]*54*8*species
-55*s__Trichoderma_mienum [id: 6011] [id: 55]*54*8*species
-235*s__Trichoderma_rodmanii [id: 23761] [id: 235]*54*8*species
-147*s__Trichoderma_rhododendri [id: 16741] [id: 147]*54*8*species
-233*s__Trichoderma_cremeum [id: 23703] [id: 233]*54*8*species
-214*f__Cordycipitaceae [id: 1381] [id: 214]*52*6*family
-215*g__Beauveria [id: 2195] [id: 215]*214*7*genus
-216*s__Beauveria_australis [id: 23220] [id: 216]*215*8*species
-35*o__Xylariales [id: 4] [id: 35]*34*5*order
-36*f__Xylariaceae [id: 5] [id: 36]*35*6*family
-37*g__Lopadostoma [id: 409] [id: 37]*36*7*genus
-38*s__Lopadostoma_insulare [id: 5230] [id: 38]*37*8*species
-85*s__Lopadostoma_dryophilum [id: 10318] [id: 85]*37*8*species
-177*g__Hypoxylon [id: 1046] [id: 177]*36*7*genus
-178*s__Hypoxylon_fragiforme [id: 8082] [id: 178]*177*8*species
-227*f__Amphisphaeriaceae [id: 330] [id: 227]*35*6*family
-228*g__Pestalotiopsis [id: 331] [id: 228]*227*7*genus
-229*s__Pestalotiopsis_diversiseta [id: 23573] [id: 229]*228*8*species
-230*g__Adisciso [id: 17264] [id: 230]*227*7*genus
-231*s__Adisciso_tricellulare [id: 23597] [id: 231]*230*8*species
-209*o__Microascales [id: 686] [id: 209]*34*5*order
-210*f__Ceratocystidaceae [id: 1947] [id: 210]*209*6*family
-211*g__Ceratocystis [id: 1948] [id: 211]*210*7*genus
-212*s__Ceratocystis_manginecans [id: 7650] [id: 212]*211*8*species
-92*o__Diaporthales [id: 65] [id: 92]*34*5*order
-93*f__Diaporthaceae [id: 66] [id: 93]*92*6*family
-94*g__Diaporthe [id: 67] [id: 94]*93*7*genus
-95*s__Diaporthe_longispora [id: 11599] [id: 95]*94*8*species
-199*s__Diaporthe_lusitanicae [id: 22865] [id: 199]*94*8*species
-172*f__Togniniaceae [id: 191] [id: 172]*92*6*family
-173*g__Phaeoacremonium [id: 192] [id: 173]*172*7*genus
-174*s__Phaeoacremonium_rubrigenum [id: 18995] [id: 174]*173*8*species
-131*c__Lecanoromycetes [id: 105] [id: 131]*10*4*class
-132*o__Umbilicariales [id: 1350] [id: 132]*131*5*order
-133*f__Umbilicariaceae [id: 1351] [id: 133]*132*6*family
-134*g__Fulgidea [id: 15737] [id: 134]*133*7*genus
-135*s__Fulgidea_oligospora [id: 15738] [id: 135]*134*8*species
-168*s__Fulgidea_sierrae [id: 18628] [id: 168]*134*8*species
-11*c__Dothideomycetes [id: 52] [id: 11]*10*4*class
-102*o__Botryosphaeriales [id: 152] [id: 102]*11*5*order
-103*f__Botryosphaeriaceae [id: 153] [id: 103]*102*6*family
-104*g__Neofusicoccum [id: 4366] [id: 104]*103*7*genus
-105*s__Neofusicoccum_eucalypticola [id: 12563] [id: 105]*104*8*species
-139*g__Lasiodiplodia [id: 6585] [id: 139]*103*7*genus
-140*s__Lasiodiplodia_crassispora [id: 8928] [id: 140]*139*8*species
-242*s__Lasiodiplodia_mediterranea [id: 24061] [id: 242]*139*8*species
-12*o__Pleosporales [id: 212] [id: 12]*11*5*order
-79*f__Leptosphaeriaceae [id: 1147] [id: 79]*12*6*family
-80*g__Leptosphaeria [id: 1164] [id: 80]*79*7*genus
-81*s__Leptosphaeria_polylepidis [id: 9979] [id: 81]*80*8*species
-164*f__Lindgomycetaceae [id: 1978] [id: 164]*12*6*family
-165*g__Lindgomyces [id: 1979] [id: 165]*164*7*genus
-166*s__Lindgomyces_breviappendiculatus [id: 17836] [id: 166]*165*8*species
-151*f__Phaeosphaeriaceae [id: 656] [id: 151]*12*6*family
-152*g__Neosphaerellopsis [id: 17214] [id: 152]*151*7*genus
-153*s__Neosphaerellopsis_thailandica [id: 17215] [id: 153]*152*8*species
-13*f__Pleosporaceae [id: 348] [id: 13]*12*6*family
-14*g__Bipolaris [id: 349] [id: 14]*13*7*genus
-202*s__Bipolaris_chloridis [id: 22983] [id: 202]*14*8*species
-15*s__Bipolaris_microstegii [id: 350] [id: 15]*14*8*species
-89*g__Curvularia [id: 4623] [id: 89]*13*7*genus
-90*s__Curvularia_sorghina [id: 11359] [id: 90]*89*8*species
-193*s__Curvularia_protuberata [id: 21784] [id: 193]*89*8*species
-156*f__Didymellaceae [id: 213] [id: 156]*12*6*family
-157*g__Allophoma [id: 6502] [id: 157]*156*7*genus
-158*s__Allophoma_piperis [id: 17487] [id: 158]*157*8*species
-126*c__Geoglossomycetes [id: 2059] [id: 126]*10*4*class
-127*o__Geoglossales [id: 2060] [id: 127]*126*5*order
-128*f__Geoglossaceae [id: 2061] [id: 128]*127*6*family
-129*g__Geoglossum [id: 5030] [id: 129]*128*7*genus
-130*s__Geoglossum_dunense [id: 15661] [id: 130]*129*8*species
-25*c__Eurotiomycetes [id: 27] [id: 25]*10*4*class
-68*o__Verrucariales [id: 175] [id: 68]*25*5*order
-69*f__Verrucariaceae [id: 176] [id: 69]*68*6*family
-70*g__Verrucaria [id: 1280] [id: 70]*69*7*genus
-144*s__Verrucaria_lapidicola [id: 16391] [id: 144]*70*8*species
-71*s__Verrucaria_hydrophila [id: 7998] [id: 71]*70*8*species
-181*g__Dermatocarpon [id: 4840] [id: 181]*69*7*genus
-182*s__Dermatocarpon_dolomiticum [id: 19469] [id: 182]*181*8*species
-26*o__Eurotiales [id: 61] [id: 26]*25*5*order
-27*f__Trichocomaceae [id: 62] [id: 27]*26*6*family
-96*g__Talaromyces [id: 1185] [id: 96]*27*7*genus
-97*s__Talaromyces_pittii [id: 12056] [id: 97]*96*8*species
-28*g__Aspergillus [id: 353] [id: 28]*27*7*genus
-201*s__Aspergillus_ivoriensis [id: 22947] [id: 201]*28*8*species
-148*s__Aspergillus_caninus [id: 17035] [id: 148]*28*8*species
-29*s__Aspergillus_ochraceus [id: 2572] [id: 29]*28*8*species
-208*s__Aspergillus_microcysticus [id: 23102] [id: 208]*28*8*species
-149*g__Rasamsonia [id: 3902] [id: 149]*27*7*genus
-183*s__Rasamsonia_emersonii [id: 20510] [id: 183]*149*8*species
-150*s__Rasamsonia_piperina [id: 17178] [id: 150]*149*8*species
-154*g__Penicillium [id: 63] [id: 154]*27*7*genus
-240*s__Penicillium_aurantiogriseum [id: 24009] [id: 240]*154*8*species
-155*s__Penicillium_levitum [id: 17244] [id: 155]*154*8*species
-238*s__Penicillium_ribium [id: 23950] [id: 238]*154*8*species
-232*s__Penicillium_paneum [id: 23613] [id: 232]*154*8*species
-237*s__Penicillium_kongii [id: 23948] [id: 237]*154*8*species
-200*s__Penicillium_alutaceum [id: 22901] [id: 200]*154*8*species
-239*s__Penicillium_jensenii [id: 24006] [id: 239]*154*8*species
-241*s__Penicillium_brunneoconidiatum [id: 24024] [id: 241]*154*8*species
-192*s__Penicillium_crystallinum [id: 21472] [id: 192]*154*8*species
-141*f__Elaphomycetaceae [id: 283] [id: 141]*26*6*family
-142*g__Elaphomyces [id: 284] [id: 142]*141*7*genus
-143*s__Elaphomyces_compleximurus [id: 16371] [id: 143]*142*8*species
-30*o__Chaetothyriales [id: 165] [id: 30]*25*5*order
-31*f__Herpotrichiellaceae [id: 680] [id: 31]*30*6*family
-32*g__Exophiala [id: 681] [id: 32]*31*7*genus
-33*s__Exophiala_equina [id: 3883] [id: 33]*32*8*species
+1*k__Fungi [id: 1]*0*1*k
+2*p__Ascomycota [id: 2]*1*2*p
+28*c__Sordariomycetes [id: 28]*2*3*c
+29*o__Xylariales [id: 29]*28*4*o
+226*f__Amphisphaeriaceae [id: 226]*29*5*f
+227*g__Pestalotiopsis [id: 227]*226*6*g
+228*s__Pestalotiopsis_diversiseta [id: 228]*227*7*s
+229*g__Adisciso [id: 229]*226*6*g
+230*s__Adisciso_tricellulare [id: 230]*229*7*s
+30*f__Xylariaceae [id: 30]*29*5*f
+31*g__Lopadostoma [id: 31]*30*6*g
+32*s__Lopadostoma_insulare [id: 32]*31*7*s
+79*s__Lopadostoma_dryophilum [id: 79]*31*7*s
+174*g__Hypoxylon [id: 174]*30*6*g
+175*s__Hypoxylon_fragiforme [id: 175]*174*7*s
+46*o__Hypocreales [id: 46]*28*4*o
+47*f__Hypocreaceae [id: 47]*46*5*f
+167*g__Hypomyces [id: 167]*47*6*g
+168*s__Hypomyces_australasiaticus [id: 168]*167*7*s
+142*g__Sepedonium [id: 142]*47*6*g
+143*s__Sepedonium_laevigatum [id: 143]*142*7*s
+48*g__Trichoderma [id: 48]*47*6*g
+232*s__Trichoderma_cremeum [id: 232]*48*7*s
+203*s__Trichoderma_aggressivum [id: 203]*48*7*s
+49*s__Trichoderma_mienum [id: 49]*48*7*s
+144*s__Trichoderma_rhododendri [id: 144]*48*7*s
+234*s__Trichoderma_rodmanii [id: 234]*48*7*s
+213*f__Cordycipitaceae [id: 213]*46*5*f
+214*g__Beauveria [id: 214]*213*6*g
+215*s__Beauveria_australis [id: 215]*214*7*s
+86*o__Diaporthales [id: 86]*28*4*o
+87*f__Diaporthaceae [id: 87]*86*5*f
+88*g__Diaporthe [id: 88]*87*6*g
+197*s__Diaporthe_lusitanicae [id: 197]*88*7*s
+89*s__Diaporthe_longispora [id: 89]*88*7*s
+169*f__Togniniaceae [id: 169]*86*5*f
+170*g__Phaeoacremonium [id: 170]*169*6*g
+171*s__Phaeoacremonium_rubrigenum [id: 171]*170*7*s
+222*o__Calosphaeriales [id: 222]*28*4*o
+223*f__Calosphaeriaceae [id: 223]*222*5*f
+224*g__Jattaea [id: 224]*223*6*g
+225*s__Jattaea_taediosa [id: 225]*224*7*s
+208*o__Microascales [id: 208]*28*4*o
+209*f__Ceratocystidaceae [id: 209]*208*5*f
+210*g__Ceratocystis [id: 210]*209*6*g
+211*s__Ceratocystis_manginecans [id: 211]*210*7*s
+19*c__Eurotiomycetes [id: 19]*2*3*c
+20*o__Eurotiales [id: 20]*19*4*o
+138*f__Elaphomycetaceae [id: 138]*20*5*f
+139*g__Elaphomyces [id: 139]*138*6*g
+140*s__Elaphomyces_compleximurus [id: 140]*139*7*s
+21*f__Trichocomaceae [id: 21]*20*5*f
+151*g__Penicillium [id: 151]*21*6*g
+236*s__Penicillium_kongii [id: 236]*151*7*s
+239*s__Penicillium_aurantiogriseum [id: 239]*151*7*s
+240*s__Penicillium_brunneoconidiatum [id: 240]*151*7*s
+231*s__Penicillium_paneum [id: 231]*151*7*s
+152*s__Penicillium_levitum [id: 152]*151*7*s
+199*s__Penicillium_alutaceum [id: 199]*151*7*s
+189*s__Penicillium_crystallinum [id: 189]*151*7*s
+237*s__Penicillium_ribium [id: 237]*151*7*s
+238*s__Penicillium_jensenii [id: 238]*151*7*s
+146*g__Rasamsonia [id: 146]*21*6*g
+180*s__Rasamsonia_emersonii [id: 180]*146*7*s
+147*s__Rasamsonia_piperina [id: 147]*146*7*s
+90*g__Talaromyces [id: 90]*21*6*g
+91*s__Talaromyces_pittii [id: 91]*90*7*s
+22*g__Aspergillus [id: 22]*21*6*g
+200*s__Aspergillus_ivoriensis [id: 200]*22*7*s
+23*s__Aspergillus_ochraceus [id: 23]*22*7*s
+145*s__Aspergillus_caninus [id: 145]*22*7*s
+207*s__Aspergillus_microcysticus [id: 207]*22*7*s
+62*o__Verrucariales [id: 62]*19*4*o
+63*f__Verrucariaceae [id: 63]*62*5*f
+64*g__Verrucaria [id: 64]*63*6*g
+65*s__Verrucaria_hydrophila [id: 65]*64*7*s
+141*s__Verrucaria_lapidicola [id: 141]*64*7*s
+178*g__Dermatocarpon [id: 178]*63*6*g
+179*s__Dermatocarpon_dolomiticum [id: 179]*178*7*s
+24*o__Chaetothyriales [id: 24]*19*4*o
+25*f__Herpotrichiellaceae [id: 25]*24*5*f
+26*g__Exophiala [id: 26]*25*6*g
+27*s__Exophiala_equina [id: 27]*26*7*s
+3*c__Dothideomycetes [id: 3]*2*3*c
+96*o__Botryosphaeriales [id: 96]*3*4*o
+97*f__Botryosphaeriaceae [id: 97]*96*5*f
+98*g__Neofusicoccum [id: 98]*97*6*g
+99*s__Neofusicoccum_eucalypticola [id: 99]*98*7*s
+136*g__Lasiodiplodia [id: 136]*97*6*g
+137*s__Lasiodiplodia_crassispora [id: 137]*136*7*s
+241*s__Lasiodiplodia_mediterranea [id: 241]*136*7*s
+4*o__Pleosporales [id: 4]*3*4*o
+148*f__Phaeosphaeriaceae [id: 148]*4*5*f
+149*g__Neosphaerellopsis [id: 149]*148*6*g
+150*s__Neosphaerellopsis_thailandica [id: 150]*149*7*s
+5*f__Pleosporaceae [id: 5]*4*5*f
+6*g__Bipolaris [id: 6]*5*6*g
+7*s__Bipolaris_microstegii [id: 7]*6*7*s
+201*s__Bipolaris_chloridis [id: 201]*6*7*s
+83*g__Curvularia [id: 83]*5*6*g
+84*s__Curvularia_sorghina [id: 84]*83*7*s
+190*s__Curvularia_protuberata [id: 190]*83*7*s
+161*f__Lindgomycetaceae [id: 161]*4*5*f
+162*g__Lindgomyces [id: 162]*161*6*g
+163*s__Lindgomyces_breviappendiculatus [id: 163]*162*7*s
+153*f__Didymellaceae [id: 153]*4*5*f
+154*g__Allophoma [id: 154]*153*6*g
+155*s__Allophoma_piperis [id: 155]*154*7*s
+73*f__Leptosphaeriaceae [id: 73]*4*5*f
+74*g__Leptosphaeria [id: 74]*73*6*g
+75*s__Leptosphaeria_polylepidis [id: 75]*74*7*s
+123*c__Geoglossomycetes [id: 123]*2*3*c
+124*o__Geoglossales [id: 124]*123*4*o
+125*f__Geoglossaceae [id: 125]*124*5*f
+126*g__Geoglossum [id: 126]*125*6*g
+127*s__Geoglossum_dunense [id: 127]*126*7*s
+216*c__Saccharomycetes [id: 216]*2*3*c
+217*o__Saccharomycetales [id: 217]*216*4*o
+218*f__Lipomycetaceae [id: 218]*217*5*f
+219*g__Lipomyces [id: 219]*218*6*g
+220*s__Lipomyces_orientalis [id: 220]*219*7*s
+8*c__Pezizomycetes [id: 8]*2*3*c
+9*o__Pezizales [id: 9]*8*4*o
+10*f__Tuberaceae [id: 10]*9*5*f
+11*g__Tuber [id: 11]*10*6*g
+12*s__Tuber_latisporum [id: 12]*11*7*s
+204*f__Pezizaceae [id: 204]*9*5*f
+205*g__Terfezia [id: 205]*204*6*g
+206*s__Terfezia_claveryi [id: 206]*205*7*s
+128*c__Lecanoromycetes [id: 128]*2*3*c
+129*o__Umbilicariales [id: 129]*128*4*o
+130*f__Umbilicariaceae [id: 130]*129*5*f
+131*g__Fulgidea [id: 131]*130*6*g
+165*s__Fulgidea_sierrae [id: 165]*131*7*s
+132*s__Fulgidea_oligospora [id: 132]*131*7*s
+13*p__Basidiomycota [id: 13]*1*2*p
+156*c__Exobasidiomycetes [id: 156]*13*3*c
+157*o__Microstromatales [id: 157]*156*4*o
+158*f__Microstromataceae [id: 158]*157*5*f
+159*g__Microstroma [id: 159]*158*6*g
+160*s__Microstroma_phylloplanum [id: 160]*159*7*s
+33*c__Pucciniomycetes [id: 33]*13*3*c
+34*o__Pucciniales [id: 34]*33*4*o
+35*f__Uropyxidaceae [id: 35]*34*5*f
+36*g__Dasyspora [id: 36]*35*6*g
+37*s__Dasyspora_mesoamericana [id: 37]*36*7*s
+14*c__Agaricomycetes [id: 14]*13*3*c
+42*o__Agaricales [id: 42]*14*4*o
+116*f__Amanitaceae [id: 116]*42*5*f
+117*g__Amanita [id: 117]*116*6*g
+187*s__Amanita_friabilis [id: 187]*117*7*s
+118*s__Amanita_franchetii [id: 118]*117*7*s
+80*f__Entolomataceae [id: 80]*42*5*f
+81*g__Entoloma [id: 81]*80*6*g
+82*s__Entoloma_sp [id: 82]*81*7*s
+68*f__Tricholomataceae [id: 68]*42*5*f
+69*g__Tricholoma [id: 69]*68*6*g
+70*s__Tricholoma_portentosum [id: 70]*69*7*s
+172*g__Gamundia [id: 172]*68*6*g
+173*s__Gamundia_leucophylla [id: 173]*172*7*s
+119*f__Inocybaceae [id: 119]*42*5*f
+120*g__Inocybe [id: 120]*119*6*g
+121*s__Inocybe_sindonia [id: 121]*120*7*s
+113*f__Strophariaceae [id: 113]*42*5*f
+181*g__Pholiota [id: 181]*113*6*g
+182*s__Pholiota_highlandensis [id: 182]*181*7*s
+114*g__Hypholoma [id: 114]*113*6*g
+115*s__Hypholoma_capnoides [id: 115]*114*7*s
+50*f__Omphalotaceae [id: 50]*42*5*f
+51*g__Gymnopus [id: 51]*50*6*g
+52*s__Gymnopus_hybridus [id: 52]*51*7*s
+104*f__Marasmiaceae [id: 104]*42*5*f
+105*g__Megacollybia [id: 105]*104*6*g
+106*s__Megacollybia_subfurfuracea [id: 106]*105*7*s
+53*f__Psathyrellaceae [id: 53]*42*5*f
+107*g__Psathyrella [id: 107]*53*6*g
+108*s__Psathyrella_sublatispora [id: 108]*107*7*s
+166*s__Psathyrella_multipedata [id: 166]*107*7*s
+54*g__Coprinopsis [id: 54]*53*6*g
+55*s__Coprinopsis_candidolanata [id: 55]*54*7*s
+177*s__Coprinopsis_pachyderma [id: 177]*54*7*s
+43*f__Cortinariaceae [id: 43]*42*5*f
+66*g__Phaeocollybia [id: 66]*43*6*g
+67*s__Phaeocollybia_kauffmanii [id: 67]*66*7*s
+44*g__Cortinarius [id: 44]*43*6*g
+122*s__Cortinarius_caesiocolor [id: 122]*44*7*s
+202*s__Cortinarius_disjungendus [id: 202]*44*7*s
+176*s__Cortinarius_gentianeus [id: 176]*44*7*s
+92*s__Cortinarius_calojanthinus [id: 92]*44*7*s
+193*s__Cortinarius_parkeri [id: 193]*44*7*s
+164*s__Cortinarius_aavae [id: 164]*44*7*s
+192*s__Cortinarius_limonius [id: 192]*44*7*s
+212*s__Cortinarius_sinapivelus [id: 212]*44*7*s
+221*s__Cortinarius_amnicola [id: 221]*44*7*s
+45*s__Cortinarius_subexitiosus [id: 45]*44*7*s
+233*s__Cortinarius_aurantiobasis [id: 233]*44*7*s
+186*s__Cortinarius_savegrensis [id: 186]*44*7*s
+194*f__Agaricaceae [id: 194]*42*5*f
+195*g__Lepiota [id: 195]*194*6*g
+196*s__Lepiota_geogenia [id: 196]*195*7*s
+15*o__Hymenochaetales [id: 15]*14*4*o
+16*f__Hymenochaetaceae [id: 16]*15*5*f
+56*g__Hymenochaete [id: 56]*16*6*g
+57*s__Hymenochaete_longispora [id: 57]*56*7*s
+17*g__Pseudochaete [id: 17]*16*6*g
+18*s__Pseudochaete_subrigidula [id: 18]*17*7*s
+38*o__Thelephorales [id: 38]*14*4*o
+39*f__Bankeraceae [id: 39]*38*5*f
+40*g__Sarcodon [id: 40]*39*6*g
+41*s__Sarcodon_quercophilus [id: 41]*40*7*s
+71*g__Hydnellum [id: 71]*39*6*g
+85*s__Hydnellum_suaveolens [id: 85]*71*7*s
+72*s__Hydnellum_peckii [id: 72]*71*7*s
+93*f__Thelephoraceae [id: 93]*38*5*f
+94*g__Thelephora [id: 94]*93*6*g
+95*s__Thelephora_atra [id: 95]*94*7*s
+58*o__Boletales [id: 58]*14*4*o
+133*f__Suillaceae [id: 133]*58*5*f
+134*g__Truncocolumella [id: 134]*133*6*g
+135*s__Truncocolumella_rubra [id: 135]*134*7*s
+76*f__Sclerodermataceae [id: 76]*58*5*f
+77*g__Pisolithus [id: 77]*76*6*g
+78*s__Pisolithus_capsulifer [id: 78]*77*7*s
+59*f__Boletaceae [id: 59]*58*5*f
+60*g__Xerocomus [id: 60]*59*6*g
+61*s__Xerocomus_porophyllus [id: 61]*60*7*s
+183*f__Paxillaceae [id: 183]*58*5*f
+184*g__Alpova [id: 184]*183*6*g
+188*s__Alpova_corsicus [id: 188]*184*7*s
+185*s__Alpova_alpestris [id: 185]*184*7*s
+100*o__Russulales [id: 100]*14*4*o
+101*f__Russulaceae [id: 101]*100*5*f
+102*g__Lactarius [id: 102]*101*6*g
+198*s__Lactarius_sp [id: 198]*102*7*s
+191*s__Lactarius_lanceolatus [id: 191]*102*7*s
+103*s__Lactarius_semisanguifluus [id: 103]*102*7*s
+235*s__Lactarius_cyathuliformis [id: 235]*102*7*s
+109*o__Polyporales [id: 109]*14*4*o
+110*f__Meruliaceae [id: 110]*109*5*f
+111*g__Junghuhnia [id: 111]*110*6*g
+112*s__Junghuhnia_nitida [id: 112]*111*7*s
