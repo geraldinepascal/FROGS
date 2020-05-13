@@ -20,7 +20,7 @@ __author__ = 'Maria Bernard - SIGENAE AND Frederic Escudie - Plateforme bioinfor
 __copyright__ = 'Copyright (C) 2015 INRA'
 __license__ = 'GNU General Public License'
 __version__ = '3.2'
-__email__ = 'frogs-support@inra.fr'
+__email__ = 'frogs-support@inrae.fr'
 __status__ = 'prod'
 
 import os

@@ -20,7 +20,7 @@ __author__ = 'Maria Bernard - Sigenae Jouy en Josas'
 __copyright__ = 'Copyright (C) 2017 INRA'
 __license__ = 'GNU General Public License'
 __version__ = '1.0.0'
-__email__ = 'frogs-support@inra.fr'
+__email__ = 'frogs-support@inrae.fr'
 __status__ = 'prod'
 
 import os
