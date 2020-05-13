@@ -1,4 +1,8 @@
-[<img src="FROGS_logo.png" width="20%" style="display: block; margin: auto;"/>](http://frogs.toulouse.inra.fr/)
+<p align="center">
+ <a href="http://frogs.toulouse.inra.fr/">
+  <img src="FROGS_logo.png" align="center" width="20%" style="display: block; margin: auto;"/>
+ </a>
+</p>
 
 Visit our web site : http://frogs.toulouse.inra.fr/
 
