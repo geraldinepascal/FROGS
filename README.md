@@ -1,7 +1,10 @@
-							[<img src="FROGS_logo.png" width="20%" style="display: block; margin: auto;"/>](http://frogs.toulouse.inrae.fr/)
+<p align="center">
+ <a href="http://frogs.toulouse.inra.fr/">
+  <img src="FROGS_logo.png" align="center" width="20%" style="display: block; margin: auto;"/>
+ </a>
+</p>
 
 Visit our web site : http://frogs.toulouse.inrae.fr/
-
 
 
 [![Release](https://img.shields.io/badge/release-3.2.0-blue.svg)![Date](https://img.shields.io/badge/date-May%202020-red.svg)](https://github.com/geraldinepascal/FROGS-wrappers/releases) [<img src="https://www.podcastscience.fm/wp-content/uploads/2017/12/deezer.png" width="5%" style="display: block; margin: auto;"/>](https://www.deezer.com/fr/playlist/5233843102?utm_source=deezer&utm_content=playlist-5233843102&utm_term=18632989_1545296531&utm_medium=web)
