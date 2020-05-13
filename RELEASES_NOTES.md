@@ -21,6 +21,7 @@
   * tsv_2_biom now keep initial OTU order (Cluster_1 is the most abundant one and Cluster_X the less abundant one)
 
 ### Other improvements
+  * All python scripts are now in python 3
   * FROGSSTAT Phyloseq and FROGSSTAT DESeq now generate notebook_html instead of classical HTML output file. This facilitates code maintenance.
 
 # v3.1 [2018-01-08]

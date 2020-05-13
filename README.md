@@ -1,6 +1,6 @@
-									[<img src="FROGS_logo.png" width="20%" style="display: block; margin: auto;"/>](http://frogs.toulouse.inra.fr/)
+							[<img src="FROGS_logo.png" width="20%" style="display: block; margin: auto;"/>](http://frogs.toulouse.inrae.fr/)
 
-Visit our web site : http://frogs.toulouse.inra.fr/
+Visit our web site : http://frogs.toulouse.inrae.fr/
 
 
 
@@ -92,7 +92,7 @@ This FROGS repository is for command line user. If you want to install FROGS on 
 
 ## Tools dependancies
 
-FROGS is written in Python 2.7, uses home-made scripts written in PERL5 and R3.6 and uses external Python library, numpy and Scipy.
+FROGS is written in Python 3.7, uses home-made scripts written in PERL5 and R 3.6 and uses external Python library, numpy and Scipy.
 
 FROGS relies on different specific tools for each of the analysis step.
 
@@ -152,28 +152,32 @@ sh test.sh ~/FROGS <NB_CPU> <JAVA_MEM> <OUT_FOLDER>
 This test executes the FROGS tools in command line mode.
 Example:
 ```
-[user@computer:/home/frogs/FROGS/test/]$ sh test.sh ~/FROGS 2 4 res
-Step preprocess : Flash mercredi 10 octobre 2018, 14:11:30 (UTC+0200)
-Step preprocess : Vsearch mercredi 10 octobre 2018, 14:13:33 (UTC+0200)
-Step clustering mercredi 10 octobre 2018, 14:15:36 (UTC+0200)
-Step remove_chimera mercredi 10 octobre 2018, 14:18:43 (UTC+0200)
-Step filters mercredi 10 octobre 2018, 14:22:36 (UTC+0200)
-Step ITSx mercredi 10 octobre 2018, 14:22:42 (UTC+0200)
-Step affiliation_OTU mercredi 10 octobre 2018, 14:22:42 (UTC+0200)
-Step affiliation_postprocess mercredi 10 octobre 2018, 14:23:08 (UTC+0200)
-Step clusters_stat mercredi 10 octobre 2018, 14:23:08 (UTC+0200)
-Step affiliations_stat mercredi 10 octobre 2018, 14:23:09 (UTC+0200)
-Step biom_to_tsv mercredi 10 octobre 2018, 14:23:12 (UTC+0200)
-Step biom_to_stdBiom mercredi 10 octobre 2018, 14:23:12 (UTC+0200)
-Step tsv_to_biom mercredi 10 octobre 2018, 14:23:12 (UTC+0200)
-Step tree : mafft mercredi 10 octobre 2018, 14:23:26 (UTC+0200)
-Step r_import_data mercredi 10 octobre 2018, 14:25:25 (UTC+0200)
-Step r_composition mercredi 10 octobre 2018, 14:25:39 (UTC+0200)
-Step r_alpha_diversity mercredi 10 octobre 2018, 14:25:53 (UTC+0200)
-Step r_beta_diversity mercredi 10 octobre 2018, 14:26:19 (UTC+0200)
-Step r_structure mercredi 10 octobre 2018, 14:26:31 (UTC+0200)
-Step r_clustering mercredi 10 octobre 2018, 14:26:47 (UTC+0200)
-Step r_manova mercredi 10 octobre 2018, 14:26:57 (UTC+0200)
+[user@computer:/home/frogs/FROGS/test/]$ sh test.sh ~/FROGS 1 2 res
+Step preprocess : Flash lundi 11 mai 2020, 17:31:35 (UTC+0200)
+Step preprocess : Vsearch lundi 11 mai 2020, 17:34:48 (UTC+0200)
+Step clustering lundi 11 mai 2020, 17:39:00 (UTC+0200)
+Step remove_chimera lundi 11 mai 2020, 17:44:21 (UTC+0200)
+Step otu filters lundi 11 mai 2020, 17:47:17 (UTC+0200)
+Step ITSx lundi 11 mai 2020, 17:47:29 (UTC+0200)
+Step affiliation_OTU lundi 11 mai 2020, 17:47:30 (UTC+0200)
+Step affiliation_filter: masking mode lundi 11 mai 2020, 17:48:13 (UTC+0200)
+Step affiliation_filter: deleted mode lundi 11 mai 2020, 17:48:13 (UTC+0200)
+Step affiliation_postprocess lundi 11 mai 2020, 17:48:13 (UTC+0200)
+Step clusters_stat lundi 11 mai 2020, 17:48:14 (UTC+0200)
+Step affiliations_stat lundi 11 mai 2020, 17:48:16 (UTC+0200)
+Step biom_to_tsv lundi 11 mai 2020, 17:48:22 (UTC+0200)
+Step biom_to_stdBiom lundi 11 mai 2020, 17:48:22 (UTC+0200)
+Step tsv_to_biom lundi 11 mai 2020, 17:48:22 (UTC+0200)
+Step tree : mafft lundi 11 mai 2020, 17:48:23 (UTC+0200)
+Step r_import_data lundi 11 mai 2020, 17:49:03 (UTC+0200)
+Step r_composition lundi 11 mai 2020, 17:49:50 (UTC+0200)
+Step r_alpha_diversity lundi 11 mai 2020, 17:50:37 (UTC+0200)
+Step r_beta_diversity lundi 11 mai 2020, 17:51:05 (UTC+0200)
+Step r_structure lundi 11 mai 2020, 17:51:21 (UTC+0200)
+Step r_clustering lundi 11 mai 2020, 17:52:06 (UTC+0200)
+Step r_manova lundi 11 mai 2020, 17:52:21 (UTC+0200)
+Step deseq2_preprocess lundi 11 mai 2020, 17:52:35 (UTC+0200)
+Step deseq2_visualization lundi 11 mai 2020, 17:53:06 (UTC+0200)
 Completed with success
 ```
 
@@ -205,19 +209,19 @@ Please take time to read individual README.txt and LICENCE.txt files.
 
   these databanks are formatted for NCBI Blast+ and RDP Classifier
 
-  [available databases](http://genoweb.toulouse.inra.fr/frogs_databanks/assignation/readme.txt) : http://genoweb.toulouse.inra.fr/frogs_databanks/assignation
+  [available databases](http://genoweb.toulouse.inrae.fr/frogs_databanks/assignation/readme.txt) : http://genoweb.toulouse.inra.fr/frogs_databanks/assignation
 
 * Contaminant databank
 
   these banks are formatted for NCBI Blast+
 
-  http://genoweb.toulouse.inra.fr/frogs_databanks/contaminants
+  http://genoweb.toulouse.inrae.fr/frogs_databanks/contaminants
 
 * Hyper variable in length amplicon databank
 
   This is simply fasta file.
 
-  http://genoweb.toulouse.inra.fr/frogs_databanks/HVL
+  http://genoweb.toulouse.inrae.fr/frogs_databanks/HVL
 
 
 
@@ -246,7 +250,7 @@ GNU GPL v3
 
 
 # Copyright
-2018 INRA
+2020 INRAE
 
 
 # Citation
@@ -254,4 +258,4 @@ Please cite the **FROGS article**: *Escudie F., et al. Bioinformatics, 2018. FRO
 
 
 # Contact
-frogs@inra.fr
+frogs@inrae.fr
