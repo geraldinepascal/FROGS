@@ -302,7 +302,6 @@ if __name__ == "__main__":
 
         if args.denoising and args.distance > 1:
             # convert cluster composition in read composition ==> final swarm composition
-            print(denoising_compo, swarms_file, args.output_compo)
             agregate_composition(denoising_compo, swarms_file, args.output_compo)
 
         Swarm2Biom( args.output_compo, args.input_count, args.output_biom ).submit( args.log_file )

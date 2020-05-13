@@ -408,7 +408,7 @@ if __name__ == '__main__':
             raise Exception( "\nThe metadata '" + args.tax_consensus_tag + "' does not exist in the BIOM file.\n\n" )
         if biom.has_observation_metadata( args.tax_consensus_tag ) :
             for observation in biom.get_observations():
-                if observation["metadata"][args.tax_consensus_tag] is not None or len(observation["metadata"][args.tax_consensus_tag]) > 0 :
+                if observation["metadata"][args.tax_consensus_tag] is not None and len(observation["metadata"][args.tax_consensus_tag]) > 0 :
                     nb_rank = len(observation["metadata"][args.tax_consensus_tag])
                     break
     if nb_rank != len(args.taxonomic_ranks):

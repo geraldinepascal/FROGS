@@ -532,7 +532,7 @@ if __name__ == '__main__':
         else:
             nb_rank = 0
             for observation in in_biom.get_observations():
-                if 'rdp_bootstrap' in observation['metadata']:
+                if 'rdp_bootstrap' in observation['metadata'] and len(observation['metadata']['rdp_bootstrap']) > 0:
                     nb_rank = len(observation['metadata']['rdp_bootstrap'])
                     break
             if nb_rank != len(args.taxonomic_ranks):
