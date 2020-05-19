@@ -44,99 +44,107 @@ from frogsSequenceIO import *
 ###                                                 FUNCTIONS                                                   ###
 ###################################################################################################################
 def get_ref_length(in_db, out_dict):
-	"""
-	@summary: compute reference fasta length
-	@param in_db : [str] path to reference fasta file
-	@param out_dict : [dict] dictionnary to store reference sequence length
-	"""
-	FH_in = FastaIO(in_db)
-	for record in FH_in:
-		out_dict[record.id] = len(record.string.strip())
+    """
+    @summary: compute reference fasta length
+    @param in_db : [str] path to reference fasta file
+    @param out_dict : [dict] dictionnary to store reference sequence length
+    """
+    FH_in = FastaIO(in_db)
+    for record in FH_in:
+        out_dict[record.id] = len(record.string.strip())
 
 def process(params):
-	"""
-	@summary : convert Needleall Sam output in Blast like outfmt 6 format : 
-				qseqid sseqid pident length mismatch gapopen qstart qend sstart send evalue bitscore qlen
-	@param params : [Namespace] param.needle : needle input file, params.reference : needle refence fasta file and param.blast_like output file
-	"""
-	ref_length = dict()
-	get_ref_length(params.reference,ref_length)
-	OTU_list=list()
-	temp_dict=dict()
-	FH_in = open(params.needle)
-	FH_out = open(params.blast_like,"wt" )
-	for line in FH_in:
-		if line.startswith("@"):
-			continue
-		l = line.strip().split("\t")
-		qseqid=l[0]
-		sseqid=l[2]
-		qstart=str(1)
-		qend=str(len(l[9]))
-		qlen=str(len(l[9]))
+    """
+    @summary : convert Needleall Sam output in Blast like outfmt 6 format : 
+                qseqid sseqid pident length mismatch gapopen qstart qend sstart send evalue bitscore qlen
+    @param params : [Namespace] param.needle : needle input file, params.reference : needle refence fasta file and param.blast_like output file
+    """
+    ref_length = dict()
+    get_ref_length(params.reference,ref_length)
+    OTU_list=list()
+    temp_dict=dict()
+    FH_in = open(params.needle)
+    FH_out = open(params.blast_like,"wt" )
+    for line in FH_in:
+        if line.startswith("@"):
+            continue
+        l = line.strip().split("\t")
+        qseqid=l[0]
+        sseqid=l[2]
+        qstart=str(1)
+        qend=str(len(l[9]))
+        qlen=str(len(l[9]))
 
-		bitscore=l[11].split(":")[-1]
-		evalue=str(-1)
+        bitscore=l[11].split(":")[-1]
+        evalue=str(-1)
 
-		cigar=l[5]
-		cigarettes = re.findall('[\d]{0,}[A-Z]{1}', cigar)
-		# external gap gives sstart and ssend
-		if cigarettes[0].endswith("D"):
-			sstart=str(int(cigarettes[0][:-1])+1)
-			cigarettes.pop(0)
-		else:
-			sstart=str(1)
-		if cigarettes[-1].endswith("D"):
-			send=str(ref_length[sseqid]-int(cigarettes[-1][:-1]))
-			cigarettes.pop(-1)
-		else:
-			send=str(ref_length[sseqid])
-		# parse cigar, count gap, match and total length
-		cig_dict = {"M":0, "D":0, "I":0}
-		gapopen=0
-		for cigarette in cigarettes:
-			if cigarette.endswith("M"):
-				cig_dict["M"]+= int(cigarette[:-1])
-			elif cigarette.endswith("D"):
-				cig_dict["D"]+= int(cigarette[:-1])
-				gapopen += 1
-			elif cigarette.endswith("I"):
-				cig_dict["I"]+= int(cigarette[:-1])
+        cigar=l[5]
+        cigarettes = re.findall('[\d]{0,}[A-Z]{1}', cigar)
+        # external gap gives sstart and ssend
+        if cigarettes[0].endswith("D"):
+            sstart=str(int(cigarettes[0][:-1])+1)
+            cigarettes.pop(0)
+        else:
+            sstart=str(1)
+        if cigarettes[-1].endswith("D"):
+            send=str(ref_length[sseqid]-int(cigarettes[-1][:-1]))
+            cigarettes.pop(-1)
+        else:
+            send=str(ref_length[sseqid])
+        # parse cigar, count gap, match and total length
+        cig_dict = {"M":0, "D":0, "I":0}
+        gapopen=0
+        for cigarette in cigarettes:
+            if cigarette.endswith("M"):
+                cig_dict["M"]+= int(cigarette[:-1])
+            elif cigarette.endswith("D"):
+                cig_dict["D"]+= int(cigarette[:-1])
+                gapopen += 1
+            elif cigarette.endswith("I"):
+                cig_dict["I"]+= int(cigarette[:-1])
 
-		length = sum(cig_dict.values())
+        length = sum(cig_dict.values())
 
-		# match / mismatch, and id%
-		mismatch=l[12].split(":")[-1]
+        # match / mismatch, and id%
+        mismatch=l[12].split(":")[-1]
 
-		# count N in query sequence, substract from length
-		N = l[9].count("N")
+        # count N in query sequence, substract from length
+        N = l[9].count("N")
 
-		# SOLUTION 1 : nombre de match / longueur alignement
-		# pident=str(round((cig_dict["M"]- int(mismatch))*100.00/length,2))
+        # SOLUTION 1 : nombre de match / longueur alignement
+        # pident=str(round((cig_dict["M"]- int(mismatch))*100.00/length,2))
 
-		# SOLUTION 2 : nombre de match / (longueur alignement - les 100 N)
-		# pident=str(round((cig_dict["M"]- int(mismatch))*100.00/length,2))
-		# length -= N
+        # SOLUTION 2 : nombre de match / (longueur alignement - les 100 N)
+        # pident=str(round((cig_dict["M"]- int(mismatch))*100.00/length,2))
+        # length -= N
 
-		# SOLUTION 3 : nombre de match / (longueur de la seed - les 100 N)
-		pident=str(round((cig_dict["M"]- int(mismatch))*100.00/(len(l[9])-N),2))
+        # SOLUTION 3 : nombre de match / (longueur de la seed - les 100 N)
+        pident=str(round((cig_dict["M"]- int(mismatch))*100.00/(len(l[9])-N),2))
 
-		# SOLUTION 4 : nombre de match / (longueur de la seed )
-		#pident=str(round((cig_dict["M"]- int(mismatch))*100.00/len(l[9]),2))
+        # SOLUTION 4 : nombre de match / (longueur de la seed )
+        #pident=str(round((cig_dict["M"]- int(mismatch))*100.00/len(l[9]),2))
 
-		# write sorted alignement by bitscore
-		if not qseqid in OTU_list:
-			if len(temp_dict) > 0:
-				for a in sorted(temp_dict, key=lambda i: float(temp_dict[i]), reverse=True):
-					FH_out.write(a)
-				temp_dict.clear()
-			OTU_list.append(qseqid)
-		aln=qseqid+"\t"+sseqid+"\t"+pident+"\t"+str(length)+"\t"+mismatch+"\t"+str(gapopen)+"\t"+qstart+"\t"+qend+"\t"+sstart+"\t"+send+"\t"+evalue+"\t"+bitscore+"\t"+qlen+"\n"
-		temp_dict[aln]=bitscore
-	
-	for a in sorted(temp_dict, key=lambda i: float(temp_dict[i]), reverse=True):
-		FH_out.write(a)
-
+        # write best alignement
+        if not qseqid in OTU_list:
+            if len(temp_dict) > 0:
+                max_score = max(temp_dict.values())
+                print (qseqid)
+                print ("\t", temp_dict.values())
+                print ('\t', max_score)
+                for a in temp_dict:
+                    if temp_dict[a] == max_score:
+                        FH_out.write(a)
+                temp_dict.clear()
+            OTU_list.append(qseqid)
+        aln=qseqid+"\t"+sseqid+"\t"+pident+"\t"+str(length)+"\t"+mismatch+"\t"+str(gapopen)+"\t"+qstart+"\t"+qend+"\t"+sstart+"\t"+send+"\t"+evalue+"\t"+bitscore+"\t"+qlen+"\n"
+        temp_dict[aln]=float(bitscore)
+    
+    # write last OTUs alignment
+    max_score = max(temp_dict.values())
+    for a in temp_dict:
+        if temp_dict[a] == max_score:
+            FH_out.write(a)
+    temp_dict.clear()
 
 
 ###################################################################################################################
@@ -146,7 +154,7 @@ if __name__ == "__main__":
     # Manage parameters
     parser = argparse.ArgumentParser(description="Convert Needle Sam output format to Blast outfmt 6 like format")
     parser.add_argument( '-v', '--version', action='version', version=__version__)
-	# Inputs
+    # Inputs
     group_input = parser.add_argument_group('Inputs')
     group_input.add_argument('-n', '--needle', required=True, help='Needle Sam output file')
     group_input.add_argument('-r', '--reference', required=True, help='Reference fasta file')
