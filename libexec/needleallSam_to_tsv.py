@@ -128,9 +128,6 @@ def process(params):
         if not qseqid in OTU_list:
             if len(temp_dict) > 0:
                 max_score = max(temp_dict.values())
-                print (qseqid)
-                print ("\t", temp_dict.values())
-                print ('\t', max_score)
                 for a in temp_dict:
                     if temp_dict[a] == max_score:
                         FH_out.write(a)
