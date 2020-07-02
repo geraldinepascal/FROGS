@@ -66,13 +66,19 @@ class SortFasta(Cmd):
                       "--size-separator '" + size_separator + "' --input-file " + in_fasta + ' --output-file ' + out_fasta + opt,
                       '--version' )
 
+    def get_version(self):
+        """
+        @summary: Returns the program version number.
+        @return: [str] Version number if this is possible, otherwise this method return 'unknown'.
+        """
+        return Cmd.get_version(self, 'stdout').strip()
 
 class Swarm(Cmd):
     """
     @summary: Sequences clustering.
     @see: https://github.com/torognes/swarm
     """
-    def __init__(self, in_fasta, out_swarms, out_log, distance, nb_cpus):
+    def __init__(self, in_fasta, out_swarms, out_log, distance, fastidious_opt, nb_cpus):
         """
         @param in_fasta: [str] Path to fasta file to process.
         @param out_swarms: [str] Path to swarm output file. It describes which reads compose each swarm.
@@ -80,10 +86,11 @@ class Swarm(Cmd):
         @param distance: [int] The 'param.distance'
         @param nb_cpus : [int] 'param.nb_cpus'.
         """
+        opt = ' --fastidious ' if fastidious_opt else ''
         Cmd.__init__( self,
                       'swarm',
                       'Clustering sequences.',
-                      "--differences " + str(distance) + " --threads " + str(nb_cpus) + " --log " + out_log + " --output-file " + out_swarms + " " + in_fasta,
+                      "--differences " + str(distance) + opt + " --threads " + str(nb_cpus) + " --log " + out_log + " --output-file " + out_swarms + " " + in_fasta,
                       '--version' )
 
     def get_version(self):
@@ -109,7 +116,13 @@ class Swarm2Biom(Cmd):
                       'Converts swarm output to abundance file (format BIOM).',
                       "--clusters-file " + in_swarms + " --count-file " + in_count + " --output-file " + out_biom,
                       '--version' )
-
+    
+    def get_version(self):
+        """
+        @summary: Returns the program version number.
+        @return: [str] Version number if this is possible, otherwise this method return 'unknown'.
+        """
+        return Cmd.get_version(self, 'stdout').strip()
 
 class ExtractSwarmsFasta(Cmd):
     """
@@ -127,6 +140,12 @@ class ExtractSwarmsFasta(Cmd):
                       '--input-fasta ' + in_fasta + ' --input-swarms ' + in_swarms + ' --output-fasta ' + out_seeds_file,
                       '--version' )
 
+    def get_version(self):
+        """
+        @summary: Returns the program version number.
+        @return: [str] Version number if this is possible, otherwise this method return 'unknown'.
+        """
+        return Cmd.get_version(self, 'stdout').strip()
 
 ##################################################################################################################################################
 #
@@ -247,9 +266,11 @@ def addNtags(in_fasta, output_fasta):
 if __name__ == "__main__":
     # Manage parameters
     parser = argparse.ArgumentParser( description='Single-linkage clustering on sequences.' )
-    parser.add_argument( '-d', '--distance', type=int, default=2, help="Maximum distance between sequences in each aggregation step. [Default: %(default)s]" )
+    parser.add_argument( '-d', '--distance', type=int, default=1, help="Maximum distance between sequences in each aggregation step. [Default: %(default)s]" )
     parser.add_argument( '-p', '--nb-cpus', type=int, default=1, help="The maximum number of CPUs used. [Default: %(default)s]" )
-    parser.add_argument( '-n', '--denoising', default=False, action='store_true',  help="denoise data by clustering read with distance=1 before perform real clustering" )
+    swarm_opt = parser.add_mutually_exclusive_group()
+    swarm_opt.add_argument( '-n', '--denoising', default=False, action='store_true',  help="denoise data by clustering read with distance=1 before perform real clustering" )
+    swarm_opt.add_argument( '--fastidious', default=False, action='store_true',  help="use the fastidious option of swarm to refine OTU (it's recommended to combined it with a distance equal to 1 (-d) " )
     parser.add_argument( '--debug', default=False, action='store_true', help="Keep temporary files to debug program." )
     parser.add_argument( '-v', '--version', action='version', version=__version__ )
     # Inputs
@@ -280,6 +301,10 @@ if __name__ == "__main__":
     try:
         Logger.static_write(args.log_file, "## Application\nSoftware :" + sys.argv[0] + " (version : " + str(__version__) + ")\nCommand : " + " ".join(sys.argv) + "\n\n")
 
+        if args.distance == 1 and args.denoising:
+            Logger.static_write(args.log_file, "Warning: using the denoising option with a distance of 1 is useless. The denoising option is cancelled\n\n")
+            args.denoising = False
+
         SortFasta( args.input_fasta, sorted_fasta, args.debug ).submit( args.log_file )
         Logger.static_write(args.log_file, "repalce N tags by A. in: " + sorted_fasta + " out : "+ replaceN_fasta +"\n")
         replaceNtags(sorted_fasta, replaceN_fasta)
@@ -293,12 +318,12 @@ if __name__ == "__main__":
             swarms_file = tmpFiles.add( filename_woext + '_swarmD' + str(args.distance) + '_composition.txt' )
             final_sorted_fasta = tmpFiles.add( filename_woext + '_denoising_sortedSeeds.fasta' )
 
-            Swarm( replaceN_fasta, denoising_compo, denoising_log, 1 , args.nb_cpus ).submit( args.log_file )
+            Swarm( replaceN_fasta, denoising_compo, denoising_log, 1 , args.fastidious, args.nb_cpus ).submit( args.log_file )
             ExtractSwarmsFasta( replaceN_fasta, denoising_compo, denoising_seeds ).submit( args.log_file )
             resizeSeed( denoising_seeds, denoising_compo, denoising_resized_seeds ) # add size to seeds name
             SortFasta( denoising_resized_seeds, final_sorted_fasta, args.debug, "_" ).submit( args.log_file )
 
-        Swarm( final_sorted_fasta, swarms_file, swarm_log, args.distance, args.nb_cpus ).submit( args.log_file )
+        Swarm( final_sorted_fasta, swarms_file, swarm_log, args.distance, args.fastidious, args.nb_cpus ).submit( args.log_file )
 
         if args.denoising and args.distance > 1:
             # convert cluster composition in read composition ==> final swarm composition
