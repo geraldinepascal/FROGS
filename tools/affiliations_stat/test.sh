@@ -10,6 +10,7 @@ then
 fi
 
 # Blast consensus tax
+echo "# Blast consensus tax"
 ./affiliations_stat.py \
   --input-biom data/set500_B_affiliation.biom \
   --output-file test/affiliations_metrics1.html \
@@ -21,6 +22,7 @@ fi
   --rarefaction-ranks Family Genus Species
 
 # Blast tax select first
+echo "# Blast tax select first"
 ./affiliations_stat.py \
   --input-biom data/set500_B_affiliation.biom \
   --output-file test/affiliations_metrics2.html \
@@ -32,6 +34,7 @@ fi
   --rarefaction-ranks Family Genus Species
 
 # RDP
+echo "# RDP"
 ./affiliations_stat.py \
   --input-biom data/set500_B_affiliation.biom \
   --output-file test/affiliations_metrics3.html \
