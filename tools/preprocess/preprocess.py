@@ -232,6 +232,7 @@ class Cutadapt5prim(Cmd):
         @param in_fastq: [str] Path to the processed fastq.
         @param out_fastq: [str] Path to the fastq with valid sequences.
         @param cutadapt_log: [str] Path to the log file.
+        @param cutadapt_err: [str] Path to the error file.
         @param param: [Namespace] The primer sequence 'param.five_prim_primer'.
         """
         Cmd.__init__( self,
@@ -275,6 +276,7 @@ class Cutadapt3prim(Cmd):
         @param in_fastq: [str] Path to the processed fastq.
         @param out_fastq: [str] Path to the fastq with valid sequences.
         @param cutadapt_log: [str] Path to the log file.
+        @param cutadapt_err: [str] Path to the error file.
         @param param: [Namespace] The primer sequence 'param.three_prim_primer'.
         """
         Cmd.__init__( self,
@@ -308,7 +310,57 @@ class Cutadapt3prim(Cmd):
         """
         return Cmd.get_version(self, 'stdout')
 
+class CutadaptPaired(Cmd):
+    """
+    @summary: Removes read pairs without 5' primer in R1 and 3' primer in R2 and removes primer sequences.
+    """
+    def __init__(self, in_R1_fastq, in_R2_fastq, out_R1_fastq, out_R2_fastq, cutadapt_log, cutadapt_err, param):
+        """
+        @param in_R1_fastq: [str] Path to the R1 fastq file to process.
+        @param in_R2_fastq: [str] Path to the R2 fastq file to process.
+        @param out_R1_fastq: [str] Path to the R1 fastq with valid sequences.
+        @param out_R2_fastq: [str] Path to the R2 fastq with valid sequences.
+        @param cutadapt_log: [str] Path to the log file.
+        @param cutadapt_err: [str] Path to the error file.
+        @param param: [Namespace] The primer sequence 'param.three_prim_primer'.
+        """
+        Cmd.__init__( self,
+                      'cutadapt',
+                      "Removes read pairs without the 5' and 3' primer and removes primer sequence.",
+                      '-g \"' + param.five_prim_primer + ';min_overlap=' + str(len(param.five_prim_primer)-1) + '\" -G \"' + revcomp(param.three_prim_primer) + ';min_overlap=' + str(len(param.three_prim_primer)-1) + '\" --error-rate 0.1 --discard-untrimmed --match-read-wildcards --pair-filter=any ' + ' -o ' + out_R1_fastq + ' -p ' + out_R2_fastq + ' ' + in_R1_fastq + ' ' + in_R2_fastq + ' > ' + cutadapt_log + ' 2> ' + cutadapt_err,
+                      '--version' )
+        self.cutadapt_log = cutadapt_log
 
+    def parser(self, log_file):
+        """
+        @summary: Parse the command results to add information in log_file.
+        @log_file: [str] Path to the sample process log file.
+        """
+        # Parse output
+        FH_cutadapt_log = open(self.cutadapt_log, 'rt')
+        five_count = 0
+        both = 0
+        for line in FH_cutadapt_log:
+            if line.strip().startswith('Read 1 with adapter:'):
+                five_count = str(line.split()[4])
+            if line.strip().startswith('Pairs written (passing filters):'):
+                both = str(line.split()[4])
+        FH_cutadapt_log.close()
+
+        # Write result
+        FH_log = Logger( log_file )
+        FH_log.write( 'Results:\n' )
+        FH_log.write( "\tnb seq with 5' primer : " + str(five_count) + '\n' )
+        FH_log.write( "\tnb seq with 3' primer : " + str(both) + '\n' )
+        FH_log.close()
+
+    def get_version(self):
+        """
+        @summary: Returns the program version number.
+        @return: version number if this is possible, otherwise this method return 'unknown'.
+        """
+        return Cmd.get_version(self, 'stdout')
+        
 class MultiFilter(Cmd):
     """
     @summary : Filters sequences.
@@ -410,19 +462,6 @@ class Combined(Cmd):
     def get_version(self):   
         return Cmd.get_version(self, 'stdout').strip()
 
-    def parser(self, log_file):
-        """
-        @summary: Parse the command results to add information in log_file.
-        @log_file: [str] Path to the sample process log file.
-        """
-        # Parse output
-        nb_seq_combined = get_nb_seq(self.output)
-        # Write result
-        FH_log = Logger( log_file )
-        FH_log.write( 'Results:\n' )
-        FH_log.write( '\tnb seq paired-end assembled: ' + str(nb_seq_combined) + '\n' )
-        FH_log.close()
-
 
 class ReplaceJoinTag(Cmd):
     """
@@ -511,6 +550,12 @@ class DerepGlobalFastaCount(Cmd):
 # FUNCTIONS
 #
 ##################################################################################################################################################
+def revcomp(seq):
+    """
+    @summary : return reverse complement iupac sequence
+    """
+    return seq.translate(str.maketrans('ACGTacgtRYMKrymkVBHDvbhd', 'TGCAtgcaYRKMyrkmBVDHbvdh'))[::-1]
+
 def get_seq_length( input_file, size_separator=None ):
     """
     @summary: Returns the number of sequences by sequences lengths.
@@ -592,6 +637,9 @@ def summarise_results( samples_names, lengths_files, log_files, param ):
             if not "artificial combined" in filters_by_sample:
                 filters_by_sample["artificial combined"] = {}
             filters_by_sample["artificial combined"][spl_name] = filters["artificial combined"]
+            # add total uncombined pair
+            filters_by_sample["artificial combined"][spl_name]["paired-end assembled"] = filters_by_sample["before process"][spl_name] - filters_by_sample["merged"][spl_name]["paired-end assembled"]
+
         
         # length distribution
         with open(lengths_files[spl_idx]) as FH_lengths:
@@ -651,7 +699,7 @@ def get_sample_results( log_file ):
     FH_input = open(log_file)
     key="merged"
     for line in FH_input:
-        if "combine_and_split" in line:
+        if "combine_and_split" in line or "Removes read pairs without the 5' and 3' primer and removes primer sequence." in line :
             key="artificial combined"
             if key not in nb_seq:
                 nb_seq[key]={}
@@ -808,7 +856,7 @@ def process_sample(R1_file, R2_file, sample_name, out_file, art_out_file, length
 
     tmp_files = TmpFiles( os.path.split(out_file)[0] )
     
-    if args.sequencer == "illumina":
+    if args.sequencer == "illumina" and not args.already_contiged:
         # FLASH
         if args.merge_software == "flash":
             out_contig = tmp_files.add( sample_name + '_flash.extendedFrags.fastq.gz' )
@@ -839,8 +887,6 @@ def process_sample(R1_file, R2_file, sample_name, out_file, art_out_file, length
             out_notcombined_R2 = tmp_files.add( sample_name + '_vsearch.unassembled_R2.fastq' )
             out_contig_log = tmp_files.add(sample_name + '_vsearch.log')
 
-        out_artificial_combined = tmp_files.add( sample_name + '_artificial_combined.fastq.gz' )
-
     # CUTADAPT ON COMBINED FILTER
     tmp_cutadapt = tmp_files.add( sample_name + '_cutadapt_5prim_trim.fastq.gz' )
     log_5prim_cutadapt = tmp_files.add( sample_name + '_cutadapt_5prim_log.txt' )
@@ -848,26 +894,29 @@ def process_sample(R1_file, R2_file, sample_name, out_file, art_out_file, length
     log_3prim_cutadapt = tmp_files.add( sample_name + '_cutadapt_3prim_log.txt' )
     err_3prim_cutadapt = tmp_files.add( sample_name + '_cutadapt_3prim_err.txt' )
     out_cutadapt = tmp_files.add( sample_name + '_cutadapt.fastq.gz' )
-    # CUTADAPT ON ARTIFICIAL COMBINED
-    art_tmp_cutadapt = tmp_files.add( sample_name + '_art_comb_cutadapt_5prim_trim.fastq.gz' )
-    art_log_5prim_cutadapt = tmp_files.add( sample_name + '_art_comb_cutadapt_5prim_log.txt' )
-    art_err_5prim_cutadapt = tmp_files.add( sample_name + '_art_comb_cutadapt_5prim_err.txt' )
-    art_log_3prim_cutadapt = tmp_files.add( sample_name + '_art_comb_cutadapt_3prim_log.txt' )
-    art_err_3prim_cutadapt = tmp_files.add( sample_name + '_art_comb_cutadapt_3prim_err.txt' )
-    art_out_cutadapt = tmp_files.add( sample_name + '_art_comb_cutadapt.fastq.gz' )
     # MULTIFILTER ON COMBINED FILTERED CUTADAPTED
     out_NAndLengthfilter = tmp_files.add( sample_name + '_N_and_length_filter.fasta' )
     log_NAndLengthfilter = tmp_files.add( sample_name + '_N_and_length_filter_log.txt' )
-    # MULTIFILTER ON ARTIFICIAL COMBINED CUTADAPTED
-    art_out_Nfilter = tmp_files.add( sample_name + '_art_N_filter.fasta' )
-    art_log_Nfilter = tmp_files.add( sample_name + '_art_N_filter_log.txt' )
-    # REPLACE COMBINED TAG X BY N
-    art_out_XtoN = tmp_files.add( sample_name + '_art_XtoN.fasta' )
-    art_log_XtoN = tmp_files.add( sample_name + '_art_XtoN_log.txt' )
     # FINAL COUNT ON COMBINED FILTERED CUTADAPTED MULTIFILTERED
     out_count = tmp_files.add( sample_name + '_derep_count.tsv' )
-    # FINAL COUNT ON ARTIFICIAL COMBINED CUTADAPTED
-    art_out_count = tmp_files.add( sample_name + '_derep_count.tsv' )
+
+    # ARTIFICIAL COMBINED
+    if not args.already_contiged:
+        # CUTADAPT ON UNCOMBINED
+        uncomb_R1_tmp_cutadapt = tmp_files.add( sample_name + '_uncomb_cutadapt_paired_trim_R1.fastq.gz' )
+        uncomb_R2_tmp_cutadapt = tmp_files.add( sample_name + '_uncomb_cutadapt_paired_trim_R2.fastq.gz' )
+        uncomb_log_cutadapt = tmp_files.add( sample_name + '_uncomb_cutadapt_paired_log.txt' )
+        uncomb_err_cutadapt = tmp_files.add( sample_name + '_uncomb_cutadapt_paired_err.txt' )
+        # ARTIFICIAL CUTADAPT TRIMMED COMBINED
+        art_out_cutadapt = tmp_files.add( sample_name + '_artificial_combined.fastq.gz' )
+        # MULTIFILTER ON ARTIFICIAL COMBINED CUTADAPTED
+        art_out_Nfilter = tmp_files.add( sample_name + '_art_N_filter.fasta' )
+        art_log_Nfilter = tmp_files.add( sample_name + '_art_N_filter_log.txt' )
+        # REPLACE COMBINED TAG X BY N
+        art_out_XtoN = tmp_files.add( sample_name + '_art_XtoN.fasta' )
+        art_log_XtoN = tmp_files.add( sample_name + '_art_XtoN_log.txt' )
+        # FINAL COUNT ON ARTIFICIAL COMBINED CUTADAPTED
+        art_out_count = tmp_files.add( sample_name + '_derep_count.tsv' )
 
     try:
         # Start log
@@ -932,17 +981,12 @@ def process_sample(R1_file, R2_file, sample_name, out_file, art_out_file, length
 
         # dealing with uncontiged reads.
         if args.keep_unmerged:
-            # read pair assembly
-            Combined(out_notcombined_R1, out_notcombined_R2, "X"*100, out_artificial_combined ).submit(log_file)
             # remove primers
-            if args.sequencer == "454" :
-                Remove454prim(out_artificial_combined, art_out_cutadapt, art_log_3prim_cutadapt, args).submit(log_file)
-            else:
-                if args.five_prim_primer and args.three_prim_primer: # Illumina standard sequencing protocol
-                    Cutadapt5prim(out_artificial_combined, art_tmp_cutadapt, art_log_5prim_cutadapt, art_err_5prim_cutadapt, args).submit(log_file)
-                    Cutadapt3prim(art_tmp_cutadapt, art_out_cutadapt, art_log_3prim_cutadapt, art_err_3prim_cutadapt, args).submit(log_file)
-                else: # Custom sequencing primers. The amplicons is full length (Illumina) except PCR primers (it is use as sequencing primers). [Protocol Kozich et al. 2013]
-                    art_out_cutadapt = out_artificial_combined
+            if args.five_prim_primer and args.three_prim_primer: # Illumina standard sequencing protocol
+                CutadaptPaired(out_notcombined_R1, out_notcombined_R2, uncomb_R1_tmp_cutadapt, uncomb_R2_tmp_cutadapt, uncomb_log_cutadapt, uncomb_err_cutadapt, args).submit(log_file)
+                Combined(uncomb_R1_tmp_cutadapt, uncomb_R2_tmp_cutadapt, "X"*100, art_out_cutadapt ).submit(log_file)
+            else: # Custom sequencing primers. The amplicons is full length (Illumina) except PCR primers (it is use as sequencing primers). [Protocol Kozich et al. 2013]
+                Combined(out_notcombined_R1, out_notcombined_R2, "X"*100, art_out_cutadapt ).submit(log_file)
             # filter on length, N 
             MultiFilter(art_out_cutadapt, args.R1_size, -1, None, art_out_Nfilter, art_log_Nfilter, args).submit(log_file)
             ReplaceJoinTag(art_out_Nfilter, "X"*100, "N"*100, art_out_XtoN ).submit(log_file)
