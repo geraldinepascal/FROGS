@@ -1,4 +1,4 @@
-#!/usr/bin/env python3.7
+p#!/usr/bin/env python3.7
 #
 # Copyright (C) 2016 INRA
 #
@@ -272,7 +272,7 @@ def tsv_to_biom( input_tsv, multi_hit_dict, fields, samples_names, output_biom, 
     for cluster_name in clusters_count:
         biom.add_observation( cluster_name, clusters_metadata[cluster_name] )
         for sample_name in samples_names:
-            if clusters_count[cluster_name][sample_name] > 0:
+            if sample_name in clusters_count[cluster_name]:
                 biom.add_count( cluster_name, sample_name, clusters_count[cluster_name][sample_name] )
 
     # Write
