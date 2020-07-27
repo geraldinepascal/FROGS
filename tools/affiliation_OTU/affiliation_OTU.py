@@ -41,7 +41,7 @@ os.environ['PATH'] = BIN_DIR + os.pathsep + os.environ['PATH']
 LIB_DIR = os.path.abspath(os.path.join(os.path.dirname(CURRENT_DIR), "lib"))
 sys.path.append(LIB_DIR)
 if os.getenv('PYTHONPATH') is None: os.environ['PYTHONPATH'] = LIB_DIR
-else: os.environ['PYTHONPATH'] = os.environ['PYTHONPATH'] + os.pathsep + LIB_DIR
+else: os.environ['PYTHONPATH'] = LIB_DIR + os.pathsep + os.environ['PYTHONPATH']
 
 from frogsUtils import *
 from frogsBiom import BiomIO
@@ -95,14 +95,12 @@ class SplitOnTag(Cmd):
         return Cmd.get_version(self, 'stdout').strip()
 
 class Reduce_Ref(Cmd):
-    def __init__(self,input_ref, query_blast_R1, query_blast_R2, output_fasta, log, debug=None):
-        
-        opt=" --debug" if debug else ""
+    def __init__(self,input_ref, query_blast_R1, query_blast_R2, output_fasta, log):
         
         Cmd.__init__( self,
                       "reduce_ref_for_needleall.py",
                       "Reduced reference fasta file based on R1 and R2 100 best score blast alignment",
-                      " -r " + input_ref + " --query-blast-R1 " + query_blast_R1 + " --query-blast-R2 " + query_blast_R2 + " -f " + output_fasta + " -l " + log + opt,
+                      " -r " + input_ref + " --query-blast-R1 " + query_blast_R1 + " --query-blast-R2 " + query_blast_R2 + " -f " + output_fasta + " -l " + log,
                       "-v")
         
         self.reduced_log=log
@@ -128,11 +126,6 @@ class Reduce_Ref(Cmd):
 
 class Needleall(Cmd):
     def __init__(self,input_ref, input_query, output_sam, log):
-    
-        print(input_ref)
-        print(input_query)
-        print(output_sam)
-        print(log)
     
         Cmd.__init__( self,
                   "needleall",
@@ -423,8 +416,7 @@ def rdp_parallel_submission( function, inputs, outputs, logs, cpu_used, referenc
         if issubclass(current_process['process'].__class__, multiprocessing.Process) and current_process['process'].exitcode != 0:
             raise Exception("\nError in sub-process execution.\n\n")
 
-def process_multiple_needleall(reference, inputs_fasta, temp_sams, temp_logs, outputs, log_files, tempFiles_manager, debug):
-    
+def process_multiple_needleall(reference, inputs_fasta, temp_sams, temp_logs, outputs, log_files, tempFiles_manager, debug):    
     for idx in range(len(inputs_fasta)):
         process_needleall(reference, inputs_fasta[idx], temp_sams[idx], temp_logs[idx], outputs[idx], log_files[idx], tempFiles_manager, debug)
      
@@ -450,7 +442,9 @@ def process_needleall(reference, input_fasta, temp_sam, temp_log, output, log_fi
         tmpFiles_manager.delete(temp_sam)
 
 def needleall_parallel_submission( function, reference, inputs_fasta, temp_sams, temp_logs, outputs, log_files, tmpFiles_manager, debug, cpu_used):
+
     processes = [{'process':None, 'inputs_fasta':list(), 'temp_sams':list(), 'temp_logs' :list(), 'outputs':list(), 'log_files':list()} for idx in range(cpu_used)]
+
     # Launch processes
     for idx in range(len(inputs_fasta)):
         process_idx = idx % cpu_used
@@ -591,13 +585,14 @@ if __name__ == "__main__":
                 log_reducre_ref  = tmpFiles.add("reduced_" + os.path.basename(args.reference) + ".log")
                 Reduce_Ref(args.reference,blast_combined_R1,blast_combined_R2,reduced_ref, log_reducre_ref).submit(args.log_file)
                 #split input fasta for parallelisation
+                
                 split_fasta(fasta_combined, tmpFiles, 10, fasta_needleall_list, args.log_file, by_nb_reads=True)
                 # needleall alignment and conversion in tsv (blast like)
                 sam_needleall_list = [tmpFiles.add(os.path.basename(current_fasta) + ".needleall.sam", prefix="") for current_fasta in fasta_needleall_list ]
                 log_needleall_list = [tmpFiles.add(os.path.basename(current_fasta) + ".needleall.log", prefix="") for current_fasta in fasta_needleall_list ]
                 needleall_tsv_out_list = [tmpFiles.add(os.path.basename(current_fasta) + ".needleall.blast_like", prefix="") for current_fasta in fasta_needleall_list ]
                 log_process_needl_list = [tmpFiles.add(os.path.basename(current_fasta) + ".process_needle.log", prefix="") for current_fasta in fasta_needleall_list ]
-                needleall_parallel_submission( process_needleall, reduced_ref, fasta_needleall_list, sam_needleall_list, log_needleall_list, needleall_tsv_out_list, log_process_needl_list, tmpFiles, args.debug, len(fasta_needleall_list))
+                needleall_parallel_submission( process_multiple_needleall, reduced_ref, fasta_needleall_list, sam_needleall_list, log_needleall_list, needleall_tsv_out_list, log_process_needl_list,tmpFiles, args.debug, min( len(fasta_needleall_list), args.nb_cpus ))
             # BLAST
             if nb_seq - nb_combined > 0 :
                 blast_out_list.append(tmpFiles.add(os.path.basename(fasta_full_length) + ".blast") )

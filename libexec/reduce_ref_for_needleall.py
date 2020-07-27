@@ -106,7 +106,7 @@ def extract_ref(input_blast_R1, input_blast_R2, input_ref, output_ref):
         FH_out.close()
         FH_in.close()
 
-    return len(best_ref)
+    return c,len(best_ref)
 
 
 def process(params):
@@ -114,8 +114,8 @@ def process(params):
     # Extract best blast ref
 
     Logger.static_write(params.log_file, "# Parsing blast alignment results to reduce reference databse\n")
-    nb_ref = extract_ref(params.query_blast_R1, params.query_blast_R2, params.reference, params.output_fasta)
-    Logger.static_write(params.log_file, "\tReducing reference databases to " + str(nb_ref) + " sequences\n\n")
+    nb_tot, nb_ref = extract_ref(params.query_blast_R1, params.query_blast_R2, params.reference, params.output_fasta)
+    Logger.static_write(params.log_file, "\tReducing reference databases from " + str(nb_tot) + " to " + str(nb_ref) + " sequences\n\n")
 
     
 ###################################################################################################################
