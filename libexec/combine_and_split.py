@@ -19,9 +19,9 @@
 __author__ = 'Maria Bernard - Sigenae team Jouy en Josas'
 __copyright__ = 'Copyright (C) 2015 INRA'
 __license__ = 'GNU General Public License'
-__version__ = '0.0.0'
+__version__ = '1.0.0'
 __email__ = 'frogs-support@inrae.fr'
-__status__ = 'dev'
+__status__ = 'prod'
 
 import os,sys
 import argparse
@@ -73,7 +73,7 @@ def checkQualityEncode ( input ):
     }
 
     FH_in = FastqIO(input)
-    print(input)
+    # print(input)
     encoding = ""
     gmin, gmax  = 99, 0
 

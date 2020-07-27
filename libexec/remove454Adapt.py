@@ -19,7 +19,7 @@
 __author__ = 'Frederic Escudie - Plateforme bioinformatique Toulouse'
 __copyright__ = 'Copyright (C) 2015 INRA'
 __license__ = 'GNU General Public License'
-__version__ = '0.5.0'
+__version__ = '1.0'
 __email__ = 'frogs-support@inrae.fr'
 __status__ = 'prod'
 
@@ -113,7 +113,7 @@ def get_cutadapt_version():
         cmd = 'cutadapt --version'
         p = Popen(cmd, shell=True, stdout=PIPE, stderr=PIPE)
         stdout, stderr = p.communicate()
-        version = stdout.strip()
+        version = stdout.decode('utf-8').strip()
     except:
         version = "unknown"
     return version
