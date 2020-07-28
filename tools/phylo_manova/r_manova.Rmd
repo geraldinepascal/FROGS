@@ -1,4 +1,5 @@
 ---
+title: "FROGS Phyloseq: Multivariate Analysis of Variance (version 3.2)"
 output:
   html_notebook:
     code_folding : hide
@@ -48,9 +49,7 @@ h4 {
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
-<h3>FROGS Phyloseq: Multivariate Analysis of Variance (version 3.2)</h3>
-
- Phyloseq `r packageVersion("phyloseq")`
+Phyloseq `r packageVersion("phyloseq")`
 
 ```{r import, message=FALSE}
 ## Import packages
@@ -71,19 +70,16 @@ library(vegan)
   # params <- data.frame( "phyloseq" = phylose, "distance" = distance, "varExp" = varExp)
 
 ## Load data
-  ## the phyloseq object, nammed data in FROGSSTAT Phyloseq Import data
+  # the phyloseq object, nammed data in FROGSSTAT Phyloseq Import data
 load(params$phyloseq)
-  ## Convert sample_data to data.frame
+  # Convert sample_data to data.frame
 metadata <- as(sample_data(data), "data.frame") 
 
-  ## the distance matrix file
+  # the distance matrix file
 A        <- read.table(file=params$distance, row.names=1)
 dist     <- as.dist(A)
-```
 
-###Multivariate ANOVA performed with adonis
-
-```{r manova}
+## Multivariate ANOVA performed with adonis
 adonis <- paste('adonis(dist ~ ', params$varExp, ', data = metadata, perm = 9999)')
 eval(parse(text = adonis))
 ```

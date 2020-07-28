@@ -1,4 +1,5 @@
 ---
+title: "FROGS Phyloseq: Alpha Diversity Visualization (version 3.2)"
 output: 
   html_notebook:
     code_folding: hide
@@ -51,9 +52,7 @@ h4 {
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
-<h3>FROGS Phyloseq: Alpha Diversity Visualization (version 3.2)</h3>
-
- Phyloseq `r packageVersion("phyloseq")`
+Phyloseq `r packageVersion("phyloseq")`
  
 ```{r import, message=FALSE}
 ## Import packages
@@ -90,14 +89,14 @@ alpha.diversity <- estimate_richness(data, measures = measures)
 write.table(alpha.diversity, params$fileAlpha, sep="\t", quote = FALSE, col.names = NA)
 ```
 
-#{.tabset .tabset-fade .tabset-pills}
-##Richness plot
+# {.tabset .tabset-fade .tabset-pills}
+## Richness plot
 ```{r richness, fig.width=10, fig.height=8, warning=FALSE}
 p <- plot_richness(data, x = params$varExp, color = params$varExp, measures = measures) + ggtitle(paste("Alpha diversity distribution in function of", params$varExp))+ theme(plot.title = element_text(hjust = 0.5))
 plot(p)
 ```
 
-##Richness plot with boxplot
+## Richness plot with boxplot
 ```{r richnessBoxplot, fig.width=10, fig.height=8, message=FALSE, warning=FALSE}
 p <- p + geom_boxplot(alpha = 0.2) +
          geom_point()+ theme_grey() +
@@ -106,12 +105,13 @@ p <- p + geom_boxplot(alpha = 0.2) +
 plot(p)
 ```
 
-##Alpha Diversity Indice Anova Analysis
+## Alpha Diversity Indice Anova Analysis
 ```{r anova}
 anova_data <- cbind(sample_data(data), alpha.diversity)
 anova_data$Depth <- sample_sums(data)
 
 variables <- paste(sep=" + ", "Depth", params$varExp )
+
 ## Perform ANOVA on observed richness, which effects are significant
 for (m in measures){
     f <- paste(m," ~ ", variables)
@@ -123,7 +123,7 @@ for (m in measures){
 }
 ```
 
-##Rarefaction curves
+## Rarefaction curves
 ```{r rarefaction, message=FALSE}
 ##code of Mahendra Mariadassou, INRA
 

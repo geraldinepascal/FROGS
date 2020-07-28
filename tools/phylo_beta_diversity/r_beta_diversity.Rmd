@@ -1,4 +1,5 @@
 ---
+title: "FROGS Phyloseq: Beta Diversity Visualization (version 3.2)"
 output: 
   html_notebook:
     code_folding: hide
@@ -48,9 +49,7 @@ h4 {
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
-<h3>FROGS Phyloseq: Beta Diversity Visualization (version 3.2)</h3>
-
- Phyloseq `r packageVersion("phyloseq")`
+Phyloseq `r packageVersion("phyloseq")`
 
 ```{r import, message=FALSE}
 ## Import packages
@@ -90,7 +89,7 @@ methods <- as.list(strsplit(params$methods, ",")[[1]])
 sampleOrder <- levels(reorder(sample_names(data), as.numeric(get_variable(data, params$varExp)))) 
 ```
 
-###Distance as heatmap plot(s)
+### Distance as heatmap plot(s)
 ```{r, fig.width=8, fig.height=6, warning=FALSE}
 
 for (method in methods){

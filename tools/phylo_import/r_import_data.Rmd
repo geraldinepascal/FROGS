@@ -1,4 +1,5 @@
 ---
+title: "FROGS Phyloseq: Import Data (version 3.2)"
 output: 
   html_notebook:
     code_folding: hide
@@ -56,9 +57,7 @@ h4 {
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
-<h3>FROGS Phyloseq: Import Data (version 3.2)</h3>
-
- Phyloseq `r packageVersion("phyloseq")`
+Phyloseq `r packageVersion("phyloseq")`
  
 ```{r package_import, message=FALSE, warning=FALSE}
 
@@ -134,20 +133,20 @@ if(params$normalization){ data <- rarefy_even_depth(data, rngseed = 1121983)}
 save(data, file=params$outputRdata)
 ```
 
-#{.tabset .tabset-fade .tabset-pills}
-##Summary
+# {.tabset .tabset-fade .tabset-pills}
+## Summary
 ```{r summary}
 data
 if(length(empty_samples) > 0) {cat(paste('Remove empty samples: ', paste(empty_samples, collapse=",")))}
 if(params$normalization){cat(paste('Number of sequences in each sample after normalization: ', head(sample_sums(data))[[1]]))}
 ```
 
-##Ranks Names
+## Ranks Names
 ```{r ranks}
 cat(paste('Rank names : ',paste(rank_names(data),collapse=', ')))
 ```
 
-##Sample metadata
+## Sample metadata
 ```{r sample}
 variables <- sample_variables(data)
 cat(paste('Sample variables: ', paste(variables, collapse=', ' )))
@@ -157,7 +156,7 @@ for (var in variables){
 }
 ```
 
-##Plot tree
+## Plot tree
 ```{r tree, fig.width=10, fig.height=8}
 
 if(params$treefile!="None"){

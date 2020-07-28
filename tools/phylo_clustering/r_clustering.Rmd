@@ -1,4 +1,5 @@
 ---
+title: "FROGS Phyloseq: Sample clustering using different linkage method (version 3.2)"
 output: 
   html_notebook:
     code_folding: hide
@@ -50,9 +51,7 @@ h4 {
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
-<h3>FROGS Phyloseq: Sample clustering using different linkage method (version 3.2)</h3>
-
- Phyloseq `r packageVersion("phyloseq")`
+Phyloseq `r packageVersion("phyloseq")`
 
 ```{r import, message=FALSE}
 
@@ -86,19 +85,19 @@ A        <- read.table(file=params$distance, row.names=1)
 dist     <- as.dist(A)
 ```
 
-#{.tabset .tabset-fade .tabset-pills}
+# {.tabset .tabset-fade .tabset-pills}
 
-##Ward D2
+## Ward D2
 ```{r ward, fig.width=8, fig.height=7, echo=FALSE}
 plot_clust(data, dist, method = "ward.D2", color = params$varExp)
 ```
 
-##Complete
+## Complete
 ```{r complete, fig.width=8, fig.height=7, echo=FALSE}
 plot_clust(data, dist, method = "complete", color = params$varExp)
 ```
 
-##Single
+## Single
 ```{r single, fig.width=8, fig.height=7, echo=FALSE}
 plot_clust(data, dist, method = "single", color = params$varExp)
 ```

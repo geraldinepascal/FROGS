@@ -1,4 +1,5 @@
 ---
+title: "FROGS Phyloseq: Structure Visualization (version 3.2)"
 output: 
   html_notebook:
     code_folding: hide
@@ -50,10 +51,7 @@ h4 {
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
-<h3>FROGS Phyloseq: Structure Visualization (version 3.2)</h3>
-
- Phyloseq `r packageVersion("phyloseq")`
-
+Phyloseq `r packageVersion("phyloseq")`
 
 ```{r import, message=FALSE}
 ## Import packages
@@ -95,8 +93,8 @@ ord  <- ordinate(data, method = params$method, distance = dist)
 var  <- get_variable(data, params$varExp)
 ```
 
-#{.tabset .tabset-fade .tabset-pills}
-##Ordination plot
+# {.tabset .tabset-fade .tabset-pills}
+## Ordination plot
 
 <h1 id="plot1">
 ```{r ord1, fig.width=8, fig.height=6}
@@ -123,7 +121,7 @@ ggplotly(p2, tooltip = c("colour", "label"))
 </h1>
 
 <h1 id="plot22" style="display: none;">
-```{r ord22, fig.width=8, fig.height=6}
+```{r ord22, fig.width=8, fig.height=6, warning=FALSE}
 ## p2 is obtained with plot samples see previously
 g <- paste('p22 <- p2 +  stat_ellipse(aes(group =', params$varExp,'))')
 eval(parse(text = g))
@@ -135,7 +133,7 @@ ggplotly(p22, tooltip = c("colour", "label"))
 <button class="button" onclick="document.getElementById('plot2').style.display='' ; document.getElementById('plot1').style.display='none'; document.getElementById('plot22').style.display='none' ">With variable names</button>
 <button class="button" onclick="document.getElementById('plot22').style.display='' ; document.getElementById('plot2').style.display='none'; document.getElementById('plot1').style.display='none'">With ellipses</button>
 
-##Heatmap plot
+## Heatmap plot
 ```{r heatmap, fig.width=9, fig.height=7,message=FALSE, warning=FALSE}
 p3 <- plot_heatmap(data, method = params$method, distance = dist) + scale_fill_gradient2(low = "#ffff00", 
                                                 mid = "#ffa500",

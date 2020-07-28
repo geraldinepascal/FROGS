@@ -1,4 +1,5 @@
 ---
+title: "FROGS Phyloseq: Visualize Data Composition (version 3.2)"
 output:
   html_notebook:
     code_folding : hide
@@ -55,9 +56,7 @@ h4 {
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
-<h3>FROGS Phyloseq: Visualize Data Composition (version 3.2)</h3>
-
- Phyloseq `r packageVersion("phyloseq")`
+Phyloseq `r packageVersion("phyloseq")`
 
 ```{r import, message=FALSE}
 ## Import functions
@@ -106,8 +105,8 @@ facet <- paste('facet_wrap(~', params$varExp,', scales = "free_x", nrow = 1)')
 
 ```
 
-#{.tabset .tabset-fade .tabset-pills}
-##Bar plot
+# {.tabset .tabset-fade .tabset-pills}
+## Bar plot
 ```{r bar_plot, fig.width=10, fig.height=8}
 p <- plot_bar(data,fill= rank_names(data)[2]) + eval(parse(text = facet)) + 
         ggtitle(paste("Bar plot colored by", rank_names(data)[2])) + 
@@ -115,8 +114,8 @@ p <- plot_bar(data,fill= rank_names(data)[2]) + eval(parse(text = facet)) +
 plot(p)
 ```
 
-##Composition plot
-```{r composion_plot, fig.width=10, fig.height=8}
+## Composition plot
+```{r composion_plot, fig.width=10, fig.height=8, warning=FALSE}
 taxaSet1 <- unlist(strsplit(params$taxaSet1, " "))
 p        <- plot_composition(data, params$taxaRank1, taxaSet1, params$taxaRank2, params$numberOfTaxa, fill=params$taxaRank2) 
 p        <- p + eval(parse(text = facet)) + theme(plot.title = element_text(hjust = 0.5))
