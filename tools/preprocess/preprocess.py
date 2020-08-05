@@ -342,9 +342,9 @@ class CutadaptPaired(Cmd):
         both = 0
         for line in FH_cutadapt_log:
             if line.strip().startswith('Read 1 with adapter:'):
-                five_count = str(line.split()[4])
+                five_count = str(line.split()[4].replace(',',''))
             if line.strip().startswith('Pairs written (passing filters):'):
-                both = str(line.split()[4])
+                both = str(line.split()[4].replace(',',''))
         FH_cutadapt_log.close()
 
         # Write result
