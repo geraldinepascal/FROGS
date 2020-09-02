@@ -119,14 +119,16 @@ def splitSeq (input, format, tag, revcomp, out1, out2):
     if out2:
         FH_out2 = FastqIO(out2,"wt") if format == "fastq" else FastaIO(out2,"wt")
 
-    seq_id=[]
+    # seq_id=[]
 
     for record in FH_in:
         record.id=record.id.replace("_FROGS_combined","")
-        if record.id in seq_id:
-            raise Exception(record.id+" present multiple time in your input file")
-        else:
-            seq_id.append(record.id)
+
+        # checking for duplicate like that take too much time!!
+        # if record.id in seq_id:
+        #     raise Exception(record.id+" present multiple time in your input file")
+        # else:
+        #     seq_id.append(record.id)
 
         split_seq = record.string.split(tag)
         if len(split_seq) != 2:
