@@ -77,10 +77,10 @@ def to_biom( clusters_file, count_file, output_biom, size_separator ):
         seed_id = line.strip().split()[0]
         if "FROGS_combined" in seed_id:
             cluster_name = "Cluster_" + str(cluster_idx) + "_FROGS_combined"
-            comment = "WARNING"
+            comment = ["FROGS_combined"]
         else:
             cluster_name = "Cluster_" + str(cluster_idx)
-            comment = "na"
+            comment = list()
         cluster_count = {key:0 for key in samples}
         line_fields = line.strip().split()
         # Retrieve count by sample
