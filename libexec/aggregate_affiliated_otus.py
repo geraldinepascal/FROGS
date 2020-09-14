@@ -78,7 +78,7 @@ def process(params):
     if not biom_in.has_metadata("blast_affiliations"):
         raise Exception("Your input biom file, "+ os.path.basename(params.input_biom) + ", does not contain any blast_affiliations metadata.")
 
-    biom_out = Biom( matrix_type="sparse" )
+    biom_out = Biom( generated_by='FROGS_aggregate_affiliated_otu', matrix_type="sparse" )
 
     # add samples in biom_out
     for sample_name in biom_in.get_samples_names():
@@ -152,8 +152,9 @@ def process(params):
                 otu_out += 1
                 biom_out.add_observation( otu_name, observation["metadata"] )
                 for sample_name in biom_in.get_samples_names():
-                    count = biom_in.get_count(otu_name,sample_name)
-                    biom_out.add_count(otu_name, sample_name, count)
+                    count = biom_in.get_count(otu_name, sample_name)
+                    if count > 0 :
+                        biom_out.add_count(otu_name, sample_name, count)
                 aggregated_otu[otu_name] = list()
                 for taxonomy in tax:
                     if isinstance(taxonomy,list):
