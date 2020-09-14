@@ -65,6 +65,8 @@ class Biom2tsv(Cmd):
         conversion_tags = ""
         if biom.has_observation_metadata( 'comment' ) :
             conversion_tags += "'comment' "
+        if biom.has_observation_metadata( 'affi_filter_statut' ) :
+            conversion_tags += "'affi_filter_statut' "            
         if biom.has_observation_metadata( 'rdp_taxonomy' ) and biom.has_observation_metadata( 'rdp_bootstrap' ):
             conversion_tags += "'@rdp_tax_and_bootstrap' "
         if biom.has_observation_metadata( 'blast_taxonomy' ):
@@ -80,7 +82,7 @@ class Biom2tsv(Cmd):
         if in_fasta is not None:
             conversion_tags += "'@seed_sequence' "
 
-        frogs_metadata = ["comment", "rdp_taxonomy", "rdp_bootstrap","blast_taxonomy","blast_affiliations","seed_id"]
+        frogs_metadata = ["comment", "affi_filter_statut", "rdp_taxonomy", "rdp_bootstrap","blast_taxonomy","blast_affiliations","seed_id"]
         if biom.get_observation_metadata(obs["id"]) != None:
             for metadata in biom.get_observation_metadata(obs["id"]):
                 if metadata not in frogs_metadata : 
