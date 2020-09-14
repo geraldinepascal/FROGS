@@ -216,7 +216,7 @@ def aff_to_metadata(reference_file, biom_in, biom_out, blast_files=None, rdp_fil
         cluster_id = cluster["id"]
         # Blast
         if blast_files is not None:
-            blast_taxonomy = None
+            blast_taxonomy = list()
             blast_affiliations = list()
             if cluster_id in cluster_blast_annot: # Current observation has a match
                 blast_taxonomy = get_tax_consensus( [alignment['taxonomy'] for alignment in cluster_blast_annot[cluster_id]['alignments']] )
@@ -225,8 +225,8 @@ def aff_to_metadata(reference_file, biom_in, biom_out, blast_files=None, rdp_fil
             biom.add_metadata( cluster_id, "blast_taxonomy", blast_taxonomy, "observation" )
         # RDP
         if rdp_files is not None:
-            rdp_taxonomy = None
-            rdp_bootstrap = None
+            rdp_taxonomy = list()
+            rdp_bootstrap = list()
             if cluster_id in cluster_rdp_annot:
                 rdp_taxonomy = cluster_rdp_annot[cluster_id]['taxonomy']
                 rdp_bootstrap = cluster_rdp_annot[cluster_id]['bootstrap']

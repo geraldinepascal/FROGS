@@ -52,7 +52,8 @@ def uniq( metadata_list, evaluated_tag, ambiguity_value ):
     return value
 
 def observation_line_parts( observation, count_by_sample, fields, list_separator ):
-    no_affiliation_str = "no data"
+    no_data_str = "no data"
+    print(observation)
     line = list()
     for current_field in fields:
         if current_field == '@observation_name':
@@ -78,36 +79,39 @@ def observation_line_parts( observation, count_by_sample, fields, list_separator
             if rdp_and_bootstrap != "" :
                 line.append(str(rdp_and_bootstrap)) 
             else:
-                line.append(no_affiliation_str)
+                line.append(no_data_str)
         elif current_field == "@blast_perc_identity":
-            if len(observation['metadata']["blast_affiliations"]) > 0:
+            if issubclass(observation['metadata']["blast_affiliations"].__class__, list) and len(observation['metadata']["blast_affiliations"]) > 0:
                 line.append( str(uniq(observation['metadata']["blast_affiliations"], "perc_identity", "multi-identity")) )
             else:
-                line.append( no_affiliation_str )
+                line.append( no_data_str )
         elif current_field == "@blast_perc_query_coverage":
-            if len(observation['metadata']["blast_affiliations"]) > 0:
+            if issubclass(observation['metadata']["blast_affiliations"].__class__, list) and len(observation['metadata']["blast_affiliations"]) > 0:
                 line.append( str(uniq(observation['metadata']["blast_affiliations"], "perc_query_coverage", "multi-coverage")) )
             else:
-                line.append( no_affiliation_str )
+                line.append( no_data_str )
         elif current_field == "@blast_evalue":
-            if len(observation['metadata']["blast_affiliations"]) > 0:
+            if issubclass(observation['metadata']["blast_affiliations"].__class__, list) and  len(observation['metadata']["blast_affiliations"]) > 0:
                 line.append( str(uniq(observation['metadata']["blast_affiliations"], "evalue", "multi-evalue")) )
             else:
-                line.append( no_affiliation_str )
+                line.append( no_data_str )
         elif current_field == "@blast_subject":
-            if len(observation['metadata']["blast_affiliations"]) > 0:
+            if issubclass(observation['metadata']["blast_affiliations"].__class__, list) and  len(observation['metadata']["blast_affiliations"]) > 0:
                 line.append( str(uniq(observation['metadata']["blast_affiliations"], "subject", "multi-subject")) )
             else:
-                line.append( no_affiliation_str )
+                line.append( no_data_str )
         elif current_field == "@blast_aln_length":
-            if len(observation['metadata']["blast_affiliations"]) > 0:
+            if issubclass(observation['metadata']["blast_affiliations"].__class__, list) and len(observation['metadata']["blast_affiliations"]) > 0:
                 line.append( str(uniq(observation['metadata']["blast_affiliations"], "aln_length", "multi-alignment-lg")) )
             else:
-                line.append( no_affiliation_str )
+                line.append( no_data_str )
         else: #metadata
             if issubclass(observation['metadata'][current_field].__class__, list):
-                line.append( list_separator.join(observation['metadata'][current_field]) )
-            else:
+                if len(observation['metadata'][current_field]) > 0 :
+                    line.append( list_separator.join(observation['metadata'][current_field]) )
+                else:
+                    line.append(no_data_str)
+            elif issubclass(observation['metadata'][current_field].__class__, str):
                 line.append( str(observation['metadata'][current_field]) )
     return line
 
