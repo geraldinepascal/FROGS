@@ -104,6 +104,13 @@ class FROGSBiomToStdBiom(Cmd):
                     '--version'
         )
 
+    def get_version(self):
+        """
+        @summary: Returns the program version number.
+        @return: [str] Version number if this is possible, otherwise this method return 'unknown'.
+        """
+        return Cmd.get_version(self, 'stdout')
+
 
 ##################################################################################################################################################
 #
