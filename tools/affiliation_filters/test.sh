@@ -1,6 +1,6 @@
 #!/bin/bash
 FROGS_DIR=`dirname $(dirname $(pwd))`
-export PATH=$FROGS_DIR/libexec:$PATH
+export PATH=$FROGS_DIR/libexec:$FROGS_DIR/app:$PATH
 export PYTHONPATH=$FROGS_DIR/lib:$PYTHONPATH
 
 # Create output folder
@@ -13,8 +13,6 @@ fi
 
 
 # FROGS BIOM after affiliation
-
-# FROGS BIOM after affiliation
 echo ""
 OUT=test/metrics-filter
 echo $OUT "delete mode"
@@ -22,7 +20,7 @@ mkdir -p $OUT
 ./affiliation_filters.py \
 --input-biom data/fake_affiliation.biom --input-fasta data/fake_affiliation.fasta \
 --output-biom $OUT/filtered_OTU_deleted.biom --output-fasta $OUT/filtered_OTU_deleted.fasta \
---summary $OUT/summary_OTU_deleted.html --impacted $OUT/impacted_OTU_deleted.tsv \
+--summary $OUT/summary_OTU_deleted.html --impacted $OUT/impacted_OTU_deleted.tsv --impacted-multihit $OUT/impacted_OTU_deleted_multihit.tsv \
 --log-file $OUT/delete_log.txt \
 --min-rdp-bootstrap Species:0.8 \
 --min-blast-length 402 \
@@ -37,7 +35,7 @@ echo $OUT "masking mode"
 ./affiliation_filters.py \
 --input-biom data/fake_affiliation.biom --input-fasta data/fake_affiliation.fasta \
 --output-biom $OUT/filtered_OTU_masked.biom --output-fasta $OUT/filtered_OTU_masked.fasta \
---summary $OUT/summary_OTU_masked.html --impacted $OUT/impacted_OTU_masked.tsv \
+--summary $OUT/summary_OTU_masked.html --impacted $OUT/impacted_OTU_masked.tsv --impacted-multihit $OUT/impacted_OTU_masked_multihit.tsv \
 --log-file $OUT/mask_log.txt \
 --min-rdp-bootstrap Species:0.8 \
 --min-blast-length 402 \
@@ -54,7 +52,7 @@ mkdir -p $OUT
 ./affiliation_filters.py \
 --input-biom data/fake_affiliation.biom --input-fasta data/fake_affiliation.fasta \
 --output-biom $OUT/filtered_OTU_deleted.biom --output-fasta $OUT/filtered_OTU_deleted.fasta \
---summary $OUT/summary_OTU_deleted.html --impacted $OUT/impacted_OTU_deleted.tsv \
+--summary $OUT/summary_OTU_deleted.html --impacted $OUT/impacted_OTU_deleted.tsv --impacted-multihit $OUT/impacted_OTU_deleted_multihit.tsv \
 --log-file $OUT/delete_log.txt \
 --taxon-ignored "Methylovulum miyakonense" "subsp." "unknown species" \
 --delete
@@ -65,19 +63,21 @@ echo $OUT "masking mode"
 ./affiliation_filters.py \
 --input-biom data/fake_affiliation.biom --input-fasta data/fake_affiliation.fasta \
 --output-biom $OUT/filtered_OTU_masked.biom --output-fasta $OUT/filtered_OTU_masked.fasta \
---summary $OUT/summary_OTU_masked.html --impacted $OUT/impacted_OTU_masked.tsv \
+--summary $OUT/summary_OTU_masked.html --impacted $OUT/impacted_OTU_masked.tsv --impacted-multihit $OUT/impacted_OTU_masked_multihit.tsv \
 --log-file $OUT/mask_log.txt \
 --taxon-ignored "Methylovulum miyakonense" "subsp." "unknown species" \
 --mask
 
 OUT=test/all-filter
 mkdir -p $OUT
+echo $OUT "masking mode"
+
 ./affiliation_filters.py \
 --input-biom data/fake_affiliation.biom --input-fasta data/fake_affiliation.fasta \
 --output-biom $OUT/filtered_OTU_masked.biom --output-fasta $OUT/filtered_OTU_masked.fasta \
---summary $OUT/summary_OTU_masked.html --impacted $OUT/impacted_OTU_masked.tsv \
+--summary $OUT/summary_OTU_masked.html --impacted $OUT/impacted_OTU_masked.tsv --impacted-multihit $OUT/impacted_OTU_masked_multihit.tsv \
 --log-file $OUT/mask_log.txt \
---mask --debug \
+--mask \
 --taxonomic-ranks Domain Phylum Class Order Family Genus Species --min-rdp-bootstrap Species:0.7303 \
---max-blast-evalue 0.1378 --min-blast-identity 0.7217 --min-blast-coverage 0.726 \
---taxon-ignored "Methylovulum miyakonense" "subsp." "unknown species"
+--max-blast-evalue 0 --min-blast-identity 1.0 --min-blast-coverage 1.0 \
+--taxon-ignored "Methylovulum miyakonense" "subsp." "unknown species" --debug

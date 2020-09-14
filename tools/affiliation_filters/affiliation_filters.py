@@ -36,6 +36,9 @@ CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
 # PATH
 BIN_DIR = os.path.abspath(os.path.join(os.path.dirname(CURRENT_DIR), "libexec"))
 os.environ['PATH'] = BIN_DIR + os.pathsep + os.environ['PATH']
+APP_DIR = os.path.abspath(os.path.join(os.path.dirname(CURRENT_DIR), "app"))
+os.environ['PATH'] = APP_DIR + os.pathsep + os.environ['PATH']
+
 # PYTHONPATH
 LIB_DIR = os.path.abspath(os.path.join(os.path.dirname(CURRENT_DIR), "lib"))
 sys.path.append(LIB_DIR)
@@ -43,7 +46,7 @@ if os.getenv('PYTHONPATH') is None: os.environ['PYTHONPATH'] = LIB_DIR
 else: os.environ['PYTHONPATH'] = LIB_DIR + os.pathsep + os.environ['PYTHONPATH']
 
 from frogsUtils import *
-from frogsBiom import BiomIO
+from frogsBiom import *
 from frogsSequenceIO import *
 
 
@@ -67,6 +70,36 @@ class UpdateFasta(Cmd):
                       'Updates fasta file based on sequence in biom file.',
                       "--input-biom " + in_biom + " --input-fasta " + in_fasta + " --output-file " + out_fasta + " --log " + log,
                       '--version' )
+
+    def get_version(self):
+        """
+        @summary: Returns the program version number.
+        @return: [str] Version number if this is possible, otherwise this method return 'unknown'.
+        """
+        return Cmd.get_version(self, 'stdout')
+
+class Biom_to_tsv(Cmd):
+    """
+    @summary: Convert a biom abundance file into TSV files (abundance and multihit)
+    """
+    def __init__(self, in_biom, out_tsv, out_multihit):
+        """
+        @param in_biom: [str] Path to BIOM file.
+        @param out_tsv : [int] Path to abundance TSV file 
+        @param out_multihit: [str] Path to multi affiliation TSV file
+        """
+        Cmd.__init__( self,
+                      'biom_to_tsv.py',
+                      'Convert a biom abundance file into TSV files (abundance and multihit)',
+                      "--input-biom " + in_biom + " --output-tsv " + out_tsv + " --output-multi-affi " + out_multihit,
+                      '--version' )
+
+    def get_version(self):
+        """
+        @summary: Returns the program version number.
+        @return: [str] Version number if this is possible, otherwise this method return 'unknown'.
+        """
+        return Cmd.get_version(self, 'stdout')
 
 ##################################################################################################################################################
 #
@@ -117,7 +150,9 @@ def impacted_obs_on_rdpBootstrap(input_biom, taxonomic_depth, min_bootstrap, imp
     @param taxonomic_depth: [int] The taxonomic rank depth to check (example: 6 for Species in system "Domain, Phylum, Class, Order, Family, Genus, Species").
     @param min_bootstrap: [float] The observations with a value inferior to this threshold at the specified taxonomic depth are reported in the impacted file.
     @param impacted_file: [str] The path to the output file.
+    @return n : number of filter OTU
     """
+    n=0
     biom = BiomIO.from_json( input_biom )
     FH_impacted_file = open( impacted_file, "wt" )
     for observation in biom.get_observations():
@@ -126,7 +161,9 @@ def impacted_obs_on_rdpBootstrap(input_biom, taxonomic_depth, min_bootstrap, imp
             bootstrap = bootstrap.split(";")
         if bootstrap[taxonomic_depth] < min_bootstrap:
             FH_impacted_file.write( str(observation["id"]) + "\n" )
+            n += 1
     FH_impacted_file.close()
+    return n
 
 
 def impacted_obs_on_blastMetrics( input_biom, tag, cmp_operator, threshold, impacted_file ):
@@ -137,7 +174,9 @@ def impacted_obs_on_blastMetrics( input_biom, tag, cmp_operator, threshold, impa
     @param cmp_operator: [str] The operator use in comparison (tag_value ">=" thresold or tag_value "<=" thresold ).
     @param threshold: [float] The limit for the tag value.
     @param impacted_file: [str] The path to the output file.
+    @return n : number of filtered OTU
     """
+    n = 0
     valid_operators = {
         ">=": operator.__ge__,
         "<=": operator.__le__
@@ -153,7 +192,10 @@ def impacted_obs_on_blastMetrics( input_biom, tag, cmp_operator, threshold, impa
                 is_discarded = False
         if is_discarded:
             FH_impacted_file.write( str(observation["id"]) + "\n" )
+            n += 1
+
     FH_impacted_file.close()
+    return n
 
 def get_tax_consensus( taxonomies ):
     """
@@ -190,11 +232,15 @@ def impacted_obs_by_undesired_taxon(input_biom, undesired_taxon_list, in_all_or_
     @param in_all_or_in_consensus: [bool] if True, one taxon_ignored must be in the consensus or all affiliation must one of the taxon ignored
     @param biom_out: [str] path to biom with removed undesired taxonomy
     @param impacted_file: [str] The path to the output file.
+    @return n : number of filtered OTU
     """
+    n = 0
     biom = BiomIO.from_json( input_biom )
     FH_impacted_file = open( impacted_file, "wt" )
 
     for observation in biom.get_observations():
+        if not "comment" in observation['metadata'] :
+            observation['metadata']['comment'] = list()
 
         # update blast_affiliations without ignored taxon and recompute de blast_taxonomy
         new_blast_affi = list()
@@ -212,15 +258,27 @@ def impacted_obs_by_undesired_taxon(input_biom, undesired_taxon_list, in_all_or_
         if len(new_blast_affi) != len(observation['metadata']['blast_affiliations']):
             observation['metadata']['blast_affiliations'] = new_blast_affi
             new_consensus = get_tax_consensus([affi['taxonomy'] for affi in new_blast_affi] )
+            
             # delete mode if all affiliations belong to one of undesired taxon
             if in_all_or_in_consensus and len(new_blast_affi) == 0 : 
+                n += 1
                 FH_impacted_file.write( str(observation["id"]) + "\n" )
+            
             # masking mode if the new consensus is changed because of ignoring undesired taxon
             elif not in_all_or_in_consensus and new_consensus != observation['metadata']['blast_taxonomy']:
+                n += 1
                 FH_impacted_file.write( str(observation["id"]) + "\n" )
+
+            # add comment
+            if len(new_consensus) == 0:
+                observation['metadata']['comment'].append("blast_tax_masked")
+            elif not new_consensus == observation['metadata']['blast_taxonomy']:
+                observation['metadata']['comment'].append("blast_tax_changed")
+
             observation['metadata']['blast_taxonomy'] = new_consensus
 
     BiomIO.write( biom_out, biom )
+    return n
 
 
 def remove_observations( removed_observations, input_biom, output_biom ):
@@ -234,19 +292,28 @@ def remove_observations( removed_observations, input_biom, output_biom ):
     biom.remove_observations( removed_observations )
     BiomIO.write( output_biom, biom )
 
+def list_from_file(in_file):
+    uniq = list()
+    FH_current_file = open( in_file, 'rt' )
+    for line in FH_current_file:
+        if not line.strip() in uniq:
+            uniq.append(line.strip())
+    FH_current_file.close()
+
+    return uniq
+
 def uniq_from_files_lists( in_files ):
     """
     @summary: Returns an list without duplicated elements from several list files.
     @param in_files: [list] The list of files paths. Each file contains a list.
     @return: [list] The list without duplicated elements.
     """
-    uniq = dict()
+    uniq = list()
     for current_file in in_files:
-        FH_current_file = open( current_file )
-        for line in FH_current_file:
-            uniq[line.strip()] = 1
-        FH_current_file.close()
-    return list(uniq.keys())
+        l = list_from_file(current_file)
+        uniq = list(set(uniq + l ))
+
+    return uniq
 
 def mask_observation(rdp_clusters_discards, blast_clusters_discards, input_biom, output_biom):
     """
@@ -259,54 +326,93 @@ def mask_observation(rdp_clusters_discards, blast_clusters_discards, input_biom,
 
     biom = BiomIO.from_json(input_biom)
     for observation in biom.get_observations():
+        if 'comment' not in observation['metadata'] :
+            observation['metadata']['comment'] = list()
         # remove rdp taxonomic metadata
         if rdp_clusters_discards is not None and observation['id'] in rdp_clusters_discards:
+            observation['metadata']['comment'].append("rdp_tax_masked")
+
             if issubclass( observation['metadata']["rdp_taxonomy"].__class__, str):
                 observation['metadata']["rdp_taxonomy"] = ""
                 observation['metadata']["rdp_bootstrap"] = ""
-            elif issubclass( observation['metadata']["rdp_taxonomy"].__class__, str):
+            elif issubclass( observation['metadata']["rdp_taxonomy"].__class__, list):
                 observation['metadata']["rdp_taxonomy"] = list()
                 observation['metadata']["rdp_bootstrap"] = list()
 
         # remove blast metadata
         if observation['id'] in blast_clusters_discards:
+            observation['metadata']['comment'].append("blast_tax_masked")
             observation['metadata']["blast_affiliations"] = list()
             observation['metadata']["blast_taxonomy"] = list()
 
     BiomIO.write( output_biom, biom )
 
-def write_impact( discards, impacted_file ):
+def write_impact( params, discards, tmp_biom, impacted_file, impacted_multihit ):
     """
     @summary: Writes the list of observations removed by each filter.
+    @param params: [Namespace] to recover input bam file, and filter threshold
     @param discards: [dict] By filter the path of the file that contains the list of the removed observations.
-    @param impacted_file: [str] The path to the output file.
+    @param impacted_file: [str] The path to the abundance tsv file with filter annotation.
+    @param impacted_multihit : [str] The path to the multihit tsv file for impacted OTU.
     """
-    FH_impacted = open( impacted_file, "wt" )
-    list_FH_discards = list()
+    dict_OTU_discards = dict()
 
-    # Header
-    header_line_fields = list()
+    # store reason why OTU are impacted
     for filter in discards:
-        header_line_fields.append( filter )
-        list_FH_discards.append( open(discards[filter]) )
-    FH_impacted.write( "#" + "\t".join(header_line_fields)  + "\n" )
+        label=""
+        if "min_rdp_bootstrap" in discards[filter]:
+            label = params.min_rdp_bootstrap["rank"] + "_rdp_boostrap_lt_" + str(params.min_rdp_bootstrap["value"])
+        elif "min_blast_length" in discards[filter]:
+            label = "blast_len_lt_" + str(params.min_blast_length)
+        elif "max_blast_evalue" in discards[filter]:
+            label = "blast_evalue_gt_" + str(params.max_blast_evalue )
+        elif "min_blast_identity" in discards[filter]:
+            label = "blast_id_lt_" + str(params.min_blast_identity )
+        elif "min_blast_coverage" in discards[filter]:
+            label = "blast_cov_lt_" + str(params.min_blast_coverage )
+        elif "taxon_ignored" in discards[filter]:
+            label = "undesired_tax_in_blast"
 
-    # Excluded
-    nb_eof = 0
-    while nb_eof < len(list_FH_discards):
-        discards_line_fields = list()
-        for FH_idx, FH_curent_filter in enumerate(list_FH_discards): # For each filter
-            observation = ""
-            if FH_curent_filter is not None: # Process next line if the discard file is not closed
-                observation = FH_curent_filter.readline()
-                if observation == "":
-                    FH_curent_filter.close()
-                    list_FH_discards[FH_idx] = None
-                    nb_eof += 1
-            discards_line_fields.append( observation.strip() )
-        if nb_eof < len(list_FH_discards):
-            FH_impacted.write( "\t".join(discards_line_fields)  + "\n" )
-    FH_impacted.close()
+        FH_disc = open(discards[filter],'rt')
+
+        for line in FH_disc:
+            otu_name = line.strip()
+            if not otu_name in dict_OTU_discards:
+                dict_OTU_discards[otu_name] = label
+            else:
+                dict_OTU_discards[otu_name] += ";"+label
+
+    # Create a biom abundance file with impacted OTU only
+    biom_In = BiomIO.from_json(params.input_biom)
+    biom_Out = Biom( generated_by='FROGS_affiliation_filters', matrix_type="sparse" )
+
+    # Add samples
+    for sample_name in biom_In.get_samples_names():
+        biom_Out.add_sample( sample_name )
+
+    # Add impacted OTU
+    for observation in biom_In.get_observations():
+        if observation['id'] in dict_OTU_discards:
+            if not 'comment' in observation['metadata']:
+                observation['metadata']['comment'] = ""
+            observation['metadata']['comment'] = dict_OTU_discards[observation['id']]
+            if not 'affi_filter_statut' in observation['metadata']:
+                observation['metadata']['affi_filter_statut'] = ""
+            observation['metadata']['affi_filter_statut'] = 'affiliation_masked' if params.mask else 'OTU_deleted'
+            biom_Out.add_observation( observation['id'], observation['metadata'] )
+            # Add count
+            for sample_name in biom_In.get_samples_names():
+                if biom_In.get_count(observation['id'],sample_name) > 0:
+                    biom_Out.add_count(observation['id'],sample_name, biom_In.get_count(observation['id'],sample_name))
+
+    # Write
+    BiomIO.write( tmp_biom, biom_Out )
+
+    # Convert Biom in TSV
+    Biom_to_tsv(tmp_biom, impacted_file, impacted_multihit).submit(params.log_file)
+
+
+
 
 def write_summary( summary_file, input_biom, output_biom, discards, params ):
     """
@@ -400,42 +506,49 @@ def process( args ):
     biom_in = args.input_biom
     try:
         discards = dict() # by filter the discard file path
-
+        Logger.static_write(args.log_file, "Identify OTU with :\n")
         if args.min_rdp_bootstrap is not None:
             label = "RDP bootstrap for " + args.min_rdp_bootstrap["rank"] + " < " + str(args.min_rdp_bootstrap["value"])
             discards[label] = tmpFiles.add( "min_rdp_bootstrap" )
-            impacted_obs_on_rdpBootstrap( biom_in, args.rdp_taxonomy_ranks.index(args.min_rdp_bootstrap["rank"]), args.min_rdp_bootstrap["value"], discards[label] )
+            n = impacted_obs_on_rdpBootstrap( biom_in, args.rdp_taxonomy_ranks.index(args.min_rdp_bootstrap["rank"]), args.min_rdp_bootstrap["value"], discards[label] )
+            Logger.static_write(args.log_file, "\t- " + label + " : "+ str(n) + "\n")
 
         if args.min_blast_length is not None:
             label = "All blast length < " + str(args.min_blast_length)
             discards[label] = tmpFiles.add( "min_blast_length" )
-            impacted_obs_on_blastMetrics( biom_in, "aln_length", ">=", args.min_blast_length, discards[label] )
+            n = impacted_obs_on_blastMetrics( biom_in, "aln_length", ">=", args.min_blast_length, discards[label] )
+            Logger.static_write(args.log_file, "\t- " + label + " : "+ str(n) + "\n")
 
         if args.max_blast_evalue is not None:
             label = "All blast evalue > " + str(args.max_blast_evalue)
             discards[label] = tmpFiles.add( "max_blast_evalue" )
-            impacted_obs_on_blastMetrics( biom_in, "evalue", "<=", args.max_blast_evalue, discards[label] )
+            n = impacted_obs_on_blastMetrics( biom_in, "evalue", "<=", args.max_blast_evalue, discards[label] )
+            Logger.static_write(args.log_file, "\t- " + label + " : "+ str(n) + "\n")
 
         if args.min_blast_identity is not None:
             label = "All blast identity < " + str(args.min_blast_identity)
             discards[label] = tmpFiles.add( "min_blast_identity" )
-            impacted_obs_on_blastMetrics( biom_in, "perc_identity", ">=", 100*args.min_blast_identity, discards[label] )
+            n = impacted_obs_on_blastMetrics( biom_in, "perc_identity", ">=", 100*args.min_blast_identity, discards[label] )
+            Logger.static_write(args.log_file, "\t- " + label + " : "+ str(n) + "\n")
 
         if args.min_blast_coverage is not None:
             label = "All blast coverage < " + str(args.min_blast_coverage)
             discards[label] = tmpFiles.add( "min_blast_coverage" )
-            impacted_obs_on_blastMetrics( biom_in, "perc_query_coverage", ">=", 100*args.min_blast_coverage, discards[label] )
-
+            n = impacted_obs_on_blastMetrics( biom_in, "perc_query_coverage", ">=", 100*args.min_blast_coverage, discards[label] )
+            Logger.static_write(args.log_file, "\t- " + label + " : "+ str(n) + "\n")
+        
         if args.taxon_ignored is not None:
             label = "All blast taxonomies or consensus taxonomy belong to undesired taxon: " + " / ".join(args.taxon_ignored)
             if args.mask:
                 label = "Some blast taxonomies belong to undesired taxon: " + " / ".join(args.taxon_ignored)
             discards[label] = tmpFiles.add( "taxon_ignored" )
             biom_taxIgnored = tmpFiles.add( "taxon_ignored.biom" )
+            n = 0
             if args.delete:
-                impacted_obs_by_undesired_taxon(biom_in, args.taxon_ignored, True, biom_taxIgnored, discards[label])
+                n = impacted_obs_by_undesired_taxon(biom_in, args.taxon_ignored, True, biom_taxIgnored, discards[label])
             else:
-                impacted_obs_by_undesired_taxon(biom_in, args.taxon_ignored, False, biom_taxIgnored, discards[label])
+                n = impacted_obs_by_undesired_taxon(biom_in, args.taxon_ignored, False, biom_taxIgnored, discards[label])
+            Logger.static_write(args.log_file, "\t- " + label + " : "+ str(n) + "\n")
             biom_in = biom_taxIgnored
 
 
@@ -446,13 +559,15 @@ def process( args ):
             UpdateFasta( args.output_biom, args.input_fasta, args.output_fasta, update_fasta_log ).submit( args.log_file )
         
         if args.mask:
-            rdp_clusters_discards = discards["RDP bootstrap for " + args.min_rdp_bootstrap["rank"] + " < " + str(args.min_rdp_bootstrap["value"])] if args.min_rdp_bootstrap is not None and "RDP bootstrap for " + args.min_rdp_bootstrap["rank"] + " < " + str(args.min_rdp_bootstrap["value"]) in discards else None
-
+            rdp_clusters_discards = list()
+            if args.min_rdp_bootstrap is not None and "RDP bootstrap for " + args.min_rdp_bootstrap["rank"] + " < " + str(args.min_rdp_bootstrap["value"]) in discards: 
+                rdp_clusters_discards = list_from_file(discards["RDP bootstrap for " + args.min_rdp_bootstrap["rank"] + " < " + str(args.min_rdp_bootstrap["value"])])
             blast_clusters_discards = uniq_from_files_lists( [discards[filter] for filter in discards if "All blast" in filter and not "undesired taxon" in filter] )
             mask_observation(rdp_clusters_discards, blast_clusters_discards, biom_in, args.output_biom)
 
         # Writes outputs
-        write_impact( discards, args.impacted )
+        impacted_biom = tmpFiles.add("impacted.biom")
+        write_impact( args, discards, impacted_biom, args.impacted, args.impacted_multihit)
         write_summary( args.summary, biom_in, args.output_biom, discards, args )
 
     finally:
@@ -494,7 +609,8 @@ if __name__ == '__main__':
     group_output.add_argument('--output-biom', default="filtered.biom", help="The Biom file output. [Default: %(default)s]")
     group_output.add_argument('--output-fasta', default="filtered.fasta", help="The fasta output file. [Default: %(default)s]")
     group_output.add_argument('--summary', default="summary.html", help="The HTML file containing the graphs. [Default: %(default)s]")
-    group_output.add_argument('--impacted', default="impacted_clusters.tsv", help="The file that summarizes all the clusters impacted (deleted or with affiliations masked). [Default: %(default)s]")
+    group_output.add_argument('--impacted', default="impacted_clusters.tsv", help="The abundance file that summarizes all the clusters impacted (deleted or with affiliations masked). [Default: %(default)s]")
+    group_output.add_argument('--impacted-multihit', default="impacted_clusters_multihit.tsv", help="The multihit TSV file associated with impacted OTU. [Default: %(default)s]")
     group_output.add_argument('--log-file', default=sys.stdout, help='The list of commands executed.')
     args = parser.parse_args()
     prevent_shell_injections(args)
