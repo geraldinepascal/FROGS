@@ -248,7 +248,8 @@
                 return new_val ;
             }
             Highcharts.setOptions({
-					 colors : ['#8EADAC', '#DE9F73','#7cb5ec','#434348','#90ed7d','#f7a35c','#8085e9','#f15c80','#e4d354','#2b908f','#f45b5b','#91e8e1'] 
+					 colors : ['#8EADAC', '#DE9F73','#7cb5ec','#434348','#90ed7d','#f7a35c','#8085e9','#f15c80','#e4d354','#2b908f','#f45b5b','#91e8e1'],
+					 lang: {thousandsSep: ','}
 					});
             /**
              * Returns hash use to init HightChart line. 
@@ -334,10 +335,11 @@
              * @param pCategories {Array} x scale labels.
              * @param pSeries {Array} The HightChart series.
              * @param unity {String} Unity used in tooltip.
+             * @param is_stacked {Bool} is this a stacked or simple histogram (merged and FROGS_combined or merged only )
              * @return {Hash} Parameters to use in Highchart's constructor.
              */
              // couleur des diapos : bleu #8EADAC, vert : #A2A32F, orange1 #C6792B , taupe #9A866C, orange pastel : #DE9F73
-            var histogram_param = function( pTitle, nb, pYTitle, pCategories, pSeries, unity ) {
+            var histogram_param = function( pTitle, nb, pYTitle, pCategories, pSeries, unity, is_stacked ) {
                 var param = {
                     chart: {
                         type: 'column',
@@ -366,9 +368,6 @@
                     title: {
                         text: pTitle
                     },
-                    subtitle: {
-                        text: 'starting from : ' + nb + ' sequences'
-                    },
                     xAxis: [{
                         categories: pCategories,
                         crosshair: true,
@@ -383,16 +382,23 @@
                             text: pYTitle
                         },
                         stackLabels: {
-							enabled: true,
+							enabled: is_stacked,
 							style: {
-								fontWeight: 'bold',
-								color: (Highcharts.theme && Highcharts.theme.textColor) || 'gray'
+								color: (Highcharts.theme && Highcharts.theme.textColor) || 'gray',
+								fontWeight: 'normal'
 							}
 						},
                         plotLines:[{
                             color: "#A2A32F",
                             width: 2,
-                            value: nb
+                            value: nb,
+                            label: {
+                				text: 'input sequences : <br>' + numberDisplay(nb) ,
+                				align: 'left',
+                				style: {
+                					color: '#A2A32F'
+                				}
+                			}
                         }]
                     },
                     tooltip: {
@@ -402,11 +408,16 @@
                             $.each(this.points, 
                                 function(i, point) {
                                 s += '<br/>'+ '<span style="color: ' + point.series.color + '"> ' + point.series.name +' : </span>'+
-                                point.y + " " + unity;
+                                numberDisplay(point.y) + " " + unity;
+                                if (! is_stacked){
+                                	s += ' ( ' +Number(Math.round(point.y*100/nb + "e+2")  + "e-2")+ '%)'
+                                }
                                 sum += point.y;
                                 }
                             );
-                            s += '<br/>total : '+ sum + ' (' + Number(Math.round(sum*100/nb + "e+2")  + "e-2")  + '%)'
+                            if(is_stacked){
+                            	s += '<br/>total : '+ numberDisplay(sum) + ' (' + Number(Math.round(sum*100/nb + "e+2")  + "e-2")  + '%)';
+                            }
                             return s;
                         },
                         shared: true,
@@ -548,6 +559,7 @@
                 var total_input = 0;
                 var extended_data = new Array();
                 var non_overlapped_data = new Array();
+                var enableStackedLabel = false;
 
                 for( var spl_name in filters_by_sample["merged"] ){
                     total_input += filters_by_sample["before process"][spl_name] ;
@@ -565,6 +577,7 @@
                         }
 
                         if ("artificial combined" in filters_by_sample) {
+                        	enableStackedLabel = true;
                             if ( cat in filters_by_sample["artificial combined"][spl_name] ){
                                 non_overlapped_data[cat_idx-1] += filters_by_sample["artificial combined"][spl_name][cat] ;
                             }else{
@@ -579,7 +592,7 @@
                 if ("artificial combined" in filters_by_sample) {
                     global_series.push({name: 'artificial combined', data: non_overlapped_data});
                 }
-                $('#filter-summary').highcharts( histogram_param('Summary', total_input, 'Nb sequences', filters_categories.slice(0-filters_categories.length+1), global_series, 'seq') );
+                $('#filter-summary').highcharts( histogram_param('Summary', total_input, 'Nb sequences', filters_categories.slice(0-filters_categories.length+1), global_series, 'seq', enableStackedLabel) );
             }
 
             /**
