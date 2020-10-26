@@ -266,13 +266,14 @@ def addNtags(in_fasta, output_fasta):
 if __name__ == "__main__":
     # Manage parameters
     parser = argparse.ArgumentParser( description='Single-linkage clustering on sequences.' )
-    parser.add_argument( '-d', '--distance', type=int, default=1, help="Maximum distance between sequences in each aggregation step. RECOMMENDED : d=1 in combination with --fastidious option [Default: %(default)s]" )
     parser.add_argument( '-p', '--nb-cpus', type=int, default=1, help="The maximum number of CPUs used. [Default: %(default)s]" )
-    swarm_opt = parser.add_mutually_exclusive_group()
-    swarm_opt.add_argument( '-n', '--denoising', default=False, action='store_true',  help="denoise data by clustering read with distance=1 before perform real clustering" )
-    swarm_opt.add_argument( '--fastidious', default=False, action='store_true',  help="use the fastidious option of swarm to refine OTU. RECOMMENDED in combination with a distance equal to 1 (-d) " )
     parser.add_argument( '--debug', default=False, action='store_true', help="Keep temporary files to debug program." )
     parser.add_argument( '-v', '--version', action='version', version=__version__ )
+    group_reco = parser.add_argument_group( 'Recommended options' )
+    group_reco.add_argument( '-d', '--distance', type=int, default=1, help="Maximum distance between sequences in each aggregation step. RECOMMENDED : d=1 in combination with --fastidious option [Default: %(default)s]" )
+    group_reco.add_argument( '--fastidious', default=False, action='store_true',  help="use the fastidious option of swarm to refine OTU. RECOMMENDED in combination with a distance equal to 1 (-d). it is only usable with d=1 and mutually exclusive with --denoising." )
+    group_clustering = parser.add_argument_group( 'other clustering option' )
+    group_clustering.add_argument( '-n', '--denoising', default=False, action='store_true',  help="denoise data by clustering read with distance=1 before perform real clustering. It is mutually exclusive with --fastidious." )
     # Inputs
     group_input = parser.add_argument_group( 'Inputs' )
     group_input.add_argument( '-f', '--input-fasta', required=True, help='The sequences file (format: fasta).' )       
@@ -285,6 +286,11 @@ if __name__ == "__main__":
     group_output.add_argument( '-l', '--log-file', default=sys.stdout, help='This output file will contain several information on executed commands.')
     args = parser.parse_args()
     prevent_shell_injections(args)
+
+    if args.denoising and args.fastidious:
+        raise parser.error("--fastidious and --denoising are mutually exclusive.")
+    if args.distance > 1 and args.fastidious:
+        raise parser.error("--fastidious is not allowed with d>1.")
 
     # Temporary files
     tmpFiles = TmpFiles( os.path.split(args.output_biom)[0] )
