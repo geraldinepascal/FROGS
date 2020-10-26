@@ -133,8 +133,19 @@ def splitFileByLength(initial_file, sample_name, working_dir, process_prefix):
         else:
             record.description = " sample_name=" + sample_name
         seq_length = len(record.string)
+        # if seq_length not in splits_FH:
+            # splits_FH[seq_length] = FastaIO(os.path.join(working_dir, process_prefix + "tmp_" + os.path.basename(initial_file) + '_length_' + str(seq_length) + '.fasta'), 'at')
+
         if seq_length not in splits_FH:
-            splits_FH[seq_length] = FastaIO(os.path.join(working_dir, process_prefix + "tmp_" + os.path.basename(initial_file) + '_length_' + str(seq_length) + '.fasta'), 'at')
+            seq_file = os.path.join(working_dir, process_prefix + "tmp_" + os.path.basename(initial_file) + '_length_' + str(seq_length) + '.fasta')
+            try:
+                splits_FH[seq_length] = FastaIO(seq_file, 'at')
+            except OSError:
+                # remove randomly a file and close it
+                _, file_obj = splits_FH.popitem() 
+                file_obj.close()
+                splits_FH[seq_length] = FastaIO(seq_file, 'at')
+
         splits_FH[seq_length].write( record )
 
     for length in list(splits_FH.keys()):
