@@ -200,8 +200,8 @@
 		</style>
 
 		<script type="text/javascript" src="https://code.jquery.com/jquery-2.1.3.min.js"></script>
-		<script type="text/javascript" src="https://code.highcharts.com/4.1.4/highcharts.js"></script>
-		<script type="text/javascript" src="https://code.highcharts.com/4.1.4/modules/exporting.js"></script>
+		<script type="text/javascript" src="https://code.highcharts.com/8.2.0/highcharts.js"></script>
+		<script type="text/javascript" src="https://code.highcharts.com/8.2.0/modules/exporting.js"></script>
 		<script type="text/javascript" src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
 		<script type="text/javascript" src="https://cdn.datatables.net/1.10.19/js/dataTables.bootstrap4.min.js"></script>
 		<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js" integrity="sha384-smHYKdLADwkXOn1EmN1qk/HfnUcbVRZyYmZ4qpPea6sjB/pTJ0euyQp0Mk8ck+5T" crossorigin="anonymous"></script>
@@ -381,7 +381,10 @@
 		                cursor: 'pointer',
 		                dataLabels: {
 		                    enabled: true,
-		                    format: '<b>{point.name}</b>: {point.y:,.0f}',
+		                    useHTML : true,
+		                    formatter: function () {
+        		                return this.point.name + ' : ' + numberDisplay(this.point.y);
+		                    },
 		                    style: {
 		                        color: (Highcharts.theme && Highcharts.theme.contrastTextColor) || 'black'
 		                    }
@@ -437,6 +440,22 @@
 				    ['Removed', (global_results['nb_seq_ini'] - global_results['nb_seq_kept'])]
   				];
 				$('#abundance-filtered').highcharts( pie_param('Abundance', abundance_filtered_data, 'Sequences') );
+
+				// Add taxon lost table
+				var taxon_lost_table_titles = $.merge( ["Affiliation method",], global_taxon_list );
+				var taxon_lost_table_data = new Array();
+				for( var method in global_taxon_lost ){
+					method_data = [method];
+					for( var taxon_idx=0 ; taxon_idx < global_taxon_list.length ; taxon_idx++ ){
+						method_data.push( global_taxon_lost[method][global_taxon_list[taxon_idx]] );
+					}
+					taxon_lost_table_data.push( method_data );
+				}
+				$('#taxon_lost').append( table("Taxon lost table", taxon_lost_table_titles, taxon_lost_table_data) );
+				$('#taxon_lost table').prop( 'id', 'details-table' );
+				$('#taxon_lost table').DataTable({
+					"dom": 't'
+				});
 			}
 			
 			var intersections_filters_load = function(){
@@ -453,13 +472,6 @@
 						return items ;
 					}
 				);
-				/*
-				
-				<label class="container">One
-  <input type="radio" checked="checked" name="radio">
-  <span class="checkmark"></span>
-</label>
-				*/
 				
 				// Add listener on click
 				$('#byFilters-jvenn-btn').click(function() {			
@@ -566,6 +578,33 @@
 					'nb_seq_ini': 100000
 				}
 			*/
+			var global_taxon_list = ###GLOBAL_TAXON_LIST### ;
+			/*Example
+			["Domain", "Phylum", "Class", "Order", "Family", "Genus", "Species"] ;
+			*/
+			var global_taxon_lost = ###GLOBAL_TAXON_LOST### ;
+			/* Example:
+			 {
+			 	"blast": {
+			 		"Domain": 0, 
+			 		"Phylum": 0, 
+			 		"Class": 0, 
+			 		"Order": 1, 
+			 		"Family": 3, 
+			 		"Genus": 4, 
+			 		"Species": 6
+			 	}, 
+			 	"rdp": {
+			 		"Domain": 0, 
+			 		"Phylum": 2, 
+			 		"Class": 3, 
+			 		"Order": 6, 
+			 		"Family": 8, 
+			 		"Genus": 9, 
+			 		"Species": 9
+			 	}
+			 } ;
+			 */
 			var by_samples_results = ###SAMPLES_RESULTS### ;
 			/* Example:
 				{
@@ -642,14 +681,17 @@
 
 			<div id="tab-content" class="tab-content">
 				<div id="view-by-filters" role="tabpanel" class="tab-pane active">
+					<h2 class="pb-2 mt-4 mb-2 border-bottom">Filters summary</h2>
 					<div id="filter-summary">
-		        		<h2 class="pb-2 mt-4 mb-2 border-bottom">Filters summary</h2>
 		        		<div class="row">
 			        		<div id="nb-filtered" class="col-md-6"></div> 
 			        		<div id="abundance-filtered" class="col-md-6"></div>
 		        		</div>
 					</div>
 		
+					<h2 class="pb-2 mt-4 mb-2 border-bottom">Taxon lost summary</h2>
+		            <div id="taxon_lost"></div>
+
 					<h2 class="pb-2 mt-4 mb-2 border-bottom">Filters intersections</h2>
 		       		<div class="row">
 		       			<div class="col-md-2 col-ld-3"></div>

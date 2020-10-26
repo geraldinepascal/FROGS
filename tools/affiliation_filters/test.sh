@@ -70,6 +70,7 @@ echo $OUT "masking mode"
 
 OUT=test/all-filter
 mkdir -p $OUT
+echo ""
 echo $OUT "masking mode"
 
 ./affiliation_filters.py \
