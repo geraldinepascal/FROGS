@@ -361,8 +361,8 @@ if __name__ == '__main__':
     parser.add_argument( '--taxonomic-ranks', nargs='*', default=["Domain", "Phylum", "Class", "Order", "Family", "Genus", "Species"], help='The ordered ranks levels used in the metadata taxonomy. [Default: %(default)s]' )
     parser.add_argument( '--rarefaction-ranks', nargs='*', default=["Genus"], help='The ranks that will be evaluated in rarefaction. [Default: %(default)s]' )
     group_exclusion_taxonomy = parser.add_mutually_exclusive_group()
-    group_exclusion_taxonomy.add_argument( '--taxonomy-tag', type=str, help='The metadata tag used in BIOM file to store the taxonomy. Use this parameter if the taxonomic affiliation has been processed by a software that adds only one affiliation or if you does not have a metadata with the consensus taxonomy (see "--tax-consensus-tag").' )
-    group_exclusion_taxonomy.add_argument( '--tax-consensus-tag', type=str, help='The metadata tag used in BIOM file to store the consensus taxonomy. This parameter is used instead "--taxonomy-tag" when you have several affiliations for each OTU.' )
+    group_exclusion_taxonomy.add_argument( '--taxonomy-tag', type=str, help='The metadata tag used in BIOM file to store the taxonomy. Use this parameter if the taxonomic affiliation has been processed by a software that adds only one affiliation or if you does not have a metadata with the consensus taxonomy (see "--tax-consensus-tag").Not allowed with --tax-consensus-tag.' )
+    group_exclusion_taxonomy.add_argument( '--tax-consensus-tag', type=str, help='The metadata tag used in BIOM file to store the consensus taxonomy. This parameter is used instead of "--taxonomy-tag" when you have several affiliations for each OTU.' )
     parser.add_argument( '--multiple-tag', type=str, default=None, help='The metadata tag used in BIOM file to store the list of possible taxonomies. Use this parameter if the taxonomic affiliation has been processed by a software that adds several affiliation in the BIOM file (example: same score ambiguity).' )
     parser.add_argument( '--bootstrap-tag', type=str, default=None, help='The metadata tag used in BIOM file to store the taxonomy bootstraps.' )
     parser.add_argument( '--identity-tag', type=str, default=None, help='The metadata tag used in BIOM file to store the alignment identity.' )
@@ -381,8 +381,8 @@ if __name__ == '__main__':
 
     # Check parameters
         #check taxonomy tags (from FROGS or other biom)
-    if args.multiple_tag is None and args.tax_consensus_tag is not None:
-        raise Exception( "\nThe parameter '--tax-consensus-tag' must be used only with the parameter '--multiple-tag'.\n\n" )
+    if (args.multiple_tag is None and args.tax_consensus_tag is not None) or (args.multiple_tag is not None and args.tax_consensus_tag is None):
+        raise Exception( "\nParameter '--tax-consensus-tag' and '--multiple-tag must be used jointly.\n\n" )
     if args.taxonomy_tag is None and args.tax_consensus_tag is None:
         raise Exception( "\nThe parameter '--taxonomy-tag' or the parameter '--tax-consensus-tag' must be set.\n\n" )
         # for FROGS biom identity AND coverage must be set

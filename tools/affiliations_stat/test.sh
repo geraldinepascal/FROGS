@@ -21,7 +21,7 @@ echo "# Blast consensus tax"
   --multiple-tag "blast_affiliations" \
   --rarefaction-ranks Family Genus Species
 
-# Blast tax select first
+# Blast tax ==> return error because there is not taxonomy tag
 echo "# Blast tax select first"
 ./affiliations_stat.py \
   --input-biom data/set500_B_affiliation.biom \
@@ -30,7 +30,6 @@ echo "# Blast tax select first"
   --taxonomy-tag "taxonomy" \
   --identity-tag "perc_identity" \
   --coverage-tag "perc_query_coverage" \
-  --multiple-tag "blast_affiliations" \
   --rarefaction-ranks Family Genus Species
 
 # RDP
