@@ -342,23 +342,26 @@
 						useHTML: true
 					},
 					plotOptions: {
-                        column: {
-							stacking: 'normal',
-							dataLabels: {
-								enabled: true,
-								style: {
+				        column: {
+				            stacking: 'normal',
+				            dataLabels: {
+				                enabled: true,
+				                useHTML: true,
+				                style: {
 									textShadow: false,
 									textOutline: false,
-									fontWeight : 'bold'
-								},
-								formatter() {
+				                  	fontWeight : 'bold'
+				                },
+				                formatter() {
 				                	var pointWidth = this.point.shapeArgs.width + 10;
-				                	return '<div class="datalabelInside" style="text-shadow:none;color:'+this.color+';position: absolute; margin-left:' + pointWidth / 2 + 'px">' + numberDisplay(this.y) + '</div>';
+				                	var margin_top = this.point.shapeArgs.height < 20 ? -8 : 0;
+				                	return '<div class="datalabelInside" style="text-shadow:none;color:#8EADAC;position: absolute; margin-top:'+ margin_top+'px ;margin-left:' + pointWidth / 2 + 'px">' + numberDisplay(this.y) + '</div>';
 				                }
-							},
-                            pointPadding: 0.2,
+	
+				            },
+				            pointPadding: 0.2,
                             borderWidth: 0
-                        }
+				        }
                     },
 					credits: {
 						enabled: false
