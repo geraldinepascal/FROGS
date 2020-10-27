@@ -265,18 +265,7 @@
 				];
 				return path;
 			};
-			/* Radial gradient ?*/
-			Highcharts.getOptions().colors = Highcharts.map(Highcharts.getOptions().colors, function (color) {
-				return {
-					radialGradient: { cx: 0.5, cy: 0.3, r: 0.7 },
-					stops: [
-						[0, color],
-						[1, Highcharts.Color(color).brighten(-0.1).get('rgb')] // darken
-					]
-				};
-			});
-			
-		    
+					    
 			/**
 			 * Returns the HTML table representation of the data. 
 			 * @param pTitle {String} The title of the table.
@@ -354,7 +343,7 @@
 				                },
 				                formatter() {
 				                	var pointWidth = this.point.shapeArgs.width + 10;
-				                	var margin_top = this.point.shapeArgs.height < 20 ? -8 : 0;
+				                	var margin_top = this.point.shapeArgs.height < 20 ? -12 : 0;
 				                	return '<div class="datalabelInside" style="text-shadow:none;color:#8EADAC;position: absolute; margin-top:'+ margin_top+'px ;margin-left:' + pointWidth / 2 + 'px">' + numberDisplay(this.y) + '</div>';
 				                }
 	
