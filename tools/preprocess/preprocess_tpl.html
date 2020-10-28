@@ -439,7 +439,8 @@
 				                },
 				                formatter() {
 				                	var pointWidth = this.point.shapeArgs.width + 10;
-				                	return '<div class="datalabelInside" style="text-shadow:none;color:'+this.color+';position: absolute; margin-left:' + pointWidth / 2 + 'px">' + numberDisplay(this.y) + '</div>';
+				                	var margin_top = this.point.shapeArgs.height < 20 ? -12 : 0;
+				                	return '<div class="datalabelInside" style="text-shadow:none;color:'+this.color+';position: absolute;margin-top:'+ margin_top+'px ; margin-left:' + pointWidth / 2 + 'px">' + numberDisplay(this.y) + '</div>';
 				                }
 	
 				            },
