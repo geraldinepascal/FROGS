@@ -166,7 +166,7 @@ class DenseData( list ):
         if self[row_idx][col_idx] >= value:
             self[row_idx][col_idx] -= value
         else:
-            raise Exception( "'" + str(value) + "' cannot be subtract from row " + str(row_idx) + " column " + str(col_idx) + "." ) 
+            raise Exception( "\n\n#ERROR : '" + str(value) + "' cannot be subtract from row " + str(row_idx) + " column " + str(col_idx) + ".\n\n" ) 
 
     def change( self, row_idx, col_idx, value ):
         """
@@ -206,7 +206,7 @@ class DenseData( list ):
         selected_rows = dict()
         nb_col_elt = self.get_col_sum(col_idx)
         if nb_elt > nb_col_elt:
-            raise Exception("The number of element selected by random sampling is superior than the total number of elements.")
+            raise Exception("\n\n#ERROR : The number of element selected by random sampling is superior than the total number of elements.\n\n")
         nb_selected = 0
         while nb_selected < nb_elt:
             elt_index = random.randint(1, nb_col_elt)
@@ -456,7 +456,7 @@ class SparseData( dict ):
         if row_idx in self and col_idx in self[row_idx] and self[row_idx][col_idx] >= value:
             self[row_idx][col_idx] -= value
         else:
-            raise Exception( "'" + str(value) + "' cannot be subtract from row " + str(row_idx) + " column " + str(col_idx) + "." ) 
+            raise Exception( "\n\n#ERROR : '" + str(value) + "' cannot be subtract from row " + str(row_idx) + " column " + str(col_idx) + ".\n\n" ) 
 
     def change( self, row_idx, col_idx, value ):
         """
@@ -501,7 +501,7 @@ class SparseData( dict ):
         selected_rows = dict()
         nb_col_elt = self.get_col_sum(col_idx)
         if nb_elt > nb_col_elt:
-            raise Exception("The number of element selected by random sampling is superior than the total number of elements.")
+            raise Exception("\n\n#ERROR : The number of element selected by random sampling is superior than the total number of elements.\n\n")
         nb_selected = 0
         while nb_selected < nb_elt:
             elt_index = random.randint(1, nb_col_elt)
@@ -710,7 +710,7 @@ class Biom:
                     find_idx = idx
                 idx += 1
         if find_idx is None:
-            raise ValueError( "The " + subject_type + " '" + query_name + "' doesn't exist." )
+            raise ValueError( "\n\n#ERROR : The " + subject_type + " '" + query_name + "' doesn't exist.\n\n" )
         return find_idx
 
     def add_metadata( self, subject_name, metadata_name, metadata_value, subject_type="sample", erase_warning=True):
@@ -727,7 +727,7 @@ class Biom:
         elif subject_type == "observation":
             subject_list = self.rows
         else:
-            raise ValueError( "'" + subject_type + "' is an invalid subject type for metadata. Metadata must be add to 'observation' or 'sample'." )
+            raise ValueError( "\n\n#ERROR : '" + subject_type + "' is an invalid subject type for metadata. Metadata must be add to 'observation' or 'sample'.\n\n" )
         # Find subject
         try:
             subject_idx = self.find_idx( subject_type, subject_name )
@@ -841,7 +841,7 @@ class Biom:
                 self.add_metadata( observation_name, metadata_name, ini_metadata[metadata_name], "observation" )
         # Observation already exists
         else:
-            raise ValueError( "The observation '" + observation_name + "' already exists." )
+            raise ValueError( "\n\n#ERROR : The observation '" + observation_name + "' already exists.\n\n" )
 
     def add_sample( self, sample_name, metadata=None ):
         """
@@ -860,7 +860,7 @@ class Biom:
                 self.add_metadata( sample_name, metadata_name, ini_metadata[metadata_name], "sample" )
         # Sample already exists
         else:
-            raise ValueError( "The sample '" + sample_name + "' already exists." )
+            raise ValueError( "\n\n#ERROR : The sample '" + sample_name + "' already exists.\n\n" )
 
     def get_samples_names( self ):
         """
@@ -954,7 +954,7 @@ class Biom:
         """
         observation_metadata = self.get_observation_metadata(observation_name)
         if taxonomy_key not in observation_metadata or observation_metadata[taxonomy_key] is None:
-            raise ValueError("The observation '" + observation_name + "' does not have taxonomy.")
+            raise ValueError("\n\n#ERROR : The observation '" + observation_name + "' does not have taxonomy.\n\n")
         taxonomy = observation_metadata[taxonomy_key]
         cleaned_taxonomy = list()
         # Get taxonomy as a r/w list
@@ -1266,7 +1266,7 @@ class BiomIO:
             if subject_type.endswith("s"):
                 subject_type = subject_type[:-1]
             if subject_type not in ["observation", "sample"]:
-                raise Exception( "The subject type in first line of file '" + metadata_file + "' must be 'sample' or 'observation'." )
+                raise Exception( "\n\n#ERROR : The subject type in first line of file '" + metadata_file + "' must be 'sample' or 'observation'.\n\n" )
         # Names and type of metadata
         for metadata_name in title_fields[1:]:
             metadata_type = "str"
@@ -1295,7 +1295,7 @@ class BiomIO:
                     elif metadata[title_idx]['type'] == "float":
                         cast = float
                     else:
-                        raise ValueError( "'" + metadata[title_idx]['type'] + "' is an invalid type for metadata. Metadata must be 'str' or 'int' or 'float'." )
+                        raise ValueError( "\n\n#ERROR : '" + metadata[title_idx]['type'] + "' is an invalid type for metadata. Metadata must be 'str' or 'int' or 'float'.\n\n" )
                     # Manage split
                     if metadata[title_idx]['list_sep'] is None:
                         metadata_value = cast( metadata_value )

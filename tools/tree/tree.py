@@ -289,10 +289,10 @@ if __name__ == "__main__":
         nb_seq = get_fasta_nb_seq(args.input_otu)
         biom = BiomIO.from_json(args.biomfile)
         if nb_seq > len(biom.rows):
-            raise Exception("\nYour fasta input file contains more OTU than your biom file.\\nn")
+            raise Exception("\n\n#ERROR : Your fasta input file contains more OTU than your biom file.\n\n")
         Logger.static_write(args.log_file, "Number of input OTUs sequences: " + str(nb_seq) + "\n\n")
         if nb_seq >10000:
-            raise Exception( "\nFROGS Tree is only working on less than 10 000 sequences!\n\n" )
+            raise Exception( "\n\n#ERROR : FROGS Tree is only working on less than 10 000 sequences!\n\n" )
         
         # alignment step
         mafftMet=get_methods_mafft(args.input_otu)

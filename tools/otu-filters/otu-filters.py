@@ -430,9 +430,9 @@ if __name__ == '__main__':
     Logger.static_write(args.log_file, "## Application\nSoftware: " + os.path.basename(sys.argv[0]) + " (version: " + str(__version__) + ")\nCommand: " + " ".join(sys.argv) + "\n\n")
 
     if args.nb_biggest_otu is None and args.min_sample_presence is None and args.min_abundance is None and args.contaminant is None:
-        raise argparse.ArgumentTypeError( "\nAt least one filter must be set to run " + os.path.basename(sys.argv[0]) + "\n\n")
+        raise argparse.ArgumentTypeError( "\n\n#ERROR : At least one filter must be set to run " + os.path.basename(sys.argv[0]) + "\n\n")
     if not args.min_abundance is None and (args.min_abundance <= 0 or (type(args.min_abundance) == float and args.min_abundance >= 1.0 ) ):
-        raise argparse.ArgumentTypeError( "\nIf filtering on abundance, you must indicate a positiv threshold and if percentage abundance threshold must be smaller than 1.0. \n\n" )
+        raise argparse.ArgumentTypeError( "\n\n#ERROR : If filtering on abundance, you must indicate a positiv threshold and if percentage abundance threshold must be smaller than 1.0. \n\n" )
 
     # Process
     process( args )

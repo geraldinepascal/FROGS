@@ -167,7 +167,7 @@ def submit_cmd( cmd, stdout_path, stderr_path):
         stdeh = open(stderr_path,'rt')
         error_msg = "".join( map(str, stdeh.readlines()) )
         stdeh.close()
-        raise Exception( error_msg )
+        raise Exception( "\n\n#ERROR : " + error_msg + "\n\n" )
 
 def remove_chimera_fasta( in_fasta, out_fasta, kept_observ, user_size_separator ):
     in_fasta_fh = FastaIO( in_fasta )

@@ -118,7 +118,7 @@ def silva_tax_2_tree( taxonomy_file, authorized_ranks, domains_filtered=None ):
                 evaluated_id = matches.group(2)
                 evaluated_rank = matches.group(3)
             else:
-                raise Exception("Incorrect line content : '" + line.strip() + "'.")
+                raise Exception("\n\n#ERROR : Incorrect line content : '" + line.strip() + "'.\n\n")
             if domains_filtered is None or not evaluated_taxonomy[0].strip().lower() in domains_filtered:
                 # Go to the most downstream already existing ancestor of the element
                 parent_node = taxonomy_tree
@@ -131,7 +131,7 @@ def silva_tax_2_tree( taxonomy_file, authorized_ranks, domains_filtered=None ):
                         if evaluated_taxonomy[-1] == "uncultured" and parent_node.name == evaluated_taxonomy[-2]:
                             evaluated_rank = authorized_ranks[authorized_ranks.index(parent_node.metadata["rank"])+1]
                         else:
-                            raise Exception( "The taxonomy in file '" + taxonomy_file + "' seems to be incoherent. The taxon '" + ";".join(evaluated_taxonomy) + "' is tagged as '" + evaluated_rank + "' and its ancestor '" + get_taxonomy(parent_node) + "' is tagged as '" + parent_node.metadata["rank"] + "'." )
+                            raise Exception( "\n\n#ERROR : The taxonomy in file '" + taxonomy_file + "' seems to be incoherent. The taxon '" + ";".join(evaluated_taxonomy) + "' is tagged as '" + evaluated_rank + "' and its ancestor '" + get_taxonomy(parent_node) + "' is tagged as '" + parent_node.metadata["rank"] + "'.\n\n" )
                     # Complete missing ranks between parent and evaluated
                     evaluated_rank_depth = authorized_ranks.index(evaluated_rank)
                     while authorized_ranks[evaluated_rank_depth -1] != parent_node.metadata["rank"]:
@@ -190,7 +190,7 @@ def process( input_fasta, input_tax, output_fasta, output_tax, domains_filtered=
                 is_filtered = False
                 clean_taxonomy = get_taxonomy(taxonomy_ref[";".join(evaluated_taxonomy[:-1]).lower()])
                 if not "species" in ranks:
-                    raise Exception( "The execution without 'species' rank is not implemented." )
+                    raise Exception( "\n\n#ERROR : The execution without 'species' rank is not implemented.\n\n" )
                 else:
                     parent_node = taxonomy_ref[";".join(evaluated_taxonomy[:-1]).lower()]
                     # Go to genus

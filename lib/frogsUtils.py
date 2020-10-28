@@ -42,7 +42,7 @@ def which(exec_name):
         if exec_path is None and os.path.isfile(os.path.join(current_location, exec_name)):
             exec_path = os.path.abspath( os.path.join(current_location, exec_name) )
     if exec_path is None:
-        raise Exception( "The software '" + exec_name + "' cannot be retrieved in path." )
+        raise Exception( "\n\n#ERROR : The software '" + exec_name + "' cannot be retrieved in path.\n\n" )
     return exec_path
 
 
@@ -60,10 +60,10 @@ def prevent_shell_injections(argparse_namespace, excluded_args=None):
                 new_param_val = list()
                 for val in param_val:
                     if ';' in val.encode('utf8').decode('utf8') or '`' in val.encode('utf8').decode('utf8') or '|' in val.encode('utf8').decode('utf8'):
-                        raise Exception( "';' and '`' are unauthorized characters." ) 
+                        raise Exception( "\n\n#ERROR : ';' and '`' are unauthorized characters.\n\n" ) 
             elif param_val is not None and issubclass(param_val.__class__, str):
                 if ';' in param_val.encode('utf8').decode('utf8') or '`' in param_val.encode('utf8').decode('utf8') or '|' in param_val.encode('utf8').decode('utf8'):
-                    raise Exception( "';' and '`' are unauthorized characters." )
+                    raise Exception( "\n\n#ERROR : ';' and '`' are unauthorized characters.\n\n" )
 
 
 class Cmd:
@@ -116,7 +116,7 @@ class Cmd:
                 else:
                     return stdout.decode('utf-8').strip()
             except:
-                raise Exception( "Version cannot be retrieve for the software '" + self.program + "'." )
+                raise Exception( "\n\n#ERROR : Version cannot be retrieve for the software '" + self.program + "'.\n\n" )
 
     def parser(self, log_file):
         """

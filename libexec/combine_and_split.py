@@ -132,7 +132,7 @@ def splitSeq (input, format, tag, revcomp, out1, out2):
 
         split_seq = record.string.split(tag)
         if len(split_seq) != 2:
-            raise Exception(record.id + " of " + input + " can not be split into 2 pieces with the tag : "+ tag +"\n")
+            raise Exception("\n\n#ERROR : " + record.id + " of " + input + " can not be split into 2 pieces with the tag : "+ tag +"\n\n")
 
         if not record.description is None:
             R1_desc = record.description.split(";")[0].replace('R1_desc:','')
@@ -200,7 +200,7 @@ def combineSeq(input1, input2, format, tag, revcomp, out):
             record2.id=record2.id[:-2]
 
         if record1.id != record2.id:
-            raise Exception ("Input files are not in correct order, starting with "+record1.id+" and "+record2.id+"\n")
+            raise Exception ("\n\n#ERROR : Input files are not in correct order, starting with "+record1.id+" and "+record2.id+"\n\n")
         description = None
         if record1.desc != None and record2.desc != None :
             description = "R1_desc:"+record1.desc+";R2_desc="+record2.desc
@@ -240,7 +240,7 @@ def process( args ) :
     if args.reads2:
         format2 = "fastq" if FastqIO.is_valid(args.reads1) else "fasta"
         if format != format2:
-            raise Exception("Your reads1 and reads2 are not in the same format")
+            raise Exception("\n\n#ERROR : Your reads1 and reads2 are not in the same format\n\n")
 
     try :
         # replace split tag by combine tag
@@ -290,24 +290,24 @@ if __name__ == "__main__":
     ## check param
     #check tags, at least on of them, and at list one output
     if args.combine_tag is None and args.split_tag is None:
-        raise Exception ("You need to provide at least one combine or split tag")
+        raise Exception ("\n\n#ERROR : You need to provide at least one combine or split tag\n\n")
     if (not args.combined_output is None and not args.split_output1 is None) or (args.combined_output is None and args.split_output1 is None ):
-        raise Exception ("You need to choose between combined output or split output")
+        raise Exception ("\n\n#ERROR : You need to choose between combined output or split output\n\n")
     
 
     # check combine io
     if not args.reads2 is None and args.combine_tag is None:
-        raise Exception("You provide 2 input files but no combine tag to combine them")
+        raise Exception("\n\n#ERROR : You provide 2 input files but no combine tag to combine them\n\n")
 
     if args.combine_tag is None and not args.combined_output is None :
-        raise Exception ("You provide combined_output file name but no combined tag!")
+        raise Exception ("\n\n#ERROR : You provide combined_output file name but no combined tag!\n\n")
 
     if not args.combine_tag is None and args.combined_output is None :
-        raise Exception ("You provide combined_tag but no combined_output file name!")
+        raise Exception ("\n\n#ERROR : You provide combined_tag but no combined_output file name!\n\n")
 
     # check splitting io
     if args.split_output1 is None and not args.split_output2 is None:
-        raise Exception("You can not provide split-output2 file name without split-output1 file name")
+        raise Exception("\n\n#ERROR : You can not provide split-output2 file name without split-output1 file name\n\n")
 
     process(args)  
 

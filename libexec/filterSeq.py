@@ -59,7 +59,7 @@ class QualWindowParameter(argparse.Action):
         for option in values:
             key, val = option.split(":")
             if key not in valid_subparameters:
-                raise argparse.ArgumentTypeError( "For --qual-window only the following sub-parameters are authorized: " + ", ".join(valid_subparameters) )
+                raise argparse.ArgumentTypeError( "\n\n#ERROR : For --qual-window only the following sub-parameters are authorized: " + ", ".join(valid_subparameters) + '\n\n')
             param[key] = int(val)
         setattr(namespace, self.dest, param)
 

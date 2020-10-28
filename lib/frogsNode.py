@@ -80,7 +80,7 @@ class Node:
         @return: [Node] The child.
         """
         if not self.has_child( name ):
-            raise Exception( self.name + " doesn't have child named '" + name + "'." )
+            raise Exception( "\n\n#ERROR : " + self.name + " doesn't have child named '" + name + "'.\n\n" )
         return self.children[name]
 
     def get_children(self):
@@ -151,7 +151,7 @@ class Node:
         @param child: [Node] the node added.
         """
         if child.name in self.children:
-            raise Exception( "Duplicated child name '" + child.name + "' in node '" + self.name + "'." )
+            raise Exception( "\n\n#ERROR : Duplicated child name '" + child.name + "' in node '" + self.name + "'.\n\n" )
         child.parent = self
         self.children[child.name] = child
 

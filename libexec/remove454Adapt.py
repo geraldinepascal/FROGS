@@ -155,7 +155,7 @@ if __name__ == "__main__":
     group_output.add_argument( '-o', '--output', required=True, help='The trimmed sequences (format: fastq).')
     args = parser.parse_args()
     if args.min_length < (len(args.five_prim_primer) + len(args.five_prim_primer)):
-        raise argparse.ArgumentTypeError( "The minimum length of the amplicon (--min-length) must be superior to the size of the two primers." )
+        raise argparse.ArgumentTypeError( "\n\n#ERROR : The minimum length of the amplicon (--min-length) must be superior to the size of the two primers.\n\n" )
 
     # Process
     tmpFiles = TmpFiles( os.path.split(args.output)[0] )

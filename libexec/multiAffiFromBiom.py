@@ -87,5 +87,5 @@ if __name__ == "__main__":
     # Process
     biom = BiomIO.from_json( args.input_file )
     if not biom.has_observation_metadata( 'blast_affiliations' ):
-        raise Exception( "'" + args.input_file  + "' cannot be used in " + sys.argv[0] + ": this file does not contain 'blast_affiliations'." )
+        raise Exception( "\n\n#ERROR : '" + args.input_file  + "' cannot be used in " + sys.argv[0] + ": this file does not contain 'blast_affiliations'.\n\n" )
     multiAffiFromBiom( biom, args.output_file )

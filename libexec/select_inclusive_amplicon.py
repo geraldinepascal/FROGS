@@ -130,7 +130,7 @@ def process(params) :
     biom_out = Biom( matrix_type="sparse" )
 
     if not biom_in.has_metadata("blast_taxonomy"):
-        raise Exception("Your biom file need to be affiliated with FROGS_affiliation_OTU tool\n")
+        raise Exception("\n\n#ERROR : Your biom file need to be affiliated with FROGS_affiliation_OTU tool\n\n")
 
     #add samples to biom
     for sample_name in biom_in.get_samples_names():

@@ -382,22 +382,22 @@ if __name__ == '__main__':
     # Check parameters
         #check taxonomy tags (from FROGS or other biom)
     if (args.multiple_tag is None and args.tax_consensus_tag is not None) or (args.multiple_tag is not None and args.tax_consensus_tag is None):
-        raise Exception( "\nParameter '--tax-consensus-tag' and '--multiple-tag must be used jointly.\n\n" )
+        raise Exception( "\n\n#ERROR : Parameter '--tax-consensus-tag' and '--multiple-tag must be used jointly.\n\n" )
     if args.taxonomy_tag is None and args.tax_consensus_tag is None:
-        raise Exception( "\nThe parameter '--taxonomy-tag' or the parameter '--tax-consensus-tag' must be set.\n\n" )
+        raise Exception( "\n\n#ERROR : The parameter '--taxonomy-tag' or the parameter '--tax-consensus-tag' must be set.\n\n" )
         # for FROGS biom identity AND coverage must be set
     if (args.identity_tag is None and args.coverage_tag is not None) or (args.identity_tag is not None and args.coverage_tag is None):
-        raise Exception( "T\nhe parameters '--identity-tag' and '--coverage-tag' must be setted together.\n\n" )
+        raise Exception( "\n\n#ERROR : The parameters '--identity-tag' and '--coverage-tag' must be setted together.\n\n" )
         # check taxonomical rank intersection between rarefaction_ranks and all ranks
     for current_rank in args.rarefaction_ranks:
-        if current_rank not in args.taxonomic_ranks: raise Exception( "\n'" + current_rank + "' is not in valid taxonomic ranks : " + ", ".join(args.taxonomic_ranks) + "\n\n")
+        if current_rank not in args.taxonomic_ranks: raise Exception( "\n\n#ERROR : '" + current_rank + "' is not in valid taxonomic ranks : " + ", ".join(args.taxonomic_ranks) + "\n\n")
         # check the presence of each tag in input biom
     biom = BiomIO.from_json( args.input_biom )
     nb_rank = 0
     if args.multiple_tag is None:
         for param in [args.taxonomy_tag, args.bootstrap_tag, args.identity_tag, args.coverage_tag]:
             if param is not None and not biom.has_observation_metadata( param ):
-                raise Exception( "\nThe metadata '" + param + "' does not exist in the BIOM file.\n\n" )
+                raise Exception( "\n\n#ERROR : The metadata '" + param + "' does not exist in the BIOM file.\n\n" )
         if biom.has_observation_metadata( args.taxonomy_tag ) :
             for observation in biom.get_observations():
                 if observation["metadata"][args.taxonomy_tag] is not None or len(observation["metadata"][args.taxonomy_tag]) > 0 :
@@ -405,14 +405,14 @@ if __name__ == '__main__':
                     break
     else:
         if args.tax_consensus_tag is not None and not biom.has_observation_metadata( args.tax_consensus_tag ):
-            raise Exception( "\nThe metadata '" + args.tax_consensus_tag + "' does not exist in the BIOM file.\n\n" )
+            raise Exception( "\n\n#ERROR : The metadata '" + args.tax_consensus_tag + "' does not exist in the BIOM file.\n\n" )
         if biom.has_observation_metadata( args.tax_consensus_tag ) :
             for observation in biom.get_observations():
                 if observation["metadata"][args.tax_consensus_tag] is not None and len(observation["metadata"][args.tax_consensus_tag]) > 0 :
                     nb_rank = len(observation["metadata"][args.tax_consensus_tag])
                     break
     if nb_rank != len(args.taxonomic_ranks):
-        raise Exception("\nYour taxonomic affiliations are defined on " + str(nb_rank) + " ranks but you define only " + str(len(args.taxonomic_ranks)) + " taxonomic ranks names : "+ ", ".join(args.taxonomic_ranks)+"\n\n")
+        raise Exception("\n\n#ERROR : Your taxonomic affiliations are defined on " + str(nb_rank) + " ranks but you define only " + str(len(args.taxonomic_ranks)) + " taxonomic ranks names : "+ ", ".join(args.taxonomic_ranks)+"\n\n")
     del biom
 
     # Process

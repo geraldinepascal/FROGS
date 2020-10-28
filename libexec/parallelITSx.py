@@ -133,7 +133,7 @@ def submit_cmd( cmd, cwd=None):
         # stdeh = open(stderr)
         error_msg = "".join( map(str, stderr.decode('utf-8').readlines()) )
         # stdeh.close()
-        raise Exception( error_msg )
+        raise Exception( "\n\n#ERROR : " + error_msg + "\n\n" )
 
 def parallel_submission( function, inputs, its, cwds, outputs, logs, cpu_used):
     processes = [{'process':None, 'inputs':None, 'its':its, 'cwd' : None, 'outputs':None, 'log_files':None} for idx in range(cpu_used)]
@@ -159,7 +159,7 @@ def parallel_submission( function, inputs, its, cwds, outputs, logs, cpu_used):
     # Check processes status
     for current_process in processes:
         if issubclass(current_process['process'].__class__, multiprocessing.Process) and current_process['process'].exitcode != 0:
-            raise Exception("Error in sub-process execution.")
+            raise Exception("\n\n#ERROR : Error in sub-process execution.\n\n")
 
 def parseITSxResult(input_dir, prefix, its, out, log):
     """

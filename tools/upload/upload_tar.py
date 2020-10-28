@@ -113,7 +113,7 @@ def process(param_file, output_paths):
             # Check file
             if not tarfile.is_tarfile(dataset.path):
                 os.remove( dataset.path )
-                raise Exception("The archive '" + dataset.name + "' is not a tar file.")
+                raise Exception("\n\nThe archive '" + dataset.name + "' is not a tar file.\n\n")
             # Move file
             output_path = output_paths[str(dataset.dataset_id)]
             shutil.move( dataset.path, output_path )

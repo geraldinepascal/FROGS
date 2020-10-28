@@ -65,7 +65,7 @@ class SequenceFileReader(object):
         elif FastaIO.is_valid(filepath):
             return FastaIO(filepath)
         else:
-            raise IOError( "The file " + filepath + " does not have a valid format for 'SequenceFileReader'." )
+            raise IOError( "\n\n#ERROR : The file " + filepath + " does not have a valid format for 'SequenceFileReader'.\n\n" )
 
 
 class FastqIO:
@@ -111,7 +111,7 @@ class FastqIO:
                     yield Sequence( seq_id, seq_str, seq_desc, seq_qual )
                 self.current_line_nb += 1
         except:
-            raise IOError( "The line " + str(self.current_line_nb) + " in '" + self.filepath + "' cannot be parsed by " + self.__class__.__name__ + "." )
+            raise IOError( "\n\n#ERROR : The line " + str(self.current_line_nb) + " in '" + self.filepath + "' cannot be parsed by " + self.__class__.__name__ + ".\n\n" )
 
     def next_seq(self):
         """
@@ -138,7 +138,7 @@ class FastqIO:
             # Record
             seq_record = Sequence( seq_id, seq_str, seq_desc, seq_qual )
         except:
-            raise IOError( "The line " + str(self.current_line_nb) + " in '" + self.filepath + "' cannot be parsed by " + self.__class__.__name__ + "." )
+            raise IOError( "\n\n#ERROR : The line " + str(self.current_line_nb) + " in '" + self.filepath + "' cannot be parsed by " + self.__class__.__name__ + ".\n\n" )
         return seq_record
 
     @staticmethod
@@ -150,18 +150,18 @@ class FastqIO:
             header = FH_in.file_handle.readline()
             while seq_idx < 10 and header:
                 if not header.startswith("@"):
-                    raise IOError( "The line '" + str(header) + "' in '" + filepath + "' is not a fastq header." )
+                    raise IOError( "\n\n#ERROR : The line '" + str(header) + "' in '" + filepath + "' is not a fastq header.\n\n" )
                 unstriped_sequence = FH_in.file_handle.readline()
                 if unstriped_sequence == "": # No line
-                    raise IOError( filepath + "' is not a fastq." )
+                    raise IOError( "\n\n#ERROR : " + filepath + "' is not a fastq.\n\n" )
                 unstriped_separator = FH_in.file_handle.readline()
                 if unstriped_separator == "": # No line
-                    raise IOError( filepath + "' is not a fastq." )
+                    raise IOError( "\n\n#ERROR : " + filepath + "' is not a fastq.\n\n" )
                 unstriped_quality = FH_in.file_handle.readline()
                 if unstriped_quality == "": # No line
-                    raise IOError( filepath + "' is not a fastq." )
+                    raise IOError( "\n\n#ERROR : " + filepath + "' is not a fastq.\n\n" )
                 if len(unstriped_sequence.strip()) != len(unstriped_quality.strip()):
-                    raise IOError( filepath + "' is not a fastq." )
+                    raise IOError( "\n\n#ERROR : " + filepath + "' is not a fastq.\n\n" )
                 header = FH_in.file_handle.readline()
                 seq_idx += 1
             is_valid = True
@@ -234,7 +234,7 @@ class FastaIO:
                 seq_record = Sequence( seq_id, seq_str, seq_desc )
                 yield seq_record
         except:
-            raise IOError( "The line " + str(self.current_line_nb) + " in '" + self.filepath + "' cannot be parsed by " + self.__class__.__name__ + "." )
+            raise IOError( "\n\n#ERROR : The line " + str(self.current_line_nb) + " in '" + self.filepath + "' cannot be parsed by " + self.__class__.__name__ + ".\n\n" )
 
     def next_seq(self):
         """
@@ -262,8 +262,8 @@ class FastaIO:
             seq_record = Sequence( seq_id, seq_str, seq_desc )
             self.next_id = line # next seq_id
         except:
-            raise IOError( "The line " + str(self.current_line_nb) + " in '" + self.filepath + "' cannot be parsed by " + self.__class__.__name__ + ".\n"
-                            + "content : " + line )
+            raise IOError( "\n\n#ERROR : The line " + str(self.current_line_nb) + " in '" + self.filepath + "' cannot be parsed by " + self.__class__.__name__ + ".\n"
+                            + "content : " + line +"\n\n")
         return seq_record
 
     @staticmethod
@@ -275,14 +275,14 @@ class FastaIO:
             header = FH_in.file_handle.readline()
             while seq_idx < 10 and header:
                 if not header.startswith(">"):
-                    raise IOError( "The line '" + str(header) + "' in '" + filepath + "' is not a fasta header." )
+                    raise IOError( "\n\n#ERROR : The line '" + str(header) + "' in '" + filepath + "' is not a fasta header.\n\n" )
                 previous_is_header = True
                 current_line = FH_in.file_handle.readline()
                 while not current_line.startswith(">") and current_line:
                     previous_is_header = False
                     current_line = FH_in.file_handle.readline()
                 if previous_is_header:
-                    raise IOError( filepath + "' is not a fasta." )
+                    raise IOError( "\n\n#ERROR : " + filepath + "' is not a fasta.\n\n" )
                 header = current_line
                 seq_idx += 1
             is_valid = True

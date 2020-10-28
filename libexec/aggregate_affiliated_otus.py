@@ -76,7 +76,7 @@ def process(params):
     biom_in = BiomIO.from_json( params.input_biom )
     # check if biom_in has blast_taxonomy affiliations
     if not biom_in.has_metadata("blast_affiliations"):
-        raise Exception("Your input biom file, "+ os.path.basename(params.input_biom) + ", does not contain any blast_affiliations metadata.")
+        raise Exception("\n\n#ERROR : Your input biom file, "+ os.path.basename(params.input_biom) + ", does not contain any blast_affiliations metadata.\n\n")
 
     biom_out = Biom( generated_by='FROGS_aggregate_affiliated_otu', matrix_type="sparse" )
 

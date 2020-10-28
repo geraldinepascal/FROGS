@@ -256,6 +256,6 @@ if __name__ == "__main__":
 
     # Process
     if args.blast_file is None and args.rdp_file is None:
-        raise Exception("at least one blast or one RDPClassifier output file is needed\n")
+        raise Exception("\n\n#ERROR : at least one blast or one RDPClassifier output file is needed\n\n")
     else:
         aff_to_metadata(args.reference, args.biom_in, args.biom_out, args.blast_file, args.rdp_file)

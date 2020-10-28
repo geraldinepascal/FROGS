@@ -152,7 +152,7 @@ if __name__ == "__main__":
     to_standardize = False
     if not biom.has_metadata("taxonomy") :
         if not biom.has_metadata("blast_taxonomy"):
-            raise Exception("\nYour biom input file is not comming from FROGS and has no standard taxonomy metadata.\n\n")
+            raise Exception("\n\n#ERROR : Your biom input file is not comming from FROGS and has no standard taxonomy metadata.\n\n")
         else:
             to_standardize=True
     # check sample names compatibility between input biom and sample metadata file
@@ -168,7 +168,7 @@ if __name__ == "__main__":
     if len(sample_biom_spec) > 0 :
         Logger.static_write(args.log_file, "# WARNING : " + str(len(sample_biom_spec)) + " samples from your biom file are not present in your sample metadata file. They will be excluded from further analysis \n\t" + "; ".join(sample_biom_spec) + "\n\n")
     if len(sample_metadata_spec) > 0 :
-       raise Exception( "\n\n#ERROR : " + str(len(sample_metadata_spec)) + " among " + str(len(sample_metadata_list)) + " samples from your sample metadata file are not present in your biom file:\n\t" + ";".join(sample_metadata_spec) + "\nPlease give a sample metadata file that fits your abundance biom file\n")
+       raise Exception( "\n\n#ERROR : " + str(len(sample_metadata_spec)) + " among " + str(len(sample_metadata_list)) + " samples from your sample metadata file are not present in your biom file:\n\t" + ";".join(sample_metadata_spec) + "\nPlease give a sample metadata file that fits your abundance biom file\n\n")
 
     if (args.treefile is None) :
         treefile="None"

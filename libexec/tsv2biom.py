@@ -65,7 +65,7 @@ def store_multihits(input_multihits):
 
     for colname in header_line:
         if colname not in ["observation_name", "blast_taxonomy", "blast_subject", "blast_perc_identity", "blast_perc_query_coverage", "blast_evalue", "blast_aln_length"] :
-            raise Exception("\n"+colname+" is not a valid FROGS TSV column name.\nPlease restore the default column names: "+", ".join(["observation_name", "blast_taxonomy", " blast_subject", "blast_perc_identity", "blast_perc_query_coverage", "blast_evalue", "blast_aln_length"])+"\n\n")
+            raise Exception("\n\n#ERROR : "+colname+" is not a valid FROGS TSV column name.\nPlease restore the default column names: "+", ".join(["observation_name", "blast_taxonomy", " blast_subject", "blast_perc_identity", "blast_perc_query_coverage", "blast_evalue", "blast_aln_length"])+"\n\n")
 
     for line in FH_in.readlines():
         line = line.strip().replace('"','').split("\t")
@@ -189,7 +189,7 @@ def tsv_to_biom( input_tsv, multi_hit_dict, fields, samples_names, output_biom, 
     header = header.strip()
     seed_seq_idx, metadata_index, sample_index = header_line_dict(fields,header,samples_names)
     if not output_fasta is None and seed_seq_idx == -1:
-        raise Exception("\nYou want to extract seed fasta sequence but there is no seed_sequence column in your TSV file\n\n")
+        raise Exception("\n\n#ERROR : You want to extract seed fasta sequence but there is no seed_sequence column in your TSV file\n\n")
 
     # count by sample, and metadata
     for line in in_fh:
@@ -250,11 +250,11 @@ def tsv_to_biom( input_tsv, multi_hit_dict, fields, samples_names, output_biom, 
                 # check multihit blast : filter non consistent taxonomy hit with blast_taxonomy (if TSV modified), and compute consensus tax (if multihit line suppressed)
                 if not multi_hit_dict is None and (metadata_dict["blast_subject"] == "multi-subject" or "Multi-affiliation" in metadata_dict["blast_taxonomy"]):
                     if not cluster_name in multi_hit_dict:
-                        raise Exception("\n"+cluster_name+" has multi-subject tag but is not present in your multi-hit TSV file. Please, provide the original multi-hit TSV file.\n\n")
+                        raise Exception("\n\n#ERROR : "+cluster_name+" has multi-subject tag but is not present in your multi-hit TSV file. Please, provide the original multi-hit TSV file.\n\n")
                     else:
                         metadata_dict["blast_taxonomy"], metadata_dict["blast_affiliations"] = observation_blast_parts(metadata_dict, multi_hit_dict[cluster_name])
                         if metadata_dict["blast_affiliations"] == []:
-                            raise Exception("\nyour multihit TSV file is no more consistent with your abundance TSV file for (at least) "+cluster_name+"\n\n")
+                            raise Exception("\n\n#ERROR : your multihit TSV file is no more consistent with your abundance TSV file for (at least) "+cluster_name+"\n\n")
                 # no multi tag= blast affiliation is equal to blast_taxonomy
                 else:
 

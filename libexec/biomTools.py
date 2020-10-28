@@ -108,7 +108,7 @@ def update_tree_for_sample( biom, tree, sample_name, taxonomy_key, sample_id=Non
 ####################################################################################################################
 def task_sampling( args ):
     if args.nb_sampled is None and args.sampled_ratio is None:
-        raise Exception('--nb-sampled or --sampled-ratio must be provided.')
+        raise Exception('\n\n#ERROR :--nb-sampled or --sampled-ratio must be provided.\n\n')
     sampling_by_sample( args.input_file, args.output_file, args.nb_sampled, args.sampled_ratio )
 
 
@@ -134,7 +134,7 @@ def sampling_by_sample( input_biom, output_biom, nb_sampled=None, sampled_ratio=
         if nb_sampled is None:
             sample_nb_sampled = int(sample_seq * sampled_ratio)
         if sample_seq < nb_sampled:
-            raise Exception( str(sample_nb_sampled) + " sequences cannot be sampled in sample '" + str(sample_name) + "'. It only contains " + str(sample_seq) + " sequences." )
+            raise Exception( "\n\n#ERROR : " + str(sample_nb_sampled) + " sequences cannot be sampled in sample '" + str(sample_name) + "'. It only contains " + str(sample_seq) + " sequences.\n\n" )
         else:
             for current_nb_iter in range(sample_nb_sampled):
                 # Take an observation in initial BIOM
@@ -359,7 +359,7 @@ def samples_hclassification( input_biom, output_newick, distance_method, linkage
 
     # Process distance
     if len(processed_samples) < 1:
-        raise Exception("All samples have a count lower than threshold (" + str(min_count) + ").")
+        raise Exception("\n\n#ERROR :All samples have a count lower than threshold (" + str(min_count) + ").\n\n")
     elif len(processed_samples) == 1:
         # Write newick
         out_fh = open( output_newick, "wt" )
@@ -446,7 +446,7 @@ def strict_positive_int(value):
     """
     value = int(value)
     if value < 1:
-        raise argparse.ArgumentTypeError("The minimum value is 1.")
+        raise argparse.ArgumentTypeError("\n\n#ERROR :The minimum value is 1.\n\n")
     return value
 
 
