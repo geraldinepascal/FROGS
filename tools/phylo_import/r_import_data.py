@@ -163,9 +163,12 @@ if __name__ == "__main__":
         sample_metadata_list.add(line.split()[0])
 
     biom_sample_list = set([name for name in biom.get_samples_names()])
-
-    if sample_metadata_list.difference(biom_sample_list) or biom_sample_list.difference(sample_metadata_list):
-        raise Exception("\nSamples names are not consistent between sample metadata file and biom file\n" + "samples specific from sample metadata file are :" + ", ".join([str(s) for s in sample_metadata_list.difference(biom_sample_list) ]) + "\n" + "samples specific from biom file are : " + ", ".join([str(s) for s in biom_sample_list.difference(sample_metadata_list) ]) + "\n\n")
+    sample_metadata_spec = sample_metadata_list.difference(biom_sample_list) 
+    sample_biom_spec = biom_sample_list.difference(sample_metadata_list)
+    if len(sample_biom_spec) > 0 :
+        Logger.static_write(args.log_file, "# WARNING : " + str(len(sample_biom_spec)) + " samples from your biom file are not present in your sample metadata file. They will be excluded from further analysis \n\t" + "; ".join(sample_biom_spec) + "\n\n")
+    if len(sample_metadata_spec) > 0 :
+       raise Exception( "\n\n#ERROR : " + str(len(sample_metadata_spec)) + " among " + str(len(sample_metadata_list)) + " samples from your sample metadata file are not present in your biom file:\n\t" + ";".join(sample_metadata_spec) + "\nPlease give a sample metadata file that fits your abundance biom file\n")
 
     if (args.treefile is None) :
         treefile="None"
