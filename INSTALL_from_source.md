@@ -407,14 +407,14 @@ mv phyloseq-extended-0.99/* .
 rm -r phyloseq-extended-0.99/
 ```
 
-## 13) pandoc 1.19.2.1,  for all FROGSSTAT Phyloseq tools
+## 13) pandoc 2.10.1,  for all FROGSSTAT Phyloseq tools
 **installation**
 ```
 cd $BIN_DIR
 mkdir pandoc
 cd pandoc
-wget https://github.com/jgm/pandoc/releases/download/1.19.2.1/pandoc-1.19.2.1-1-amd64.deb
-sudo dpkg -i pandoc-1.19.2.1-1-amd64.deb
+wget https://github.com/jgm/pandoc/releases/download/2.10.1/pandoc-2.10.1-1-amd64.deb
+sudo dpkg -i pandoc-2.10.1-1-amd64.deb
 # add to FROGS
 ln -s /usr/bin/pandoc $FROGS_libexec/.
 ```
