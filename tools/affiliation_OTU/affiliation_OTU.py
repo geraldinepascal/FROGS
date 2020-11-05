@@ -332,7 +332,7 @@ def get_results( biom_file ):
         nb_seq = biom.get_observation_count( cluster["id"] )
         global_results["nb_clstr"] += 1
         global_results["nb_seq"] += nb_seq
-        if cluster["metadata"]["blast_taxonomy"] is not None:
+        if cluster["metadata"]["blast_taxonomy"] is not None and len(cluster["metadata"]["blast_taxonomy"]) > 0:
             global_results["nb_clstr_with_affi"] += 1
             global_results["nb_seq_with_affi"] += nb_seq
             for depth, taxon in enumerate(cluster["metadata"]["blast_taxonomy"]):
@@ -356,7 +356,7 @@ def get_results( biom_file ):
             if count > 0:
                 samples_results[sample_name]["nb_clstr"] += 1
                 samples_results[sample_name]["nb_seq"] += count
-                if cluster["metadata"]["blast_taxonomy"] is not None:
+                if cluster["metadata"]["blast_taxonomy"] is not None and len(cluster["metadata"]["blast_taxonomy"]) > 0:
                     samples_results[sample_name]["nb_clstr_with_affi"] += 1
                     samples_results[sample_name]["nb_seq_with_affi"] += count
     return global_results, samples_results
