@@ -1,0 +1,646 @@
+## Application
+Software: normalisation.py (version: 3.2)
+Command: ./normalisation.py -n 1000 -i data/non_chimera_500sp.biom -f data/non_chimera_500sp.fasta -b test/test_aff_N1000.biom -o test/test_aff_N1000.fasta -s test/summary.html -l test/log.txt
+
+Application start: 27 Oct 2020 10:53:31
+
+#Normalisation calculation
+	start: 27 Oct 2020 10:53:31
+########################################################################################################
+# Random sampling in each sample. (biomTools.py version : )
+Command:
+	biomTools.py sampling --nb-sampled 1000 --input-file data/non_chimera_500sp.biom --output-file test/test_aff_N1000.biom
+
+Execution:
+	start: 27 Oct 2020 10:53:31
+	end:   27 Oct 2020 10:53:49
+
+	end: 27 Oct 2020 10:53:49
+
+########################################################################################################
+# Update fasta file based on sequence in biom file (biomFastaUpdate.py version : )
+Command:
+	biomFastaUpdate.py --input-biom test/test_aff_N1000.biom --input-fasta data/non_chimera_500sp.fasta --output-file test/test_aff_N1000.fasta --log test/1603792411.8313124_24336_tmp_fasta_update.log
+
+Execution:
+	start: 27 Oct 2020 10:53:49
+	end:   27 Oct 2020 10:53:50
+
+
+#Summarise
+	start: 27 Oct 2020 10:53:50
+	end: 27 Oct 2020 10:53:50
+
+Application end: 27 Oct 2020 10:53:50
+## Application
+Software: normalisation.py (version: 3.2)
+Command: ./normalisation.py -n 1000 -i data/non_chimera_500sp.biom -f data/non_chimera_500sp.fasta -b test/test_aff_N1000.biom -o test/test_aff_N1000.fasta -s test/summary.html -l test/log.txt
+
+Application start: 27 Oct 2020 12:03:25
+
+#Normalisation calculation
+	start: 27 Oct 2020 12:03:25
+########################################################################################################
+# Random sampling in each sample. (biomTools.py version : )
+Command:
+	biomTools.py sampling --nb-sampled 1000 --input-file data/non_chimera_500sp.biom --output-file test/test_aff_N1000.biom
+
+Execution:
+	start: 27 Oct 2020 12:03:25
+	end:   27 Oct 2020 12:04:11
+
+	end: 27 Oct 2020 12:04:11
+
+########################################################################################################
+# Update fasta file based on sequence in biom file (biomFastaUpdate.py version : )
+Command:
+	biomFastaUpdate.py --input-biom test/test_aff_N1000.biom --input-fasta data/non_chimera_500sp.fasta --output-file test/test_aff_N1000.fasta --log test/1603796605.265561_26540_tmp_fasta_update.log
+
+Execution:
+	start: 27 Oct 2020 12:04:12
+	end:   27 Oct 2020 12:04:12
+
+
+#Summarise
+	start: 27 Oct 2020 12:04:12
+	end: 27 Oct 2020 12:04:12
+
+Application end: 27 Oct 2020 12:04:12
+## Application
+Software: normalisation.py (version: 3.2)
+Command: ./normalisation.py -n 1000 -i data/non_chimera_500sp.biom -f data/non_chimera_500sp.fasta -b test/test_aff_N1000.biom -o test/test_aff_N1000.fasta -s test/summary.html -l test/log.txt
+
+Application start: 27 Oct 2020 12:05:11
+
+#Normalisation calculation
+	start: 27 Oct 2020 12:05:11
+########################################################################################################
+# Random sampling in each sample. (biomTools.py version : )
+Command:
+	biomTools.py sampling --nb-sampled 1000 --input-file data/non_chimera_500sp.biom --output-file test/test_aff_N1000.biom
+
+Execution:
+	start: 27 Oct 2020 12:05:11
+	end:   27 Oct 2020 12:06:01
+
+	end: 27 Oct 2020 12:06:01
+
+########################################################################################################
+# Update fasta file based on sequence in biom file (biomFastaUpdate.py version : )
+Command:
+	biomFastaUpdate.py --input-biom test/test_aff_N1000.biom --input-fasta data/non_chimera_500sp.fasta --output-file test/test_aff_N1000.fasta --log test/1603796711.0019488_27268_tmp_fasta_update.log
+
+Execution:
+	start: 27 Oct 2020 12:06:01
+	end:   27 Oct 2020 12:06:01
+
+
+#Summarise
+	start: 27 Oct 2020 12:06:01
+	end: 27 Oct 2020 12:06:01
+
+Application end: 27 Oct 2020 12:06:01
+## Application
+Software: normalisation.py (version: 3.2)
+Command: ./normalisation.py -n 1000 -i data/non_chimera_500sp.biom -f data/non_chimera_500sp.fasta -b test/test_aff_N1000.biom -o test/test_aff_N1000.fasta -s test/summary.html -l test/log.txt
+
+Application start: 27 Oct 2020 12:08:41
+
+#Normalisation calculation
+	start: 27 Oct 2020 12:08:41
+########################################################################################################
+# Random sampling in each sample. (biomTools.py version : )
+Command:
+	biomTools.py sampling --nb-sampled 1000 --input-file data/non_chimera_500sp.biom --output-file test/test_aff_N1000.biom
+
+Execution:
+	start: 27 Oct 2020 12:08:41
+	end:   27 Oct 2020 12:08:57
+
+	end: 27 Oct 2020 12:08:57
+
+########################################################################################################
+# Update fasta file based on sequence in biom file (biomFastaUpdate.py version : )
+Command:
+	biomFastaUpdate.py --input-biom test/test_aff_N1000.biom --input-fasta data/non_chimera_500sp.fasta --output-file test/test_aff_N1000.fasta --log test/1603796921.096195_28511_tmp_fasta_update.log
+
+Execution:
+	start: 27 Oct 2020 12:08:57
+	end:   27 Oct 2020 12:08:57
+
+
+#Summarise
+	start: 27 Oct 2020 12:08:57
+	end: 27 Oct 2020 12:08:57
+
+Application end: 27 Oct 2020 12:08:57
+## Application
+Software: normalisation.py (version: 3.2)
+Command: ./normalisation.py -n 1000 -i data/non_chimera_500sp.biom -f data/non_chimera_500sp.fasta -b test/test_aff_N1000.biom -o test/test_aff_N1000.fasta -s test/summary.html -l test/log.txt
+
+Application start: 27 Oct 2020 12:27:46
+
+#Normalisation calculation
+	start: 27 Oct 2020 12:27:46
+########################################################################################################
+# Random sampling in each sample. (biomTools.py version : )
+Command:
+	biomTools.py sampling --nb-sampled 1000 --input-file data/non_chimera_500sp.biom --output-file test/test_aff_N1000.biom
+
+Execution:
+	start: 27 Oct 2020 12:27:46
+	end:   27 Oct 2020 12:28:02
+
+	end: 27 Oct 2020 12:28:02
+
+########################################################################################################
+# Update fasta file based on sequence in biom file (biomFastaUpdate.py version : )
+Command:
+	biomFastaUpdate.py --input-biom test/test_aff_N1000.biom --input-fasta data/non_chimera_500sp.fasta --output-file test/test_aff_N1000.fasta --log test/1603798066.8000712_36993_tmp_fasta_update.log
+
+Execution:
+	start: 27 Oct 2020 12:28:02
+	end:   27 Oct 2020 12:28:02
+
+
+#Summarise
+	start: 27 Oct 2020 12:28:02
+	end: 27 Oct 2020 12:28:02
+
+Application end: 27 Oct 2020 12:28:02
+## Application
+Software: normalisation.py (version: 3.2)
+Command: ./normalisation.py -n 1000 -i data/non_chimera_500sp.biom -f data/non_chimera_500sp.fasta -b test/test_aff_N1000.biom -o test/test_aff_N1000.fasta -s test/summary.html -l test/log.txt
+
+Application start: 27 Oct 2020 13:00:38
+
+#Normalisation calculation
+	start: 27 Oct 2020 13:00:38
+########################################################################################################
+# Random sampling in each sample. (biomTools.py version : )
+Command:
+	biomTools.py sampling --nb-sampled 1000 --input-file data/non_chimera_500sp.biom --output-file test/test_aff_N1000.biom
+
+Execution:
+	start: 27 Oct 2020 13:00:38
+	end:   27 Oct 2020 13:00:54
+
+	end: 27 Oct 2020 13:00:54
+
+########################################################################################################
+# Update fasta file based on sequence in biom file (biomFastaUpdate.py version : )
+Command:
+	biomFastaUpdate.py --input-biom test/test_aff_N1000.biom --input-fasta data/non_chimera_500sp.fasta --output-file test/test_aff_N1000.fasta --log test/1603800038.4956985_10117_tmp_fasta_update.log
+
+Execution:
+	start: 27 Oct 2020 13:00:54
+	end:   27 Oct 2020 13:00:55
+
+
+#Summarise
+	start: 27 Oct 2020 13:00:55
+	end: 27 Oct 2020 13:00:55
+
+Application end: 27 Oct 2020 13:00:55
+## Application
+Software: normalisation.py (version: 3.2)
+Command: ./normalisation.py -n 1000 -i data/non_chimera_500sp.biom -f data/non_chimera_500sp.fasta -b test/test_aff_N1000.biom -o test/test_aff_N1000.fasta -s test/summary.html -l test/log.txt
+
+Application start: 27 Oct 2020 13:04:20
+
+#Normalisation calculation
+	start: 27 Oct 2020 13:04:20
+########################################################################################################
+# Random sampling in each sample. (biomTools.py version : )
+Command:
+	biomTools.py sampling --nb-sampled 1000 --input-file data/non_chimera_500sp.biom --output-file test/test_aff_N1000.biom
+
+Execution:
+	start: 27 Oct 2020 13:04:20
+	end:   27 Oct 2020 13:04:35
+
+	end: 27 Oct 2020 13:04:35
+
+########################################################################################################
+# Update fasta file based on sequence in biom file (biomFastaUpdate.py version : )
+Command:
+	biomFastaUpdate.py --input-biom test/test_aff_N1000.biom --input-fasta data/non_chimera_500sp.fasta --output-file test/test_aff_N1000.fasta --log test/1603800260.0747182_11124_tmp_fasta_update.log
+
+Execution:
+	start: 27 Oct 2020 13:04:36
+	end:   27 Oct 2020 13:04:36
+
+
+#Summarise
+	start: 27 Oct 2020 13:04:36
+	end: 27 Oct 2020 13:04:36
+
+Application end: 27 Oct 2020 13:04:36
+## Application
+Software: normalisation.py (version: 3.2)
+Command: ./normalisation.py -n 1000 -i data/non_chimera_500sp.biom -f data/non_chimera_500sp.fasta -b test/test_aff_N1000.biom -o test/test_aff_N1000.fasta -s test/summary.html -l test/log.txt
+
+Application start: 27 Oct 2020 13:05:32
+
+#Normalisation calculation
+	start: 27 Oct 2020 13:05:32
+########################################################################################################
+# Random sampling in each sample. (biomTools.py version : )
+Command:
+	biomTools.py sampling --nb-sampled 1000 --input-file data/non_chimera_500sp.biom --output-file test/test_aff_N1000.biom
+
+Execution:
+	start: 27 Oct 2020 13:05:32
+	end:   27 Oct 2020 13:05:48
+
+	end: 27 Oct 2020 13:05:48
+
+########################################################################################################
+# Update fasta file based on sequence in biom file (biomFastaUpdate.py version : )
+Command:
+	biomFastaUpdate.py --input-biom test/test_aff_N1000.biom --input-fasta data/non_chimera_500sp.fasta --output-file test/test_aff_N1000.fasta --log test/1603800332.7777696_11436_tmp_fasta_update.log
+
+Execution:
+	start: 27 Oct 2020 13:05:48
+	end:   27 Oct 2020 13:05:48
+
+
+#Summarise
+	start: 27 Oct 2020 13:05:48
+	end: 27 Oct 2020 13:05:48
+
+Application end: 27 Oct 2020 13:05:48
+## Application
+Software: normalisation.py (version: 3.2)
+Command: ./normalisation.py -n 1000 -i data/non_chimera_500sp.biom -f data/non_chimera_500sp.fasta -b test/test_aff_N1000.biom -o test/test_aff_N1000.fasta -s test/summary.html -l test/log.txt
+
+Application start: 27 Oct 2020 13:10:21
+
+#Normalisation calculation
+	start: 27 Oct 2020 13:10:21
+########################################################################################################
+# Random sampling in each sample. (biomTools.py version : )
+Command:
+	biomTools.py sampling --nb-sampled 1000 --input-file data/non_chimera_500sp.biom --output-file test/test_aff_N1000.biom
+
+Execution:
+	start: 27 Oct 2020 13:10:21
+	end:   27 Oct 2020 13:10:36
+
+	end: 27 Oct 2020 13:10:37
+
+########################################################################################################
+# Update fasta file based on sequence in biom file (biomFastaUpdate.py version : )
+Command:
+	biomFastaUpdate.py --input-biom test/test_aff_N1000.biom --input-fasta data/non_chimera_500sp.fasta --output-file test/test_aff_N1000.fasta --log test/1603800621.0727928_37013_tmp_fasta_update.log
+
+Execution:
+	start: 27 Oct 2020 13:10:37
+	end:   27 Oct 2020 13:10:37
+
+
+#Summarise
+	start: 27 Oct 2020 13:10:37
+	end: 27 Oct 2020 13:10:37
+
+Application end: 27 Oct 2020 13:10:37
+## Application
+Software: normalisation.py (version: 3.2)
+Command: ./normalisation.py -n 1000 -i data/non_chimera_500sp.biom -f data/non_chimera_500sp.fasta -b test/test_aff_N1000.biom -o test/test_aff_N1000.fasta -s test/summary.html -l test/log.txt
+
+Application start: 27 Oct 2020 13:13:35
+
+#Normalisation calculation
+	start: 27 Oct 2020 13:13:35
+########################################################################################################
+# Random sampling in each sample. (biomTools.py version : )
+Command:
+	biomTools.py sampling --nb-sampled 1000 --input-file data/non_chimera_500sp.biom --output-file test/test_aff_N1000.biom
+
+Execution:
+	start: 27 Oct 2020 13:13:35
+	end:   27 Oct 2020 13:13:51
+
+	end: 27 Oct 2020 13:13:51
+
+########################################################################################################
+# Update fasta file based on sequence in biom file (biomFastaUpdate.py version : )
+Command:
+	biomFastaUpdate.py --input-biom test/test_aff_N1000.biom --input-fasta data/non_chimera_500sp.fasta --output-file test/test_aff_N1000.fasta --log test/1603800815.2784884_37781_tmp_fasta_update.log
+
+Execution:
+	start: 27 Oct 2020 13:13:52
+	end:   27 Oct 2020 13:13:52
+
+
+#Summarise
+	start: 27 Oct 2020 13:13:52
+	end: 27 Oct 2020 13:13:52
+
+Application end: 27 Oct 2020 13:13:52
+## Application
+Software: normalisation.py (version: 3.2)
+Command: ./normalisation.py -n 1000 -i data/non_chimera_500sp.biom -f data/non_chimera_500sp.fasta -b test/test_aff_N1000.biom -o test/test_aff_N1000.fasta -s test/summary.html -l test/log.txt
+
+Application start: 27 Oct 2020 13:14:19
+
+#Normalisation calculation
+	start: 27 Oct 2020 13:14:19
+########################################################################################################
+# Random sampling in each sample. (biomTools.py version : )
+Command:
+	biomTools.py sampling --nb-sampled 1000 --input-file data/non_chimera_500sp.biom --output-file test/test_aff_N1000.biom
+
+Execution:
+	start: 27 Oct 2020 13:14:19
+	end:   27 Oct 2020 13:14:36
+
+	end: 27 Oct 2020 13:14:36
+
+########################################################################################################
+# Update fasta file based on sequence in biom file (biomFastaUpdate.py version : )
+Command:
+	biomFastaUpdate.py --input-biom test/test_aff_N1000.biom --input-fasta data/non_chimera_500sp.fasta --output-file test/test_aff_N1000.fasta --log test/1603800859.654453_37993_tmp_fasta_update.log
+
+Execution:
+	start: 27 Oct 2020 13:14:36
+	end:   27 Oct 2020 13:14:36
+
+
+#Summarise
+	start: 27 Oct 2020 13:14:36
+	end: 27 Oct 2020 13:14:36
+
+Application end: 27 Oct 2020 13:14:36
+## Application
+Software: normalisation.py (version: 3.2)
+Command: ./normalisation.py -n 1000 -i data/non_chimera_500sp.biom -f data/non_chimera_500sp.fasta -b test/test_aff_N1000.biom -o test/test_aff_N1000.fasta -s test/summary.html -l test/log.txt
+
+Application start: 27 Oct 2020 13:15:58
+
+#Normalisation calculation
+	start: 27 Oct 2020 13:15:58
+########################################################################################################
+# Random sampling in each sample. (biomTools.py version : )
+Command:
+	biomTools.py sampling --nb-sampled 1000 --input-file data/non_chimera_500sp.biom --output-file test/test_aff_N1000.biom
+
+Execution:
+	start: 27 Oct 2020 13:15:59
+	end:   27 Oct 2020 13:16:16
+
+	end: 27 Oct 2020 13:16:16
+
+########################################################################################################
+# Update fasta file based on sequence in biom file (biomFastaUpdate.py version : )
+Command:
+	biomFastaUpdate.py --input-biom test/test_aff_N1000.biom --input-fasta data/non_chimera_500sp.fasta --output-file test/test_aff_N1000.fasta --log test/1603800958.9059174_39178_tmp_fasta_update.log
+
+Execution:
+	start: 27 Oct 2020 13:16:16
+	end:   27 Oct 2020 13:16:16
+
+
+#Summarise
+	start: 27 Oct 2020 13:16:16
+	end: 27 Oct 2020 13:16:16
+
+Application end: 27 Oct 2020 13:16:16
+## Application
+Software: normalisation.py (version: 3.2)
+Command: ./normalisation.py -n 1000 -i data/non_chimera_500sp.biom -f data/non_chimera_500sp.fasta -b test/test_aff_N1000.biom -o test/test_aff_N1000.fasta -s test/summary.html -l test/log.txt
+
+Application start: 27 Oct 2020 13:21:41
+
+#Normalisation calculation
+	start: 27 Oct 2020 13:21:41
+########################################################################################################
+# Random sampling in each sample. (biomTools.py version : )
+Command:
+	biomTools.py sampling --nb-sampled 1000 --input-file data/non_chimera_500sp.biom --output-file test/test_aff_N1000.biom
+
+Execution:
+	start: 27 Oct 2020 13:21:41
+	end:   27 Oct 2020 13:21:58
+
+	end: 27 Oct 2020 13:21:58
+
+########################################################################################################
+# Update fasta file based on sequence in biom file (biomFastaUpdate.py version : )
+Command:
+	biomFastaUpdate.py --input-biom test/test_aff_N1000.biom --input-fasta data/non_chimera_500sp.fasta --output-file test/test_aff_N1000.fasta --log test/1603801301.764635_1934_tmp_fasta_update.log
+
+Execution:
+	start: 27 Oct 2020 13:21:58
+	end:   27 Oct 2020 13:21:59
+
+
+#Summarise
+	start: 27 Oct 2020 13:21:59
+	end: 27 Oct 2020 13:21:59
+
+Application end: 27 Oct 2020 13:21:59
+## Application
+Software: normalisation.py (version: 3.2)
+Command: ./normalisation.py -n 1000 -i data/non_chimera_500sp.biom -f data/non_chimera_500sp.fasta -b test/test_aff_N1000.biom -o test/test_aff_N1000.fasta -s test/summary.html -l test/log.txt
+
+Application start: 27 Oct 2020 13:23:03
+
+#Normalisation calculation
+	start: 27 Oct 2020 13:23:03
+########################################################################################################
+# Random sampling in each sample. (biomTools.py version : )
+Command:
+	biomTools.py sampling --nb-sampled 1000 --input-file data/non_chimera_500sp.biom --output-file test/test_aff_N1000.biom
+
+Execution:
+	start: 27 Oct 2020 13:23:03
+	end:   27 Oct 2020 13:23:20
+
+	end: 27 Oct 2020 13:23:20
+
+########################################################################################################
+# Update fasta file based on sequence in biom file (biomFastaUpdate.py version : )
+Command:
+	biomFastaUpdate.py --input-biom test/test_aff_N1000.biom --input-fasta data/non_chimera_500sp.fasta --output-file test/test_aff_N1000.fasta --log test/1603801383.0328276_2270_tmp_fasta_update.log
+
+Execution:
+	start: 27 Oct 2020 13:23:20
+	end:   27 Oct 2020 13:23:20
+
+
+#Summarise
+	start: 27 Oct 2020 13:23:20
+	end: 27 Oct 2020 13:23:20
+
+Application end: 27 Oct 2020 13:23:20
+## Application
+Software: normalisation.py (version: 3.2)
+Command: ./normalisation.py -n 1000 -i data/non_chimera_500sp.biom -f data/non_chimera_500sp.fasta -b test/test_aff_N1000.biom -o test/test_aff_N1000.fasta -s test/summary.html -l test/log.txt
+
+Application start: 27 Oct 2020 13:24:25
+
+#Normalisation calculation
+	start: 27 Oct 2020 13:24:25
+########################################################################################################
+# Random sampling in each sample. (biomTools.py version : )
+Command:
+	biomTools.py sampling --nb-sampled 1000 --input-file data/non_chimera_500sp.biom --output-file test/test_aff_N1000.biom
+
+Execution:
+	start: 27 Oct 2020 13:24:25
+	end:   27 Oct 2020 13:24:42
+
+	end: 27 Oct 2020 13:24:42
+
+########################################################################################################
+# Update fasta file based on sequence in biom file (biomFastaUpdate.py version : )
+Command:
+	biomFastaUpdate.py --input-biom test/test_aff_N1000.biom --input-fasta data/non_chimera_500sp.fasta --output-file test/test_aff_N1000.fasta --log test/1603801465.7916317_2641_tmp_fasta_update.log
+
+Execution:
+	start: 27 Oct 2020 13:24:42
+	end:   27 Oct 2020 13:24:43
+
+
+#Summarise
+	start: 27 Oct 2020 13:24:43
+	end: 27 Oct 2020 13:24:43
+
+Application end: 27 Oct 2020 13:24:43
+## Application
+Software: normalisation.py (version: 3.2)
+Command: ./normalisation.py -n 1000 -i data/non_chimera_500sp.biom -f data/non_chimera_500sp.fasta -b test/test_aff_N1000.biom -o test/test_aff_N1000.fasta -s test/summary.html -l test/log.txt
+
+Application start: 27 Oct 2020 13:25:29
+
+#Normalisation calculation
+	start: 27 Oct 2020 13:25:29
+########################################################################################################
+# Random sampling in each sample. (biomTools.py version : )
+Command:
+	biomTools.py sampling --nb-sampled 1000 --input-file data/non_chimera_500sp.biom --output-file test/test_aff_N1000.biom
+
+Execution:
+	start: 27 Oct 2020 13:25:29
+	end:   27 Oct 2020 13:25:45
+
+	end: 27 Oct 2020 13:25:46
+
+########################################################################################################
+# Update fasta file based on sequence in biom file (biomFastaUpdate.py version : )
+Command:
+	biomFastaUpdate.py --input-biom test/test_aff_N1000.biom --input-fasta data/non_chimera_500sp.fasta --output-file test/test_aff_N1000.fasta --log test/1603801529.0358047_2913_tmp_fasta_update.log
+
+Execution:
+	start: 27 Oct 2020 13:25:46
+	end:   27 Oct 2020 13:25:46
+
+
+#Summarise
+	start: 27 Oct 2020 13:25:46
+	end: 27 Oct 2020 13:25:46
+
+Application end: 27 Oct 2020 13:25:46
+## Application
+Software: normalisation.py (version: 3.2)
+Command: ./normalisation.py -n 1000 -i data/non_chimera_500sp.biom -f data/non_chimera_500sp.fasta -b test/test_aff_N1000.biom -o test/test_aff_N1000.fasta -s test/summary.html -l test/log.txt
+
+Application start: 27 Oct 2020 13:26:27
+
+#Normalisation calculation
+	start: 27 Oct 2020 13:26:27
+########################################################################################################
+# Random sampling in each sample. (biomTools.py version : )
+Command:
+	biomTools.py sampling --nb-sampled 1000 --input-file data/non_chimera_500sp.biom --output-file test/test_aff_N1000.biom
+
+Execution:
+	start: 27 Oct 2020 13:26:27
+	end:   27 Oct 2020 13:26:44
+
+	end: 27 Oct 2020 13:26:44
+
+########################################################################################################
+# Update fasta file based on sequence in biom file (biomFastaUpdate.py version : )
+Command:
+	biomFastaUpdate.py --input-biom test/test_aff_N1000.biom --input-fasta data/non_chimera_500sp.fasta --output-file test/test_aff_N1000.fasta --log test/1603801587.4175994_3248_tmp_fasta_update.log
+
+Execution:
+	start: 27 Oct 2020 13:26:44
+	end:   27 Oct 2020 13:26:44
+
+
+#Summarise
+	start: 27 Oct 2020 13:26:44
+	end: 27 Oct 2020 13:26:44
+
+Application end: 27 Oct 2020 13:26:44
+## Application
+Software: normalisation.py (version: 3.2)
+Command: ./normalisation.py -n 1000 -i data/non_chimera_500sp.biom -f data/non_chimera_500sp.fasta -b test/test_aff_N1000.biom -o test/test_aff_N1000.fasta -s test/summary.html -l test/log.txt
+
+Application start: 27 Oct 2020 13:55:06
+
+#Normalisation calculation
+	start: 27 Oct 2020 13:55:06
+########################################################################################################
+# Random sampling in each sample. (biomTools.py version : )
+Command:
+	biomTools.py sampling --nb-sampled 1000 --input-file data/non_chimera_500sp.biom --output-file test/test_aff_N1000.biom
+
+Execution:
+	start: 27 Oct 2020 13:55:06
+	end:   27 Oct 2020 13:55:22
+
+	end: 27 Oct 2020 13:55:22
+
+########################################################################################################
+# Update fasta file based on sequence in biom file (biomFastaUpdate.py version : )
+Command:
+	biomFastaUpdate.py --input-biom test/test_aff_N1000.biom --input-fasta data/non_chimera_500sp.fasta --output-file test/test_aff_N1000.fasta --log test/1603803306.7985575_20786_tmp_fasta_update.log
+
+Execution:
+	start: 27 Oct 2020 13:55:22
+	end:   27 Oct 2020 13:55:23
+
+
+#Summarise
+	start: 27 Oct 2020 13:55:23
+	end: 27 Oct 2020 13:55:23
+
+Application end: 27 Oct 2020 13:55:23
+## Application
+Software: normalisation.py (version: 3.2)
+Command: ./normalisation.py -n 1000 -i data/non_chimera_500sp.biom -f data/non_chimera_500sp.fasta -b test/test_aff_N1000.biom -o test/test_aff_N1000.fasta -s test/summary.html -l test/log.txt
+
+Application start: 27 Oct 2020 14:02:30
+
+#Normalisation calculation
+	start: 27 Oct 2020 14:02:30
+########################################################################################################
+# Random sampling in each sample. (biomTools.py version : )
+Command:
+	biomTools.py sampling --nb-sampled 1000 --input-file data/non_chimera_500sp.biom --output-file test/test_aff_N1000.biom
+
+Execution:
+	start: 27 Oct 2020 14:02:31
+	end:   27 Oct 2020 14:02:46
+
+	end: 27 Oct 2020 14:02:46
+
+########################################################################################################
+# Update fasta file based on sequence in biom file (biomFastaUpdate.py version : )
+Command:
+	biomFastaUpdate.py --input-biom test/test_aff_N1000.biom --input-fasta data/non_chimera_500sp.fasta --output-file test/test_aff_N1000.fasta --log test/1603803750.9291983_25201_tmp_fasta_update.log
+
+Execution:
+	start: 27 Oct 2020 14:02:47
+	end:   27 Oct 2020 14:02:47
+
+
+#Summarise
+	start: 27 Oct 2020 14:02:47
+	end: 27 Oct 2020 14:02:47
+
+Application end: 27 Oct 2020 14:02:47

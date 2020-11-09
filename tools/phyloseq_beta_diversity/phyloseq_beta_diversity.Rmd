@@ -1,0 +1,103 @@
+---
+title: "FROGS Phyloseq: Beta Diversity Visualization (version 3.2)"
+output: 
+  html_notebook:
+    code_folding: hide
+params:
+   phyloseq:
+      value: x
+   varExp:
+      value: x
+   methods:
+      value: x
+   libdir:
+      value: x
+---
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<style type="text/css">
+code.r{ /* Code block */
+  font-size: 11px;
+}
+pre { /* Code block */
+  font-size: 11px
+}
+.button {
+    background-color: #2a7ecc; /* Blue */
+    border          : none;
+    color           : white;
+    padding         : 5px 10px;
+    text-align      : center;
+    text-decoration : none;
+    display         : inline-block;
+    font-size       : 12px;
+    margin          : 4px 2px;
+    cursor          : pointer;
+    border-radius   : 8px;
+}
+h4 { 
+    display      : block;
+    font-size    : 1em;
+    margin-top   : 1.33em;
+    margin-bottom: 1.33em;
+    margin-left  : 0;
+    margin-right : 0;
+    font-weight  : bold;
+    color        : #2a7ecc;
+}
+</style>
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+Phyloseq `r packageVersion("phyloseq")`
+
+```{r import, message=FALSE}
+## Import packages
+library(phyloseq)
+library(ggplot2)
+library(gridExtra)
+library(reshape2)
+source(file.path(params$libdir, "graphical_methods.R"))
+## Alternative to source all extra function from a github repo
+## source("https://raw.githubusercontent.com/mahendra-mariadassou/phyloseq-extended/master/load-extra-functions.R")
+
+## Setting variables
+  ## The Phyloseq object (format rdata)
+  # phyloseq <- ""
+
+  ## The experiment variable that you want to analyse
+  # varExp <- ""
+
+  ## The methods of beta diversity you want to compute
+  ## to see all available distance methods, type distanceMethodList
+  ## The most common one are : cc for Jaccard, bray for Bray-Curtis, unifrac and wunifrac for Unifrac and weighted Unifrac
+  ## N.B. if the tree is not available in your RData, you cannot choose Unifrac or Weighted Unifrac
+  ## You may precise multiple distance by separating them by a comma
+  # methods <- ""
+
+## Create input and parameters dataframe
+  # params <- data.frame( "phyloseq" = phylose, "varExp" = varExp, "methods" = methods)
+
+## Load data
+  ## the phyloseq object
+load(params$phyloseq) 
+
+## store methods in list
+methods <- as.list(strsplit(params$methods, ",")[[1]])
+
+## Order samples according to grouping variable
+sampleOrder <- levels(reorder(sample_names(data), as.numeric(get_variable(data, params$varExp)))) 
+```
+
+### Distance as heatmap plot(s)
+```{r, fig.width=8, fig.height=6, warning=FALSE}
+
+for (method in methods){
+  dist.a <- distance(data, method = method)
+  a <- as.matrix(dist.a)
+  write.table(a, paste(sep="", method, ".tsv"), sep="\t", quote=FALSE, col.names=NA)
+  pa <- plot_dist_as_heatmap(dist.a, order = sampleOrder, title = paste("Heatmap plot of the beta distance :",method)) + 
+    theme(plot.title = element_text(hjust = 0.5))
+  plot(pa)
+}
+```
