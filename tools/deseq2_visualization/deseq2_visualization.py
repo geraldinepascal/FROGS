@@ -111,8 +111,8 @@ if __name__ == "__main__":
 
     # output
     group_output = parser.add_argument_group( 'Outputs' )
-    group_output.add_argument('-o','--html', default='deseq2_visualization.html', help="The path to resulting html file. [Default: %(default)s]" )
-    group_output.add_argument( '-l', '--log-file', default=sys.stdout, help='This output file will contain several information on executed commands.')
+    group_output.add_argument('-o','--html', default='DESeq2_visualization.html', help="The HTML file containing the graphs. [Default: %(default)s]" )
+    group_output.add_argument( '-l', '--log-file', default=sys.stdout, help='This output file will contain several informations on executed commands.')
     args = parser.parse_args()
     prevent_shell_injections(args)
    

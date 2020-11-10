@@ -16,7 +16,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-__author__ = 'Katia Vidal - Team NED Toulouse AND Frederic Escudie - Plateforme bioinformatique Toulouse AND Maria Bernard - Sigenae Jouy en Josas'
+__author__ = 'Maria Bernard - SIGENAE - Jouy-en-Josas'
 __copyright__ = 'Copyright (C) 2020 INRAE'
 __license__ = 'GNU General Public License'
 __version__ = '3.2'
@@ -641,7 +641,7 @@ def process( args ):
 ##################################################################################################################################################
 if __name__ == '__main__':
     # Parameters
-    parser = argparse.ArgumentParser(description='Filters an abundance biom file on affiliations metrics')
+    parser = argparse.ArgumentParser(description='Filters an abundance BIOM file on affiliations metrics')
     parser.add_argument( '--debug', default=False, action='store_true', help="Keep temporary files to debug program." )
     parser.add_argument( '-v', '--version', action='version', version=__version__ )
     parser.add_argument( '--taxonomic-ranks', nargs='+', default=["Domain", "Phylum", "Class", "Order", "Family", "Genus", "Species"], help='The ordered ranks levels used in the metadata taxonomy. [Default: %(default)s]' )
@@ -661,16 +661,16 @@ if __name__ == '__main__':
     group_filter.add_argument( '-l', '--min-blast-length', type=int, default=None, required=False, help="The number corresponding to the blast length." )
     #     Inputs
     group_input = parser.add_argument_group( 'Inputs' )
-    group_input.add_argument('--input-biom', required=True, help="The input biom file.")
-    group_input.add_argument('--input-fasta', required=True, help="The input fasta file.")
+    group_input.add_argument('--input-biom', required=True, help="The input BIOM file.")
+    group_input.add_argument('--input-fasta', required=True, help="The input FASTA file.")
     #     Outputs
     group_output = parser.add_argument_group( 'Outputs' )
-    group_output.add_argument('--output-biom', default="filtered.biom", help="The Biom file output. [Default: %(default)s]")
-    group_output.add_argument('--output-fasta', default="filtered.fasta", help="The fasta output file. [Default: %(default)s]")
-    group_output.add_argument('--summary', default="summary.html", help="The HTML file containing the graphs. [Default: %(default)s]")
-    group_output.add_argument('--impacted', default="impacted_clusters.tsv", help="The abundance file that summarizes all the clusters impacted (deleted or with affiliations masked). [Default: %(default)s]")
-    group_output.add_argument('--impacted-multihit', default="impacted_clusters_multihit.tsv", help="The multihit TSV file associated with impacted OTU. [Default: %(default)s]")
-    group_output.add_argument('--log-file', default=sys.stdout, help='The list of commands executed.')
+    group_output.add_argument('--output-biom', default="affiliation_filters.biom", help="The BIOM file output. [Default: %(default)s]")
+    group_output.add_argument('--output-fasta', default="affiliation_filters.fasta", help="The FASTA output file. [Default: %(default)s]")
+    group_output.add_argument('--summary', default="affiliation_filters.html", help="The HTML file containing the graphs. [Default: %(default)s]")
+    group_output.add_argument('--impacted', default="affiliation_filters_impacted_clusters.tsv", help="The abundance file that summarizes all the clusters impacted (deleted or with affiliations masked). [Default: %(default)s]")
+    group_output.add_argument('--impacted-multihit', default="affiliation_filters_impacted_clusters_multihit.tsv", help="The multihit TSV file associated with impacted OTU. [Default: %(default)s]")
+    group_output.add_argument('--log-file', default=sys.stdout, help='This output will contain several information on executed commands.')
     args = parser.parse_args()
     prevent_shell_injections(args)
 

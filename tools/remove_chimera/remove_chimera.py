@@ -186,16 +186,16 @@ if __name__ == "__main__":
     parser.add_argument( '-v', '--version', action='version', version=__version__ )
     # Inputs
     group_input = parser.add_argument_group( 'Inputs' )
-    group_input.add_argument( '-f', '--input-fasta', required=True, help='The cluster sequences (format: fasta).' )
+    group_input.add_argument( '-f', '--input-fasta', required=True, help='The cluster sequences (format: FASTA).' )
     group_exclusion_abundance = group_input.add_mutually_exclusive_group()
     group_exclusion_abundance.add_argument( '-b', '--input-biom', help='The abundance file for clusters by sample (format: BIOM).' )
-    group_exclusion_abundance.add_argument( '-c', '--input-count', help='The abundance file for clusters by sample (format: count).' )
+    group_exclusion_abundance.add_argument( '-c', '--input-count', help='The counts file for clusters by sample (format: TSV).' )
     # Outputs
     group_output = parser.add_argument_group( 'Outputs' )
-    group_output.add_argument( '-n', '--non-chimera', default='non_chimera.fasta', help='sequences file without chimera (format: fasta). [Default: %(default)s]')
-    group_output.add_argument( '-a', '--out-abundance', default=None, help='Abundance file without chimera (format: BIOM or count).')
-    group_output.add_argument( '--summary', default="summary.html", help='Report of the results (format: HTML). [Default: %(default)s]')
-    group_output.add_argument( '-l', '--log-file', default=sys.stdout, help='This output file will contain several information on executed commands.')
+    group_output.add_argument( '-n', '--non-chimera', default='remove_chimera.fasta', help='sequences file without chimera (format: FASTA). [Default: %(default)s]')
+    group_output.add_argument( '-a', '--out-abundance', default=None, help='Abundance file without chimera (format: BIOM or TSV). [Default: remove_chimera_abundance.biom or remove_chimera_abundance.tsv]')
+    group_output.add_argument( '--summary', default="remove_chimera.html", help='The HTML file containing the graphs. [Default: %(default)s]')
+    group_output.add_argument( '-l', '--log-file', default=sys.stdout, help='This output file will contain several informations on executed commands.')
     args = parser.parse_args()
     prevent_shell_injections(args)
 
@@ -211,11 +211,11 @@ if __name__ == "__main__":
         size_separator = get_size_separator( args.input_fasta )
         if args.input_count is None:
             if args.out_abundance == None:
-                args.out_abundance = "non_chimera_abundance.biom"
+                args.out_abundance = "remove_chimera_abundance.biom"
             ParallelChimera( args.input_fasta, args.input_biom, args.non_chimera, args.out_abundance, tmp_chimera_summary, "biom", args.nb_cpus, tmp_log, args.debug, size_separator ).submit( args.log_file )
         else:
             if args.out_abundance == None:
-                args.out_abundance = "non_chimera_abundance.count"
+                args.out_abundance = "remove_chimera_abundance.tsv"
             ParallelChimera( args.input_fasta, args.input_count, args.non_chimera, args.out_abundance, tmp_chimera_summary, "count", args.nb_cpus, tmp_log, args.debug, size_separator ).submit( args.log_file )
         write_summary( args.summary, tmp_chimera_summary )
         

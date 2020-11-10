@@ -414,16 +414,16 @@ if __name__ == '__main__':
     # group_filter.add_argument( '--abundance-by-sample', type=bool, default=False, action='store_true', help="Abundance threshold is applied by default on the total abundance of OTU. Activate this option if you want to applied the threshold on sample abundances (if float, each OTU must be present in a " )
     #     Inputs
     group_input = parser.add_argument_group( 'Inputs' )
-    group_input.add_argument('--input-biom', required=True, help="The input biom file.")
-    group_input.add_argument('--input-fasta', required=True, help="The input fasta file.")
-    group_input.add_argument('--contaminant', default=None, help="Use this databank to filter sequence before affiliation.")
+    group_input.add_argument('--input-biom', required=True, help="The input BIOM file. (format: BIOM)")
+    group_input.add_argument('--input-fasta', required=True, help="The input FASTA file. (format: FASTA)")
+    group_input.add_argument('--contaminant', default=None, help="Use this databank to filter sequence before affiliation. (format: FASTA)")
     #     Outputs
     group_output = parser.add_argument_group( 'Outputs' )
-    group_output.add_argument('--output-biom', default="filtered.biom", help="The Biom file output. [Default: %(default)s]")
-    group_output.add_argument('--output-fasta', default="filtered.fasta", help="The fasta output file. [Default: %(default)s]")
-    group_output.add_argument('--summary', default="summary.html", help="The HTML file containing the graphs. [Default: %(default)s]")
-    group_output.add_argument('--excluded', default="excluded.tsv", help="The file that summarizes all the clusters discarded. [Default: %(default)s]")
-    group_output.add_argument('--log-file', default=sys.stdout, help='The list of commands executed.')
+    group_output.add_argument('--output-biom', default="otu_filters_abundance.biom", help="The BIOM file output. (format: BIOM) [Default: %(default)s]")
+    group_output.add_argument('--output-fasta', default="otu_filters.fasta", help="The FASTA output file. (format: FASTA) [Default: %(default)s]")
+    group_output.add_argument('--summary', default="otu_filters.html", help="The HTML file containing the graphs. [Default: %(default)s]")
+    group_output.add_argument('--excluded', default="otu_filters_excluded.tsv", help="The TSV file that summarizes all the clusters discarded. (format: TSV) [Default: %(default)s]")
+    group_output.add_argument('--log-file', default=sys.stdout, help='This output file will contain several information on executed commands.')
     args = parser.parse_args()
     prevent_shell_injections(args)
 
@@ -432,7 +432,7 @@ if __name__ == '__main__':
     if args.nb_biggest_otu is None and args.min_sample_presence is None and args.min_abundance is None and args.contaminant is None:
         raise argparse.ArgumentTypeError( "\n\n#ERROR : At least one filter must be set to run " + os.path.basename(sys.argv[0]) + "\n\n")
     if not args.min_abundance is None and (args.min_abundance <= 0 or (type(args.min_abundance) == float and args.min_abundance >= 1.0 ) ):
-        raise argparse.ArgumentTypeError( "\n\n#ERROR : If filtering on abundance, you must indicate a positiv threshold and if percentage abundance threshold must be smaller than 1.0. \n\n" )
+        raise argparse.ArgumentTypeError( "\n\n#ERROR : If filtering on abundance, you must indicate a positive threshold and if percentage abundance threshold must be smaller than 1.0. \n\n" )
 
     # Process
     process( args )

@@ -1149,9 +1149,9 @@ if __name__ == "__main__":
     group_illumina_input.set_defaults( sequencer='illumina' )
     #     Illumina outputs
     group_illumina_output = parser_illumina.add_argument_group( 'Outputs' )
-    group_illumina_output.add_argument( '-d', '--output-dereplicated', default='dereplication.fasta', help='Fasta file with unique sequences. Each sequence has an ID ended with the number of initial sequences represented (example : ">a0101;size=10"). [Default: %(default)s]')
-    group_illumina_output.add_argument( '-c', '--output-count', default='count.tsv', help='TSV file with count by sample for each unique sequence (example with 3 samples : "a0101<TAB>5<TAB>8<TAB>0"). [Default: %(default)s]')
-    group_illumina_output.add_argument( '-s', '--summary', default='summary.html', help='HTML file with summary of filters results. [Default: %(default)s]')
+    group_illumina_output.add_argument( '-d', '--output-dereplicated', default='preprocess.fasta', help='FASTA file with unique sequences. Each sequence has an ID ended with the number of initial sequences represented (example : ">a0101;size=10"). [Default: %(default)s]')
+    group_illumina_output.add_argument( '-c', '--output-count', default='preprocess_counts.tsv', help='TSV file with count by sample for each unique sequence (example with 3 samples : "a0101<TAB>5<TAB>8<TAB>0"). [Default: %(default)s]')
+    group_illumina_output.add_argument( '-s', '--summary', default='preprocess.html', help='The HTML file containing the graphs. [Default: %(default)s]')
     group_illumina_output.add_argument( '-l', '--log-file', default=sys.stdout, help='This output file will contain several information on executed commands.')
 
     # 454
@@ -1180,9 +1180,9 @@ if __name__ == "__main__":
     group_454_input.set_defaults( sequencer='illumina' )
     #     454 outputs
     group_454_output = parser_454.add_argument_group( 'Outputs' )
-    group_454_output.add_argument( '-d', '--output-dereplicated', default='dereplication.fasta', help='Fasta file with unique sequences. Each sequence has an ID ended with the number of initial sequences represented (example : ">a0101;size=10"). [Default: %(default)s]')
-    group_454_output.add_argument( '-c', '--output-count', default='count.tsv', help='TSV file with count by sample for each unique sequence (example with 3 samples : "a0101<TAB>5<TAB>8<TAB>0"). [Default: %(default)s]')
-    group_454_output.add_argument( '-s', '--summary', default='summary.html', help='HTML file with summary of filters results. [Default: %(default)s]')
+    group_454_output.add_argument( '-d', '--output-dereplicated', default='preprocess.fasta', help='FASTA file with unique sequences. Each sequence has an ID ended with the number of initial sequences represented (example : ">a0101;size=10"). [Default: %(default)s]')
+    group_454_output.add_argument( '-c', '--output-count', default='preprocess_counts.tsv', help='TSV file with count by sample for each unique sequence (example with 3 samples : "a0101<TAB>5<TAB>8<TAB>0"). [Default: %(default)s]')
+    group_454_output.add_argument( '-s', '--summary', default='preprocess.html', help='The HTML file containing the graphs. [Default: %(default)s]')
     group_454_output.add_argument( '-l', '--log-file', default=sys.stdout, help='This output file will contain several information on executed commands.')
     parser_454.set_defaults( sequencer='454' )
     parser_454.set_defaults( already_contiged=True, keep_unmerged=False )

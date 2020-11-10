@@ -162,13 +162,13 @@ if __name__ == "__main__":
     # Inputs
     group_input = parser.add_argument_group('Inputs')
     group_input.add_argument('-b', '--input-biom', required=True, help='Abundance table with affiliations metadata from the affiliation_OTU program (format: BIOM).')
-    group_input.add_argument('-f', '--input-fasta', required=True, help='OTU seed sequence file (format: Fasta).')
-    group_input.add_argument('-r', '--reference', required=False, help='amplicon reference fasta file, to resolve inclusiv amplicon affiliation')
+    group_input.add_argument('-f', '--input-fasta', required=True, help='OTU seed sequence file (format: FASTA).')
+    group_input.add_argument('-r', '--reference', required=False, help='amplicon reference file, to resolve inclusive amplicon affiliations (format: FASTA)')
     # Outputs
     group_output = parser.add_argument_group('Outputs')
-    group_output.add_argument('--output-biom', default='refined_affiliation.biom', help='File whith refind affiliation annotations. [Default: %(default)s]')
-    group_output.add_argument('--output-compo', default='aggregated_otu_composition.tsv', help='Aggregated OTU composition [Default: %(default)s]')
-    group_output.add_argument('--output-fasta', default='refined_affiliation.fasta', help='Updated OTU fasta file [Default: %(default)s]')
+    group_output.add_argument('--output-biom', default='affiliation_postprocess_abundance.biom', help='BIOM file whith refind affiliation annotations. (format: BIOM) [Default: %(default)s]')
+    group_output.add_argument('--output-compo', default='affiliation_postprocess_otu_composition.tsv', help='Aggregated OTU composition (format: TSV) [Default: %(default)s]')
+    group_output.add_argument('--output-fasta', default='affiliation_postprocess_OTU.fasta', help='Updated OTU FASTA file (format: FASTA) [Default: %(default)s]')
     group_output.add_argument('--log-file', default=sys.stdout, help='The list of commands executed.')
     args = parser.parse_args()
     prevent_shell_injections(args)

@@ -175,12 +175,12 @@ if __name__ == "__main__":
     # Inputs
     group_input = parser.add_argument_group('Inputs')
     group_input.add_argument('-i', '--input-biom', required=True, help='Abundances file to normalize (format: BIOM).')
-    group_input.add_argument('-f', '--input-fasta', required=True, help='Sequences file to normalize (format: fasta).')
+    group_input.add_argument('-f', '--input-fasta', required=True, help='Sequences file to normalize (format: FASTA).')
     # Outputs
     group_output = parser.add_argument_group('Outputs')
-    group_output.add_argument('-b', '--output-biom', default='abundance.biom', help='Normalized abundances (format: BIOM). [Default: %(default)s]')
-    group_output.add_argument('-o', '--output-fasta', default='sequence.fasta', help='Normalized sequences (format: fasta). [Default: %(default)s]')
-    group_output.add_argument('-s', '--summary-file', default='report.html', help='Summary of filters results (format: HTML). [Default: %(default)s]')
+    group_output.add_argument('-b', '--output-biom', default='normalisation_abundance.biom', help='Normalized abundances (format: BIOM). [Default: %(default)s]')
+    group_output.add_argument('-o', '--output-fasta', default='normalisation.fasta', help='Normalized sequences (format: FASTA). [Default: %(default)s]')
+    group_output.add_argument('-s', '--summary-file', default='normalisation.html', help='The HTML file containing the graphs. [Default: %(default)s]')
     group_output.add_argument('-l', '--log-file', default=sys.stdout, help='The list of commands executed.')
     args = parser.parse_args()
     prevent_shell_injections(args)

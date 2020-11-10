@@ -319,8 +319,8 @@ if __name__ == "__main__":
     # Outputs
     group_output.add_argument( '--output-demultiplexed', default="demultiplexed_read.tar.gz", help='The tar file containing R1 files and R2 files for each sample (format: tar). [Default: %(default)s]' )
     group_output.add_argument( '--output-excluded', default="undemultiplexed_read.tar.gz", help='The tar file containing R1 files and R2 files not demultiplexed  (format: tar). [Default: %(default)s]' )
-    group_output.add_argument( '-s', '--summary', default='summary.tsv', help='TSV file with summary of filters results  (format: TSV). [Default: %(default)s]')
-    group_output.add_argument( '-l', '--log-file', default=sys.stdout, help='This output file will contain several information on executed commands.')
+    group_output.add_argument( '-s', '--summary', default='demultiplex_summary.tsv', help='TSV file with summary of filters results  (format: TSV). [Default: %(default)s]')
+    group_output.add_argument( '-l', '--log-file', default=sys.stdout, help='This output file will contain several informations on executed commands.')
     args = parser.parse_args()
     prevent_shell_injections(args)
 

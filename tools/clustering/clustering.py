@@ -276,13 +276,13 @@ if __name__ == "__main__":
     group_clustering.add_argument( '-n', '--denoising', default=False, action='store_true',  help="denoise data by clustering read with distance=1 before perform real clustering. It is mutually exclusive with --fastidious." )
     # Inputs
     group_input = parser.add_argument_group( 'Inputs' )
-    group_input.add_argument( '-f', '--input-fasta', required=True, help='The sequences file (format: fasta).' )       
-    group_input.add_argument( '-c', '--input-count', required=True, help="The count file for 'fasta-file' (format: count). It contains the count by sample for each sequence." )
+    group_input.add_argument( '-f', '--input-fasta', required=True, help='The sequences file (format: FASTA).' )       
+    group_input.add_argument( '-c', '--input-count', required=True, help="The count file for 'fasta-file' (format: TSV). It contains the count by sample for each sequence." )
     # Outputs
     group_output = parser.add_argument_group( 'Outputs' )
-    group_output.add_argument( '-b', '--output-biom', default='swarms_abundance.biom', help='This output file will contain the abondance by sample for each cluster (format: BIOM). [Default: %(default)s]')
-    group_output.add_argument( '--output-fasta', default='seeds.fasta', help='This output file will contain the seed sequence for each cluster (format: fasta). [Default: %(default)s]')
-    group_output.add_argument( '--output-compo', default='swarms_composition.tsv', help='This output file will contain the composition of each cluster (format: TSV). One Line is a cluster ; each column is a sequence ID. [Default: %(default)s]')
+    group_output.add_argument( '-b', '--output-biom', default='clustering_abundance.biom', help='This output file will contain the abondance by sample for each cluster (format: BIOM). [Default: %(default)s]')
+    group_output.add_argument( '--output-fasta', default='clustering_seeds.fasta', help='This output file will contain the seed sequence for each cluster (format: FASTA). [Default: %(default)s]')
+    group_output.add_argument( '--output-compo', default='clustering_swarms_composition.tsv', help='This output file will contain the composition of each cluster (format: TSV). One Line is a cluster ; each column is a sequence ID. [Default: %(default)s]')
     group_output.add_argument( '-l', '--log-file', default=sys.stdout, help='This output file will contain several information on executed commands.')
     args = parser.parse_args()
     prevent_shell_injections(args)

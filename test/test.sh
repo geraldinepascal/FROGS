@@ -309,8 +309,8 @@ echo "Step tree : mafft `date`"
 
 tree.py \
  --nb-cpus $nb_cpu \
- --input-otu $out_dir/04-filters.fasta \
- --biomfile $out_dir/07-affiliation_masked.biom \
+ --input-sequences $out_dir/04-filters.fasta \
+ --biom-file $out_dir/07-affiliation_masked.biom \
  --out-tree $out_dir/14-tree-mafft.nwk \
  --html $out_dir/14-tree-mafft.html \
  --log-file $out_dir/14-tree-mafft.log
@@ -320,9 +320,10 @@ then
 	echo "Error in tree : mafft" >&2
 	exit 1;
 fi
-echo "Step r_import_data `date`"
 
-r_import_data.py  \
+echo "Step phyloseq_import_data `date`"
+
+phyloseq_import_data.py  \
  --biomfile $frogs_dir/test/data/chaillou.biom \
  --samplefile $frogs_dir/test/data/sample_metadata.tsv \
  --treefile $frogs_dir/test/data/tree.nwk \
@@ -333,13 +334,13 @@ r_import_data.py  \
  
 if [ $? -ne 0 ]
 then
-	echo "Error in r_import_data " >&2
+	echo "Error in phyloseq_import_data " >&2
 	exit 1;
 fi
 
-echo "Step r_composition `date`"
+echo "Step phyloseq_composition `date`"
 
-r_composition.py  \
+phyloseq_composition.py  \
  --varExp EnvType --taxaRank1 Kingdom --taxaSet1 Bacteria --taxaRank2 Phylum --numberOfTaxa 9 \
  --rdata $out_dir/15-phylo_import.Rdata \
  --html $out_dir/16-phylo_composition.html \
@@ -348,13 +349,13 @@ r_composition.py  \
  
 if [ $? -ne 0 ]
 then
-	echo "Error in r_composition " >&2
+	echo "Error in phyloseq_composition " >&2
 	exit 1;
 fi
 
-echo "Step r_alpha_diversity `date`"
+echo "Step phyloseq_alpha_diversity `date`"
 
-r_alpha_diversity.py  \
+phyloseq_alpha_diversity.py  \
  --varExp EnvType \
  --rdata $out_dir/15-phylo_import.Rdata --alpha-measures Observed Chao1 Shannon \
  --alpha-out $out_dir/17-phylo_alpha_div.tsv \
@@ -364,13 +365,13 @@ r_alpha_diversity.py  \
  
 if [ $? -ne 0 ]
 then
-	echo "Error in r_alpha_diversity " >&2
+	echo "Error in phyloseq_alpha_diversity " >&2
 	exit 1;
 fi
 
-echo "Step r_beta_diversity `date`"
+echo "Step phyloseq_beta_diversity `date`"
 
-r_beta_diversity.py  \
+phyloseq_beta_diversity.py  \
  --varExp EnvType --distance-methods cc,unifrac \
  --rdata $out_dir/15-phylo_import.Rdata \
  --matrix-outdir $out_dir \
@@ -380,13 +381,13 @@ r_beta_diversity.py  \
  
 if [ $? -ne 0 ]
 then
-	echo "Error in r_beta_diversity " >&2
+	echo "Error in phyloseq_beta_diversity " >&2
 	exit 1;
 fi
 
-echo "Step r_structure `date`"
+echo "Step phyloseq_structure `date`"
 
-r_structure.py  \
+phyloseq_structure.py  \
  --varExp EnvType --ordination-method MDS \
  --rdata $out_dir/15-phylo_import.Rdata --distance-matrix $out_dir/unifrac.tsv \
  --html $out_dir/19-phylo_structure.html \
@@ -395,13 +396,13 @@ r_structure.py  \
  
 if [ $? -ne 0 ]
 then
-	echo "Error in r_structure " >&2
+	echo "Error in phyloseq_structure " >&2
 	exit 1;
 fi
 
-echo "Step r_clustering `date`"
+echo "Step phyloseq_clustering `date`"
 
-r_clustering.py  \
+phyloseq_clustering.py  \
  --varExp EnvType \
  --rdata $out_dir/15-phylo_import.Rdata --distance-matrix $out_dir/unifrac.tsv \
  --html $out_dir/20-phylo_clutering.html \
@@ -410,13 +411,13 @@ r_clustering.py  \
  
 if [ $? -ne 0 ]
 then
-	echo "Error in r_clustering " >&2
+	echo "Error in phyloseq_clustering " >&2
 	exit 1;
 fi
 
-echo "Step r_manova `date`"
+echo "Step phyloseq_manova `date`"
 
-r_manova.py  \
+phyloseq_manova.py  \
  --varExp EnvType \
  --rdata $out_dir/15-phylo_import.Rdata --distance-matrix $out_dir/unifrac.tsv \
  --html $out_dir/21-phylo_manova.html \
@@ -424,7 +425,7 @@ r_manova.py  \
 
 if [ $? -ne 0 ]
 then
-	echo "Error in r_manova " >&2
+	echo "Error in phyloseq_manova " >&2
 	exit 1;
 fi
 
@@ -457,6 +458,22 @@ deseq2_visualization.py \
 if [ $? -ne 0 ]
 then
 	echo "Error in deseq2_visualization " >&2
+	exit 1;
+fi
+
+echo "Step normalisation `date`"
+./normalisation.py \
+ -n 100 \
+ -i $out_dir/07-affiliation_masked.biom \
+ -f $out_dir/07-affiliation_deleted.fasta \
+ -b $out_dir/test_aff_N1000.biom \
+ -o $out_dir/24-test_aff_N1000.fasta \
+ -s $out_dir/24-normalisation.html \
+ -l $out_dir/24-normalisation.log
+ 
+if [ $? -ne 0 ]
+then
+	echo "Error in normalisation" >&2
 	exit 1;
 fi
 
