@@ -233,7 +233,7 @@ def tsv_to_biom( input_tsv, multi_hit_dict, fields, samples_names, output_biom, 
                 tax = metadata_dict["rdp_tax_and_bootstrap"].rstrip(";").split(";")
                 for i in range(0,len(tax),2):
                     metadata_dict["rdp_taxonomy"].append(tax[i])
-                    metadata_dict["rdp_bootstrap"].append(tax[i+1].replace("(","").replace(")",""))
+                    metadata_dict["rdp_bootstrap"].append(float(tax[i+1].replace("(","").replace(")","")))
             metadata_dict.pop("rdp_tax_and_bootstrap")
 
         # format blast taxonomy to fit BIOM format (one consensus blast_taxonomy and possible multiples blast_affiliation detailed
