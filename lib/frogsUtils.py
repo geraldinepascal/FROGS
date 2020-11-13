@@ -27,8 +27,22 @@ import os
 import sys
 import time
 import subprocess
+from contextlib import contextmanager
 from subprocess import Popen, PIPE
 
+@contextmanager
+def disable_exception_traceback():
+    """
+    Only Exception type and value are return for identified Exception
+    """
+    default_value = getattr(sys, "tracebacklimit",1000) # this is the default value 
+    sys.tracebacklimit = 0
+    yield
+    sys.tracebacklimit = default_value #revert change
+
+def raise_exception(exception):
+    with disable_exception_traceback():
+        raise exception
 
 def which(exec_name):
     """
@@ -42,7 +56,7 @@ def which(exec_name):
         if exec_path is None and os.path.isfile(os.path.join(current_location, exec_name)):
             exec_path = os.path.abspath( os.path.join(current_location, exec_name) )
     if exec_path is None:
-        raise Exception( "\n\n#ERROR : The software '" + exec_name + "' cannot be retrieved in path.\n\n" )
+        raise_exception( Exception( "\n\n#ERROR : The software '" + exec_name + "' cannot be retrieved in path.\n\n" ))
     return exec_path
 
 
@@ -60,10 +74,10 @@ def prevent_shell_injections(argparse_namespace, excluded_args=None):
                 new_param_val = list()
                 for val in param_val:
                     if ';' in val.encode('utf8').decode('utf8') or '`' in val.encode('utf8').decode('utf8') or '|' in val.encode('utf8').decode('utf8'):
-                        raise Exception( "\n\n#ERROR : ';' and '`' are unauthorized characters.\n\n" ) 
+                        raise_exception( Exception( "\n\n#ERROR : ';' and '`' are unauthorized characters.\n\n" ) )
             elif param_val is not None and issubclass(param_val.__class__, str):
                 if ';' in param_val.encode('utf8').decode('utf8') or '`' in param_val.encode('utf8').decode('utf8') or '|' in param_val.encode('utf8').decode('utf8'):
-                    raise Exception( "\n\n#ERROR : ';' and '`' are unauthorized characters.\n\n" )
+                    raise_exception( Exception( "\n\n#ERROR : ';' and '`' are unauthorized characters.\n\n" ))
 
 
 class Cmd:
@@ -116,7 +130,7 @@ class Cmd:
                 else:
                     return stdout.decode('utf-8').strip()
             except:
-                raise Exception( "\n\n#ERROR : Version cannot be retrieve for the software '" + self.program + "'.\n\n" )
+                raise_exception( Exception( "\n\n#ERROR : Version cannot be retrieve for the software '" + self.program + "'.\n\n" ))
 
     def parser(self, log_file):
         """

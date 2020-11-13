@@ -185,7 +185,7 @@ class RDPAffiliation(Cmd):
     #         if pid == python_pid:
     #             python_cpuid = cpuid
     #     if python_cpuid is None:
-    #         raise Exception( "\nCPUID cannot be retrieved\n\n" )
+    #         raise_exception( Exception( "\nCPUID cannot be retrieved\n\n" ))
     #     return str(python_cpuid)
 
 
@@ -414,7 +414,7 @@ def rdp_parallel_submission( function, inputs, outputs, logs, cpu_used, referenc
     # Check processes status
     for current_process in processes:
         if issubclass(current_process['process'].__class__, multiprocessing.Process) and current_process['process'].exitcode != 0:
-            raise Exception("\n\n#ERROR : Error in sub-process execution.\n\n")
+            raise_exception( Exception("\n\n#ERROR : Error in sub-process execution.\n\n"))
 
 def process_multiple_needleall(reference, inputs_fasta, temp_sams, temp_logs, outputs, log_files, tempFiles_manager, debug):    
     for idx in range(len(inputs_fasta)):
@@ -468,7 +468,7 @@ def needleall_parallel_submission( function, reference, inputs_fasta, temp_sams,
     # Check processes status
     for current_process in processes:
         if issubclass(current_process['process'].__class__, multiprocessing.Process) and current_process['process'].exitcode != 0:
-            raise Exception("\n\n#ERROR : Error in sub-process execution.\n\n")
+            raise_exception( Exception("\n\n#ERROR : Error in sub-process execution.\n\n"))
 
 ###################################################################################################################
 ###                                              MAIN                                                           ###
@@ -521,7 +521,7 @@ if __name__ == "__main__":
         Logger.static_write(args.log_file, "## Application\nSoftware: " + os.path.basename(sys.argv[0]) + " (version: " + str(__version__) + ")\nCommand: " + " ".join(sys.argv) + "\n\n")
         nb_seq, nb_combined = extract_FROGS_combined(args.input_fasta, fasta_full_length, fasta_combined)
         if nb_seq == 0 : 
-            raise Exception("\n\n#ERROR : Your input fasta file is empty!\n\n")
+            raise_exception( Exception("\n\n#ERROR : Your input fasta file is empty!\n\n"))
         Logger.static_write(args.log_file, "Nb seq : " + str(nb_seq) + "\n")
         if nb_combined > 0 :
             Logger.static_write(args.log_file, "\t with nb seq artificially combined :" + str(nb_combined) +"\n")

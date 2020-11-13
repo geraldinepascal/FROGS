@@ -80,7 +80,7 @@ class Tsv2biom(Cmd):
         observation_name_index = header.index("observation_name")
         observation_sum_index = header.index("observation_sum")
         if (observation_sum_index - observation_name_index) != 1:
-            raise Exception( "\n\nYou change the order of columns. TSV file must ended with observation_name, observation_sum, sample1, sample2 ... \n\n" )
+            raise_exception( Exception( "\n\nYou change the order of columns. TSV file must ended with observation_name, observation_sum, sample1, sample2 ... \n\n" ))
         samples_names = " ".join(header[observation_sum_index+1:])
         fields = " ".join(header[:observation_sum_index])
         # Set command

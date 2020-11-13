@@ -116,7 +116,7 @@ if __name__ == "__main__":
     methods = args.distance_methods.strip() if not args.distance_methods.strip()[-1]=="," else args.distance_methods.strip()[:-1]
     for method in methods.split(","):
         if method not in list_distance:
-            raise Exception( '\n\n#ERROR : Your method "'+str(method)+'", name is not correct !!! Please make sure that it is in the list:'+str(list_distance)+"\n\n")
+            raise_exception( Exception( '\n\n#ERROR : Your method "'+str(method)+'", name is not correct !!! Please make sure that it is in the list:'+str(list_distance)+"\n\n"))
 
     # Process 
     outdir = os.path.abspath(args.matrix_outdir)

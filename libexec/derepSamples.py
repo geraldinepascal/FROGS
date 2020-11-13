@@ -259,13 +259,13 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     if args.sequences_files is None and args.samples_ref is None:
-        raise parser.error( "\n\n#ERROR : The parameter '--samples-ref' or '--sequences-files' is required.\n\n" )
+        raise_exception( parser.error( "\n\n#ERROR : The parameter '--samples-ref' or '--sequences-files' is required.\n\n" ))
     elif args.sequences_files is not None and args.samples_ref is not None:
-        raise parser.error( "\n\n#ERROR : The parameters '--samples-ref' and '--sequences-files' are mutually exclusive.\n\n" )
+        raise_exception( parser.error( "\n\n#ERROR : The parameters '--samples-ref' and '--sequences-files' are mutually exclusive.\n\n" ))
     elif args.samples_names is not None and args.samples_count is not None:
-        raise parser.error( "\n\n#ERROR : The parameters '--samples-names' and '--input-count' are mutually exclusive.\n\n" )
+        raise_exception( parser.error( "\n\n#ERROR : The parameters '--samples-names' and '--input-count' are mutually exclusive.\n\n" ))
     elif args.sequences_files is not None and len(args.sequences_files) != 1 and args.samples_count:
-        raise parser.error("\n\n#ERROR : The parameter '--input-count' must correspond to only one fasta file provided with '--sequences-files'\n\n")
+        raise_exception( parser.error("\n\n#ERROR : The parameter '--input-count' must correspond to only one fasta file provided with '--sequences-files'\n\n"))
 
     # Process
     working_dir = os.path.dirname(os.path.abspath(args.dereplicated_file))
@@ -311,7 +311,7 @@ if __name__ == "__main__":
             # Check processes status
             for current_process in processes:
                 if issubclass(current_process['process'].__class__, multiprocessing.Process) and current_process['process'].exitcode != 0:
-                    raise Exception( "\n\n#ERROR : Error in sub-process execution.\n" )
+                    raise_exception( Exception( "\n\n#ERROR : Error in sub-process execution.\n" ))
 
         # List length
         for item in sorted(os.listdir(working_dir)):
@@ -344,7 +344,7 @@ if __name__ == "__main__":
             # Check processes status
             for current_process in processes:
                 if issubclass(current_process['process'].__class__, multiprocessing.Process) and current_process['process'].exitcode != 0:
-                    raise Exception( "\n\n#ERROR : Error in sub-process execution.\n\n" )
+                    raise_exception( Exception( "\n\n#ERROR : Error in sub-process execution.\n\n" ))
 
         # Merge results
         FH_derepli = open(args.dereplicated_file, "wt")

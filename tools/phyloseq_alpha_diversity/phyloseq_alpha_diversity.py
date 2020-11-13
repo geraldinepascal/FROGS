@@ -115,11 +115,11 @@ if __name__ == "__main__":
     if len(args.alpha_measures) > 1 :
         for m in args.alpha_measures:
             if m not in ["Observed", "Chao1", "Shannon", "InvSimpson", "Simpson", "ACE", "Fisher"] :
-                raise Exception("\n\n#ERROR : Measure, " + m + " is not a valid alpha diversity indice\n\n")
+                raise_exception( Exception("\n\n#ERROR : Measure, " + m + " is not a valid alpha diversity indice\n\n"))
     else :
         for m in args.alpha_measures[0].split(","):
             if m not in ["Observed", "Chao1", "Shannon", "InvSimpson", "Simpson", "ACE", "Fisher"] :
-                raise Exception("\n\n#ERROR : Measure, " + m + " is not a valid alpha diversity indice\n\n")
+                raise_exception( Exception("\n\n#ERROR : Measure, " + m + " is not a valid alpha diversity indice\n\n"))
 
     phyloseq=os.path.abspath(args.rdata)
     html=os.path.abspath(args.html)

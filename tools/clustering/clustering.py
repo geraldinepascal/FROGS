@@ -246,7 +246,7 @@ def addNtags(in_fasta, output_fasta):
             if search is None :
                 search = regexpC.search(record.description)
                 if search is None:
-                    raise Exception("\n\n#ERROR : " + record.id + " is a FROGS_combined cluster but has not comining tag 100 As or 100 Cs to replace with 100 Ns\n\n")
+                    raise_exception( Exception("\n\n#ERROR : " + record.id + " is a FROGS_combined cluster but has not comining tag 100 As or 100 Cs to replace with 100 Ns\n\n"))
             
             desc = search.group()
             [N_idx1,N_idx2] = desc.split(":")[1:]
@@ -288,9 +288,9 @@ if __name__ == "__main__":
     prevent_shell_injections(args)
 
     if args.denoising and args.fastidious:
-        raise parser.error("\n#ERROR : --fastidious and --denoising are mutually exclusive.\n\n")
+        raise_exception( parser.error("\n#ERROR : --fastidious and --denoising are mutually exclusive.\n\n"))
     if args.distance > 1 and args.fastidious:
-        raise parser.error("\n#ERROR : --fastidious is not allowed with d>1.\n\n")
+        raise_exception( parser.error("\n#ERROR : --fastidious is not allowed with d>1.\n\n"))
 
     # Temporary files
     tmpFiles = TmpFiles( os.path.split(args.output_biom)[0] )
