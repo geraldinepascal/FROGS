@@ -35,6 +35,7 @@ else: os.environ['PYTHONPATH'] = os.environ['PYTHONPATH'] + os.pathsep + LIB_DIR
 
 from frogsBiom import Biom, BiomIO
 from frogsNode import Node
+from frogsUtils import *
 
 
 ####################################################################################################################

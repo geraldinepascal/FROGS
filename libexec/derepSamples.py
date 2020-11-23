@@ -39,6 +39,7 @@ if os.getenv('PYTHONPATH') is None: os.environ['PYTHONPATH'] = LIB_DIR
 else: os.environ['PYTHONPATH'] = os.environ['PYTHONPATH'] + os.pathsep + LIB_DIR
 
 from frogsSequenceIO import *
+from frogsUtils import *
 
 
 ##################################################################################################################################################
