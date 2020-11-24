@@ -71,7 +71,6 @@ def observation_line_parts( observation, count_by_sample, fields, list_separator
                     for i, tax in enumerate(rdp_taxonomy):
                         rdp_and_bootstrap += tax + ";(" + str(rdp_bootstrap[i]) + ");" # tax1;(boots1);tax2;(boots2);
             else:
-                # if observation['metadata']["rdp_taxonomy"] != "":
                 if observation['metadata']["rdp_taxonomy"]:
                     rdp_taxonomy = observation['metadata']["rdp_taxonomy"].split(";")
                     rdp_bootstrap = observation['metadata']["rdp_bootstrap"].split(";")
@@ -114,6 +113,9 @@ def observation_line_parts( observation, count_by_sample, fields, list_separator
                     line.append(no_data_str)
             elif issubclass(observation['metadata'][current_field].__class__, str):
                 line.append( str(observation['metadata'][current_field]) )
+            else : # like blast taxonomy = None
+                line.append(no_data_str)
+
     return line
 
 def header_line_parts( fields, biom ):
