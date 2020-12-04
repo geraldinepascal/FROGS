@@ -320,7 +320,7 @@ def filter_biom(in_biom_file, impacted_file, output_file, params):
 
         # filter on RDP boostrap criteria
         filter_on_rdpBootstrap = True
-        if params.min_rdp_bootstrap is not None and observation['rdp_taxonomy'] is not None:
+        if params.min_rdp_bootstrap is not None and observation['metadata']['rdp_taxonomy'] is not None:
 
             # add rdp bootstrap criteria
             label = "RDP bootstrap for " + params.min_rdp_bootstrap["rank"] + " < " + str(params.min_rdp_bootstrap["value"])
