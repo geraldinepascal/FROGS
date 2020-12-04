@@ -224,13 +224,28 @@ then
 	exit 1;
 fi
 
+echo "Step normalisation `date`"
+normalisation.py \
+ -n 100 \
+ --input-biom $out_dir/08-affiliation_postprocessed.biom \
+ --input-fasta $out_dir/08-affiliation_postprocessed.fasta \
+ --output-biom $out_dir/09-normalisation.biom \
+ --output-fasta $out_dir/09-normalisation.fasta \
+ --summary $out_dir/09-normalisation.html \
+ --log-file $out_dir/09-normalisation.log
+ 
+if [ $? -ne 0 ]
+then
+	echo "Error in normalisation" >&2
+	exit 1;
+fi
 
 echo "Step clusters_stat `date`"
 
 clusters_stat.py \
  --input-biom $out_dir/07-affiliation_masked.biom \
- --output-file $out_dir/09-clustersStat.html \
- --log-file $out_dir/09-clustersStat.log
+ --output-file $out_dir/10-clustersStat.html \
+ --log-file $out_dir/10-clustersStat.log
 
 if [ $? -ne 0 ]
 then
@@ -243,8 +258,8 @@ echo "Step affiliations_stat `date`"
 
 affiliations_stat.py \
  --input-biom $out_dir/07-affiliation_masked.biom \
- --output-file $out_dir/10-affiliationsStat.html \
- --log-file $out_dir/10-affiliationsStat.log \
+ --output-file $out_dir/11-affiliationsStat.html \
+ --log-file $out_dir/11-affiliationsStat.log \
  --tax-consensus-tag "blast_taxonomy" \
  --identity-tag "perc_identity" \
  --coverage-tag "perc_query_coverage" \
@@ -264,9 +279,9 @@ echo "Step biom_to_tsv `date`"
 biom_to_tsv.py \
  --input-biom $out_dir/07-affiliation_masked.biom \
  --input-fasta $out_dir/04-filters.fasta \
- --output-tsv $out_dir/11-biom2tsv.tsv \
- --output-multi-affi $out_dir/11-biom2tsv-affiliation_multihit.tsv \
- --log-file $out_dir/11-biom2tsv.log
+ --output-tsv $out_dir/12-biom2tsv.tsv \
+ --output-multi-affi $out_dir/12-biom2tsv-affiliation_multihit.tsv \
+ --log-file $out_dir/12-biom2tsv.log
 
 if [ $? -ne 0 ]
 then
@@ -279,9 +294,9 @@ echo "Step biom_to_stdBiom `date`"
 
 biom_to_stdBiom.py \
  --input-biom $out_dir/07-affiliation_masked.biom \
- --output-biom $out_dir/12-affiliation_std.biom \
- --output-metadata $out_dir/12-affiliation_multihit.tsv \
- --log-file $out_dir/12-biom2stdbiom.log
+ --output-biom $out_dir/13-affiliation_std.biom \
+ --output-metadata $out_dir/13-affiliation_multihit.tsv \
+ --log-file $out_dir/13-biom2stdbiom.log
 
 if [ $? -ne 0 ]
 then
@@ -295,9 +310,9 @@ echo "Step tsv_to_biom `date`"
 tsv_to_biom.py \
  --input-tsv $out_dir/11-biom2tsv.tsv \
  --input-multi-affi $out_dir/11-biom2tsv-affiliation_multihit.tsv \
- --output-biom $out_dir/13-tsv2biom.biom \
- --output-fasta $out_dir/13-tsv2biom.fasta \
- --log-file $out_dir/13-tsv2biom.log 
+ --output-biom $out_dir/14-tsv2biom.biom \
+ --output-fasta $out_dir/14-tsv2biom.fasta \
+ --log-file $out_dir/14-tsv2biom.log 
 
 if [ $? -ne 0 ]
 then
@@ -311,9 +326,9 @@ tree.py \
  --nb-cpus $nb_cpu \
  --input-sequences $out_dir/04-filters.fasta \
  --biom-file $out_dir/07-affiliation_masked.biom \
- --out-tree $out_dir/14-tree-mafft.nwk \
- --html $out_dir/14-tree-mafft.html \
- --log-file $out_dir/14-tree-mafft.log
+ --out-tree $out_dir/15-tree-mafft.nwk \
+ --html $out_dir/15-tree-mafft.html \
+ --log-file $out_dir/15-tree-mafft.log
 
 if [ $? -ne 0 ]
 then
@@ -327,9 +342,9 @@ phyloseq_import_data.py  \
  --biomfile $frogs_dir/test/data/chaillou.biom \
  --samplefile $frogs_dir/test/data/sample_metadata.tsv \
  --treefile $frogs_dir/test/data/tree.nwk \
- --rdata $out_dir/15-phylo_import.Rdata \
- --html $out_dir/15-phylo_import.html \
- --log-file $out_dir/15-phylo_import.log
+ --rdata $out_dir/16-phylo_import.Rdata \
+ --html $out_dir/16-phylo_import.html \
+ --log-file $out_dir/16-phylo_import.log
 
  
 if [ $? -ne 0 ]
@@ -342,9 +357,9 @@ echo "Step phyloseq_composition `date`"
 
 phyloseq_composition.py  \
  --varExp EnvType --taxaRank1 Kingdom --taxaSet1 Bacteria --taxaRank2 Phylum --numberOfTaxa 9 \
- --rdata $out_dir/15-phylo_import.Rdata \
- --html $out_dir/16-phylo_composition.html \
- --log-file $out_dir/16-phylo_composition.log
+ --rdata $out_dir/16-phylo_import.Rdata \
+ --html $out_dir/17-phylo_composition.html \
+ --log-file $out_dir/17-phylo_composition.log
 
  
 if [ $? -ne 0 ]
@@ -357,10 +372,10 @@ echo "Step phyloseq_alpha_diversity `date`"
 
 phyloseq_alpha_diversity.py  \
  --varExp EnvType \
- --rdata $out_dir/15-phylo_import.Rdata --alpha-measures Observed Chao1 Shannon \
- --alpha-out $out_dir/17-phylo_alpha_div.tsv \
- --html $out_dir/17-phylo_alpha_div.html \
- --log-file $out_dir/17-phylo_alpha_div.log
+ --rdata $out_dir/16-phylo_import.Rdata --alpha-measures Observed Chao1 Shannon \
+ --alpha-out $out_dir/18-phylo_alpha_div.tsv \
+ --html $out_dir/18-phylo_alpha_div.html \
+ --log-file $out_dir/18-phylo_alpha_div.log
 
  
 if [ $? -ne 0 ]
@@ -373,10 +388,10 @@ echo "Step phyloseq_beta_diversity `date`"
 
 phyloseq_beta_diversity.py  \
  --varExp EnvType --distance-methods cc,unifrac \
- --rdata $out_dir/15-phylo_import.Rdata \
+ --rdata $out_dir/16-phylo_import.Rdata \
  --matrix-outdir $out_dir \
- --html $out_dir/18-phylo_beta_div.html \
- --log-file $out_dir/18-phylo_beta_div.log
+ --html $out_dir/19-phylo_beta_div.html \
+ --log-file $out_dir/19-phylo_beta_div.log
 
  
 if [ $? -ne 0 ]
@@ -389,9 +404,9 @@ echo "Step phyloseq_structure `date`"
 
 phyloseq_structure.py  \
  --varExp EnvType --ordination-method MDS \
- --rdata $out_dir/15-phylo_import.Rdata --distance-matrix $out_dir/unifrac.tsv \
- --html $out_dir/19-phylo_structure.html \
- --log-file $out_dir/19-phylo_structure.log
+ --rdata $out_dir/16-phylo_import.Rdata --distance-matrix $out_dir/unifrac.tsv \
+ --html $out_dir/20-phylo_structure.html \
+ --log-file $out_dir/20-phylo_structure.log
 
  
 if [ $? -ne 0 ]
@@ -404,9 +419,9 @@ echo "Step phyloseq_clustering `date`"
 
 phyloseq_clustering.py  \
  --varExp EnvType \
- --rdata $out_dir/15-phylo_import.Rdata --distance-matrix $out_dir/unifrac.tsv \
- --html $out_dir/20-phylo_clutering.html \
- --log-file $out_dir/20-phylo_clustering.log
+ --rdata $out_dir/16-phylo_import.Rdata --distance-matrix $out_dir/unifrac.tsv \
+ --html $out_dir/21-phylo_clutering.html \
+ --log-file $out_dir/21-phylo_clustering.log
 
  
 if [ $? -ne 0 ]
@@ -419,9 +434,9 @@ echo "Step phyloseq_manova `date`"
 
 phyloseq_manova.py  \
  --varExp EnvType \
- --rdata $out_dir/15-phylo_import.Rdata --distance-matrix $out_dir/unifrac.tsv \
- --html $out_dir/21-phylo_manova.html \
- --log-file $out_dir/21-phylo_manova.log
+ --rdata $out_dir/16-phylo_import.Rdata --distance-matrix $out_dir/unifrac.tsv \
+ --html $out_dir/22-phylo_manova.html \
+ --log-file $out_dir/22-phylo_manova.log
 
 if [ $? -ne 0 ]
 then
@@ -433,9 +448,9 @@ fi
 echo "Step deseq2_preprocess `date`"
 
 deseq2_preprocess.py \
- --data $out_dir/15-phylo_import.Rdata \
- --log-file $out_dir/22-deseq2_preprocess.log \
- --out-Rdata $out_dir/22-deseq2_preprocess.Rdata \
+ --data $out_dir/16-phylo_import.Rdata \
+ --log-file $out_dir/23-deseq2_preprocess.log \
+ --out-Rdata $out_dir/23-deseq2_preprocess.Rdata \
  --var EnvType
 
 if [ $? -ne 0 ]
@@ -448,32 +463,16 @@ fi
 echo "Step deseq2_visualization `date`"
 
 deseq2_visualization.py \
- --phyloseqData $out_dir/15-phylo_import.Rdata \
- --dds $out_dir/22-deseq2_preprocess.Rdata \
- --log-file $out_dir/23-deseq2_visualization.log \
- --html $out_dir/22-deseq2_visualization.html \
+ --phyloseqData $out_dir/16-phylo_import.Rdata \
+ --dds $out_dir/23-deseq2_preprocess.Rdata \
+ --log-file $out_dir/24-deseq2_visualization.log \
+ --html $out_dir/24-deseq2_visualization.html \
  --var EnvType --mod1 BoeufHache --mod2 SaumonFume
                             
 
 if [ $? -ne 0 ]
 then
 	echo "Error in deseq2_visualization " >&2
-	exit 1;
-fi
-
-echo "Step normalisation `date`"
-./normalisation.py \
- -n 100 \
- -i $out_dir/07-affiliation_masked.biom \
- -f $out_dir/07-affiliation_deleted.fasta \
- -b $out_dir/test_aff_N1000.biom \
- -o $out_dir/24-test_aff_N1000.fasta \
- -s $out_dir/24-normalisation.html \
- -l $out_dir/24-normalisation.log
- 
-if [ $? -ne 0 ]
-then
-	echo "Error in normalisation" >&2
 	exit 1;
 fi
 
