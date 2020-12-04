@@ -401,7 +401,7 @@ def filter_biom(in_biom_file, impacted_file, output_file, params):
 
         # add blast taxon to ignore criteria
         if params.ignore_blast_taxa and observation['metadata']['blast_affiliations'] :
-            label = "Blast taxonomies or consensus taxonomy belong to undesired taxon: " + " / ".join(args.ignore_blast_taxa)
+            label = "Blast taxonomies belong to undesired taxon: " + " / ".join(args.ignore_blast_taxa)
             out_blast_affiliations['filter_on_taxonIgnored'] = impacted_blast_affi_on_blastTaxonomy(observation, params.ignore_blast_taxa)
             uniq_tax = get_uniq_tax(out_blast_affiliations['filter_on_taxonIgnored'])
             if len(uniq_tax) != len(tax_in):
