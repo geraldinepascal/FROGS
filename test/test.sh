@@ -101,7 +101,7 @@ fi
 
 echo "Step otu filters `date`"
 
-otu-filters.py \
+otu_filters.py \
  --min-abundance 0.00005 \
  --min-sample-presence 3 \
  --nb-cpus $nb_cpu \
