@@ -156,7 +156,7 @@ def get_bootstrap_distrib( input_biom, bootstrap_tag, multiple_tag ):
         observation_metadata = observation['metadata']
         bootstrap = None
         if multiple_tag is not None:
-            if multiple_tag in observation_metadata and len(observation_metadata[multiple_tag]) > 0:
+            if multiple_tag in observation_metadata and observation_metadata[multiple_tag] is not None and len(observation_metadata[multiple_tag]) > 0:
                 bootstrap = observation_metadata[multiple_tag][0][bootstrap_tag]
         else:
             if bootstrap_tag in observation_metadata:
@@ -200,7 +200,7 @@ def get_alignment_distrib( input_biom, identity_tag, coverage_tag, multiple_tag 
         identity = 0
         coverage = 0
         if args.multiple_tag is not None:
-            if multiple_tag in observation_metadata and len(observation_metadata[multiple_tag]) > 0:
+            if multiple_tag in observation_metadata and observation_metadata[multiple_tag] is not None and len(observation_metadata[multiple_tag]) > 0:
                 identity = observation_metadata[multiple_tag][0][identity_tag]
                 coverage = observation_metadata[multiple_tag][0][coverage_tag]
         else:
@@ -325,7 +325,7 @@ def process( args ):
                 biom = BiomIO.from_json( args.input_biom )
                 for observation in biom.get_observations():
                     metadata = observation["metadata"]
-                    if len(metadata[args.multiple_tag]) > 0:
+                    if metadata[args.multiple_tag] is not None and len(metadata[args.multiple_tag]) > 0:
                         metadata[used_taxonomy_tag] = metadata[args.multiple_tag][0][args.taxonomy_tag]
                 BiomIO.write( tmp_biom, biom )
                 del biom
@@ -400,7 +400,7 @@ if __name__ == '__main__':
                 raise_exception( Exception( "\n\n#ERROR : The metadata '" + param + "' does not exist in the BIOM file.\n\n" ))
         if biom.has_observation_metadata( args.taxonomy_tag ) :
             for observation in biom.get_observations():
-                if observation["metadata"][args.taxonomy_tag] is not None or len(observation["metadata"][args.taxonomy_tag]) > 0 :
+                if observation["metadata"][args.taxonomy_tag] is not None and len(observation["metadata"][args.taxonomy_tag]) > 0 :
                     nb_rank = len(observation["metadata"][args.taxonomy_tag])
                     break
     else:
