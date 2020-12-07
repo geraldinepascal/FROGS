@@ -12,19 +12,12 @@ else
 fi
 
 
-# FROGS BIOM after affiliation
-echo ""
-OUT=test/all_filters
-echo $OUT
-mkdir -p $OUT
-
-
 # FROGS BIOM before affiliation
 echo ""
 OUT=test/frogs_woAffiliations
 echo $OUT
 mkdir -p $OUT
-otu_filters.py \
+./otu_filters.py \
 --input-biom data/set500B_Remove_chimera.biom --input-fasta data/set500B_Remove_chimera.fasta \
 --output-biom $OUT/filtered.biom --output-fasta $OUT/filtered.fasta \
 --summary $OUT/summary.html --excluded $OUT/excluded.tsv \

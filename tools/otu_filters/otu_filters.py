@@ -300,7 +300,7 @@ def write_summary( summary_file, input_biom, output_biom, discards ):
     del out_biom
 
     # Write
-    FH_summary_tpl = open( os.path.join(CURRENT_DIR, "otu-filters_tpl.html") )
+    FH_summary_tpl = open( os.path.join(CURRENT_DIR, "otu_filters_tpl.html") )
     FH_summary_out = open( summary_file, "wt" )
     for line in FH_summary_tpl:
         if "###PORCESSED_FILTERS###" in line:
