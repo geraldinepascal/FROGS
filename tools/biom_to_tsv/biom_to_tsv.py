@@ -51,7 +51,7 @@ class Biom2tsv(Cmd):
     @summary: Converts BIOM file to TSV file.
     @note: taxonomyRDP seedID seedSequence blastSubject blastEvalue blastLength blastPercentCoverage blastPercentIdentity blastTaxonomy OTUname SommeCount sample_count
     """
-    def __init__( self, out_tsv, in_biom, in_fasta=None ):
+    def __init__( self, out_tsv, in_biom, headerOnly, in_fasta=None ):
         """
         @param in_biom: [str] Path to BIOM file.
         @param out_tsv: [str] Path to output TSV file.
@@ -90,29 +90,45 @@ class Biom2tsv(Cmd):
                 
         conversion_tags += "'@observation_name' '@observation_sum' '@sample_count'"
 
-        # Set command
-        Cmd.__init__( self,
-                      'biom2tsv.py',
-                      'Converts a BIOM file in TSV file.',
-                      "--input-file " + in_biom + sequence_file_opt + " --output-file " + out_tsv + " --fields " + conversion_tags,
-                      '--version' )
+        if headerOnly:
+            header_list = conversion_tags.replace("'","").replace("@","").split()[0:-1]
+            for sample_name in biom.get_samples_names():
+                header_list.append(sample_name)
+
+            Cmd.__init__( self,
+                          'echo',
+                          'Print biom metadata as TSV header file',
+                          '\"#' + "\\t".join(header_list) + " \" > " + out_tsv )
+        else:
+            # Set command
+            Cmd.__init__( self,
+                          'biom2tsv.py',
+                          'Converts a BIOM file in TSV file.',
+                          "--input-file " + in_biom + sequence_file_opt + " --output-file " + out_tsv + " --fields " + conversion_tags,
+                          '--version' )
 
 
 class Biom2multiAffi(Cmd):
     """
     @summary: Extracts multi-affiliations from a FROGS BIOM file.
     """
-    def __init__( self, out_tsv, in_biom ):
+    def __init__( self, out_tsv, in_biom, headerOnly ):
         """
         @param in_biom: [str] Path to BIOM file.
         @param out_tsv: [str] Path to output TSV file.
         """
-        # Set command
-        Cmd.__init__( self,
-                      'multiAffiFromBiom.py',
-                      'Extracts multi-affiliations data from a FROGS BIOM file.',
-                      '--input-file ' + in_biom + ' --output-file ' + out_tsv,
-                      '--version' )
+        if headerOnly:
+            header_list = ["observation_name", "blast_taxonomy", " blast_subject", "blast_perc_identity", "blast_perc_query_coverage", "blast_evalue", "blast_aln_length"]
+            Cmd.__init__( self,
+                          'echo',
+                          'Print biom blast multiAffiliation as TSV header file',
+                          '\"#' + "\\t".join(header_list) + " \" > " + out_tsv )
+        else:
+            Cmd.__init__( self,
+                          'multiAffiFromBiom.py',
+                          'Extracts multi-affiliations data from a FROGS BIOM file.',
+                          '--input-file ' + in_biom + ' --output-file ' + out_tsv,
+                          '--version' )
 
 
 ##################################################################################################################################################
@@ -124,6 +140,7 @@ if __name__ == "__main__":
     # Manage parameters
     parser = argparse.ArgumentParser( description='Converts a BIOM file in TSV file.' )
     parser.add_argument( '-v', '--version', action='version', version=__version__ )
+    parser.add_argument( '--header', default=False, action='store_true', help="Print header only" )
     # Inputs
     group_input = parser.add_argument_group( 'Inputs' )
     group_input.add_argument( '-b', '--input-biom', required=True, help="The abundance file (format: BIOM)." )
@@ -138,8 +155,8 @@ if __name__ == "__main__":
 
     # Process
     Logger.static_write(args.log_file, "## Application\nSoftware :" + sys.argv[0] + " (version : " + str(__version__) + ")\nCommand : " + " ".join(sys.argv) + "\n\n")
-    Biom2tsv( args.output_tsv, args.input_biom, args.input_fasta ).submit( args.log_file )
+    Biom2tsv( args.output_tsv, args.input_biom, args.header, args.input_fasta ).submit( args.log_file )
     
     biom = BiomIO.from_json( args.input_biom )
     if biom.has_metadata("blast_affiliations"):
-        Biom2multiAffi( args.output_multi_affi, args.input_biom ).submit( args.log_file )
+        Biom2multiAffi( args.output_multi_affi, args.input_biom, args.header ).submit( args.log_file )
