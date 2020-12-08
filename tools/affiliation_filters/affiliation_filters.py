@@ -82,17 +82,21 @@ class BIOM_to_TSV(Cmd):
     """
     @summary: Convert a biom file to a tabular file
     """
-    def __init__(self, in_biom, out_tsv, out_multihit, out_log):
+    def __init__(self, in_biom, out_tsv, out_multihit, out_log, header_only=False):
         """
         @param in_biom [str] : Path of the biom file to convert
         @param out_tsv [str] : Path of the tabular file to create
         @param out_multihit [str] : Path of the detailed multiaffiliated OTU.
         @param out_log [str] : biom_to_tsv log file
+        @param header_only [bool] : extract only header
         """
+        opt = ''
+        if header_only:
+            opt = ' --header '
         Cmd.__init__( self,
                       'biom_to_tsv.py',
                       'Convert a biom file into tsv file',
-                      " --input-biom " + in_biom + ' --output-tsv ' + out_tsv + ' --output-multi-affi ' + out_multihit + ' --log-file  ' + out_log,
+                      " --input-biom " + in_biom + ' --output-tsv ' + out_tsv + ' --output-multi-affi ' + out_multihit + ' --log-file  ' + out_log + opt,
                       '--version' )
 
     def get_version(self):
@@ -471,10 +475,6 @@ def filter_biom(in_biom_file, impacted_file, output_file, params):
                         impacted_dict[status] = list()
                     impacted_dict[status].append(observation['id'])
 
-    
-    if len(impacted_dict) == 0:
-        raise_exception(Exception('\n\n#WARNING : Your parameter settings have no impact on your input files\n'))
-
     # write output and impacted biom
     BiomIO.write( output_file, out_biom )
     BiomIO.write( impacted_file, impacted_biom )
@@ -489,7 +489,6 @@ def write_summary( summary_file, input_biom, output_biom, discards, params ):
     @param output_biom: [str] The path to the BIOM after program execution.
     @param discards: [dict] By filter the list of the deleted/masked observations.
     """
-
     in_biom = BiomIO.from_json( input_biom )
 
     mode='Removed'
@@ -531,6 +530,14 @@ def write_summary( summary_file, input_biom, output_biom, discards, params ):
                         filters_intersections[observation_name] = dict()
                     filters_intersections[observation_name][filter] = 1
     
+    #initialized samples details results
+    for sample in in_biom.get_samples_names():
+        if not sample in samples_results:
+            samples_results[sample] = {
+                'initial': sum( 1 for x in in_biom.get_observations_by_sample(sample) ),
+                'filtered': dict(),
+                'kept': 0
+            }
     # count number of observation filtered by a each combination of filters
     # store observation filtered by each criteria for each sample
     for observation_name in filters_intersections:
@@ -545,12 +552,6 @@ def write_summary( summary_file, input_biom, output_biom, discards, params ):
 
         # Filters by samples
         for sample in in_biom.get_samples_names():
-            if not sample in samples_results:
-                samples_results[sample] = {
-                    'initial': sum( 1 for x in in_biom.get_observations_by_sample(sample) ),
-                    'filtered': dict(),
-                    'kept': 0
-                }
             for filter in filters_intersections[observation_name]:
                 if filter not in samples_results[sample]['filtered']:
                     samples_results[sample]['filtered'][filter] = 0
@@ -699,7 +700,10 @@ def process( args ):
             Logger.static_write(args.log_file,"\tadditionnaly, blast_taxonomy updated for " + str(len(impacted_dict['Blast_taxonomy_changed'])) + ' OTU(s)\n')
 
         # convert impacted biom in TSV
-        BIOM_to_TSV(impacted_biom, args.impacted, args.impacted_multihit,impacted_biom2tsv_log).submit(args.log_file)
+        if len(impacted_dict) > 0:
+            BIOM_to_TSV(impacted_biom, args.impacted, args.impacted_multihit,impacted_biom2tsv_log).submit(args.log_file)
+        else:
+            BIOM_to_TSV(args.input_biom, args.impacted, args.impacted_multihit,impacted_biom2tsv_log, True).submit(args.log_file)
 
         # write summary
         write_summary( args.summary, args.input_biom, args.output_biom, impacted_dict, args )
