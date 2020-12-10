@@ -53,7 +53,6 @@ from frogsSequenceIO import *
 # COMMAND LINES
 #
 ##################################################################################################################################################
-
 class Pear(Cmd):
     """
     @summary: Overlapping and merging mate pairs from fragments shorter than twice the length of reads.
@@ -192,7 +191,7 @@ class Remove454prim(Cmd):
     """
     @summary: Removes reads without the 3' and 5' primer and removes primers sequences.
     """
-    def __init__(self, in_fastq, out_fastq, cutadapt_log, param):
+    def __init__(self, in_fastq, out_fastq, cutadapt_log, cutadapt_err, param):
         """
         @param in_fastq: [str] Path to the processed fastq.
         @param out_fastq: [str] Path to the fastq with valid sequences.
@@ -202,7 +201,7 @@ class Remove454prim(Cmd):
         Cmd.__init__( self,
                       'remove454Adapt.py',
                       "Removes reads without the 3' and 5' primer and removes primers sequences.",
-                      '--five-prim-primer ' + param.five_prim_primer + ' --three-prim-primer ' + param.three_prim_primer + ' --error-rate 0.1 --non-overlap 1 --min-length ' + str(args.min_amplicon_size) + ' -i ' + in_fastq + ' -o ' + out_fastq + ' > ' + cutadapt_log,
+                      '--five-prim-primer ' + param.five_prim_primer + ' --three-prim-primer ' + param.three_prim_primer + ' --error-rate 0.1 --non-overlap 1 --min-length ' + str(args.min_amplicon_size) + ' -i ' + in_fastq + ' -o ' + out_fastq + ' > ' + cutadapt_log + ' 2> ' + cutadapt_err,
                       '--version' )
         self.output_seq = out_fastq
 
@@ -550,6 +549,53 @@ class DerepGlobalFastaCount(Cmd):
 # FUNCTIONS
 #
 ##################################################################################################################################################
+def link_inputFiles(file_list, tmpFiles, log):
+    """
+    @summary : link Galaxy input file into working dir to add comprehensive extension for cutadapt
+    @param file_list [list] : list of input path files
+    @param tmpFile [object] : tmpFiles to store link to remove at the end
+    @param logfile [str] : path to logFile
+    @return input file or link to process
+    """
+    out_list = list()
+
+    track = True
+    for file in file_list:
+        if not file.endswith(".dat"):
+            out_list.append(file)
+        # working through Galaxy
+        else:
+            if track:
+                Logger.static_write(log, '##Create symlink for Galaxy inputs\n')
+                track = False
+            if FastqIO.is_valid(file):
+                if is_gzip(file):
+                    link = tmpFiles.add(os.path.basename(file) + '.fastq.gz')
+                    os.symlink(file, link)
+                    Logger.static_write(log, '\tln -s '+ file + ' ' + link + '\n')
+                    out_list.append(link)
+                else:
+                    link = tmpFiles.add(os.path.basename(file) + '.fastq')
+                    os.symlink(file, link)
+                    Logger.static_write(log, '\tln -s '+ file + ' ' + link + '\n')
+                    out_list.append(link)
+            elif FastaIO.is_valid(file):
+                if is_gzip(file):
+                    link = tmpFiles.add(os.path.basename(file) + '.fasta.gz')
+                    os.symlink(file, link)
+                    Logger.static_write(log, '\tln -s '+ file + ' ' + link + '\n')
+                    out_list.append(link)
+                else:
+                    link = tmpFiles.add(os.path.basename(file) + '.fasta')
+                    os.symlink(file, link)
+                    Logger.static_write(log, '\tln -s '+ file + ' ' + link + '\n')
+                    out_list.append(link)
+            else:
+                raise_exception(Exception('\n\n#ERROR :' + file + ' is neither a fasta or a fastq file\n\n'))
+    return out_list
+
+
+
 def revcomp(seq):
     """
     @summary : return reverse complement iupac sequence
@@ -952,7 +998,7 @@ def process_sample(R1_file, R2_file, sample_name, out_file, art_out_file, length
             else:
                 renamed_out_contig = tmp_files.add( sample_name + '_454.fastq' ) # prevent cutadapt problem (type of file is checked by extension)
             shutil.copyfile( out_contig, renamed_out_contig ) # prevent symlink problem
-            Remove454prim(renamed_out_contig, out_cutadapt, log_3prim_cutadapt, args).submit(log_file)
+            Remove454prim(renamed_out_contig, out_cutadapt, log_3prim_cutadapt, err_3prim_cutadapt, args).submit(log_file)
         else: # Illumina
             if args.five_prim_primer and args.three_prim_primer: # Illumina standard sequencing protocol
                 Cutadapt5prim(out_contig, tmp_cutadapt, log_5prim_cutadapt, err_5prim_cutadapt, args).submit(log_file)
@@ -1013,13 +1059,16 @@ def process( args ):
         if args.input_archive is not None: # input is an archive
             samples_from_tar( args.input_archive, args.already_contiged, tmp_files, R1_files, R2_files, samples_names )
         else:  # inputs are files
+            R1_files = link_inputFiles(args.input_R1, tmp_files, args.log_file)
             if args.sequencer == "illumina":
                 if args.R2_size is not None:
-                    R2_files = args.input_R2
-            R1_files = args.input_R1
+                    R2_files = link_inputFiles(args.input_R2, tmp_files, args.log_file)
+            
+
             samples_names = [os.path.basename(current_R1).split('.')[0] for current_R1 in args.input_R1]
             if args.samples_names is not None:
                 samples_names = args.samples_names
+
         if len(samples_names) != len(set(samples_names)):
             raise_exception( Exception( '\n\n#ERROR : Impossible to retrieve unique samples names from files. The sample name must be before the first dot.\n\n' ))
 
