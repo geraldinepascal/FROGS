@@ -174,6 +174,7 @@ def biom_fasta_to_tsv( input_biom, input_fasta, output_tsv, fields, list_separat
     @param list_separator: [str] Separator for complex metadata.
     """
     biom = BiomIO.from_json( input_biom )
+    observation_list = [ name for name in biom.get_observations_names()]
     out_fh = open( output_tsv, "wt" )
     sequence_idx = fields.index("@seed_sequence")
     # Header
@@ -184,12 +185,19 @@ def biom_fasta_to_tsv( input_biom, input_fasta, output_tsv, fields, list_separat
     del fields_without_seq[sequence_idx]
     FH_in = FastaIO( input_fasta )
     for record in FH_in:
-        obs_idx = biom.find_idx("observation", record.id)
-        count_by_sample = biom.data.get_row_array(obs_idx)
-        observation_parts = observation_line_parts( biom.rows[obs_idx], count_by_sample, fields_without_seq, list_separator )
-        observation_parts.insert( sequence_idx, record.string )
-        out_fh.write( "\t".join(observation_parts) + "\n" )
+        try :
+            obs_idx = biom.find_idx("observation", record.id)
+            count_by_sample = biom.data.get_row_array(obs_idx)
+            observation_parts = observation_line_parts( biom.rows[obs_idx], count_by_sample, fields_without_seq, list_separator )
+            observation_parts.insert( sequence_idx, record.string )
+            out_fh.write( "\t".join(observation_parts) + "\n" )
+            observation_list.remove(record.id)
+        except:
+            pass
     out_fh.close()
+
+    if len(observation_list) > 0:
+        raise_exception(Exception("\n\n##ERROR : your input fasta file (" + input_fasta + ") does not contain sequence for :" + ", ".join(observation_list) + "\n"))
 
 
 ##################################################################################################################################################
