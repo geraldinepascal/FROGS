@@ -82,9 +82,10 @@ class BIOM_to_TSV(Cmd):
     """
     @summary: Convert a biom file to a tabular file
     """
-    def __init__(self, in_biom, out_tsv, out_multihit, out_log, header_only=False):
+    def __init__(self, in_biom, in_fasta, out_tsv, out_multihit, out_log, header_only=False):
         """
         @param in_biom [str] : Path of the biom file to convert
+        @param in_fasta [str] : Path of the fasta file associated with biom file
         @param out_tsv [str] : Path of the tabular file to create
         @param out_multihit [str] : Path of the detailed multiaffiliated OTU.
         @param out_log [str] : biom_to_tsv log file
@@ -96,7 +97,7 @@ class BIOM_to_TSV(Cmd):
         Cmd.__init__( self,
                       'biom_to_tsv.py',
                       'Convert a biom file into tsv file',
-                      " --input-biom " + in_biom + ' --output-tsv ' + out_tsv + ' --output-multi-affi ' + out_multihit + ' --log-file  ' + out_log + opt,
+                      " --input-biom " + in_biom + ' --input-fasta ' + in_fasta +' --output-tsv ' + out_tsv + ' --output-multi-affi ' + out_multihit + ' --log-file  ' + out_log + opt,
                       '--version' )
 
     def get_version(self):
@@ -701,9 +702,9 @@ def process( args ):
 
         # convert impacted biom in TSV
         if len(impacted_dict) > 0:
-            BIOM_to_TSV(impacted_biom, args.impacted, args.impacted_multihit,impacted_biom2tsv_log).submit(args.log_file)
+            BIOM_to_TSV(impacted_biom, args.input_fasta, args.impacted, args.impacted_multihit,impacted_biom2tsv_log).submit(args.log_file)
         else:
-            BIOM_to_TSV(args.input_biom, args.impacted, args.impacted_multihit,impacted_biom2tsv_log, True).submit(args.log_file)
+            BIOM_to_TSV(args.input_biom, args.input_fasta, args.impacted, args.impacted_multihit,impacted_biom2tsv_log, True).submit(args.log_file)
 
         # write summary
         write_summary( args.summary, args.input_biom, args.output_biom, impacted_dict, args )
@@ -747,7 +748,7 @@ if __name__ == '__main__':
     #     Inputs
     group_input = parser.add_argument_group( 'Inputs' )
     group_input.add_argument('--input-biom', required=True, help="The input biom file.")
-    group_input.add_argument('--input-fasta', required=False, help="The input fasta file.(required in deletion mode)")
+    group_input.add_argument('--input-fasta', required=True, help="The input fasta file.")
     #     Outputs
     group_output = parser.add_argument_group( 'Outputs' )
     group_output.add_argument('--output-biom', default="affiliation-filtered.biom", help="The Biom file output. [Default: %(default)s]")
