@@ -95,7 +95,7 @@ ln -s $BIN_DIR/FLASH-1.2.11/flash $FROGS_libexec/.
 
 ask for download link and follow installation instructions
 
-## 4) cutadpat 1.18, for FROGS Preprocess
+## 4) cutadpat 2.8, for FROGS Preprocess
 
 **require** :  pip
 ```bash
@@ -105,22 +105,22 @@ sudo apt-get install python-pip
 **installation**
 ```bash
 cd $BIN_DIR
-mkdir cutadapt-1.18
-cd cutadapt-1.18
+mkdir cutadapt-2.8
+cd cutadapt-2.8
 # solution 1 : precise directory (not recommended if you want to use Galaxy)
-  sudo pip install --prefix=$BIN_DIR/cutadapt-1.18 cutadapt==1.18
+  sudo pip3 install --prefix=$BIN_DIR/cutadapt-2.8 cutadapt==2.8
   # add cutadapt python library to your PYTHONPATH
-  echo export PYTHONPATH="$BIN_DIR/cutadapt-1.18/lib/python2.7/site-packages:\$PYTHONPATH" >> ~/.bashrc
+  echo export PYTHONPATH="$BIN_DIR/cutadapt-2.8/lib/python2.7/site-packages:\$PYTHONPATH" >> ~/.bashrc
   # check installation
   ./bin/cutadapt --version
   # add to FROGS
-  ln -s $BIN_DIR/cutadapt-1.18/bin/cutadapt $FROGS_libexec/.
+  ln -s $BIN_DIR/cutadapt-2.8/bin/cutadapt $FROGS_libexec/.
 
-# solution 2 let pip install cutadapt (binary will be available in your PATH)
+# solution 2 let pip3 install cutadapt (binary will be available in your PATH)
   #   in your home directory ~/.local/bin
-      pip install cutadapt==1.18
+      pip3 install cutadapt==2.8
   #   using sudo in /usr/local/bin
-      sudo pip install cutadapt==1.18
+      sudo pip3 install cutadapt==2.8
   # add to FROGS
   link=`which cutadapt`
   ln -s $link $FROGS_libexec/.
