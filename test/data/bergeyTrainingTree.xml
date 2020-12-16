@@ -1,244 +1,243 @@
 <trainsetNo>1</trainsetNo><version>null</version><modversion>null</modversion><file>bergeyTrainingTree</file>
 <TreeNode name="Root" taxid="0" rank="rootrank" parentTaxid="-1" leaveCount="102" genusIndex="-1"></TreeNode>
-<TreeNode name="Root" taxid="1" rank="root" parentTaxid="0" leaveCount="102" genusIndex="-1"></TreeNode>
-<TreeNode name="k__Fungi [id: 1] [id: 2]" taxid="2" rank="domain" parentTaxid="1" leaveCount="102" genusIndex="-1"></TreeNode>
-<TreeNode name="p__Basidiomycota [id: 8] [id: 3]" taxid="3" rank="phylum" parentTaxid="2" leaveCount="46" genusIndex="-1"></TreeNode>
-<TreeNode name="c__Exobasidiomycetes [id: 530] [id: 159]" taxid="159" rank="class" parentTaxid="3" leaveCount="1" genusIndex="-1"></TreeNode>
-<TreeNode name="o__Microstromatales [id: 876] [id: 160]" taxid="160" rank="order" parentTaxid="159" leaveCount="1" genusIndex="-1"></TreeNode>
-<TreeNode name="f__Microstromataceae [id: 8162] [id: 161]" taxid="161" rank="family" parentTaxid="160" leaveCount="1" genusIndex="-1"></TreeNode>
-<TreeNode name="g__Microstroma [id: 8344] [id: 162]" taxid="162" rank="genus" parentTaxid="161" leaveCount="1" genusIndex="-1"></TreeNode>
-<TreeNode name="s__Microstroma_phylloplanum [id: 8345] [id: 163]" taxid="163" rank="species" parentTaxid="162" leaveCount="1" genusIndex="0"></TreeNode>
-<TreeNode name="c__Pucciniomycetes [id: 513] [id: 39]" taxid="39" rank="class" parentTaxid="3" leaveCount="1" genusIndex="-1"></TreeNode>
-<TreeNode name="o__Pucciniales [id: 514] [id: 40]" taxid="40" rank="order" parentTaxid="39" leaveCount="1" genusIndex="-1"></TreeNode>
-<TreeNode name="f__Uropyxidaceae [id: 2860] [id: 41]" taxid="41" rank="family" parentTaxid="40" leaveCount="1" genusIndex="-1"></TreeNode>
-<TreeNode name="g__Dasyspora [id: 2861] [id: 42]" taxid="42" rank="genus" parentTaxid="41" leaveCount="1" genusIndex="-1"></TreeNode>
-<TreeNode name="s__Dasyspora_mesoamericana [id: 5324] [id: 43]" taxid="43" rank="species" parentTaxid="42" leaveCount="1" genusIndex="1"></TreeNode>
-<TreeNode name="c__Agaricomycetes [id: 9] [id: 4]" taxid="4" rank="class" parentTaxid="3" leaveCount="44" genusIndex="-1"></TreeNode>
-<TreeNode name="o__Hymenochaetales [id: 73] [id: 21]" taxid="21" rank="order" parentTaxid="4" leaveCount="2" genusIndex="-1"></TreeNode>
-<TreeNode name="f__Hymenochaetaceae [id: 74] [id: 22]" taxid="22" rank="family" parentTaxid="21" leaveCount="2" genusIndex="-1"></TreeNode>
-<TreeNode name="g__Hymenochaete [id: 1143] [id: 62]" taxid="62" rank="genus" parentTaxid="22" leaveCount="1" genusIndex="-1"></TreeNode>
-<TreeNode name="s__Hymenochaete_longispora [id: 7446] [id: 63]" taxid="63" rank="species" parentTaxid="62" leaveCount="1" genusIndex="2"></TreeNode>
-<TreeNode name="g__Pseudochaete [id: 1171] [id: 23]" taxid="23" rank="genus" parentTaxid="22" leaveCount="1" genusIndex="-1"></TreeNode>
-<TreeNode name="s__Pseudochaete_subrigidula [id: 1172] [id: 24]" taxid="24" rank="species" parentTaxid="23" leaveCount="1" genusIndex="3"></TreeNode>
-<TreeNode name="o__Boletales [id: 10] [id: 64]" taxid="64" rank="order" parentTaxid="4" leaveCount="5" genusIndex="-1"></TreeNode>
-<TreeNode name="f__Sclerodermataceae [id: 2915] [id: 82]" taxid="82" rank="family" parentTaxid="64" leaveCount="1" genusIndex="-1"></TreeNode>
-<TreeNode name="g__Pisolithus [id: 3087] [id: 83]" taxid="83" rank="genus" parentTaxid="82" leaveCount="1" genusIndex="-1"></TreeNode>
-<TreeNode name="s__Pisolithus_capsulifer [id: 10289] [id: 84]" taxid="84" rank="species" parentTaxid="83" leaveCount="1" genusIndex="4"></TreeNode>
-<TreeNode name="f__Boletaceae [id: 418] [id: 65]" taxid="65" rank="family" parentTaxid="64" leaveCount="1" genusIndex="-1"></TreeNode>
-<TreeNode name="g__Xerocomus [id: 906] [id: 66]" taxid="66" rank="genus" parentTaxid="65" leaveCount="1" genusIndex="-1"></TreeNode>
-<TreeNode name="s__Xerocomus_porophyllus [id: 7573] [id: 67]" taxid="67" rank="species" parentTaxid="66" leaveCount="1" genusIndex="5"></TreeNode>
-<TreeNode name="f__Paxillaceae [id: 3915] [id: 186]" taxid="186" rank="family" parentTaxid="64" leaveCount="2" genusIndex="-1"></TreeNode>
-<TreeNode name="g__Alpova [id: 14086] [id: 187]" taxid="187" rank="genus" parentTaxid="186" leaveCount="2" genusIndex="-1"></TreeNode>
-<TreeNode name="s__Alpova_corsicus [id: 21462] [id: 191]" taxid="191" rank="species" parentTaxid="187" leaveCount="1" genusIndex="6"></TreeNode>
-<TreeNode name="s__Alpova_alpestris [id: 20625] [id: 188]" taxid="188" rank="species" parentTaxid="187" leaveCount="1" genusIndex="7"></TreeNode>
-<TreeNode name="f__Suillaceae [id: 712] [id: 136]" taxid="136" rank="family" parentTaxid="64" leaveCount="1" genusIndex="-1"></TreeNode>
-<TreeNode name="g__Truncocolumella [id: 2710] [id: 137]" taxid="137" rank="genus" parentTaxid="136" leaveCount="1" genusIndex="-1"></TreeNode>
-<TreeNode name="s__Truncocolumella_rubra [id: 2711] [id: 138]" taxid="138" rank="species" parentTaxid="137" leaveCount="1" genusIndex="8"></TreeNode>
-<TreeNode name="o__Thelephorales [id: 101] [id: 44]" taxid="44" rank="order" parentTaxid="4" leaveCount="4" genusIndex="-1"></TreeNode>
-<TreeNode name="f__Bankeraceae [id: 102] [id: 45]" taxid="45" rank="family" parentTaxid="44" leaveCount="3" genusIndex="-1"></TreeNode>
-<TreeNode name="g__Sarcodon [id: 2623] [id: 46]" taxid="46" rank="genus" parentTaxid="45" leaveCount="1" genusIndex="-1"></TreeNode>
-<TreeNode name="s__Sarcodon_quercophilus [id: 5557] [id: 47]" taxid="47" rank="species" parentTaxid="46" leaveCount="1" genusIndex="9"></TreeNode>
-<TreeNode name="g__Hydnellum [id: 1832] [id: 77]" taxid="77" rank="genus" parentTaxid="45" leaveCount="2" genusIndex="-1"></TreeNode>
-<TreeNode name="s__Hydnellum_peckii [id: 5194] [id: 78]" taxid="78" rank="species" parentTaxid="77" leaveCount="1" genusIndex="10"></TreeNode>
-<TreeNode name="s__Hydnellum_suaveolens [id: 6660] [id: 91]" taxid="91" rank="species" parentTaxid="77" leaveCount="1" genusIndex="11"></TreeNode>
-<TreeNode name="f__Thelephoraceae [id: 395] [id: 99]" taxid="99" rank="family" parentTaxid="44" leaveCount="1" genusIndex="-1"></TreeNode>
-<TreeNode name="g__Thelephora [id: 1009] [id: 100]" taxid="100" rank="genus" parentTaxid="99" leaveCount="1" genusIndex="-1"></TreeNode>
-<TreeNode name="s__Thelephora_atra [id: 12419] [id: 101]" taxid="101" rank="species" parentTaxid="100" leaveCount="1" genusIndex="12"></TreeNode>
-<TreeNode name="o__Polyporales [id: 92] [id: 112]" taxid="112" rank="order" parentTaxid="4" leaveCount="1" genusIndex="-1"></TreeNode>
-<TreeNode name="f__Meruliaceae [id: 93] [id: 113]" taxid="113" rank="family" parentTaxid="112" leaveCount="1" genusIndex="-1"></TreeNode>
-<TreeNode name="g__Junghuhnia [id: 5553] [id: 114]" taxid="114" rank="genus" parentTaxid="113" leaveCount="1" genusIndex="-1"></TreeNode>
-<TreeNode name="s__Junghuhnia_nitida [id: 14589] [id: 115]" taxid="115" rank="species" parentTaxid="114" leaveCount="1" genusIndex="13"></TreeNode>
-<TreeNode name="o__Russulales [id: 32] [id: 5]" taxid="5" rank="order" parentTaxid="4" leaveCount="4" genusIndex="-1"></TreeNode>
-<TreeNode name="f__Russulaceae [id: 33] [id: 6]" taxid="6" rank="family" parentTaxid="5" leaveCount="4" genusIndex="-1"></TreeNode>
-<TreeNode name="g__Lactarius [id: 407] [id: 7]" taxid="7" rank="genus" parentTaxid="6" leaveCount="4" genusIndex="-1"></TreeNode>
-<TreeNode name="s__Lactarius_semisanguifluus [id: 12599] [id: 106]" taxid="106" rank="species" parentTaxid="7" leaveCount="1" genusIndex="14"></TreeNode>
-<TreeNode name="s__Lactarius_cyathuliformis [id: 23791] [id: 236]" taxid="236" rank="species" parentTaxid="7" leaveCount="1" genusIndex="15"></TreeNode>
-<TreeNode name="s__Lactarius_lanceolatus [id: 21786] [id: 9]" taxid="9" rank="species" parentTaxid="7" leaveCount="1" genusIndex="16"></TreeNode>
-<TreeNode name="s__Lactarius_sp [id: 1060] [id: 8]" taxid="8" rank="species" parentTaxid="7" leaveCount="1" genusIndex="17"></TreeNode>
-<TreeNode name="o__Agaricales [id: 14] [id: 48]" taxid="48" rank="order" parentTaxid="4" leaveCount="28" genusIndex="-1"></TreeNode>
-<TreeNode name="f__Marasmiaceae [id: 15] [id: 107]" taxid="107" rank="family" parentTaxid="48" leaveCount="1" genusIndex="-1"></TreeNode>
-<TreeNode name="g__Megacollybia [id: 3474] [id: 108]" taxid="108" rank="genus" parentTaxid="107" leaveCount="1" genusIndex="-1"></TreeNode>
-<TreeNode name="s__Megacollybia_subfurfuracea [id: 13884] [id: 109]" taxid="109" rank="species" parentTaxid="108" leaveCount="1" genusIndex="18"></TreeNode>
-<TreeNode name="f__Psathyrellaceae [id: 649] [id: 59]" taxid="59" rank="family" parentTaxid="48" leaveCount="4" genusIndex="-1"></TreeNode>
-<TreeNode name="g__Psathyrella [id: 737] [id: 110]" taxid="110" rank="genus" parentTaxid="59" leaveCount="2" genusIndex="-1"></TreeNode>
-<TreeNode name="s__Psathyrella_sublatispora [id: 14000] [id: 111]" taxid="111" rank="species" parentTaxid="110" leaveCount="1" genusIndex="19"></TreeNode>
-<TreeNode name="s__Psathyrella_multipedata [id: 18700] [id: 169]" taxid="169" rank="species" parentTaxid="110" leaveCount="1" genusIndex="20"></TreeNode>
-<TreeNode name="g__Coprinopsis [id: 650] [id: 60]" taxid="60" rank="genus" parentTaxid="59" leaveCount="2" genusIndex="-1"></TreeNode>
-<TreeNode name="s__Coprinopsis_pachyderma [id: 19335] [id: 180]" taxid="180" rank="species" parentTaxid="60" leaveCount="1" genusIndex="21"></TreeNode>
-<TreeNode name="s__Coprinopsis_candidolanata [id: 6579] [id: 61]" taxid="61" rank="species" parentTaxid="60" leaveCount="1" genusIndex="22"></TreeNode>
-<TreeNode name="f__Entolomataceae [id: 18] [id: 86]" taxid="86" rank="family" parentTaxid="48" leaveCount="1" genusIndex="-1"></TreeNode>
-<TreeNode name="g__Entoloma [id: 19] [id: 87]" taxid="87" rank="genus" parentTaxid="86" leaveCount="1" genusIndex="-1"></TreeNode>
-<TreeNode name="s__Entoloma_sp [id: 1533] [id: 88]" taxid="88" rank="species" parentTaxid="87" leaveCount="1" genusIndex="23"></TreeNode>
-<TreeNode name="f__Agaricaceae [id: 296] [id: 196]" taxid="196" rank="family" parentTaxid="48" leaveCount="1" genusIndex="-1"></TreeNode>
-<TreeNode name="g__Lepiota [id: 1372] [id: 197]" taxid="197" rank="genus" parentTaxid="196" leaveCount="1" genusIndex="-1"></TreeNode>
-<TreeNode name="s__Lepiota_geogenia [id: 22781] [id: 198]" taxid="198" rank="species" parentTaxid="197" leaveCount="1" genusIndex="24"></TreeNode>
-<TreeNode name="f__Amanitaceae [id: 39] [id: 119]" taxid="119" rank="family" parentTaxid="48" leaveCount="2" genusIndex="-1"></TreeNode>
-<TreeNode name="g__Amanita [id: 40] [id: 120]" taxid="120" rank="genus" parentTaxid="119" leaveCount="2" genusIndex="-1"></TreeNode>
-<TreeNode name="s__Amanita_friabilis [id: 10628] [id: 190]" taxid="190" rank="species" parentTaxid="120" leaveCount="1" genusIndex="25"></TreeNode>
-<TreeNode name="s__Amanita_franchetii [id: 14864] [id: 121]" taxid="121" rank="species" parentTaxid="120" leaveCount="1" genusIndex="26"></TreeNode>
-<TreeNode name="f__Omphalotaceae [id: 261] [id: 56]" taxid="56" rank="family" parentTaxid="48" leaveCount="1" genusIndex="-1"></TreeNode>
-<TreeNode name="g__Gymnopus [id: 262] [id: 57]" taxid="57" rank="genus" parentTaxid="56" leaveCount="1" genusIndex="-1"></TreeNode>
-<TreeNode name="s__Gymnopus_hybridus [id: 6077] [id: 58]" taxid="58" rank="species" parentTaxid="57" leaveCount="1" genusIndex="27"></TreeNode>
-<TreeNode name="f__Tricholomataceae [id: 389] [id: 74]" taxid="74" rank="family" parentTaxid="48" leaveCount="2" genusIndex="-1"></TreeNode>
-<TreeNode name="g__Tricholoma [id: 830] [id: 75]" taxid="75" rank="genus" parentTaxid="74" leaveCount="1" genusIndex="-1"></TreeNode>
-<TreeNode name="s__Tricholoma_portentosum [id: 9774] [id: 76]" taxid="76" rank="species" parentTaxid="75" leaveCount="1" genusIndex="28"></TreeNode>
-<TreeNode name="g__Gamundia [id: 19071] [id: 175]" taxid="175" rank="genus" parentTaxid="74" leaveCount="1" genusIndex="-1"></TreeNode>
-<TreeNode name="s__Gamundia_leucophylla [id: 19072] [id: 176]" taxid="176" rank="species" parentTaxid="175" leaveCount="1" genusIndex="29"></TreeNode>
-<TreeNode name="f__Strophariaceae [id: 98] [id: 116]" taxid="116" rank="family" parentTaxid="48" leaveCount="2" genusIndex="-1"></TreeNode>
-<TreeNode name="g__Hypholoma [id: 1891] [id: 117]" taxid="117" rank="genus" parentTaxid="116" leaveCount="1" genusIndex="-1"></TreeNode>
-<TreeNode name="s__Hypholoma_capnoides [id: 14701] [id: 118]" taxid="118" rank="species" parentTaxid="117" leaveCount="1" genusIndex="30"></TreeNode>
-<TreeNode name="g__Pholiota [id: 2704] [id: 184]" taxid="184" rank="genus" parentTaxid="116" leaveCount="1" genusIndex="-1"></TreeNode>
-<TreeNode name="s__Pholiota_highlandensis [id: 14001] [id: 185]" taxid="185" rank="species" parentTaxid="184" leaveCount="1" genusIndex="31"></TreeNode>
-<TreeNode name="f__Cortinariaceae [id: 140] [id: 49]" taxid="49" rank="family" parentTaxid="48" leaveCount="13" genusIndex="-1"></TreeNode>
-<TreeNode name="g__Cortinarius [id: 141] [id: 50]" taxid="50" rank="genus" parentTaxid="49" leaveCount="12" genusIndex="-1"></TreeNode>
-<TreeNode name="s__Cortinarius_savegrensis [id: 20854] [id: 189]" taxid="189" rank="species" parentTaxid="50" leaveCount="1" genusIndex="32"></TreeNode>
-<TreeNode name="s__Cortinarius_parkeri [id: 22451] [id: 195]" taxid="195" rank="species" parentTaxid="50" leaveCount="1" genusIndex="33"></TreeNode>
-<TreeNode name="s__Cortinarius_aavae [id: 18399] [id: 167]" taxid="167" rank="species" parentTaxid="50" leaveCount="1" genusIndex="34"></TreeNode>
-<TreeNode name="s__Cortinarius_gentianeus [id: 19219] [id: 179]" taxid="179" rank="species" parentTaxid="50" leaveCount="1" genusIndex="35"></TreeNode>
-<TreeNode name="s__Cortinarius_disjungendus [id: 22992] [id: 203]" taxid="203" rank="species" parentTaxid="50" leaveCount="1" genusIndex="36"></TreeNode>
-<TreeNode name="s__Cortinarius_amnicola [id: 23329] [id: 222]" taxid="222" rank="species" parentTaxid="50" leaveCount="1" genusIndex="37"></TreeNode>
-<TreeNode name="s__Cortinarius_aurantiobasis [id: 23727] [id: 234]" taxid="234" rank="species" parentTaxid="50" leaveCount="1" genusIndex="38"></TreeNode>
-<TreeNode name="s__Cortinarius_caesiocolor [id: 15030] [id: 125]" taxid="125" rank="species" parentTaxid="50" leaveCount="1" genusIndex="39"></TreeNode>
-<TreeNode name="s__Cortinarius_subexitiosus [id: 5647] [id: 51]" taxid="51" rank="species" parentTaxid="50" leaveCount="1" genusIndex="40"></TreeNode>
-<TreeNode name="s__Cortinarius_calojanthinus [id: 12270] [id: 98]" taxid="98" rank="species" parentTaxid="50" leaveCount="1" genusIndex="41"></TreeNode>
-<TreeNode name="s__Cortinarius_limonius [id: 12520] [id: 194]" taxid="194" rank="species" parentTaxid="50" leaveCount="1" genusIndex="42"></TreeNode>
-<TreeNode name="s__Cortinarius_sinapivelus [id: 23219] [id: 213]" taxid="213" rank="species" parentTaxid="50" leaveCount="1" genusIndex="43"></TreeNode>
-<TreeNode name="g__Phaeocollybia [id: 2838] [id: 72]" taxid="72" rank="genus" parentTaxid="49" leaveCount="1" genusIndex="-1"></TreeNode>
-<TreeNode name="s__Phaeocollybia_kauffmanii [id: 8922] [id: 73]" taxid="73" rank="species" parentTaxid="72" leaveCount="1" genusIndex="44"></TreeNode>
-<TreeNode name="f__Inocybaceae [id: 277] [id: 122]" taxid="122" rank="family" parentTaxid="48" leaveCount="1" genusIndex="-1"></TreeNode>
-<TreeNode name="g__Inocybe [id: 278] [id: 123]" taxid="123" rank="genus" parentTaxid="122" leaveCount="1" genusIndex="-1"></TreeNode>
-<TreeNode name="s__Inocybe_sindonia [id: 13037] [id: 124]" taxid="124" rank="species" parentTaxid="123" leaveCount="1" genusIndex="45"></TreeNode>
-<TreeNode name="p__Ascomycota [id: 2] [id: 10]" taxid="10" rank="phylum" parentTaxid="2" leaveCount="56" genusIndex="-1"></TreeNode>
-<TreeNode name="c__Geoglossomycetes [id: 2059] [id: 126]" taxid="126" rank="class" parentTaxid="10" leaveCount="1" genusIndex="-1"></TreeNode>
-<TreeNode name="o__Geoglossales [id: 2060] [id: 127]" taxid="127" rank="order" parentTaxid="126" leaveCount="1" genusIndex="-1"></TreeNode>
-<TreeNode name="f__Geoglossaceae [id: 2061] [id: 128]" taxid="128" rank="family" parentTaxid="127" leaveCount="1" genusIndex="-1"></TreeNode>
-<TreeNode name="g__Geoglossum [id: 5030] [id: 129]" taxid="129" rank="genus" parentTaxid="128" leaveCount="1" genusIndex="-1"></TreeNode>
-<TreeNode name="s__Geoglossum_dunense [id: 15661] [id: 130]" taxid="130" rank="species" parentTaxid="129" leaveCount="1" genusIndex="46"></TreeNode>
-<TreeNode name="c__Saccharomycetes [id: 203] [id: 217]" taxid="217" rank="class" parentTaxid="10" leaveCount="1" genusIndex="-1"></TreeNode>
-<TreeNode name="o__Saccharomycetales [id: 204] [id: 218]" taxid="218" rank="order" parentTaxid="217" leaveCount="1" genusIndex="-1"></TreeNode>
-<TreeNode name="f__Lipomycetaceae [id: 1432] [id: 219]" taxid="219" rank="family" parentTaxid="218" leaveCount="1" genusIndex="-1"></TreeNode>
-<TreeNode name="g__Lipomyces [id: 1433] [id: 220]" taxid="220" rank="genus" parentTaxid="219" leaveCount="1" genusIndex="-1"></TreeNode>
-<TreeNode name="s__Lipomyces_orientalis [id: 23297] [id: 221]" taxid="221" rank="species" parentTaxid="220" leaveCount="1" genusIndex="47"></TreeNode>
-<TreeNode name="c__Dothideomycetes [id: 52] [id: 11]" taxid="11" rank="class" parentTaxid="10" leaveCount="11" genusIndex="-1"></TreeNode>
-<TreeNode name="o__Botryosphaeriales [id: 152] [id: 102]" taxid="102" rank="order" parentTaxid="11" leaveCount="3" genusIndex="-1"></TreeNode>
-<TreeNode name="f__Botryosphaeriaceae [id: 153] [id: 103]" taxid="103" rank="family" parentTaxid="102" leaveCount="3" genusIndex="-1"></TreeNode>
-<TreeNode name="g__Lasiodiplodia [id: 6585] [id: 139]" taxid="139" rank="genus" parentTaxid="103" leaveCount="2" genusIndex="-1"></TreeNode>
-<TreeNode name="s__Lasiodiplodia_mediterranea [id: 24061] [id: 242]" taxid="242" rank="species" parentTaxid="139" leaveCount="1" genusIndex="48"></TreeNode>
-<TreeNode name="s__Lasiodiplodia_crassispora [id: 8928] [id: 140]" taxid="140" rank="species" parentTaxid="139" leaveCount="1" genusIndex="49"></TreeNode>
-<TreeNode name="g__Neofusicoccum [id: 4366] [id: 104]" taxid="104" rank="genus" parentTaxid="103" leaveCount="1" genusIndex="-1"></TreeNode>
-<TreeNode name="s__Neofusicoccum_eucalypticola [id: 12563] [id: 105]" taxid="105" rank="species" parentTaxid="104" leaveCount="1" genusIndex="50"></TreeNode>
-<TreeNode name="o__Pleosporales [id: 212] [id: 12]" taxid="12" rank="order" parentTaxid="11" leaveCount="8" genusIndex="-1"></TreeNode>
-<TreeNode name="f__Didymellaceae [id: 213] [id: 156]" taxid="156" rank="family" parentTaxid="12" leaveCount="1" genusIndex="-1"></TreeNode>
-<TreeNode name="g__Allophoma [id: 6502] [id: 157]" taxid="157" rank="genus" parentTaxid="156" leaveCount="1" genusIndex="-1"></TreeNode>
-<TreeNode name="s__Allophoma_piperis [id: 17487] [id: 158]" taxid="158" rank="species" parentTaxid="157" leaveCount="1" genusIndex="51"></TreeNode>
-<TreeNode name="f__Pleosporaceae [id: 348] [id: 13]" taxid="13" rank="family" parentTaxid="12" leaveCount="4" genusIndex="-1"></TreeNode>
-<TreeNode name="g__Curvularia [id: 4623] [id: 89]" taxid="89" rank="genus" parentTaxid="13" leaveCount="2" genusIndex="-1"></TreeNode>
-<TreeNode name="s__Curvularia_protuberata [id: 21784] [id: 193]" taxid="193" rank="species" parentTaxid="89" leaveCount="1" genusIndex="52"></TreeNode>
-<TreeNode name="s__Curvularia_sorghina [id: 11359] [id: 90]" taxid="90" rank="species" parentTaxid="89" leaveCount="1" genusIndex="53"></TreeNode>
-<TreeNode name="g__Bipolaris [id: 349] [id: 14]" taxid="14" rank="genus" parentTaxid="13" leaveCount="2" genusIndex="-1"></TreeNode>
-<TreeNode name="s__Bipolaris_chloridis [id: 22983] [id: 202]" taxid="202" rank="species" parentTaxid="14" leaveCount="1" genusIndex="54"></TreeNode>
-<TreeNode name="s__Bipolaris_microstegii [id: 350] [id: 15]" taxid="15" rank="species" parentTaxid="14" leaveCount="1" genusIndex="55"></TreeNode>
-<TreeNode name="f__Leptosphaeriaceae [id: 1147] [id: 79]" taxid="79" rank="family" parentTaxid="12" leaveCount="1" genusIndex="-1"></TreeNode>
-<TreeNode name="g__Leptosphaeria [id: 1164] [id: 80]" taxid="80" rank="genus" parentTaxid="79" leaveCount="1" genusIndex="-1"></TreeNode>
-<TreeNode name="s__Leptosphaeria_polylepidis [id: 9979] [id: 81]" taxid="81" rank="species" parentTaxid="80" leaveCount="1" genusIndex="56"></TreeNode>
-<TreeNode name="f__Phaeosphaeriaceae [id: 656] [id: 151]" taxid="151" rank="family" parentTaxid="12" leaveCount="1" genusIndex="-1"></TreeNode>
-<TreeNode name="g__Neosphaerellopsis [id: 17214] [id: 152]" taxid="152" rank="genus" parentTaxid="151" leaveCount="1" genusIndex="-1"></TreeNode>
-<TreeNode name="s__Neosphaerellopsis_thailandica [id: 17215] [id: 153]" taxid="153" rank="species" parentTaxid="152" leaveCount="1" genusIndex="57"></TreeNode>
-<TreeNode name="f__Lindgomycetaceae [id: 1978] [id: 164]" taxid="164" rank="family" parentTaxid="12" leaveCount="1" genusIndex="-1"></TreeNode>
-<TreeNode name="g__Lindgomyces [id: 1979] [id: 165]" taxid="165" rank="genus" parentTaxid="164" leaveCount="1" genusIndex="-1"></TreeNode>
-<TreeNode name="s__Lindgomyces_breviappendiculatus [id: 17836] [id: 166]" taxid="166" rank="species" parentTaxid="165" leaveCount="1" genusIndex="58"></TreeNode>
-<TreeNode name="c__Lecanoromycetes [id: 105] [id: 131]" taxid="131" rank="class" parentTaxid="10" leaveCount="2" genusIndex="-1"></TreeNode>
-<TreeNode name="o__Umbilicariales [id: 1350] [id: 132]" taxid="132" rank="order" parentTaxid="131" leaveCount="2" genusIndex="-1"></TreeNode>
-<TreeNode name="f__Umbilicariaceae [id: 1351] [id: 133]" taxid="133" rank="family" parentTaxid="132" leaveCount="2" genusIndex="-1"></TreeNode>
-<TreeNode name="g__Fulgidea [id: 15737] [id: 134]" taxid="134" rank="genus" parentTaxid="133" leaveCount="2" genusIndex="-1"></TreeNode>
-<TreeNode name="s__Fulgidea_oligospora [id: 15738] [id: 135]" taxid="135" rank="species" parentTaxid="134" leaveCount="1" genusIndex="59"></TreeNode>
-<TreeNode name="s__Fulgidea_sierrae [id: 18628] [id: 168]" taxid="168" rank="species" parentTaxid="134" leaveCount="1" genusIndex="60"></TreeNode>
-<TreeNode name="c__Pezizomycetes [id: 114] [id: 16]" taxid="16" rank="class" parentTaxid="10" leaveCount="2" genusIndex="-1"></TreeNode>
-<TreeNode name="o__Pezizales [id: 115] [id: 17]" taxid="17" rank="order" parentTaxid="16" leaveCount="2" genusIndex="-1"></TreeNode>
-<TreeNode name="f__Tuberaceae [id: 116] [id: 18]" taxid="18" rank="family" parentTaxid="17" leaveCount="1" genusIndex="-1"></TreeNode>
-<TreeNode name="g__Tuber [id: 117] [id: 19]" taxid="19" rank="genus" parentTaxid="18" leaveCount="1" genusIndex="-1"></TreeNode>
-<TreeNode name="s__Tuber_latisporum [id: 1138] [id: 20]" taxid="20" rank="species" parentTaxid="19" leaveCount="1" genusIndex="61"></TreeNode>
-<TreeNode name="f__Pezizaceae [id: 258] [id: 205]" taxid="205" rank="family" parentTaxid="17" leaveCount="1" genusIndex="-1"></TreeNode>
-<TreeNode name="g__Terfezia [id: 2977] [id: 206]" taxid="206" rank="genus" parentTaxid="205" leaveCount="1" genusIndex="-1"></TreeNode>
-<TreeNode name="s__Terfezia_claveryi [id: 10920] [id: 207]" taxid="207" rank="species" parentTaxid="206" leaveCount="1" genusIndex="62"></TreeNode>
-<TreeNode name="c__Eurotiomycetes [id: 27] [id: 25]" taxid="25" rank="class" parentTaxid="10" leaveCount="21" genusIndex="-1"></TreeNode>
-<TreeNode name="o__Eurotiales [id: 61] [id: 26]" taxid="26" rank="order" parentTaxid="25" leaveCount="17" genusIndex="-1"></TreeNode>
-<TreeNode name="f__Elaphomycetaceae [id: 283] [id: 141]" taxid="141" rank="family" parentTaxid="26" leaveCount="1" genusIndex="-1"></TreeNode>
-<TreeNode name="g__Elaphomyces [id: 284] [id: 142]" taxid="142" rank="genus" parentTaxid="141" leaveCount="1" genusIndex="-1"></TreeNode>
-<TreeNode name="s__Elaphomyces_compleximurus [id: 16371] [id: 143]" taxid="143" rank="species" parentTaxid="142" leaveCount="1" genusIndex="63"></TreeNode>
-<TreeNode name="f__Trichocomaceae [id: 62] [id: 27]" taxid="27" rank="family" parentTaxid="26" leaveCount="16" genusIndex="-1"></TreeNode>
-<TreeNode name="g__Talaromyces [id: 1185] [id: 96]" taxid="96" rank="genus" parentTaxid="27" leaveCount="1" genusIndex="-1"></TreeNode>
-<TreeNode name="s__Talaromyces_pittii [id: 12056] [id: 97]" taxid="97" rank="species" parentTaxid="96" leaveCount="1" genusIndex="64"></TreeNode>
-<TreeNode name="g__Rasamsonia [id: 3902] [id: 149]" taxid="149" rank="genus" parentTaxid="27" leaveCount="2" genusIndex="-1"></TreeNode>
-<TreeNode name="s__Rasamsonia_piperina [id: 17178] [id: 150]" taxid="150" rank="species" parentTaxid="149" leaveCount="1" genusIndex="65"></TreeNode>
-<TreeNode name="s__Rasamsonia_emersonii [id: 20510] [id: 183]" taxid="183" rank="species" parentTaxid="149" leaveCount="1" genusIndex="66"></TreeNode>
-<TreeNode name="g__Aspergillus [id: 353] [id: 28]" taxid="28" rank="genus" parentTaxid="27" leaveCount="4" genusIndex="-1"></TreeNode>
-<TreeNode name="s__Aspergillus_ivoriensis [id: 22947] [id: 201]" taxid="201" rank="species" parentTaxid="28" leaveCount="1" genusIndex="67"></TreeNode>
-<TreeNode name="s__Aspergillus_ochraceus [id: 2572] [id: 29]" taxid="29" rank="species" parentTaxid="28" leaveCount="1" genusIndex="68"></TreeNode>
-<TreeNode name="s__Aspergillus_caninus [id: 17035] [id: 148]" taxid="148" rank="species" parentTaxid="28" leaveCount="1" genusIndex="69"></TreeNode>
-<TreeNode name="s__Aspergillus_microcysticus [id: 23102] [id: 208]" taxid="208" rank="species" parentTaxid="28" leaveCount="1" genusIndex="70"></TreeNode>
-<TreeNode name="g__Penicillium [id: 63] [id: 154]" taxid="154" rank="genus" parentTaxid="27" leaveCount="9" genusIndex="-1"></TreeNode>
-<TreeNode name="s__Penicillium_kongii [id: 23948] [id: 237]" taxid="237" rank="species" parentTaxid="154" leaveCount="1" genusIndex="71"></TreeNode>
-<TreeNode name="s__Penicillium_ribium [id: 23950] [id: 238]" taxid="238" rank="species" parentTaxid="154" leaveCount="1" genusIndex="72"></TreeNode>
-<TreeNode name="s__Penicillium_brunneoconidiatum [id: 24024] [id: 241]" taxid="241" rank="species" parentTaxid="154" leaveCount="1" genusIndex="73"></TreeNode>
-<TreeNode name="s__Penicillium_alutaceum [id: 22901] [id: 200]" taxid="200" rank="species" parentTaxid="154" leaveCount="1" genusIndex="74"></TreeNode>
-<TreeNode name="s__Penicillium_jensenii [id: 24006] [id: 239]" taxid="239" rank="species" parentTaxid="154" leaveCount="1" genusIndex="75"></TreeNode>
-<TreeNode name="s__Penicillium_paneum [id: 23613] [id: 232]" taxid="232" rank="species" parentTaxid="154" leaveCount="1" genusIndex="76"></TreeNode>
-<TreeNode name="s__Penicillium_crystallinum [id: 21472] [id: 192]" taxid="192" rank="species" parentTaxid="154" leaveCount="1" genusIndex="77"></TreeNode>
-<TreeNode name="s__Penicillium_levitum [id: 17244] [id: 155]" taxid="155" rank="species" parentTaxid="154" leaveCount="1" genusIndex="78"></TreeNode>
-<TreeNode name="s__Penicillium_aurantiogriseum [id: 24009] [id: 240]" taxid="240" rank="species" parentTaxid="154" leaveCount="1" genusIndex="79"></TreeNode>
-<TreeNode name="o__Verrucariales [id: 175] [id: 68]" taxid="68" rank="order" parentTaxid="25" leaveCount="3" genusIndex="-1"></TreeNode>
-<TreeNode name="f__Verrucariaceae [id: 176] [id: 69]" taxid="69" rank="family" parentTaxid="68" leaveCount="3" genusIndex="-1"></TreeNode>
-<TreeNode name="g__Verrucaria [id: 1280] [id: 70]" taxid="70" rank="genus" parentTaxid="69" leaveCount="2" genusIndex="-1"></TreeNode>
-<TreeNode name="s__Verrucaria_lapidicola [id: 16391] [id: 144]" taxid="144" rank="species" parentTaxid="70" leaveCount="1" genusIndex="80"></TreeNode>
-<TreeNode name="s__Verrucaria_hydrophila [id: 7998] [id: 71]" taxid="71" rank="species" parentTaxid="70" leaveCount="1" genusIndex="81"></TreeNode>
-<TreeNode name="g__Dermatocarpon [id: 4840] [id: 181]" taxid="181" rank="genus" parentTaxid="69" leaveCount="1" genusIndex="-1"></TreeNode>
-<TreeNode name="s__Dermatocarpon_dolomiticum [id: 19469] [id: 182]" taxid="182" rank="species" parentTaxid="181" leaveCount="1" genusIndex="82"></TreeNode>
-<TreeNode name="o__Chaetothyriales [id: 165] [id: 30]" taxid="30" rank="order" parentTaxid="25" leaveCount="1" genusIndex="-1"></TreeNode>
-<TreeNode name="f__Herpotrichiellaceae [id: 680] [id: 31]" taxid="31" rank="family" parentTaxid="30" leaveCount="1" genusIndex="-1"></TreeNode>
-<TreeNode name="g__Exophiala [id: 681] [id: 32]" taxid="32" rank="genus" parentTaxid="31" leaveCount="1" genusIndex="-1"></TreeNode>
-<TreeNode name="s__Exophiala_equina [id: 3883] [id: 33]" taxid="33" rank="species" parentTaxid="32" leaveCount="1" genusIndex="83"></TreeNode>
-<TreeNode name="c__Sordariomycetes [id: 3] [id: 34]" taxid="34" rank="class" parentTaxid="10" leaveCount="18" genusIndex="-1"></TreeNode>
-<TreeNode name="o__Calosphaeriales [id: 1042] [id: 223]" taxid="223" rank="order" parentTaxid="34" leaveCount="1" genusIndex="-1"></TreeNode>
-<TreeNode name="f__Calosphaeriaceae [id: 6211] [id: 224]" taxid="224" rank="family" parentTaxid="223" leaveCount="1" genusIndex="-1"></TreeNode>
-<TreeNode name="g__Jattaea [id: 8864] [id: 225]" taxid="225" rank="genus" parentTaxid="224" leaveCount="1" genusIndex="-1"></TreeNode>
-<TreeNode name="s__Jattaea_taediosa [id: 23382] [id: 226]" taxid="226" rank="species" parentTaxid="225" leaveCount="1" genusIndex="84"></TreeNode>
-<TreeNode name="o__Hypocreales [id: 57] [id: 52]" taxid="52" rank="order" parentTaxid="34" leaveCount="8" genusIndex="-1"></TreeNode>
-<TreeNode name="f__Cordycipitaceae [id: 1381] [id: 214]" taxid="214" rank="family" parentTaxid="52" leaveCount="1" genusIndex="-1"></TreeNode>
-<TreeNode name="g__Beauveria [id: 2195] [id: 215]" taxid="215" rank="genus" parentTaxid="214" leaveCount="1" genusIndex="-1"></TreeNode>
-<TreeNode name="s__Beauveria_australis [id: 23220] [id: 216]" taxid="216" rank="species" parentTaxid="215" leaveCount="1" genusIndex="85"></TreeNode>
-<TreeNode name="f__Hypocreaceae [id: 322] [id: 53]" taxid="53" rank="family" parentTaxid="52" leaveCount="7" genusIndex="-1"></TreeNode>
-<TreeNode name="g__Hypomyces [id: 718] [id: 170]" taxid="170" rank="genus" parentTaxid="53" leaveCount="1" genusIndex="-1"></TreeNode>
-<TreeNode name="s__Hypomyces_australasiaticus [id: 18777] [id: 171]" taxid="171" rank="species" parentTaxid="170" leaveCount="1" genusIndex="86"></TreeNode>
-<TreeNode name="g__Trichoderma [id: 323] [id: 54]" taxid="54" rank="genus" parentTaxid="53" leaveCount="5" genusIndex="-1"></TreeNode>
-<TreeNode name="s__Trichoderma_rodmanii [id: 23761] [id: 235]" taxid="235" rank="species" parentTaxid="54" leaveCount="1" genusIndex="87"></TreeNode>
-<TreeNode name="s__Trichoderma_aggressivum [id: 23019] [id: 204]" taxid="204" rank="species" parentTaxid="54" leaveCount="1" genusIndex="88"></TreeNode>
-<TreeNode name="s__Trichoderma_mienum [id: 6011] [id: 55]" taxid="55" rank="species" parentTaxid="54" leaveCount="1" genusIndex="89"></TreeNode>
-<TreeNode name="s__Trichoderma_cremeum [id: 23703] [id: 233]" taxid="233" rank="species" parentTaxid="54" leaveCount="1" genusIndex="90"></TreeNode>
-<TreeNode name="s__Trichoderma_rhododendri [id: 16741] [id: 147]" taxid="147" rank="species" parentTaxid="54" leaveCount="1" genusIndex="91"></TreeNode>
-<TreeNode name="g__Sepedonium [id: 8533] [id: 145]" taxid="145" rank="genus" parentTaxid="53" leaveCount="1" genusIndex="-1"></TreeNode>
-<TreeNode name="s__Sepedonium_laevigatum [id: 16416] [id: 146]" taxid="146" rank="species" parentTaxid="145" leaveCount="1" genusIndex="92"></TreeNode>
-<TreeNode name="o__Xylariales [id: 4] [id: 35]" taxid="35" rank="order" parentTaxid="34" leaveCount="5" genusIndex="-1"></TreeNode>
-<TreeNode name="f__Xylariaceae [id: 5] [id: 36]" taxid="36" rank="family" parentTaxid="35" leaveCount="3" genusIndex="-1"></TreeNode>
-<TreeNode name="g__Hypoxylon [id: 1046] [id: 177]" taxid="177" rank="genus" parentTaxid="36" leaveCount="1" genusIndex="-1"></TreeNode>
-<TreeNode name="s__Hypoxylon_fragiforme [id: 8082] [id: 178]" taxid="178" rank="species" parentTaxid="177" leaveCount="1" genusIndex="93"></TreeNode>
-<TreeNode name="g__Lopadostoma [id: 409] [id: 37]" taxid="37" rank="genus" parentTaxid="36" leaveCount="2" genusIndex="-1"></TreeNode>
-<TreeNode name="s__Lopadostoma_insulare [id: 5230] [id: 38]" taxid="38" rank="species" parentTaxid="37" leaveCount="1" genusIndex="94"></TreeNode>
-<TreeNode name="s__Lopadostoma_dryophilum [id: 10318] [id: 85]" taxid="85" rank="species" parentTaxid="37" leaveCount="1" genusIndex="95"></TreeNode>
-<TreeNode name="f__Amphisphaeriaceae [id: 330] [id: 227]" taxid="227" rank="family" parentTaxid="35" leaveCount="2" genusIndex="-1"></TreeNode>
-<TreeNode name="g__Pestalotiopsis [id: 331] [id: 228]" taxid="228" rank="genus" parentTaxid="227" leaveCount="1" genusIndex="-1"></TreeNode>
-<TreeNode name="s__Pestalotiopsis_diversiseta [id: 23573] [id: 229]" taxid="229" rank="species" parentTaxid="228" leaveCount="1" genusIndex="96"></TreeNode>
-<TreeNode name="g__Adisciso [id: 17264] [id: 230]" taxid="230" rank="genus" parentTaxid="227" leaveCount="1" genusIndex="-1"></TreeNode>
-<TreeNode name="s__Adisciso_tricellulare [id: 23597] [id: 231]" taxid="231" rank="species" parentTaxid="230" leaveCount="1" genusIndex="97"></TreeNode>
-<TreeNode name="o__Diaporthales [id: 65] [id: 92]" taxid="92" rank="order" parentTaxid="34" leaveCount="3" genusIndex="-1"></TreeNode>
-<TreeNode name="f__Togniniaceae [id: 191] [id: 172]" taxid="172" rank="family" parentTaxid="92" leaveCount="1" genusIndex="-1"></TreeNode>
-<TreeNode name="g__Phaeoacremonium [id: 192] [id: 173]" taxid="173" rank="genus" parentTaxid="172" leaveCount="1" genusIndex="-1"></TreeNode>
-<TreeNode name="s__Phaeoacremonium_rubrigenum [id: 18995] [id: 174]" taxid="174" rank="species" parentTaxid="173" leaveCount="1" genusIndex="98"></TreeNode>
-<TreeNode name="f__Diaporthaceae [id: 66] [id: 93]" taxid="93" rank="family" parentTaxid="92" leaveCount="2" genusIndex="-1"></TreeNode>
-<TreeNode name="g__Diaporthe [id: 67] [id: 94]" taxid="94" rank="genus" parentTaxid="93" leaveCount="2" genusIndex="-1"></TreeNode>
-<TreeNode name="s__Diaporthe_longispora [id: 11599] [id: 95]" taxid="95" rank="species" parentTaxid="94" leaveCount="1" genusIndex="99"></TreeNode>
-<TreeNode name="s__Diaporthe_lusitanicae [id: 22865] [id: 199]" taxid="199" rank="species" parentTaxid="94" leaveCount="1" genusIndex="100"></TreeNode>
-<TreeNode name="o__Microascales [id: 686] [id: 209]" taxid="209" rank="order" parentTaxid="34" leaveCount="1" genusIndex="-1"></TreeNode>
-<TreeNode name="f__Ceratocystidaceae [id: 1947] [id: 210]" taxid="210" rank="family" parentTaxid="209" leaveCount="1" genusIndex="-1"></TreeNode>
-<TreeNode name="g__Ceratocystis [id: 1948] [id: 211]" taxid="211" rank="genus" parentTaxid="210" leaveCount="1" genusIndex="-1"></TreeNode>
-<TreeNode name="s__Ceratocystis_manginecans [id: 7650] [id: 212]" taxid="212" rank="species" parentTaxid="211" leaveCount="1" genusIndex="101"></TreeNode>
+<TreeNode name="k__Fungi [id: 1]" taxid="1" rank="k" parentTaxid="0" leaveCount="102" genusIndex="-1"></TreeNode>
+<TreeNode name="p__Ascomycota [id: 2]" taxid="2" rank="p" parentTaxid="1" leaveCount="56" genusIndex="-1"></TreeNode>
+<TreeNode name="c__Saccharomycetes [id: 216]" taxid="216" rank="c" parentTaxid="2" leaveCount="1" genusIndex="-1"></TreeNode>
+<TreeNode name="o__Saccharomycetales [id: 217]" taxid="217" rank="o" parentTaxid="216" leaveCount="1" genusIndex="-1"></TreeNode>
+<TreeNode name="f__Lipomycetaceae [id: 218]" taxid="218" rank="f" parentTaxid="217" leaveCount="1" genusIndex="-1"></TreeNode>
+<TreeNode name="g__Lipomyces [id: 219]" taxid="219" rank="g" parentTaxid="218" leaveCount="1" genusIndex="-1"></TreeNode>
+<TreeNode name="s__Lipomyces_orientalis [id: 220]" taxid="220" rank="s" parentTaxid="219" leaveCount="1" genusIndex="0"></TreeNode>
+<TreeNode name="c__Eurotiomycetes [id: 19]" taxid="19" rank="c" parentTaxid="2" leaveCount="21" genusIndex="-1"></TreeNode>
+<TreeNode name="o__Eurotiales [id: 20]" taxid="20" rank="o" parentTaxid="19" leaveCount="17" genusIndex="-1"></TreeNode>
+<TreeNode name="f__Trichocomaceae [id: 21]" taxid="21" rank="f" parentTaxid="20" leaveCount="16" genusIndex="-1"></TreeNode>
+<TreeNode name="g__Aspergillus [id: 22]" taxid="22" rank="g" parentTaxid="21" leaveCount="4" genusIndex="-1"></TreeNode>
+<TreeNode name="s__Aspergillus_microcysticus [id: 207]" taxid="207" rank="s" parentTaxid="22" leaveCount="1" genusIndex="1"></TreeNode>
+<TreeNode name="s__Aspergillus_caninus [id: 145]" taxid="145" rank="s" parentTaxid="22" leaveCount="1" genusIndex="2"></TreeNode>
+<TreeNode name="s__Aspergillus_ivoriensis [id: 200]" taxid="200" rank="s" parentTaxid="22" leaveCount="1" genusIndex="3"></TreeNode>
+<TreeNode name="s__Aspergillus_ochraceus [id: 23]" taxid="23" rank="s" parentTaxid="22" leaveCount="1" genusIndex="4"></TreeNode>
+<TreeNode name="g__Talaromyces [id: 90]" taxid="90" rank="g" parentTaxid="21" leaveCount="1" genusIndex="-1"></TreeNode>
+<TreeNode name="s__Talaromyces_pittii [id: 91]" taxid="91" rank="s" parentTaxid="90" leaveCount="1" genusIndex="5"></TreeNode>
+<TreeNode name="g__Rasamsonia [id: 146]" taxid="146" rank="g" parentTaxid="21" leaveCount="2" genusIndex="-1"></TreeNode>
+<TreeNode name="s__Rasamsonia_emersonii [id: 180]" taxid="180" rank="s" parentTaxid="146" leaveCount="1" genusIndex="6"></TreeNode>
+<TreeNode name="s__Rasamsonia_piperina [id: 147]" taxid="147" rank="s" parentTaxid="146" leaveCount="1" genusIndex="7"></TreeNode>
+<TreeNode name="g__Penicillium [id: 151]" taxid="151" rank="g" parentTaxid="21" leaveCount="9" genusIndex="-1"></TreeNode>
+<TreeNode name="s__Penicillium_crystallinum [id: 189]" taxid="189" rank="s" parentTaxid="151" leaveCount="1" genusIndex="8"></TreeNode>
+<TreeNode name="s__Penicillium_levitum [id: 152]" taxid="152" rank="s" parentTaxid="151" leaveCount="1" genusIndex="9"></TreeNode>
+<TreeNode name="s__Penicillium_alutaceum [id: 199]" taxid="199" rank="s" parentTaxid="151" leaveCount="1" genusIndex="10"></TreeNode>
+<TreeNode name="s__Penicillium_aurantiogriseum [id: 239]" taxid="239" rank="s" parentTaxid="151" leaveCount="1" genusIndex="11"></TreeNode>
+<TreeNode name="s__Penicillium_kongii [id: 236]" taxid="236" rank="s" parentTaxid="151" leaveCount="1" genusIndex="12"></TreeNode>
+<TreeNode name="s__Penicillium_jensenii [id: 238]" taxid="238" rank="s" parentTaxid="151" leaveCount="1" genusIndex="13"></TreeNode>
+<TreeNode name="s__Penicillium_brunneoconidiatum [id: 240]" taxid="240" rank="s" parentTaxid="151" leaveCount="1" genusIndex="14"></TreeNode>
+<TreeNode name="s__Penicillium_paneum [id: 231]" taxid="231" rank="s" parentTaxid="151" leaveCount="1" genusIndex="15"></TreeNode>
+<TreeNode name="s__Penicillium_ribium [id: 237]" taxid="237" rank="s" parentTaxid="151" leaveCount="1" genusIndex="16"></TreeNode>
+<TreeNode name="f__Elaphomycetaceae [id: 138]" taxid="138" rank="f" parentTaxid="20" leaveCount="1" genusIndex="-1"></TreeNode>
+<TreeNode name="g__Elaphomyces [id: 139]" taxid="139" rank="g" parentTaxid="138" leaveCount="1" genusIndex="-1"></TreeNode>
+<TreeNode name="s__Elaphomyces_compleximurus [id: 140]" taxid="140" rank="s" parentTaxid="139" leaveCount="1" genusIndex="17"></TreeNode>
+<TreeNode name="o__Chaetothyriales [id: 24]" taxid="24" rank="o" parentTaxid="19" leaveCount="1" genusIndex="-1"></TreeNode>
+<TreeNode name="f__Herpotrichiellaceae [id: 25]" taxid="25" rank="f" parentTaxid="24" leaveCount="1" genusIndex="-1"></TreeNode>
+<TreeNode name="g__Exophiala [id: 26]" taxid="26" rank="g" parentTaxid="25" leaveCount="1" genusIndex="-1"></TreeNode>
+<TreeNode name="s__Exophiala_equina [id: 27]" taxid="27" rank="s" parentTaxid="26" leaveCount="1" genusIndex="18"></TreeNode>
+<TreeNode name="o__Verrucariales [id: 62]" taxid="62" rank="o" parentTaxid="19" leaveCount="3" genusIndex="-1"></TreeNode>
+<TreeNode name="f__Verrucariaceae [id: 63]" taxid="63" rank="f" parentTaxid="62" leaveCount="3" genusIndex="-1"></TreeNode>
+<TreeNode name="g__Verrucaria [id: 64]" taxid="64" rank="g" parentTaxid="63" leaveCount="2" genusIndex="-1"></TreeNode>
+<TreeNode name="s__Verrucaria_lapidicola [id: 141]" taxid="141" rank="s" parentTaxid="64" leaveCount="1" genusIndex="19"></TreeNode>
+<TreeNode name="s__Verrucaria_hydrophila [id: 65]" taxid="65" rank="s" parentTaxid="64" leaveCount="1" genusIndex="20"></TreeNode>
+<TreeNode name="g__Dermatocarpon [id: 178]" taxid="178" rank="g" parentTaxid="63" leaveCount="1" genusIndex="-1"></TreeNode>
+<TreeNode name="s__Dermatocarpon_dolomiticum [id: 179]" taxid="179" rank="s" parentTaxid="178" leaveCount="1" genusIndex="21"></TreeNode>
+<TreeNode name="c__Dothideomycetes [id: 3]" taxid="3" rank="c" parentTaxid="2" leaveCount="11" genusIndex="-1"></TreeNode>
+<TreeNode name="o__Pleosporales [id: 4]" taxid="4" rank="o" parentTaxid="3" leaveCount="8" genusIndex="-1"></TreeNode>
+<TreeNode name="f__Didymellaceae [id: 153]" taxid="153" rank="f" parentTaxid="4" leaveCount="1" genusIndex="-1"></TreeNode>
+<TreeNode name="g__Allophoma [id: 154]" taxid="154" rank="g" parentTaxid="153" leaveCount="1" genusIndex="-1"></TreeNode>
+<TreeNode name="s__Allophoma_piperis [id: 155]" taxid="155" rank="s" parentTaxid="154" leaveCount="1" genusIndex="22"></TreeNode>
+<TreeNode name="f__Phaeosphaeriaceae [id: 148]" taxid="148" rank="f" parentTaxid="4" leaveCount="1" genusIndex="-1"></TreeNode>
+<TreeNode name="g__Neosphaerellopsis [id: 149]" taxid="149" rank="g" parentTaxid="148" leaveCount="1" genusIndex="-1"></TreeNode>
+<TreeNode name="s__Neosphaerellopsis_thailandica [id: 150]" taxid="150" rank="s" parentTaxid="149" leaveCount="1" genusIndex="23"></TreeNode>
+<TreeNode name="f__Lindgomycetaceae [id: 161]" taxid="161" rank="f" parentTaxid="4" leaveCount="1" genusIndex="-1"></TreeNode>
+<TreeNode name="g__Lindgomyces [id: 162]" taxid="162" rank="g" parentTaxid="161" leaveCount="1" genusIndex="-1"></TreeNode>
+<TreeNode name="s__Lindgomyces_breviappendiculatus [id: 163]" taxid="163" rank="s" parentTaxid="162" leaveCount="1" genusIndex="24"></TreeNode>
+<TreeNode name="f__Pleosporaceae [id: 5]" taxid="5" rank="f" parentTaxid="4" leaveCount="4" genusIndex="-1"></TreeNode>
+<TreeNode name="g__Curvularia [id: 83]" taxid="83" rank="g" parentTaxid="5" leaveCount="2" genusIndex="-1"></TreeNode>
+<TreeNode name="s__Curvularia_protuberata [id: 190]" taxid="190" rank="s" parentTaxid="83" leaveCount="1" genusIndex="25"></TreeNode>
+<TreeNode name="s__Curvularia_sorghina [id: 84]" taxid="84" rank="s" parentTaxid="83" leaveCount="1" genusIndex="26"></TreeNode>
+<TreeNode name="g__Bipolaris [id: 6]" taxid="6" rank="g" parentTaxid="5" leaveCount="2" genusIndex="-1"></TreeNode>
+<TreeNode name="s__Bipolaris_microstegii [id: 7]" taxid="7" rank="s" parentTaxid="6" leaveCount="1" genusIndex="27"></TreeNode>
+<TreeNode name="s__Bipolaris_chloridis [id: 201]" taxid="201" rank="s" parentTaxid="6" leaveCount="1" genusIndex="28"></TreeNode>
+<TreeNode name="f__Leptosphaeriaceae [id: 73]" taxid="73" rank="f" parentTaxid="4" leaveCount="1" genusIndex="-1"></TreeNode>
+<TreeNode name="g__Leptosphaeria [id: 74]" taxid="74" rank="g" parentTaxid="73" leaveCount="1" genusIndex="-1"></TreeNode>
+<TreeNode name="s__Leptosphaeria_polylepidis [id: 75]" taxid="75" rank="s" parentTaxid="74" leaveCount="1" genusIndex="29"></TreeNode>
+<TreeNode name="o__Botryosphaeriales [id: 96]" taxid="96" rank="o" parentTaxid="3" leaveCount="3" genusIndex="-1"></TreeNode>
+<TreeNode name="f__Botryosphaeriaceae [id: 97]" taxid="97" rank="f" parentTaxid="96" leaveCount="3" genusIndex="-1"></TreeNode>
+<TreeNode name="g__Neofusicoccum [id: 98]" taxid="98" rank="g" parentTaxid="97" leaveCount="1" genusIndex="-1"></TreeNode>
+<TreeNode name="s__Neofusicoccum_eucalypticola [id: 99]" taxid="99" rank="s" parentTaxid="98" leaveCount="1" genusIndex="30"></TreeNode>
+<TreeNode name="g__Lasiodiplodia [id: 136]" taxid="136" rank="g" parentTaxid="97" leaveCount="2" genusIndex="-1"></TreeNode>
+<TreeNode name="s__Lasiodiplodia_crassispora [id: 137]" taxid="137" rank="s" parentTaxid="136" leaveCount="1" genusIndex="31"></TreeNode>
+<TreeNode name="s__Lasiodiplodia_mediterranea [id: 241]" taxid="241" rank="s" parentTaxid="136" leaveCount="1" genusIndex="32"></TreeNode>
+<TreeNode name="c__Geoglossomycetes [id: 123]" taxid="123" rank="c" parentTaxid="2" leaveCount="1" genusIndex="-1"></TreeNode>
+<TreeNode name="o__Geoglossales [id: 124]" taxid="124" rank="o" parentTaxid="123" leaveCount="1" genusIndex="-1"></TreeNode>
+<TreeNode name="f__Geoglossaceae [id: 125]" taxid="125" rank="f" parentTaxid="124" leaveCount="1" genusIndex="-1"></TreeNode>
+<TreeNode name="g__Geoglossum [id: 126]" taxid="126" rank="g" parentTaxid="125" leaveCount="1" genusIndex="-1"></TreeNode>
+<TreeNode name="s__Geoglossum_dunense [id: 127]" taxid="127" rank="s" parentTaxid="126" leaveCount="1" genusIndex="33"></TreeNode>
+<TreeNode name="c__Sordariomycetes [id: 28]" taxid="28" rank="c" parentTaxid="2" leaveCount="18" genusIndex="-1"></TreeNode>
+<TreeNode name="o__Diaporthales [id: 86]" taxid="86" rank="o" parentTaxid="28" leaveCount="3" genusIndex="-1"></TreeNode>
+<TreeNode name="f__Diaporthaceae [id: 87]" taxid="87" rank="f" parentTaxid="86" leaveCount="2" genusIndex="-1"></TreeNode>
+<TreeNode name="g__Diaporthe [id: 88]" taxid="88" rank="g" parentTaxid="87" leaveCount="2" genusIndex="-1"></TreeNode>
+<TreeNode name="s__Diaporthe_lusitanicae [id: 197]" taxid="197" rank="s" parentTaxid="88" leaveCount="1" genusIndex="34"></TreeNode>
+<TreeNode name="s__Diaporthe_longispora [id: 89]" taxid="89" rank="s" parentTaxid="88" leaveCount="1" genusIndex="35"></TreeNode>
+<TreeNode name="f__Togniniaceae [id: 169]" taxid="169" rank="f" parentTaxid="86" leaveCount="1" genusIndex="-1"></TreeNode>
+<TreeNode name="g__Phaeoacremonium [id: 170]" taxid="170" rank="g" parentTaxid="169" leaveCount="1" genusIndex="-1"></TreeNode>
+<TreeNode name="s__Phaeoacremonium_rubrigenum [id: 171]" taxid="171" rank="s" parentTaxid="170" leaveCount="1" genusIndex="36"></TreeNode>
+<TreeNode name="o__Hypocreales [id: 46]" taxid="46" rank="o" parentTaxid="28" leaveCount="8" genusIndex="-1"></TreeNode>
+<TreeNode name="f__Hypocreaceae [id: 47]" taxid="47" rank="f" parentTaxid="46" leaveCount="7" genusIndex="-1"></TreeNode>
+<TreeNode name="g__Trichoderma [id: 48]" taxid="48" rank="g" parentTaxid="47" leaveCount="5" genusIndex="-1"></TreeNode>
+<TreeNode name="s__Trichoderma_rhododendri [id: 144]" taxid="144" rank="s" parentTaxid="48" leaveCount="1" genusIndex="37"></TreeNode>
+<TreeNode name="s__Trichoderma_cremeum [id: 232]" taxid="232" rank="s" parentTaxid="48" leaveCount="1" genusIndex="38"></TreeNode>
+<TreeNode name="s__Trichoderma_mienum [id: 49]" taxid="49" rank="s" parentTaxid="48" leaveCount="1" genusIndex="39"></TreeNode>
+<TreeNode name="s__Trichoderma_rodmanii [id: 234]" taxid="234" rank="s" parentTaxid="48" leaveCount="1" genusIndex="40"></TreeNode>
+<TreeNode name="s__Trichoderma_aggressivum [id: 203]" taxid="203" rank="s" parentTaxid="48" leaveCount="1" genusIndex="41"></TreeNode>
+<TreeNode name="g__Hypomyces [id: 167]" taxid="167" rank="g" parentTaxid="47" leaveCount="1" genusIndex="-1"></TreeNode>
+<TreeNode name="s__Hypomyces_australasiaticus [id: 168]" taxid="168" rank="s" parentTaxid="167" leaveCount="1" genusIndex="42"></TreeNode>
+<TreeNode name="g__Sepedonium [id: 142]" taxid="142" rank="g" parentTaxid="47" leaveCount="1" genusIndex="-1"></TreeNode>
+<TreeNode name="s__Sepedonium_laevigatum [id: 143]" taxid="143" rank="s" parentTaxid="142" leaveCount="1" genusIndex="43"></TreeNode>
+<TreeNode name="f__Cordycipitaceae [id: 213]" taxid="213" rank="f" parentTaxid="46" leaveCount="1" genusIndex="-1"></TreeNode>
+<TreeNode name="g__Beauveria [id: 214]" taxid="214" rank="g" parentTaxid="213" leaveCount="1" genusIndex="-1"></TreeNode>
+<TreeNode name="s__Beauveria_australis [id: 215]" taxid="215" rank="s" parentTaxid="214" leaveCount="1" genusIndex="44"></TreeNode>
+<TreeNode name="o__Calosphaeriales [id: 222]" taxid="222" rank="o" parentTaxid="28" leaveCount="1" genusIndex="-1"></TreeNode>
+<TreeNode name="f__Calosphaeriaceae [id: 223]" taxid="223" rank="f" parentTaxid="222" leaveCount="1" genusIndex="-1"></TreeNode>
+<TreeNode name="g__Jattaea [id: 224]" taxid="224" rank="g" parentTaxid="223" leaveCount="1" genusIndex="-1"></TreeNode>
+<TreeNode name="s__Jattaea_taediosa [id: 225]" taxid="225" rank="s" parentTaxid="224" leaveCount="1" genusIndex="45"></TreeNode>
+<TreeNode name="o__Microascales [id: 208]" taxid="208" rank="o" parentTaxid="28" leaveCount="1" genusIndex="-1"></TreeNode>
+<TreeNode name="f__Ceratocystidaceae [id: 209]" taxid="209" rank="f" parentTaxid="208" leaveCount="1" genusIndex="-1"></TreeNode>
+<TreeNode name="g__Ceratocystis [id: 210]" taxid="210" rank="g" parentTaxid="209" leaveCount="1" genusIndex="-1"></TreeNode>
+<TreeNode name="s__Ceratocystis_manginecans [id: 211]" taxid="211" rank="s" parentTaxid="210" leaveCount="1" genusIndex="46"></TreeNode>
+<TreeNode name="o__Xylariales [id: 29]" taxid="29" rank="o" parentTaxid="28" leaveCount="5" genusIndex="-1"></TreeNode>
+<TreeNode name="f__Xylariaceae [id: 30]" taxid="30" rank="f" parentTaxid="29" leaveCount="3" genusIndex="-1"></TreeNode>
+<TreeNode name="g__Hypoxylon [id: 174]" taxid="174" rank="g" parentTaxid="30" leaveCount="1" genusIndex="-1"></TreeNode>
+<TreeNode name="s__Hypoxylon_fragiforme [id: 175]" taxid="175" rank="s" parentTaxid="174" leaveCount="1" genusIndex="47"></TreeNode>
+<TreeNode name="g__Lopadostoma [id: 31]" taxid="31" rank="g" parentTaxid="30" leaveCount="2" genusIndex="-1"></TreeNode>
+<TreeNode name="s__Lopadostoma_dryophilum [id: 79]" taxid="79" rank="s" parentTaxid="31" leaveCount="1" genusIndex="48"></TreeNode>
+<TreeNode name="s__Lopadostoma_insulare [id: 32]" taxid="32" rank="s" parentTaxid="31" leaveCount="1" genusIndex="49"></TreeNode>
+<TreeNode name="f__Amphisphaeriaceae [id: 226]" taxid="226" rank="f" parentTaxid="29" leaveCount="2" genusIndex="-1"></TreeNode>
+<TreeNode name="g__Adisciso [id: 229]" taxid="229" rank="g" parentTaxid="226" leaveCount="1" genusIndex="-1"></TreeNode>
+<TreeNode name="s__Adisciso_tricellulare [id: 230]" taxid="230" rank="s" parentTaxid="229" leaveCount="1" genusIndex="50"></TreeNode>
+<TreeNode name="g__Pestalotiopsis [id: 227]" taxid="227" rank="g" parentTaxid="226" leaveCount="1" genusIndex="-1"></TreeNode>
+<TreeNode name="s__Pestalotiopsis_diversiseta [id: 228]" taxid="228" rank="s" parentTaxid="227" leaveCount="1" genusIndex="51"></TreeNode>
+<TreeNode name="c__Lecanoromycetes [id: 128]" taxid="128" rank="c" parentTaxid="2" leaveCount="2" genusIndex="-1"></TreeNode>
+<TreeNode name="o__Umbilicariales [id: 129]" taxid="129" rank="o" parentTaxid="128" leaveCount="2" genusIndex="-1"></TreeNode>
+<TreeNode name="f__Umbilicariaceae [id: 130]" taxid="130" rank="f" parentTaxid="129" leaveCount="2" genusIndex="-1"></TreeNode>
+<TreeNode name="g__Fulgidea [id: 131]" taxid="131" rank="g" parentTaxid="130" leaveCount="2" genusIndex="-1"></TreeNode>
+<TreeNode name="s__Fulgidea_sierrae [id: 165]" taxid="165" rank="s" parentTaxid="131" leaveCount="1" genusIndex="52"></TreeNode>
+<TreeNode name="s__Fulgidea_oligospora [id: 132]" taxid="132" rank="s" parentTaxid="131" leaveCount="1" genusIndex="53"></TreeNode>
+<TreeNode name="c__Pezizomycetes [id: 8]" taxid="8" rank="c" parentTaxid="2" leaveCount="2" genusIndex="-1"></TreeNode>
+<TreeNode name="o__Pezizales [id: 9]" taxid="9" rank="o" parentTaxid="8" leaveCount="2" genusIndex="-1"></TreeNode>
+<TreeNode name="f__Pezizaceae [id: 204]" taxid="204" rank="f" parentTaxid="9" leaveCount="1" genusIndex="-1"></TreeNode>
+<TreeNode name="g__Terfezia [id: 205]" taxid="205" rank="g" parentTaxid="204" leaveCount="1" genusIndex="-1"></TreeNode>
+<TreeNode name="s__Terfezia_claveryi [id: 206]" taxid="206" rank="s" parentTaxid="205" leaveCount="1" genusIndex="54"></TreeNode>
+<TreeNode name="f__Tuberaceae [id: 10]" taxid="10" rank="f" parentTaxid="9" leaveCount="1" genusIndex="-1"></TreeNode>
+<TreeNode name="g__Tuber [id: 11]" taxid="11" rank="g" parentTaxid="10" leaveCount="1" genusIndex="-1"></TreeNode>
+<TreeNode name="s__Tuber_latisporum [id: 12]" taxid="12" rank="s" parentTaxid="11" leaveCount="1" genusIndex="55"></TreeNode>
+<TreeNode name="p__Basidiomycota [id: 13]" taxid="13" rank="p" parentTaxid="1" leaveCount="46" genusIndex="-1"></TreeNode>
+<TreeNode name="c__Pucciniomycetes [id: 33]" taxid="33" rank="c" parentTaxid="13" leaveCount="1" genusIndex="-1"></TreeNode>
+<TreeNode name="o__Pucciniales [id: 34]" taxid="34" rank="o" parentTaxid="33" leaveCount="1" genusIndex="-1"></TreeNode>
+<TreeNode name="f__Uropyxidaceae [id: 35]" taxid="35" rank="f" parentTaxid="34" leaveCount="1" genusIndex="-1"></TreeNode>
+<TreeNode name="g__Dasyspora [id: 36]" taxid="36" rank="g" parentTaxid="35" leaveCount="1" genusIndex="-1"></TreeNode>
+<TreeNode name="s__Dasyspora_mesoamericana [id: 37]" taxid="37" rank="s" parentTaxid="36" leaveCount="1" genusIndex="56"></TreeNode>
+<TreeNode name="c__Agaricomycetes [id: 14]" taxid="14" rank="c" parentTaxid="13" leaveCount="44" genusIndex="-1"></TreeNode>
+<TreeNode name="o__Boletales [id: 58]" taxid="58" rank="o" parentTaxid="14" leaveCount="5" genusIndex="-1"></TreeNode>
+<TreeNode name="f__Suillaceae [id: 133]" taxid="133" rank="f" parentTaxid="58" leaveCount="1" genusIndex="-1"></TreeNode>
+<TreeNode name="g__Truncocolumella [id: 134]" taxid="134" rank="g" parentTaxid="133" leaveCount="1" genusIndex="-1"></TreeNode>
+<TreeNode name="s__Truncocolumella_rubra [id: 135]" taxid="135" rank="s" parentTaxid="134" leaveCount="1" genusIndex="57"></TreeNode>
+<TreeNode name="f__Sclerodermataceae [id: 76]" taxid="76" rank="f" parentTaxid="58" leaveCount="1" genusIndex="-1"></TreeNode>
+<TreeNode name="g__Pisolithus [id: 77]" taxid="77" rank="g" parentTaxid="76" leaveCount="1" genusIndex="-1"></TreeNode>
+<TreeNode name="s__Pisolithus_capsulifer [id: 78]" taxid="78" rank="s" parentTaxid="77" leaveCount="1" genusIndex="58"></TreeNode>
+<TreeNode name="f__Paxillaceae [id: 183]" taxid="183" rank="f" parentTaxid="58" leaveCount="2" genusIndex="-1"></TreeNode>
+<TreeNode name="g__Alpova [id: 184]" taxid="184" rank="g" parentTaxid="183" leaveCount="2" genusIndex="-1"></TreeNode>
+<TreeNode name="s__Alpova_corsicus [id: 188]" taxid="188" rank="s" parentTaxid="184" leaveCount="1" genusIndex="59"></TreeNode>
+<TreeNode name="s__Alpova_alpestris [id: 185]" taxid="185" rank="s" parentTaxid="184" leaveCount="1" genusIndex="60"></TreeNode>
+<TreeNode name="f__Boletaceae [id: 59]" taxid="59" rank="f" parentTaxid="58" leaveCount="1" genusIndex="-1"></TreeNode>
+<TreeNode name="g__Xerocomus [id: 60]" taxid="60" rank="g" parentTaxid="59" leaveCount="1" genusIndex="-1"></TreeNode>
+<TreeNode name="s__Xerocomus_porophyllus [id: 61]" taxid="61" rank="s" parentTaxid="60" leaveCount="1" genusIndex="61"></TreeNode>
+<TreeNode name="o__Russulales [id: 100]" taxid="100" rank="o" parentTaxid="14" leaveCount="4" genusIndex="-1"></TreeNode>
+<TreeNode name="f__Russulaceae [id: 101]" taxid="101" rank="f" parentTaxid="100" leaveCount="4" genusIndex="-1"></TreeNode>
+<TreeNode name="g__Lactarius [id: 102]" taxid="102" rank="g" parentTaxid="101" leaveCount="4" genusIndex="-1"></TreeNode>
+<TreeNode name="s__Lactarius_semisanguifluus [id: 103]" taxid="103" rank="s" parentTaxid="102" leaveCount="1" genusIndex="62"></TreeNode>
+<TreeNode name="s__Lactarius_lanceolatus [id: 191]" taxid="191" rank="s" parentTaxid="102" leaveCount="1" genusIndex="63"></TreeNode>
+<TreeNode name="s__Lactarius_sp [id: 198]" taxid="198" rank="s" parentTaxid="102" leaveCount="1" genusIndex="64"></TreeNode>
+<TreeNode name="s__Lactarius_cyathuliformis [id: 235]" taxid="235" rank="s" parentTaxid="102" leaveCount="1" genusIndex="65"></TreeNode>
+<TreeNode name="o__Agaricales [id: 42]" taxid="42" rank="o" parentTaxid="14" leaveCount="28" genusIndex="-1"></TreeNode>
+<TreeNode name="f__Strophariaceae [id: 113]" taxid="113" rank="f" parentTaxid="42" leaveCount="2" genusIndex="-1"></TreeNode>
+<TreeNode name="g__Pholiota [id: 181]" taxid="181" rank="g" parentTaxid="113" leaveCount="1" genusIndex="-1"></TreeNode>
+<TreeNode name="s__Pholiota_highlandensis [id: 182]" taxid="182" rank="s" parentTaxid="181" leaveCount="1" genusIndex="66"></TreeNode>
+<TreeNode name="g__Hypholoma [id: 114]" taxid="114" rank="g" parentTaxid="113" leaveCount="1" genusIndex="-1"></TreeNode>
+<TreeNode name="s__Hypholoma_capnoides [id: 115]" taxid="115" rank="s" parentTaxid="114" leaveCount="1" genusIndex="67"></TreeNode>
+<TreeNode name="f__Cortinariaceae [id: 43]" taxid="43" rank="f" parentTaxid="42" leaveCount="13" genusIndex="-1"></TreeNode>
+<TreeNode name="g__Cortinarius [id: 44]" taxid="44" rank="g" parentTaxid="43" leaveCount="12" genusIndex="-1"></TreeNode>
+<TreeNode name="s__Cortinarius_subexitiosus [id: 45]" taxid="45" rank="s" parentTaxid="44" leaveCount="1" genusIndex="68"></TreeNode>
+<TreeNode name="s__Cortinarius_limonius [id: 192]" taxid="192" rank="s" parentTaxid="44" leaveCount="1" genusIndex="69"></TreeNode>
+<TreeNode name="s__Cortinarius_amnicola [id: 221]" taxid="221" rank="s" parentTaxid="44" leaveCount="1" genusIndex="70"></TreeNode>
+<TreeNode name="s__Cortinarius_caesiocolor [id: 122]" taxid="122" rank="s" parentTaxid="44" leaveCount="1" genusIndex="71"></TreeNode>
+<TreeNode name="s__Cortinarius_calojanthinus [id: 92]" taxid="92" rank="s" parentTaxid="44" leaveCount="1" genusIndex="72"></TreeNode>
+<TreeNode name="s__Cortinarius_gentianeus [id: 176]" taxid="176" rank="s" parentTaxid="44" leaveCount="1" genusIndex="73"></TreeNode>
+<TreeNode name="s__Cortinarius_aavae [id: 164]" taxid="164" rank="s" parentTaxid="44" leaveCount="1" genusIndex="74"></TreeNode>
+<TreeNode name="s__Cortinarius_disjungendus [id: 202]" taxid="202" rank="s" parentTaxid="44" leaveCount="1" genusIndex="75"></TreeNode>
+<TreeNode name="s__Cortinarius_sinapivelus [id: 212]" taxid="212" rank="s" parentTaxid="44" leaveCount="1" genusIndex="76"></TreeNode>
+<TreeNode name="s__Cortinarius_parkeri [id: 193]" taxid="193" rank="s" parentTaxid="44" leaveCount="1" genusIndex="77"></TreeNode>
+<TreeNode name="s__Cortinarius_aurantiobasis [id: 233]" taxid="233" rank="s" parentTaxid="44" leaveCount="1" genusIndex="78"></TreeNode>
+<TreeNode name="s__Cortinarius_savegrensis [id: 186]" taxid="186" rank="s" parentTaxid="44" leaveCount="1" genusIndex="79"></TreeNode>
+<TreeNode name="g__Phaeocollybia [id: 66]" taxid="66" rank="g" parentTaxid="43" leaveCount="1" genusIndex="-1"></TreeNode>
+<TreeNode name="s__Phaeocollybia_kauffmanii [id: 67]" taxid="67" rank="s" parentTaxid="66" leaveCount="1" genusIndex="80"></TreeNode>
+<TreeNode name="f__Inocybaceae [id: 119]" taxid="119" rank="f" parentTaxid="42" leaveCount="1" genusIndex="-1"></TreeNode>
+<TreeNode name="g__Inocybe [id: 120]" taxid="120" rank="g" parentTaxid="119" leaveCount="1" genusIndex="-1"></TreeNode>
+<TreeNode name="s__Inocybe_sindonia [id: 121]" taxid="121" rank="s" parentTaxid="120" leaveCount="1" genusIndex="81"></TreeNode>
+<TreeNode name="f__Omphalotaceae [id: 50]" taxid="50" rank="f" parentTaxid="42" leaveCount="1" genusIndex="-1"></TreeNode>
+<TreeNode name="g__Gymnopus [id: 51]" taxid="51" rank="g" parentTaxid="50" leaveCount="1" genusIndex="-1"></TreeNode>
+<TreeNode name="s__Gymnopus_hybridus [id: 52]" taxid="52" rank="s" parentTaxid="51" leaveCount="1" genusIndex="82"></TreeNode>
+<TreeNode name="f__Entolomataceae [id: 80]" taxid="80" rank="f" parentTaxid="42" leaveCount="1" genusIndex="-1"></TreeNode>
+<TreeNode name="g__Entoloma [id: 81]" taxid="81" rank="g" parentTaxid="80" leaveCount="1" genusIndex="-1"></TreeNode>
+<TreeNode name="s__Entoloma_sp [id: 82]" taxid="82" rank="s" parentTaxid="81" leaveCount="1" genusIndex="83"></TreeNode>
+<TreeNode name="f__Agaricaceae [id: 194]" taxid="194" rank="f" parentTaxid="42" leaveCount="1" genusIndex="-1"></TreeNode>
+<TreeNode name="g__Lepiota [id: 195]" taxid="195" rank="g" parentTaxid="194" leaveCount="1" genusIndex="-1"></TreeNode>
+<TreeNode name="s__Lepiota_geogenia [id: 196]" taxid="196" rank="s" parentTaxid="195" leaveCount="1" genusIndex="84"></TreeNode>
+<TreeNode name="f__Psathyrellaceae [id: 53]" taxid="53" rank="f" parentTaxid="42" leaveCount="4" genusIndex="-1"></TreeNode>
+<TreeNode name="g__Coprinopsis [id: 54]" taxid="54" rank="g" parentTaxid="53" leaveCount="2" genusIndex="-1"></TreeNode>
+<TreeNode name="s__Coprinopsis_candidolanata [id: 55]" taxid="55" rank="s" parentTaxid="54" leaveCount="1" genusIndex="85"></TreeNode>
+<TreeNode name="s__Coprinopsis_pachyderma [id: 177]" taxid="177" rank="s" parentTaxid="54" leaveCount="1" genusIndex="86"></TreeNode>
+<TreeNode name="g__Psathyrella [id: 107]" taxid="107" rank="g" parentTaxid="53" leaveCount="2" genusIndex="-1"></TreeNode>
+<TreeNode name="s__Psathyrella_multipedata [id: 166]" taxid="166" rank="s" parentTaxid="107" leaveCount="1" genusIndex="87"></TreeNode>
+<TreeNode name="s__Psathyrella_sublatispora [id: 108]" taxid="108" rank="s" parentTaxid="107" leaveCount="1" genusIndex="88"></TreeNode>
+<TreeNode name="f__Marasmiaceae [id: 104]" taxid="104" rank="f" parentTaxid="42" leaveCount="1" genusIndex="-1"></TreeNode>
+<TreeNode name="g__Megacollybia [id: 105]" taxid="105" rank="g" parentTaxid="104" leaveCount="1" genusIndex="-1"></TreeNode>
+<TreeNode name="s__Megacollybia_subfurfuracea [id: 106]" taxid="106" rank="s" parentTaxid="105" leaveCount="1" genusIndex="89"></TreeNode>
+<TreeNode name="f__Amanitaceae [id: 116]" taxid="116" rank="f" parentTaxid="42" leaveCount="2" genusIndex="-1"></TreeNode>
+<TreeNode name="g__Amanita [id: 117]" taxid="117" rank="g" parentTaxid="116" leaveCount="2" genusIndex="-1"></TreeNode>
+<TreeNode name="s__Amanita_franchetii [id: 118]" taxid="118" rank="s" parentTaxid="117" leaveCount="1" genusIndex="90"></TreeNode>
+<TreeNode name="s__Amanita_friabilis [id: 187]" taxid="187" rank="s" parentTaxid="117" leaveCount="1" genusIndex="91"></TreeNode>
+<TreeNode name="f__Tricholomataceae [id: 68]" taxid="68" rank="f" parentTaxid="42" leaveCount="2" genusIndex="-1"></TreeNode>
+<TreeNode name="g__Gamundia [id: 172]" taxid="172" rank="g" parentTaxid="68" leaveCount="1" genusIndex="-1"></TreeNode>
+<TreeNode name="s__Gamundia_leucophylla [id: 173]" taxid="173" rank="s" parentTaxid="172" leaveCount="1" genusIndex="92"></TreeNode>
+<TreeNode name="g__Tricholoma [id: 69]" taxid="69" rank="g" parentTaxid="68" leaveCount="1" genusIndex="-1"></TreeNode>
+<TreeNode name="s__Tricholoma_portentosum [id: 70]" taxid="70" rank="s" parentTaxid="69" leaveCount="1" genusIndex="93"></TreeNode>
+<TreeNode name="o__Polyporales [id: 109]" taxid="109" rank="o" parentTaxid="14" leaveCount="1" genusIndex="-1"></TreeNode>
+<TreeNode name="f__Meruliaceae [id: 110]" taxid="110" rank="f" parentTaxid="109" leaveCount="1" genusIndex="-1"></TreeNode>
+<TreeNode name="g__Junghuhnia [id: 111]" taxid="111" rank="g" parentTaxid="110" leaveCount="1" genusIndex="-1"></TreeNode>
+<TreeNode name="s__Junghuhnia_nitida [id: 112]" taxid="112" rank="s" parentTaxid="111" leaveCount="1" genusIndex="94"></TreeNode>
+<TreeNode name="o__Thelephorales [id: 38]" taxid="38" rank="o" parentTaxid="14" leaveCount="4" genusIndex="-1"></TreeNode>
+<TreeNode name="f__Thelephoraceae [id: 93]" taxid="93" rank="f" parentTaxid="38" leaveCount="1" genusIndex="-1"></TreeNode>
+<TreeNode name="g__Thelephora [id: 94]" taxid="94" rank="g" parentTaxid="93" leaveCount="1" genusIndex="-1"></TreeNode>
+<TreeNode name="s__Thelephora_atra [id: 95]" taxid="95" rank="s" parentTaxid="94" leaveCount="1" genusIndex="95"></TreeNode>
+<TreeNode name="f__Bankeraceae [id: 39]" taxid="39" rank="f" parentTaxid="38" leaveCount="3" genusIndex="-1"></TreeNode>
+<TreeNode name="g__Hydnellum [id: 71]" taxid="71" rank="g" parentTaxid="39" leaveCount="2" genusIndex="-1"></TreeNode>
+<TreeNode name="s__Hydnellum_peckii [id: 72]" taxid="72" rank="s" parentTaxid="71" leaveCount="1" genusIndex="96"></TreeNode>
+<TreeNode name="s__Hydnellum_suaveolens [id: 85]" taxid="85" rank="s" parentTaxid="71" leaveCount="1" genusIndex="97"></TreeNode>
+<TreeNode name="g__Sarcodon [id: 40]" taxid="40" rank="g" parentTaxid="39" leaveCount="1" genusIndex="-1"></TreeNode>
+<TreeNode name="s__Sarcodon_quercophilus [id: 41]" taxid="41" rank="s" parentTaxid="40" leaveCount="1" genusIndex="98"></TreeNode>
+<TreeNode name="o__Hymenochaetales [id: 15]" taxid="15" rank="o" parentTaxid="14" leaveCount="2" genusIndex="-1"></TreeNode>
+<TreeNode name="f__Hymenochaetaceae [id: 16]" taxid="16" rank="f" parentTaxid="15" leaveCount="2" genusIndex="-1"></TreeNode>
+<TreeNode name="g__Pseudochaete [id: 17]" taxid="17" rank="g" parentTaxid="16" leaveCount="1" genusIndex="-1"></TreeNode>
+<TreeNode name="s__Pseudochaete_subrigidula [id: 18]" taxid="18" rank="s" parentTaxid="17" leaveCount="1" genusIndex="99"></TreeNode>
+<TreeNode name="g__Hymenochaete [id: 56]" taxid="56" rank="g" parentTaxid="16" leaveCount="1" genusIndex="-1"></TreeNode>
+<TreeNode name="s__Hymenochaete_longispora [id: 57]" taxid="57" rank="s" parentTaxid="56" leaveCount="1" genusIndex="100"></TreeNode>
+<TreeNode name="c__Exobasidiomycetes [id: 156]" taxid="156" rank="c" parentTaxid="13" leaveCount="1" genusIndex="-1"></TreeNode>
+<TreeNode name="o__Microstromatales [id: 157]" taxid="157" rank="o" parentTaxid="156" leaveCount="1" genusIndex="-1"></TreeNode>
+<TreeNode name="f__Microstromataceae [id: 158]" taxid="158" rank="f" parentTaxid="157" leaveCount="1" genusIndex="-1"></TreeNode>
+<TreeNode name="g__Microstroma [id: 159]" taxid="159" rank="g" parentTaxid="158" leaveCount="1" genusIndex="-1"></TreeNode>
+<TreeNode name="s__Microstroma_phylloplanum [id: 160]" taxid="160" rank="s" parentTaxid="159" leaveCount="1" genusIndex="101"></TreeNode>

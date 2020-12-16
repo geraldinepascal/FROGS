@@ -1,4 +1,4 @@
-#!/usr/bin/env python2.7
+#!/usr/bin/env python3
 #
 # Copyright (C) 2014 INRA
 #
@@ -20,7 +20,7 @@ __author__ = 'Maria Bernard - Sigenae AND Frederic Escudie - Plateforme bioinfor
 __copyright__ = 'Copyright (C) 2015 INRA'
 __license__ = 'GNU General Public License'
 __version__ = '2.3.0'
-__email__ = 'frogs-support@inra.fr'
+__email__ = 'frogs-support@inrae.fr'
 __status__ = 'prod'
 
 import os
@@ -162,12 +162,12 @@ def get_bests_blast_affi( blast_files, taxonomy_by_subject ):
     """
     blast_annot = dict()
     for current_blast in blast_files:
-        FH_blast = open(current_blast)
+        FH_blast = open(current_blast, "rt")
         for line in FH_blast:
             parts = line.strip().split()
             query_id = parts[0].split(";")[0]
             score = float(parts[11])
-            if not blast_annot.has_key(query_id) or blast_annot[query_id]['score'] < score:
+            if query_id not in blast_annot or blast_annot[query_id]['score'] < score:
                 blast_annot[query_id] = {
                     'score': score,
                     'alignments': list(),
@@ -216,18 +216,18 @@ def aff_to_metadata(reference_file, biom_in, biom_out, blast_files=None, rdp_fil
         cluster_id = cluster["id"]
         # Blast
         if blast_files is not None:
-            blast_taxonomy = None
+            blast_taxonomy = list()
             blast_affiliations = list()
-            if cluster_blast_annot.has_key(cluster_id): # Current observation has a match
+            if cluster_id in cluster_blast_annot: # Current observation has a match
                 blast_taxonomy = get_tax_consensus( [alignment['taxonomy'] for alignment in cluster_blast_annot[cluster_id]['alignments']] )
                 blast_affiliations = cluster_blast_annot[cluster_id]['alignments']
             biom.add_metadata( cluster_id, "blast_affiliations", blast_affiliations, "observation" )
             biom.add_metadata( cluster_id, "blast_taxonomy", blast_taxonomy, "observation" )
         # RDP
         if rdp_files is not None:
-            rdp_taxonomy = None
-            rdp_bootstrap = None
-            if cluster_rdp_annot.has_key(cluster_id):
+            rdp_taxonomy = list()
+            rdp_bootstrap = list()
+            if cluster_id in cluster_rdp_annot:
                 rdp_taxonomy = cluster_rdp_annot[cluster_id]['taxonomy']
                 rdp_bootstrap = cluster_rdp_annot[cluster_id]['bootstrap']
             biom.add_metadata(cluster_id, "rdp_taxonomy", rdp_taxonomy, "observation")
@@ -256,6 +256,6 @@ if __name__ == "__main__":
 
     # Process
     if args.blast_file is None and args.rdp_file is None:
-        raise Exception("at least one blast or one RDPClassifier output file is needed\n")
+        raise_exception( Exception("\n\n#ERROR : at least one blast or one RDPClassifier output file is needed\n\n"))
     else:
         aff_to_metadata(args.reference, args.biom_in, args.biom_out, args.blast_file, args.rdp_file)

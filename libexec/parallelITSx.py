@@ -1,4 +1,4 @@
-#!/usr/bin/env python2.7
+#!/usr/bin/env python3
 #
 # Copyright (C) 2014 INRA
 #
@@ -20,7 +20,7 @@ __author__ = 'Maria Bernard - Sigenae Jouy en Josas'
 __copyright__ = 'Copyright (C) 2017 INRA'
 __license__ = 'GNU General Public License'
 __version__ = '1.0.0'
-__email__ = 'frogs-support@inra.fr'
+__email__ = 'frogs-support@inrae.fr'
 __status__ = 'prod'
 
 import os
@@ -101,7 +101,7 @@ def split_fasta(fasta_file, tmp_files_manager, nb_file, out_list, log_file):
         if len(out_files) == 0 or not out_file_idx < len(out_files):
             new_out_file = tmp_files_manager.add( os.path.basename(fasta_file) + "_" + str(out_file_idx) )
             out_files.append({ 'file_path': new_out_file,
-                               'file_handle': FastaIO(new_out_file, "w"),
+                               'file_handle': FastaIO(new_out_file, "wt"),
                                'nb_seq': 0
             })
             out_list.append( os.path.abspath(new_out_file) )
@@ -131,9 +131,9 @@ def submit_cmd( cmd, cwd=None):
     # check error status
     if p.returncode != 0:
         # stdeh = open(stderr)
-        error_msg = "".join( map(str, stderr.readlines()) )
+        error_msg = "".join( map(str, stderr.decode('utf-8').readlines()) )
         # stdeh.close()
-        raise StandardError( error_msg )
+        raise_exception( Exception( "\n\n#ERROR : " + error_msg + "\n\n" ))
 
 def parallel_submission( function, inputs, its, cwds, outputs, logs, cpu_used):
     processes = [{'process':None, 'inputs':None, 'its':its, 'cwd' : None, 'outputs':None, 'log_files':None} for idx in range(cpu_used)]
@@ -159,7 +159,7 @@ def parallel_submission( function, inputs, its, cwds, outputs, logs, cpu_used):
     # Check processes status
     for current_process in processes:
         if issubclass(current_process['process'].__class__, multiprocessing.Process) and current_process['process'].exitcode != 0:
-            raise Exception("Error in sub-process execution.")
+            raise_exception( Exception("\n\n#ERROR : Error in sub-process execution.\n\n"))
 
 def parseITSxResult(input_dir, prefix, its, out, log):
     """
@@ -173,7 +173,7 @@ def parseITSxResult(input_dir, prefix, its, out, log):
     fasta_files = [ os.path.join(input_dir,f) for f in os.listdir(input_dir) if f.endswith(".fasta") ]
     count_ITSx = dict()
 
-    FH_out = FastaIO(out,"w")
+    FH_out = FastaIO(out,"wt")
     for fasta in fasta_files:
         # based on file name recover detection type : ITS1 ITS2 full chimeric no_detection.
         detection_type = os.path.basename(fasta).replace(prefix,"").replace(".fasta","")[1:] # first char is either "." or "_"
@@ -198,17 +198,17 @@ def parseITSxResult(input_dir, prefix, its, out, log):
     FH_log.write("##Results\n")
     #FH_log.write("Output file :" + os.path.split(out)[1] + "\n" )
     for detection_type in count_ITSx :
-		if its == 'no_detections':
-			if detection_type == its:
-				FH_log.write("\tnb "+detection_type+ " (removed): " + str(count_ITSx[detection_type]) + "\n")
-			else : 
-				FH_log.write("\tnb "+detection_type+ " (kept): " + str(count_ITSx[detection_type]) + "\n")
-			
-		else:
-			if detection_type == its:
-				FH_log.write("\tnb "+detection_type+ " (kept): " + str(count_ITSx[detection_type]) + "\n")
-			else : 
-				FH_log.write("\tnb "+detection_type+ " (removed): " + str(count_ITSx[detection_type]) + "\n")
+        if its == 'no_detections':
+            if detection_type == its:
+                FH_log.write("\tnb "+detection_type+ " (removed): " + str(count_ITSx[detection_type]) + "\n")
+            else : 
+                FH_log.write("\tnb "+detection_type+ " (kept): " + str(count_ITSx[detection_type]) + "\n")
+            
+        else:
+            if detection_type == its:
+                FH_log.write("\tnb "+detection_type+ " (kept): " + str(count_ITSx[detection_type]) + "\n")
+            else : 
+                FH_log.write("\tnb "+detection_type+ " (removed): " + str(count_ITSx[detection_type]) + "\n")
     FH_log.close()
 
 def process_ITSx(in_fasta, its, cwd, out, log_file):
@@ -236,7 +236,7 @@ def append_results(appended_fasta, appended_log, fasta_out, log_file):
     @param log_file: [str] The log file where contents of others log are summed.
     """
     # Append fasta
-    FH_fasta = FastaIO(fasta_out , "w")
+    FH_fasta = FastaIO(fasta_out , "wt")
     for current_file in appended_fasta:
         FH_input = FastaIO(current_file)
         for record in FH_input:
@@ -285,7 +285,7 @@ def write_summary( samples_names, log_remove_global, log_remove_spl, out_file ):
         detection_results[sample] = get_sample_resuts(sample_logs[idx])
     """
     # Writes output
-    FH_out = open(out_file, "w")
+    FH_out = open(out_file, "wt")
     global_remove_results = [ log_remove_global['nb_removed'], log_remove_global['nb_kept'],
                               log_remove_global['abundance_removed'], log_remove_global['abundance_kept']]
     FH_out.write( '##Metrics global\n' )
@@ -339,7 +339,7 @@ def remove_itsx_biom(preserve, samples, itsx_file, in_fasta_file, in_biom_file, 
     
     in_biom = BiomIO.from_json(in_biom_file)
     kept_clusters_ids = list()
-    FH_out_removed = FastaIO( out_removed, "w" )
+    FH_out_removed = FastaIO( out_removed, "wt" )
     
     if not preserve:
         ## Retrieve IDs to remove
@@ -358,7 +358,7 @@ def remove_itsx_biom(preserve, samples, itsx_file, in_fasta_file, in_biom_file, 
         for record in record_iter:
             if record.id in lost_clusters:
                 FH_out_removed.write(record)
-				
+                
     else:
         # Retrive IDs to remove
         record_iter = FastaIO( itsx_file )
@@ -366,16 +366,16 @@ def remove_itsx_biom(preserve, samples, itsx_file, in_fasta_file, in_biom_file, 
         for idx, record in enumerate(record_iter):
             lost_clusters.append(record.id)
         
-        FH_out = FastaIO(itsx_file,"w")
+        FH_out = FastaIO(itsx_file,"wt")
         record_iter = FastaIO( in_fasta_file )
         for record in record_iter:
             if not record.id in lost_clusters:
                 FH_out.write(record)
                 kept_clusters_ids.append(record.id)
             else:
-				FH_out_removed.write(record)
+                FH_out_removed.write(record)
 
-	FH_out_removed.close()
+    FH_out_removed.close()
 
     # Get abundance metrics of lost observations
     for lost_cluster in lost_clusters:

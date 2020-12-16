@@ -1,4 +1,4 @@
-#!/usr/bin/env python2.7
+#!/usr/bin/env python3
 #
 # Copyright (C) 2015 INRA
 #
@@ -20,7 +20,7 @@ __author__ = 'Frederic Escudie - Plateforme bioinformatique Toulouse'
 __copyright__ = 'Copyright (C) 2015 INRA'
 __license__ = 'GNU General Public License'
 __version__ = '0.2.1'
-__email__ = 'frogs-support@inra.fr'
+__email__ = 'frogs-support@inrae.fr'
 __status__ = 'dev'
 
 
@@ -55,7 +55,7 @@ class Node:
         """
         node_str = self.name
         node_str += "\n\tParent=" + (self.parent.name if self.parent is not None else "-")
-        node_str += "\n\tChilds=" + ", ".join(self.children.keys())
+        node_str += "\n\tChilds=" + ", ".join(list(self.children.keys()))
         metadata = list()
         for key in sorted(self.metadata.keys()):
             metadata.append(key + ":" + str(self.metadata[key]))
@@ -71,7 +71,7 @@ class Node:
         if name is None:
             return len(self.children) > 0
         else:
-            return self.children.has_key( name )
+            return name in self.children
 
     def get_child(self, name):
         """
@@ -80,7 +80,7 @@ class Node:
         @return: [Node] The child.
         """
         if not self.has_child( name ):
-            raise Exception( self.name + " doesn't have child named '" + name + "'." )
+            raise Exception( "\n\n#ERROR : " + self.name + " doesn't have child named '" + name + "'.\n\n" )
         return self.children[name]
 
     def get_children(self):
@@ -88,7 +88,7 @@ class Node:
         @summary: Returns the children of the node.
         @return: [list] The list of children nodes.
         """
-        return self.children.values()
+        return list(self.children.values())
 
     def get_parent(self):
         """
@@ -150,8 +150,8 @@ class Node:
         @summary: Adds node as child.
         @param child: [Node] the node added.
         """
-        if self.children.has_key( child.name ):
-            raise Exception( "Duplicated child name '" + child.name + "' in node '" + self.name + "'." )
+        if child.name in self.children:
+            raise Exception( "\n\n#ERROR : Duplicated child name '" + child.name + "' in node '" + self.name + "'.\n\n" )
         child.parent = self
         self.children[child.name] = child
 
@@ -163,7 +163,7 @@ class Node:
         """
         if distance_tag is None: distance_tag = "dist"
         if not self.has_child():
-            if self.metadata.has_key( distance_tag ):
+            if distance_tag in self.metadata:
                 return '"' + self.name + '":' + str(self.metadata[distance_tag])
             else:
                 return '"' + self.name + '"'
@@ -180,7 +180,7 @@ class Node:
         @returns: [str] the extended newick representation of the tree.
         """
         if not self.has_child():
-            if len(self.metadata.keys()) != 0:
+            if len(list(self.metadata.keys())) != 0:
                 return '"' + self.name + '":' + json.dumps(self.metadata)
             else:
                 return '"' + self.name + '"'
@@ -189,7 +189,7 @@ class Node:
             for child_name in self.children:
                 child = self.children[child_name]
                 children_newick.append( child.to_extended_newick() )
-            if len(self.metadata.keys()) != 0:
+            if len(list(self.metadata.keys())) != 0:
                 return '(' + ','.join(children_newick) + ')"' + self.name + '":' + json.dumps(self.metadata)
             else:
                 return '(' + ','.join(children_newick) + ')"' + self.name + '"'

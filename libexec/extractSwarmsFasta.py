@@ -1,4 +1,4 @@
-#!/usr/bin/env python2.7
+#!/usr/bin/env python3
 #
 # Copyright (C) 2014 INRA
 #
@@ -20,7 +20,7 @@ __author__ = 'Frederic Escudie - Plateforme bioinformatique Toulouse AND Maria B
 __copyright__ = 'Copyright (C) 2015 INRA'
 __license__ = 'GNU General Public License'
 __version__ = '1.4.1'
-__email__ = 'frogs-support@inra.fr'
+__email__ = 'frogs-support@inrae.fr'
 __status__ = 'prod'
 
 import os
@@ -65,10 +65,10 @@ def filter_seq( input_fasta, clusters_file, cluster_fasta ):
 
     # Filter sequences
     FH_in = FastaIO( input_fasta )
-    FH_out = FastaIO( cluster_fasta, "w" )
+    FH_out = FastaIO( cluster_fasta, "wt" )
     for record in FH_in:
-        print record.description
-        if cluster_representative.has_key(record.id):
+        print((record.description))
+        if record.id in cluster_representative:
             record.id = cluster_representative[record.id]
             FH_out.write( record )
 

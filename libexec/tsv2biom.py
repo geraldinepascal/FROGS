@@ -1,4 +1,4 @@
-#!/usr/bin/env python2.7
+#!/usr/bin/env python3
 #
 # Copyright (C) 2016 INRA
 #
@@ -20,7 +20,7 @@ __author__ = 'Maria Bernard - Sigenae INRA'
 __copyright__ = 'Copyright (C) 2016 INRA'
 __license__ = 'GNU General Public License'
 __version__ = '1.2.0'
-__email__ = 'frogs-support@inra.fr'
+__email__ = 'frogs-support@inrae.fr'
 __status__ = 'prod'
 
 import os
@@ -38,7 +38,7 @@ else: os.environ['PYTHONPATH'] = os.environ['PYTHONPATH'] + os.pathsep + LIB_DIR
 
 from frogsBiom import Biom, BiomIO
 from frogsSequenceIO import *
-
+from frogsUtils import *
 
 ##################################################################################################################################################
 #
@@ -65,11 +65,11 @@ def store_multihits(input_multihits):
 
     for colname in header_line:
         if colname not in ["observation_name", "blast_taxonomy", "blast_subject", "blast_perc_identity", "blast_perc_query_coverage", "blast_evalue", "blast_aln_length"] :
-            raise Exception("\n"+colname+" is not a valid FROGS TSV column name.\nPlease restore the default column names: "+", ".join(["observation_name", "blast_taxonomy", " blast_subject", "blast_perc_identity", "blast_perc_query_coverage", "blast_evalue", "blast_aln_length"])+"\n\n")
+            raise_exception( Exception("\n\n#ERROR : "+colname+" is not a valid FROGS TSV column name.\nPlease restore the default column names: "+", ".join(["observation_name", "blast_taxonomy", " blast_subject", "blast_perc_identity", "blast_perc_query_coverage", "blast_evalue", "blast_aln_length"])+"\n\n"))
 
     for line in FH_in.readlines():
         line = line.strip().replace('"','').split("\t")
-        d=dict(zip(header_line,line))
+        d=dict(list(zip(header_line,line)))
         observation_name = d.pop("observation_name")
         if observation_name in multi_hit_dict:
             multi_hit_dict[observation_name].append(d)
@@ -170,8 +170,7 @@ def tsv_to_biom( input_tsv, multi_hit_dict, fields, samples_names, output_biom, 
     @param output_biom: [str] Path to the output file (format : BIOM).
     @param output_fasta: [str] Path to the output file (format : fasta).
     """
-#     biom = Biom( generated_by='frogs', matrix_type="sparse" )
-    biom = Biom( matrix_type="sparse" )
+    biom = Biom(generated_by='FROGS_tsv2_biom', matrix_type="sparse" )
 
     seed_seq_idx = -1 
     metadata_index = dict()
@@ -181,7 +180,7 @@ def tsv_to_biom( input_tsv, multi_hit_dict, fields, samples_names, output_biom, 
     in_fh = open( input_tsv )
 
     if not output_fasta is None:
-        Fasta_fh=FastaIO(output_fasta , "w" )
+        Fasta_fh=FastaIO(output_fasta , "wt" )
 
     # parse header and store column index 
     header=in_fh.readline()
@@ -190,7 +189,7 @@ def tsv_to_biom( input_tsv, multi_hit_dict, fields, samples_names, output_biom, 
     header = header.strip()
     seed_seq_idx, metadata_index, sample_index = header_line_dict(fields,header,samples_names)
     if not output_fasta is None and seed_seq_idx == -1:
-        raise Exception("\nYou want to extract seed fasta sequence but there is no seed_sequence column in your TSV file\n\n")
+        raise_exception( Exception("\n\n#ERROR : You want to extract seed fasta sequence but there is no seed_sequence column in your TSV file\n\n"))
 
     # count by sample, and metadata
     for line in in_fh:
@@ -208,7 +207,7 @@ def tsv_to_biom( input_tsv, multi_hit_dict, fields, samples_names, output_biom, 
                 else:
                     metadata_dict[metadata_index[idx]] = val
             # recover samples count
-            elif idx in sample_index and val > 0:
+            elif idx in sample_index and int(val) > 0:
                 count_by_sample[sample_index[idx]] = int(val)
             # recover seed sequence
             elif idx == seed_seq_idx:
@@ -222,37 +221,53 @@ def tsv_to_biom( input_tsv, multi_hit_dict, fields, samples_names, output_biom, 
         if "taxonomy" in metadata_dict:
             metadata_dict["taxonomy"] = metadata_dict["taxonomy"].split(";")
 
+        # keep comment in list format
+        if "comment" in metadata_dict:
+            metadata_dict["comment"] = metadata_dict["comment"].rstrip(';').split(";")
+            
         # format rdp taxonomy to fit BIOM format
         if "rdp_tax_and_bootstrap" in metadata_dict:
             metadata_dict["rdp_taxonomy"]=[]
             metadata_dict["rdp_bootstrap"]=[]
-            tax = metadata_dict["rdp_tax_and_bootstrap"].rstrip(";").split(";")
-            for i in range(0,len(tax),2):
-                metadata_dict["rdp_taxonomy"].append(tax[i])
-                metadata_dict["rdp_bootstrap"].append(tax[i+1].replace("(","").replace(")",""))
+            if metadata_dict["rdp_tax_and_bootstrap"] != "no data":
+                tax = metadata_dict["rdp_tax_and_bootstrap"].rstrip(";").split(";")
+                for i in range(0,len(tax),2):
+                    metadata_dict["rdp_taxonomy"].append(tax[i])
+                    metadata_dict["rdp_bootstrap"].append(float(tax[i+1].replace("(","").replace(")","")))
             metadata_dict.pop("rdp_tax_and_bootstrap")
 
         # format blast taxonomy to fit BIOM format (one consensus blast_taxonomy and possible multiples blast_affiliation detailed
         if "blast_taxonomy" in metadata_dict:
-            metadata_dict["blast_taxonomy"] = metadata_dict["blast_taxonomy"].split(";")
+            if metadata_dict["blast_taxonomy"] == "no data" :
+                blast_keys = [ key for key in metadata_dict if key.startswith("blast_") ]
+                for key in blast_keys:
+                    metadata_dict.pop(key)
+                metadata_dict["blast_taxonomy"] = list()
+                metadata_dict["blast_affiliations"] = list()
+            else :
+                metadata_dict["blast_taxonomy"] = metadata_dict["blast_taxonomy"].split(";") 
 
-            # check multihit blast : filter non consistent taxonomy hit with blast_taxonomy (if TSV modified), and compute consensus tax (if multihit line suppressed)
-            if not multi_hit_dict is None and (metadata_dict["blast_subject"] == "multi-subject" or "Multi-affiliation" in metadata_dict["blast_taxonomy"]):
-                if not cluster_name in multi_hit_dict:
-                    raise Exception("\n"+cluster_name+" has multi-subject tag but is not present in your multi-hit TSV file. Please, provide the original multi-hit TSV file.\n\n")
+                # check multihit blast : filter non consistent taxonomy hit with blast_taxonomy (if TSV modified), and compute consensus tax (if multihit line suppressed)
+                if not multi_hit_dict is None and (metadata_dict["blast_subject"] == "multi-subject" or "Multi-affiliation" in metadata_dict["blast_taxonomy"]):
+                    if not cluster_name in multi_hit_dict:
+                        raise_exception( Exception("\n\n#ERROR : "+cluster_name+" has multi-subject tag but is not present in your multi-hit TSV file. Please, provide the original multi-hit TSV file.\n\n"))
+                    else:
+                        metadata_dict["blast_taxonomy"], metadata_dict["blast_affiliations"] = observation_blast_parts(metadata_dict, multi_hit_dict[cluster_name])
+                        if metadata_dict["blast_affiliations"] == []:
+                            raise_exception( Exception("\n\n#ERROR : your multihit TSV file is no more consistent with your abundance TSV file for (at least) "+cluster_name+"\n\n"))
+                # no multi tag= blast affiliation is equal to blast_taxonomy
                 else:
-                    metadata_dict["blast_taxonomy"], metadata_dict["blast_affiliations"] = observation_blast_parts(metadata_dict, multi_hit_dict[cluster_name])
-                    if metadata_dict["blast_affiliations"] == []:
-                        raise Exception("\nyour multihit TSV file is no more consistent with your abundance TSV file for (at least) "+cluster_name+"\n\n")
-            # no multi tag= blast affiliation is equal to blast_taxonomy
-            else:
-                blast_dict={key.replace("blast_",""):metadata_dict[key] for key in metadata_dict if key.startswith("blast")}
-                metadata_dict["blast_affiliations"]=[blast_dict]
 
-            # filter blast metadata which are moved to blast_affiliations
-            for metadata in metadata_dict["blast_affiliations"][0]:
-                if not metadata == "taxonomy":
-                    metadata_dict.pop("blast_"+metadata)
+                    blast_dict = dict()
+                    for key in metadata_dict :
+                        if key.startswith("blast"):
+                            blast_dict[key.replace('blast_','')] = metadata_dict[key] 
+                    metadata_dict["blast_affiliations"]=[blast_dict]
+
+                # filter blast metadata which are moved to blast_affiliations
+                for metadata in metadata_dict["blast_affiliations"][0]:
+                    if not metadata == "taxonomy":
+                        metadata_dict.pop("blast_"+metadata)
 
         # add cluster and count to clusters_count dict
         clusters_count[cluster_name] = count_by_sample
@@ -272,7 +287,7 @@ def tsv_to_biom( input_tsv, multi_hit_dict, fields, samples_names, output_biom, 
     for cluster_name in clusters_count:
         biom.add_observation( cluster_name, clusters_metadata[cluster_name] )
         for sample_name in samples_names:
-            if clusters_count[cluster_name][sample_name] > 0:
+            if sample_name in clusters_count[cluster_name]:
                 biom.add_count( cluster_name, sample_name, clusters_count[cluster_name][sample_name] )
 
     # Write

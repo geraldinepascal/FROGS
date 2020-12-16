@@ -1,0 +1,230 @@
+---
+title: "FROGS Phyloseq: Alpha Diversity Visualization (version 3.2)"
+output: 
+  html_notebook:
+    code_folding: hide
+params:
+   phyloseq:
+      value: x
+   measures:
+      value: x
+   varExp:
+      value: x
+   fileAlpha:
+      value: x
+   libdir:
+      value: x
+---
+
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<style type="text/css">
+code.r{ /* Code block */
+  font-size: 11px;
+}
+pre { /* Code block */
+  font-size: 11px
+}
+.button {
+    background-color: #2a7ecc; /* Blue */
+    border          : none;
+    color           : white;
+    padding         : 5px 10px;
+    text-align      : center;
+    text-decoration : none;
+    display         : inline-block;
+    font-size       : 12px;
+    margin          : 4px 2px;
+    cursor          : pointer;
+    border-radius   : 8px;
+}
+h4 { 
+    display      : block;
+    font-size    : 1em;
+    margin-top   : 1.33em;
+    margin-bottom: 1.33em;
+    margin-left  : 0;
+    margin-right : 0;
+    font-weight  : bold;
+    color        : #2a7ecc;
+}
+</style>
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+Phyloseq `r packageVersion("phyloseq")`
+ 
+```{r import, message=FALSE}
+## Import packages
+library(phyloseq)
+library(ggplot2)
+source(file.path(params$libdir, "graphical_methods.R"))
+## Alternative to source all extra function from a github repo
+## source("https://raw.githubusercontent.com/mahendra-mariadassou/phyloseq-extended/master/load-extra-functions.R")
+
+## Setting variables
+  ## The Phyloseq object (format rdata)
+  # phyloseq <- ""
+
+  ## The experiment variable that you want to analyse
+  # varExp <- ""
+
+  ## "The alpha diversity indices to compute. Multiple indice may be indicated by separating them by a comma.
+  ## Available indices are : Observed, Chao1, Shannon, InvSimpson, Simpson, ACE, Fisher
+  # measures <- ""
+
+## Create input and parameters dataframe
+  # params <- data.frame( "phyloseq" = phylose, "measures" = measures, "varExp" = varExp)
+
+## Load data
+load(params$phyloseq)
+
+## Convert measures to list
+measures <- as.list(strsplit(params$measures, ",")[[1]])
+
+## Compute numeric values of alpha diversity indices
+alpha.diversity <- estimate_richness(data, measures = measures)
+
+## Export diversity indices to text file
+write.table(alpha.diversity, params$fileAlpha, sep="\t", quote = FALSE, col.names = NA)
+```
+
+# {.tabset .tabset-fade .tabset-pills}
+## Richness plot
+```{r richness, fig.width=10, fig.height=8, warning=FALSE}
+p <- plot_richness(data, x = params$varExp, color = params$varExp, measures = measures) + ggtitle(paste("Alpha diversity distribution in function of", params$varExp))+ theme(plot.title = element_text(hjust = 0.5))
+plot(p)
+```
+
+## Richness plot with boxplot
+```{r richnessBoxplot, fig.width=10, fig.height=8, message=FALSE, warning=FALSE}
+p <- p + geom_boxplot(alpha = 0.2) +
+         geom_point()+ theme_grey() +
+         theme(axis.text.x = element_text(angle=90, hjust=0.5)) +
+         theme(plot.title = element_text(hjust = 0.5))
+plot(p)
+```
+
+## Alpha Diversity Indice Anova Analysis
+```{r anova}
+anova_data <- cbind(sample_data(data), alpha.diversity)
+anova_data$Depth <- sample_sums(data)
+
+variables <- paste(sep=" + ", "Depth", params$varExp )
+
+## Perform ANOVA on observed richness, which effects are significant
+for (m in measures){
+    f <- paste(m," ~ ", variables)
+    cat(sep = "", "###############################################################\n#Perform ANOVA on ",m,", which effects are significant\nanova.",m," <-aov( ",f,", anova_data)\nsummary(anova.",m,")\n")
+    anova_res <- aov( as.formula(f), anova_data)
+    res <- summary(anova_res)
+    print(res)
+    cat("\n\n")
+}
+```
+
+## Rarefaction curves
+```{r rarefaction, message=FALSE}
+##code of Mahendra Mariadassou, INRA
+
+## Import additionnal packages
+# library(parallel)
+library(vegan)
+
+## Rarefaction curve, ggplot style (additionnal phyloseq-extend function, not yet released)
+ggrare <- function(physeq, step = 10, label = NULL, color = NULL, plot = TRUE, parallel = FALSE, se = TRUE) {
+    ## Args:
+    ## - physeq: phyloseq class object, from which abundance data are extracted
+    ## - step: Step size for sample size in rarefaction curves
+    ## - label: Default `NULL`. Character string. The name of the variable
+    ##          to map to text labels on the plot. Similar to color option
+    ##          but for plotting text.
+    ## - color: (Optional). Default ‘NULL’. Character string. The name of the
+    ##          variable to map to colors in the plot. This can be a sample
+    ##          variable (among the set returned by
+    ##          ‘sample_variables(physeq)’ ) or taxonomic rank (among the set
+    ##          returned by ‘rank_names(physeq)’).
+    ##
+    ##          Finally, The color scheme is chosen automatically by
+    ##          ‘link{ggplot}’, but it can be modified afterward with an
+    ##          additional layer using ‘scale_color_manual’.
+    ## - color: Default `NULL`. Character string. The name of the variable
+    ##          to map to text labels on the plot. Similar to color option
+    ##          but for plotting text.
+    ## - plot:  Logical, should the graphic be plotted.
+    ## - parallel: should rarefaction be parallelized (using parallel framework)
+    ## - se:    Default TRUE. Logical. Should standard errors be computed. 
+    ## require vegan
+    x <- as(otu_table(physeq), "matrix")
+    if (taxa_are_rows(physeq)) { x <- t(x) }
+
+    ## This script is adapted from vegan `rarecurve` function
+    tot <- rowSums(x)
+    S   <- rowSums(x > 0)
+    nr  <- nrow(x)
+
+    rarefun <- function(i) {
+        # cat(paste("rarefying sample", rownames(x)[i]), sep = "\n")
+        n <- seq(1, tot[i], by = step)
+        if (n[length(n)] != tot[i]) {
+            n <- c(n, tot[i])
+        }
+        y <- rarefy(x[i, ,drop = FALSE], n, se = se)
+        if (nrow(y) != 1) {
+	    rownames(y) <- c(".S", ".se")
+            return(data.frame(t(y), Size = n, Sample = rownames(x)[i]))
+        } else {
+            return(data.frame(.S = y[1, ], Size = n, Sample = rownames(x)[i]))
+        }
+    }
+    if (parallel) {
+        out <- mclapply(seq_len(nr), rarefun, mc.preschedule = FALSE)
+    } else {
+        out <- lapply(seq_len(nr), rarefun)
+    }
+    df <- do.call(rbind, out)
+    
+    ## Get sample data 
+    if (!is.null(sample_data(physeq, FALSE))) {
+        sdf <- as(sample_data(physeq), "data.frame")
+        sdf$Sample <- rownames(sdf)
+        data <- merge(df, sdf, by = "Sample")
+        labels <- data.frame(x = tot, y = S, Sample = rownames(x))
+        labels <- merge(labels, sdf, by = "Sample")
+    }
+    
+    ## Add, any custom-supplied plot-mapped variables
+    if( length(color) > 1 ){
+        data$color <- color
+        names(data)[names(data)=="color"] <- deparse(substitute(color))
+        color <- deparse(substitute(color))
+    }
+    if( length(label) > 1 ){
+        labels$label <- label
+        names(labels)[names(labels)=="label"] <- deparse(substitute(label))
+        label <- deparse(substitute(label))
+    }
+    
+    p <- ggplot(data = data, aes_string(x = "Size", y = ".S", group = "Sample", color = color))
+    p <- p + labs(x = "Sample Size", y = "OTU Richness")
+    if (!is.null(label)) {
+        p <- p + geom_text(data = labels, aes_string(x = "x", y = "y", label = label, color = color),
+                           size = 4, hjust = 0)
+    }
+    p <- p + geom_line()
+    if (se) { ## add standard error if available
+        p <- p + geom_ribbon(aes_string(ymin = ".S - .se", ymax = ".S + .se", color = NULL, fill = color), alpha = 0.2)
+    }
+    if (plot) {
+        plot(p)
+    }
+    invisible(p)
+}
+
+rare.level <- sample_sums(data)[[1]]
+facet <- paste('facet_wrap(~',params$varExp,')')
+
+p <- ggrare(data, step = 500, color = params$varExp, plot = FALSE) + 
+        geom_vline(xintercept = rare.level, color = "gray60") + eval(parse(text = facet))
+plot(p)
+```

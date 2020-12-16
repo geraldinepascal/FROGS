@@ -1,4 +1,4 @@
-#!/usr/bin/env python2.7
+#!/usr/bin/env python3
 #
 # Copyright (C) 2018 INRA
 #
@@ -20,7 +20,7 @@ __author__ = 'Maria Bernard INRA - SIGENAE'
 __copyright__ = 'Copyright (C) 2018 INRA'
 __license__ = 'GNU General Public License'
 __version__ = '3.2'
-__email__ = 'frogs-support@inra.fr'
+__email__ = 'frogs-support@inrae.fr'
 __status__ = 'prod'
 
 import os
@@ -35,7 +35,7 @@ os.environ['PATH'] = BIN_DIR + os.pathsep + os.environ['PATH']
 LIB_DIR = os.path.abspath(os.path.join(os.path.dirname(CURRENT_DIR), "lib"))
 sys.path.append(LIB_DIR)
 if os.getenv('PYTHONPATH') is None: os.environ['PYTHONPATH'] = LIB_DIR
-else: os.environ['PYTHONPATH'] = os.environ['PYTHONPATH'] + os.pathsep + LIB_DIR
+else: os.environ['PYTHONPATH'] = LIB_DIR + os.pathsep + os.environ['PYTHONPATH']
 
 from frogsUtils import *
 from frogsBiom import BiomIO
@@ -162,13 +162,13 @@ if __name__ == "__main__":
     # Inputs
     group_input = parser.add_argument_group('Inputs')
     group_input.add_argument('-b', '--input-biom', required=True, help='Abundance table with affiliations metadata from the affiliation_OTU program (format: BIOM).')
-    group_input.add_argument('-f', '--input-fasta', required=True, help='OTU seed sequence file (format: Fasta).')
-    group_input.add_argument('-r', '--reference', required=False, help='amplicon reference fasta file, to resolve inclusiv amplicon affiliation')
+    group_input.add_argument('-f', '--input-fasta', required=True, help='OTU seed sequence file (format: FASTA).')
+    group_input.add_argument('-r', '--reference', required=False, help='amplicon reference file, to resolve inclusive amplicon affiliations (format: FASTA)')
     # Outputs
     group_output = parser.add_argument_group('Outputs')
-    group_output.add_argument('--output-biom', default='refined_affiliation.biom', help='File whith refind affiliation annotations. [Default: %(default)s]')
-    group_output.add_argument('--output-compo', default='aggregated_otu_composition.tsv', help='Aggregated OTU composition [Default: %(default)s]')
-    group_output.add_argument('--output-fasta', default='refined_affiliation.fasta', help='Updated OTU fasta file [Default: %(default)s]')
+    group_output.add_argument('--output-biom', default='affiliation_postprocess_abundance.biom', help='BIOM file whith refind affiliation annotations. (format: BIOM) [Default: %(default)s]')
+    group_output.add_argument('--output-compo', default='affiliation_postprocess_otu_composition.tsv', help='Aggregated OTU composition (format: TSV) [Default: %(default)s]')
+    group_output.add_argument('--output-fasta', default='affiliation_postprocess_OTU.fasta', help='Updated OTU FASTA file (format: FASTA) [Default: %(default)s]')
     group_output.add_argument('--log-file', default=sys.stdout, help='The list of commands executed.')
     args = parser.parse_args()
     prevent_shell_injections(args)

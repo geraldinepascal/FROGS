@@ -1,4 +1,4 @@
-#!/usr/bin/env python2.7
+#!/usr/bin/env python3
 #
 # Copyright (C) 2014 INRA
 #
@@ -20,7 +20,7 @@ __author__ = 'Frederic Escudie - Plateforme bioinformatique Toulouse'
 __copyright__ = 'Copyright (C) 2015 INRA'
 __license__ = 'GNU General Public License'
 __version__ = '1.5.0'
-__email__ = 'frogs-support@inra.fr'
+__email__ = 'frogs-support@inrae.fr'
 __status__ = 'prod'
 
 import os
@@ -61,18 +61,18 @@ def sort_by_abundance( input_fasta, output_fasta, tmp_folder, ranges, old_size_s
                     idx += 1
                 abundance_max = ranges[idx]
                 id_without_abundance = record.id.rsplit(old_size_separator, 1)[0]
-            if not abundances_files.has_key( abundance_max ):
+            if abundance_max not in abundances_files:
                 abundances_files[abundance_max] = dict()
                 abundances_files[abundance_max]["path"] = os.path.join(tmp_folder, prefix + '_tmp_abundance_' + str(abundance_max) +  '.fasta' )
-                abundances_files[abundance_max]["filehandle"] = FastaIO( abundances_files[abundance_max]["path"], "w" )
+                abundances_files[abundance_max]["filehandle"] = FastaIO( abundances_files[abundance_max]["path"], "wt" )
             record.id = id_without_abundance + new_size_separator + str(abundance)
             abundances_files[abundance_max]["filehandle"].write( record )
-        for abundance in abundances_files.keys():
+        for abundance in list(abundances_files.keys()):
             abundances_files[abundance]["filehandle"].close()
         # Merge
-        output_fh = FastaIO( output_fasta, "w" )
+        output_fh = FastaIO( output_fasta, "wt" )
         reverse_order = True if sort_type == "desc" else False
-        abundances = sorted( abundances_files.keys(), key=int, reverse=reverse_order )
+        abundances = sorted( list(abundances_files.keys()), key=int, reverse=reverse_order )
         for idx, current_abundance in enumerate(abundances):
             if (idx != 0 and abs(current_abundance - abundances[idx-1]) == 1) or (idx == 0 and current_abundance == 1 and not reverse_order): # File with only one abundance
                 fh = FastaIO( abundances_files[current_abundance]["path"] )
@@ -84,20 +84,21 @@ def sort_by_abundance( input_fasta, output_fasta, tmp_folder, ranges, old_size_s
                 fh = FastaIO( abundances_files[current_abundance]["path"] )
                 for record in fh:
                     abundance = int( record.id.rsplit(new_size_separator, 1)[-1] )
-                    if not records_by_abundance.has_key(abundance):
+                    if abundance not in records_by_abundance:
                         records_by_abundance[abundance] = list()
                     records_by_abundance[abundance].append(record)
                 fh.close()
-                for current_record_abundance in sorted( records_by_abundance.keys(), key=int, reverse=reverse_order ):
+                for current_record_abundance in sorted( list(records_by_abundance.keys()), key=int, reverse=reverse_order ):
                     for current_record in records_by_abundance[current_record_abundance]:
                         output_fh.write( current_record )
                 del records_by_abundance
         output_fh.close()
     finally:
         #Remove tmp
-        for size in abundances_files.keys():
-            current_file = abundances_files[size]["path"]
-            if os.path.exists(current_file) : os.remove( current_file )
+        if not args.debug:
+            for size in list(abundances_files.keys()):
+                current_file = abundances_files[size]["path"]
+                if os.path.exists(current_file) : os.remove( current_file )
 
 ##################################################################################################################################################
 #
@@ -108,6 +109,7 @@ if __name__ == "__main__":
     # Manage parameters
     parser = argparse.ArgumentParser( description='Sort fasta y abundancies.' )
     parser.add_argument( '-v', '--version', action='version', version=__version__ )
+    parser.add_argument( '--debug', default=False, action='store_true', help="Keep temporary files to debug program." )
     parser.add_argument( '-s', '--size-separator', default=None, help='Each sequence in in_fasta is see as a pre-cluster. The number of sequences represented by the pre-cluster is stored in sequence ID. Sequence ID format : "<REAL_ID><size_separator><NB_SEQ>". If this size separator is missing in ID, the number of sequences represented is 1.' )
     parser.add_argument( '-i', '--input-file', required=True, help='Fasta file to sort.' )
     parser.add_argument( '-o', '--output-file', required=True, help='Sorted fasta file.' )

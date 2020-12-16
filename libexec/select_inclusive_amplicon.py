@@ -1,4 +1,4 @@
-#!/usr/bin/env python2.7
+#!/usr/bin/env python3
 #
 # Copyright (C) 2018 INRA
 #
@@ -19,8 +19,8 @@
 __author__ = 'Maria Bernard INRA - SIGENAE'
 __copyright__ = 'Copyright (C) 2018 INRA'
 __license__ = 'GNU General Public License'
-__version__ = 'v1.0'
-__email__ = 'frogs-support@inra.fr'
+__version__ = '1.0'
+__email__ = 'frogs-support@inrae.fr'
 __status__ = 'prod'
 
 import os
@@ -130,7 +130,7 @@ def process(params) :
     biom_out = Biom( matrix_type="sparse" )
 
     if not biom_in.has_metadata("blast_taxonomy"):
-        raise Exception("Your biom file need to be affiliated with FROGS_affiliation_OTU tool\n")
+        raise_exception( Exception("\n\n#ERROR : Your biom file need to be affiliated with FROGS_affiliation_OTU tool\n\n"))
 
     #add samples to biom
     for sample_name in biom_in.get_samples_names():

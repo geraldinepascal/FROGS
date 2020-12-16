@@ -1,4 +1,4 @@
-#!/usr/bin/env python2.7
+#!/usr/bin/env python3
 #
 # Copyright (C) 2018 INRA
 #
@@ -20,7 +20,7 @@ __author__ = 'Plateforme bioinformatique Toulouse and SIGENAE'
 __copyright__ = 'Copyright (C) 2015 INRA'
 __license__ = 'GNU General Public License'
 __version__ = '3.2'
-__email__ = 'frogs-support@inra.fr'
+__email__ = 'frogs-support@inrae.fr'
 __status__ = 'prod'
 
 import os
@@ -38,7 +38,7 @@ os.environ['PATH'] = BIN_DIR + os.pathsep + os.environ['PATH']
 LIB_DIR = os.path.abspath(os.path.join(os.path.dirname(CURRENT_DIR), "lib"))
 sys.path.append(LIB_DIR)
 if os.getenv('PYTHONPATH') is None: os.environ['PYTHONPATH'] = LIB_DIR
-else: os.environ['PYTHONPATH'] = os.environ['PYTHONPATH'] + os.pathsep + LIB_DIR
+else: os.environ['PYTHONPATH'] = LIB_DIR + os.pathsep + os.environ['PYTHONPATH']
 
 from frogsUtils import *
 
@@ -97,14 +97,14 @@ class Demultiplex(Cmd):
             Cmd.__init__( self,
                           'splitbc.pl',
                           'Demultiplex reads.',
-                          R1_input_file + ' ' + R2_input_file + ' --' + end + ' --bcfile ' + barcode_file + ' --mismatches ' + `mismatches` + ' --trim --no_adapt --prefix-r1 ' + os.path.join(tmp_folder, '%_R1.fastq') +\
+                          R1_input_file + ' ' + R2_input_file + ' --' + end + ' --bcfile ' + barcode_file + ' --mismatches ' + repr(mismatches) + ' --trim --no_adapt --prefix-r1 ' + os.path.join(tmp_folder, '%_R1.fastq') +\
                           ' --prefix-r2 ' + os.path.join(tmp_folder, '%_R2.fastq') + ' >> ' + demultiplex_log,
                           None )
         else:
             Cmd.__init__( self,
                           'splitbc.pl',
                           'Demultiplex reads.',
-                          R1_input_file + ' --' + end + ' --bcfile ' + barcode_file + ' --mismatches ' + `mismatches` + ' --trim --no_adapt --prefix-r1 ' + os.path.join(tmp_folder, '%_R1.fastq') +\
+                          R1_input_file + ' --' + end + ' --bcfile ' + barcode_file + ' --mismatches ' + repr(mismatches) + ' --trim --no_adapt --prefix-r1 ' + os.path.join(tmp_folder, '%_R1.fastq') +\
                           ' >> ' + demultiplex_log,
                           None )
         
@@ -150,7 +150,7 @@ class Archive(Cmd):
             os.makedirs(tmp_folder)
             
         if len(archived_files) == 0:
-            raise Exception( "\nAt least one file must be add to the archive '" + archive_path + "'.\n\n" )
+            raise_exception( Exception( "\n\n#ERROR : At least one file must be add to the archive '" + archive_path + "'.\n\n" ))
     
         archived_basenames = list()
         for current in archived_files:
@@ -202,7 +202,7 @@ def split_barcode_file( barcode_file, barcodes_file_list, global_tmp_files ):
     @param out_dir: [str] path to the output directory to write barcode files
     """
     out_dir = global_tmp_files.tmp_dir 
-    barcode_input = open(barcode_file,"r")
+    barcode_input = open(barcode_file,"rt")
     barcode_dict={}
     for l in barcode_input.readlines():
         [s,f,r]=l.strip().split()
@@ -218,14 +218,14 @@ def split_barcode_file( barcode_file, barcodes_file_list, global_tmp_files ):
     f=barcode_dict.pop("forward_bc")
     barcodes_file_list.append(os.path.join(out_dir,"forward_bc"))
     global_tmp_files.files.append(os.path.join(out_dir,"forward_bc"))
-    FH_out = open(os.path.join(out_dir,"forward_bc"),"w")
+    FH_out = open(os.path.join(out_dir,"forward_bc"),"wt")
     FH_out.write("\n".join(f)+"\n")
     FH_out.close()
 
     for bc_file in barcode_dict:
         barcodes_file_list.append(os.path.join(out_dir,bc_file))
         global_tmp_files.files.append(os.path.join(out_dir,bc_file))
-        FH_out = open(os.path.join(out_dir,bc_file),"w")
+        FH_out = open(os.path.join(out_dir,bc_file),"wt")
         FH_out.write("\n".join(barcode_dict[bc_file])+"\n")
         FH_out.close()
 
@@ -249,7 +249,7 @@ def get_fastq_nb_seq( fastq_file ):
 
 def concat_files(list_input, output_file):
     
-    FH_out=open(output_file,"w")
+    FH_out=open(output_file,"wt")
     for f in list_input :
         FH_in = open(f)
         string=""
@@ -277,9 +277,9 @@ def summarise_results( summary_file, barcode_file, log_file ):
     for line in FH_barcode:
         sample_dict[line.split()[0]]=0
     
-    FH_summary = open(summary_file, "w")
+    FH_summary = open(summary_file, "wt")
     FH_summary.write( "#sample\tcount\n")
-    FH_log = open(log_file,"r")
+    FH_log = open(log_file,"rt")
     sample_dict["unmatched"]=0
     sample_dict["ambiguous"]=0
     
@@ -319,8 +319,8 @@ if __name__ == "__main__":
     # Outputs
     group_output.add_argument( '--output-demultiplexed', default="demultiplexed_read.tar.gz", help='The tar file containing R1 files and R2 files for each sample (format: tar). [Default: %(default)s]' )
     group_output.add_argument( '--output-excluded', default="undemultiplexed_read.tar.gz", help='The tar file containing R1 files and R2 files not demultiplexed  (format: tar). [Default: %(default)s]' )
-    group_output.add_argument( '-s', '--summary', default='summary.tsv', help='TSV file with summary of filters results  (format: TSV). [Default: %(default)s]')
-    group_output.add_argument( '-l', '--log-file', default=sys.stdout, help='This output file will contain several information on executed commands.')
+    group_output.add_argument( '-s', '--summary', default='demultiplex_summary.tsv', help='TSV file with summary of filters results  (format: TSV). [Default: %(default)s]')
+    group_output.add_argument( '-l', '--log-file', default=sys.stdout, help='This output file will contain several informations on executed commands.')
     args = parser.parse_args()
     prevent_shell_injections(args)
 

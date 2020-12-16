@@ -1,4 +1,4 @@
-#!/usr/bin/env python2.7
+#!/usr/bin/env python3
 #
 # Copyright (C) 2014 INRA
 #
@@ -20,7 +20,7 @@ __author__ = 'Maria Bernard - SIGENAE'
 __copyright__ = 'Copyright (C) 2015 INRA'
 __license__ = 'GNU General Public License'
 __version__ = '1.0.1'
-__email__ = 'frogs-support@inra.fr'
+__email__ = 'frogs-support@inrae.fr'
 __status__ = 'prod'
 
 import os
@@ -48,7 +48,7 @@ from frogsSequenceIO import FastaIO
 ##################################################################################################################################################
 def biom_fasta_update(biom_in, fasta_in, fasta_out, log_file):
     FH_in = FastaIO( fasta_in )
-    FH_out = FastaIO( fasta_out, "w" )
+    FH_out = FastaIO( fasta_out, "wt" )
     biom = BiomIO.from_json( biom_in )
     seq_in=0
     seq_out=0
@@ -64,7 +64,7 @@ def biom_fasta_update(biom_in, fasta_in, fasta_out, log_file):
             seq_out += 1
     FH_in.close()
     FH_out.close()
-    FH_log=open(log_file,"w")
+    FH_log=open(log_file,"wt")
     FH_log.write("Number of sequence in :" + str(seq_in)+"\n" )
     FH_log.write("Number of sequence out :" + str(seq_out) +"\n") 
 

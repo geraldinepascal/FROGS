@@ -1,4 +1,4 @@
-#!/usr/bin/env python2.7
+#!/usr/bin/env python3
 #
 # Copyright (C) 2018 INRA
 #
@@ -19,8 +19,8 @@
 __author__ = 'Maria Bernard INRA - SIGENAE'
 __copyright__ = 'Copyright (C) 2018 INRA'
 __license__ = 'GNU General Public License'
-__version__ = 'v3.1'
-__email__ = 'frogs-support@inra.fr'
+__version__ = '1.0.0'
+__email__ = 'frogs-support@inrae.fr'
 __status__ = 'prod'
 
 import os
@@ -76,9 +76,9 @@ def process(params):
     biom_in = BiomIO.from_json( params.input_biom )
     # check if biom_in has blast_taxonomy affiliations
     if not biom_in.has_metadata("blast_affiliations"):
-        raise Exception("Your input biom file, "+ os.path.basename(params.input_biom) + ", does not contain any blast_affiliations metadata.")
+        raise_exception( Exception("\n\n#ERROR : Your input biom file, "+ os.path.basename(params.input_biom) + ", does not contain any blast_affiliations metadata.\n\n"))
 
-    biom_out = Biom( matrix_type="sparse" )
+    biom_out = Biom( generated_by='FROGS_aggregate_affiliated_otu', matrix_type="sparse" )
 
     # add samples in biom_out
     for sample_name in biom_in.get_samples_names():
@@ -152,8 +152,9 @@ def process(params):
                 otu_out += 1
                 biom_out.add_observation( otu_name, observation["metadata"] )
                 for sample_name in biom_in.get_samples_names():
-                    count = biom_in.get_count(otu_name,sample_name)
-                    biom_out.add_count(otu_name, sample_name, count)
+                    count = biom_in.get_count(otu_name, sample_name)
+                    if count > 0 :
+                        biom_out.add_count(otu_name, sample_name, count)
                 aggregated_otu[otu_name] = list()
                 for taxonomy in tax:
                     if isinstance(taxonomy,list):
@@ -187,7 +188,7 @@ def process(params):
 
     # update fasta
     FH_in = FastaIO(params.input_fasta)
-    FH_out = FastaIO(params.output_fasta, "w")
+    FH_out = FastaIO(params.output_fasta, "wt")
     for record in FH_in:
         if record.id in aggregated_otu:
             FH_out.write(record)
@@ -195,7 +196,7 @@ def process(params):
     FH_out.close()
 
     # write otu composition
-    FH_compo = open(params.output_compo, "w")
+    FH_compo = open(params.output_compo, "wt")
     for OTU in aggregated_otu:
         FH_compo.write(OTU + " " + " ".join(aggregated_otu[OTU]) + "\n")
     FH_compo.close()

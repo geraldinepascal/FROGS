@@ -1,4 +1,4 @@
-#!/usr/bin/env python2.7
+#!/usr/bin/env python3
 #
 # Copyright (C) 2018 INRA
 #
@@ -20,7 +20,7 @@ __author__ = 'Maria Bernard INRA - SIGENAE '
 __copyright__ = 'Copyright (C) 2015 INRA'
 __license__ = 'GNU General Public License'
 __version__ = '3.2'
-__email__ = 'frogs-support@inra.fr'
+__email__ = 'frogs-support@inrae.fr'
 __status__ = 'prod'
 
 
@@ -37,7 +37,7 @@ os.environ['PATH'] = BIN_DIR + os.pathsep + os.environ['PATH']
 LIB_DIR = os.path.abspath(os.path.join(os.path.dirname(CURRENT_DIR), "lib"))
 sys.path.append(LIB_DIR)
 if os.getenv('PYTHONPATH') is None: os.environ['PYTHONPATH'] = LIB_DIR
-else: os.environ['PYTHONPATH'] = os.environ['PYTHONPATH'] + os.pathsep + LIB_DIR
+else: os.environ['PYTHONPATH'] = LIB_DIR + os.pathsep + os.environ['PYTHONPATH']
 
 from frogsUtils import *
 from frogsBiom import BiomIO
@@ -89,7 +89,7 @@ class BIOM_FASTA_update(Cmd):
 #
 ##################################################################################################################################################
 def write_log(in_biom, out_biom, log):
-    FH_log=open(log,"w")
+    FH_log=open(log,"wt")
     FH_log.write("#sample\tnb_otu_before\tnb_otu_after\n")
     initial_biom = BiomIO.from_json( in_biom )
     new_biom = BiomIO.from_json( out_biom )
@@ -116,13 +116,13 @@ def summarise_results( summary_file, biom_subsample_log ):
     series = list()
     get_sample_resuts(biom_subsample_log, series )
     histo = list()
-    for i in xrange(0,len(series)) :
+    for i in range(0,len(series)) :
         if series[i]["name"]=="all samples":
             histo = series.pop(i)["data"]
             break
     # Write
     FH_summary_tpl = open( os.path.join(CURRENT_DIR, "normalisation_tpl.html") )
-    FH_summary_out = open( summary_file, "w" )
+    FH_summary_out = open( summary_file, "wt" )
     for line in FH_summary_tpl:
         if "###DATA_CATEGORIES###" in line:
             line = line.replace( "###DATA_CATEGORIES###", json.dumps(categories) )
@@ -175,12 +175,12 @@ if __name__ == "__main__":
     # Inputs
     group_input = parser.add_argument_group('Inputs')
     group_input.add_argument('-i', '--input-biom', required=True, help='Abundances file to normalize (format: BIOM).')
-    group_input.add_argument('-f', '--input-fasta', required=True, help='Sequences file to normalize (format: fasta).')
+    group_input.add_argument('-f', '--input-fasta', required=True, help='Sequences file to normalize (format: FASTA).')
     # Outputs
     group_output = parser.add_argument_group('Outputs')
-    group_output.add_argument('-b', '--output-biom', default='abundance.biom', help='Normalized abundances (format: BIOM). [Default: %(default)s]')
-    group_output.add_argument('-o', '--output-fasta', default='sequence.fasta', help='Normalized sequences (format: fasta). [Default: %(default)s]')
-    group_output.add_argument('-s', '--summary-file', default='report.html', help='Summary of filters results (format: HTML). [Default: %(default)s]')
+    group_output.add_argument('-b', '--output-biom', default='normalisation_abundance.biom', help='Normalized abundances (format: BIOM). [Default: %(default)s]')
+    group_output.add_argument('-o', '--output-fasta', default='normalisation.fasta', help='Normalized sequences (format: FASTA). [Default: %(default)s]')
+    group_output.add_argument('-s', '--summary-file', default='normalisation.html', help='The HTML file containing the graphs. [Default: %(default)s]')
     group_output.add_argument('-l', '--log-file', default=sys.stdout, help='The list of commands executed.')
     args = parser.parse_args()
     prevent_shell_injections(args)

@@ -1,4 +1,4 @@
-#!/usr/bin/env python2.7
+#!/usr/bin/env python3
 #
 # Copyright (C) 2018 INRA
 #
@@ -20,7 +20,7 @@ __author__ = 'Frederic Escudie - Plateforme bioinformatique Toulouse'
 __copyright__ = 'Copyright (C) 2015 INRA'
 __license__ = 'GNU General Public License'
 __version__ = '3.2'
-__email__ = 'frogs-support@inra.fr'
+__email__ = 'frogs-support@inrae.fr'
 __status__ = 'prod'
 
 import os
@@ -35,7 +35,7 @@ os.environ['PATH'] = BIN_DIR + os.pathsep + os.environ['PATH']
 LIB_DIR = os.path.abspath(os.path.join(os.path.dirname(CURRENT_DIR), "lib"))
 sys.path.append(LIB_DIR)
 if os.getenv('PYTHONPATH') is None: os.environ['PYTHONPATH'] = LIB_DIR
-else: os.environ['PYTHONPATH'] = os.environ['PYTHONPATH'] + os.pathsep + LIB_DIR
+else: os.environ['PYTHONPATH'] = LIB_DIR + os.pathsep + os.environ['PYTHONPATH']
 
 from frogsUtils import *
 from frogsBiom import BiomIO
@@ -51,11 +51,11 @@ def process( in_biom, out_biom, out_metadata ):
     taxonomy_depth = 0
     unclassified_observations = list()
 
-    FH_metadata = open( out_metadata, "w" )
+    FH_metadata = open( out_metadata, "wt" )
     FH_metadata.write( "#OTUID\t" + "\t".join([item for item in ordered_blast_keys]) + "\n" )
     biom = BiomIO.from_json( in_biom )
     for observation in biom.get_observations():
-        for metadata_key in observation["metadata"].keys():
+        for metadata_key in list(observation["metadata"].keys()):
             # Extract blast_affiliations metadata in metadata_file
             if metadata_key == "blast_affiliations": 
                 if observation["metadata"][metadata_key] is not None:
@@ -68,7 +68,7 @@ def process( in_biom, out_biom, out_metadata ):
             elif observation["metadata"][metadata_key] is not None: 
                 if isinstance(observation["metadata"][metadata_key], list) or isinstance(observation["metadata"][metadata_key], tuple):
                     observation["metadata"][metadata_key] = ";".join( map(str, observation["metadata"][metadata_key]) )
-        if observation["metadata"].has_key( "blast_taxonomy" ):
+        if "blast_taxonomy" in observation["metadata"]:
             if observation["metadata"]["blast_taxonomy"] is None:
                 unclassified_observations.append( observation["id"] )
                 observation["metadata"]["taxonomy"] = list()
@@ -97,8 +97,8 @@ if __name__ == "__main__":
     group_input.add_argument( '-b', '--input-biom', required=True, help="The abundance file (format: BIOM)." )
     # Outputs
     group_output = parser.add_argument_group( 'Outputs' )
-    group_output.add_argument( '-o', '--output-biom', default='abundance.biom', help='The fully compatible abundance file (format: BIOM). [Default: %(default)s]' )
-    group_output.add_argument( '-m', '--output-metadata', default='blast_metadata.tsv', help='The blast affiliations metadata (format: TSV). [Default: %(default)s]' )
+    group_output.add_argument( '-o', '--output-biom', default='abundance.std.biom', help='The fully compatible abundance file (format: BIOM). [Default: %(default)s]' )
+    group_output.add_argument( '-m', '--output-metadata', default='blast_informations.std.tsv', help='The blast affiliations informations (format: TSV). [Default: %(default)s]' )
     group_output.add_argument( '-l', '--log-file', default=sys.stdout, help='This output file will contain several information on executed commands.' )
     args = parser.parse_args()
     prevent_shell_injections(args)

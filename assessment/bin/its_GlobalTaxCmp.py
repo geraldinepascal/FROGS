@@ -20,7 +20,7 @@ __author__ = 'Maria Bernard - Sigenae Jouy en Josas'
 __copyright__ = 'Copyright (C) 2019 INRA'
 __license__ = 'GNU General Public License'
 __version__ = '1.0.0'
-__email__ = 'frogs-support@inra.fr'
+__email__ = 'frogs-support@inrae.fr'
 __status__ = 'beta'
 
 import re
@@ -129,23 +129,24 @@ def get_realTax( taxonomy_key, input_biom ):
             
     return tax_list
     
-def selectOneMultiaffiliation(real_tax, observation_id, possible_taxonomies):
+def checkMultiaffiliation(real_tax, observation_id, possible_taxonomies, logfile):
     
-    nb_select = 0
-    selected = None
+    if len(possible_taxonomies) == 0:
+        raise Exception ("\n" + observation_id + " has no blast_affiliations!\n")
+        
+    selected = list()
     for tax in possible_taxonomies:
-        if tax in real_tax:
-            selected = tax
-            nb_select += 1
+        if ";".join(tax) in real_tax and ";".join(tax) not in selected:
+            selected.append(";".join(tax))
             
-    if nb_select == 1:
-        return selected
-    else:
-        if nb_select == 2:
-            print "WARN : " + observation_id + " has multiple real correspondances"
-        return possible_taxonomies[0]
-    
-def get_checkedTax( real_tax, input_biom, taxonomy_key, multi_affiliation ):
+	if len(selected) > 1:
+		FH = open(logfile,"a")
+		FH.write("WARN : " + observation_id + " has multiple real correspondances: \n")
+		for tax in selected:
+			FH.write("\t" + tax + "\n")
+		FH.close()
+
+def get_checkedTax( real_tax, input_biom, taxonomy_key, multi_affiliation, logfile ):
     """
     @summary:
     @param real_tax: [dict] Taxonomy.
@@ -162,13 +163,17 @@ def get_checkedTax( real_tax, input_biom, taxonomy_key, multi_affiliation ):
         # Get taxonomy
         if not multi_affiliation: # Standard affiliation
             taxonomy_clean = getCleanedTaxonomy(observation["metadata"][taxonomy_key])
+            if ";".join(taxonomy_clean) not in tax_list:
+                tax_list.append(";".join(taxonomy_clean))
         else: # Multi-affiliation
             possible_taxonomies = [getCleanedTaxonomy(affi["taxonomy"]) for affi in observation["metadata"]["blast_affiliations"]]
-            taxonomy_clean = selectOneMultiaffiliation(real_tax, observation["id"], possible_taxonomies)
-        if ";".join(taxonomy_clean) not in tax_list:
-            tax_list.append(";".join(taxonomy_clean))
+            checkMultiaffiliation(real_tax, observation["id"], possible_taxonomies,logfile)
+            for taxonomy_clean in possible_taxonomies:
+                if ";".join(taxonomy_clean) not in tax_list:
+                    tax_list.append(";".join(taxonomy_clean))
 
     return nb_seq , tax_list
+
 
 ##################################################################################################################################################
 #
@@ -187,10 +192,13 @@ if __name__ == "__main__":
     group_input = parser.add_argument_group( 'Inputs' )
     group_input.add_argument( '-r', '--real-biom', required=True, help='Path to the theoretical abundance file (format: BIOM).' )
     group_input.add_argument( '-f', '--checked-biom', required=True, help='Path to the checked abundance file (format: BIOM).' )
+    # Outputs
+    group_output = parser.add_argument_group( 'Outputs' )
+    group_output.add_argument( '-l', '--log-file', required=True, help='Path to log file.' )
     args = parser.parse_args()
 
     real_tax = get_realTax(args.real_tax_key, args.real_biom)
-    nb_seq , checked_tax = get_checkedTax(real_tax, args.checked_biom, args.checked_tax_key, args.multi_affiliations)
+    nb_seq , checked_tax = get_checkedTax(real_tax, args.checked_biom, args.checked_tax_key, args.multi_affiliations,args.log_file)
 
     print "#Expected_tax\tSeq\tDetected_tax\tRetrieved_tax"
     print str(len(real_tax)) + "\t" + str(nb_seq) + "\t" + str(len(checked_tax)) + "\t" + str(len(set(real_tax).intersection(checked_tax)))

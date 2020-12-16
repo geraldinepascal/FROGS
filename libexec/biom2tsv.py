@@ -1,4 +1,4 @@
-#!/usr/bin/env python2.7
+#!/usr/bin/env python3
 #
 # Copyright (C) 2015 INRA
 #
@@ -20,7 +20,7 @@ __author__ = 'Maria Bernard - Sigenae AND Frederic Escudie - Plateforme bioinfor
 __copyright__ = 'Copyright (C) 2015 INRA'
 __license__ = 'GNU General Public License'
 __version__ = '1.5.0'
-__email__ = 'frogs-support@inra.fr'
+__email__ = 'frogs-support@inrae.fr'
 __status__ = 'prod'
 
 import os
@@ -35,7 +35,7 @@ else: os.environ['PYTHONPATH'] = os.environ['PYTHONPATH'] + os.pathsep + LIB_DIR
 
 from frogsBiom import BiomIO
 from frogsSequenceIO import *
-
+from frogsUtils import *
 
 ##################################################################################################################################################
 #
@@ -52,7 +52,8 @@ def uniq( metadata_list, evaluated_tag, ambiguity_value ):
     return value
 
 def observation_line_parts( observation, count_by_sample, fields, list_separator ):
-    no_affiliation_str = "no data"
+    no_data_str = "no data"
+    print(observation)
     line = list()
     for current_field in fields:
         if current_field == '@observation_name':
@@ -70,7 +71,7 @@ def observation_line_parts( observation, count_by_sample, fields, list_separator
                     for i, tax in enumerate(rdp_taxonomy):
                         rdp_and_bootstrap += tax + ";(" + str(rdp_bootstrap[i]) + ");" # tax1;(boots1);tax2;(boots2);
             else:
-                if observation['metadata']["rdp_taxonomy"] != "":
+                if observation['metadata']["rdp_taxonomy"]:
                     rdp_taxonomy = observation['metadata']["rdp_taxonomy"].split(";")
                     rdp_bootstrap = observation['metadata']["rdp_bootstrap"].split(";")
                     for i, tax in enumerate(rdp_taxonomy):
@@ -78,37 +79,43 @@ def observation_line_parts( observation, count_by_sample, fields, list_separator
             if rdp_and_bootstrap != "" :
                 line.append(str(rdp_and_bootstrap)) 
             else:
-                line.append(no_affiliation_str)
+                line.append(no_data_str)
         elif current_field == "@blast_perc_identity":
-            if len(observation['metadata']["blast_affiliations"]) > 0:
+            if issubclass(observation['metadata']["blast_affiliations"].__class__, list) and len(observation['metadata']["blast_affiliations"]) > 0:
                 line.append( str(uniq(observation['metadata']["blast_affiliations"], "perc_identity", "multi-identity")) )
             else:
-                line.append( no_affiliation_str )
+                line.append( no_data_str )
         elif current_field == "@blast_perc_query_coverage":
-            if len(observation['metadata']["blast_affiliations"]) > 0:
+            if issubclass(observation['metadata']["blast_affiliations"].__class__, list) and len(observation['metadata']["blast_affiliations"]) > 0:
                 line.append( str(uniq(observation['metadata']["blast_affiliations"], "perc_query_coverage", "multi-coverage")) )
             else:
-                line.append( no_affiliation_str )
+                line.append( no_data_str )
         elif current_field == "@blast_evalue":
-            if len(observation['metadata']["blast_affiliations"]) > 0:
+            if issubclass(observation['metadata']["blast_affiliations"].__class__, list) and  len(observation['metadata']["blast_affiliations"]) > 0:
                 line.append( str(uniq(observation['metadata']["blast_affiliations"], "evalue", "multi-evalue")) )
             else:
-                line.append( no_affiliation_str )
+                line.append( no_data_str )
         elif current_field == "@blast_subject":
-            if len(observation['metadata']["blast_affiliations"]) > 0:
+            if issubclass(observation['metadata']["blast_affiliations"].__class__, list) and  len(observation['metadata']["blast_affiliations"]) > 0:
                 line.append( str(uniq(observation['metadata']["blast_affiliations"], "subject", "multi-subject")) )
             else:
-                line.append( no_affiliation_str )
+                line.append( no_data_str )
         elif current_field == "@blast_aln_length":
-            if len(observation['metadata']["blast_affiliations"]) > 0:
+            if issubclass(observation['metadata']["blast_affiliations"].__class__, list) and len(observation['metadata']["blast_affiliations"]) > 0:
                 line.append( str(uniq(observation['metadata']["blast_affiliations"], "aln_length", "multi-alignment-lg")) )
             else:
-                line.append( no_affiliation_str )
+                line.append( no_data_str )
         else: #metadata
             if issubclass(observation['metadata'][current_field].__class__, list):
-                line.append( list_separator.join(observation['metadata'][current_field]) )
-            else:
+                if len(observation['metadata'][current_field]) > 0 :
+                    line.append( list_separator.join(observation['metadata'][current_field]) )
+                else:
+                    line.append(no_data_str)
+            elif issubclass(observation['metadata'][current_field].__class__, str):
                 line.append( str(observation['metadata'][current_field]) )
+            else : # like blast taxonomy = None
+                line.append(no_data_str)
+
     return line
 
 def header_line_parts( fields, biom ):
@@ -147,7 +154,7 @@ def biom_to_tsv( input_biom, output_tsv, fields, list_separator ):
     @param list_separator: [str] Separator for complex metadata.
     """
     biom = BiomIO.from_json( input_biom )
-    out_fh = open( output_tsv, "w" )
+    out_fh = open( output_tsv, "wt" )
     # Header
     header_parts = header_line_parts( fields, biom )
     out_fh.write( "#" + "\t".join(header_parts) + "\n" )
@@ -167,7 +174,8 @@ def biom_fasta_to_tsv( input_biom, input_fasta, output_tsv, fields, list_separat
     @param list_separator: [str] Separator for complex metadata.
     """
     biom = BiomIO.from_json( input_biom )
-    out_fh = open( output_tsv, "w" )
+    observation_list = [ name for name in biom.get_observations_names()]
+    out_fh = open( output_tsv, "wt" )
     sequence_idx = fields.index("@seed_sequence")
     # Header
     header_parts = header_line_parts( fields, biom )
@@ -177,12 +185,19 @@ def biom_fasta_to_tsv( input_biom, input_fasta, output_tsv, fields, list_separat
     del fields_without_seq[sequence_idx]
     FH_in = FastaIO( input_fasta )
     for record in FH_in:
-        obs_idx = biom.find_idx("observation", record.id)
-        count_by_sample = biom.data.get_row_array(obs_idx)
-        observation_parts = observation_line_parts( biom.rows[obs_idx], count_by_sample, fields_without_seq, list_separator )
-        observation_parts.insert( sequence_idx, record.string )
-        out_fh.write( "\t".join(observation_parts) + "\n" )
+        try :
+            obs_idx = biom.find_idx("observation", record.id)
+            count_by_sample = biom.data.get_row_array(obs_idx)
+            observation_parts = observation_line_parts( biom.rows[obs_idx], count_by_sample, fields_without_seq, list_separator )
+            observation_parts.insert( sequence_idx, record.string )
+            out_fh.write( "\t".join(observation_parts) + "\n" )
+            observation_list.remove(record.id)
+        except:
+            pass
     out_fh.close()
+
+    if len(observation_list) > 0:
+        raise_exception(Exception("\n\n##ERROR : your input fasta file (" + input_fasta + ") does not contain sequence for :" + ", ".join(observation_list) + "\n"))
 
 
 ##################################################################################################################################################

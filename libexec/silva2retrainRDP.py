@@ -1,4 +1,4 @@
-#!/usr/bin/env python2.7
+#!/usr/bin/env python3
 #
 # Copyright (C) 2014 INRA
 #
@@ -20,7 +20,7 @@ __author__ = 'Frederic Escudie - Plateforme bioinformatique Toulouse'
 __copyright__ = 'Copyright (C) 2015 INRA'
 __license__ = 'GNU General Public License'
 __version__ = '0.3.1'
-__email__ = 'frogs-support@inra.fr'
+__email__ = 'frogs-support@inrae.fr'
 __status__ = 'dev'
 
 import os
@@ -35,6 +35,7 @@ if os.getenv('PYTHONPATH') is None: os.environ['PYTHONPATH'] = LIB_DIR
 else: os.environ['PYTHONPATH'] = os.environ['PYTHONPATH'] + os.pathsep + LIB_DIR
 
 from frogsNode import Node
+from frogsUtils import *
 
 
 ##################################################################################################################################################
@@ -118,7 +119,7 @@ def silva_tax_2_tree( taxonomy_file, authorized_ranks, domains_filtered=None ):
                 evaluated_id = matches.group(2)
                 evaluated_rank = matches.group(3)
             else:
-                raise Exception("Incorrect line content : '" + line.strip() + "'.")
+                raise_exception( Exception("\n\n#ERROR : Incorrect line content : '" + line.strip() + "'.\n\n"))
             if domains_filtered is None or not evaluated_taxonomy[0].strip().lower() in domains_filtered:
                 # Go to the most downstream already existing ancestor of the element
                 parent_node = taxonomy_tree
@@ -131,7 +132,7 @@ def silva_tax_2_tree( taxonomy_file, authorized_ranks, domains_filtered=None ):
                         if evaluated_taxonomy[-1] == "uncultured" and parent_node.name == evaluated_taxonomy[-2]:
                             evaluated_rank = authorized_ranks[authorized_ranks.index(parent_node.metadata["rank"])+1]
                         else:
-                            raise Exception( "The taxonomy in file '" + taxonomy_file + "' seems to be incoherent. The taxon '" + ";".join(evaluated_taxonomy) + "' is tagged as '" + evaluated_rank + "' and its ancestor '" + get_taxonomy(parent_node) + "' is tagged as '" + parent_node.metadata["rank"] + "'." )
+                            raise_exception( Exception( "\n\n#ERROR : The taxonomy in file '" + taxonomy_file + "' seems to be incoherent. The taxon '" + ";".join(evaluated_taxonomy) + "' is tagged as '" + evaluated_rank + "' and its ancestor '" + get_taxonomy(parent_node) + "' is tagged as '" + parent_node.metadata["rank"] + "'.\n\n" ))
                     # Complete missing ranks between parent and evaluated
                     evaluated_rank_depth = authorized_ranks.index(evaluated_rank)
                     while authorized_ranks[evaluated_rank_depth -1] != parent_node.metadata["rank"]:
@@ -173,7 +174,7 @@ def process( input_fasta, input_tax, output_fasta, output_tax, domains_filtered=
     taxonomy_ref, taxonomy_tree, new_taxon_id = silva_tax_2_tree( input_tax, ranks, domains_filtered )
 
     # Write fasta
-    FH_cleanFasta = open( output_fasta, "w" )
+    FH_cleanFasta = open( output_fasta, "wt" )
     FH_fasta = open( input_fasta )
     is_filtered = None
     for line in FH_fasta:
@@ -183,14 +184,14 @@ def process( input_fasta, input_tax, output_fasta, output_tax, domains_filtered=
             evaluated_taxonomy = " ".join(line_fields[1:]).split(";")
             if domains_filtered is not None and evaluated_taxonomy[0].strip().lower() in domains_filtered:
                 is_filtered = True
-            elif not taxonomy_ref.has_key( ";".join(evaluated_taxonomy[:-1]).lower() ):
+            elif ";".join(evaluated_taxonomy[:-1]).lower() not in taxonomy_ref:
                 is_filtered = True
-                print "The sequence '" + evaluated_id + "' is skipped because the node for '" + ";".join(evaluated_taxonomy) + "' does not exist in the taxonomy file."
+                print(("The sequence '" + evaluated_id + "' is skipped because the node for '" + ";".join(evaluated_taxonomy) + "' does not exist in the taxonomy file."))
             else:
                 is_filtered = False
                 clean_taxonomy = get_taxonomy(taxonomy_ref[";".join(evaluated_taxonomy[:-1]).lower()])
                 if not "species" in ranks:
-                    raise Exception( "The execution without 'species' rank is not implemented." )
+                    raise_exception( Exception( "\n\n#ERROR : The execution without 'species' rank is not implemented.\n\n" ))
                 else:
                     parent_node = taxonomy_ref[";".join(evaluated_taxonomy[:-1]).lower()]
                     # Go to genus
@@ -219,7 +220,7 @@ def process( input_fasta, input_tax, output_fasta, output_tax, domains_filtered=
     FH_cleanFasta.close()
 
     # Write RDP tax file
-    FH_cleanTax = open( output_tax, "w" )
+    FH_cleanTax = open( output_tax, "wt" )
     write_rdp_tax( FH_cleanTax, taxonomy_tree )
     FH_cleanTax.close()
 

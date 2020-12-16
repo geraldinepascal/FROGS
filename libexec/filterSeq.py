@@ -1,4 +1,4 @@
-#!/usr/bin/env python2.7
+#!/usr/bin/env python3
 #
 # Copyright (C) 2014 INRA
 #
@@ -20,7 +20,7 @@ __author__ = 'Frederic Escudie - Plateforme bioinformatique Toulouse'
 __copyright__ = 'Copyright (C) 2015 INRA'
 __license__ = 'GNU General Public License'
 __version__ = '1.6.0'
-__email__ = 'frogs-support@inra.fr'
+__email__ = 'frogs-support@inrae.fr'
 __status__ = 'prod'
 
 import os
@@ -35,6 +35,7 @@ if os.getenv('PYTHONPATH') is None: os.environ['PYTHONPATH'] = LIB_DIR
 else: os.environ['PYTHONPATH'] = os.environ['PYTHONPATH'] + os.pathsep + LIB_DIR
 
 from frogsSequenceIO import *
+from frogsUtils import *
 
 
 ##################################################################################################################################################
@@ -59,7 +60,7 @@ class QualWindowParameter(argparse.Action):
         for option in values:
             key, val = option.split(":")
             if key not in valid_subparameters:
-                raise argparse.ArgumentTypeError( "For --qual-window only the following sub-parameters are authorized: " + ", ".join(valid_subparameters) )
+                raise_exception( argparse.ArgumentTypeError( "\n\n#ERROR : For --qual-window only the following sub-parameters are authorized: " + ", ".join(valid_subparameters) + '\n\n'))
             param[key] = int(val)
         setattr(namespace, self.dest, param)
 
@@ -152,11 +153,11 @@ def filter_seq( input_file, output_file, log_file, min_length=None, max_length=N
     fh_in = SequenceFileReader.factory(input_file)
     # fh_in = FastqIO(input_file)
     if force_fasta:
-        fh_out = FastaIO(output_file, "w")
+        fh_out = FastaIO(output_file, "wt")
     elif issubclass(fh_in.__class__, FastqIO):
-        fh_out = FastqIO(output_file, "w")
+        fh_out = FastqIO(output_file, "wt")
     else:
-        fh_out = FastaIO(output_file, "w")
+        fh_out = FastaIO(output_file, "wt")
     nb_seq = 0
     filter_on_length = 0
     filter_on_N = 0
@@ -179,7 +180,7 @@ def filter_seq( input_file, output_file, log_file, min_length=None, max_length=N
             fh_out.write( seq_record )
 
     # Write log
-    log_fh = open( log_file, "w" )
+    log_fh = open( log_file, "wt" )
     log_fh.write( "Nb seq processed : " + str(nb_seq) + "\n" )
     if not(min_length is None and max_length is None):
         log_fh.write( "Nb seq filtered on length : " + str(filter_on_length) + "\n" )

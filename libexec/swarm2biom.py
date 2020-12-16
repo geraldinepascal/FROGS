@@ -1,4 +1,4 @@
-#!/usr/bin/env python2.7
+#!/usr/bin/env python3
 #
 # Copyright (C) 2014 INRA
 # 
@@ -20,7 +20,7 @@ __author__ = 'Frederic Escudie - Plateforme bioinformatique Toulouse AND Maria B
 __copyright__ = 'Copyright (C) 2015 INRA'
 __license__ = 'GNU General Public License'
 __version__ = '1.4.0'
-__email__ = 'frogs-support@inra.fr'
+__email__ = 'frogs-support@inrae.fr'
 __status__ = 'prod'
 
 import os
@@ -77,10 +77,10 @@ def to_biom( clusters_file, count_file, output_biom, size_separator ):
         seed_id = line.strip().split()[0]
         if "FROGS_combined" in seed_id:
             cluster_name = "Cluster_" + str(cluster_idx) + "_FROGS_combined"
-            comment = "WARNING"
+            comment = ["FROGS_combined"]
         else:
             cluster_name = "Cluster_" + str(cluster_idx)
-            comment = "na"
+            comment = list()
         cluster_count = {key:0 for key in samples}
         line_fields = line.strip().split()
         # Retrieve count by sample

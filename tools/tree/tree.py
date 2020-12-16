@@ -1,4 +1,4 @@
-#!/usr/bin/env python2.7
+#!/usr/bin/env python3
 #
 # Copyright (C) 2018 INRA
 #
@@ -19,7 +19,7 @@ __author__ = ' Ta Thi Ngan & Maria Bernard INRA - SIGENAE '
 __copyright__ = 'Copyright (C) 2017 INRA'
 __license__ = 'GNU General Public License'
 __version__ = '3.2'
-__email__ = 'frogs-support@inra.fr'
+__email__ = 'frogs-support@inrae.fr'
 __status__ = 'prod'
 
 import os
@@ -36,7 +36,7 @@ os.environ['PATH'] = BIN_DIR + os.pathsep + os.environ['PATH']
 LIB_DIR = os.path.abspath(os.path.join(os.path.dirname(CURRENT_DIR), "lib"))
 sys.path.append(LIB_DIR)
 if os.getenv('PYTHONPATH') is None: os.environ['PYTHONPATH'] = LIB_DIR
-else: os.environ['PYTHONPATH'] = os.environ['PYTHONPATH'] + os.pathsep + LIB_DIR
+else: os.environ['PYTHONPATH'] = LIB_DIR + os.pathsep + os.environ['PYTHONPATH']
 os.environ['MAFFT_BINARIES'] = ""
 
 from frogsUtils import *
@@ -178,7 +178,7 @@ def write_summary( summary_file, fasta_in, align_out, biomfile, treefile):
     list_out_tree=[]
 
     biom=BiomIO.from_json(biomfile)
-    treefile = open(treefile, "r")
+    treefile = open(treefile, "rt")
     newick = treefile.read().strip()
 
     # record nb OTU and abundance
@@ -223,7 +223,7 @@ def write_summary( summary_file, fasta_in, align_out, biomfile, treefile):
     
     # Write
     FH_summary_tpl = open( os.path.join(CURRENT_DIR, "tree_tpl.html") )
-    FH_summary_out = open( summary_file, "w" )
+    FH_summary_out = open( summary_file, "wt" )
     for line in FH_summary_tpl:
         if "###HEIGHT###" in line:
             line = line.replace( "###HEIGHT###", json.dumps(summary_info['otu_kept']*11+166))
@@ -258,20 +258,20 @@ if __name__ == "__main__":
 
     # Inputs
     group_input = parser.add_argument_group( 'Inputs' )
-    group_input.add_argument( '-i', '--input-otu', required=True, help='Path to input fasta file of OTU. Warning: FROGS Tree is only working on less than 10000 sequences!' )
-    group_input.add_argument( '-b', '--biomfile', help='Path to the abundance biom file.' )
+    group_input.add_argument( '-i', '--input-sequences', required=True, help='Path to input FASTA file of OTU seed sequences. Warning: FROGS Tree is only working on less than 10000 sequences!' )
+    group_input.add_argument( '-b', '--biom-file', help='Path to the abundance BIOM file.' )
         
     # output
     group_output = parser.add_argument_group( 'Outputs' )
-    group_output.add_argument( '-o','--out-tree', default='tree.nwk', help="Path to store resulting Newick tree file. [Default: %(default)s]" )
-    group_output.add_argument('-s','--html', default='summary.html', help="Path to store resulting html file. [Default: %(default)s]" )    
-    group_output.add_argument( '-l', '--log-file', default=sys.stdout, help='This output file will contain several information on executed commands.')
+    group_output.add_argument( '-o','--out-tree', default='tree.nwk', help="Path to store resulting Newick tree file. (format: nwk) [Default: %(default)s]" )
+    group_output.add_argument('-s','--html', default='tree.html', help="The HTML file containing the graphs. [Default: %(default)s]" )    
+    group_output.add_argument( '-l', '--log-file', default=sys.stdout, help='This output file will contain several informations on executed commands.')
     args = parser.parse_args()
     prevent_shell_injections(args)
     
     ### Temporary files
     tmpFiles=TmpFiles(os.path.split(args.out_tree)[0])
-    filename_prefix = ".".join(os.path.split(args.input_otu)[1].split('.')[:-1])
+    filename_prefix = ".".join(os.path.split(args.input_sequences)[1].split('.')[:-1])
     
     # alignment temporary files
     stderr = tmpFiles.add("mafft.stderr")
@@ -286,17 +286,17 @@ if __name__ == "__main__":
     # Process 
     try:        
         Logger.static_write(args.log_file, "## Application\nSoftware :" + sys.argv[0] + " (version : " + str(__version__) + ")\nCommand : " + " ".join(sys.argv) + "\n\n")
-        nb_seq = get_fasta_nb_seq(args.input_otu)
-        biom = BiomIO.from_json(args.biomfile)
+        nb_seq = get_fasta_nb_seq(args.input_sequences)
+        biom = BiomIO.from_json(args.biom_file)
         if nb_seq > len(biom.rows):
-            raise Exception("\nYour fasta input file contains more OTU than your biom file.\\nn")
+            raise_exception( Exception("\n\n#ERROR : Your fasta input file contains more OTU than your biom file.\n\n"))
         Logger.static_write(args.log_file, "Number of input OTUs sequences: " + str(nb_seq) + "\n\n")
         if nb_seq >10000:
-            raise Exception( "\nFROGS Tree is only working on less than 10 000 sequences!\n\n" )
+            raise_exception( Exception( "\n\n#ERROR : FROGS Tree is only working on less than 10 000 sequences!\n\n" ))
         
         # alignment step
-        mafftMet=get_methods_mafft(args.input_otu)
-        Mafft(mafftMet, args.input_otu, align, args.nb_cpus, stderr).submit( args.log_file )
+        mafftMet=get_methods_mafft(args.input_sequences)
+        Mafft(mafftMet, args.input_sequences, align, args.nb_cpus, stderr).submit( args.log_file )
 
         # tree contruction step
         FastTree(align, fasttree, fasttree_stderr).submit( args.log_file )
@@ -305,7 +305,7 @@ if __name__ == "__main__":
         RootTree(fasttree, args.out_tree).submit(args.log_file)
 
         # summarize resultats in HTML output 
-        write_summary( args.html, args.input_otu, align_out, args.biomfile, args.out_tree)
+        write_summary( args.html, args.input_sequences, align_out, args.biom_file, args.out_tree)
     finally:
         if not args.debug:
             tmpFiles.deleteAll()

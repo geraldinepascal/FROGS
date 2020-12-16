@@ -1,4 +1,4 @@
-#!/usr/bin/env python2.7
+#!/usr/bin/env python3
 #
 # Copyright (C) 2014 INRA
 #
@@ -20,7 +20,7 @@ __author__ = 'Frederic Escudie - Plateforme bioinformatique Toulouse'
 __copyright__ = 'Copyright (C) 2015 INRA'
 __license__ = 'GNU General Public License'
 __version__ = '1.3.0'
-__email__ = 'frogs-support@inra.fr'
+__email__ = 'frogs-support@inrae.fr'
 __status__ = 'prod'
 
 import os
@@ -34,6 +34,7 @@ if os.getenv('PYTHONPATH') is None: os.environ['PYTHONPATH'] = LIB_DIR
 else: os.environ['PYTHONPATH'] = os.environ['PYTHONPATH'] + os.pathsep + LIB_DIR
 
 from frogsBiom import BiomIO
+from frogsUtils import *
 
 
 ##################################################################################################################################################
@@ -47,11 +48,11 @@ def multiAffiFromBiom( biom, output_tsv ):
     @param input_biom: [Biom] The BIOM object.
     @param output_tsv: [str] Path to the output file (format : TSV).
     """
-    out_fh = open( output_tsv, "w" )
+    out_fh = open( output_tsv, "wt" )
 #     out_fh.write( "#" + "\t".join(["OTU", "Subject_taxonomy", "Blast_subject", "Prct_identity", "Prct_query_coverage", "e-value", "Alignment_length"]) + "\n" )
     out_fh.write( "#" + "\t".join(["observation_name", "blast_taxonomy", " blast_subject", "blast_perc_identity", "blast_perc_query_coverage", "blast_evalue", "blast_aln_length"]) + "\n" )
     for current_observation in biom.get_observations():
-        if len(current_observation["metadata"]["blast_affiliations"]) > 1:
+        if issubclass(current_observation['metadata']["blast_affiliations"].__class__, list) and len(current_observation["metadata"]["blast_affiliations"]) > 1:
             for current_aln in current_observation["metadata"]["blast_affiliations"]:
                 taxonomy = current_aln["taxonomy"]
                 if isinstance(taxonomy, list) or isinstance(taxonomy, tuple):
@@ -59,7 +60,7 @@ def multiAffiFromBiom( biom, output_tsv ):
                 line_parts = [
                     current_observation["id"],
                     taxonomy,
-                    current_aln["subject"],
+                    str(current_aln["subject"]),
                     str(current_aln["perc_identity"]),
                     str(current_aln["perc_query_coverage"]),
                     str(current_aln["evalue"]),
@@ -87,5 +88,5 @@ if __name__ == "__main__":
     # Process
     biom = BiomIO.from_json( args.input_file )
     if not biom.has_observation_metadata( 'blast_affiliations' ):
-        raise Exception( "'" + args.input_file  + "' cannot be used in " + sys.argv[0] + ": this file does not contain 'blast_affiliations'." )
+        raise_exception( Exception( "\n\n#ERROR : '" + args.input_file  + "' cannot be used in " + sys.argv[0] + ": this file does not contain 'blast_affiliations'.\n\n" ))
     multiAffiFromBiom( biom, args.output_file )

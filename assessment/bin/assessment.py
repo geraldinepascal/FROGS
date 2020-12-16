@@ -20,7 +20,7 @@ __author__ = 'Plateforme bioinformatique Toulouse - Sigenae Jouy en Josas'
 __copyright__ = 'Copyright (C) 2016 INRA'
 __license__ = 'GNU General Public License'
 __version__ = '1.1.1'
-__email__ = 'frogs-support@inra.fr'
+__email__ = 'frogs-support@inrae.fr'
 __status__ = 'prod'
 
 

@@ -1,4 +1,4 @@
-#!/usr/bin/env python2.7
+#!/usr/bin/env python3
 #
 # Copyright (C) 2014 INRA
 #
@@ -20,15 +20,29 @@ __author__ = 'Frederic Escudie - Plateforme bioinformatique Toulouse'
 __copyright__ = 'Copyright (C) 2015 INRA'
 __license__ = 'GNU General Public License'
 __version__ = '0.2.0'
-__email__ = 'frogs-support@inra.fr'
+__email__ = 'frogs-support@inrae.fr'
 __status__ = 'prod'
 
 import os
 import sys
 import time
 import subprocess
+from contextlib import contextmanager
 from subprocess import Popen, PIPE
 
+@contextmanager
+def disable_exception_traceback():
+    """
+    Only Exception type and value are return for identified Exception
+    """
+    default_value = getattr(sys, "tracebacklimit",1000) # this is the default value 
+    sys.tracebacklimit = 0
+    yield
+    sys.tracebacklimit = default_value #revert change
+
+def raise_exception(exception):
+    with disable_exception_traceback():
+        raise exception
 
 def which(exec_name):
     """
@@ -42,7 +56,7 @@ def which(exec_name):
         if exec_path is None and os.path.isfile(os.path.join(current_location, exec_name)):
             exec_path = os.path.abspath( os.path.join(current_location, exec_name) )
     if exec_path is None:
-        raise Exception( "The software '" + exec_name + "' cannot be retrieved in path." )
+        raise_exception( Exception( "\n\n#ERROR : The software '" + exec_name + "' cannot be retrieved in path.\n\n" ))
     return exec_path
 
 
@@ -53,17 +67,17 @@ def prevent_shell_injections(argparse_namespace, excluded_args=None):
     @param excluded_args: [list] List of unchecked parameters.
     """
     exceptions = list() if excluded_args is None else excluded_args
-    for param_name in argparse_namespace.__dict__.keys():
+    for param_name in list(argparse_namespace.__dict__.keys()):
         if not param_name in exceptions:
             param_val = getattr(argparse_namespace, param_name)
             if issubclass(param_val.__class__, list):
                 new_param_val = list()
                 for val in param_val:
-                    if ';' in val.encode('utf8') or '`' in val.encode('utf8') or '|' in val.encode('utf8'):
-                        raise Exception( "';' and '`' are unauthorized characters." ) 
+                    if ';' in val.encode('utf8').decode('utf8') or '`' in val.encode('utf8').decode('utf8') or '|' in val.encode('utf8').decode('utf8'):
+                        raise_exception( Exception( "\n\n#ERROR : ';' and '`' are unauthorized characters.\n\n" ) )
             elif param_val is not None and issubclass(param_val.__class__, str):
-                if ';' in param_val.encode('utf8') or '`' in param_val.encode('utf8') or '|' in param_val.encode('utf8'):
-                    raise Exception( "';' and '`' are unauthorized characters." )
+                if ';' in param_val.encode('utf8').decode('utf8') or '`' in param_val.encode('utf8').decode('utf8') or '|' in param_val.encode('utf8').decode('utf8'):
+                    raise_exception( Exception( "\n\n#ERROR : ';' and '`' are unauthorized characters.\n\n" ))
 
 
 class Cmd:
@@ -112,11 +126,11 @@ class Cmd:
                 p = Popen(cmd, shell=True, stdout=PIPE, stderr=PIPE)
                 stdout, stderr = p.communicate()
                 if location == 'stderr':
-                    return stderr.strip()
+                    return stderr.decode('utf-8').strip()
                 else:
-                    return stdout.strip()
+                    return stdout.decode('utf-8').strip()
             except:
-                raise Exception( "Version cannot be retrieve for the software '" + self.program + "'." )
+                raise_exception( Exception( "\n\n#ERROR : Version cannot be retrieve for the software '" + self.program + "'.\n\n" ))
 
     def parser(self, log_file):
         """
@@ -160,7 +174,7 @@ class Logger:
         """
         self.filepath = filepath
         if self.filepath is not None and self.filepath is not sys.stdout:
-            self.file_handle = open( self.filepath, "a" )
+            self.file_handle = open( self.filepath, "ta" )
         else:
             self.file_handle = sys.stdout
 

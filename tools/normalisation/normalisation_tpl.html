@@ -175,8 +175,8 @@
 		</style>
 		<!-- JS -->
 		<script type="text/javascript" src="https://code.jquery.com/jquery-2.1.3.min.js"></script>
-		<script type="text/javascript" src="https://code.highcharts.com/4.1.4/highcharts.js"></script>
-		<script type="text/javascript" src="https://code.highcharts.com/4.1.4/modules/exporting.js"></script>
+		<script type="text/javascript" src="https://code.highcharts.com/8.2.0/highcharts.js"></script>
+		<script type="text/javascript" src="https://code.highcharts.com/8.2.0/modules/exporting.js"></script>
 		<script type="text/javascript" src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
 		<script type="text/javascript" src="https://cdn.datatables.net/1.10.19/js/dataTables.bootstrap4.min.js"></script>
 		<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js" integrity="sha384-smHYKdLADwkXOn1EmN1qk/HfnUcbVRZyYmZ4qpPea6sjB/pTJ0euyQp0Mk8ck+5T" crossorigin="anonymous"></script>
@@ -265,18 +265,7 @@
 				];
 				return path;
 			};
-			/* Radial gradient ?*/
-			Highcharts.getOptions().colors = Highcharts.map(Highcharts.getOptions().colors, function (color) {
-				return {
-					radialGradient: { cx: 0.5, cy: 0.3, r: 0.7 },
-					stops: [
-						[0, color],
-						[1, Highcharts.Color(color).brighten(-0.1).get('rgb')] // darken
-					]
-				};
-			});
-			
-		    
+					    
 			/**
 			 * Returns the HTML table representation of the data. 
 			 * @param pTitle {String} The title of the table.
@@ -342,18 +331,26 @@
 						useHTML: true
 					},
 					plotOptions: {
-                        column: {
-							stacking: 'normal',
-							dataLabels: {
-								enabled: true,
-								style: {
+				        column: {
+				            stacking: 'normal',
+				            dataLabels: {
+				                enabled: true,
+				                useHTML: true,
+				                style: {
 									textShadow: false,
-									color: (Highcharts.theme && Highcharts.theme.textColor) || 'white'
-								}
-							},
-                            pointPadding: 0.2,
+									textOutline: false,
+				                  	fontWeight : 'bold'
+				                },
+				                formatter() {
+				                	var pointWidth = this.point.shapeArgs.width + 10;
+				                	var margin_top = this.point.shapeArgs.height < 20 ? -12 : 0;
+				                	return '<div class="datalabelInside" style="text-shadow:none;color:#8EADAC;position: absolute; margin-top:'+ margin_top+'px ;margin-left:' + pointWidth / 2 + 'px">' + numberDisplay(this.y) + '</div>';
+				                }
+	
+				            },
+				            pointPadding: 0.2,
                             borderWidth: 0
-                        }
+				        }
                     },
 					credits: {
 						enabled: false

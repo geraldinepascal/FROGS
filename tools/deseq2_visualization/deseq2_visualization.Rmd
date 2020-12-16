@@ -1,4 +1,5 @@
 ---
+title: "FROGSSTAT DESeq2: Visualization"
 output: 
   html_notebook:
     code_folding: hide
@@ -28,7 +29,7 @@ params:
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
 ```
-<h3>FROGSSTAT DESeq2: Visualization</h3>
+Phyloseq `r packageVersion("phyloseq")` and DESeq2 `r packageVersion("DESeq2")`
 
 # {.tabset .tabset-fade .tabset-pills}
 ## Diferentially abundant OTU table
