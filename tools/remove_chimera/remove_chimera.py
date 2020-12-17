@@ -62,6 +62,13 @@ class ParallelChimera(Cmd):
                       debug_option + size_separator_option + "--lenient-filter --nb-cpus " + str(nb_cpus) + " --sequences " + in_fasta + " --" + abundance_type + " " + in_abundance + " --non-chimera " + out_fasta + " --out-abundance " + out_abundance + " --summary " + out_summary + " --log-file " + log,
                       '--version' )
 
+    def get_version(self):
+        """
+        @summary: Returns the program version number.
+        @return: version number if this is possible, otherwise this method return 'unknown'.
+        """
+        return Cmd.get_version(self, 'stdout').strip()
+
 
 ##################################################################################################################################################
 #
