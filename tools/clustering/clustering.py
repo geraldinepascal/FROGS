@@ -210,19 +210,19 @@ def replaceNtags(in_fasta, out_fasta):
     FH_in = FastaIO(in_fasta)
     FH_out = FastaIO(out_fasta, "wt")
     for record in FH_in:
-        if "FROGS_combined" in record.id and "N" in record.string:
+        if "FROGS_combined" in record.id :
+            if not 100*"N" in record.string:
+                raise_exception(Exception("\n\n#ERROR : record " + record.id + " is a FROGS_combined sequence but it does not contain de 100N tags\n"))
+
             N_idx1 = record.string.find("N")
             N_idx2 = record.string.rfind("N")
-            replaced_nucl = "A"
-            if record.string[N_idx1-1] == "A" and record.string[N_idx2+1] == "A" : 
-                replaced_nucl ="C"
-            
-            record.string = record.string.replace("N",replaced_nucl)
+            replace_tag = 50*"A" + 50 * "C"
+            record.string = record.string.replace(100*"N",replace_tag)
 
             if record.description :
-                record.description += replaced_nucl + ":" + str(N_idx1) + ":" + str(N_idx2)
+                record.description += "50A50C:" + str(N_idx1) + ":" + str(N_idx2)
             else:
-                record.description = replaced_nucl + ":" + str(N_idx1) + ":" + str(N_idx2)
+                record.description = "50A50C:" + str(N_idx1) + ":" + str(N_idx2)
         FH_out.write(record)
 
     FH_in.close()
@@ -237,19 +237,18 @@ def addNtags(in_fasta, output_fasta):
 
     FH_in = FastaIO(in_fasta)
     FH_out = FastaIO(output_fasta, "wt")
-    regexpA = re.compile('A:\d+:\d+$')
-    regexpC = re.compile('C:\d+:\d+$')
+    regexp = re.compile('50A50C:\d+:\d+$')
 
     for record in FH_in:
-        if "FROGS_combined" in record.id and record.description:
-            search = regexpA.search(record.description)
-            if search is None :
-                search = regexpC.search(record.description)
-                if search is None:
-                    raise_exception( Exception("\n\n#ERROR : " + record.id + " is a FROGS_combined cluster but has not comining tag 100 As or 100 Cs to replace with 100 Ns\n\n"))
+        if "FROGS_combined" in record.id :
+            search = regexp.search(record.description)
+            if search is None:
+                raise_exception( Exception("\n\n#ERROR : " + record.id + " is a FROGS_combined cluster but has not combining tag positions in its description.\n\n"))
             
             desc = search.group()
             [N_idx1,N_idx2] = desc.split(":")[1:]
+            if record.string[int(N_idx1):int(N_idx2)+1] != 50*"A" + 50*"C":
+                raise_exception( Exception("\n\n#ERROR : " + record.id + " is a FROGS_combined cluster but has not combining tag 50 As followed by 50 Cs to replace with 100 Ns\n\n"))    
             record.string = record.string[:int(N_idx1)]+"N"*(int(N_idx2)-int(N_idx1)+1)+record.string[int(N_idx2)+1:]
             record.description = record.description.replace(desc,"")
         FH_out.write(record)
