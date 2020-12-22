@@ -168,7 +168,7 @@ if __name__ == "__main__":
     if len(sample_biom_spec) > 0 :
         Logger.static_write(args.log_file, "# WARNING : " + str(len(sample_biom_spec)) + " samples from your biom file are not present in your sample metadata file. They will be excluded from further analysis \n\t" + "; ".join(sample_biom_spec) + "\n\n")
     if len(sample_metadata_spec) > 0 :
-       raise_exception( Exception( "\n\n#ERROR : " + str(len(sample_metadata_spec)) + " among " + str(len(sample_metadata_list)) + " samples from your sample metadata file are not present in your biom file:\n\t" + ";".join(sample_metadata_spec) + "\nPlease give a sample metadata file that fits your abundance biom file\n\n"))
+       raise_exception( Exception( "\n\n#ERROR : " + str(len(sample_metadata_spec)) + " among " + str(len(sample_metadata_list)) + " samples from your sample metadata file are not present in your biom file:\n\t" + "; ".join(sample_metadata_spec) + "\nPlease give a sample metadata file that fits your abundance biom file\n\n"))
 
     if (args.treefile is None) :
         treefile="None"
