@@ -19,7 +19,7 @@
 __author__ = 'Frederic Escudie - Plateforme bioinformatique Toulouse - Maria Bernard - Sigenae Jouy en Josas'
 __copyright__ = 'Copyright (C) 2015 INRA'
 __license__ = 'GNU General Public License'
-__version__ = '0.7.1'
+__version__ = '0.7.2'
 __email__ = 'frogs-support@inrae.fr'
 __status__ = 'prod'
 
@@ -561,7 +561,7 @@ def get_vsearch_version():
         cmd = ["vsearch", "--version"]
         p = Popen(cmd, stdout=PIPE, stderr=PIPE)
         stdout, stderr = p.communicate()
-        version = stderr.split(",")[0].split()[1] # vsearch v1.1.3_linux_x86_64, 126.0GB RAM, 32 cores           
+        version = stderr.decode('utf-8').split(",")[0].split()[1] # vsearch v1.1.3_linux_x86_64, 126.0GB RAM, 32 cores           
     except:
         version = "unknown"
     return version
