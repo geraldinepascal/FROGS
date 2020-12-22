@@ -243,7 +243,7 @@ fi
 echo "Step clusters_stat `date`"
 
 clusters_stat.py \
- --input-biom $out_dir/07-affiliation_masked.biom \
+ --input-biom $out_dir/09-normalisation.biom \
  --output-file $out_dir/10-clustersStat.html \
  --log-file $out_dir/10-clustersStat.log
 
@@ -257,7 +257,7 @@ fi
 echo "Step affiliations_stat `date`"
 
 affiliations_stat.py \
- --input-biom $out_dir/07-affiliation_masked.biom \
+ --input-biom $out_dir/09-normalisation.biom \
  --output-file $out_dir/11-affiliationsStat.html \
  --log-file $out_dir/11-affiliationsStat.log \
  --tax-consensus-tag "blast_taxonomy" \
@@ -277,8 +277,8 @@ fi
 echo "Step biom_to_tsv `date`"
 
 biom_to_tsv.py \
- --input-biom $out_dir/07-affiliation_masked.biom \
- --input-fasta $out_dir/04-filters.fasta \
+ --input-biom $out_dir/09-normalisation.biom \
+ --input-fasta $out_dir/09-normalisation.fasta \
  --output-tsv $out_dir/12-biom2tsv.tsv \
  --output-multi-affi $out_dir/12-biom2tsv-affiliation_multihit.tsv \
  --log-file $out_dir/12-biom2tsv.log
@@ -293,7 +293,7 @@ echo "Step biom_to_stdBiom `date`"
 
 
 biom_to_stdBiom.py \
- --input-biom $out_dir/07-affiliation_masked.biom \
+ --input-biom $out_dir/09-normalisation.biom \
  --output-biom $out_dir/13-affiliation_std.biom \
  --output-metadata $out_dir/13-affiliation_multihit.tsv \
  --log-file $out_dir/13-biom2stdbiom.log
@@ -324,8 +324,8 @@ echo "Step tree : mafft `date`"
 
 tree.py \
  --nb-cpus $nb_cpu \
- --input-sequences $out_dir/04-filters.fasta \
- --biom-file $out_dir/07-affiliation_masked.biom \
+ --input-sequences $out_dir/09-normalisation.fasta \
+ --biom-file $out_dir/09-normalisation.biom \
  --out-tree $out_dir/15-tree-mafft.nwk \
  --html $out_dir/15-tree-mafft.html \
  --log-file $out_dir/15-tree-mafft.log
