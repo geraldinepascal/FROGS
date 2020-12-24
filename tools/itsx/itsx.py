@@ -73,8 +73,7 @@ class ITSx(Cmd):
             'parallelITSx.py',
             'identifies ITS sequences and extracts the ITS region',
             ' -f ' + in_fasta + ' -b ' + in_biom + options + ' --its '+ target + ' -o ' + out_fasta + ' -m ' + out_removed + ' -a ' + out_count + ' --log-file ' + log_file,
-            '--version'
-            )
+            '--version')
         self.program_log = log_file
 
 
@@ -106,6 +105,13 @@ class ITSx(Cmd):
         #        FH_log.write( '\t' + key + ' : ' + str(count_ITSx[key]) + '\n')
 
         FH_log.close()
+
+    def get_version(self):
+        """
+        @summary: Returns the program version number.
+        @return: version number if this is possible, otherwise this method return 'unknown'.
+        """
+        return Cmd.get_version(self, 'stdout').strip()
 
 
 ##################################################################################################################################################
