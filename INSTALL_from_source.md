@@ -149,59 +149,59 @@ ln -s $BIN_DIR/swarm-3.0.0/bin/swarm $FROGS_libexec/.
 cd $BIN_DIR
 wget http://eddylab.org/software/hmmer/hmmer-3.3.2.tar.gz
 tar xvzf hmmer-3.3.2.tar.gz
-cd hmmer-3.2.1/
+cd hmmer-3.3.2/
 ./configure
 make
 # check installation
 ./src/hmmpress -h
 ./src/hmmscan -h
 # add to FROGS
-ln -s $BIN_DIR/hmmer-3.2.1/src/hmmpress $FROGS_libexec/.
-ln -s $BIN_DIR/hmmer-3.2.1/src/hmmscan $FROGS_libexec/.
+ln -s $BIN_DIR/hmmer-3.3.2/src/hmmpress $FROGS_libexec/.
+ln -s $BIN_DIR/hmmer-3.3.2/src/hmmscan $FROGS_libexec/.
 ```
 
 **installation**
 ```bash
 cd $BIN_DIR
-wget http://microbiology.se/sw/ITSx_1.0.11.tar.gz
-tar -xvzf ITSx_1.0.11.tar.gz
-cd ITSx_1.0.11/
+wget http://microbiology.se/sw/ITSx_1.1.2.tar.gz
+tar -xvzf ITSx_1.1.2.tar.gz
+cd ITSx_1.1.2/
 # check installation
 ./ITSx -h 
-ln -s $BIN_DIR/ITSx_1.0.11/ITSx $FROGS_libexec/.
-ln -s $BIN_DIR/ITSx_1.0.11/ITSx_db $FROGS_libexec/.
+ln -s $BIN_DIR/ITSx_1.1.2/ITSx $FROGS_libexec/.
+ln -s $BIN_DIR/ITSx_1.1.2/ITSx_db $FROGS_libexec/.
 ```
 **recompile ITSx hmm files with your HMMER version**
 
 ```bash
-cd $BIN_DIR/ITSx_1.0.11/
+cd $BIN_DIR/ITSx_1.1.2/
 rm ITSx_db/HMMs/*.h3*
 for file in ITSx_db/HMMs/*.hmm
 do
-$BIN_DIR/hmmer-3.2.1/src/hmmpress $file
+$BIN_DIR/hmmer-3.3.2/src/hmmpress $file
 done
 # this will return an error because of empty N.hmm file, not our fault
 ```
 
-## 7) NCBI Blast+ blastn 2.7.1, for FROGS Affiliation_OTU
+## 7) NCBI Blast+ blastn 2.10.1, for FROGS Affiliation_OTU
 
 **installation**
 ```bash
 cd $BIN_DIR
-wget ftp://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/2.7.1/ncbi-blast-2.7.1+-x64-linux.tar.gz
-tar xvzf ncbi-blast-2.7.1+-x64-linux.tar.gz
+wget ftp://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/2.10.1/ncbi-blast-2.10.1+-x64-linux.tar.gz
+tar xvzf ncbi-blast-2.10.1+-x64-linux.tar.gz
 # check installation
-cd ncbi-blast-2.7.1+/bin/
+cd ncbi-blast-2.10.1+/bin/
 ./blastn -version
 # add to FROGS
-ln -s $BIN_DIR/ncbi-blast-2.7.1+/bin/blastn $FROGS_libexec/.
+ln -s $BIN_DIR/ncbi-blast-2.10.1+/bin/blastn $FROGS_libexec/.
 ```
 
-## 8) RDPClassifier 2.0.2.1, for FROGS Affiliation_OTU
+## 8) RDPClassifier 2.0.3, for FROGS Affiliation_OTU
 
-**require** : ant and java se jdk
+**require** : git ant and java se jdk
 ```bash
-sudo apt-get install ant default-jdk
+sudo apt-get install git ant default-jdk
 ```
 
 **installation**
@@ -209,7 +209,7 @@ sudo apt-get install ant default-jdk
 cd $BIN_DIR
 git clone https://github.com/rdpstaff/RDPTools.git
 cd RDPTools
-git checkout 2.0.2
+git checkout 2.0.3
 git submodule init
 git submodule update
 make
@@ -240,28 +240,28 @@ emboss/needleall -h
 ln -s $BIN_DIR/EMBOSS-6.6.0/emboss/needleall $FROGS_libexec/.
 ```
 
-## 10) MAFFT 7.407, for FROGS Tree
+## 10) MAFFT 7.475, for FROGS Tree
 **installation**
 ```bash
 cd $BIN_DIR
-wget https://mafft.cbrc.jp/alignment/software/mafft-7.407-with-extensions-src.tgz
-tar -xvzf mafft-7.407-with-extensions-src.tgz
-cd mafft-7.407-with-extensions
+wget https://mafft.cbrc.jp/alignment/software/mafft-7.475-with-extensions-src.tgz
+tar -xvzf mafft-7.475-with-extensions-src.tgz
+cd mafft-7.475-with-extensions
 ```
 Edit core/Makefile
-* change `PREFIX = /usr/local` with your MAFFT directory (like `# PREFIX = /home/frogs/bin/mafft-7.407-with-extensions/`
+* change `PREFIX = /usr/local` with your MAFFT directory (like `# PREFIX = /home/frogs/bin/mafft-7.475-with-extensions/`
 ```bash
 cd core
 make clean
 make
 make install
 # check installation
-$BIN_DIR/mafft-7.407-with-extensions/bin/mafft -h
+$BIN_DIR/mafft-7.475-with-extensions/bin/mafft -h
 # add to FROGS
-ln -s $BIN_DIR/mafft-7.407-with-extensions/scripts/mafft $FROGS_libexec/.
+ln -s $BIN_DIR/mafft-7.475-with-extensions/scripts/mafft $FROGS_libexec/.
 ```
 
-## 11) FastTree 2.1.10, for FROGS Tree
+## 11) FastTree 2.1.11, for FROGS Tree
 
 **installation**
 ```bash
@@ -276,12 +276,14 @@ chmod 777 FastTree
 ln -s $BIN_DIR/Fasttree/FastTree $FROGS_libexec/.
 ```
 
-## 12) R 3.6.1, for all FROGSSTAT Phyloseq tools
+## 12) R 3.6.3, for all FROGSSTAT Phyloseq tools
 
 **installation**
 
 add repository to `/etc/apt/sources.list` for  your ubuntu version! (see https://pbil.univ-lyon1.fr/CRAN/ , this is a french mirror), write `deb https://cloud.r-project.org/bin/linux/ubuntu xenial-cran35/ `at the end of the sources.list file
 ```bash
+# add secure key 
+sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys E298A3A825C0D65DFD57CBB651716619E084DAB9
 sudo apt-get update
 sudo apt-get install r-base
 # check installation
@@ -407,14 +409,14 @@ mv phyloseq-extended-0.99/* .
 rm -r phyloseq-extended-0.99/
 ```
 
-## 13) pandoc 2.10.1,  for all FROGSSTAT Phyloseq tools
+## 13) pandoc 2.11.3,  for all FROGSSTAT Phyloseq tools
 **installation**
 ```
 cd $BIN_DIR
 mkdir pandoc
 cd pandoc
-wget https://github.com/jgm/pandoc/releases/download/2.10.1/pandoc-2.10.1-1-amd64.deb
-sudo dpkg -i pandoc-2.10.1-1-amd64.deb
+wget https://github.com/jgm/pandoc/releases/download/2.11.3.2/pandoc-2.11.3.2-1-amd64.deb
+sudo dpkg -i pandoc-2.11.3.2-1-amd64.deb
 # add to FROGS
 ln -s /usr/bin/pandoc $FROGS_libexec/.
 ```
