@@ -7,7 +7,7 @@ It has been tested on a Xubuntu 16.04 virtual machine.
 Here we suppose to install dependencies in the same directory as FROGS.
 
 ```bash
-version=3.1.0
+version=3.2.0
 DIR=`pwd`
 BIN_DIR=$DIR/bin
 mkdir -p $BIN_DIR
@@ -63,16 +63,16 @@ sudo apt-get install autoconf libz-dev libbz2-dev
 
 ```bash
 cd $BIN_DIR
-wget https://github.com/torognes/vsearch/archive/v2.9.1.tar.gz
-tar xzf v2.9.1.tar.gz
-cd vsearch-2.9.1
+wget https://github.com/torognes/vsearch/archive/v2.15.1.tar.gz
+tar xzf v2.15.1.tar.gz
+cd vsearch-2.15.1
 ./autogen.sh
 ./configure
 make
 # test installation
 ./bin/vsearch -version
 # add to FROGS
-ln -s $BIN_DIR/vsearch-2.9.1/bin/vsearch $FROGS_libexec/.
+ln -s $BIN_DIR/vsearch-2.15.1/bin/vsearch $FROGS_libexec/.
 ```
 
 ## 2) FLASH 1.2.11 (optional), for FROGS Preprocess
@@ -95,60 +95,60 @@ ln -s $BIN_DIR/FLASH-1.2.11/flash $FROGS_libexec/.
 
 ask for download link and follow installation instructions
 
-## 4) cutadpat 2.8, for FROGS Preprocess
+## 4) cutadpat 3.1, for FROGS Preprocess
 
-**require** :  pip
+**require** :  pip3
 ```bash
-sudo apt-get install python-pip
+sudo apt-get install python3-pip
 ```
 
 **installation**
 ```bash
 cd $BIN_DIR
-mkdir cutadapt-2.8
-cd cutadapt-2.8
+mkdir cutadapt-3.1
+cd cutadapt-3.1
 # solution 1 : precise directory (not recommended if you want to use Galaxy)
-  sudo pip3 install --prefix=$BIN_DIR/cutadapt-2.8 cutadapt==2.8
+  sudo pip3 install --prefix=$BIN_DIR/cutadapt-3.1 cutadapt==3.1
   # add cutadapt python library to your PYTHONPATH
-  echo export PYTHONPATH="$BIN_DIR/cutadapt-2.8/lib/python2.7/site-packages:\$PYTHONPATH" >> ~/.bashrc
+  echo export PYTHONPATH="$BIN_DIR/cutadapt-3.1/lib/python3.??/site-packages:\$PYTHONPATH" >> ~/.bashrc
   # check installation
   ./bin/cutadapt --version
   # add to FROGS
-  ln -s $BIN_DIR/cutadapt-2.8/bin/cutadapt $FROGS_libexec/.
+  ln -s $BIN_DIR/cutadapt-3.1/bin/cutadapt $FROGS_libexec/.
 
 # solution 2 let pip3 install cutadapt (binary will be available in your PATH)
   #   in your home directory ~/.local/bin
-      pip3 install cutadapt==2.8
+      pip3 install cutadapt==3.1
   #   using sudo in /usr/local/bin
-      sudo pip3 install cutadapt==2.8
+      sudo pip3 install cutadapt==3.1
   # add to FROGS
   link=`which cutadapt`
   ln -s $link $FROGS_libexec/.
 ```
-## 5) swarm 2.2.2, for FROGS Clustering
+## 5) swarm 3.0.0, for FROGS Clustering
 
 **installation**
 ```bash
 cd $BIN_DIR
-wget https://github.com/torognes/swarm/archive/v2.2.2.tar.gz
-tar -vxzf v2.2.2.tar.gz
-cd swarm-2.2.2/src
+wget https://github.com/torognes/swarm/archive/v3.0.0.tar.gz
+tar -vxzf v3.0.0.tar.gz
+cd swarm-3.0.0/src
 make
 cd ../
 # check installation
 ./bin/swarm --version
 # add to FROGS
-ln -s $BIN_DIR/swarm-2.2.2/bin/swarm $FROGS_libexec/.
+ln -s $BIN_DIR/swarm-3.0.0/bin/swarm $FROGS_libexec/.
 ```
 
-## 6) ITSx 1.0.11, , for FROGS ITSx
+## 6) ITSx 1.1.2, , for FROGS ITSx
 
 **require** : HMMER >= 3.0
 
 ```bash
 cd $BIN_DIR
-wget http://eddylab.org/software/hmmer/hmmer-3.2.1.tar.gz
-tar xvzf hmmer-3.2.1.tar.gz
+wget http://eddylab.org/software/hmmer/hmmer-3.3.2.tar.gz
+tar xvzf hmmer-3.3.2.tar.gz
 cd hmmer-3.2.1/
 ./configure
 make
