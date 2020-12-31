@@ -28,14 +28,14 @@ tar -xvzf v$version.tar.gz
 
 ## Installing python and perl dependencies
 
-check python 2.7 and perl 5 installed (should be done by default on this system )
+check python 3 and perl 5 installed (should be done by default on this system )
 ```bash
 python --version
 perl --version
 ```
 else 
 ```bash
-sudo apt-get install python perl
+sudo apt-get install python3 perl
 ```
 
 check python package scipy
@@ -46,12 +46,12 @@ import scipy
 ```
 else
 ```bash
-sudo apt-get install python-scipy
+sudo apt-get install python3-scipy
 ```
 
 
 
-## 1) vsearch 2.9.1, for FROGS Preprocess and FROGS Remove_chimera
+## 1) vsearch 2.15.1, for FROGS Preprocess and FROGS Remove_chimera
 
 **require** :  autoconf, zlib and bzip2 libraries
 
