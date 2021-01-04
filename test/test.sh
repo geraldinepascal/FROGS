@@ -84,8 +84,8 @@ fi
 echo "Step remove_chimera `date`"
 
 remove_chimera.py \
- --input-fasta $out_dir/02-clustering.fasta \
- --input-biom $out_dir/02-clustering.biom \
+ --input-fasta $out_dir/02-clustering_fastidious.fasta \
+ --input-biom $out_dir/02-clustering_fastidious.biom \
  --non-chimera $out_dir/03-chimera.fasta \
  --out-abundance $out_dir/03-chimera.biom \
  --summary $out_dir/03-chimera.html \
