@@ -155,9 +155,6 @@ make
 # check installation
 ./src/hmmpress -h
 ./src/hmmscan -h
-# add to FROGS
-ln -s $BIN_DIR/hmmer-3.3.2/src/hmmpress $FROGS_libexec/.
-ln -s $BIN_DIR/hmmer-3.3.2/src/hmmscan $FROGS_libexec/.
 ```
 
 **installation**
@@ -422,26 +419,33 @@ Example:
 
 ```
 [user@computer]$ sh test.sh $DIR/FROGS-$version 2 4 res
-Step preprocess : Flash jeudi 27 décembre 2018, 10:26:09 (UTC+0100)
-Step preprocess : Vsearch jeudi 27 décembre 2018, 10:29:13 (UTC+0100)
-Step clustering jeudi 27 décembre 2018, 10:32:33 (UTC+0100)
-Step remove_chimera jeudi 27 décembre 2018, 10:41:35 (UTC+0100)
-Step filters jeudi 27 décembre 2018, 10:48:16 (UTC+0100)
-Step ITSx jeudi 27 décembre 2018, 10:48:29 (UTC+0100)
-Step affiliation_OTU jeudi 27 décembre 2018, 10:48:50 (UTC+0100)
-Step affiliation_postprocess jeudi 27 décembre 2018, 10:49:33 (UTC+0100)
-Step clusters_stat jeudi 27 décembre 2018, 10:49:33 (UTC+0100)
-Step affiliations_stat jeudi 27 décembre 2018, 10:49:35 (UTC+0100)
-Step biom_to_tsv jeudi 27 décembre 2018, 10:49:38 (UTC+0100)
-Step biom_to_stdBiom jeudi 27 décembre 2018, 10:49:39 (UTC+0100)
-Step tsv_to_biom jeudi 27 décembre 2018, 10:49:39 (UTC+0100)
-Step tree : mafft jeudi 27 décembre 2018, 10:49:39 (UTC+0100)
-Step r_import_data jeudi 27 décembre 2018, 10:50:59 (UTC+0100)
-Step r_composition jeudi 27 décembre 2018, 10:52:02 (UTC+0100)
-Step r_alpha_diversity jeudi 27 décembre 2018, 10:53:01 (UTC+0100)
-Step r_beta_diversity jeudi 27 décembre 2018, 10:53:33 (UTC+0100)
-Step r_structure jeudi 27 décembre 2018, 10:53:48 (UTC+0100)
-Step r_clustering jeudi 27 décembre 2018, 10:54:45 (UTC+0100)
-Step r_manova jeudi 27 décembre 2018, 10:54:59 (UTC+0100)
+Step preprocess : Flash lundi 4 janvier 2021, 14:03:15 (UTC+0100)
+Step preprocess : Vsearch lundi 4 janvier 2021, 14:06:56 (UTC+0100)
+Step clustering lundi 4 janvier 2021, 14:09:29 (UTC+0100)
+Step remove_chimera lundi 4 janvier 2021, 14:11:03 (UTC+0100)
+Step otu filters lundi 4 janvier 2021, 14:16:18 (UTC+0100)
+Step ITSx lundi 4 janvier 2021, 14:16:35 (UTC+0100)
+Step affiliation_OTU lundi 4 janvier 2021, 14:16:35 (UTC+0100)
+Many-to-many pairwise alignments of two sequence sets
+Step affiliation_filter: masking mode lundi 4 janvier 2021, 14:16:43 (UTC+0100)
+Step affiliation_filter: deleted mode lundi 4 janvier 2021, 14:16:44 (UTC+0100)
+Step affiliation_postprocess lundi 4 janvier 2021, 14:16:45 (UTC+0100)
+Step normalisation lundi 4 janvier 2021, 14:16:46 (UTC+0100)
+Step clusters_stat lundi 4 janvier 2021, 14:16:46 (UTC+0100)
+Step affiliations_stat lundi 4 janvier 2021, 14:16:47 (UTC+0100)
+Step biom_to_tsv lundi 4 janvier 2021, 14:16:48 (UTC+0100)
+Step biom_to_stdBiom lundi 4 janvier 2021, 14:16:48 (UTC+0100)
+Step tsv_to_biom lundi 4 janvier 2021, 14:16:48 (UTC+0100)
+Step tree lundi 4 janvier 2021, 14:16:49 (UTC+0100)
+Loading required package: ape
+Step phyloseq_import_data lundi 4 janvier 2021, 14:17:12 (UTC+0100)
+Step phyloseq_composition lundi 4 janvier 2021, 14:18:09 (UTC+0100)
+Step phyloseq_alpha_diversity lundi 4 janvier 2021, 14:19:00 (UTC+0100)
+Step phyloseq_beta_diversity lundi 4 janvier 2021, 14:19:31 (UTC+0100)
+Step phyloseq_structure lundi 4 janvier 2021, 14:19:47 (UTC+0100)
+Step phyloseq_clustering lundi 4 janvier 2021, 14:20:38 (UTC+0100)
+Step phyloseq_manova lundi 4 janvier 2021, 14:20:54 (UTC+0100)
+Step deseq2_preprocess lundi 4 janvier 2021, 14:21:10 (UTC+0100)
+Step deseq2_visualization lundi 4 janvier 2021, 14:21:43 (UTC+0100)
 Completed with success
 ```
