@@ -201,7 +201,7 @@ ln -s $BIN_DIR/ncbi-blast-2.10.1+/bin/blastn $FROGS_libexec/.
 
 **require** : git ant and java se jdk
 ```bash
-sudo apt-get install git ant default-jdk
+sudo apt-get install git ant openjdk-8-jdk
 ```
 
 **installation**
@@ -280,7 +280,7 @@ ln -s $BIN_DIR/Fasttree/FastTree $FROGS_libexec/.
 
 **installation**
 
-add repository to `/etc/apt/sources.list` for  your ubuntu version! (see https://pbil.univ-lyon1.fr/CRAN/ , this is a french mirror), write `deb https://cloud.r-project.org/bin/linux/ubuntu xenial-cran35/ `at the end of the sources.list file
+add repository to `/etc/apt/sources.list` for  your ubuntu version! (see https://pbil.univ-lyon1.fr/CRAN/ , this is a french mirror), write `deb https://cloud.r-project.org/bin/linux/ubuntu bionic-cran35/ `at the end of the sources.list file
 ```bash
 # add secure key 
 sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys E298A3A825C0D65DFD57CBB651716619E084DAB9
@@ -297,7 +297,8 @@ ln -s $link $FROGS_libexec/.
 **require (outside R) **  : httr which need openssl and curl (for plotly)
 
 ```bash
-sudo apt-get install libssl-dev libcurl4-openssl-dev
+sudo apt-get install libssl-dev libcurl4-openssl-dev libfontconfig1-dev libgit2-dev libcairo2-dev
+
 ```
 
 **installation**
@@ -317,12 +318,6 @@ install.packages("phangorn", dependencies = TRUE)
 # check installation
 library(phangorn)
 ```
-* rmarkdown
-```R
-install.packages("rmarkdown", dependencies = TRUE)
-# check installation
-library(rmarkdown)
-```
 
 * phyloseq (this will take some times)
 ```R
@@ -332,11 +327,6 @@ BiocManager::install("phyloseq")
 # it should install automatically package dependencies
 # check installation
 library(phyloseq)
-
-# I had to previously (re)install cluster for vegan 
-# install.packages("cluster")
-# install.packages("vegan")
-
 ```
 
 * DESeq2
@@ -370,19 +360,10 @@ library(phyloseq)
 * formattable
 
   ```R
-  install.packages("calibrate")
+  install.packages("formattable")
   # check installation
-  library(calibrate)
+  library(formattable)
   ```
-
-* DT
-
-  ```R
-  install.packages("DT")
-  # check installation
-  library(DT)
-  ```
-
 
 ### validation 
 
@@ -390,13 +371,16 @@ library(phyloseq)
 sessionInfo()
 
 other attached packages:
-
-DESeq2_1.24.0            SummarizedExperiment_1.14.1      DelayedArray_0.10.0  
-BiocParallel_1.18.1      matrixStats_0.55.0               Biobase_2.44.0              
-GenomicRanges_1.36.1     GenomeInfoDb_1.20.0              IRanges_2.18.3              
-S4Vectors_0.22.1         BiocGenerics_0.30.0              phyloseq_1.28.0            
-gridExtra_2.3            rmarkdown_1.16                   phangorn_2.5.5              
-ape_5.3                  plotly_4.9.0                     ggplot2_3.2.1 
+ [1] formattable_0.2.0.1         calibrate_1.7.7            
+ [3] MASS_7.3-53                 optparse_1.6.6             
+ [5] DESeq2_1.26.0               SummarizedExperiment_1.16.1
+ [7] DelayedArray_0.12.3         BiocParallel_1.20.1        
+ [9] matrixStats_0.57.0          Biobase_2.46.0             
+[11] GenomicRanges_1.38.0        GenomeInfoDb_1.22.1        
+[13] IRanges_2.20.2              S4Vectors_0.24.4           
+[15] BiocGenerics_0.32.0         phyloseq_1.30.0            
+[17] phangorn_2.5.5              ape_5.4-1                  
+[19] plotly_4.9.2.2              ggplot2_3.3.3  
 ```
 versions may change!
 
@@ -418,15 +402,17 @@ cd pandoc
 wget https://github.com/jgm/pandoc/releases/download/2.11.3.2/pandoc-2.11.3.2-1-amd64.deb
 sudo dpkg -i pandoc-2.11.3.2-1-amd64.deb
 # add to FROGS
-ln -s /usr/bin/pandoc $FROGS_libexec/.
+link=`which pandoc`
+ln -s $link $FROGS_libexec/.
 ```
 
 ## Test FROGS
 To check your installation you can type:
 ```
 cd $FROGS_test
-sh test.sh ../ <NB_CPU> <JAVA_MEM> <OUT_FOLDER>
-# Note: JAVA_MEM must be at least 4 (= 4Gb of RAM).
+# sh test.sh ../ <NB_CPU> <JAVA_MEM> <OUT_FOLDER>
+sh test.sh ../ 1 2 results
+# Note: JAVA_MEM must be at least 2 (= 2Gb of RAM).
 ```
 "Bioinformatic" tools are performed on a small simulated dataset of one sample replicated three times.
 "Statistical" tools are performed on an extract of the published results of Chaillou et al, ISME 2014, doi:10.1038/ismej.2014.202
