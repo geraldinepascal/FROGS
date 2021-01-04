@@ -418,7 +418,6 @@ This test executes the FROGS tools in command line mode.
 Example:
 
 ```
-[user@computer]$ sh test.sh $DIR/FROGS-$version 2 4 res
 Step preprocess : Flash lundi 4 janvier 2021, 14:03:15 (UTC+0100)
 Step preprocess : Vsearch lundi 4 janvier 2021, 14:06:56 (UTC+0100)
 Step clustering lundi 4 janvier 2021, 14:09:29 (UTC+0100)
