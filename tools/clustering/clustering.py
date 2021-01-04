@@ -311,7 +311,7 @@ if __name__ == "__main__":
             args.denoising = False
 
         SortFasta( args.input_fasta, sorted_fasta, args.debug ).submit( args.log_file )
-        Logger.static_write(args.log_file, "repalce N tags by A. in: " + sorted_fasta + " out : "+ replaceN_fasta +"\n")
+        Logger.static_write(args.log_file, "repalce 100 N tags by 50A-50C in: " + sorted_fasta + " out : "+ replaceN_fasta +"\n")
         replaceNtags(sorted_fasta, replaceN_fasta)
 
         if args.denoising and args.distance > 1:
@@ -336,7 +336,7 @@ if __name__ == "__main__":
 
         Swarm2Biom( args.output_compo, args.input_count, args.output_biom ).submit( args.log_file )
         ExtractSwarmsFasta( final_sorted_fasta, swarms_file, swarms_seeds ).submit( args.log_file )
-        Logger.static_write(args.log_file, "replace A tags by N. in: " + swarms_seeds + " out : "+ args.output_fasta +"\n")
+        Logger.static_write(args.log_file, "replace 50A-50C  tags by N. in: " + swarms_seeds + " out : "+ args.output_fasta +"\n")
         addNtags(swarms_seeds, args.output_fasta)
 
     # Remove temporary files

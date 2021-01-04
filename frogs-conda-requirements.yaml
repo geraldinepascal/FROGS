@@ -1,0 +1,27 @@
+channels:
+  - conda-forge
+  - bioconda
+dependencies:
+# bioconda
+  - frogs=3.2.0
+  - emboss=6.6.0
+  - flash=1.2.11
+  - cutadapt=3.1
+  - swarm=3.0.0
+  - vsearch=2.15.1
+  - itsx=1.1.2
+  - blast=2.10.1
+  - mafft=7.475
+  - fasttree=2.1.10
+  - bioconductor-phyloseq=1.28.0
+  - bioconductor-deseq2=1.24.0
+  - r-phangorn=2.5.5
+# conda-forge
+  - r-optparse=1.6.6
+  - r-rmarkdown=1.1
+  - r-plotly=4.9.2.2
+  - r-gridextra=2.3
+  - r-calibrate=1.7.7
+  - r-formattable=0.2.0.1
+  - r-dt=0.16
+  - pandoc=2.11.3.1
