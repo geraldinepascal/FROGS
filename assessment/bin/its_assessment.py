@@ -92,7 +92,7 @@ if __name__ == "__main__":
 
     # Global Comparison of tax
     print "#Global metrics"
-    cmd_Globalcompare = "its_GlobalTaxCmp2.py" \
+    cmd_Globalcompare = "its_GlobalTaxCmp.py" \
             + " --real-biom " + os.path.abspath(real_biom) \
             + " --real-tax-key 'real_taxonomy'" \
             + " --checked-biom " + os.path.abspath(args.checked_biom) \
@@ -109,7 +109,7 @@ if __name__ == "__main__":
     for current_sample in samples:
         Logger.static_write(args.log_file, "\n#Sample "+current_sample['name'] + "\n")
         print "#Sample "+current_sample['name']
-        cmd_compareSample = "its_biomCmpTax2.py" \
+        cmd_compareSample = "its_biomCmpTax.py" \
             + " --real-biom " + os.path.abspath(real_biom) \
             + " --real-tax-key 'real_taxonomy'" \
             + " --checked-biom " + os.path.abspath(args.checked_biom) \
