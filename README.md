@@ -6,8 +6,7 @@
 
 Visit our web site : http://frogs.toulouse.inrae.fr/
 
-
-[![Release](https://img.shields.io/badge/release-3.2.0-blue.svg)![Date](https://img.shields.io/badge/date-May%202020-red.svg)](https://github.com/geraldinepascal/FROGS-wrappers/releases) [<img src="https://www.podcastscience.fm/wp-content/uploads/2017/12/deezer.png" width="5%" style="display: block; margin: auto;"/>](https://www.deezer.com/fr/playlist/5233843102?utm_source=deezer&utm_content=playlist-5233843102&utm_term=18632989_1545296531&utm_medium=web)
+[![Release](https://img.shields.io/badge/release-3.2.0-blue.svg)![Date](https://img.shields.io/badge/date-December%202020-red.svg)](https://github.com/geraldinepascal/FROGS-wrappers/releases) [<img src="https://www.podcastscience.fm/wp-content/uploads/2017/12/deezer.png" width="5%" style="display: block; margin: auto;"/>](https://www.deezer.com/fr/playlist/5233843102?utm_source=deezer&utm_content=playlist-5233843102&utm_term=18632989_1545296531&utm_medium=web)
 
 
 
@@ -19,10 +18,11 @@ FROGS-wrappers allow to add FROGS on a Galaxy instance. (see https://github.com/
 
 This workflow is focused on:
 
-- User-friendliness with lots of rich graphic outputs and the integration in Galaxy thanks to FROGS-wrappers
-- Accuracy with a clustering without global similarity threshold, the management of multi-affiliations and management of separated PCRs in the chimera removal step
-- Speed with fast algorithms and an easy to use parallelisation
-- Scalability with algorithms designed to support the data growth
+- User-friendliness with lots of rich graphic outputs and the integration in Galaxy thanks to FROGS-wrappers.
+- Accuracy with a clustering without global similarity threshold, the management of separated PCRs in the chimera removal step, and the management of multi-affiliations.
+- Dealing of non overlapping pair of sequences from long amplicon like ITS, or RPB2.
+- Speed with fast algorithms parallelisation and easy to use.
+- Scalability with algorithms designed to support the data growth.
 
 
 
@@ -55,7 +55,7 @@ Legend for the next schemas:
 *: PCR primers
 ```
 * Paired-end classical protocol:
-In the paired-end protocol R1 and R2 must share a nucleic region. 
+In the paired-end protocol R1 and R2 may share a nucleic region. 
 For example the amplicons on 16S V3-V4 regions can have a length between 350 and 500nt, with 2*300pb sequencing the overlap is between 250nt and 100nt. 
 ```
         From:                                    To:
@@ -95,45 +95,46 @@ This FROGS repository is for command line user. If you want to install FROGS on 
 
 ## Tools dependancies
 
-FROGS is written in Python 3.7, uses home-made scripts written in PERL5 and R 3.6 and uses external Python library, numpy and Scipy.
+FROGS is written in Python 3.7 (with external numpy and Scipy libraries) , uses also home-made scripts written in PERL5 and R 3.6.
 
-FROGS relies on different specific tools for each of the analysis step.
+FROGS relies on different specific tools for each of the analysis steps.
 
-| FROGS Tools                   |                          Dependancy                          |       version tested | last version |
-| ----------------------------- | :----------------------------------------------------------: | -------------------: | ------------ |
-| Preprocess and Remove_chimera |        [vsearch](https://github.com/torognes/vsearch)        | from 2.9.1 to 2.13.1 | 2.14.2       |
-| Preprocess                    | [flash](https://sourceforge.net/projects/flashpage/files/) (optional) |               1.2.11 | last         |
-| Preprocess                    |       [cutadapt](https://github.com/marcelm/cutadapt)        |                 1.18 | 2.9          |
-| Clustering                    |          [swarm](https://github.com/torognes/swarm)          |                2.2.2 | 3.0.0        |
-| ITSx                          |        [ITSx](http://microbiology.se/software/itsx/)         |      1.0.11 and 1.1b | 1.1.2         |
-| Affiliation_OTU               | [NCBI BLAST+](http://blast.ncbi.nlm.nih.gov/Blast.cgi?PAGE_TYPE=BlastDocs&DOC_TYPE=Download) |                2.7.1 | 2.9.0        |
-| Affiliation_OTU               |    [RDP Classifier](https://github.com/rdpstaff/RDPTools)    |                2.0.3 | last         |
-| Affiliation_OTU               | [EMBOSS needleall](http://emboss.sourceforge.net/apps/release/6.6/emboss/apps/needleall.html) |                6.6.0 | last         |
-| Tree                          |       [MAFFT](https://mafft.cbrc.jp/alignment/server/)       |                7.407 | 7.464        |
-| Tree                          |     [Fasttree](http://www.microbesonline.org/fasttree/)      |               2.1.10 | last         |
-| Tree / FROGSSTAT              | [plotly](https://plotly.com/r/), [phangorn](https://cran.r-project.org/web/packages/phangorn/index.html), [rmarkdown](https://cran.r-project.org/web/packages/rmarkdown/index.html), [phyloseq](https://joey711.github.io/phyloseq/), [DESeq2](https://bioconductor.org/packages/release/bioc/html/DESeq2.html), [optparse](https://cran.r-project.org/web/packages/optparse/index.html), [calibrate](https://cran.r-project.org/web/packages/calibrate/index.html), [formattable](https://cran.r-project.org/web/packages/formattable/), [DT](https://cran.r-project.org/web/packages/DT/index.html) |  depend on R version |              |
+| FROGS Tools |Dependancy  | version tested |
+| ----------- | :--------: | -------------: |
+| Preprocess and Remove_chimera |        [vsearch](https://github.com/torognes/vsearch)        | 2.15.1 |
+| Preprocess                    | [flash](https://sourceforge.net/projects/flashpage/files/) (optional) |               1.2.11 |
+| Preprocess                    |       [cutadapt](https://github.com/marcelm/cutadapt)        |            3.1 |
+| Clustering                    |          [swarm](https://github.com/torognes/swarm)          |            3.0.0 |
+| ITSx                          |        [ITSx](http://microbiology.se/software/itsx/)         |  1.1.2 |
+| Affiliation_OTU               | [NCBI BLAST+](http://blast.ncbi.nlm.nih.gov/Blast.cgi?PAGE_TYPE=BlastDocs&DOC_TYPE=Download) |          2.10.1 |
+| Affiliation_OTU               |    [RDP Classifier](https://github.com/rdpstaff/RDPTools)    |                2.0.3 |
+| Affiliation_OTU               | [EMBOSS needleall](http://emboss.sourceforge.net/apps/release/6.6/emboss/apps/needleall.html) |                6.6.0 |
+| Tree                          |       [MAFFT](https://mafft.cbrc.jp/alignment/server/)       |                7.475 |
+| Tree                          |     [Fasttree](http://www.microbesonline.org/fasttree/)      |               2.1.10 |
+| Tree / FROGSSTAT              | [plotly](https://plotly.com/r/), [phangorn](https://cran.r-project.org/web/packages/phangorn/index.html), [rmarkdown](https://cran.r-project.org/web/packages/rmarkdown/index.html), [phyloseq](https://joey711.github.io/phyloseq/), [DESeq2](https://bioconductor.org/packages/release/bioc/html/DESeq2.html), [optparse](https://cran.r-project.org/web/packages/optparse/index.html), [calibrate](https://cran.r-project.org/web/packages/calibrate/index.html), [formattable](https://cran.r-project.org/web/packages/formattable/), [DT](https://cran.r-project.org/web/packages/DT/index.html) |              R 3.6.3 |
+| FROGSSTAT | [pandoc](https://pandoc.org/) | 2.11.3|
 
 ### **Use PEAR as read pairs merging software in preprocess**
 
-[PEAR](https://cme.h-its.org/exelixis/web/software/pear/) is one of the most effective software for read pairs merging, but as its licence is not free for private use, we can not distribute it in FROGS.
-If you work in an academic lab on a private Galaxy server, or if you have paid your licence you can use PEAR in FROGS preprocess.
+[PEAR](https://cme.h-its.org/exelixis/web/software/pear/) is one of the most effective software for read pairs merging, but as its license is not free for private use, we can not distribute it in FROGS.
+If you work in an academic lab on a private Galaxy server, or if you have paid your license you can use PEAR in FROGS preprocess.
 For that you need to:
 
-- have PEAR in your PATH or in the FROGS libexec directory. We have tested PEAR 0.9.10 version.
+- have PEAR in your PATH or in the FROGS libexec directory. We have tested PEAR 0.9.10 version (last version 0.9.11).
 - use `--merge-software pear` option in the preprocess.py command line
 
 ## FROGS and dependancies installation
 
-### From bioconda
+### From conda
 
 FROGS is now available on bioconda (https://anaconda.org/bioconda/frogs).
 
   * to create a specific environment for a specific FROGS version
 
 ```
-conda create --name __frogs@3.2.0 frogs=3.2.0
+conda env create --name __frogs@3.2.0 --file frogs-conda-requirements.yaml
 # to use FROGS, first you need to activate your environment
-source activate __frogs@3.2.0
+conda activate __frogs@3.2.0
 ```
 
 ### From source
@@ -145,42 +146,44 @@ see [INSTALL_from_source.md](INSTALL_from_source.md)
 To check your installation you can type:
 ```
 cd <FROGS_PATH>/test
+# when using conda FROGS_PATH=<conda_env_dir>/__frogs@3.2.0/share/FROGS_3.2.0
 
-sh test.sh ~/FROGS <NB_CPU> <JAVA_MEM> <OUT_FOLDER>
-# Note: JAVA_MEM must be at least 4 (= 4Gb of RAM).
+sh test.sh <FROGS_PATH> <NB_CPU> <JAVA_MEM> <OUT_FOLDER>
 ```
 "Bioinformatic" tools are performed on a small simulated dataset of one sample replicated three times.
-"Statistical" tools are performed on an extract of the published results of Chaillou et al, ISME 2014, doi:10.1038/ismej.2014.202
+"Statistical" tools are performed on an extract of the published results of [Chaillou et al, ISME 2014](https://doi.org/10.1038/ismej.2014.202)
 
 This test executes the FROGS tools in command line mode.
 Example:
+
 ```
-[user@computer:/home/frogs/FROGS/test/]$ sh test.sh ~/FROGS 1 2 res
-Step preprocess : Flash lundi 11 mai 2020, 17:31:35 (UTC+0200)
-Step preprocess : Vsearch lundi 11 mai 2020, 17:34:48 (UTC+0200)
-Step clustering lundi 11 mai 2020, 17:39:00 (UTC+0200)
-Step remove_chimera lundi 11 mai 2020, 17:44:21 (UTC+0200)
-Step otu filters lundi 11 mai 2020, 17:47:17 (UTC+0200)
-Step ITSx lundi 11 mai 2020, 17:47:29 (UTC+0200)
-Step affiliation_OTU lundi 11 mai 2020, 17:47:30 (UTC+0200)
-Step affiliation_filter: masking mode lundi 11 mai 2020, 17:48:13 (UTC+0200)
-Step affiliation_filter: deleted mode lundi 11 mai 2020, 17:48:13 (UTC+0200)
-Step affiliation_postprocess lundi 11 mai 2020, 17:48:13 (UTC+0200)
-Step clusters_stat lundi 11 mai 2020, 17:48:14 (UTC+0200)
-Step affiliations_stat lundi 11 mai 2020, 17:48:16 (UTC+0200)
-Step biom_to_tsv lundi 11 mai 2020, 17:48:22 (UTC+0200)
-Step biom_to_stdBiom lundi 11 mai 2020, 17:48:22 (UTC+0200)
-Step tsv_to_biom lundi 11 mai 2020, 17:48:22 (UTC+0200)
-Step tree : mafft lundi 11 mai 2020, 17:48:23 (UTC+0200)
-Step r_import_data lundi 11 mai 2020, 17:49:03 (UTC+0200)
-Step r_composition lundi 11 mai 2020, 17:49:50 (UTC+0200)
-Step r_alpha_diversity lundi 11 mai 2020, 17:50:37 (UTC+0200)
-Step r_beta_diversity lundi 11 mai 2020, 17:51:05 (UTC+0200)
-Step r_structure lundi 11 mai 2020, 17:51:21 (UTC+0200)
-Step r_clustering lundi 11 mai 2020, 17:52:06 (UTC+0200)
-Step r_manova lundi 11 mai 2020, 17:52:21 (UTC+0200)
-Step deseq2_preprocess lundi 11 mai 2020, 17:52:35 (UTC+0200)
-Step deseq2_visualization lundi 11 mai 2020, 17:53:06 (UTC+0200)
+[user@computer:/home/frogs/FROGS/test/]$ sh test.sh ../ 1 2 res
+Step preprocess : Flash mardi 10 novembre 2020, 10:56:56 (UTC+0100)
+Step preprocess : Vsearch mardi 10 novembre 2020, 10:59:57 (UTC+0100)
+Step clustering mardi 10 novembre 2020, 11:02:51 (UTC+0100)
+Step remove_chimera mardi 10 novembre 2020, 11:08:31 (UTC+0100)
+Step otu filters mardi 10 novembre 2020, 11:13:43 (UTC+0100)
+Step ITSx mardi 10 novembre 2020, 11:14:00 (UTC+0100)
+Step affiliation_OTU mardi 10 novembre 2020, 11:14:01 (UTC+0100)
+Step affiliation_filter: masking mode mardi 10 novembre 2020, 11:14:53 (UTC+0100)
+Step affiliation_filter: deleted mode mardi 10 novembre 2020, 11:14:54 (UTC+0100)
+Step affiliation_postprocess mardi 10 novembre 2020, 11:14:54 (UTC+0100)
+Step normalisation mardi 10 novembre 2020, 11:14:55 (UTC+0100)
+Step clusters_stat mardi 10 novembre 2020, 11:14:55 (UTC+0100)
+Step affiliations_stat mardi 10 novembre 2020, 11:14:58 (UTC+0100)
+Step biom_to_tsv mardi 10 novembre 2020, 11:15:05 (UTC+0100)
+Step biom_to_stdBiom mardi 10 novembre 2020, 11:15:06 (UTC+0100)
+Step tsv_to_biom mardi 10 novembre 2020, 11:15:06 (UTC+0100)
+Step tree mardi 10 novembre 2020, 11:15:06 (UTC+0100)
+Step phyloseq_import_data mardi 10 novembre 2020, 11:16:36 (UTC+0100)
+Step phyloseq_composition mardi 10 novembre 2020, 11:18:00 (UTC+0100)
+Step phyloseq_alpha_diversity mardi 10 novembre 2020, 11:19:31 (UTC+0100)
+Step phyloseq_beta_diversity mardi 10 novembre 2020, 11:20:19 (UTC+0100)
+Step phyloseq_structure mardi 10 novembre 2020, 11:20:45 (UTC+0100)
+Step phyloseq_clustering mardi 10 novembre 2020, 11:21:59 (UTC+0100)
+Step phyloseq_manova mardi 10 novembre 2020, 11:22:20 (UTC+0100)
+Step deseq2_preprocess mardi 10 novembre 2020, 11:22:42 (UTC+0100)
+Step deseq2_visualization mardi 10 novembre 2020, 11:23:29 (UTC+0100)
 Completed with success
 ```
 
@@ -243,10 +246,6 @@ With some old versions of glibc the virtual memory used by CPU is multiplicative
 
 The parameters memory and CPU provided in examples take into account this problem.
 
-## Abnormal threads consumption in RDPClassifier
-With large databases like silva NR the RDPClassifier opens automatically a large number of threads. These threads use all the available CPU ressources. This is not an acceptable behaviour in multi-user context.
-To prevent this behaviour the tool 'affiliation_OTU' uses taskset to force RDPClassifier to run only on the specified number of CPUs. The number of threads is not changed but the CPU consumption is controled.
-
 
 # License
 GNU GPL v3
@@ -257,8 +256,8 @@ GNU GPL v3
 
 
 # Citation
-Please cite the **FROGS article**: *Escudie F., et al. Bioinformatics, 2018. FROGS: Find, Rapidly, OTUs with Galaxy Solution.*
+Please cite the [**FROGS article**: *Escudie F., et al. Bioinformatics, 2018. FROGS: Find, Rapidly, OTUs with Galaxy Solution.*](https://doi.org/10.1093/bioinformatics/btx791)
 
 
 # Contact
-frogs@inrae.fr
+frogs-support@inrae.fr

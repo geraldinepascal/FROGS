@@ -60,7 +60,7 @@ def get_ITSx_version():
         p = Popen(cmd, stdout=PIPE, stderr=PIPE)
         stdout, stderr = p.communicate()
 
-        for line in stderr.split("\n"):
+        for line in stderr.decode('utf-8').split("\n"):
             if line.startswith("Version"):
                 return line.split()[-1].strip()
     except:

@@ -322,6 +322,9 @@ def filter_biom(in_biom_file, impacted_file, output_file, params):
     for observation in in_biom.get_observations():
         if not 'comment' in observation['metadata']:
             observation['metadata']['comment']=list()
+        # in old version of FROGS comment may be a string
+        elif issubclass(observation['metadata']['comment'].__class__, str):
+            observation['metadata']['comment'] = observation['metadata']['comment'].split(";")
 
         # filter on RDP boostrap criteria
         filter_on_rdpBootstrap = True

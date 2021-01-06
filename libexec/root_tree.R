@@ -4,13 +4,12 @@
 author = 'Maria Bernard - Sigenae'
 copyright = 'Copyright (C) 2015 INRA'
 license = 'GNU General Public License'
-version = '1.0.0'
+version = '1.1.0'
 email = 'frogs@inra.fr'
 status = 'prod'
 
 
 ############ IMPORT ###############
-library(ape)
 library(phangorn)
 
 ########### FUNCTIONS #############
@@ -18,7 +17,7 @@ library(phangorn)
 usage <- function(){
 # 
 message <- paste(sep="\n" ,"# Description : ", "\troot_tree.R is dedicated to root tree thanks to a midpoint method",
-	paste("\troot_tree.R",version ),
+	paste("\troot_tree.R",cat(get_version()) ),
 	"# Usage : ","\tRscript root_tree.R input_tree.nwk output_rooted_tree.nwk",
 	"",
 	"  input_tree.nwk : \t\t Path file of input tree to root" ,
@@ -34,7 +33,11 @@ root_tree <- function(in_tree, out_tree){
 	write.tree(rooted_tree, file=out_tree)
 }
 
-
+get_version <- function(){
+	phangorn_version = packageVersion("phangorn")
+	version = cat( version ," [R : ",  R.version$major, ".",  R.version$minor, "; phangorn : ", as.character(phangorn_version), "]\n", sep="") 
+	return(version)
+}
 ########### MAIN #################
 # Get all arguments
 args <- commandArgs(trailingOnly = TRUE)
@@ -45,7 +48,7 @@ if (args[1]=="-h" || length(args)==0){
 	quit()
 }
 if (args[1]=="-v"){
-	cat("root_tree.R : ", version ,"\n") 
+	cat(get_version())
 	quit()
 }
 if(length(args) != 2 ){

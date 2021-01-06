@@ -241,8 +241,60 @@ def extract_FROGS_combined(input_fasta, fasta_full_length, fasta_combined):
     FH_AC.close()
 
     return nb,nb_combined
+def split_fasta_byNbReads(fasta_file, tmp_files_manager, nb, out_list, log_file):
+    """
+    @summary: split fasta in nb_file and returne outfile list
+    @param fasta_file: [str] Path to the fasta file to process.
+    @param tmp_files_manager: [TmpFiles] The temporary file manager.
+    @param nb : [int] The number of file to generate or number of reads per file.
+    @param out_list : [list] List of output fasta file
+    @param log_file : [srt] path to logfile
+    @param by_nb_reads : [bool] choose to split input file in a fixed number of files or with a fixed number of reads per file
+    """
+    i=0
+    c=0
+    record_iter = FastaIO(fasta_file)
+    for idx, record in enumerate(record_iter):
+        if i == 0 :
+            if fasta_file.startswith(tmp_files_manager.prefix):
+                new_out_file = tmp_files_manager.add( os.path.basename(fasta_file) + "_" + str(c) , prefix="" )
+            else: 
+                new_out_file = tmp_files_manager.add( os.path.basename(fasta_file) + "_" + str(c) )
+            out_list.append(new_out_file)
+            FH = FastaIO(new_out_file, "wt")
+        
+        if i == nb:
+            i=0
+            FH.close()
+            c += 1
+            if fasta_file.startswith(tmp_files_manager.prefix):
+                new_out_file = tmp_files_manager.add( os.path.basename(fasta_file) + "_" + str(c) , prefix="" )
+            else: 
+                new_out_file = tmp_files_manager.add( os.path.basename(fasta_file) + "_" + str(c) )
+            out_list.append(new_out_file)
+            FH = FastaIO(new_out_file, "wt")
 
-def split_fasta(fasta_file, tmp_files_manager, nb, out_list, log_file, by_nb_reads=False):
+        FH.write( record )
+        i += 1
+    
+    if FH:
+        FH.close()
+
+    # Log
+    FH_log = Logger(log_file)
+    FH_log.write("########################################################################################################\n")
+    FH_log.write("# split " + fasta_file + " in smaller fasta files\n")
+    FH_log.write("Results\n")
+    if i != nb :
+        FH_log.write("\tGenerate " + str(c-1) + " fasta files of " + str(nb) + " reads\n")
+        FH_log.write("\tGenerate 1 fasta file of " + str(i) + " reads\n")
+    else:
+        FH_log.write("\tGenerate " + str(c) + " fasta files of " + str(nb) + " reads\n")
+    FH_log.close()
+
+
+
+def split_fasta(fasta_file, tmp_files_manager, nb, out_list, log_file):
     """
     @summary: split fasta in nb_file and returne outfile list
     @param fasta_file: [str] Path to the fasta file to process.
@@ -255,7 +307,7 @@ def split_fasta(fasta_file, tmp_files_manager, nb, out_list, log_file, by_nb_rea
     out_files = list()
     record_iter = FastaIO(fasta_file)
     for idx, record in enumerate(record_iter):
-        out_file_idx = int(idx / nb ) if by_nb_reads else idx % nb
+        out_file_idx = idx % nb
         if len(out_files) == 0 or not out_file_idx < len(out_files):
             if fasta_file.startswith(tmp_files_manager.prefix):
                 new_out_file = tmp_files_manager.add( os.path.basename(fasta_file) + "_" + str(out_file_idx) , prefix="" )
@@ -276,15 +328,8 @@ def split_fasta(fasta_file, tmp_files_manager, nb, out_list, log_file, by_nb_rea
     FH_log.write("########################################################################################################\n")
     FH_log.write("# split " + fasta_file + " in smaller fasta files\n")
     FH_log.write("Results\n")
-    if by_nb_reads:
-        if out_files[-1]['nb_seq'] != nb:
-            FH_log.write("\tGenerate " + str(len(out_list)-1) + " fasta files of " + str(nb) + " reads\n")
-            FH_log.write("\tGenerate 1 fasta file of " + str(out_files[-1]['nb_seq']) + " reads\n")
-        else:
-            FH_log.write("\tGenerate " + str(len(out_list)) + " fasta files of " + str(nb) + " reads\n")
-    else:
-        for out_file in out_files:
-            FH_log.write( "\tWrote " + str(out_file['nb_seq']) + " records to " + out_file['file_path'] + "\n" )
+    for out_file in out_files:
+        FH_log.write( "\tWrote " + str(out_file['nb_seq']) + " records to " + out_file['file_path'] + "\n" )
     FH_log.close()
 
 def summarise_results( summary_file, biom_file, taxonomy_ranks ):
@@ -440,6 +485,7 @@ def process_needleall(reference, input_fasta, temp_sam, temp_log, output, log_fi
     
     if not debug:
         tmpFiles_manager.delete(temp_sam)
+        tmpFiles_manager.delete(input_fasta)
 
 def needleall_parallel_submission( function, reference, inputs_fasta, temp_sams, temp_logs, outputs, log_files, tmpFiles_manager, debug, cpu_used):
 
@@ -585,8 +631,7 @@ if __name__ == "__main__":
                 log_reducre_ref  = tmpFiles.add("reduced_" + os.path.basename(args.reference) + ".log")
                 Reduce_Ref(args.reference,blast_combined_R1,blast_combined_R2,reduced_ref, log_reducre_ref).submit(args.log_file)
                 #split input fasta for parallelisation
-                
-                split_fasta(fasta_combined, tmpFiles, 10, fasta_needleall_list, args.log_file, by_nb_reads=True)
+                split_fasta_byNbReads(fasta_combined, tmpFiles, 10, fasta_needleall_list, args.log_file)
                 # needleall alignment and conversion in tsv (blast like)
                 sam_needleall_list = [tmpFiles.add(os.path.basename(current_fasta) + ".needleall.sam", prefix="") for current_fasta in fasta_needleall_list ]
                 log_needleall_list = [tmpFiles.add(os.path.basename(current_fasta) + ".needleall.log", prefix="") for current_fasta in fasta_needleall_list ]

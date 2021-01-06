@@ -1,4 +1,9 @@
-# v3.2 [DEV]
+# v3.3 [DEV]
+
+
+
+# v3.2 [2021-01-04]
+
 ### Tools added:
   * DESeq2 preprocess : Compute differential abundancy analysis
   * DESeq2 visualization : Create table and plots to explore and illustrate the differential abundant OTUs
@@ -6,7 +11,7 @@
     * FROGS OTU Filters filters OTU on presence/absence, abundances and contamination as Filters did. For contamination research, user may now use a personnal multifasta contaminant reference.
     * FROGS Affiliation Filters delete OTU or mask affiliation that do not respect affiliation metrics criteria, or affiliated to undesirable (partial) taxon.
 
-## Function added
+### Function added
   * Affiliation_postprocess : taxon-ignore option added, to ignore some taxon like "unknown species" during the aggreagation process. Multiple taxon may be provided as well as partial taxon, like "sp."
   * Preprocess : now accept input sequence file as Fasta format (format automatically detected) for already contiged input.
   * Affiliations_stat : check that the number of rank name correspond to the number of ranks in input biom file
