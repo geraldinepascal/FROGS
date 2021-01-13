@@ -66,11 +66,11 @@ class Rscript(Cmd):
         @param out  : [str] Path to Rdata file storing DESeq2 prepreocessing step.
         @param stderr  : [str] Path to stderr output file
         """ 
-        rcode = os.path.join(CURRENT_DIR, "deseq2_preprocess.R")
+        rcode = os.path.join(BIN_DIR, "deseq2_preprocess.R")
         Cmd.__init__( self,
-                      'Rscript',
-                      'Run deseq2_preprocess.R',
-                      '--vanilla ' + rcode + ' --inRdata ' + data + ' --var ' + var + ' --outRdata ' + out + ' 2> ' + stderr,
+                      'deseq2_preprocess.R',
+                      'Construc DESeq2 object from a Phyloseq one.',
+                      ' --inRdata ' + data + ' --var ' + var + ' --outRdata ' + out + ' 2> ' + stderr,
                       "-e '(sessionInfo()[[1]][13])[[1]][1]; library(DESeq2); paste(\"DESeq2 version: \",packageVersion(\"DESeq2\")); library(phyloseq); paste(\"Phyloseq version: \",packageVersion(\"phyloseq\"))'")       
                        
     def get_version(self):

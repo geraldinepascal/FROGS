@@ -11,17 +11,16 @@ else
     rm -r test/*
 fi
 
-python deseq2_preprocess.py --data data/data.Rdata \
+# test on variable with multiple mode
+echo "# test on variable with multiple mode"
+./deseq2_preprocess.py --data data/data.Rdata \
                             --var EnvType \
                             --log-file test/EnvType_deseq2_preprocess.log \
                             --out-Rdata test/dds_EnvType.rdata
 
 # variables with 2 modes only
-python deseq2_preprocess.py --data data/data.Rdata \
+echo "# variables with 2 modes only"
+./deseq2_preprocess.py --data data/data.Rdata \
                             --var FoodType \
                             --log-file test/FoodType_deseq2_preprocess.log \
                             --out-Rdata test/dds_FoodType.rdata
-
-# test on quantitative variables
-
-# test on variables with counfounding effect
