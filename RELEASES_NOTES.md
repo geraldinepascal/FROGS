@@ -1,4 +1,9 @@
+# v3.3 [DEV]
+
+
+
 # v3.2 [2021-01-04]
+
 ### Tools added:
   * DESeq2 preprocess : Compute differential abundancy analysis
   * DESeq2 visualization : Create table and plots to explore and illustrate the differential abundant OTUs
