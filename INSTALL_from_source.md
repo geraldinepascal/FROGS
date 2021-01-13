@@ -51,7 +51,7 @@ sudo apt-get install python3-scipy
 
 
 
-## 1) vsearch 2.15.1, for FROGS Preprocess and FROGS Remove_chimera
+## 1) vsearch 2.12.0 , for FROGS Preprocess and FROGS Remove_chimera
 
 **require** :  autoconf, zlib and bzip2 libraries
 
@@ -63,16 +63,16 @@ sudo apt-get install autoconf libz-dev libbz2-dev
 
 ```bash
 cd $BIN_DIR
-wget https://github.com/torognes/vsearch/archive/v2.15.1.tar.gz
-tar xzf v2.15.1.tar.gz
-cd vsearch-2.15.1
+wget https://github.com/torognes/vsearch/archive/v2.12.0.tar.gz
+tar xzf v2.12.0.tar.gz
+cd vsearch-2.12.0
 ./autogen.sh
 ./configure
 make
 # test installation
 ./bin/vsearch -version
 # add to FROGS
-ln -s $BIN_DIR/vsearch-2.15.1/bin/vsearch $FROGS_libexec/.
+ln -s $BIN_DIR/vsearch-2.12.0/bin/vsearch $FROGS_libexec/.
 ```
 
 ## 2) FLASH 1.2.11 (optional), for FROGS Preprocess
