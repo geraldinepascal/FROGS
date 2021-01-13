@@ -1,8 +1,4 @@
-# v3.3 [DEV]
-
-
-
-# v3.2 [2021-01-04]
+# v3.2 [2021-01-13]
 
 ### Tools added:
   * DESeq2 preprocess : Compute differential abundancy analysis
