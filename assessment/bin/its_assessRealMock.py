@@ -30,7 +30,6 @@ import argparse
 import warnings
 from frogsBiom import BiomIO
 
-
 ##################################################################################################################################################
 #
 # FUNCTIONS
@@ -77,16 +76,19 @@ def getCleanedTaxonomy( taxonomy ):
     # Remove quotes
     for rank, taxon in enumerate(cleaned_taxonomy):
         cleaned_taxonomy[rank] = cleaned_taxonomy[rank].replace('\"', "").replace('"', "")
+    # Deal with OTUs without affiliation
+    if len(cleaned_taxonomy) == 0:
+		cleaned_taxonomy = ["None"]*7
     # Remove root
     if cleaned_taxonomy[0].lower() == "root" or cleaned_taxonomy[0].lower() == "rootrank" or cleaned_taxonomy[0].lower() == "r:root":
         cleaned_taxonomy = cleaned_taxonomy[1:]
     # Complete taxonomy for uparse db
     if cleaned_taxonomy[0].startswith("k:"):
-        firs_rank = "k:"
-    if cleaned_taxonomy[0].startswith(firs_rank):
+        first_rank = "k:"
+    if cleaned_taxonomy[0].startswith(first_rank):
         tmp_tax = list()
         rank_idx = 0
-        ranks = [firs_rank, "p:", "c:", "o:", "f:", "g:","s:"]
+        ranks = [first_rank, "p:", "c:", "o:", "f:", "g:","s:"]
         for taxa in cleaned_taxonomy:
             while not taxa.startswith(ranks[rank_idx]) and taxa != "Multi-affiliation" and taxa != "unclassified" and taxa != "NA":
                 tmp_tax.append(ranks[rank_idx] + "unknown_taxa")
@@ -98,8 +100,6 @@ def getCleanedTaxonomy( taxonomy ):
             tmp_tax.append(ranks[rank_idx] + "unknown_taxa")
             rank_idx += 1
             
-        cleaned_taxonomy = tmp_tax
-
     return cleaned_taxonomy
 
 
@@ -158,19 +158,28 @@ def get_expected( abund_file ):
 
 
 def get_checked( abund_file, checked_sample, taxonomy_key, expected_by_depth ):
+    
     checked_by_depth = dict()
     biom = BiomIO.from_json(abund_file)
+    
     for current_obs in biom.get_observations():
+        
+        #recuperation de la taxo
         clean_taxonomy = getCleanedTaxonomy(current_obs["metadata"][taxonomy_key]) if current_obs["metadata"][taxonomy_key] is not None else ["unknown_taxa"]*len(expected_by_depth)
+        # recuperation du count
         count = biom.get_count(current_obs["id"], checked_sample)
         if count > 0:
+            # check multiaffi
             if clean_taxonomy[len(clean_taxonomy)-1] == "Multi-affiliation":
                 nb_selected = 0
                 selected = list()
                 taxonomies = list()
                 expected_taxonomies = expected_by_depth[len(clean_taxonomy)-1]
+                # pour chaque multi-affi
                 for affi_idx in range(len(current_obs["metadata"]["blast_affiliations"])):
+                    # clean taxo au format string
                     affi_taxonomy = ";".join(getCleanedTaxonomy(current_obs["metadata"]["blast_affiliations"][affi_idx]["taxonomy"]))
+                    # compte des taxo qui sont attendues
                     if affi_taxonomy not in taxonomies:
                         taxonomies.append(affi_taxonomy)
                         if affi_taxonomy in expected_taxonomies:
