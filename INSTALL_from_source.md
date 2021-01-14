@@ -51,7 +51,7 @@ sudo apt-get install python3-scipy
 
 
 
-## 1) vsearch 2.12.0 , for FROGS Preprocess and FROGS Remove_chimera
+## 1) vsearch 2.15.1 , for FROGS Preprocess and FROGS Remove_chimera
 
 **require** :  autoconf, zlib and bzip2 libraries
 
@@ -63,16 +63,16 @@ sudo apt-get install autoconf libz-dev libbz2-dev
 
 ```bash
 cd $BIN_DIR
-wget https://github.com/torognes/vsearch/archive/v2.12.0.tar.gz
-tar xzf v2.12.0.tar.gz
-cd vsearch-2.12.0
+wget https://github.com/torognes/vsearch/archive/v2.15.1.tar.gz
+tar xzf v2.15.1.tar.gz
+cd vsearch-2.15.1
 ./autogen.sh
 ./configure
 make
 # test installation
 ./bin/vsearch -version
 # add to FROGS
-ln -s $BIN_DIR/vsearch-2.12.0/bin/vsearch $FROGS_libexec/.
+ln -s $BIN_DIR/vsearch-2.15.1/bin/vsearch $FROGS_libexec/.
 ```
 
 ## 2) FLASH 1.2.11 (optional), for FROGS Preprocess
@@ -95,9 +95,12 @@ ln -s $BIN_DIR/FLASH-1.2.11/flash $FROGS_libexec/.
 
 ask for download link and follow installation instructions
 
-## 4) cutadpat 3.1, for FROGS Preprocess
+## 4) cutadpat 2.10 , for FROGS Preprocess
 
 **require** :  pip3
+
+Tests have been done until cutadapt 3.1, minimum version required 2.8
+
 ```bash
 sudo apt-get install python3-pip
 ```
@@ -105,22 +108,22 @@ sudo apt-get install python3-pip
 **installation**
 ```bash
 cd $BIN_DIR
-mkdir cutadapt-3.1
-cd cutadapt-3.1
+mkdir cutadapt-2.10
+cd cutadapt-2.10
 # solution 1 : precise directory (not recommended if you want to use Galaxy)
-  sudo pip3 install --prefix=$BIN_DIR/cutadapt-3.1 cutadapt==3.1
+  sudo pip3 install --prefix=$BIN_DIR/cutadapt-2.10 cutadapt==2.10
   # add cutadapt python library to your PYTHONPATH
   echo export PYTHONPATH="$BIN_DIR/cutadapt-3.1/lib/python3.??/site-packages:\$PYTHONPATH" >> ~/.bashrc
   # check installation
   ./bin/cutadapt --version
   # add to FROGS
-  ln -s $BIN_DIR/cutadapt-3.1/bin/cutadapt $FROGS_libexec/.
+  ln -s $BIN_DIR/cutadapt-2.10/bin/cutadapt $FROGS_libexec/.
 
 # solution 2 let pip3 install cutadapt (binary will be available in your PATH)
   #   in your home directory ~/.local/bin
-      pip3 install cutadapt==3.1
+      pip3 install cutadapt==2.10
   #   using sudo in /usr/local/bin
-      sudo pip3 install cutadapt==3.1
+      sudo pip3 install cutadapt==2.10
   # add to FROGS
   link=`which cutadapt`
   ln -s $link $FROGS_libexec/.
@@ -237,30 +240,31 @@ emboss/needleall -h
 ln -s $BIN_DIR/EMBOSS-6.6.0/emboss/needleall $FROGS_libexec/.
 ```
 
-## 10) MAFFT 7.475, for FROGS Tree
+## 10) MAFFT 7.407, for FROGS Tree
 **installation**
 ```bash
 cd $BIN_DIR
-wget https://mafft.cbrc.jp/alignment/software/mafft-7.475-with-extensions-src.tgz
-tar -xvzf mafft-7.475-with-extensions-src.tgz
-cd mafft-7.475-with-extensions
+wget https://mafft.cbrc.jp/alignment/software/mafft-7.407-with-extensions-src.tgz
+tar -xvzf mafft-7.407-with-extensions-src.tgz
+cd mafft-7.407-with-extensions
 ```
 Edit core/Makefile
-* change `PREFIX = /usr/local` with your MAFFT directory (like `# PREFIX = /home/frogs/bin/mafft-7.475-with-extensions/`
+* change `PREFIX = /usr/local` with your MAFFT directory (like `# PREFIX = /home/frogs/bin/mafft-7.407-with-extensions/`
 ```bash
 cd core
 make clean
 make
 make install
 # check installation
-$BIN_DIR/mafft-7.475-with-extensions/bin/mafft -h
+$BIN_DIR/mafft-7.407-with-extensions/bin/mafft -h
 # add to FROGS
-ln -s $BIN_DIR/mafft-7.475-with-extensions/scripts/mafft $FROGS_libexec/.
+ln -s $BIN_DIR/mafft-7.407-with-extensions/scripts/mafft $FROGS_libexec/.
 ```
 
-## 11) FastTree 2.1.11, for FROGS Tree
+## 11) FastTree 2.1.9, for FROGS Tree
 
 **installation**
+
 ```bash
 cd $BIN_DIR
 mkdir Fasttree
@@ -317,6 +321,8 @@ library(phangorn)
 ```
 
 * phyloseq (this will take some times)
+
+  version tested until 1.30
 ```R
 if (!requireNamespace("BiocManager", quietly = TRUE))
     install.packages("BiocManager")
@@ -327,6 +333,8 @@ library(phyloseq)
 ```
 
 * DESeq2
+
+  version tested until 1.26
 
   ```R
   BiocManager::install("DESeq2")
