@@ -8,8 +8,8 @@ dependencies:
   - flash =1.2
   - cutadapt >=2.8, <=2.10
   - swarm >=2.1, <=3.0.0
-  # zlib and bzpi2 are included in the frogs recipe which allow vsearch to deal with compress file
-  - vsearch <2.13
+  # at least 2.13.4 to fully integrate zlib in vsearch
+  - vsearch >=2.13.4, <=2.15.1
   - itsx <=1.2
   - blast =2.10
   # - rdptool=2.0.3 # is already included in the frogs dependency

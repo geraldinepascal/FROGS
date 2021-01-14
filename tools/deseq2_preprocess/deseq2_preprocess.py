@@ -71,7 +71,7 @@ class Rscript(Cmd):
                       'deseq2_preprocess.R',
                       'Construc DESeq2 object from a Phyloseq one.',
                       ' --inRdata ' + data + ' --var ' + var + ' --outRdata ' + out + ' 2> ' + stderr,
-                      "-e '(sessionInfo()[[1]][13])[[1]][1]; library(DESeq2); paste(\"DESeq2 version: \",packageVersion(\"DESeq2\")); library(phyloseq); paste(\"Phyloseq version: \",packageVersion(\"phyloseq\"))'")       
+                      '--version')       
                        
     def get_version(self):
         """

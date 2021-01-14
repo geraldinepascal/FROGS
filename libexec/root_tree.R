@@ -5,7 +5,7 @@ author = 'Maria Bernard - Sigenae'
 copyright = 'Copyright (C) 2015 INRA'
 license = 'GNU General Public License'
 version = '1.1.0'
-email = 'frogs@inra.fr'
+email = 'frogs-support@inrae.fr'
 status = 'prod'
 
 
