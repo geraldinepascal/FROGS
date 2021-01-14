@@ -1,5 +1,12 @@
 #!/usr/bin/env Rscript
 
+author = 'Ta Thi Ngan / Maria Bernard - Sigenae / Mahendra Mariadassou plateforme Migale'
+copyright = 'Copyright (C) 2015 INRA'
+license = 'GNU General Public License'
+version = '1.1.0'
+email = 'frogs-support@inrae.fr'
+status = 'prod'
+
 ############## IMPORT
 
 library(optparse)
@@ -21,7 +28,7 @@ get_version <- function(){
 	library(phyloseq)
 	DESeq2_version = packageVersion("DESeq2")
 	phyloseq_version = packageVersion("phyloseq")
-	version = paste( " [R : ",  R.version$major, ".",  R.version$minor, "; DESeq2 : ", as.character(DESeq2_version),"; Phyloseq : ", as.character(phyloseq_version), "]\n", sep="") 
+	version = paste( version, " [R : ",  R.version$major, ".",  R.version$minor, "; DESeq2 : ", as.character(DESeq2_version),"; Phyloseq : ", as.character(phyloseq_version), "]\n", sep="") 
 	return(version)
 }
 
