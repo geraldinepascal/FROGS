@@ -600,7 +600,7 @@ def revcomp(seq):
     """
     @summary : return reverse complement iupac sequence
     """
-    return seq.translate(str.maketrans('ACGTacgtRYMKrymkVBHDvbhd', 'TGCAtgcaYRKMyrkmBVDHbvdh'))[::-1]
+    return seq.translate(str.maketrans('ACGTacgtRYMKrymkVBHDvbhdSWsw', 'TGCAtgcaYRKMyrkmBVDHbvdhSWsw'))[::-1]
 
 def get_seq_length( input_file, size_separator=None ):
     """
