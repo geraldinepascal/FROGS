@@ -104,6 +104,7 @@ echo "Step otu filters `date`"
 otu_filters.py \
  --min-abundance 0.00005 \
  --min-sample-presence 3 \
+ --contaminant data/phi.fa \
  --nb-cpus $nb_cpu \
  --input-biom $out_dir/03-chimera.biom \
  --input-fasta $out_dir/03-chimera.fasta \
@@ -129,7 +130,7 @@ itsx.py \
  --summary $out_dir/05-itsx.html \
  --log-file $out_dir/05-itsx.log \
  --out-fasta $out_dir/05-itsx.fasta \
- --out-removed $out_dir/05-itsx-excluded.tsv
+ --out-removed $out_dir/05-itsx-excluded.fasta
 
 if [ $? -ne 0 ]
 then
@@ -164,6 +165,7 @@ affiliation_filters.py \
 --output-biom $out_dir/07-affiliation_masked.biom \
 --summary $out_dir/07-affiliation_masked.html \
 --impacted $out_dir/07-impacted_OTU_masked.tsv \
+--impacted-multihit $out_dir/07-impacted_OTU_masked_multihit.tsv \
 --log-file $out_dir/07-affiliation_filter_maskMode.log \
 --min-rdp-bootstrap Species:0.8 \
 --min-blast-length 150 \
@@ -190,6 +192,7 @@ affiliation_filters.py \
 --output-fasta $out_dir/07-affiliation_deleted.fasta \
 --summary $out_dir/07-affiliation_deleted.html \
 --impacted $out_dir/07-impacted_OTU_deleted.tsv \
+--impacted-multihit $out_dir/07-impacted_OTU_deleted_multihit.tsv \
 --log-file $out_dir/07-affiliation_filter_delMode.log \
 --min-rdp-bootstrap Species:0.8 \
 --min-blast-length 150 \
