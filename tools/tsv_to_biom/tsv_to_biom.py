@@ -90,6 +90,10 @@ class Tsv2biom(Cmd):
                       "--input-file "  + in_tsv + multihit_file_opt + " --output-file " + out_biom + sequence_file_opt + " --fields " + fields + " --samples-names " + samples_names,
                       '--version' )
 
+    def get_version(self):   
+        return Cmd.get_version(self, 'stdout').strip()                      
+        
+
 ##################################################################################################################################################
 #
 # MAIN

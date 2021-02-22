@@ -64,6 +64,9 @@ class BIOM_sampling(Cmd):
                       "sampling --nb-sampled " + str(nb_read) + " --input-file " + in_biom + " --output-file " + out_biom,
                       "--version" )
 
+    def get_version(self):   
+        return Cmd.get_version(self, 'stdout').strip()                      
+
 
 class BIOM_FASTA_update(Cmd):
     """
@@ -82,6 +85,8 @@ class BIOM_FASTA_update(Cmd):
                       "--input-biom " + in_biom + " --input-fasta " + in_fasta + " --output-file " + out_fasta + " --log " + log,
                       '--version' )
 
+    def get_version(self):   
+        return Cmd.get_version(self, 'stdout').strip() 
 
 ##################################################################################################################################################
 #

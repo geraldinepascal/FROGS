@@ -66,6 +66,9 @@ class UpdateFasta(Cmd):
                       "--input-biom " + in_biom + " --input-fasta " + in_fasta + " --output-file " + out_fasta + " --log " + log,
                       '--version' )
 
+    def get_version(self):   
+        return Cmd.get_version(self, 'stdout').strip()                      
+
 class RemoveConta(Cmd):
     def __init__(self, contaminant_db, in_fasta, in_biom, cleaned_fasta, cleaned_biom, contaminated_fasta, log, nb_cpus, debug ):
         """
@@ -118,6 +121,9 @@ class RemoveConta(Cmd):
         FH_log.write('\tnumber of processed sequences: ' + str(nb_processed) + '\n')
         FH_log.write('\tnumber of removed contaminated sequences: ' + str(nb_contaminated) + '\n\n')
         FH_log.close()
+        
+    def get_version(self):   
+        return Cmd.get_version(self, 'stdout').strip()        
 
 
 ##################################################################################################################################################

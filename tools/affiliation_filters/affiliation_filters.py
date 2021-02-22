@@ -123,6 +123,9 @@ class UpdateFasta(Cmd):
                       "--input-biom " + in_biom + " --input-fasta " + in_fasta + " --output-file " + out_fasta + " --log " + log,
                       '--version' )
 
+    def get_version(self):   
+        return Cmd.get_version(self, 'stdout').strip()                      
+
 ##################################################################################################################################################
 #
 # FUNCTIONS

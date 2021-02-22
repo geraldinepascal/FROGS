@@ -107,6 +107,9 @@ class Biom2tsv(Cmd):
                           "--input-file " + in_biom + sequence_file_opt + " --output-file " + out_tsv + " --fields " + conversion_tags,
                           '--version' )
 
+    def get_version(self):   
+        return Cmd.get_version(self, 'stdout').strip()                          
+
 
 class Biom2multiAffi(Cmd):
     """
@@ -129,6 +132,9 @@ class Biom2multiAffi(Cmd):
                           'Extracts multi-affiliations data from a FROGS BIOM file.',
                           '--input-file ' + in_biom + ' --output-file ' + out_tsv,
                           '--version' )
+
+    def get_version(self):   
+        return Cmd.get_version(self, 'stdout').strip()                          
 
 
 ##################################################################################################################################################
