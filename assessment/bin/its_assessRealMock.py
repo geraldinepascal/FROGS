@@ -76,9 +76,11 @@ def getCleanedTaxonomy( taxonomy ):
     # Remove quotes
     for rank, taxon in enumerate(cleaned_taxonomy):
         cleaned_taxonomy[rank] = cleaned_taxonomy[rank].replace('\"', "").replace('"', "")
+        
     # Deal with OTUs without affiliation
     if len(cleaned_taxonomy) == 0:
-		cleaned_taxonomy = ["None"]*7
+		cleaned_taxonomy = ["d:unknown_taxa", "p:unknown_taxa", "c:unknown_taxa", "o:unknown_taxa", "f:unknown_taxa", "g:unknown_taxa","s:unknown_taxa"]
+        
     # Remove root
     if cleaned_taxonomy[0].lower() == "root" or cleaned_taxonomy[0].lower() == "rootrank" or cleaned_taxonomy[0].lower() == "r:root":
         cleaned_taxonomy = cleaned_taxonomy[1:]
@@ -99,7 +101,7 @@ def getCleanedTaxonomy( taxonomy ):
         while rank_idx != len(ranks):
             tmp_tax.append(ranks[rank_idx] + "unknown_taxa")
             rank_idx += 1
-            
+        cleaned_taxonomy = tmp_tax
     return cleaned_taxonomy
 
 
@@ -112,6 +114,19 @@ def cmpTaxAbund( expected, checked, depth ):
     detailed_cmp = dict()
     already_processed = list()
     total_expected = sum([abund for taxon, abund in expected[depth].items()])
+    
+    #~ if len(checked) == 0:
+        #~ a=1
+        #~ return {
+        #~ 'divergence': 100.0,
+        #~ 'common_taxa': 0,
+        #~ 'expected_specific': 0,
+        #~ 'checked_specific': checked_specific,
+        #~ 'detailed_cmp': detailed_cmp
+    #~ }
+    #~ else:
+		#~ min_level_in_checked = max(checked.keys()) # 6 for Species, 5 for Genus (case where no Species were detected)
+
     total_checked = sum([abund for taxon, abund in checked[depth].items()])
     for taxon, abund in expected[depth].items():
         already_processed.append( taxon )
@@ -166,12 +181,14 @@ def get_checked( abund_file, checked_sample, taxonomy_key, expected_by_depth ):
         
         #recuperation de la taxo
         clean_taxonomy = getCleanedTaxonomy(current_obs["metadata"][taxonomy_key]) if current_obs["metadata"][taxonomy_key] is not None else ["unknown_taxa"]*len(expected_by_depth)
+        #print(clean_taxonomy)
+
         # recuperation du count
         count = biom.get_count(current_obs["id"], checked_sample)
         if count > 0:
             # check multiaffi
             if clean_taxonomy[len(clean_taxonomy)-1] == "Multi-affiliation":
-                nb_selected = 0
+                #print(">>>> ",clean_taxonomy)
                 selected = list()
                 taxonomies = list()
                 expected_taxonomies = expected_by_depth[len(clean_taxonomy)-1]
@@ -179,23 +196,52 @@ def get_checked( abund_file, checked_sample, taxonomy_key, expected_by_depth ):
                 for affi_idx in range(len(current_obs["metadata"]["blast_affiliations"])):
                     # clean taxo au format string
                     affi_taxonomy = ";".join(getCleanedTaxonomy(current_obs["metadata"]["blast_affiliations"][affi_idx]["taxonomy"]))
+                    #print("#####################", affi_taxonomy)
                     # compte des taxo qui sont attendues
                     if affi_taxonomy not in taxonomies:
                         taxonomies.append(affi_taxonomy)
                         if affi_taxonomy in expected_taxonomies:
-                            selected = getCleanedTaxonomy(current_obs["metadata"]["blast_affiliations"][affi_idx]["taxonomy"])
-                            nb_selected += 1
-                if nb_selected == 1:
-                    clean_taxonomy = selected
+                            selected.append((getCleanedTaxonomy(current_obs["metadata"]["blast_affiliations"][affi_idx]["taxonomy"])))
+                            #print(affi_taxonomy," ????????????????????")
+                #print("\t", selected)
+                if len(selected) > 0:
+					#clean_taxonomy = selected[0]
+					for multi in selected:
+						for rank_depth in range(len(multi)):
+							rank_taxonomy = ";".join(multi[:rank_depth + 1])
+							if rank_depth not in checked_by_depth:
+								checked_by_depth[rank_depth] = dict()
+							if rank_taxonomy not in checked_by_depth[rank_depth]:
+								checked_by_depth[rank_depth][rank_taxonomy] = 0
+							checked_by_depth[rank_depth][rank_taxonomy] += count/len(selected)
+                    
+                    #if len(selected) > 1 :
+                        #warnings.warn( "Multi-affiliation cannot be resolved for " + str((float(count)*100)/biom.get_total_count()) + "% sequences. Possible taxonomies: '" + "', '".join(taxonomies) + "'." )
+                        
                 else:
-                    warnings.warn( "Multi-affiliation cannot be resolved for " + str((float(count)*100)/biom.get_total_count()) + "% sequences. Possible taxonomies: '" + "', '".join(taxonomies) + "'." )
-            for rank_depth in range(len(clean_taxonomy)):
-                rank_taxonomy = ";".join(clean_taxonomy[:rank_depth + 1])
-                if rank_depth not in checked_by_depth:
-                    checked_by_depth[rank_depth] = dict()
-                if rank_taxonomy not in checked_by_depth[rank_depth]:
-                    checked_by_depth[rank_depth][rank_taxonomy] = 0
-                checked_by_depth[rank_depth][rank_taxonomy] += count
+                    clean_taxonomy = taxonomies[0].split(";")
+                    for rank_depth in range(len(clean_taxonomy)):
+						rank_taxonomy = ";".join(clean_taxonomy[:rank_depth + 1])
+						if rank_depth not in checked_by_depth:
+							checked_by_depth[rank_depth] = dict()
+						if rank_taxonomy not in checked_by_depth[rank_depth]:
+							checked_by_depth[rank_depth][rank_taxonomy] = 0
+						checked_by_depth[rank_depth][rank_taxonomy] += count
+                    
+                
+                #return checked_by_depth
+            #print("\n")
+            #print(clean_taxonomy)
+            #print("\n")
+            else:
+				for rank_depth in range(len(clean_taxonomy)):
+					rank_taxonomy = ";".join(clean_taxonomy[:rank_depth + 1])
+					if rank_depth not in checked_by_depth:
+						checked_by_depth[rank_depth] = dict()
+					if rank_taxonomy not in checked_by_depth[rank_depth]:
+						checked_by_depth[rank_depth][rank_taxonomy] = 0
+					checked_by_depth[rank_depth][rank_taxonomy] += count
+    
     return checked_by_depth
 
 
@@ -220,19 +266,33 @@ if __name__ == "__main__":
     
     # Retrieved
     checked_by_depth = get_checked(args.checked_abund, args.checked_sample, args.taxonomy_key, expected_by_depth)
-
+    #print checked_by_depth
+    #for i in sorted(expected_by_depth[6]):
+	#	print i, expected_by_depth[6][i]
+    #print "\n------\n"
+    #for i in sorted(checked_by_depth[6]):
+	#	print i, checked_by_depth[6][i]
+    #sys.exit()
     # Comparison
     details = dict()
     print "#Rank\tDivergence (%)\tCommon\tExpected specific\tChecked specific"
+    #try:
     for depth, rank in enumerate(args.checked_ranks):
         metrics = cmpTaxAbund( expected_by_depth, checked_by_depth, depth )
+        #print metrics
         details[depth] = metrics["detailed_cmp"]
         print rank + "\t" + str(metrics['divergence']) + "\t" + str(metrics['common_taxa']) + "\t" + str(metrics['expected_specific']) + "\t" + str(metrics['checked_specific'])
     print ""
+    #except KeyError:
+    #print rank + "\t" + str(metrics['divergence']) + "\t" + str(metrics['common_taxa']) + "\t" + str(metrics['expected_specific']) + "\t" + str(metrics['checked_specific'])
+        #print rank + "\t" + str(100.0) + "\t" + str(0) + "\t" + str(len(expected_by_depth[len(args.checked_ranks)-1])) + "\t" + str(0)
 
-    for depth, rank in enumerate(args.checked_ranks):
-        print "#Rank " + rank
-        print "#Taxon\tExpected (%)\tChecked (%)"
-        for taxon in sorted(details[depth]):
-            print taxon + "\t" + str(details[depth][taxon]["expected"]) + "\t" + str(details[depth][taxon]["checked"])
-        print ""
+    try:
+        for depth, rank in enumerate(args.checked_ranks):
+            print "#Rank " + rank
+            print "#Taxon\tExpected (%)\tChecked (%)"
+            for taxon in sorted(details[depth]):
+                print taxon + "\t" + str(details[depth][taxon]["expected"]) + "\t" + str(details[depth][taxon]["checked"])
+            print ""
+    except KeyError:
+        pass
