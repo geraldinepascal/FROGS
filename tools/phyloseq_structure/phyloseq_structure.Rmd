@@ -97,7 +97,7 @@ var  <- get_variable(data, params$varExp)
 ## Ordination plot
 
 <h1 id="plot1">
-```{r ord1, fig.width=8, fig.height=6}
+```{r ord1, fig.width=8, fig.height=6, warning=FALSE, message=FALSE}
 ## plot(p1)
 p1 <- plot_ordination(data, ord, color = params$varExp) + 
                       geom_text(aes(label = SampleID), alpha = 0) + ## add invisible labels
@@ -108,7 +108,7 @@ ggplotly(p1, tooltip = c("colour", "label"))
 </h1>
 
 <h1 id="plot2" style="display: none;">
-```{r ord2, fig.width=8, fig.height=6}
+```{r ord2, fig.width=8, fig.height=6, warning=FALSE}
 ## plot(p2)
 p2 <- plot_samples(data, ord, color = params$varExp) +
                       geom_text(aes(label = SampleID), alpha = 0) + ## add invisible labels  

@@ -221,6 +221,9 @@ class Remove454prim(Cmd):
         FH_log.write( 'Results:\n' )
         FH_log.write( "\tnb seq with the two primers : " + str(nb_cleaned) + '\n' )
         FH_log.close()
+        
+    def get_version(self):   
+        return Cmd.get_version(self, 'stdout').strip()        
 
 class Cutadapt5prim(Cmd):
     """
@@ -439,6 +442,9 @@ class MultiFilter(Cmd):
             FH_log.write( '\tnb seq without nearest poor quality : ' + str(previous_nb_seq - filtered_on_quality) + '\n' )
             previous_nb_seq -= filtered_on_quality
         FH_log.close()
+        
+    def get_version(self):   
+        return Cmd.get_version(self, 'stdout').strip()        
 
 class Combined(Cmd):
     """
@@ -497,6 +503,9 @@ class DerepBySample(Cmd):
                       'Dereplicates sample sequences.',
                       '--sequences-files ' + in_fasta + ' --dereplicated-file ' + out_fasta + ' --count-file ' + out_count,
                       '--version' )
+                      
+    def get_version(self):  
+        return Cmd.get_version(self, 'stdout').strip()                      
 
 
 class DerepGlobalMultiFasta(Cmd):
@@ -524,6 +533,9 @@ class DerepGlobalMultiFasta(Cmd):
                       'Dereplicates together sequences from several samples.',
                       "--nb-cpus " + str(param.nb_cpus) + " --size-separator ';size=' --samples-ref " + out_samples_ref + " --dereplicated-file " + out_fasta + " --count-file " + out_count,
                       '--version' )
+                      
+    def get_version(self):   
+        return Cmd.get_version(self, 'stdout').strip()                      
 
 class DerepGlobalFastaCount(Cmd):
     """
@@ -543,6 +555,9 @@ class DerepGlobalFastaCount(Cmd):
                       'Dereplicates together sequences from several samples based on one fasta file and one count file.',
                       "--nb-cpus " + str(param.nb_cpus) + " --size-separator ';size=' --sequences-file " + fasta + " --samples-count " + count + " --dereplicated-file " + out_fasta + " --count-file " + out_count,
                       '--version' )
+                      
+    def get_version(self):   
+        return Cmd.get_version(self, 'stdout').strip()                      
 
 ##################################################################################################################################################
 #
@@ -600,7 +615,7 @@ def revcomp(seq):
     """
     @summary : return reverse complement iupac sequence
     """
-    return seq.translate(str.maketrans('ACGTacgtRYMKrymkVBHDvbhd', 'TGCAtgcaYRKMyrkmBVDHbvdh'))[::-1]
+    return seq.translate(str.maketrans('ACGTacgtRYMKrymkVBHDvbhdSWsw', 'TGCAtgcaYRKMyrkmBVDHbvdhSWsw'))[::-1]
 
 def get_seq_length( input_file, size_separator=None ):
     """

@@ -19,11 +19,25 @@ dependencies:
   - fasttree =2.1.9
   - bioconductor-phyloseq =1.30
   - bioconductor-deseq2 =1.26
-  - r-phangorn =2.5
 # conda-forge
   - r-base =3.6
   - r-essentials
+  - r-phangorn =2.5
   - r-optparse
   - r-formattable
   - r-dt
   - r-plotly
+
+## packages included in previous package (possibly in multiple previous package)
+#   r-essentials includes:
+    # pandoc
+    # r-rmarkdown
+    # r-dplyr
+#   bioconductor-phyloseq includes:
+    # r-ggplot2 
+    # r-vegan
+    # r-ape
+    # r-scales
+    # r-reshape2
+#   bioconductor-deseq2 includes:
+    # r-gridextra

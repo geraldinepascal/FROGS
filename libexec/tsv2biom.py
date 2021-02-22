@@ -125,20 +125,19 @@ def get_tax_consensus( taxonomies ):
         ancestor = consensus[rank]
     return consensus
 
-def observation_blast_parts( metadata, obs_mutli_blast):
+def observation_blast_parts( unambiguous_tax, obs_mutli_blast):
     """
     @summary: format blast_affiliation multi hit and compute consensus tax
-    @param metadata: [dict] of metadata for one cluster keys = TSV fields.
+    @param unambiguous_tax: [str] unambiguous prefix of original blast consensus taxonomy
     @param obs_multi_blast : [list] of dict for each blast hit for one cluster.
     @return blast_affiliations [list] of dict. Blast affiliations are filtered of non consistent taxonomy with metadata["blast_taxonomy"].
             consensus tax : computed from consitent blast_taxonomy and blast_hits.  
     """
-    blast_taxonomy = ";".join([t for t in metadata["blast_taxonomy"] if t != "Multi-affiliation" ])
     blast_affiliations=[]
 
-    # research of blast hit consistent with blast_taxonomy
+    # research of blast hit consistent with unambiguous_tax
     for hit in obs_mutli_blast:
-        if blast_taxonomy in hit["blast_taxonomy"]:
+        if unambiguous_tax in hit["blast_taxonomy"]:
             affi_dict = dict()
             for key in hit:
                 if key == "blast_taxonomy": # keep FROGS affiliation as list
@@ -252,9 +251,10 @@ def tsv_to_biom( input_tsv, multi_hit_dict, fields, samples_names, output_biom, 
                     if not cluster_name in multi_hit_dict:
                         raise_exception( Exception("\n\n#ERROR : "+cluster_name+" has multi-subject tag but is not present in your multi-hit TSV file. Please, provide the original multi-hit TSV file.\n\n"))
                     else:
-                        metadata_dict["blast_taxonomy"], metadata_dict["blast_affiliations"] = observation_blast_parts(metadata_dict, multi_hit_dict[cluster_name])
+                        unambiguous_prefix = ";".join([t for t in metadata_dict["blast_taxonomy"] if t != "Multi-affiliation" ])
+                        metadata_dict["blast_taxonomy"], metadata_dict["blast_affiliations"] = observation_blast_parts(unambiguous_prefix, multi_hit_dict[cluster_name])
                         if metadata_dict["blast_affiliations"] == []:
-                            raise_exception( Exception("\n\n#ERROR : your multihit TSV file is no more consistent with your abundance TSV file for (at least) "+cluster_name+"\n\n"))
+                            raise_exception( Exception("\n\n#ERROR : your multihit TSV file is no more consistent with your abundance TSV file for (at least) "+cluster_name+" which does not contain anymore the unambiguous taxonomy prefix : \n\t" + unambiguous_prefix + "\n\n"))
                 # no multi tag= blast affiliation is equal to blast_taxonomy
                 else:
 

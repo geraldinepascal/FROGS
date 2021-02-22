@@ -75,6 +75,9 @@ class Rarefaction(Cmd):
                       'rarefaction --input-file ' + in_biom + ' --output-file-pattern ' + out_path_pattern + ' --taxonomy-key "' + taxonomy_tag + '" --step-size ' + str(step_size) + ' --ranks ' + ' '.join([str(lvl) for lvl in rarefaction_levels]),
                       '--version' )
         self.output_files = out_files
+        
+    def get_version(self):   
+        return Cmd.get_version(self, 'stdout').strip()        
 
     def get_step_size(self, nb_step=35):
         """
@@ -121,6 +124,9 @@ class TaxonomyTree(Cmd):
                       'Produces a taxonomy tree with counts by sample.',
                       'treeCount --input-file ' + in_biom + ' --taxonomy-key "' + taxonomy_tag + '" --output-enewick ' + out_tree + ' --output-samples ' + out_ids,
                       '--version' )
+                      
+    def get_version(self):   
+        return Cmd.get_version(self, 'stdout').strip()                      
 
 
 ##################################################################################################################################################

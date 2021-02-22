@@ -132,9 +132,9 @@ FROGS is now available on bioconda (https://anaconda.org/bioconda/frogs).
   * to create a specific environment for a specific FROGS version
 
 ```
-conda env create --name __frogs@3.2.0 --file frogs-conda-requirements.yaml
+conda env create --name frogs@3.3.0 --file frogs-conda-requirements.yaml
 # to use FROGS, first you need to activate your environment
-conda activate __frogs@3.2.0
+conda activate frogs@3.3.0
 ```
 
 ### From source

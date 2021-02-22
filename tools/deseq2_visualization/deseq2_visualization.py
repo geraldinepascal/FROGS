@@ -99,7 +99,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser( description='Launch Rmarkdown to visualize differential abundance analysis.')
     parser.add_argument( '--debug', default=False, action='store_true', help="Keep temporary files to debug program." )   
     parser.add_argument( '--version', action='version', version=__version__ )
-    parser.add_argument('-v', '--varExp', type=str, required=True, help='variable that you want to test.' )
+    parser.add_argument('-v', '--var', type=str, required=True, help='variable that you want to test.' )
     parser.add_argument('-m1', '--mod1', type=str, default="None", help='one value of the tested variable you want to compare (if more than 2 value in your experiement variable analyzed.)' )
     parser.add_argument('-m2', '--mod2', type=str, default="None", help='second value of the tested variable you want to compare.(if more than 2 value in your experiement variable analyzed.)' )
     parser.add_argument('-pa', '--padj', type=float, default=0.05, help='the adjusted p-value threshold to defined OTU as differentially abundant. [Default: %(default)s]' )
@@ -126,7 +126,7 @@ if __name__ == "__main__":
 
     try:
         R_stderr = tmpFiles.add("R.stderr")
-        Rscript(phyloseq_data, dds, args.varExp, args.mod1, args.mod2, args.padj, html, R_stderr).submit(args.log_file)
+        Rscript(phyloseq_data, dds, args.var, args.mod1, args.mod2, args.padj, html, R_stderr).submit(args.log_file)
     finally :
         if not args.debug:
             tmpFiles.deleteAll()

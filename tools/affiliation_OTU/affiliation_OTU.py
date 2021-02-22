@@ -110,7 +110,7 @@ class Reduce_Ref(Cmd):
         @summary: Returns the program version number.
         @return: version number if this is possible, otherwise this method return 'unknown'.
         """
-        return Cmd.get_version(self, 'stderr').strip()
+        return Cmd.get_version(self, 'stdout').strip()
         
         
     def parser(self, log_file):
@@ -158,7 +158,7 @@ class NeedleallSam_to_tsv(Cmd):
         @summary: Returns the program version number.
         @return: version number if this is possible, otherwise this method return 'unknown'.
         """
-        return Cmd.get_version(self, 'stderr').strip()
+        return Cmd.get_version(self, 'stdout').strip()
 
 class RDPAffiliation(Cmd):
     def __init__(self, ref, query_fasta, output, memory):
@@ -210,6 +210,12 @@ class AddAffiliation2Biom(Cmd):
                       argument,
                       '--version' )
 
+    def get_version(self):
+        """
+        @summary: Returns the program version number.
+        @return: version number if this is possible, otherwise this method return 'unknown'.
+        """
+        return Cmd.get_version(self, 'stdout').strip()
 
 ###################################################################################################################
 ###                                 OTU AFFILIATION FUNCTIONS                                                   ###

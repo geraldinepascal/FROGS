@@ -90,6 +90,9 @@ class HClassification(Cmd):
             for line in warning_lines:
                 FH_log.write( '\t' + line + '\n' )
             FH_log.close()
+            
+    def get_version(self):   
+        return Cmd.get_version(self, 'stdout').strip()            
 
 
 class Depths(Cmd):
@@ -106,6 +109,9 @@ class Depths(Cmd):
                       'Writes by abundance the number of clusters.',
                       'obsdepth --input-file ' + in_biom + ' --output-file ' + out_tsv,
                       '--version' )
+
+    def get_version(self):   
+        return Cmd.get_version(self, 'stdout').strip()                      
 
 
 ##################################################################################################################################################
