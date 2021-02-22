@@ -22,6 +22,17 @@ then
     mkdir $out_dir
 fi
 
+echo "Step demultiplexe `date`"
+demultiplex.py \
+  --input-R1 data/demultiplex_test2_R1.fq.gz --input-R2 data/demultiplex_test2_R1.fq.gz --input-barcode data/demultiplex_barcode.txt \
+  --mismatches 1 --end both \
+  --output-demultiplexed $out_dir/demultiplexed.tar.gz --output-excluded $out_dir/undemultiplexed.tar.gz --log-file $out_dir/demultiplex.log --summary $out_dir/demultiplex_summary.txt 
+
+if [ $? -ne 0 ]
+then
+	echo "Error in demultiplex " >&2
+	exit 1;
+fi
 
 echo "Step preprocess : Flash `date`"
 
