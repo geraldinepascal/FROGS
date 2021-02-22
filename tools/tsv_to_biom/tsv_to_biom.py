@@ -19,9 +19,9 @@
 __author__ = 'Maria Bernard - Sigenae INRA'
 __copyright__ = 'Copyright (C) 2016 INRA'
 __license__ = 'GNU General Public License'
-__version__ = '3.2'
+__version__ = '3.2.1'
 __email__ = 'frogs-support@inrae.fr'
-__status__ = 'dev'
+__status__ = 'prod'
 
 import os
 import sys

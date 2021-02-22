@@ -21,7 +21,7 @@ __copyright__ = 'Copyright (C) 2015 INRA'
 __license__ = 'GNU General Public License'
 __version__ = '1.0'
 __email__ = 'frogs-support@inrae.fr'
-__status__ = 'beta'
+__status__ = 'prod'
 
 import os
 import sys

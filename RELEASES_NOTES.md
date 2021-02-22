@@ -3,8 +3,6 @@
 ### Bug fixed
 * correct reversecomp function by taking into account S and W IUPAC nucleotides
 
-
-
 # v3.2 [2021-01-13]
 
 ### Tools added:
