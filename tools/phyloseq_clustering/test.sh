@@ -10,7 +10,7 @@ else
   mkdir test
 fi 
 
-./r_clustering.py \
+./phyloseq_clustering.py \
     --rdata data/data.Rdata \
     --varExp EnvType \
     --distance-matrix data/Unifrac.tsv \

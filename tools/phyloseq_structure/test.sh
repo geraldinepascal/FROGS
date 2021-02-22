@@ -10,7 +10,7 @@ else
   mkdir test
 fi 
 
-./r_structure.py \
+./phyloseq_structure.py \
      --rdata data/data.Rdata \
      --varExp EnvType \
      --ordination-method MDS \

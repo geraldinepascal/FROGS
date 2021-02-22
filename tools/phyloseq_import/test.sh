@@ -13,7 +13,7 @@ fi
 
 # without normalisation and default ranks
 mkdir -p test/
-./r_import_data.py  \
+./phyloseq_import_data.py  \
 	-n \
 	-b data/chaillou.biom \
 	-s data/sample_data.tsv \
@@ -21,7 +21,7 @@ mkdir -p test/
 	--rdata test/phylo_import.Rdata -o test/phylo_import.nb.html -l test/phylo_import.log
 
 # on unstandardized biom
-./r_import_data.py  \
+./phyloseq_import_data.py  \
 	-n \
 	-b data/frogs.biom \
 	-s data/frogs_sample_data.tsv \

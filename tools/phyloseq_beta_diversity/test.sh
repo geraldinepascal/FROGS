@@ -10,7 +10,7 @@ else
   mkdir test
 fi 
 
-./r_beta_diversity.py \
+./phyloseq_beta_diversity.py \
            --rdata data/data.Rdata \
            --varExp EnvType \
            --distance-methods bray,unifrac,euclidean \
