@@ -126,7 +126,7 @@ if __name__ == "__main__":
 
     try:
         R_stderr = tmpFiles.add("R.stderr")
-        Rscript(phyloseq_data, dds, args.varExp, args.mod1, args.mod2, args.padj, html, R_stderr).submit(args.log_file)
+        Rscript(phyloseq_data, dds, args.var, args.mod1, args.mod2, args.padj, html, R_stderr).submit(args.log_file)
     finally :
         if not args.debug:
             tmpFiles.deleteAll()
