@@ -1,1 +1,0 @@
-../../tools/demultiplex/data/barcode2.txt
