@@ -33,7 +33,7 @@ diff_size() {
 
 echo "Step demultiplexe `date`"
 demultiplex.py \
-  --input-R1 data/demultiplex_test2_R1.fq.gz --input-R2 data/demultiplex_test2_R1.fq.gz --input-barcode data/demultiplex_barcode.txt \
+  --input-R1 data/demultiplex.fastq.gz --input-barcode data/demultiplex.barcode.txt \
   --mismatches 1 --end both \
   --output-demultiplexed $out_dir/demultiplexed.tar.gz --output-excluded $out_dir/undemultiplexed.tar.gz --log-file $out_dir/demultiplex.log --summary $out_dir/demultiplex_summary.txt 
 
