@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+__author__ = ' Moussa Samb & Maria Bernard  & Geraldine Pascal INRAE - SIGENAE '
+__copyright__ = 'Copyright (C) 2020 INRAE'
+__license__ = 'GNU General Public License'
+__version__ = '1.0'
+__email__ = 'frogs@inrae.fr'
+__status__ = 'dev'
+-->
+<tool id="FROGS_PICRUSt2_hsp" name="FROGS_PICRUSt2_Step2" version= "1.0">
+	<description>Predict gene copy: OTU_name, OTU_count, NSTI</description>
+
+	<requirements>
+               
+        
+    </requirements>
+
+    <stdio>
+        <exit_code range="1:" />
+        <exit_code range=":-1" />
+    </stdio>
+	
+
+    <command >
+	  $GALAXY_ROOT_DIR/tools/FROGS_moussa/app/gene_placement.py -c $categorie -i $table -t $tree_file -o $out_file  -b $biom_file;
+	</command> 
+
+
+	<inputs>
+	         	 <!-- Files -->
+	    <!-- <param format="Fasta" name="fasta_file" type="data" label="Fasta file" help="The sequence file to filter (format: fasta)." /> -->
+
+	    <param format="nhx" name="tree_file" type="data" label="Tree file" help="The tree file of OTU (format: newick)."
+	    	optional="false">
+        	<validator type="empty_field" message="This parameter is required." />
+        </param>
+
+        <param format="biom1" name="biom_file" type="data" label="Biom file" help="The abundance table of OTUs (format: biom)." optional="false">
+        	<validator type="empty_field" message="This parameter is required." />
+        </param>
+
+	   			 <!-- Paramemtre-->
+	   	<param name="categorie" type="select" label="Categorie">
+		    <option value="16S">Procaryote_16S</option>
+		    <option value="ITS">Fungi_ITS</option>
+		    <option value="18S">Fungi_18S</option>
+		</param>
+
+		<!-- <param name="table" type="select" label="Reference Table">
+		    <option value="16S">16S_Count</option>
+		    <option value="EC">EC</option>
+		    <option value="KO">KO</option>
+		</param> -->
+
+		<param name="table" type="select" label="Reference Table" multiple="true" display="checkboxes">
+             <option value="16S">16S_Count</option>
+             <option value="EC">EC</option>
+             <option value="KO">KO</option>
+             <option value="PFAM">PFAM</option>
+             <option value="COG">COG</option>
+             <option value="TIGRFAM">TIGRFAM</option>
+             <option value="PHENO">PHENO</option>
+        </param>
+
+	</inputs>
+
+
+	<outputs>
+		<!-- <data format="tree" name="out_file1" /> -->
+		<!-- <data format="nhx" name="out_file"/> -->
+		<!-- <data format="tabular" name="output_excluded" />  -->
+		<!-- <data format="html" name="summary.html" /> -->
+		<data format="html" name="html" label="${tool.name}: summary.html" from_work_dir="summary.html"/><!-- 
+		<data format="tabular" name="out_file" label="${tool.name}:out.txt" from_work_dir="out"/> -->
+		 <data format="tabular" name="out_file" label="${tool.name}: OTU_Count.tsv" from_work_dir="OTU_Count.tsv"/> 
+
+		  
+   <!--  <data format="tabular" name="output">
+        <actions>
+            <action name="output" type="metadata" default="Firstname,Lastname,Age" />
+        </actions>
+    </data> -->
+
+
+	</outputs>
+
+
+
+     <help>
+.. image:: ./static/images/frogs_images/FROGS_logo.png  
+   :height: 144
+   :width: 110
+
+.. class:: infomark page-header h2
+
+What it does
+
+Prediction of functional abundances based solely on the sequences of marker genes with 'PICRUSt2 &lt;https://github.com/picrust/picrust2&gt;`_. 
+The second step of Picrust2 consists to predict the family genes of each OTUs constructed elsewhere in a reference phylogenetic tree. 
+Give a NST for each OTU with `castor-R &lt;https://cran.r-project.org/web/packages/castor/index.html&gt;``_.
+
+
+.. class:: infomark page-header h2
+
+Inputs/Outputs
+
+.. class:: h3
+
+Input
+
+
+**OTUs tree**:
+
+**Newick file** (tree.nwk):
+
+The phylogenetic tree in Newick format (format `nxh &lt;https://en.wikipedia.org/wiki/Newick_format&gt;`_).
+
+ .. image:: static/images/frogs_images/nwk_treefile.png
+
+**OTUs biom file**:
+
+The OTUs biom file (format `biom1 &lt;http://biom-format.org/documentation/format_versions/biom-1.0.html&gt;`_).
+This file can be obtained in particular with the FROGS pipeline.
+
+
+**Table of prediction **:
+
+Which default pre-calculated count table to use (one of '16S', 'COG', 'EC', 'KO', 'PFAM', 'TIGRFAM', 'PHENO')
+
+.. class:: h3
+
+Outputs
+
+**Prediction result ** (out.tsv):
+
+ 
+The table with abundances each cluster in each sample and NSTI for each cluster (format TSV).
+
+Authorised column names :  sequence_OTU, prediction_Count_OTU, NST
+
+
+
+**Html file** (summary.html):
+   
+The summary file describing which OTUs are contained or not in the phylogenetic tree.
+
+.. class:: infomark page-header h2
+
+**Contact**
+
+Contacts: frogs@inra.fr
+
+website: http://frogs.toulouse.inra.fr/
+
+Repository: https://github.com/geraldinepascal/FROGS
+website: http://frogs.toulouse.inra.fr/
+
+Please cite the **FROGS article**: *Escudie F., et al. Bioinformatics, 2018. FROGS: Find, Rapidly, OTUs with Galaxy Solution.*
+
+Please cite the	**PICRUSt2 article**: * Gavin M. Douglas1, Vincent J. Maffei2, Jesse Zaneveld3, Svetlana N. Yurgel4, James R. Brown5, Christopher M. Taylor2, Curtis Huttenhower6, Morgan G. I. Langille1,7,*	
+
+     </help>
+
+    <citation>
+    	<citation type="doi">10.1101/672295</citation>
+ 	</citation>
+ </tool>

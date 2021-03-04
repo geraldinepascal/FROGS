@@ -1,0 +1,78 @@
+
+Exemple test FPStep3: python2.7 FPStep3.py -i table.biom -m sortie_16S.tsv -f sortie_EC.tsv -o EC_metagenome_out
+
+A) Commande par défaut: 
+		-i TRAIT_OPTION : quelle table de comptage pré-calculée par défaut à utiliser (une parmi '16S', 'COG', 'EC', 'KO', 'PFAM', 'TIGRFAM', 'PHENO')
+		-t :arbre d'entrée newick
+		-o :La table de sortie 
+		-n : calcul de l'indice NSTI
+	b) Option facultatif:
+		-m METHOD : methode de prediction à l'etat caché ['mp', 'emp_prob', 'pic', 'scp', 'subtree_average']
+		--observed_trait_table TRAIT_COUNTFILE:  fichier de caractère à utiliser si un fichier non par défaut est nécessaire (la plupart des utilisateurs doivent utiliser l'une des options de caractère par défaut ci-dessus) : 
+
+		--chunk_size INT: nombre de familles de gènes à lire pour un processeur donné (NB: pas toujours efficasse)
+		-p INT : nombre de processus à exécuter en parallèle.
+
+
+B) Commande avec 16S
+1) Commande utilisant 16S et n
+
+	python2.7 gene_placement.py -i 16S -t data/out5.tree -b data/test.biom1 -o test/out1.tsv.gz -n
+
+	Cette commande donne le nombre prévu de copies de 16S par OTU, suivi de la valeur du NSTI par OTU.
+
+
+2) Commande utilisant (EC + n ) et commande utilisant PFAM (sans -n)
+	python2.7 gene_placement.py -i EC -t data/out5.tree -b data/test.biom1 -o test/out1_EC.tsv.gz -n
+
+	Cette commande donne le nombre de copies prévu de tous les numéros de classification enzymatique (EC) pour chaque OTU . Suivi des valeurs des NSTI 
+
+	python2.7 gene_placement.py -i PFAM -t data/out5.tree -b data/test.biom1 -o test/out1_PFAM.tsv.gz 
+
+	Idem (sans nsti)
+
+3) Commande avec 16S, méthode Maximum de Parcimonie et 2 processeur
+ 	python2.7 gene_placement.py -i 16S -t data/out5.tree -b data/test.biom1 -o test/out1_mp.tsv.gz -m mp -p 2
+
+4) Commande avec 16S et nbre de famille de géne à lire pour un processeur =200
+
+	python2.7 gene_placement.py -i 16S -t data/out5.tree -b data/test.biom1 -o test/out1_mp.tsv.gz  -p 2 --chunk_size 200
+
+B) Commande avec ITS
+	NB: pas possible de passé le -i et le --observed_trait_table à la fois 
+	NB: le -i pour passer les tables par défaut pour le 16S
+	NB: Pour les ITS ou les fungi --observed_trait_table pour spécifié la table pour chaque groupe(fungi ou ITS)
+
+1) Commande avec ITS et n
+	python2.7 gene_placement.py  -t out_ITS.tree -b data/ITS/ITS.biom1 -o test/out_ITS.tsv.gz --observed_trait_table picrust2/default_files/fungi/ITS_counts.txt.gz -n
+
+	Cette commande donne le nombre prévu de copies de ITS par OTU, suivi de la valeur du NSTI par OTU.
+2)  Commande utilisant (EC + n )
+	python2.7 gene_placement.py  -t out_ITS.tree -b data/ITS/ITS.biom1 -o test/out_EC_ITS.tsv.gz --observed_trait_table picrust2/default_files/fungi/ec_ITS_counts.txt.gz -n
+################################### Memo des commandes test #######################
+python2.7 gene_placement.py -c 16S -i 16S,EC -t data/out5.tree -o out_test.tsv.gz
+
+
+
+
+################################ Commande partie 3 #######################################
+metagenome_pipeline.py -i study_seqs.biom \ -m marker_nsti_predicted.tsv.gz \-f EC_predicted.tsv.gz \-o EC_metagenome_out
+
+
+-i : study_seqs.biom
+-m : marker.gz
+-f : EC.gz
+:#Prend les deux fichiers de sortie de la 2eme étape...
+metagenome_pipeline.py -i study_seqs.biom \
+                       -m marker_nsti_predicted.tsv.gz \
+                       -f KO_predicted.tsv.gz \
+                       -o KO_metagenome_out
+
+Inférer l'abondance et la couverture des voies MetaCyc en fonction des abondances prévues du nombre d'E.C.
+
+=> En sortie on a le dossier KO_metagenome_out et EC_metagenome_out
+		=>Pour EC_metagenome_out on a:
+			1: pred_met_unistrat.gz :donne l'abondance globale des numéros EC par échantillon (colonne 1= les num EC ; et les autres col = d'autres info)
+			2: seq_norm.gz: donne la table d'abondance ASV normalisé par le nombre de copie 16S prévu (colone1 = ASV, autres col = échantillon).
+			3: weight_nsti.gz : donne la nsti moyenne par échantillon (NB: ce fichier peut etre utile pour identifier les échantillons abérants...) 
+

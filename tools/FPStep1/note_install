@@ -1,0 +1,8 @@
+ajout de dépendance dans libexec:
+/usr/local/bioinfo/src/Miniconda/Miniconda3-4.4.10/envs/picrust2-2.0.3-b_env/bin/place_seqs.py  ==> code Picrust
+/usr/local/bioinfo/src/Miniconda/Miniconda3-4.4.10/envs/picrust2-2.0.3-b_env/bin/hmmalign       ==> HMMER
+/usr/local/bioinfo/src/Miniconda/Miniconda3-4.4.10/envs/picrust2-2.0.3-b_env/bin/epa-ng         ==> epa-ng
+
+version des dépendances à préciser pour la documentation de l'installation
+
+Attention utiliser la version v2.3.0-b de picrust!

@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html>
+  <head>
+
+    <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
+    <script src="//code.jquery.com/jquery-2.1.1.min.js"></script>
+    <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
+    <link href="//code.jquery.com/ui/1.11.3/themes/smoothness/jquery-ui.min.css" rel="stylesheet" type="text/css" />
+
+    <style>
+      body {
+        margin: 20px;
+      }
+
+      #phylocanvas {
+        /*width: 700px;*/
+        height: 500px;
+        border: 1px solid #ccc;
+      }
+
+      #pc-buttons{
+        padding: 0px 20px;
+        height: 500px;
+        overflow: auto;
+        border: 1px solid #ccc;
+      }
+      p{
+        margin-top: 15px;
+        color: #007aa3;
+      }
+      .row div {
+        padding: 0px;
+      }
+    </style>
+
+    <script>
+      $(document).ready(function(){
+
+        // Construct tree object
+        phylocanvas = new PhyloCanvas.Tree('phylocanvas', {
+          historyCollapsed: true,
+          contextMenu : [{
+            text: 'Normal Menu',
+            handler: 'triggerNormal',
+            internal: false,
+            leaf: false
+          }, {
+            text: 'Internal Menu',
+            handler: 'triggerInternal',
+            internal: true,
+            leaf: true
+          }, {
+            text: 'Save as PNG',
+            handler: 'exportCurrentTreeView',
+            internal: false,
+            leaf: false
+          }]
+        });
+
+        phylocanvas.setTreeType('rectangular');
+        phylocanvas.nodeAlign = true;
+        var newick_str = "((1:0.133,(2:0.24,3:0.44):0.189):0.415,(9:0.408,(12:0.241,(8:0.13,(7:0.14,11:0.014):0.090):0.038):0.266):0.141):3.678);";
+        var nw_file = "https://cdn.rawgit.com/jyothishnt/PhyloCanvas-API-Site/master/data/tree.nwk";
+        phylocanvas.load(newick_str);
+        phylocanvas.addListener('subtree', function(){
+          loadSlider(phylocanvas.textSize);
+        });
+        phylocanvas.addListener('typechanged', function(){
+          loadSlider(phylocanvas.textSize);
+        });
+        phylocanvas.addListener('loaded', function(){
+          loadSlider(phylocanvas.textSize);
+        });
+
+        phylocanvas.triggerNormal = function() {
+          alert('Normal menu clicked');
+        };
+
+        var node = phylocanvas.leaves[0];
+        node.triggerInternal = function() {
+          alert('Clicked leaf - ' + node.id);
+        };
+
+
+        phylocanvas.exportCurrentTreeView = function () {
+          var dataUrl = canvasToImage(this, 'white');
+          var anchor = document.createElement('a');
+          var isDownloadSupported = (typeof anchor.download !== 'undefined');
+
+          anchor.href = dataUrl;
+          anchor.target = '_blank';
+
+          if (isDownloadSupported) {
+            anchor.download = 'phylocanvas.png'; // TODO: create filename from UI state
+          }
+
+          var event = document.createEvent('Event');
+          event.initEvent('click', true, true);
+          anchor.dispatchEvent(event);
+
+          if (isDownloadSupported) {
+            (window.URL || window.webkitURL).revokeObjectURL(anchor.href);
+          }
+        };
+
+        function canvasToImage(tree, backgroundColor)
+        {
+            //cache height and width
+            var x = tree.offsetx;
+            var y = tree.offsety;
+            var w = tree.canvas.canvas.offsetWidth - tree.offsetx;
+            var h = tree.canvas.canvas.offsetHeight - tree.offsety;
+            var context = tree.canvas;
+            console.log(tree)
+            var data;
+
+            if(backgroundColor)
+            {
+                //get the current ImageData for the canvas.
+                data = context.getImageData(0, 0, w, h);
+
+                //store the current globalCompositeOperation
+                var compositeOperation = context.globalCompositeOperation;
+
+                //set to draw behind current content
+                context.globalCompositeOperation = "destination-over";
+
+                //set background color
+                context.fillStyle = backgroundColor;
+
+                //draw background / rect on entire canvas
+                context.fillRect(x,y,w,h);
+            }
+
+            //get the image data from the canvas
+            var imageData = tree.canvas.canvas.toDataURL("image/png");
+
+            if(backgroundColor)
+            {
+                //clear the canvas
+                context.clearRect (0,0,w,h);
+
+                //restore it with original / cached ImageData
+                context.putImageData(data, 0,0);
+
+                //reset the globalCompositeOperation to what it was
+                context.globalCompositeOperation = compositeOperation;
+            }
+
+            //return the Base64 encoded data url string
+            return imageData;
+        }
+
+        $(document).on('click','#pc-buttons .btn', {} ,function(e){
+            $('#pc-buttons .btn').removeClass('btn-info');
+            $('#pc-buttons .btn').addClass('btn-default');
+            $(this).addClass('btn-info');
+            if(this.id == "rectangular" || this.id == "circular" || this.id == "diagonal" || this.id == "hierarchy" || this.id == "radial" )
+              phylocanvas.setTreeType(this.id);
+            else if(this.id == "hide")
+              phylocanvas.hideLabels();
+            else if(this.id == "align")
+              phylocanvas.nodeAlign = !phylocanvas.nodeAlign;
+            else if(this.id == "show")
+              phylocanvas.displayLabels();
+            else if(this.id == "toggle")
+              phylocanvas.toggleLabels();
+            else if(this.id == "redraw") {
+              phylocanvas.branches['pcn5'].redrawTreeFromBranch();
+            }
+            else if(this.id == "revert_redraw") {
+              phylocanvas.origRoot.redrawTreeFromBranch();
+            }
+            else if(this.id == "nodeColorTrue") {
+              phylocanvas.backColour = false;
+              phylocanvas.setNodeColourAndShape("1,2,3", 'orange', 'o', 5);
+            }
+            else if(this.id == "nodeColorFalse") {
+              phylocanvas.backColour = false;
+              phylocanvas.setNodeColourAndShape("1,2,3", 'black', 'o', 1);
+            }
+            else if(this.id == "branchColorTrue") {
+              phylocanvas.backColour = true;
+              phylocanvas.setNodeColourAndShape('1', "rgb(20,120,250)", "x", 5);
+              phylocanvas.setNodeColourAndShape('2', "rgb(250,120,20)", "t", 5);
+              phylocanvas.setNodeColourAndShape('9', "rgb(120,20,250)", "s", 5);
+            }
+            else if(this.id == "branchColorFalse") {
+              phylocanvas.backColour = false;
+              phylocanvas.setNodeColourAndShape('1', "black", "o", 1);
+              phylocanvas.setNodeColourAndShape('2', "black", "o", 1);
+              phylocanvas.setNodeColourAndShape('9', "black", "o", 1);
+            }
+            else if(this.id == "rotate") {
+              phylocanvas.branches['pcn5'].rotate(event);
+            }
+            else if(this.id == "collapse") {
+              phylocanvas.branches['pcn5'].collapsed = true;
+            }
+            else if(this.id == "expand") {
+              phylocanvas.branches['pcn5'].collapsed = false;
+            }
+            else if(this.id == 'selectNode') {
+              phylocanvas.selectNodes('1,2,12')
+            }
+            else if(this.id == 'clearSelect') {
+              phylocanvas.clearSelect();
+            }
+
+            phylocanvas.draw();
+        });
+
+        $(".slider_node").slider({
+            range: "min",
+            value: 1,
+            min: 1,
+            max: 10,
+            slide: function(event, ui) {
+              phylocanvas.setNodeSize(ui.value);
+            }
+        });
+
+        $(".slider_text").slider({
+            range: "min",
+            value: 1,
+            min: 5,
+            max: 10,
+            slide: function(event, ui) {
+              if(ui.value <= 0)
+                ui.value = 1;
+              phylocanvas.setTextSize(ui.value);
+            }
+        });
+
+        $('#searchbox').keyup(function(){
+          if(this.value != "")
+            phylocanvas.findBranch(this.value);
+          else {
+            phylocanvas.root.setSelected(false, true);
+            phylocanvas.draw();
+          }
+        });
+
+        function loadSlider(val) {
+          $( ".slider_text" ).slider({
+            value: val,
+            min: val-10,
+            max: val + 10
+          });
+        }
+
+      });
+    </script>
+
+  </head>
+
+  <body>
+    <div class="contaxiner">
+      <h2>PhyloCanvas Examples</h2>
+      <hr>
+      <div class="row">
+        <div class="col-lg-3 col-md-3 col-sm-3">
+          <div id="pc-buttons">
+            <p>Change Tree Type </p>
+            <button id="rectangular" class="btn btn-info btn-xs">Rectangular</button>
+            <button id="circular" class="btn btn-default btn-xs">Circular</button>
+            <button id="radial" class="btn btn-default btn-xs">Radial</button>
+            <button id="diagonal" class="btn btn-default btn-xs">Diagonal</button>
+            <button id="hierarchy" class="btn btn-default btn-xs">Hierarchical</button>
+            <hr>
+            <p>Show/Hide Labels </p>
+            <button id="show" class="btn btn-default btn-xs">Show</button>
+            <button id="hide" class="btn btn-default btn-xs">Hide</button>
+            <button id="toggle" class="btn btn-default btn-xs">Toggle</button>
+            <hr>
+
+            <p>Select Node </p>
+            <button id="selectNode" class="btn btn-default btn-xs">Select</button>
+            <button id="clearSelect" class="btn btn-default btn-xs">Revert</button>
+            <hr>
+
+            <p>Node Align </p>
+            <button id="align" class="btn btn-default btn-xs">True/False</button>
+            <hr>
+
+            <p>Node Size </p>
+            Node size: <div class="slider slider_node"></div>
+            Text size: <div class="slider slider_text"></div>
+            <hr>
+
+            <p>Color Node</p>
+            <button id="nodeColorTrue" class="btn btn-default btn-xs">Color Node</button>
+            <button id="nodeColorFalse" class="btn btn-default btn-xs">Revert</button>
+            <hr>
+
+            <p>Branch Color</p>
+            <button id="branchColorTrue" class="btn btn-default btn-xs">Color Branch</button>
+            <button id="branchColorFalse" class="btn btn-default btn-xs">Revert</button>
+            <hr>
+
+            <p>Draw a Subtree </p>
+            <button id="redraw" class="btn btn-default btn-xs">Redraw</button>
+            <button id="revert_redraw" class="btn btn-default btn-xs">Revert</button>
+            <hr>
+
+            <p>Rotate a branch </p>
+            <button id="rotate" class="btn btn-default btn-xs">Rotate</button>
+            <hr>
+
+            <p>Collapse a branch </p>
+            <button id="collapse" class="btn btn-default btn-xs">Collapse</button>
+            <button id="expand" class="btn btn-default btn-xs">Expand</button>
+            <hr>
+
+            <p>Search </p>
+            <input type="text" id="searchbox">
+            <hr>
+
+          </div>
+        </div>
+        <div class='col-lg-9 col-md-9 col-sm-9'>
+          <div id="phylocanvas" ></div>
+        </div>
+      </div>
+    </div>
+  </body>
+  <script src="//code.jquery.com/jquery-2.1.1.min.js"></script>
+  <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
+  <script src="//code.jquery.com/ui/1.11.3/jquery-ui.min.js"></script>
+  <script type="application/javascript" src="https://cdn.rawgit.com/ImperialCollegeLondon/PhyloCanvas/master/src/scripts/PhyloCanvas.js"></script>
+  <!-- <script type="application/javascript" src="http://localhost/PhyloCanvas/src/scripts/PhyloCanvas.js"></script> -->
+
+</html>

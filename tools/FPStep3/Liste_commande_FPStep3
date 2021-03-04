@@ -1,0 +1,37 @@
+Liste commande FPStep3
+3 ) Prédire les abondances E.C. et KO dans les échantillons de séquençage (ajuste les abondances des familles de gènes par l'abondance des séquences 16S) (Générer les prédictions de métagénome): 
+NB: c'est dans cette étape on donne la table d'abondance des ASV (ou OTU)
+NB: Dans la 1ere étape on a prédit le nombre de copies de familles de génes pour chaque ASV => Les utilisateurs sont plutot intéréssée par les familles de génes prédites pondérées par l'abondance des ASV dans leur comunauté (Pour déduire les métagénomes des comunauté). Ainsi l'utilisateur donne aussi la table d'abondance au format biom.
+=>Une étape de normalisation  
+metagenome_pipeline.py -i study_seqs.biom \ -m marker_nsti_predicted.tsv.gz \-f EC_predicted.tsv.gz \-o EC_metagenome_out
+
+-i : study_seqs.biom
+-m : marker.gz
+-f : EC.gz
+:#Prend les deux fichiers de sortie de la 2eme étape...
+metagenome_pipeline.py -i study_seqs.biom \
+                       -m marker_nsti_predicted.tsv.gz \
+                       -f KO_predicted.tsv.gz \
+                       -o KO_metagenome_out
+
+Inférer l'abondance et la couverture des voies MetaCyc en fonction des abondances prévues du nombre d'E.C.
+
+=> En sortie on a le dossier KO_metagenome_out et EC_metagenome_out
+		=>Pour EC_metagenome_out on a:
+			1: pred_met_unistrat.gz :donne l'abondance globale des numéros EC par échantillon (colonne 1= les num EC ; et les autres col = d'autres info)
+			2: seq_norm.gz: donne la table d'abondance ASV normalisé par le nombre de copie 16S prévu (colone1 = ASV, autres col = échantillon).
+			3: weight_nsti.gz : donne la nsti moyenne par échantillon (NB: ce fichier peut etre utile pour identifier les échantillons abérants...) 
+
+A) Commande par défaut:
+-i study_seqs.biom : fichier biom d'abondance provenant de FROGS
+-m MARKER_PREDICTED.tsv.gz: Sortie des numéros de copie 16S prévus (ITS ou 18S) pour toutes les séquences d'étude.
+-f KO_predicted.tsv.gz : Sortie d'abondances fonctionnelles prévues pour toutes les séquences d'étude.(EC ou KO )
+-o KO_metagenome_out : repertoire de la sortie
+
+B) Commande supplémentaire:
+--max_nsti INT - Valeurs NSTI max par séquence d'étude (les séquences avec des valeurs supérieures à ce seuil seront supprimées). Par défaut: 2.
+--min_reads INT - Nombre min_reads INT de lectures qu'un ASV ne doit pas avoir à être réduit dans la catégorie "RARE". Par défaut: 1.
+
+--min_samples INT - Nombre min_samples INT d'échantillons dans min_samples INT un ASV doit être pour ne PAS être regroupé dans la catégorie "RARE". Par défaut: 1.
+--strat_out - Indicateur pour indiquer que la sortie stratifiée doit également être générée.
+

@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+__author__ = ' Moussa Samb & Maria Bernard  & Geraldine Pascal INRAE - SIGENAE '
+__copyright__ = 'Copyright (C) 2020 INRAE'
+__license__ = 'GNU General Public License'
+__version__ = '1.0'
+__email__ = 'frogs@inrae.fr'
+__status__ = 'dev'
+-->
+<tool id="FROGS_PICRUSt2_metagenome" name="FPStep3" version= "1.0">
+    <description>predict abundance gene</description>
+
+    <stdio>
+        <exit_code range="1:" />
+        <exit_code range=":-1" />
+    </stdio>
+    
+
+    <command >   
+        $GALAXY_ROOT_DIR/tools/FROGS_moussa/app/FPStep3.py -i $input_biom -m $marker -f $function -o $out_file;
+        <!-- $GALAXY_ROOT_DIR/tools/FROGS_moussa/app/FPStep3.py -i $input_biom -e $function -o $out_file; -->
+
+
+    <!-- ../FPStep3.py -i test_16S.biom1 -m 16S_count_table_1_sorti_etape2.tsv -f ../resultat_parse_KO.tsv -o Sorti_etape3_Test_KO -->
+    </command> 
+        <!-- outlocation=$(mktemp -d your_path/galaxy/database/XXXXXX)
+        mkdir $outlocation"/outputfolder"
+        mkdir $outlocation"/inputfolder"
+        unzip $1 -d $outlocation"/inputfolder"
+        mytool.py -input [inputfolder files] -param $3 -param2 $4 -outputfolder $outlocation"/outputfolder"
+        zip -r -j $outlocation"/output.zip" $outlocation"/outputfolder"
+        mv  $outlocation"/output.zip" $2
+        rm -rf $outlocation -->
+
+
+
+    <inputs>
+             
+        <param format="biom1" name="input_biom" type="data" label="Biom file" help="The BIOM file to convert (format: BIOM)"
+            optional="false">
+            <validator type="empty_field" message="This parameter is required." />
+        </param>
+
+        <param format="tabular" name= "marker" type="data" label="Table of predicted marker gene copy numbers ''(output of FPStep2 - typically for 16S).'" />
+
+        <param format="tabular" name="function" type="data" label=" table of prediction: marker gene copy numbers and function " help="Table of predicted gene family copy numbers''(output of FPStep2.py).')"/>
+        
+
+        <!-- Paramemtre-->
+        
+        <!-- Paramemtre-->
+   
+    </inputs>
+
+
+    <outputs>
+         <!-- <data format="directory" name="out_file" label="${tool.name}: gene_abundance" from_work_dir="Abundance_gene"/>    
+         <datatype extension="directory" type="galaxy.datatypes.data:Directory"> </datatype> -->
+
+        <data format="directory" name="out_file" label="${tool.name}: excluded" from_work_dir="excluded"/> 
+
+
+    </outputs>
+
+     <help>
+.. image:: ./static/images/frogs_images/FROGS_logo.png  
+   :height: 144
+   :width: 110
+
+.. class:: infomark page-header h2
+
+What it does
+
+Prediction of functional abundances based solely on the sequences of marker genes with 'PICRUSt2 &lt;https://github.com/picrust/picrust2&gt;`_. 
+The third step of Picrust2 Determine the abundance of gene families for each sample.
+
+
+.. class:: infomark page-header h2
+
+Inputs/Outputs
+
+.. class:: h3
+
+Input
+
+
+**OTUs tree**:
+
+**Prediction result ** (marke.tsv):
+
+ 
+The table with abundances each cluster in each sample and NSTI for each cluster (format TSV).
+
+Authorised column names :  sequence_OTU, prediction_Count_OTU, NSTI
+
+**Prediction result ** (function_predict.tsv):
+
+ 
+The table of gene prediction for each cluster (format TSV).
+
+Authorised column names :  sequence_OTU, function identifier, NSTI
+
+**OTUs biom file**:
+
+The OTUs biom file (format `biom1 &lt;http://biom-format.org/documentation/format_versions/biom-1.0.html&gt;`_).
+This file can be obtained in particular with the FROGS pipeline.
+
+
+.. class:: h3
+
+Outputs
+
+**Prediction result ** (out.tsv):
+
+ 
+The table with abundances each cluster in each sample and NSTI for each cluster (format TSV).
+
+Authorised column names :  .....
+
+
+
+**Html file** (summary.html):
+   
+The summary file describing which OTUs are contained or not in the phylogenetic tree.
+
+.. class:: infomark page-header h2
+
+**Contact**
+
+Contacts: frogs@inra.fr
+
+website: http://frogs.toulouse.inra.fr/
+
+Repository: https://github.com/geraldinepascal/FROGS
+website: http://frogs.toulouse.inra.fr/
+
+Please cite the **FROGS article**: *Escudie F., et al. Bioinformatics, 2018. FROGS: Find, Rapidly, OTUs with Galaxy Solution.*
+
+Please cite the **PICRUSt2 article**: * Gavin M. Douglas1, Vincent J. Maffei2, Jesse Zaneveld3, Svetlana N. Yurgel4, James R. Brown5, Christopher M. Taylor2, Curtis Huttenhower6, Morgan G. I. Langille1,7,*   
+
+     </help>
+
+    <citation>
+        <citation type="doi">10.1101/672295</citation>
+    </citation>
+ </tool>

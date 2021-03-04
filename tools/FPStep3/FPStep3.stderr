@@ -1,0 +1,8 @@
+Traceback (most recent call last):
+  File "/Users/moussa/FROGS_moussa/tools/libexec/metagenome_pipeline.py", line 122, in <module>
+    main()
+  File "/Users/moussa/FROGS_moussa/tools/libexec/metagenome_pipeline.py", line 92, in main
+    check_files_exist([args.input, args.function])
+  File "/Users/moussa/FROGS_moussa/tools/lib/picrust2/util.py", line 401, in check_files_exist
+    raise ValueError("This input file was not found: " + missing_files[0])
+ValueError: This input file was not found: None
