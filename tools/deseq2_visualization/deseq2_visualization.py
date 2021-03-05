@@ -77,7 +77,7 @@ class Rscript(Cmd):
         Cmd.__init__( self,
                       'Rscript',
                       'Run deseq2_visualization.Rmd',
-                       '-e "rmarkdown::render(' + "'" + rmd + "', output_file='" + html + "', params=list(phyloseq_data='" + phyloseq_data + "', dds='" + dds + "', var='" + var+"', mod1='" + mod1 + "', mod2='" + mod2 + "', padj=" + str(padj) + "))" + '" 2> ' + err ,
+                       '-e "rmarkdown::render(' + "'" + rmd + "', output_file='" + html + "', params=list(phyloseq_data='" + phyloseq_data + "', dds='" + dds + "', var='" + var+"', mod1='" + mod1 + "', mod2='" + mod2 + "', padj=" + str(padj) + "), intermediates_dir='" + os.path.dirname(html) +")" + '" 2> ' + err ,
                       "-e '(sessionInfo()[[1]][13])[[1]][1]; library(DESeq2); paste(\"DESeq2 version: \",packageVersion(\"DESeq2\"))'")
                       
     def get_version(self):

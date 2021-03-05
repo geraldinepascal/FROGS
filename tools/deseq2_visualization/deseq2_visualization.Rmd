@@ -34,12 +34,12 @@ Phyloseq `r packageVersion("phyloseq")` and DESeq2 `r packageVersion("DESeq2")`
 # {.tabset .tabset-fade .tabset-pills}
 ## Diferentially abundant OTU table
 
-```{r packages, code_folding="show"}
+```{r packages, echo=FALSE, code_folding="show"}
 library(phyloseq)
 # dealing with plots
 library(ggplot2)
 # dealing with table
-library(formattable) ## implies DT to be installed
+library(DT)
 library(dplyr)
 ```
 
@@ -51,15 +51,18 @@ if not, we will use the other syntax with contrast=c()
 phyloseq_input <- get(load(params$phyloseq_data))
 dds_input     <- get(load(params$dds))
 result_names <- DESeq2::resultsNames(dds_input)
+doc <- ""
 if(length(result_names) == 2 || params$mod1 == "None"){
      results <- DESeq2::results(dds, name = result_names[1] )
 }else if(length(result_names)>=3){
-     results <- DESeq2::results(dds_input, contrast = c(params$var, params$mod1, params$mod2) ) 
+     results <- DESeq2::results(dds_input, contrast = c(params$var, params$mod1, params$mod2) )
+     doc <- paste("You choose to compare ", params$mod2, " to the reference modality ", params$mod1, ". This implies that a positiv log2FoldChange means more abundant in ", params$mod2, " than in ", params$mod1, ".", sep="")
+     cat(doc)
 }
-
 ```
 
 Then we extract significant OTUs at the p-value adjusted threshold level (after correction) and enrich results with taxonomic informations and sort taxa by pvalue.
+
 ```{r da_otus}
 
 da.otus_table <- results %>% as_tibble(rownames = "OTU") %>% 
@@ -72,26 +75,19 @@ da.otus_table <- results %>% as_tibble(rownames = "OTU") %>%
 Using customize datatable we can explore the table of differentially expressed OTUs
 ```{r datatable, message=FALSE}
 
-# function to attribute a color in function of a score, here negativ, 0 and positiv
-sign_formatter <- formatter("span", style = x ~ style(color = ifelse(x > 0, "red", ifelse(x < 0, "green", "black"))))
-
-DT_foldchange <- da.otus_table %>% formattable(list(
-				   log2FoldChange = sign_formatter, 
-                   baseMean = color_tile("transparent", "lightpink"),
-                   lfcSE    = color_tile("lightblue", "transparent" ),
-                   padj     = color_tile("lightblue", "transparent" ),
-                   pvalue   = color_tile("lightblue", "transparent")
-                   )
-              ) %>%  as.datatable(filter = "top",                # ==> add filter for each column
-                                  extensions = 'Buttons' , 
-                                  options = list(dom = '<fBtlip>', 
-                                                 # lengthMenu = list(c(5,10,25,50,100,-1),c(5,10,25,50,100,"All")), # ==> trop couteux en mémoire, même sur petit jeu
+DT_foldchange <- da.otus_table %>% datatable(filter = "top",                # ==> add filter for each column
+                                             extensions = 'Buttons' , 
+                                             options = list(dom = '<fBtlip>', 
+                                                scrollX = TRUE, 
+                                                 # lengthMenu = list(c(5,10,25,50,100,-1),c(5,10,25,50,100,"All")), # ==> trop couteux en mÃ©moire, mÃªme sur petit jeu
                                                  buttons = list(list(
-                                                   extend = 'collection',
-                                                   buttons = c('csv', 'excel'),
-                                                   text = 'Download')
-                                                 ))
-              )
+                                                    extend = 'collection',
+                                                    buttons = c('csv', 'excel'),
+                                                    text = 'Download')
+                                                 )
+                                             )) %>% 
+  formatSignif(columns = c("baseMean", "log2FoldChange", "lfcSE", "stat", "padj", "pvalue"), digits = 6) %>% 
+  formatStyle(columns = "log2FoldChange", color = DT::styleInterval(0, c('red', 'green')))
 
 DT_foldchange
 ```

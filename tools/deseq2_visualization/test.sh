@@ -12,7 +12,7 @@ else
 fi
 
 python deseq2_visualization.py --phyloseqData data/phyloseq.Rdata --dds data/EnvType_DESeq_dds.Rdata \
-                            --var EnvType --mod1 BoeufHache --mod2 SaumonFume \
+                            --var EnvType --mod1 SaumonFume --mod2 BoeufHache \
                             --log-file test/deseq2_preprocess_EnvType.log \
                             --html test/EnvType_BoeufHache_SaumonFume.html
 
