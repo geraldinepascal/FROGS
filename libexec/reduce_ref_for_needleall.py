@@ -94,10 +94,10 @@ def extract_ref(input_blast_R1, input_blast_R2, input_ref, output_ref):
     parse_blast(input_blast_R2, best_ref)
 
     # extract ref
+    c = 0
     if len(best_ref) > 0 :
         FH_in = FastaIO(input_ref)
         FH_out = FastaIO(output_ref,"wt")
-        c = 0
         for record in FH_in:
             c += 1
             if record.id in best_ref:

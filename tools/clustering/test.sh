@@ -30,7 +30,7 @@ echo Clustering with denoising step
                 --denoising
 
 # Clustering with fastidious option
-echo Clustering with denoising step
+echo Clustering with fastidious option
 ./clustering.py --input-fasta data/derep.fasta --input-count data/count.tsv \
                 --distance 1 \
                 --nb-cpus 1 \
