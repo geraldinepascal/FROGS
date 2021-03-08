@@ -6,7 +6,7 @@
 
 Visit our web site : http://frogs.toulouse.inrae.fr/
 
-[![Release](https://img.shields.io/badge/release-3.2.1-blue.svg)![Date](https://img.shields.io/badge/date-February%202021-red.svg)](https://github.com/geraldinepascal/FROGS-wrappers/releases) [<img src="https://www.podcastscience.fm/wp-content/uploads/2017/12/deezer.png" width="5%" style="display: block; margin: auto;"/>](https://www.deezer.com/fr/playlist/5233843102?utm_source=deezer&utm_content=playlist-5233843102&utm_term=18632989_1545296531&utm_medium=web)
+[![Release](https://img.shields.io/badge/release-3.2.2-blue.svg)![Date](https://img.shields.io/badge/date-March%202021-red.svg)](https://github.com/geraldinepascal/FROGS-wrappers/releases) [<img src="https://www.podcastscience.fm/wp-content/uploads/2017/12/deezer.png" width="5%" style="display: block; margin: auto;"/>](https://www.deezer.com/fr/playlist/5233843102?utm_source=deezer&utm_content=playlist-5233843102&utm_term=18632989_1545296531&utm_medium=web)
 
 
 
@@ -132,9 +132,9 @@ FROGS is now available on bioconda (https://anaconda.org/bioconda/frogs).
   * to create a specific environment for a specific FROGS version
 
 ```
-conda env create --name frogs@3.2.1 --file frogs-conda-requirements.yaml
+conda env create --name frogs@3.2.2 --file frogs-conda-requirements.yaml
 # to use FROGS, first you need to activate your environment
-conda activate frogs@3.2.1
+conda activate frogs@3.2.2
 ```
 
 ### From source
@@ -146,7 +146,7 @@ see [INSTALL_from_source.md](INSTALL_from_source.md)
 To check your installation you can type:
 ```
 cd <FROGS_PATH>/test
-# when using conda FROGS_PATH=<conda_env_dir>/__frogs@3.2.1/share/FROGS_3.2.1
+# when using conda FROGS_PATH=<conda_env_dir>/__frogs@3.2.2/share/FROGS_3.2.2
 
 sh test.sh <FROGS_PATH> <NB_CPU> <JAVA_MEM> <OUT_FOLDER>
 ```

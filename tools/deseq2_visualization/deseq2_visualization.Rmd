@@ -1,5 +1,5 @@
 ---
-title: "FROGSSTAT DESeq2: Visualisation (version 3.2.1)"
+title: "FROGSSTAT DESeq2: Visualisation (version 3.2.2)"
 output: 
   html_notebook:
     code_folding: hide

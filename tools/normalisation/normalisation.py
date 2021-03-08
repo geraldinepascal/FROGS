@@ -19,7 +19,7 @@
 __author__ = 'Maria Bernard INRA - SIGENAE '
 __copyright__ = 'Copyright (C) 2015 INRA'
 __license__ = 'GNU General Public License'
-__version__ = '3.2.1'
+__version__ = '3.2.2'
 __email__ = 'frogs-support@inrae.fr'
 __status__ = 'prod'
 

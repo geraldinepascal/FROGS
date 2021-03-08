@@ -1,3 +1,18 @@
+# v3.2.2 [2021-03]
+
+### Modifications
+
+* rename DESeq2 visualization in DESeq2 visualisation
+* improve filter in DESeq2 visualisation datatable
+
+### Bug fixed
+
+* add intermediates_dir argument in DESeq2 visulisation Rscript command
+
+  
+
+
+
 # v3.2.1 [2021-02-22]
 
 ### Bug fixed
