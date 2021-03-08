@@ -11,6 +11,7 @@ else
     rm -r test/*
 fi
 
+# test on quantitative variables
 python deseq2_visualization.py --phyloseqData data/phyloseq.Rdata --dds data/EnvType_DESeq_dds.Rdata \
                             --var EnvType --mod1 SaumonFume --mod2 BoeufHache \
                             --log-file test/deseq2_preprocess_EnvType.log \
@@ -21,7 +22,3 @@ python deseq2_visualization.py --phyloseqData data/phyloseq.Rdata --dds data/Foo
                             --var FoodType \
                             --log-file test/deseq2_preprocess_FoodType.log \
                             --html test/FoodType.html
-
-# test on quantitative variables
-
-# test on variables with counfounding effect
