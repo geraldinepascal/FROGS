@@ -177,7 +177,7 @@ volcano_plot + scale_y_continuous(trans = "log1p")
 DESeq2::plotMA(results, ylim = c(-10,10),
     ylab = "log2 fold change",
     cex  = 1,
-    main = "Post Normalization DESeq2: MA plot of log2FoldChange",
+    main = "Post Normalisation DESeq2: MA plot of log2FoldChange",
     legend = TRUE)
 ```
 

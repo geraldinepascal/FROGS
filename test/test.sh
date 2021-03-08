@@ -474,19 +474,19 @@ then
 fi
 
 
-echo "Step deseq2_visualization `date`"
+echo "Step deseq2_visualisation `date`"
 
-deseq2_visualization.py \
+deseq2_visualisation.py \
  --phyloseqData $out_dir/16-phylo_import.Rdata \
  --dds $out_dir/23-deseq2_preprocess.Rdata \
- --log-file $out_dir/24-deseq2_visualization.log \
- --html $out_dir/24-deseq2_visualization.nb.html \
+ --log-file $out_dir/24-deseq2_visualisation.log \
+ --html $out_dir/24-deseq2_visualisation.nb.html \
  --var EnvType --mod1 BoeufHache --mod2 SaumonFume
                             
 
 if [ $? -ne 0 ]
 then
-	echo "Error in deseq2_visualization " >&2
+	echo "Error in deseq2_visualisation " >&2
 	exit 1;
 fi
 

@@ -453,6 +453,6 @@ Step phyloseq_structure lundi 4 janvier 2021, 14:19:47 (UTC+0100)
 Step phyloseq_clustering lundi 4 janvier 2021, 14:20:38 (UTC+0100)
 Step phyloseq_manova lundi 4 janvier 2021, 14:20:54 (UTC+0100)
 Step deseq2_preprocess lundi 4 janvier 2021, 14:21:10 (UTC+0100)
-Step deseq2_visualization lundi 4 janvier 2021, 14:21:43 (UTC+0100)
+Step deseq2_visualisation lundi 4 janvier 2021, 14:21:43 (UTC+0100)
 Completed with success
 ```

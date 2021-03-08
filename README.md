@@ -183,7 +183,7 @@ Step phyloseq_structure mardi 10 novembre 2020, 11:20:45 (UTC+0100)
 Step phyloseq_clustering mardi 10 novembre 2020, 11:21:59 (UTC+0100)
 Step phyloseq_manova mardi 10 novembre 2020, 11:22:20 (UTC+0100)
 Step deseq2_preprocess mardi 10 novembre 2020, 11:22:42 (UTC+0100)
-Step deseq2_visualization mardi 10 novembre 2020, 11:23:29 (UTC+0100)
+Step deseq2_visualisation mardi 10 novembre 2020, 11:23:29 (UTC+0100)
 Completed with success
 ```
 

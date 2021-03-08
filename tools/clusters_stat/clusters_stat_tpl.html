@@ -251,7 +251,7 @@
 				// Compute the new tree layout.
 				var nodes = d3_tree.nodes(linkage_data).reverse();
 
-				// Normalize for fixed-depth.
+				// Normalise for fixed-depth.
 				nodes.forEach(function(d) { d.y = d.depth * 100; });
 
 				// Update the nodes.

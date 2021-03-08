@@ -102,11 +102,11 @@ def write_log(in_biom, out_biom, log):
     for sample_name in initial_biom.get_samples_names():
         nb_otu_before = len(initial_biom.get_sample_obs(sample_name))
         nb_otu_after = len(new_biom.get_sample_obs(sample_name))
-        FH_log.write("Sample name: "+sample_name+"\n\tnb initials OTU: "+str(nb_otu_before)+"\n\tnb normalized OTU: "+str(nb_otu_after)+"\n")
+        FH_log.write("Sample name: "+sample_name+"\n\tnb initials OTU: "+str(nb_otu_before)+"\n\tnb normalised OTU: "+str(nb_otu_after)+"\n")
 
     nb_initial_otu=len(initial_biom.rows)
     nb_new_otu=len(new_biom.rows)
-    FH_log.write("Sample name: all samples\n\tnb initials OTU: "+str(nb_initial_otu)+"\n\tnb normalized OTU: "+str(nb_new_otu)+"\n")
+    FH_log.write("Sample name: all samples\n\tnb initials OTU: "+str(nb_initial_otu)+"\n\tnb normalised OTU: "+str(nb_new_otu)+"\n")
 
     FH_log.close()
 
@@ -156,7 +156,7 @@ def get_sample_resuts( log_file, output_list ):
             results['name'] = line.split(':')[1].strip()
         elif line.strip().startswith('nb initials OTU:'):
             results['data'].append( int(line.split(':')[1].strip()) )
-        elif line.strip().startswith('nb normalized OTU: '):
+        elif line.strip().startswith('nb normalised OTU: '):
             results['data'].append( int(line.split(':')[1].strip()) )
             output_list.append(results)
             results = {
@@ -179,12 +179,12 @@ if __name__ == "__main__":
     parser.add_argument('-v', '--version', action='version', version=__version__)
     # Inputs
     group_input = parser.add_argument_group('Inputs')
-    group_input.add_argument('-i', '--input-biom', required=True, help='Abundances file to normalize (format: BIOM).')
-    group_input.add_argument('-f', '--input-fasta', required=True, help='Sequences file to normalize (format: FASTA).')
+    group_input.add_argument('-i', '--input-biom', required=True, help='Abundances file to normalise (format: BIOM).')
+    group_input.add_argument('-f', '--input-fasta', required=True, help='Sequences file to normalise (format: FASTA).')
     # Outputs
     group_output = parser.add_argument_group('Outputs')
-    group_output.add_argument('-b', '--output-biom', default='normalisation_abundance.biom', help='Normalized abundances (format: BIOM). [Default: %(default)s]')
-    group_output.add_argument('-o', '--output-fasta', default='normalisation.fasta', help='Normalized sequences (format: FASTA). [Default: %(default)s]')
+    group_output.add_argument('-b', '--output-biom', default='normalisation_abundance.biom', help='Normalised abundances (format: BIOM). [Default: %(default)s]')
+    group_output.add_argument('-o', '--output-fasta', default='normalisation.fasta', help='Normalised sequences (format: FASTA). [Default: %(default)s]')
     group_output.add_argument('-s', '--summary-file', default='normalisation.html', help='The HTML file containing the graphs. [Default: %(default)s]')
     group_output.add_argument('-l', '--log-file', default=sys.stdout, help='The list of commands executed.')
     args = parser.parse_args()

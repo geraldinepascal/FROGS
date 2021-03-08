@@ -55,7 +55,7 @@ from frogsUtils import *
 
 class Rscript(Cmd):
     """
-    @summary: Launch Rmarkdown script to visualize data structure with phyloseq.
+    @summary: Launch Rmarkdown script to visualise data structure with phyloseq.
     @see: http://rmarkdown.rstudio.com/
           https://joey711.github.io/phyloseq/
     @return: the html file containing the plots.

@@ -1,5 +1,5 @@
 ---
-title: "FROGS Phyloseq: Visualize Data Composition (version 3.2.2)"
+title: "FROGS Phyloseq: Visualise Data Composition (version 3.2.2)"
 output:
   html_notebook:
     code_folding : hide
