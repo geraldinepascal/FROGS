@@ -32,7 +32,7 @@ knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
 Phyloseq `r packageVersion("phyloseq")` and DESeq2 `r packageVersion("DESeq2")`
 
 # {.tabset .tabset-fade .tabset-pills}
-## Diferentially abundant OTU table
+## Differentially abundant OTU table
 
 ```{r packages, echo=FALSE, code_folding="show"}
 library(phyloseq)
@@ -87,10 +87,17 @@ DT_foldchange <- da.otus_table %>% datatable(filter = "top",                # ==
                                                  )
                                              )) %>% 
   formatSignif(columns = c("baseMean", "log2FoldChange", "lfcSE", "stat", "padj", "pvalue"), digits = 6) %>% 
-  formatStyle(columns = "log2FoldChange", color = DT::styleInterval(0, c('red', 'green')))
+  formatStyle(columns = "log2FoldChange", color = DT::styleInterval(0, c('#759493', '#C6792B')))
 
 DT_foldchange
 ```
+
+#8EADAC : bleu claire
+#DE9F73 : orange claire
+
+#759493 : bleu foncé (10%)
+#C6792B : orange foncé
+
 
 ## Pie chart
 ```{r pie, fig.width=8, fig.height=6}
@@ -109,7 +116,7 @@ da_pie <- data.frame(
 Pie <- ggplot(da_pie, aes(x="", y=Number, fill=OTUs)) + 
            geom_bar(stat = "identity") + 
            coord_polar("y", start=0) + 
-           scale_fill_manual(values=c('#FF0000', '#008000', '#C0C0C0')) + 
+           scale_fill_manual(values=c('#8EADAC', '#DE9F73', '#C0C0C0')) + 
            geom_text(aes(label = Number), position = position_stack(vjust = 0.5), color = "white") +
            labs(x = NULL, y = NULL, fill = NULL, title = "Pie chart to view OTUs number of Differential Abundance test") +
            theme_classic() + theme(
@@ -164,7 +171,7 @@ volcano_plot <- ggplot(da_volcano, aes(x = lfc, y = evidence)) +
         colour = "black",
         vjust = 0,
         hjust = 0) + # add pvalue threshold           
-    scale_color_manual(values = c("More" = "#FF0000", "Less" = "#008000", "Equal" = "#C0C0C0")) # change colors
+    scale_color_manual(values = c("More" = "#C6792B", "Less" = "#759493", "Equal" = "#C0C0C0")) # change colors
 
 # Plot figure
 volcano_plot + scale_y_continuous(trans = "log1p")
@@ -175,8 +182,8 @@ volcano_plot + scale_y_continuous(trans = "log1p")
 
 ## Could do with built-in DESeq2 function:
 DESeq2::plotMA(results, ylim = c(-10,10),
-    ylab = "log2 fold change",
-    cex  = 1,
+    ylab = "log2 fold change", alpha=params$padj,
+    cex  = 0.8, colNonSig="#C0C0C0", colSig="#A2A32F", colLine="#C0C0C0",
     main = "Post Normalisation DESeq2: MA plot of log2FoldChange",
     legend = TRUE)
 ```
