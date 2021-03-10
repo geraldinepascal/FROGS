@@ -562,7 +562,8 @@ def write_summary( summary_file, input_biom, output_biom, discards, params ):
             for filter in filters_intersections[observation_name]:
                 if filter not in samples_results[sample]['filtered']:
                     samples_results[sample]['filtered'][filter] = 0
-                samples_results[sample]['filtered'][filter] += 1
+                if in_biom.get_count(observation_name,sample) > 0 :
+                    samples_results[sample]['filtered'][filter] += 1
 
     # compute globale_results
     for observation_name in in_biom.get_observations_names():
