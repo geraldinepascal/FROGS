@@ -92,13 +92,6 @@ DT_foldchange <- da.otus_table %>% datatable(filter = "top",                # ==
 DT_foldchange
 ```
 
-#8EADAC : bleu claire
-#DE9F73 : orange claire
-
-#759493 : bleu foncé (10%)
-#C6792B : orange foncé
-
-
 ## Pie chart
 ```{r pie, fig.width=8, fig.height=6}
 
