@@ -453,7 +453,7 @@
 						if (global_taxon_lost[method][global_taxon_list[taxon_idx]].length  == 2){
 							s = numberDisplay(global_taxon_lost[method][global_taxon_list[taxon_idx]][0]);
 							if (global_taxon_lost[method][global_taxon_list[taxon_idx]][1] > 0){
-								s += ' ( ' + numberDisplay(global_taxon_lost[method][global_taxon_list[taxon_idx]][1]) +' multi-affiliation(s) )' ;
+								s += ' + ' + numberDisplay(global_taxon_lost[method][global_taxon_list[taxon_idx]][1]) +' multi-affiliation(s) ' ;
 							}
 							method_data.push( s);
 						}else{
