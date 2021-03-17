@@ -647,7 +647,7 @@
 				}];
 				$('#' + container_id).append( '<div id="dispersion"></div>' );
 				$('#dispersion').append( '<h2 class="pb-2 mt-4 mb-2 border-bottom">Clusters size summary</h2>');
-				//$('#dispersion').append( '<h1 class="page-header">Clusters size summary<h1/>' );
+				$('#dispersion').append( '<p>The cluster size is the sum of the abundances of the sequences grouped in a cluster.</p>');
 				$('#dispersion').append('<div id="twofigs" class="row"></div>');
 				$('#twofigs').append( '<div class="col-12 col-md-8"" style="height:100%;">' );
 				$('#dispersion div').last().highcharts( boxplot_param("Clusters size distribution", null, "Cluster size", ["All"], boxplot_series) );
