@@ -162,6 +162,7 @@ if __name__ == "__main__":
     for line in FH_in:
         sample_metadata_list.add(line.split()[0])
 
+    # Control sample name list
     biom_sample_list = set([name for name in biom.get_samples_names()])
     sample_metadata_spec = sample_metadata_list.difference(biom_sample_list) 
     sample_biom_spec = biom_sample_list.difference(sample_metadata_list)
@@ -184,6 +185,16 @@ if __name__ == "__main__":
             FROGSBiomToStdBiom(biomfile, std_biom, blast_metadata).submit(args.log_file)
             biomfile = std_biom
         rmd_stderr = tmpFiles.add("rmarkdown.stderr")
+
+        # Control taxon rank number
+        biom = BiomIO.from_json(biomfile)
+        for observation in biom.get_observations():
+            taxonomy = observation['metadata']['taxonomy']
+            if taxonomy != None:
+                break
+        if len(taxonomy) != len(args.ranks):
+            raise_exception(Exception('\n\n#ERROR : you declare that taxonomies are defined on ' + str(len(args.ranks)) + ' ranks but your biom file contains taxonomy defined on ' + str(len(taxonomy)) + ', at least for ' + observation['id'] + '\n\n'))
+
         Rscript(biomfile, samplefile, treefile, html, str(args.normalisation).upper(), phyloseq, ranks, rmd_stderr).submit(args.log_file)
     finally :
         if not args.debug:

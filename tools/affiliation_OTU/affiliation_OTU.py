@@ -547,6 +547,17 @@ if __name__ == "__main__":
     args = parser.parse_args()
     prevent_shell_injections(args)
 
+    # control number of ranks in reference fasta file and in user declaration
+    # Line example : '>ADC62191 Bacteria; Proteobacteria; Gammaproteobacteria; Chromatiales; Chromatiaceae; Allochromatium.; Allochromatium vinosum DSM 180'
+    taxonomy = open(args.reference).readline()[1:].strip().split(None, 1)[1]
+    if taxonomy.endswith(';'):
+        taxonomy = taxonomy[:-1] # Removes last ';'
+    taxonomy = taxonomy.split(';') 
+    if taxonomy[0].split('[id')[0].strip() == 'Root':
+        taxonomy = taxonomy[1:]
+    if len(taxonomy) != len(args.taxonomy_ranks):
+        raise_exception(Exception('\n\n#ERROR : you declare that taxonomies are defined on ' + str(len(args.taxonomy_ranks)) + ' ranks but your reference file contains taxonomy defined on ' + str(len(taxonomy)) + ', like ' + ";".join(taxonomy) + '\n\n'))
+
     # Temporary files
     tmpFiles = TmpFiles( os.path.split(args.output_biom)[0] )
     fasta_full_length = tmpFiles.add(os.path.basename(args.input_fasta + "_FROGS_full_length"))
