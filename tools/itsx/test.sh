@@ -18,5 +18,5 @@ echo "ITSx"
 
 echo "ITSx ckeck ITS only"
 ./itsx.py --input-fasta data/input.fasta --input-biom data/input.biom \
-    --region ITS1 --check-its-only \
+    --region ITS1 --check-its-only --organism-groups F A \
     --out-abundance test/itsx.biom --summary test/itsx2.html --log-file test/itsx2.log --out-fasta test/itsx2.fasta --out-removed test/removed2.fasta 

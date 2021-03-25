@@ -52,11 +52,12 @@ class ITSx(Cmd):
     """
     @summary: Use ITSx to identifies ITS sequences and extracts the ITS region
     """
-    def __init__(self, in_fasta, in_biom, target, out_fasta, out_count, out_removed, log_file, param):
+    def __init__(self, in_fasta, in_biom, target, organism_groups, out_fasta, out_count, out_removed, log_file, param):
         """
         @param in_fasta: [str] Path to the fasta to process.
         @param in_count: [str] Path to the associated count file to update.
         @param target : [str] Either ITS1 or ITS2
+        @param organism_groups: [list] organism groups to scan (default only Fungi)
         @param out_fasta: [str] Path to the processed fasta.
         @param out_count: [str] Path to the updated count file.
         @param log_file: [str] Path to the updated count file.
@@ -72,7 +73,7 @@ class ITSx(Cmd):
         Cmd.__init__(self,
             'parallelITSx.py',
             'identifies ITS sequences and extracts the ITS region',
-            ' -f ' + in_fasta + ' -b ' + in_biom + options + ' --its '+ target + ' -o ' + out_fasta + ' -m ' + out_removed + ' -a ' + out_count + ' --log-file ' + log_file,
+            ' -f ' + in_fasta + ' -b ' + in_biom + options + ' --its '+ target + ' --organism-groups ' + ' '.join(organism_groups) + ' -o ' + out_fasta + ' -m ' + out_removed + ' -a ' + out_count + ' --log-file ' + log_file,
             '--version')
         self.program_log = log_file
 
@@ -229,6 +230,7 @@ if __name__ == "__main__":
     # Inputs
     group_input = parser.add_argument_group( 'Inputs' )
     group_input.add_argument( '--region', type=str, required=True,  choices=['ITS1','ITS2'], help='Which fungal ITS region is targeted: either ITS1 or ITS2' )
+    group_input.add_argument( '--organism-groups', type=str, nargs="*", default=['F'], help='Reduce ITSx scan to specified organim groups. [Default: %(default)s , which means Fungi only]')
     group_input.add_argument( '--check-its-only', action='store_true', default=False, help='Check only if sequences seem to be an ITS' )
     group_input.add_argument( '-f', '--input-fasta', required=True, help='The cluster sequences (format: FASTA).' )
     group_exclusion_abundance = group_input.add_mutually_exclusive_group()
@@ -251,7 +253,7 @@ if __name__ == "__main__":
         Logger.static_write(args.log_file, "## Application\nSoftware :" + sys.argv[0] + " (version : " + str(__version__) + ")\nCommand : " + " ".join(sys.argv) + "\n\n")
         log_itsx = tmpFiles.add("ITSx.log")
         
-        ITSx(args.input_fasta, args.input_biom, args.region, args.out_fasta, args.out_abundance, args.out_removed, log_itsx, args ).submit( args.log_file )
+        ITSx(args.input_fasta, args.input_biom, args.region, args.organism_groups, args.out_fasta, args.out_abundance, args.out_removed, log_itsx, args ).submit( args.log_file )
         write_summary( args.summary, args.input_biom, args.out_abundance)
         
         # Append independant log files
