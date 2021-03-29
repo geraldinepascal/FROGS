@@ -68,7 +68,7 @@ class Rscript(Cmd):
         @param html: [str] The path to store resulting html file.
         @param normalisation: [str] To normalise data before analysis.
         @param phyloseq: [str] The path to store one phyloseq-class object in Rdata file.
-        @param ranks: [str] The ordered taxonomic ranks levels stored in BIOM. Each rank is separated by one space.
+        @param ranks: [list] The ordered taxonomic ranks levels stored in BIOM. Each rank is separated by one space.
         @param rmd_stderr: [str] Path to temporary Rmarkdown stderr output file
         """ 
         # rmd = os.path.join(CURRENT_DIR, "r_import_data_notebook.Rmd")
