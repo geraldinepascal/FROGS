@@ -100,8 +100,8 @@ def write_log(in_biom, out_biom, log):
     new_biom = BiomIO.from_json( out_biom )
 
     for sample_name in initial_biom.get_samples_names():
-        nb_otu_before = len(initial_biom.get_sample_obs(sample_name))
-        nb_otu_after = len(new_biom.get_sample_obs(sample_name))
+        nb_otu_before = len([ i for i in initial_biom.get_sample_obs(sample_name) if i >0 ])
+        nb_otu_after = len([ i for i in new_biom.get_sample_obs(sample_name) if i > 0])
         FH_log.write("Sample name: "+sample_name+"\n\tnb initials OTU: "+str(nb_otu_before)+"\n\tnb normalised OTU: "+str(nb_otu_after)+"\n")
 
     nb_initial_otu=len(initial_biom.rows)
