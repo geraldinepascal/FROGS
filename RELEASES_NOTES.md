@@ -2,15 +2,28 @@
 
 ### Modifications
 
-* rename DESeq2 visualization in DESeq2 visualisation
-* improve filter in DESeq2 visualisation datatable
+* DESeq2 : 
+  * rename tool in DESeq2 visualisation (with s instead of z)
+  * improve filter in datatable
+  * change color
+  * add padj threshold in MAplot
+* ITSx : add organims model option (it was restrict to Fungi, take care of increase computing time
+* OTU affiliation : sort blast affiliations in biom by taxonomy
+* Clusters stat : add precision in HTML
+* Remove chimera : add precision in HTML, and rename table columns names
+* Affiliation Filter : add precision in HTML
+* Various tools:
+  * add taxonomic rank consistency between user declaration and input files (reference database, biom)
+  * correct typo
 
 ### Bug fixed
 
-* add intermediates_dir argument in DESeq2 visulisation Rscript command
-
-  
-
+* DESeq2 visualisation : 
+  * add intermediates_dir argument in Rscript command
+  * debug pie charts color attribution
+* Normalisation : correct bug when calculating number of OTU by sample
+* ITSx : correct stderr scanning
+* Affiliation filter : correct bug in OTU filter by sample and by filter
 
 
 # v3.2.1 [2021-02-22]
