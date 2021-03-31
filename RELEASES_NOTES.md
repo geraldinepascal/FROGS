@@ -2,6 +2,7 @@
 
 ### Modifications
 
+* Preprocess: use maxdiffpct instead of maxdiffs in vsearch fastq_mergepairs command line, and recommand 2.17.0 version. 
 * DESeq2 : 
   * rename tool in DESeq2 visualisation (with s instead of z)
   * improve filter in datatable

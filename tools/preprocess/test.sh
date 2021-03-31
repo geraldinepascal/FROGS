@@ -12,7 +12,7 @@ else
 fi
 
 # Illumina R1 and R2
-echo "Illumina R1 and R2"
+echo "Illumina R1 and R2 with vsearch"
 ./preprocess.py illumina --input-R1 data/sampleA_R1.fastq.gz data/sampleB_R1.fastq.gz --input-R2 data/sampleA_R2.fastq.gz data/sampleB_R2.fastq.gz \
                          --samples-names sample_A sample_B \
                          --R1-size 251 --R2-size 251 \

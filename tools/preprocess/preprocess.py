@@ -155,14 +155,13 @@ class Vsearch(Cmd):
         @param param: [Namespace] The 'param.min_amplicon_size', 'param.max_amplicon_size', 'param.R1_size', 'param.R2_size'
         """
         min_overlap=max(param.R1_size+param.R2_size-param.max_amplicon_size, 10)
-        max_diff = int(min(param.R1_size, param.R2_size)*param.mismatch_rate)
 
         Cmd.__init__(self,
             'vsearch',
             'join overlapping paired reads',
              ' --threads 1 --fastq_mergepairs ' + in_R1 + ' --reverse ' + in_R2 \
              + ' --fastqout ' + out_prefix + '.assembled.fastq ' + ' --fastqout_notmerged_fwd ' + out_prefix + '.unassembled_R1.fastq ' + ' --fastqout_notmerged_rev ' + out_prefix + '.unassembled_R2.fastq '\
-             + ' --fastq_allowmergestagger --fastq_ascii ' + param.quality_scale + ' --fastq_maxdiffs ' + str(max_diff) + ' --fastq_minovlen ' + str(min_overlap) \
+             + ' --fastq_allowmergestagger --fastq_ascii ' + param.quality_scale + ' --fastq_maxdiffpct ' + str(param.mismatch_rate*100) + ' --fastq_minovlen ' + str(min_overlap) \
              + ' 2> ' + log,
              '--version')
 
@@ -1199,7 +1198,7 @@ if __name__ == "__main__":
     parser_illumina.add_argument( '--without-primers', action='store_true', default=False, help="Use this option when you use custom sequencing primers and these primers are the PCR primers. In this case the reads do not contain the PCR primers." )
     parser_illumina.add_argument( '--R1-size', type=int, help='The read1 size.' )
     parser_illumina.add_argument( '--R2-size', type=int, help='The read2 size.' )
-    parser_illumina.add_argument( '--mismatch-rate', type=float, default=0.1, help='Maxi mismatch rate in overlap region. [Default: %(default)s]' )
+    parser_illumina.add_argument( '--mismatch-rate', type=float, default=0.1, help='Maximum mismatch rate in overlap region. [Default: %(default)s; must be expressed as decimal, between 0 and 1]' )
     parser_illumina.add_argument( '--quality-scale', type=str, default="33", choices=["33", "64"], help='The phred base quality scale, either 33 or 64 if using Vsearch as read pair merge software [Default: %(default)s]' )
     parser_illumina.add_argument( '--already-contiged', action='store_true', default=False, help='The archive contains 1 file by sample : Reads 1 and Reads 2 are already contiged by pair.' )
     parser_illumina.add_argument( '-p', '--nb-cpus', type=int, default=1, help="The maximum number of CPUs used. [Default: %(default)s]" )
@@ -1285,6 +1284,9 @@ if __name__ == "__main__":
         if (not args.already_contiged):
             if args.merge_software == "flash":
                 if args.expected_amplicon_size is None: raise_exception( argparse.ArgumentTypeError( "\n\n#ERROR : With '--merge-software flash' you need to set the parameter '--expected-amplicon-size'.\n\n" ))
+
+        if args.mismatch_rate and args.mismatch_rate < 0 or args.mismatch_rate > 1:
+            raise_exception( argparse.ArgumentTypeError( "\n\n#ERROR : mismatch-rate option need to be included between 0 and 1.\n\n" ))
 
     # Process
     process( args )

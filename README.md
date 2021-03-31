@@ -6,7 +6,7 @@
 
 Visit our web site : http://frogs.toulouse.inrae.fr/
 
-[![Release](https://img.shields.io/badge/release-3.2.2-blue.svg)![Date](https://img.shields.io/badge/date-March%202021-red.svg)](https://github.com/geraldinepascal/FROGS-wrappers/releases) [<img src="https://www.podcastscience.fm/wp-content/uploads/2017/12/deezer.png" width="5%" style="display: block; margin: auto;"/>](https://www.deezer.com/fr/playlist/5233843102?utm_source=deezer&utm_content=playlist-5233843102&utm_term=18632989_1545296531&utm_medium=web)
+[![Release](https://img.shields.io/badge/release-3.2.2-blue.svg)![Date](https://img.shields.io/badge/date-April%202021-red.svg)](https://github.com/geraldinepascal/FROGS-wrappers/releases) [<img src="https://www.podcastscience.fm/wp-content/uploads/2017/12/deezer.png" width="5%" style="display: block; margin: auto;"/>](https://www.deezer.com/fr/playlist/5233843102?utm_source=deezer&utm_content=playlist-5233843102&utm_term=18632989_1545296531&utm_medium=web)
 
 
 
@@ -101,10 +101,10 @@ FROGS relies on different specific tools for each of the analysis steps.
 
 | FROGS Tools |Dependancy  | version tested |
 | ----------- | :--------: | -------------: |
-| Preprocess and Remove_chimera |        [vsearch](https://github.com/torognes/vsearch)        | 2.15.1 |
+| Preprocess and Remove_chimera |        [vsearch](https://github.com/torognes/vsearch)        | 2.17.0 |
 | Preprocess                    | [flash](https://sourceforge.net/projects/flashpage/files/) (optional) |               1.2.11 |
-| Preprocess                    |       [cutadapt](https://github.com/marcelm/cutadapt)        |            3.1 |
-| Clustering                    |          [swarm](https://github.com/torognes/swarm)          |            3.0.0 |
+| Preprocess                    |       [cutadapt](https://github.com/marcelm/cutadapt) (need to be >=2.8)       |            3.1 |
+| Clustering                    |          [swarm](https://github.com/torognes/swarm) (need to be >=2.1)          |            3.0.0 |
 | ITSx                          |        [ITSx](http://microbiology.se/software/itsx/)         |  1.1.2 |
 | Affiliation_OTU               | [NCBI BLAST+](http://blast.ncbi.nlm.nih.gov/Blast.cgi?PAGE_TYPE=BlastDocs&DOC_TYPE=Download) |          2.10.1 |
 | Affiliation_OTU               |    [RDP Classifier](https://github.com/rdpstaff/RDPTools)    |                2.0.3 |
