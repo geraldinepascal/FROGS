@@ -18,7 +18,7 @@
 __author__ = ' Ta Thi Ngan SIGENAE / Mahendra Mariadassou plateforme MIGALE'
 __copyright__ = 'Copyright (C) 2017 INRA'
 __license__ = 'GNU General Public License'
-__version__ = '3.2.1'
+__version__ = '3.2.2'
 __email__ = 'frogs@toulouse.inrae.fr'
 __status__ = 'prod'
 
@@ -57,7 +57,7 @@ from frogsUtils import *
 
 class Rscript(Cmd):
     """
-    @summary: Launch Rscript to visualize Differential gene expression analysis.
+    @summary: Launch Rscript to visualise Differential gene expression analysis.
     @see:  http://rmarkdown.rstudio.com/
            https://joey711.github.io/phyloseq/
     """
@@ -73,11 +73,11 @@ class Rscript(Cmd):
         @param err:  [str] path to store RScript stderr output 
 
         """ 
-        rmd = os.path.join(CURRENT_DIR, "deseq2_visualization.Rmd")
+        rmd = os.path.join(CURRENT_DIR, "deseq2_visualisation.Rmd")
         Cmd.__init__( self,
                       'Rscript',
-                      'Run deseq2_visualization.Rmd',
-                       '-e "rmarkdown::render(' + "'" + rmd + "', output_file='" + html + "', params=list(phyloseq_data='" + phyloseq_data + "', dds='" + dds + "', var='" + var+"', mod1='" + mod1 + "', mod2='" + mod2 + "', padj=" + str(padj) + "))" + '" 2> ' + err ,
+                      'Run deseq2_visualisation.Rmd',
+                       '-e "rmarkdown::render(' + "'" + rmd + "', output_file='" + html + "', params=list(phyloseq_data='" + phyloseq_data + "', dds='" + dds + "', var='" + var+"', mod1='" + mod1 + "', mod2='" + mod2 + "', padj=" + str(padj) + "), intermediates_dir='" + os.path.dirname(html) +"')" + '" 2> ' + err ,
                       "-e '(sessionInfo()[[1]][13])[[1]][1]; library(DESeq2); paste(\"DESeq2 version: \",packageVersion(\"DESeq2\"))'")
                       
     def get_version(self):
@@ -96,7 +96,7 @@ class Rscript(Cmd):
 if __name__ == "__main__":
    
     # Manage parameters
-    parser = argparse.ArgumentParser( description='Launch Rmarkdown to visualize differential abundance analysis.')
+    parser = argparse.ArgumentParser( description='Launch Rmarkdown to visualise differential abundance analysis.')
     parser.add_argument( '--debug', default=False, action='store_true', help="Keep temporary files to debug program." )   
     parser.add_argument( '--version', action='version', version=__version__ )
     parser.add_argument('-v', '--var', type=str, required=True, help='variable that you want to test.' )
@@ -111,7 +111,7 @@ if __name__ == "__main__":
 
     # output
     group_output = parser.add_argument_group( 'Outputs' )
-    group_output.add_argument('-o','--html', default='DESeq2_visualization.html', help="The HTML file containing the graphs. [Default: %(default)s]" )
+    group_output.add_argument('-o','--html', default='DESeq2_visualisation.html', help="The HTML file containing the graphs. [Default: %(default)s]" )
     group_output.add_argument( '-l', '--log-file', default=sys.stdout, help='This output file will contain several informations on executed commands.')
     args = parser.parse_args()
     prevent_shell_injections(args)

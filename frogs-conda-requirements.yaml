@@ -3,15 +3,15 @@ channels:
   - bioconda
 dependencies:
 # bioconda
-  - frogs =3.2.1
+  - frogs =3.2.2
   - emboss =6.6
   - flash =1.2
   # need to be >=2.8
   - cutadapt =2.10
   # need to be >=2.1
   - swarm =3.0.0
-  # need to be 2.13.4
-  - vsearch =2.15.1
+  # need to be >= 2.17
+  - vsearch =2.17.0
   - itsx =1.1.2
   - blast =2.10
   # - rdptool=2.0.3 # is already included in the frogs dependency

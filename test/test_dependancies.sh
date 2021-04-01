@@ -883,31 +883,31 @@ then
 	echo "Difference in deseq2_preprocess : 23-deseq2_preprocess.Rdata " >&2
 fi
 
-echo "Step deseq2_visualization `date`"
+echo "Step deseq2_visualisation `date`"
 
 if $run_programs
 then
-	deseq2_visualization.py \
+	deseq2_visualisation.py \
 	 --phyloseqData $expected_dir/16-phylo_import.Rdata \
 	 --dds $expected_dir/23-deseq2_preprocess.Rdata \
-	 --log-file $out_dir/24-deseq2_visualization.log \
-	 --html $out_dir/24-deseq2_visualization.nb.html \
+	 --log-file $out_dir/24-deseq2_visualisation.log \
+	 --html $out_dir/24-deseq2_visualisation.nb.html \
 	 --var EnvType --mod1 BoeufHache --mod2 SaumonFume
 	                            
 
 	if [ $? -ne 0 ]
 	then
-		echo "Error in deseq2_visualization " >&2
+		echo "Error in deseq2_visualisation " >&2
 		exit 1;
 	fi
 fi
 
-grep otu_01582 $out_dir/24-deseq2_visualization.nb.html | sed 's/],/],\n/g' > tmp
-grep otu_01582 $expected_dir/24-deseq2_visualization.nb.html | sed 's/],/],\n/g'  > tmp1
+grep otu_01582 $out_dir/24-deseq2_visualisation.nb.html | sed 's/],/],\n/g' > tmp
+grep otu_01582 $expected_dir/24-deseq2_visualisation.nb.html | sed 's/],/],\n/g'  > tmp1
 
 if diff_line tmp tmp1 1
 then
-	echo "Difference in deseq2_visualization : 24-deseq2_visualization.nb.html  " >&2
+	echo "Difference in deseq2_visualisation : 24-deseq2_visualisation.nb.html  " >&2
 fi
 
 rm tmp tmp1

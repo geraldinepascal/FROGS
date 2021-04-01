@@ -94,7 +94,8 @@ def write_summary( samples_names, sample_logs, log_remove_global, log_remove_spl
     FH_out.write( "\n" )
 
     FH_out.write( '##Metrics by sample\n' )
-    FH_out.write( "\t".join(['#Sample name', 'Kept nb', 'Kept abundance', 'Removed nb', 'Removed abundance', 'Abundance of the most abundant removed', 'Detected nb', 'Detected abundance', 'Abundance of the most abundant detected']) + "\n" )
+    # FH_out.write( "\t".join(['#Sample name', 'Kept nb', 'Kept abundance', 'Removed nb', 'Removed abundance', 'Abundance of the most abundant removed', 'Detected nb', 'Detected abundance', 'Abundance of the most abundant detected']) + "\n" )
+    FH_out.write( "\t".join(['#Sample name', "Clusters kept", "Cluster abundance kept", "Chimeric clusters removed", "Chimeric abundance removed", "Abundance of the most abundant chimera removed", "Individual chimera detected", "Individual chimera abundance detected", "Abundance of the most abundant individual chimera detected"]) + "\n" )
     for sample in sorted(samples_names):
         sample_remove_results = "\t".join(map(str, [sample,
                                                     log_remove_spl[sample]['nb_kept'],

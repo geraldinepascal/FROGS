@@ -6,7 +6,7 @@
 
 Visit our web site : http://frogs.toulouse.inrae.fr/
 
-[![Release](https://img.shields.io/badge/release-3.2.1-blue.svg)![Date](https://img.shields.io/badge/date-February%202021-red.svg)](https://github.com/geraldinepascal/FROGS-wrappers/releases) [<img src="https://www.podcastscience.fm/wp-content/uploads/2017/12/deezer.png" width="5%" style="display: block; margin: auto;"/>](https://www.deezer.com/fr/playlist/5233843102?utm_source=deezer&utm_content=playlist-5233843102&utm_term=18632989_1545296531&utm_medium=web)
+[![Release](https://img.shields.io/badge/release-3.2.2-blue.svg)![Date](https://img.shields.io/badge/date-April%202021-red.svg)](https://github.com/geraldinepascal/FROGS-wrappers/releases) [<img src="https://www.podcastscience.fm/wp-content/uploads/2017/12/deezer.png" width="5%" style="display: block; margin: auto;"/>](https://www.deezer.com/fr/playlist/5233843102?utm_source=deezer&utm_content=playlist-5233843102&utm_term=18632989_1545296531&utm_medium=web)
 
 
 
@@ -101,10 +101,10 @@ FROGS relies on different specific tools for each of the analysis steps.
 
 | FROGS Tools |Dependancy  | version tested |
 | ----------- | :--------: | -------------: |
-| Preprocess and Remove_chimera |        [vsearch](https://github.com/torognes/vsearch)        | 2.15.1 |
+| Preprocess and Remove_chimera |        [vsearch](https://github.com/torognes/vsearch)        | 2.17.0 |
 | Preprocess                    | [flash](https://sourceforge.net/projects/flashpage/files/) (optional) |               1.2.11 |
-| Preprocess                    |       [cutadapt](https://github.com/marcelm/cutadapt)        |            3.1 |
-| Clustering                    |          [swarm](https://github.com/torognes/swarm)          |            3.0.0 |
+| Preprocess                    |       [cutadapt](https://github.com/marcelm/cutadapt) (need to be >=2.8)       |            3.1 |
+| Clustering                    |          [swarm](https://github.com/torognes/swarm) (need to be >=2.1)          |            3.0.0 |
 | ITSx                          |        [ITSx](http://microbiology.se/software/itsx/)         |  1.1.2 |
 | Affiliation_OTU               | [NCBI BLAST+](http://blast.ncbi.nlm.nih.gov/Blast.cgi?PAGE_TYPE=BlastDocs&DOC_TYPE=Download) |          2.10.1 |
 | Affiliation_OTU               |    [RDP Classifier](https://github.com/rdpstaff/RDPTools)    |                2.0.3 |
@@ -132,9 +132,9 @@ FROGS is now available on bioconda (https://anaconda.org/bioconda/frogs).
   * to create a specific environment for a specific FROGS version
 
 ```
-conda env create --name frogs@3.2.1 --file frogs-conda-requirements.yaml
+conda env create --name frogs@3.2.2 --file frogs-conda-requirements.yaml
 # to use FROGS, first you need to activate your environment
-conda activate frogs@3.2.1
+conda activate frogs@3.2.2
 ```
 
 ### From source
@@ -146,7 +146,7 @@ see [INSTALL_from_source.md](INSTALL_from_source.md)
 To check your installation you can type:
 ```
 cd <FROGS_PATH>/test
-# when using conda FROGS_PATH=<conda_env_dir>/__frogs@3.2.1/share/FROGS_3.2.1
+# when using conda FROGS_PATH=<conda_env_dir>/frogs@3.2.2/share/FROGS_3.2.2
 
 sh test.sh <FROGS_PATH> <NB_CPU> <JAVA_MEM> <OUT_FOLDER>
 ```
@@ -183,7 +183,7 @@ Step phyloseq_structure mardi 10 novembre 2020, 11:20:45 (UTC+0100)
 Step phyloseq_clustering mardi 10 novembre 2020, 11:21:59 (UTC+0100)
 Step phyloseq_manova mardi 10 novembre 2020, 11:22:20 (UTC+0100)
 Step deseq2_preprocess mardi 10 novembre 2020, 11:22:42 (UTC+0100)
-Step deseq2_visualization mardi 10 novembre 2020, 11:23:29 (UTC+0100)
+Step deseq2_visualisation mardi 10 novembre 2020, 11:23:29 (UTC+0100)
 Completed with success
 ```
 
