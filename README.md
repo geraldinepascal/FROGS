@@ -146,7 +146,7 @@ see [INSTALL_from_source.md](INSTALL_from_source.md)
 To check your installation you can type:
 ```
 cd <FROGS_PATH>/test
-# when using conda FROGS_PATH=<conda_env_dir>/__frogs@3.2.2/share/FROGS_3.2.2
+# when using conda FROGS_PATH=<conda_env_dir>/frogs@3.2.2/share/FROGS_3.2.2
 
 sh test.sh <FROGS_PATH> <NB_CPU> <JAVA_MEM> <OUT_FOLDER>
 ```
