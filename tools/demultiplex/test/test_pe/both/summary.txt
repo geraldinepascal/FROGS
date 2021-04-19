@@ -1,0 +1,12 @@
+#sample	count
+MgArd0001_A	0
+MgArd0002	0
+MgArd0003	0
+MgArd0004	0
+MgArd0009	0
+MgArd0010	0
+MgArd0011	0
+MgArd0012	0
+MgArd0001_B	0
+unmatched	9
+ambiguous	1

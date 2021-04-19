@@ -1,0 +1,77 @@
+## Application
+Software :./demultiplex.py (version : 3.2.1)
+Command : ./demultiplex.py --input-R1 data/test2_R1.fq.gz --input-barcode data/barcode2.txt --mismatches 1 --end both --output-demultiplexed test/test_se/both/demultiplexed.tar.gz --output-excluded test/test_se/both/undemultiplexed.tar.gz --log-file test/test_se/both/log.txt --summary test/test_se/both/summary.txt
+
+
+#Demultiplexing test2_R1.fq.gz with forward_bc in bol strand
+########################################################################################################
+# Demultiplex reads. (splitbc.pl version : unknown)
+Command:
+	splitbc.pl data/test2_R1.fq.gz --bol --bcfile test/test_se/both/forward_bc --mismatches 1 --trim --no_adapt --prefix-r1 test/test_se/both/1614951775.4917312_13811_tmp/1614951775.4920542_13811/%_R1.fastq >> test/test_se/both/1614951775.4917312_13811_Demult.log
+
+Execution:
+	start: 05 Mar 2021 14:42:55
+	end:   05 Mar 2021 14:42:55
+
+Results :
+	nb seq before demultiplexing : 10.0
+	nb seq after process matched : 9.0
+	nb seq after process non-ambiguous : 8.0
+
+#Demultiplexing ACAGCGT_R1.fastq with ACAGCGT_reverse_bc in eol strand
+########################################################################################################
+# Demultiplex reads. (splitbc.pl version : unknown)
+Command:
+	splitbc.pl test/test_se/both/1614951775.4917312_13811_tmp/1614951775.4920542_13811/ACAGCGT_R1.fastq --eol --bcfile test/test_se/both/ACAGCGT_reverse_bc --mismatches 1 --trim --no_adapt --prefix-r1 test/test_se/both/1614951775.4917312_13811_tmp/1614951775.6131148_13811/%_R1.fastq >> test/test_se/both/1614951775.4917312_13811_Demult.log
+
+Execution:
+	start: 05 Mar 2021 14:42:55
+	end:   05 Mar 2021 14:42:55
+
+Results :
+	nb seq before demultiplexing : 4.0
+	nb seq after process matched : 4.0
+	nb seq after process non-ambiguous : 4.0
+
+#Demultiplexing ACAGTAG_R1.fastq with ACAGTAG_reverse_bc in eol strand
+########################################################################################################
+# Demultiplex reads. (splitbc.pl version : unknown)
+Command:
+	splitbc.pl test/test_se/both/1614951775.4917312_13811_tmp/1614951775.4920542_13811/ACAGTAG_R1.fastq --eol --bcfile test/test_se/both/ACAGTAG_reverse_bc --mismatches 1 --trim --no_adapt --prefix-r1 test/test_se/both/1614951775.4917312_13811_tmp/1614951775.7330036_13811/%_R1.fastq >> test/test_se/both/1614951775.4917312_13811_Demult.log
+
+Execution:
+	start: 05 Mar 2021 14:42:55
+	end:   05 Mar 2021 14:42:55
+
+Results :
+	nb seq before demultiplexing : 4.0
+	nb seq after process matched : 4.0
+	nb seq after process non-ambiguous : 4.0
+
+#Summarising result
+
+#Concatenation of undemultiplexed files 1
+
+#Archive demultiplexed files
+########################################################################################################
+# Archives files. (tar version : unknown)
+Command:
+	tar -zcf test/test_se/both/demultiplexed.tar.gz -C test/test_se/both/1614951775.8447707_13811 MgArd0001_A_R1.fastq MgArd0002_R1.fastq MgArd0003_R1.fastq MgArd0004_R1.fastq MgArd0009_R1.fastq MgArd0010_R1.fastq MgArd0011_R1.fastq MgArd0012_R1.fastq
+
+Execution:
+	start: 05 Mar 2021 14:42:55
+	end:   05 Mar 2021 14:42:55
+
+
+#Archive undemultiplexed files
+########################################################################################################
+# Archives files. (tar version : unknown)
+Command:
+	tar -zcf test/test_se/both/undemultiplexed.tar.gz -C test/test_se/both/1614951775.8511271_13811 test2_R1.fq.gz_excluded_demult
+
+Execution:
+	start: 05 Mar 2021 14:42:55
+	end:   05 Mar 2021 14:42:55
+
+
+#Removing temporary files

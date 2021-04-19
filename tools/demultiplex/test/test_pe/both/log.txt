@@ -1,0 +1,79 @@
+## Application
+Software :./demultiplex.py (version : 3.2.1)
+Command : ./demultiplex.py --input-R1 data/test2_R1.fq.gz --input-R2 data/test2_R2.fq.gz --input-barcode data/barcode2.txt --mismatches 1 --end both --output-demultiplexed test/test_pe/both/demultiplexed.tar.gz --output-excluded test/test_pe/both/undemultiplexed.tar.gz --log-file test/test_pe/both/log.txt --summary test/test_pe/both/summary.txt
+
+
+#Demultiplexing test2_R1.fq.gz and test2_R2.fq.gz with forward_bc in bol strand
+########################################################################################################
+# Demultiplex reads. (splitbc.pl version : unknown)
+Command:
+	splitbc.pl data/test2_R1.fq.gz data/test2_R2.fq.gz --bol --bcfile test/test_pe/both/forward_bc --mismatches 1 --trim --no_adapt --prefix-r1 test/test_pe/both/1614951774.6047404_13768_tmp/1614951774.6049592_13768/%_R1.fastq --prefix-r2 test/test_pe/both/1614951774.6047404_13768_tmp/1614951774.6049592_13768/%_R2.fastq >> test/test_pe/both/1614951774.6047404_13768_Demult.log
+
+Execution:
+	start: 05 Mar 2021 14:42:54
+	end:   05 Mar 2021 14:42:54
+
+Results :
+	nb seq before demultiplexing : 10.0
+	nb seq after process matched : 9.0
+	nb seq after process non-ambiguous : 8.0
+
+#Demultiplexing ACAGCGT_R1.fastq and ACAGCGT_R2.fastq with ACAGCGT_reverse_bc in eol strand
+########################################################################################################
+# Demultiplex reads. (splitbc.pl version : unknown)
+Command:
+	splitbc.pl test/test_pe/both/1614951774.6047404_13768_tmp/1614951774.6049592_13768/ACAGCGT_R1.fastq test/test_pe/both/1614951774.6047404_13768_tmp/1614951774.6049592_13768/ACAGCGT_R2.fastq --eol --bcfile test/test_pe/both/ACAGCGT_reverse_bc --mismatches 1 --trim --no_adapt --prefix-r1 test/test_pe/both/1614951774.6047404_13768_tmp/1614951774.7491913_13768/%_R1.fastq --prefix-r2 test/test_pe/both/1614951774.6047404_13768_tmp/1614951774.7491913_13768/%_R2.fastq >> test/test_pe/both/1614951774.6047404_13768_Demult.log
+
+Execution:
+	start: 05 Mar 2021 14:42:54
+	end:   05 Mar 2021 14:42:54
+
+Results :
+	nb seq before demultiplexing : 4.0
+	nb seq after process matched : 0.0
+	nb seq after process non-ambiguous : 0.0
+
+#Demultiplexing ACAGTAG_R1.fastq and ACAGTAG_R2.fastq with ACAGTAG_reverse_bc in eol strand
+########################################################################################################
+# Demultiplex reads. (splitbc.pl version : unknown)
+Command:
+	splitbc.pl test/test_pe/both/1614951774.6047404_13768_tmp/1614951774.6049592_13768/ACAGTAG_R1.fastq test/test_pe/both/1614951774.6047404_13768_tmp/1614951774.6049592_13768/ACAGTAG_R2.fastq --eol --bcfile test/test_pe/both/ACAGTAG_reverse_bc --mismatches 1 --trim --no_adapt --prefix-r1 test/test_pe/both/1614951774.6047404_13768_tmp/1614951774.8609262_13768/%_R1.fastq --prefix-r2 test/test_pe/both/1614951774.6047404_13768_tmp/1614951774.8609262_13768/%_R2.fastq >> test/test_pe/both/1614951774.6047404_13768_Demult.log
+
+Execution:
+	start: 05 Mar 2021 14:42:54
+	end:   05 Mar 2021 14:42:54
+
+Results :
+	nb seq before demultiplexing : 4.0
+	nb seq after process matched : 0.0
+	nb seq after process non-ambiguous : 0.0
+
+#Summarising result
+
+#Concatenation of undemultiplexed files 1
+
+#Concatenation of undemultiplexed files 2
+
+#Archive demultiplexed R1 and R2 files
+########################################################################################################
+# Archives files. (tar version : unknown)
+Command:
+	tar -zcf test/test_pe/both/demultiplexed.tar.gz -C test/test_pe/both/1614951774.973763_13768 MgArd0001_A_R1.fastq MgArd0002_R1.fastq MgArd0003_R1.fastq MgArd0004_R1.fastq MgArd0009_R1.fastq MgArd0010_R1.fastq MgArd0011_R1.fastq MgArd0012_R1.fastq MgArd0001_A_R2.fastq MgArd0002_R2.fastq MgArd0003_R2.fastq MgArd0004_R2.fastq MgArd0009_R2.fastq MgArd0010_R2.fastq MgArd0011_R2.fastq MgArd0012_R2.fastq
+
+Execution:
+	start: 05 Mar 2021 14:42:54
+	end:   05 Mar 2021 14:42:54
+
+
+#Archive undemultiplexed R1 and R2 files
+########################################################################################################
+# Archives files. (tar version : unknown)
+Command:
+	tar -zcf test/test_pe/both/undemultiplexed.tar.gz -C test/test_pe/both/1614951774.9894888_13768 test2_R1.fq.gz_excluded_demult test2_R2.fq.gz_excluded_demult
+
+Execution:
+	start: 05 Mar 2021 14:42:54
+	end:   05 Mar 2021 14:42:54
+
+
+#Removing temporary files
