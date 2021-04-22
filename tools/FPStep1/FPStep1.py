@@ -44,7 +44,7 @@ from frogsBiom import BiomIO
 
 ##################################################################################################################################################
 #
-# COMMAND LINES # place_seqs.py --study_fasta --min_align  --out_tree --ref_dir --threads
+# COMMAND LINES 
 #
 ##################################################################################################################################################
 class picrust2_place_seqs(Cmd):# la class Picrust2 herite de la class Cmd # Class picrust2_place_seq
@@ -116,38 +116,19 @@ def get_fasta_nb_seq( fasta_file ):
     """
     return sum(1 for _ in (FastaIO(fasta_file)))
 
-
-
-#Changement de la fonction parce que non compatible avec l'entré de Picrust2 (reference et espace pas compris par hmalign)
-# Fonction de conversion ddu fichier FASTA
 def convert_fasta(fasta_file):
+    """
+    @summary: Change fasta headers to be compatible with picrust2
+    """
 
-    input_fasta = fasta_file
-    output_fasta = "sout.fasta"
-
-    FH_input = FastaIO( input_fasta )
-    # pour écrire dans un fichier au format fasta
-    f_out = open(output_fasta, "w")
-    #FH_output = FastaIO( output_fasta, "w" )
-    chaine = ""
+    FH_input = FastaIO(fasta_file)
+    FH_output = FastaIO( "sout.fasta","wt" )
     for record in FH_input:
-        # récupération du nnom de la séquence 
-        #print(record.id)
-        # On peux modifier l'identifiant, par exemple en ajoutant Moussa
         record.id = record.id
-        # récupération de la description
-        record.description = ""
-        f_out = open(output_fasta, "w")
-        # récupération de la séquence
-        chaine += ">"+record.id+"\n"+record.string+"\n"
-        # pour écrire la sequence (identifiant, description, et sequence) dans le fichier de sortie)
-    f_out.write(chaine)
-    f_out.close()
-    
-
-
-
-#Fonction pour Extraire les cluster non alignés
+        record.description = None
+        FH_output.write(record)
+    FH_output.close()
+   
 
 def excluded_sequence(file_tree, file_fasta, out_file):
 
