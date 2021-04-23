@@ -127,7 +127,6 @@ def test(file_tree, biom):
     line = file.readline()
     #List of cluster
     list_cluster = []
-    #Boucle sur le fichier tree
     #Je splite sur (,) , regex sur le cluster et récupérer le groupe1
     #Je parcour ligne par ligne
     while line: 
