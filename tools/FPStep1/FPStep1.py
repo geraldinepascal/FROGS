@@ -7,39 +7,25 @@ __version__ = '1.0'
 __email__ = 'frogs@inrae.fr'
 __status__ = 'dev'
 
-#Import
-
 import os
 import sys
 import argparse
 import json
 import re
 from numpy import median
-#from cmd import Cmd
 
-################ Ajouter des dossiers dans la variable PATH (libexec),Permet d'éxecuté le script ######################
-# repertoire du chemin absolu
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
-
-# PATH: executable
+# PATH
 BIN_DIR = os.path.abspath(os.path.join(os.path.dirname(CURRENT_DIR), "libexec"))
-
-#~ print(BIN_DIR ,"llllll")
-
-os.environ['PATH'] = BIN_DIR + os.pathsep + os.environ['PATH'] #Permet d'éxécuter (des outils quelques soit l'endroit) #echo $PATH affiche tous les bin
+os.environ['PATH'] = BIN_DIR + os.pathsep + os.environ['PATH'] 
 # PYTHONPATH
 LIB_DIR = os.path.abspath(os.path.join(os.path.dirname(CURRENT_DIR), "lib"))
-sys.path.append(LIB_DIR) #Ajoute ce nouveau chemin dans mon path
+sys.path.append(LIB_DIR)
 if os.getenv('PYTHONPATH') is None: os.environ['PYTHONPATH'] = LIB_DIR #
 else: os.environ['PYTHONPATH'] = os.environ['PYTHONPATH'] + os.pathsep + LIB_DIR
-#os.environ['PICRUSt2_PATH'] = "" #variable environnement = pour retrouver les variable 
-print("Partie1")
-
-#Ajouter un lien symbolique de place_seq, gappa, hmalign, epa_ng dans libexec
-#which place_seqs.py :dans l'environement conda activé pour avoir le chemin de l'executable
 
 from frogsUtils import *
-from frogsSequenceIO import * #Pour parser les Sequences(fasta et fastq)
+from frogsSequenceIO import *
 from frogsBiom import BiomIO
 
 ##################################################################################################################################################
@@ -47,14 +33,13 @@ from frogsBiom import BiomIO
 # COMMAND LINES 
 #
 ##################################################################################################################################################
-class picrust2_place_seqs(Cmd):# la class Picrust2 herite de la class Cmd # Class picrust2_place_seq
+class picrust2_place_seqs(Cmd):
     """
     @summary: PICRUSt2 (Phylogenetic Investigation of Communities by Reconstruction of Unobserved States)
     @summary: place_seqs.py program placed Fasta sequence on the tree Arbre .
     @see: https://github.com/picrust/picrust2/wiki
     """
-    # methode _init_ = Comme le constructeur de la classe "1er methode à creer", initialise les attributs
-    def __init__(self, picrustMet, study_fasta, out_tree,min_align,ref_dir, stdout):
+    def __init__(self, study_fasta, out_tree,min_align,ref_dir, stdout):
         """
         @param mafftMet: [str] picrust2 method option.
         @param fasta: [str] Path to input fasta file.
@@ -62,15 +47,10 @@ class picrust2_place_seqs(Cmd):# la class Picrust2 herite de la class Cmd # Clas
         @param stderr: [str] Path to temporary picrust2 stderr output file
         @param thread: [int] number of cpu to use.
         """
-        # La classe commande n'entre pas dans le programme picrust2
-       # print("" + picrustMet  +" --study_fasta "+ str(study_fasta) +" --out_tree "+ str(out_tree) +" --min_align "+ str(min_align) +" --ref_dir "+ str(ref_dir))
-        #os.system("place_seqs.py "+ picrustMet  +" --study_fasta "+ str(study_fasta) +" --out_tree "+ str(out_tree) +" --min_align "+ str(min_align) +" --ref_dir "+ str(ref_dir))
-        #os.system("place_seqs.py "+ picrustMet  +" --study_fasta "+ str(study_fasta) +" --out_tree "+ str(out_tree) +" --min_align "+ str(min_align) )
-       
         Cmd.__init__(self,
-                 'place_seqs.py', #l'executable (place_seq.py) 
-                 'place OTUs on tree.', # c'est le descriptif de l'outil (place otu on tree)
-                  "" + picrustMet  +" --study_fasta "+ str(study_fasta) +" --out_tree "+ str(out_tree) +" --min_align "+ str(min_align) +" --ref_dir "+ str(ref_dir) +' 2> ' + stdout,
+                 'place_seqs.py',
+                 'place OTUs on tree.',
+                  "--study_fasta "+ str(study_fasta) +" --out_tree "+ str(out_tree) +" --min_align "+ str(min_align) +" --ref_dir "+ str(ref_dir) +' 2> ' + stdout,
                 "--version") 
        
       
@@ -348,7 +328,6 @@ if __name__ == "__main__":
 
     stderr = "picrust2.stderr"
 
-    picrustMet = ""
     # Process 
     try:     
         #~ lancement des commandes
@@ -357,11 +336,11 @@ if __name__ == "__main__":
         os.system("pwd")
         #place_seqs.py --study_fasta --min_align  --out_tree --ref_dir --threads
         convert_fasta(args.study_fasta)
-        picrust2_place_seqs(picrustMet, "sout.fasta", args.out_tree, args.min_align, args.ref_dir, stderr).submit( args.log_file )
-        #picrust2_place_seqs(picrustMet, "sout.fasta", args.out_tree, args.min_align, stderr)
+        picrust2_place_seqs("sout.fasta", args.out_tree, args.min_align, args.ref_dir, stderr).submit( args.log_file )
+        #picrust2_place_seqs("sout.fasta", args.out_tree, args.min_align, stderr)
         print("Partie picrust fini")
         excluded_sequence(args.out_tree, "sout.fasta", "excluded.tsv")
-        #PICRUSt2(picrustMet, "sout.fasta", args.out_tree, args.min_align, args.ref_dir, stderr).submit( args.log_file )
+        #PICRUSt2("sout.fasta", args.out_tree, args.min_align, args.ref_dir, stderr).submit( args.log_file )
         print("Partie 2 ")
         
         # rooting tree step
