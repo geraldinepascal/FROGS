@@ -332,7 +332,6 @@ if __name__ == "__main__":
     try:     
         #~ lancement des commandes
         print("\n\n\n--------------")
-        #~ print(args)
         os.system("pwd")
         #place_seqs.py --study_fasta --min_align  --out_tree --ref_dir --threads
         convert_fasta(args.study_fasta)
