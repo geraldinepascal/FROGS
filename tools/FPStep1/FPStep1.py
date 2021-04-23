@@ -53,29 +53,22 @@ class picrust2_place_seqs(Cmd):
                   "--study_fasta "+ str(study_fasta) +" --out_tree "+ str(out_tree) +" --min_align "+ str(min_align) +" --ref_dir "+ str(ref_dir) +' 2> ' + stdout,
                 "--version") 
        
-      
-
-    
     def get_version(self):
         """
         @summary: Returns the program version number.
         @return: [str] Version number if this is possible, otherwise this method return 'unknown'.
         """
-        # Le strip ça enléve le retour chariot # Le stdout prend l'erreur de la sortie standard)
-
         return Cmd.get_version(self, 'stdout').split()[1].strip()
 
-    
-
-    
 ##################################################################################################################################################
 #
 # FUNCTIONS
 #
 ##################################################################################################################################################
-    #Fonction restricted float
 def restricted_float(in_arg):
-    '''Custom argparse type to force an input float to be between 0 and 1.'''
+    """
+    @summary: Custom argparse type to force an input float to be between 0 and 1.
+    """
     try:
         in_arg = float(in_arg)
     except ValueError:
@@ -86,8 +79,7 @@ def restricted_float(in_arg):
         raise argparse.ArgumentTypeError(in_arg + "is not in range 0.0 - 1.0")
     return in_arg
 
-    
-def get_fasta_nb_seq( fasta_file ):
+def get_fasta_nb_seq(fasta_file):
     """
     @summary: Returns the number of sequences in fasta_file.
     @param fasta_file: [str] Path to the fasta file to process.
@@ -109,51 +101,27 @@ def convert_fasta(fasta_file):
         FH_output.write(record)
     FH_output.close()
    
-
-def excluded_sequence(file_tree, file_fasta, out_file):
-
+def excluded_sequence(file_tree, fasta_file, out_file):
     """
     @summary: Returns the excluded sequence.
     @param fasta_file: [str] Path to the fasta file to process.
     @param tree_file: [str] Path to the tree file to process.
     @return: [int] The file of no aligned sequence.
     """
-    #Lecture du fichier tree
     file = open(file_tree, "r")
     line = file.readline()
-    #List of cluster
-    list_cluster = []
-    #Boucle sur le fichier tree
-    #Je splite sur (,) , regex sur le cluster et récupérer le groupe1
-    #Je parcour ligne par ligne
-    while line: 
-        for i, v in enumerate(line.split(",")):
-            group = re.search("(Cluster_[0-9]+)", v)
-            if group:
-                ide = group.group(1)
-                list_cluster.append(ide)
-        line = file.readline() 
+    list_cluster = re.findall("(Cluster_[0-9]+)", line)
     file.close()
 
-    file_fasta = open(file_fasta, "r")
-    file_out   = open(out_file, "w")
+    FH_input = FastaIO(fasta_file)
+    FH_output = FastaIO(out_file, "wt")
 
-    line = file_fasta.readline()
-
-    while line:
-        if line[0] == ">":
-            if line[1:].strip() not in list_cluster:
-                file_out.write(line.strip()+"\n")
-                line = file_fasta.readline()
-                file_out.write(line.strip()+"\n")
-
-
-        line = file_fasta.readline()
-
-    file_fasta.close()
-    file_out.close()
-
-
+    for record in FH_input:
+        if record.id not in list_cluster:
+            FH_output.write(record)
+    FH_input.close()
+    FH_output.close()
+ 
 def test(file_tree, biom):
     file = open(file_tree, "r")
     line = file.readline()
@@ -330,7 +298,6 @@ if __name__ == "__main__":
 
     # Process 
     try:     
-        #~ lancement des commandes
         print("\n\n\n--------------")
         os.system("pwd")
         #place_seqs.py --study_fasta --min_align  --out_tree --ref_dir --threads
@@ -347,7 +314,7 @@ if __name__ == "__main__":
 
        # write_summary("sorti.html", "sout.fasta", "soutuiui.fasta", args.biom_file, args.out_tree )
 
-        write_summary( args.html, "sout.fasta", "excluded.tsv", args.biom_file, args.out_tree)
+        write_summary( args.html, "sout.fasta", "excluded.fasta", args.biom_file, args.out_tree)
     finally:
         print("Partie Finale ")
 
