@@ -343,7 +343,7 @@ if __name__ == "__main__":
         #PICRUSt2("sout.fasta", args.out_tree, args.min_align, args.ref_dir, stderr).submit( args.log_file )
         print("Partie 2 ")
         
-        # rooting tree step
+
         #RootTree(fasttree, args.out_tree).submit(args.log_file)
 
        # write_summary("sorti.html", "sout.fasta", "soutuiui.fasta", args.biom_file, args.out_tree )
