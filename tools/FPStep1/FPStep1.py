@@ -348,7 +348,6 @@ if __name__ == "__main__":
 
        # write_summary("sorti.html", "sout.fasta", "soutuiui.fasta", args.biom_file, args.out_tree )
 
-        # summarize resultats in HTML output 
         write_summary( args.html, "sout.fasta", "excluded.tsv", args.biom_file, args.out_tree)
     finally:
         print("Partie Finale ")
