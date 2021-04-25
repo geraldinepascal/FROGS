@@ -161,8 +161,7 @@ def test(file_tree, biom):
     file_out2.close()
 
 
-def write_summary( summary_file, fasta_in, align_out, biomfile, treefile ):
-	
+def write_summary(summary_file, fasta_in, align_out, biomfile, treefile)
     """
     @summary: Writes the process summary in one html file.
     @param summary_file: [str] path to the output html file.
