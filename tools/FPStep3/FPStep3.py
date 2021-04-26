@@ -62,14 +62,13 @@ class metagenome_pipeline(Cmd):
                   "" + metagenomeMet  +" -i "+ str(input_biom)+" -m "+ str(marker) +" -f "+ str(function)+" -o "+ str(out_dir) +' 2> ' + stdout,
                 "--version") 
       
-    # get version pose un probléme de tableau
-    # def get_version(self):
-    #     """
-    #     @summary: Returns the program version number.
-    #     @return: [str] Version number if this is possible, otherwise this method return 'unknown'.
-    #     """
+    def get_version(self):
+         """
+         @summary: Returns the program version number.
+         @return: [str] Version number if this is possible, otherwise this method return 'unknown'.
+         """
 
-    #     return Cmd.get_version(self, 'stdout').split()[1].strip() 
+         return Cmd.get_version(self, 'stdout').split()[1].strip() 
 """
 _Début: 
 __author__ = 'Frederic Escudie - Plateforme bioinformatique Toulouse and Maria Bernard - Sigenae Jouy en Josas'
@@ -105,6 +104,14 @@ class Biom2tsv_test(Cmd):
                       'Converts a BIOM file in TSV file.',
                       "--input-file " + in_biom + sequence_file_opt + " --output-file " + out_tsv + " --fields " + conversion_tags,
                       '--version' )
+
+    def get_version(self):
+         """
+         @summary: Returns the program version number.
+         @return: [str] Version number if this is possible, otherwise this method return 'unknown'.
+         """
+
+         return Cmd.get_version(self, 'stdout').strip() 
 
 class Biom2tsv(Cmd):
     """
