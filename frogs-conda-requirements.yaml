@@ -19,6 +19,7 @@ dependencies:
   - fasttree =2.1.9
   - bioconductor-phyloseq =1.30
   - bioconductor-deseq2 =1.26
+  - picrust2=2.4.1
 # conda-forge
   - r-base =3.6
   - r-essentials
