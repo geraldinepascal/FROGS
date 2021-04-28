@@ -1,37 +1,18 @@
 #!/usr/bin/env python3
-#
-# Copyright (C) 2018 INRA
-#
-# This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.
-#
-
-__author__ = 'Maria Bernard INRA - SIGENAE AND Frederic Escudie - Plateforme bioinformatique Toulouse'
-__copyright__ = 'Copyright (C) 2015 INRA'
+# -*-coding:Utf-8 -*
+__author__ = ' Moussa Samb & Maria Bernard  & Geraldine Pascal INRAE - SIGENAE '
+__copyright__ = 'Copyright (C) 2020 INRAE'
 __license__ = 'GNU General Public License'
-__version__ = '3.2.1'
-__email__ = 'frogs-support@inrae.fr'
-__status__ = 'prod'
+__version__ = '1.0'
+__email__ = 'frogs@inrae.fr'
+__status__ = 'dev'
 
 import os
 import sys
-import json
-import gzip
 import argparse
-import threading
-import multiprocessing
-import subprocess
-from subprocess import Popen, PIPE
+import json
+import re
+from numpy import median
 
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
 # PATH
@@ -58,21 +39,22 @@ class PlaceSeqs(Cmd):
 	"""
 	@summary: place study sequences (i.e. OTUs) into a reference tree
 	"""
-	def __init__(self, study_fasta, out_tree, ref_dir):
+	def __init__(self, study_fasta, out_tree, placement_tool, ref_dir):
 		"""
 		@param study_fasta: [str] Path to input fasta file.
 		@param out_tree: [str] Path to output resulting tree file.
+		@param placement_tool: [str] Placement tool to use (epa-ng or sepp).
 		@param ref_dir: [str] Directory containing reference sequence files.
 		"""
 		if ref_dir != None:
-			ref_dir = '--ref_dir '+ ref_dir
+			ref_dir = ' --ref_dir '+ ref_dir
 		else:
 			ref_dir = ''
 
 		Cmd.__init__(self,
 		'place_seqs.py',
 		'place OTU on reference tree.',
-		'--study_fasta ' + study_fasta + ' --out_tree ' + out_tree + ref_dir + ' 2> stout.txt',
+		'--study_fasta ' + study_fasta + ' --out_tree ' + out_tree + ' --placement_tool ' + placement_tool + ref_dir + ' 2> stout.txt',
 		'--version')
 
 	def get_version(self):
@@ -84,6 +66,17 @@ class PlaceSeqs(Cmd):
 #
 ##################################################################################################################################################
 
+def convert_fasta(in_file, out_file):
+	"""
+	@summary: Change fasta headers to be compatible with picrust2
+	"""
+	FH_input = FastaIO(in_file)
+	FH_output = FastaIO(out_file,"wt" )
+	for record in FH_input:
+		record.id = record.id
+		record.description = None
+		FH_output.write(record)
+	FH_output.close()
 
 
 ##################################################################################################################################################
@@ -95,21 +88,36 @@ if __name__ == "__main__":
 	# Manage parameters
 	parser = argparse.ArgumentParser(description="place study sequences (i.e. OTUs) into a reference tree.")
 	parser.add_argument('-v', '--version', action='version', version=__version__)
+	parser.add_argument( '--debug', default=False, action='store_true', help="Keep temporary files to debug program." )
 	# Inputs
 	group_input = parser.add_argument_group('Inputs')
 	group_input.add_argument('-s', '--study_fasta', required=True,
 	 help="Input fasta file of unaligned study sequences")
 	group_input.add_argument('-r', '--ref_dir', default=None,
      help='Directory containing reference sequence files')
+	group_input.add_argument('-t','--placement_tool', default='epa-ng',
+	 help='Placement tool to use when placing sequences into reference tree. One of "epa-ng" or "sepp" must be input')
     # Outputs
 	group_output = parser.add_argument_group('Outputs')
-	group_output.add_argument('-o', '--out_tree', default='out.tree', help='Normalized sequences (format: FASTA).')
-	group_output.add_argument('-l', '--log-file', default=sys.stdout, help='The list of commands executed.')
+	group_output.add_argument('-o', '--out_tree', default='out.tree',
+	 help='Normalized sequences (format: FASTA).')
+	group_output.add_argument('-l', '--log-file', default=sys.stdout,
+	 help='The list of commands executed.')
 	args = parser.parse_args()
 	prevent_shell_injections(args)
 
-	PlaceSeqs(args.study_fasta, args.out_tree, args.ref_dir).submit(args.log_file)
+	tmpFiles=TmpFiles(os.path.split(args.out_tree)[0])
 
+	try:
 
+		fasta = tmpFiles.add('sout.fasta')
+		convert_fasta(args.study_fasta,fasta)
 
+		try:
+			PlaceSeqs(args.study_fasta, args.out_tree, args.placement_tool, args.ref_dir).submit(args.log_file)
 
+		except subprocess.CalledProcessError:
+			print('\n\n#ERROR : epa-ng running out of memory. Please use placement tool sepp instead ( -t sepp )')
+	finally:
+		if not args.debug:
+			tmp_files.deleteAll()
