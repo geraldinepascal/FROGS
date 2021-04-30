@@ -66,38 +66,63 @@ class PlaceSeqs(Cmd):
 #
 ##################################################################################################################################################
 
-def convert_fasta(in_file, out_file):
+def convert_fasta(fasta_in, fasta_out):
 	"""
 	@summary: Change fasta headers to be compatible with picrust2
 	"""
-	FH_input = FastaIO(in_file)
-	FH_output = FastaIO(out_file,"wt" )
+	FH_input = FastaIO(fasta_in)
+	FH_output = FastaIO(fasta_out,"wt" )
 	for record in FH_input:
 		record.id = record.id
 		record.description = None
 		FH_output.write(record)
 	FH_output.close()
 
-def excluded_sequence(file_tree, fasta_file, out_file):
+def excluded_sequence(tree_file, fasta_file, fasta_out):
 	"""
 	@summary: Returns the excluded sequence.
 	@param fasta_file: [str] Path to the fasta file to process.
 	@param tree_file: [str] Path to the tree file to process.
 	@return: [int] The file of no aligned sequence.
 	"""
-	file = open(file_tree, "r")
+	file = open(tree_file, "r")
 	line = file.readline()
 	list_cluster = re.findall("(Cluster_[0-9]+)", line)
 	file.close()
 
 	FH_input = FastaIO(fasta_file)
-	FH_output = FastaIO(out_file, "wt")
+	FH_output = FastaIO(fasta_out, "wt")
 
 	for record in FH_input:
 		if record.id not in list_cluster:
 			FH_output.write(record)
 	FH_input.close()
 	FH_output.close()
+
+def find_closest_ref_sequences(tree_file, biom_in, closest_ref_file):
+	"""
+	@summary: Find closests references sequences from inserts otus in tree.
+	@param tree_file: Place_seqs.py output tree.
+	@biom_in: Input BIOM file.
+	@closest_ref_file: Output summary file.
+	"""
+
+	FH_tree = open(tree_file,'r').readline()
+	biom=BiomIO.from_json(biom_in)
+	list_cluster = re.findall("(Cluster_[0-9]+)", FH_tree)
+
+	t=ete.Tree(tree_file)
+
+	for cluster in list_cluster:
+		print(cluster)
+		print(biom.get_observation_metadata(cluster)["blast_taxonomy"])
+		node = t.search_nodes(name=cluster)[0]
+
+		for sister_group in node.get_sisters():
+			for leaf in sister_group.get_leaves():
+				print(leaf.name)
+
+			print
 
 def write_summary(summary_file, fasta_in, align_out, biomfile, treefile):
 	"""
@@ -205,7 +230,7 @@ if __name__ == "__main__":
 	try:
 		Logger.static_write(args.log_file, "## Application\nSoftware :" + sys.argv[0] + " (version : " + str(__version__) + ")\nCommand : " + " ".join(sys.argv) + "\n\n")
 
-		tmp_fasta = tmp_files.add('sout.fasta')
+		tmp_fasta = tmp_files.add('cleaned.fasta')
 		convert_fasta(args.study_fasta,tmp_fasta)
 
 		try:
@@ -215,6 +240,9 @@ if __name__ == "__main__":
 			print('\n\n#ERROR : epa-ng running out of memory. Please use placement tool sepp instead ( -t sepp )')
 
 		excluded_sequence(args.out_tree,args.study_fasta,'excluded.fasta')
+
+		closest_ref_files = tmp_files.add( "closest_ref.tsv" )
+		find_closest_ref_sequences(args.out_tree, args.biom_file, closest_ref_files)
 
 		write_summary(args.html, tmp_fasta, 'excluded.fasta', args.biom_file, args.out_tree)
 
