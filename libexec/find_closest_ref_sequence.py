@@ -85,15 +85,19 @@ if __name__ == "__main__":
 
 	# Inputs
 	group_input = parser.add_argument_group('Inputs')
-	group_input.add_argument('-b', '--biom_file', required=True, help='Biom file.')
 	group_input.add_argument('-t', '--tree_file', required=True, help='Tree file (output of place_seqs.py')
+	group_input.add_argument('-b', '--biom_file', required=True, help='Biom file.')
 	group_input.add_argument('-r', '--ref_sequences', default=REF_FILE, help='JGI reference file (JGI ID to JGI taxonomy')
 
 	# Outputs
 	group_output = parser.add_argument_group('Outputs')
 	group_output = parser.add_argument('-o', '--output', default='closests_ref_sequences.txt')
+	group_output.add_argument('-l', '--log-file', default=sys.stdout, help='The list of commands executed.')
+
 	args = parser.parse_args()
+	prevent_shell_injections(args)
 
 	clusters = find_clusters(args.tree_file)
 
 	find_closests_ref_sequences(args.tree_file, args.biom_file, clusters, args.ref_sequences, args.output)
+	

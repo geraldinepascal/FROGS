@@ -60,6 +60,25 @@ class PlaceSeqs(Cmd):
 	def get_version(self):
 		return Cmd.get_version(self, 'stdout').split()[1].strip()
 
+class FindClosestsRefSequences(Cmd):
+	'''
+	@summary: find OTUs closests reference sequences into a reference tree.
+	'''
+	def __init__(self, in_tree, in_biom, out_summary):
+		'''
+		@param in_tree: [str] Path to place_seqs.py output tree.
+		@param in_biom: [str] Path to BIOM input file.
+		@summary out_summary: [str] Path to output summary file.
+		'''
+		Cmd.__init__(self,
+			'find_closest_ref_sequence.py',
+			'find OTUs closests reference sequences into a reference tree.',
+			'--tree_file ' + in_tree + ' --biom_file ' + in_biom + ' --out_summary ' + out_summary + ' 2> stout.txt',
+			'--version')
+
+	def get_version(self):
+		return Cmd.get_version(self, 'stdout').strip()	
+
 ##################################################################################################################################################
 #
 # FUNCTIONS
@@ -98,31 +117,6 @@ def excluded_sequence(tree_file, fasta_file, fasta_out):
 			FH_output.write(record)
 	FH_input.close()
 	FH_output.close()
-
-def find_closest_ref_sequences(tree_file, biom_in, closest_ref_file):
-	"""
-	@summary: Find closests references sequences from inserts otus in tree.
-	@param tree_file: Place_seqs.py output tree.
-	@biom_in: Input BIOM file.
-	@closest_ref_file: Output summary file.
-	"""
-
-	FH_tree = open(tree_file,'r').readline()
-	biom=BiomIO.from_json(biom_in)
-	list_cluster = re.findall("(Cluster_[0-9]+)", FH_tree)
-
-	t=ete.Tree(tree_file)
-
-	for cluster in list_cluster:
-		print(cluster)
-		print(biom.get_observation_metadata(cluster)["blast_taxonomy"])
-		node = t.search_nodes(name=cluster)[0]
-
-		for sister_group in node.get_sisters():
-			for leaf in sister_group.get_leaves():
-				print(leaf.name)
-
-			print
 
 def write_summary(summary_file, fasta_in, align_out, biomfile, treefile):
 	"""
@@ -242,7 +236,8 @@ if __name__ == "__main__":
 		excluded_sequence(args.out_tree,args.study_fasta,'excluded.fasta')
 
 		closest_ref_files = tmp_files.add( "closest_ref.tsv" )
-		find_closest_ref_sequences(args.out_tree, args.biom_file, closest_ref_files)
+
+		FindClosestsRefSequences(args.out_tree, args.biom_file, closest_ref_files)
 
 		write_summary(args.html, tmp_fasta, 'excluded.fasta', args.biom_file, args.out_tree)
 
