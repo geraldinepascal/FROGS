@@ -13,6 +13,7 @@ import argparse
 import json
 import re
 import ete3 as ete
+import inspect
 
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
 # PATH
@@ -23,6 +24,10 @@ LIB_DIR = os.path.abspath(os.path.join(os.path.dirname(CURRENT_DIR), "lib"))
 sys.path.append(LIB_DIR)
 if os.getenv('PYTHONPATH') is None: os.environ['PYTHONPATH'] = LIB_DIR
 else: os.environ['PYTHONPATH'] = LIB_DIR + os.pathsep + os.environ['PYTHONPATH']
+
+PRO_DIR = os.path.join(os.path.dirname(os.__file__),'site-packages/picrust2/default_files/prokaryotic/pro_ref/')
+ITS_DIR = os.path.join(os.path.dirname(os.__file__),'site-packages/picrust2/default_files/fungi/fungi_ITS/')
+
 
 from frogsUtils import *
 from frogsBiom import BiomIO
@@ -39,22 +44,22 @@ class PlaceSeqs(Cmd):
 	"""
 	@summary: place studies sequences (i.e. OTUs) into a reference tree
 	"""
-	def __init__(self, in_fasta, out_tree, placement_tool, ref_dir):
+	def __init__(self, in_fasta, out_tree, placement_tool, categorie):
 		"""
 		@param in_fasta: [str] Path to input fasta file.
 		@param out_tree: [str] Path to output resulting tree file.
 		@param placement_tool: [str] Placement tool to use (epa-ng or sepp).
 		@param ref_dir: [str] Directory containing reference sequence files.
 		"""
-		if ref_dir != None:
-			ref_dir = ' --ref_dir '+ ref_dir
-		else:
-			ref_dir = ''
+		if categorie == "16S":
+			categorie = PRO_DIR
+		elif categorie == "ITS":
+			categorie = ITS_DIR
 
 		Cmd.__init__(self,
 		'place_seqs.py',
 		'place OTU on reference tree.',
-		'--study_fasta ' + in_fasta + ' --out_tree ' + out_tree + ' --placement_tool ' + placement_tool + ref_dir + ' 2> stout.txt',
+		'--study_fasta ' + in_fasta + ' --out_tree ' + out_tree + ' --placement_tool ' + placement_tool + " --ref_dir " + categorie +  ' 2> stout.txt',
 		'--version')
 
 	def get_version(self):
@@ -209,7 +214,7 @@ if __name__ == "__main__":
 	group_input = parser.add_argument_group('Inputs')
 	group_input.add_argument('-i', '--input_fasta', required=True, help="Input fasta file of unaligned studies sequences")
 	group_input.add_argument('-b', '--biom_file', required=True, help='Biom file.')
-	group_input.add_argument('-r', '--ref_dir', default=None, help='Directory containing reference sequence files')
+	group_input.add_argument('-c', '--categorie',choices=['16S', 'ITS'], default='16S', help='Specifies which categorie 16S or ITS')
 	group_input.add_argument('-t', '--placement_tool', default='epa-ng', help='Placement tool to use when placing sequences into reference tree. One of "epa-ng" or "sepp" must be input')
 	# Outputs
 	group_output = parser.add_argument_group('Outputs')
@@ -229,7 +234,7 @@ if __name__ == "__main__":
 		convert_fasta(args.input_fasta,tmp_fasta)
 
 		try:
-			PlaceSeqs(args.input_fasta, args.out_tree, args.placement_tool, args.ref_dir).submit(args.log_file)
+			PlaceSeqs(args.input_fasta, args.out_tree, args.placement_tool, args.categorie).submit(args.log_file)
 
 		except subprocess.CalledProcessError:
 			print('\n\n#ERROR : epa-ng running out of memory. Please use placement tool sepp instead ( -t sepp )')
