@@ -37,11 +37,11 @@ from frogsSequenceIO import *
 
 class PlaceSeqs(Cmd):
 	"""
-	@summary: place study sequences (i.e. OTUs) into a reference tree
+	@summary: place studies sequences (i.e. OTUs) into a reference tree
 	"""
-	def __init__(self, study_fasta, out_tree, placement_tool, ref_dir):
+	def __init__(self, in_fasta, out_tree, placement_tool, ref_dir):
 		"""
-		@param study_fasta: [str] Path to input fasta file.
+		@param in_fasta: [str] Path to input fasta file.
 		@param out_tree: [str] Path to output resulting tree file.
 		@param placement_tool: [str] Placement tool to use (epa-ng or sepp).
 		@param ref_dir: [str] Directory containing reference sequence files.
@@ -54,7 +54,7 @@ class PlaceSeqs(Cmd):
 		Cmd.__init__(self,
 		'place_seqs.py',
 		'place OTU on reference tree.',
-		'--study_fasta ' + study_fasta + ' --out_tree ' + out_tree + ' --placement_tool ' + placement_tool + ref_dir + ' 2> stout.txt',
+		'--study_fasta ' + in_fasta + ' --out_tree ' + out_tree + ' --placement_tool ' + placement_tool + ref_dir + ' 2> stout.txt',
 		'--version')
 
 	def get_version(self):
@@ -73,7 +73,7 @@ class FindClosestsRefSequences(Cmd):
 		Cmd.__init__(self,
 			'find_closest_ref_sequence.py',
 			'find OTUs closests reference sequences into a reference tree.',
-			'--tree_file ' + in_tree + ' --biom_file ' + in_biom + ' --out_summary ' + out_summary + ' 2> stout.txt',
+			'--tree_file ' + in_tree + ' --biom_file ' + in_biom + ' --output ' + out_summary + ' 2> stout.txt',
 			'--version')
 
 	def get_version(self):
@@ -202,20 +202,21 @@ def write_summary(summary_file, fasta_in, align_out, biomfile, treefile):
 ##################################################################################################################################################
 if __name__ == "__main__":
 	# Manage parameters
-	parser = argparse.ArgumentParser(description="place study sequences (i.e. OTUs) into a reference tree.")
+	parser = argparse.ArgumentParser(description="place studies sequences (i.e. OTUs) into a reference tree.")
 	parser.add_argument('-v', '--version', action='version', version=__version__)
 	parser.add_argument( '--debug', default=False, action='store_true', help="Keep temporary files to debug program." )
 	# Inputs
 	group_input = parser.add_argument_group('Inputs')
-	group_input.add_argument('-s', '--study_fasta', required=True, help="Input fasta file of unaligned study sequences")
+	group_input.add_argument('-i', '--input_fasta', required=True, help="Input fasta file of unaligned studies sequences")
 	group_input.add_argument('-b', '--biom_file', required=True, help='Biom file.')
 	group_input.add_argument('-r', '--ref_dir', default=None, help='Directory containing reference sequence files')
-	group_input.add_argument('-t','--placement_tool', default='epa-ng', help='Placement tool to use when placing sequences into reference tree. One of "epa-ng" or "sepp" must be input')
+	group_input.add_argument('-t', '--placement_tool', default='epa-ng', help='Placement tool to use when placing sequences into reference tree. One of "epa-ng" or "sepp" must be input')
 	# Outputs
 	group_output = parser.add_argument_group('Outputs')
 	group_output.add_argument('-o', '--out_tree', default='out.tree', help='Normalized sequences (format: FASTA).')
-	group_output.add_argument('-l', '--log-file', default=sys.stdout, help='The list of commands executed.')
-	group_output.add_argument('-m','--html', default='summary.html', help="Path to store resulting html file. [Default: %(default)s]" )
+	group_output.add_argument('-e', '--excluded', default='excluded.fasta', help='List of sequences not inserted in the tree.')
+	group_output.add_argument('-l', '--log_file', default=sys.stdout, help='List of commands executed.')
+	group_output.add_argument('-m', '--html', default='summary.html', help="Path to store resulting html file. [Default: %(default)s]" )
 	args = parser.parse_args()
 	prevent_shell_injections(args)
 
@@ -225,21 +226,21 @@ if __name__ == "__main__":
 		Logger.static_write(args.log_file, "## Application\nSoftware :" + sys.argv[0] + " (version : " + str(__version__) + ")\nCommand : " + " ".join(sys.argv) + "\n\n")
 
 		tmp_fasta = tmp_files.add('cleaned.fasta')
-		convert_fasta(args.study_fasta,tmp_fasta)
+		convert_fasta(args.input_fasta,tmp_fasta)
 
 		try:
-			PlaceSeqs(args.study_fasta, args.out_tree, args.placement_tool, args.ref_dir).submit(args.log_file)
+			PlaceSeqs(args.input_fasta, args.out_tree, args.placement_tool, args.ref_dir).submit(args.log_file)
 
 		except subprocess.CalledProcessError:
 			print('\n\n#ERROR : epa-ng running out of memory. Please use placement tool sepp instead ( -t sepp )')
 
-		excluded_sequence(args.out_tree,args.study_fasta,'excluded.fasta')
+		excluded_sequence(args.out_tree,args.input_fasta,args.excluded)
 
 		closest_ref_files = tmp_files.add( "closest_ref.tsv" )
 
-		FindClosestsRefSequences(args.out_tree, args.biom_file, closest_ref_files)
+		FindClosestsRefSequences(args.out_tree, args.biom_file, closest_ref_files).submit(args.log_file)
 
-		write_summary(args.html, tmp_fasta, 'excluded.fasta', args.biom_file, args.out_tree)
+		write_summary(args.html, tmp_fasta, args.excluded, args.biom_file, args.out_tree)
 
 	finally:
 		if not args.debug:
