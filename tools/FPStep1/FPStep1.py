@@ -60,7 +60,7 @@ class PlaceSeqs(Cmd):
 		Cmd.__init__(self,
 		'place_seqs.py',
 		'place OTU on reference tree.',
-		'--study_fasta ' + in_fasta + ' --out_tree ' + out_tree + ' --placement_tool ' + placement_tool + " --ref_dir " + categorie +  ' 2> stout.txt',
+		'--study_fasta ' + in_fasta + ' --out_tree ' + out_tree + ' --placement_tool ' + placement_tool + " --ref_dir " + categorie,
 		'--version')
 
 	def get_version(self):
@@ -91,19 +91,19 @@ class FindClosestsRefSequences(Cmd):
 #
 ##################################################################################################################################################
 
-def convert_fasta(fasta_in, fasta_out):
+def convert_fasta(in_fasta, out_fasta):
 	"""
 	@summary: Change fasta headers to be compatible with picrust2
 	"""
-	FH_input = FastaIO(fasta_in)
-	FH_output = FastaIO(fasta_out,"wt" )
+	FH_input = FastaIO(in_fasta)
+	FH_output = FastaIO(out_fasta,"wt" )
 	for record in FH_input:
 		record.id = record.id
 		record.description = None
 		FH_output.write(record)
 	FH_output.close()
 
-def excluded_sequence(tree_file, fasta_file, fasta_out):
+def excluded_sequence(tree_file, in_fasta, excluded):
 	"""
 	@summary: Returns the excluded sequence.
 	@param fasta_file: [str] Path to the fasta file to process.
@@ -115,16 +115,52 @@ def excluded_sequence(tree_file, fasta_file, fasta_out):
 	list_cluster = re.findall("(Cluster_[0-9]+)", line)
 	file.close()
 
-	FH_input = FastaIO(fasta_file)
-	FH_output = FastaIO(fasta_out, "wt")
+	FH_input = FastaIO(in_fasta)
+	excluded = open(excluded, "wt")
 
 	for record in FH_input:
 		if record.id not in list_cluster:
+			excluded.write(rrecord.id)
+	FH_input.close()
+	excluded.close()
+
+
+def remove_excluded_fasta( in_fasta, out_fasta, excluded_seqs):
+	excluded = []
+	excluded_file = open(excluded_seqs)
+	if excluded_file is not None:
+		for li in excluded_file:
+			excluded.append(li.strip())
+
+	FH_input = FastaIO( in_fasta )
+	FH_output = FastaIO( out_fasta, "wt")
+	for record in FH_input:
+		real_id = record.id.split()[0]
+
+		if real_id not in excluded:
 			FH_output.write(record)
 	FH_input.close()
 	FH_output.close()
 
-def write_summary(summary_file, fasta_in, align_out, biomfile, treefile, closest_ref_files):
+def remove_observations(input_biom, output_biom, excluded_seqs):
+	"""
+	@summary: Removes the specified list of observations.
+	@param removed_observations: [list] The names of the observations to remove.
+	@param input_biom: [str] The path to the input BIOM.
+	@param output_biom: [str] The path to the output BIOM.
+	"""
+	excluded = []
+	excluded_file = open(excluded_seqs)
+	if excluded_file is not None:
+		for li in excluded_file:
+			excluded.append(li.strip())
+
+	biom = BiomIO.from_json( input_biom )
+	biom.remove_observations( excluded )
+	BiomIO.write( output_biom, biom )
+
+
+def write_summary(summary_file, in_fasta, align_out, biomfile, closest_ref_files):
 	"""
 	@summary: Writes the process summary in one html file.
 	@param summary_file: [str] path to the output html file.
@@ -142,20 +178,12 @@ def write_summary(summary_file, fasta_in, align_out, biomfile, treefile, closest
 	number_otu_all = 0
 	number_abundance_all = 0
 	# to detail removed OTU
-	removed_details_categories =["Blast_taxonomy","Closest_ref_ID","Closest_ref_name","Closest_ref_taxonomy","Closest_ref_distance"]
+	details_categories =["Blast_taxonomy","Closest_ref_ID","Closest_ref_name","Closest_ref_taxonomy","Closest_ref_distance"]
 	infos_otus = list()
-
-	# to build one metadata for tree view
-	dic_otu={}
-	list_otu_all=list()
-	list_out_tree=[]
-
 	biom=BiomIO.from_json(biomfile)
-	treefile = open(treefile, "r")
-	newick = treefile.read().strip()
-
+	list_otu_all = []
 	# record nb OTU and abundance
-	for otu in FastaIO(fasta_in):
+	for otu in FastaIO(in_fasta):
 		list_otu_all.append(otu.id)
 		number_otu_all +=1
 		number_abundance_all += biom.get_observation_count(otu.id)
@@ -174,22 +202,7 @@ def write_summary(summary_file, fasta_in, align_out, biomfile, treefile, closest
 		for otu in FastaIO(align_out):
 			summary_info['nb_removed'] +=1
 			summary_info['abundance_removed'] += biom.get_observation_count(otu.id)
-			
-			# to built one table of OTUs out of phylogenetic tree
-			taxonomy=""
-			if biom.has_metadata("taxonomy"):
-				taxonomy = ";".join(biom.get_observation_metadata(otu.id)["taxonomy"]) if issubclass(biom.get_observation_metadata(otu.id)["taxonomy"].__class__,list) else str(biom.get_observation_metadata(otu.id)["taxonomy"])
-			elif biom.has_metadata("blast_taxonomy"): 
-				taxonomy = ";".join(biom.get_observation_metadata(otu.id)["blast_taxonomy"]) if issubclass(biom.get_observation_metadata(otu.id)["blast_taxonomy"].__class__,list) else str(biom.get_observation_metadata(otu.id)["blast_taxonomy"])
-			abundance=biom.get_observation_count(otu.id)
-			percent_abundance=abundance*100/(float(number_abundance_all))
-			length=len(otu.string)
-			info={"name": otu.id, "data": [taxonomy, abundance, percent_abundance, length]}
-			removed_details_data.append(info)
-			list_out_tree.append(otu.id)
-
-
-
+	
 	summary_info['nb_kept'] = number_otu_all - summary_info['nb_removed']
 	summary_info['abundance_kept'] = number_abundance_all - summary_info['abundance_removed']
 
@@ -200,7 +213,7 @@ def write_summary(summary_file, fasta_in, align_out, biomfile, treefile, closest
 
 	for line in FH_summary_tpl:
 		if "###DETECTION_CATEGORIES###" in line:
-			line = line.replace( "###DETECTION_CATEGORIES###", json.dumps(removed_details_categories) )
+			line = line.replace( "###DETECTION_CATEGORIES###", json.dumps(details_categories) )
 		elif "###DETECTION_DATA###" in line:
 			line = line.replace( "###DETECTION_DATA###", json.dumps(infos_otus) )
 		elif "###REMOVE_DATA###" in line:
@@ -224,15 +237,17 @@ if __name__ == "__main__":
 	# Inputs
 	group_input = parser.add_argument_group('Inputs')
 	group_input.add_argument('-i', '--input_fasta', required=True, help="Input fasta file of unaligned studies sequences")
-	group_input.add_argument('-b', '--biom_file', required=True, help='Biom file.')
+	group_input.add_argument('-b', '--input_biom', required=True, help='Biom file.')
 	group_input.add_argument('-c', '--categorie',choices=['16S', 'ITS'], default='16S', help='Specifies which categorie 16S or ITS')
-	group_input.add_argument('-t', '--placement_tool', default='epa-ng', help='Placement tool to use when placing sequences into reference tree. One of "epa-ng" or "sepp" must be input')
+	group_input.add_argument('-p', '--placement_tool', default='epa-ng', help='Placement tool to use when placing sequences into reference tree. One of "epa-ng" or "sepp" must be input')
 	# Outputs
 	group_output = parser.add_argument_group('Outputs')
-	group_output.add_argument('-o', '--out_tree', default='out.tree', help='Normalized sequences (format: FASTA).')
+	group_output.add_argument('-o', '--out_tree', default='out.tree', help='Tree output with insert sequences (format: newick).')
 	group_output.add_argument('-e', '--excluded', default='excluded.fasta', help='List of sequences not inserted in the tree.')
+	group_output.add_argument('-s', '--insert_sequences', default='place_seqs.fasta', help='sequences file without non insert sequences. (format: FASTA). [Default: %(default)s]')
+	group_output.add_argument('-m', '--insert_biom', default='place_seqs.biom', help='abundance file without chimera (format: BIOM)')
 	group_output.add_argument('-l', '--log_file', default=sys.stdout, help='List of commands executed.')
-	group_output.add_argument('-m', '--html', default='summary.html', help="Path to store resulting html file. [Default: %(default)s]" )
+	group_output.add_argument('-t', '--html', default='summary.html', help="Path to store resulting html file. [Default: %(default)s]" )
 	args = parser.parse_args()
 	prevent_shell_injections(args)
 
@@ -267,9 +282,12 @@ if __name__ == "__main__":
 			print('\n\n#ERROR : epa-ng running out of memory. Please use placement tool sepp instead ( -t sepp )')
 
 		excluded_sequence(args.out_tree,args.input_fasta,args.excluded)
+		remove_excluded_fasta(args.input_fasta, args.insert_sequences, args.excluded)
+		remove_observations(args.input_biom, args.insert_biom, args.excluded)
+
 		closest_ref_files = tmp_files.add( "closest_ref.tsv" )
-		FindClosestsRefSequences(args.out_tree, args.biom_file, closest_ref_files).submit(args.log_file)
-		write_summary(args.html, tmp_fasta, args.excluded, args.biom_file, args.out_tree, closest_ref_files)
+		FindClosestsRefSequences(args.out_tree, args.input_biom, closest_ref_files).submit(args.log_file)
+		write_summary(args.html, tmp_fasta, args.excluded, args.input_biom,closest_ref_files)
 
 	finally:
 		if not args.debug:
