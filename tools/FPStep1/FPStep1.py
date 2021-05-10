@@ -10,6 +10,7 @@ __status__ = 'dev'
 import os
 import sys
 import argparse
+import gzip
 import json
 import re
 import ete3 as ete
@@ -78,7 +79,7 @@ class FindClosestsRefSequences(Cmd):
 		Cmd.__init__(self,
 			'find_closest_ref_sequence.py',
 			'find OTUs closests reference sequences into a reference tree.',
-			'--tree_file ' + in_tree + ' --biom_file ' + in_biom + ' --output ' + out_summary + ' 2> stout.txt',
+			'--tree_file ' + in_tree + ' --biom_file ' + in_biom + ' --output ' + out_summary,
 			'--version')
 
 	def get_version(self):
@@ -229,22 +230,35 @@ if __name__ == "__main__":
 
 	try:
 		Logger.static_write(args.log_file, "## Application\nSoftware :" + sys.argv[0] + " (version : " + str(__version__) + ")\nCommand : " + " ".join(sys.argv) + "\n\n")
+
 		Logger.static_write(args.log_file,'\n# Cleaning fasta headers\n\tstart: ' + time.strftime("%d %b %Y %H:%M:%S", time.localtime()) + '\n\n' )
 		tmp_fasta = tmp_files.add('cleaned.fasta')
 		convert_fasta(args.input_fasta,tmp_fasta)
 
+		if args.categorie == "ITS":
+
+			gz_ref_fasta = os.path.join(os.path.dirname(os.__file__),'site-packages/picrust2/default_files/fungi/fungi_ITS/fungi_ITS.fna.gz')
+
+			if os.path.exists(gz_ref_fasta):
+
+				input_ref = gzip.GzipFile(gz_ref_fasta, 'rb')
+				f = input_ref.read()
+				input_ref.close()
+				output = open(os.path.join(os.path.dirname(os.__file__),'site-packages/picrust2/default_files/fungi/fungi_ITS/fungi_ITS.fna'), 'wb')
+				output.write(f)
+				output.close()
+				os.remove(gz_ref_fasta)
+
+
 		try:
-			PlaceSeqs(args.input_fasta, args.out_tree, args.placement_tool, args.categorie).submit(args.log_file)
+			PlaceSeqs(tmp_fasta, args.out_tree, args.placement_tool, args.categorie).submit(args.log_file)
 
 		except subprocess.CalledProcessError:
 			print('\n\n#ERROR : epa-ng running out of memory. Please use placement tool sepp instead ( -t sepp )')
 
 		excluded_sequence(args.out_tree,args.input_fasta,args.excluded)
-
 		closest_ref_files = tmp_files.add( "closest_ref.tsv" )
-
 		FindClosestsRefSequences(args.out_tree, args.biom_file, closest_ref_files).submit(args.log_file)
-
 		write_summary(args.html, tmp_fasta, args.excluded, args.biom_file, args.out_tree)
 
 	finally:

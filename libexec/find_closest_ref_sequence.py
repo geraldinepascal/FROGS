@@ -48,10 +48,10 @@ def find_closests_ref_sequences(tree, biom_file, clusters, ref_file, output):
 
 	for li in ref[1:]:
 		li = li.strip().split('\t')
-		ID_to_taxo[li[0]] = li[1]
+		ID_to_taxo[li[0]] = [li[1],li[2]]
 
 	FH_out = open(output,'wt')
-	FH_out.write('Cluster\tBlast_taxonomy\tclosest_ref_ID\tclosest_ref_taxonomy\tclosest_ref_distance\n')
+	FH_out.write('Cluster\tBlast_taxonomy\tClosest_ref_ID\tClosest_ref_name\tClosest_ref_taxonomy\tClosest_ref_distance\n')
 
 	t=ete.Tree(tree)
 
@@ -70,7 +70,7 @@ def find_closests_ref_sequences(tree, biom_file, clusters, ref_file, output):
 					#cleaning leaf name
 					leaf = leaf.split('-')[0]
 
-					FH_out.write(leaf+'\t'+ID_to_taxo[leaf]+'\t'+str(leaf_to_dist[leaf])+'\n')
+					FH_out.write(leaf+'\t'+ID_to_taxo[leaf][0]+'\t'+ID_to_taxo[leaf][1]+'\t'+str(leaf_to_dist[leaf])+'\n')
 					break
 
 ##################################################################################################################################################
