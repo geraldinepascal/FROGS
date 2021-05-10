@@ -124,7 +124,7 @@ def excluded_sequence(tree_file, fasta_file, fasta_out):
 	FH_input.close()
 	FH_output.close()
 
-def write_summary(summary_file, fasta_in, align_out, biomfile, treefile):
+def write_summary(summary_file, fasta_in, align_out, biomfile, treefile, closest_ref_files):
 	"""
 	@summary: Writes the process summary in one html file.
 	@param summary_file: [str] path to the output html file.
@@ -134,17 +134,17 @@ def write_summary(summary_file, fasta_in, align_out, biomfile, treefile):
 	"""
 	# to summary OTUs number && abundances number			   
 	summary_info = {
-	   'otu_kept' : 0,
-	   'otu_removed' : 0,
+	   'nb_kept' : 0,
+	   'nb_removed' : 0,
 	   'abundance_kept' : 0,
 	   'abundance_removed' : 0	   
 	}
 	number_otu_all = 0
 	number_abundance_all = 0
 	# to detail removed OTU
-	removed_details_categories =["Taxonomic Information", "Abundance Number", "% with abundance total", "Sequence length"]
-	removed_details_data =[]
-	
+	removed_details_categories =["Blast_taxonomy","Closest_ref_ID","Closest_ref_name","Closest_ref_taxonomy","Closest_ref_distance"]
+	infos_otus = list()
+
 	# to build one metadata for tree view
 	dic_otu={}
 	list_otu_all=list()
@@ -160,10 +160,19 @@ def write_summary(summary_file, fasta_in, align_out, biomfile, treefile):
 		number_otu_all +=1
 		number_abundance_all += biom.get_observation_count(otu.id)
 
+	closest_ref = open(closest_ref_files)
+	for li in closest_ref:
+		li = li.strip().split('\t')
+		if "Closest_ref_ID" not in li:
+			infos_otus.append({
+				'name': li[0],
+				'data': list(map(str,li[1:]))
+				})
+
 	# record details about removed OTU
 	if align_out is not None:
 		for otu in FastaIO(align_out):
-			summary_info['otu_removed'] +=1
+			summary_info['nb_removed'] +=1
 			summary_info['abundance_removed'] += biom.get_observation_count(otu.id)
 			
 			# to built one table of OTUs out of phylogenetic tree
@@ -181,20 +190,21 @@ def write_summary(summary_file, fasta_in, align_out, biomfile, treefile):
 
 
 
-	summary_info['otu_kept'] = number_otu_all - summary_info['otu_removed']
+	summary_info['nb_kept'] = number_otu_all - summary_info['nb_removed']
 	summary_info['abundance_kept'] = number_abundance_all - summary_info['abundance_removed']
 
 
-	FH_summary_tpl = open( os.path.join(CURRENT_DIR, "remove_chimera_tpl.html") )
+	FH_summary_tpl = open( os.path.join(CURRENT_DIR, "FPStep1_tpl.html") )
 	FH_summary_out = open( summary_file, "wt" )
+
 
 	for line in FH_summary_tpl:
 		if "###DETECTION_CATEGORIES###" in line:
 			line = line.replace( "###DETECTION_CATEGORIES###", json.dumps(removed_details_categories) )
 		elif "###DETECTION_DATA###" in line:
-			line = line.replace( "###DETECTION_DATA###", json.dumps(removed_details_data) )
+			line = line.replace( "###DETECTION_DATA###", json.dumps(infos_otus) )
 		elif "###REMOVE_DATA###" in line:
-			line = line.replace( "###REMOVE_DATA###", json.dumps(removed_details_data) )
+			line = line.replace( "###REMOVE_DATA###", json.dumps(summary_info) )
 		FH_summary_out.write( line )
 
 	FH_summary_out.close()
@@ -259,7 +269,7 @@ if __name__ == "__main__":
 		excluded_sequence(args.out_tree,args.input_fasta,args.excluded)
 		closest_ref_files = tmp_files.add( "closest_ref.tsv" )
 		FindClosestsRefSequences(args.out_tree, args.biom_file, closest_ref_files).submit(args.log_file)
-		write_summary(args.html, tmp_fasta, args.excluded, args.biom_file, args.out_tree)
+		write_summary(args.html, tmp_fasta, args.excluded, args.biom_file, args.out_tree, closest_ref_files)
 
 	finally:
 		if not args.debug:
