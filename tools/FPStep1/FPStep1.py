@@ -162,13 +162,14 @@ def remove_observations(input_biom, output_biom, excluded_seqs):
 	BiomIO.write( output_biom, biom )
 
 
-def write_summary(summary_file, in_fasta, align_out, biomfile, closest_ref_files):
+def write_summary(in_fasta, align_out, biomfile, closest_ref_file, categorie, summary_file):
 	"""
 	@summary: Writes the process summary in one html file.
 	@param summary_file: [str] path to the output html file.
 	@param align_out: [str] path to the fasta file of unaligned OTU
 	@param biomfile: [str] path to the input BIOM file.
-	@param treefile: [str] path to the Newick file.
+	@param closest_ref_files: [str] Path to tmp colest ref file.
+	@param categorie: ITS or 16S
 	"""
 	# to summary OTUs number && abundances number			   
 	summary_info = {
@@ -190,10 +191,19 @@ def write_summary(summary_file, in_fasta, align_out, biomfile, closest_ref_files
 		number_otu_all +=1
 		number_abundance_all += biom.get_observation_count(otu.id)
 
-	closest_ref = open(closest_ref_files)
+	if categorie == "16S":
+		START_IMG_LINK = "<a href='https://img.jgi.doe.gov/cgi-bin/m/main.cgi?section=TaxonDetail&page=taxonDetail&taxon_oid="
+	elif categorie == "ITS":
+		START_IMG_LINK = "<a href='https://mycocosm.jgi.doe.gov/"
+
+
+	closest_ref = open(closest_ref_file)
 	for li in closest_ref:
 		li = li.strip().split('\t')
-		if "Closest_ref_ID" not in li:
+		if categorie in ['16S','ITS']:
+			id_cur = li[2]
+			li[2] = START_IMG_LINK + id_cur + "''>" + id_cur + '</a>'
+		if "Closest_ref_name" not in li:
 			infos_otus.append({
 				'name': li[0],
 				'data': list(map(str,li[1:]))
@@ -289,7 +299,7 @@ if __name__ == "__main__":
 
 		closest_ref_files = tmp_files.add( "closest_ref.tsv" )
 		FindClosestsRefSequences(args.out_tree, args.input_biom, closest_ref_files).submit(args.log_file)
-		write_summary(args.html, tmp_fasta, args.excluded, args.input_biom,closest_ref_files)
+		write_summary(tmp_fasta, args.excluded, args.input_biom, closest_ref_files, args.categorie, args.html)
 
 	finally:
 		if not args.debug:
