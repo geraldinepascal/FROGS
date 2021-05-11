@@ -20,8 +20,6 @@ sys.path.append(LIB_DIR)
 if os.getenv('PYTHONPATH') is None: os.environ['PYTHONPATH'] = LIB_DIR
 else: os.environ['PYTHONPATH'] = os.environ['PYTHONPATH'] + os.pathsep + LIB_DIR
 
-REF_FILE = os.path.abspath(os.path.join(os.path.dirname(CURRENT_DIR), "tools/FPStep1/data/JGI_ID_to_taxonomy.txt"))
-
 from frogsUtils import *
 from frogsBiom import BiomIO
 from frogsSequenceIO import *
@@ -50,10 +48,15 @@ def find_closest_ref_sequences(tree, biom_file, clusters, ref_file, output):
 	@ref_file: [str] path to reference map file in order to have taxonomies informations.
     """
 	biom=BiomIO.from_json(biom_file)
+	if args.category == '16S':
+		ref_file = os.path.abspath(os.path.join(os.path.dirname(CURRENT_DIR), "tools/FPStep1/data/JGI_ID_to_taxonomy.txt"))
+	elif args.category == 'ITS':
+		ref_file = os.path.abspath(os.path.join(os.path.dirname(CURRENT_DIR), "tools/FPStep1/data/JGI_ID_ITS_to_taxonomy.txt_"))
 	ref = open(ref_file,'r').readlines()
 	ID_to_taxo = {}
 
 	for li in ref[1:]:
+		print(li)
 		li = li.strip().split('\t')
 		#ID of reference sequence to [sequence name, taxonomy]
 		ID_to_taxo[li[0]] = [li[1],li[2]]
@@ -97,8 +100,7 @@ if __name__ == "__main__":
 	group_input = parser.add_argument_group('Inputs')
 	group_input.add_argument('-t', '--tree_file', required=True, help='Tree file (output of place_seqs.py')
 	group_input.add_argument('-b', '--biom_file', required=True, help='Biom file.')
-	group_input.add_argument('-r', '--ref_sequences', default=REF_FILE, help='JGI reference file (JGI ID to JGI taxonomy)')
-
+	group_input.add_argument('-c', '--category', choices=['16S', 'ITS'], default='16S', help='Specifies which category 16S or ITS')
 	# Outputs
 	group_output = parser.add_argument_group('Outputs')
 	group_output = parser.add_argument('-o', '--output', default='closests_ref_sequences.txt')
@@ -109,5 +111,5 @@ if __name__ == "__main__":
 
 	clusters = find_clusters(args.tree_file)
 
-	find_closest_ref_sequences(args.tree_file, args.biom_file, clusters, args.ref_sequences, args.output)
+	find_closest_ref_sequences(args.tree_file, args.biom_file, clusters, args.category, args.output)
 	
