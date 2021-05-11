@@ -33,21 +33,29 @@ from frogsSequenceIO import *
 ##################################################################################################################################################
 
 def find_clusters(tree):
-
+	"""
+	@summary: Returns the list of clusters insert into reference tree.
+	@param tree: [str] Path to tree output from place_seqs.py.
+	"""
 	fi = open(tree,'r').readline()
-
 	list_cluster = re.findall("(Cluster_[0-9]+)", fi)
-
 	return list_cluster
 
-def find_closests_ref_sequences(tree, biom_file, clusters, ref_file, output):
-
+def find_closest_ref_sequences(tree, biom_file, clusters, ref_file, output):
+	"""
+	@summary: Find closest reference sequence in the tree for every cluster.
+	@param tree: [str] Path to tree output from place_seqs.py.
+	@param biom_file: [str] path to BIOM input file.
+	@param clusters: [list] clusters insert in tree (find_clusters output).
+	@ref_file: [str] path to reference map file in order to have taxonomies informations.
+    """
 	biom=BiomIO.from_json(biom_file)
 	ref = open(ref_file,'r').readlines()
 	ID_to_taxo = {}
 
 	for li in ref[1:]:
 		li = li.strip().split('\t')
+		#ID of reference sequence to [sequence name, taxonomy]
 		ID_to_taxo[li[0]] = [li[1],li[2]]
 
 	FH_out = open(output,'wt')
@@ -59,17 +67,19 @@ def find_closests_ref_sequences(tree, biom_file, clusters, ref_file, output):
 		FH_out.write(cluster+'\t'+";".join(biom.get_observation_metadata(cluster)["blast_taxonomy"])+'\t')
 
 		node = t.search_nodes(name=cluster)[0]
-
+		#find distances from cluster to every reference sequences is sister group.
 		for sister_group in node.get_sisters():
 			leaf_to_dist = {}
 			for leaf in sister_group.get_leaves():
-				leaf_to_dist[leaf.name] = sister_group.get_distance(leaf)
+				leaf.name = leaf.name.replace('-cluster','')
+				# if sequence in sister group is not another cluster
+				if leaf.name not in clusters:
+					leaf_to_dist[leaf.name] = sister_group.get_distance(leaf)
 
 			for leaf in sorted(leaf_to_dist, key=leaf_to_dist.get):
-				if leaf not in clusters and leaf in ID_to_taxo:
+				if leaf in ID_to_taxo:
 					#cleaning leaf name
 					leaf = leaf.split('-')[0]
-
 					FH_out.write(leaf+'\t'+ID_to_taxo[leaf][0]+'\t'+ID_to_taxo[leaf][1]+'\t'+str(leaf_to_dist[leaf])+'\n')
 					break
 
@@ -99,5 +109,5 @@ if __name__ == "__main__":
 
 	clusters = find_clusters(args.tree_file)
 
-	find_closests_ref_sequences(args.tree_file, args.biom_file, clusters, args.ref_sequences, args.output)
+	find_closest_ref_sequences(args.tree_file, args.biom_file, clusters, args.ref_sequences, args.output)
 	
