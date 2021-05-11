@@ -34,7 +34,6 @@ from frogsUtils import *
 from frogsBiom import BiomIO
 from frogsSequenceIO import *
 
-
 ##################################################################################################################################################
 #
 # COMMAND LINES 
@@ -47,8 +46,8 @@ class PlaceSeqs(Cmd):
 	"""
 	def __init__(self, in_fasta, out_tree, placement_tool, categorie):
 		"""
-		@param in_fasta: [str] Path to input fasta file.
-		@param out_tree: [str] Path to output resulting tree file.
+		@param in_fasta: [str] Path to input fasta file of unaligned cluster sequences.
+		@param out_tree: [str] Path to output resulting tree file with insert clusters sequences.
 		@param placement_tool: [str] Placement tool to use (epa-ng or sepp).
 		@param ref_dir: [str] Directory containing reference sequence files.
 		"""
@@ -68,13 +67,15 @@ class PlaceSeqs(Cmd):
 
 class FindClosestsRefSequences(Cmd):
 	'''
-	@summary: find OTUs closests reference sequences into a reference tree.
+	@summary: find OTUs closest reference sequences into a reference tree.
 	'''
 	def __init__(self, in_tree, in_biom, out_summary):
 		'''
-		@param in_tree: [str] Path to place_seqs.py output tree.
+		@param in_tree: [str] Path to resulting tree file with insert clusters sequences.(place_seqs.py output).
 		@param in_biom: [str] Path to BIOM input file.
 		@summary out_summary: [str] Path to output summary file.
+		@note : Header of summary file:
+		Cluster	Taxonomy	Closest_ref_ID	Closest_ref_name	Closest_ref_taxonomy	Closest_ref_distance
 		'''
 		Cmd.__init__(self,
 			'find_closest_ref_sequence.py',
@@ -93,7 +94,7 @@ class FindClosestsRefSequences(Cmd):
 
 def convert_fasta(in_fasta, out_fasta):
 	"""
-	@summary: Change fasta headers to be compatible with picrust2
+	@summary: Change fasta headers to be compatible with picrust2. 
 	"""
 	FH_input = FastaIO(in_fasta)
 	FH_output = FastaIO(out_fasta,"wt" )
@@ -105,10 +106,10 @@ def convert_fasta(in_fasta, out_fasta):
 
 def excluded_sequence(tree_file, in_fasta, excluded):
 	"""
-	@summary: Returns the excluded sequence.
+	@summary: Returns the excluded sequence, not insert into reference tree.
 	@param fasta_file: [str] Path to the fasta file to process.
 	@param tree_file: [str] Path to the tree file to process.
-	@return: [int] The file of no aligned sequence.
+	@output: The file of no aligned sequence names.
 	"""
 	file = open(tree_file, "r")
 	line = file.readline()
@@ -126,6 +127,9 @@ def excluded_sequence(tree_file, in_fasta, excluded):
 
 
 def remove_excluded_fasta( in_fasta, out_fasta, excluded_seqs):
+	"""
+	@summary: Returns the fasta file without sequences not insert into reference tree.
+	"""
 	excluded = []
 	excluded_file = open(excluded_seqs)
 	if excluded_file is not None:
@@ -145,9 +149,7 @@ def remove_excluded_fasta( in_fasta, out_fasta, excluded_seqs):
 def remove_observations(input_biom, output_biom, excluded_seqs):
 	"""
 	@summary: Removes the specified list of observations.
-	@param removed_observations: [list] The names of the observations to remove.
-	@param input_biom: [str] The path to the input BIOM.
-	@param output_biom: [str] The path to the output BIOM.
+	@param excluded_seqs: [list] The names of the observations to remove.
 	"""
 	excluded = []
 	excluded_file = open(excluded_seqs)

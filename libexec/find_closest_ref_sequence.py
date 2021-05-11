@@ -59,7 +59,7 @@ def find_closest_ref_sequences(tree, biom_file, clusters, ref_file, output):
 		ID_to_taxo[li[0]] = [li[1],li[2]]
 
 	FH_out = open(output,'wt')
-	FH_out.write('Cluster\tBlast_taxonomy\tClosest_ref_ID\tClosest_ref_name\tClosest_ref_taxonomy\tClosest_ref_distance\n')
+	FH_out.write('Cluster\tTaxonomy\tClosest_ref_ID\tClosest_ref_name\tClosest_ref_taxonomy\tClosest_ref_distance\n')
 
 	t=ete.Tree(tree)
 
