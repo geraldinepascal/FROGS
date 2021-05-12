@@ -51,12 +51,12 @@ def find_closest_ref_sequences(tree, biom_file, clusters, ref_file, output):
 	if args.category == '16S':
 		ref_file = os.path.abspath(os.path.join(os.path.dirname(CURRENT_DIR), "tools/FPStep1/data/JGI_ID_to_taxonomy.txt"))
 	elif args.category == 'ITS':
-		ref_file = os.path.abspath(os.path.join(os.path.dirname(CURRENT_DIR), "tools/FPStep1/data/JGI_ID_ITS_to_taxonomy.txt_"))
+		ref_file = os.path.abspath(os.path.join(os.path.dirname(CURRENT_DIR), "tools/FPStep1/data/JGI_ID_ITS_to_taxonomy.txt"))
 	ref = open(ref_file,'r').readlines()
 	ID_to_taxo = {}
 
 	for li in ref[1:]:
-		print(li)
+
 		li = li.strip().split('\t')
 		#ID of reference sequence to [sequence name, taxonomy]
 		ID_to_taxo[li[0]] = [li[1],li[2]]
@@ -77,7 +77,7 @@ def find_closest_ref_sequences(tree, biom_file, clusters, ref_file, output):
 				leaf.name = leaf.name.replace('-cluster','')
 				# if sequence in sister group is not another cluster
 				if leaf.name not in clusters:
-					leaf_to_dist[leaf.name] = sister_group.get_distance(leaf)
+					leaf_to_dist[leaf.name] = t.get_distance(leaf,cluster)
 
 			for leaf in sorted(leaf_to_dist, key=leaf_to_dist.get):
 				if leaf in ID_to_taxo:

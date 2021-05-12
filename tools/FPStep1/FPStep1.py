@@ -158,8 +158,6 @@ def remove_observations(input_biom, output_biom, excluded_seqs):
 		for li in excluded_file:
 			excluded.append(li.strip())
 
-	print(excluded)
-
 	biom = BiomIO.from_json( input_biom )
 	biom.remove_observations( excluded )
 	BiomIO.write( output_biom, biom )
