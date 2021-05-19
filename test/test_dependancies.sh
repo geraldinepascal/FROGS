@@ -820,7 +820,7 @@ then
 	phyloseq_clustering.py  \
 	 --varExp EnvType \
 	 --rdata $expected_dir/16-phylo_import.Rdata --distance-matrix $expected_dir/unifrac.tsv \
-	 --html $out_dir/21-phylo_clutering.nb.html \
+	 --html $out_dir/21-phylo_clustering.nb.html \
 	 --log-file $out_dir/21-phylo_clustering.log
 
 	 

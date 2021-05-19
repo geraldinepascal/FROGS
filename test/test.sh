@@ -434,7 +434,7 @@ echo "Step phyloseq_clustering `date`"
 phyloseq_clustering.py  \
  --varExp EnvType \
  --rdata $out_dir/16-phylo_import.Rdata --distance-matrix $out_dir/unifrac.tsv \
- --html $out_dir/21-phylo_clutering.nb.html \
+ --html $out_dir/21-phylo_clustering.nb.html \
  --log-file $out_dir/21-phylo_clustering.log
 
  
