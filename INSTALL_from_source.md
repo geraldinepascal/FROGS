@@ -7,7 +7,7 @@ It has been tested on a Xubuntu 16.04 virtual machine.
 Here we suppose to install dependencies in the same directory as FROGS.
 
 ```bash
-version=3.2.2
+version=3.2.3
 DIR=`pwd`
 BIN_DIR=$DIR/bin
 mkdir -p $BIN_DIR

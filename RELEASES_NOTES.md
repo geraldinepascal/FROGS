@@ -1,3 +1,9 @@
+# v3.2.3 [2021-05]
+
+### Bug fixed
+
+* DESeq2 visualisation : correctly identify name of reference condition
+
 # v3.2.2 [2021-04]
 
 ### Modifications

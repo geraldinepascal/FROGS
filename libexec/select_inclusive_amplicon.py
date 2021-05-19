@@ -143,7 +143,7 @@ def process(params) :
     for observation in biom_in.get_observations():
         nb_obs += 1
         # reduce multiaffiliations list
-        if len(observation['metadata']["blast_affiliations"]) > 1:
+        if observation['metadata']["blast_affiliations"] is not None and len(observation['metadata']["blast_affiliations"]) > 1:
             nb_obs_multi_affi +=1
             new_blast_affi = select_smallest(observation['metadata']['blast_affiliations'], ref_size)
             if len(new_blast_affi) < len(observation['metadata']['blast_affiliations']):
