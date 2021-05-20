@@ -20,7 +20,7 @@ CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
 # PATH
 BIN_DIR = os.path.abspath(os.path.join(os.path.dirname(CURRENT_DIR), "libexec"))
 os.environ['PATH'] = BIN_DIR + os.pathsep + os.environ['PATH']
-# PYTHONPATH
+# PYTHONPAT
 LIB_DIR = os.path.abspath(os.path.join(os.path.dirname(CURRENT_DIR), "lib"))
 sys.path.append(LIB_DIR)
 if os.getenv('PYTHONPATH') is None: os.environ['PYTHONPATH'] = LIB_DIR
@@ -258,8 +258,8 @@ if __name__ == "__main__":
 	group_output = parser.add_argument_group('Outputs')
 	group_output.add_argument('-o', '--out_tree', default='out.tree', help='Tree output with insert sequences (format: newick).')
 	group_output.add_argument('-e', '--excluded', default='excluded.fasta', help='List of sequences not inserted in the tree.')
-	group_output.add_argument('-s', '--insert_sequences', default='place_seqs.fasta', help='sequences file without non insert sequences. (format: FASTA). [Default: %(default)s]')
-	group_output.add_argument('-m', '--insert_biom', default='place_seqs.biom', help='abundance file without chimera (format: BIOM)')
+	group_output.add_argument('-s', '--insert_sequences', default='FPStep1.fasta', help='sequences file without non insert sequences. (format: FASTA). [Default: %(default)s]')
+	group_output.add_argument('-m', '--insert_biom', default='FPStep1.biom', help='abundance file without chimera (format: BIOM)')
 	group_output.add_argument('-l', '--log_file', default=sys.stdout, help='List of commands executed.')
 	group_output.add_argument('-t', '--html', default='summary.html', help="Path to store resulting html file. [Default: %(default)s]" )
 	args = parser.parse_args()
@@ -289,11 +289,7 @@ if __name__ == "__main__":
 				os.remove(gz_ref_fasta)
 
 
-		try:
-			PlaceSeqs(tmp_fasta, args.out_tree, args.placement_tool, args.category).submit(args.log_file)
-
-		except subprocess.CalledProcessError:
-			print('\n\n#ERROR : epa-ng running out of memory. Please use placement tool sepp instead ( -t sepp )')
+		PlaceSeqs(tmp_fasta, args.out_tree, args.placement_tool, args.category).submit(args.log_file)
 
 		excluded_sequence(args.out_tree,args.input_fasta,args.excluded)
 		remove_excluded_fasta(args.input_fasta, args.insert_sequences, args.excluded)
