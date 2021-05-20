@@ -44,7 +44,7 @@ class PlaceSeqs(Cmd):
 	"""
 	@summary: place studies sequences (i.e. OTUs) into a reference tree
 	"""
-	def __init__(self, in_fasta, out_tree, placement_tool, category):
+	def __init__(self, in_fasta, out_tree, placement_tool, category, log):
 		"""
 		@param in_fasta: [str] Path to input fasta file of unaligned cluster sequences.
 		@param out_tree: [str] Path to output resulting tree file with insert clusters sequences.
@@ -59,7 +59,7 @@ class PlaceSeqs(Cmd):
 		Cmd.__init__(self,
 		'place_seqs.py',
 		'place OTU on reference tree.',
-		'--study_fasta ' + in_fasta + ' --out_tree ' + out_tree + ' --placement_tool ' + placement_tool + " --ref_dir " + category,
+		'--study_fasta ' + in_fasta + ' --out_tree ' + out_tree + ' --placement_tool ' + placement_tool + " --ref_dir " + category + " 2> " + log,
 		'--version')
 
 	def get_version(self):
@@ -69,7 +69,7 @@ class FindClosestsRefSequences(Cmd):
 	'''
 	@summary: find OTUs closest reference sequences into a reference tree.
 	'''
-	def __init__(self, in_tree, in_biom, category, out_summary):
+	def __init__(self, in_tree, in_biom, category, out_summary, log):
 		'''
 		@param in_tree: [str] Path to resulting tree file with insert clusters sequences.(place_seqs.py output).
 		@param in_biom: [str] Path to BIOM input file.
@@ -81,7 +81,7 @@ class FindClosestsRefSequences(Cmd):
 		Cmd.__init__(self,
 			'find_closest_ref_sequence.py',
 			'find OTUs closests reference sequences into a reference tree.',
-			'--tree_file ' + in_tree + ' --biom_file ' + in_biom + ' --category ' + category + ' --output ' + out_summary,
+			'--tree_file ' + in_tree + ' --biom_file ' + in_biom + ' --category ' + category + ' --output ' + out_summary + " 2> " + log,
 			'--version')
 
 	def get_version(self):
@@ -288,15 +288,16 @@ if __name__ == "__main__":
 				output.close()
 				os.remove(gz_ref_fasta)
 
-
-		PlaceSeqs(tmp_fasta, args.out_tree, args.placement_tool, args.category).submit(args.log_file)
+		tmp_place_seqs = tmp_files.add( 'tmp_place_seqs.log' )
+		PlaceSeqs(tmp_fasta, args.out_tree, args.placement_tool, args.category, tmp_place_seqs).submit(args.log_file)
 
 		excluded_sequence(args.out_tree,args.input_fasta,args.excluded)
 		remove_excluded_fasta(args.input_fasta, args.insert_sequences, args.excluded)
 		remove_observations(args.input_biom, args.insert_biom, args.excluded)
 
 		closest_ref_files = tmp_files.add( "closest_ref.tsv" )
-		FindClosestsRefSequences(args.out_tree, args.input_biom, args.category, closest_ref_files).submit(args.log_file)
+		tmp_find_closest_ref = tmp_files.add( 'tmp_find_closest_ref.log' )
+		FindClosestsRefSequences(args.out_tree, args.input_biom, args.category, closest_ref_files, tmp_find_closest_ref).submit(args.log_file)
 		write_summary(tmp_fasta, args.excluded, args.input_biom, closest_ref_files, args.category, args.html)
 
 	finally:
