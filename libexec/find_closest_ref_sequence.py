@@ -79,13 +79,14 @@ def find_closest_ref_sequences(tree, biom_file, clusters, ref_file, output):
 				if leaf.name not in clusters:
 					leaf_to_dist[leaf.name] = t.get_distance(leaf,cluster)
 
-			for leaf in sorted(leaf_to_dist, key=leaf_to_dist.get):
-				if leaf in ID_to_taxo:
-					#cleaning leaf name
-					leaf = leaf.split('-')[0]
-					FH_out.write(leaf+'\t'+ID_to_taxo[leaf][0]+'\t'+ID_to_taxo[leaf][1]+'\t'+str(leaf_to_dist[leaf])+'\n')
-					break
+			best_leaf = sorted(leaf_to_dist, key=leaf_to_dist.get)[0]
+			if best_leaf in ID_to_taxo:
+				#cleaning leaf name
+				best_leaf = best_leaf.split('-')[0]
+				FH_out.write(best_leaf+'\t'+ID_to_taxo[best_leaf][0]+'\t'+ID_to_taxo[best_leaf][1]+'\t'+str(leaf_to_dist[best_leaf])+'\n')
 
+			else:
+				FH_out.write(' \t \t \t \t \n')
 ##################################################################################################################################################
 #
 # MAIN
