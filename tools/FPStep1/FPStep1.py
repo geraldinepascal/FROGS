@@ -85,7 +85,28 @@ class FindClosestsRefSequences(Cmd):
 			'--version')
 
 	def get_version(self):
-		return Cmd.get_version(self, 'stdout').strip()	
+		return Cmd.get_version(self, 'stdout').strip()
+
+class RemoveSeqsBiomFasta(Cmd):
+	'''
+	@summary: Create new biom and fasta file without not insert sequences in tree.
+	'''
+	def __init__(self, in_fasta, in_biom, out_fasta, out_biom, excluded_file):
+		'''
+		@param in_fasta: [str] Path to fasta input file.
+		@param in_biom: [str] Path to BIOM input file.
+		@param out_fasta: [str] Path to fasta output file.
+		@param out_biom: [str] Path to BIOM output file.
+		@param excluded_file: [str] Path to not insert sequences file (one Cluster ID per line).
+		'''
+		Cmd.__init__(self,
+			'remove_seqs_biom_fasta.py',
+			'remove not insert sequences in tree from fasta and biom file.',
+			'--input_biom ' + in_biom + ' --input_fasta ' + in_fasta + ' --excluded_sequences ' + excluded_file + ' --output_biom ' + out_biom + " --output_fasta " + out_fasta,
+			'--version')
+
+	def get_version(self):
+		return Cmd.get_version(self, 'stdout').strip()
 
 ##################################################################################################################################################
 #
@@ -218,7 +239,7 @@ if __name__ == "__main__":
 	group_output = parser.add_argument_group('Outputs')
 	group_output.add_argument('-o', '--out_tree', default='out.tree', help='Tree output with insert sequences (format: newick).')
 	group_output.add_argument('-e', '--excluded', default='excluded.txt', help='List of sequences not inserted in the tree.')
-	group_output.add_argument('-s', '--insert_sequences', default='FPStep1.fasta', help='sequences file without non insert sequences. (format: FASTA). [Default: %(default)s]')
+	group_output.add_argument('-s', '--insert_fasta', default='FPStep1.fasta', help='sequences file without non insert sequences. (format: FASTA). [Default: %(default)s]')
 	group_output.add_argument('-m', '--insert_biom', default='FPStep1.biom', help='abundance file without non insert sequences. (format: BIOM)')
 	group_output.add_argument('-l', '--log_file', default=sys.stdout, help='List of commands executed.')
 	group_output.add_argument('-t', '--html', default='summary.html', help="Path to store resulting html file. [Default: %(default)s]" )
@@ -253,8 +274,7 @@ if __name__ == "__main__":
 
 		excluded_sequence(args.out_tree,args.input_fasta,args.excluded)
 
-		remove_excluded_fasta(args.input_fasta, args.insert_sequences, args.excluded)
-		remove_excluded_biom(excluded, args.input_biom, args.insert_biom)
+		RemoveSeqsBiomFasta(tmp_fasta, args.input_biom, args.insert_fasta, args.insert_biom, args.excluded).submit(args.log_file)
 
 		closest_ref_files = tmp_files.add( "closest_ref.tsv" )
 		tmp_find_closest_ref = tmp_files.add( 'tmp_find_closest_ref.log' )

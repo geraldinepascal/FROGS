@@ -81,7 +81,7 @@ if __name__ == "__main__":
 	group_input = parser.add_argument_group( 'Inputs' ) # Outputs
 	group_input.add_argument( '-b', '--input_biom', required=True, help='Path to the abundance input file (format: biom).' )
 	group_input.add_argument( '-i', '--input_fasta', required=True, help='Path to the sequences input file (format: fasta).' )
-	group_input.add_argument( '-e', '--excluded_observations', required=True, help='Path to the excluded observations IDs. Must be one ID per line.')
+	group_input.add_argument( '-e', '--excluded_sequences', required=True, help='Path to the excluded observations IDs. Must be one ID per line.')
 	# Outputs
 	group_output = parser.add_argument_group( 'Outputs' ) # Outputs
 	group_output.add_argument( '-o', '--output_biom', default='without_excluded_clusters.biom', help='Path to the Biom output file (format: biom).')
@@ -89,7 +89,7 @@ if __name__ == "__main__":
 	args = parser.parse_args()
 	prevent_shell_injections(args)
 
-	excluded = find_excluded(args.excluded_observations)
+	excluded = find_excluded(args.excluded_sequences)
 
 	remove_excluded_fasta(args.input_fasta, args.output_fasta, excluded)
 	remove_excluded_biom(args.input_biom, args.output_biom, excluded)
