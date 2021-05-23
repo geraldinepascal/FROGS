@@ -126,43 +126,6 @@ def excluded_sequence(tree_file, in_fasta, excluded):
 	FH_input.close()
 	excluded.close()
 
-
-def remove_excluded_fasta( in_fasta, out_fasta, excluded_seqs):
-	"""
-	@summary: Returns the fasta file without sequences not insert into reference tree.
-	"""
-	excluded = []
-	excluded_file = open(excluded_seqs)
-	if excluded_file is not None:
-		for li in excluded_file:
-			excluded.append(li.strip())
-
-	FH_input = FastaIO( in_fasta )
-	FH_output = FastaIO( out_fasta, "wt")
-	for record in FH_input:
-		real_id = record.id.split()[0]
-
-		if real_id not in excluded:
-			FH_output.write(record)
-	FH_input.close()
-	FH_output.close()
-
-def remove_observations(input_biom, output_biom, excluded_seqs):
-	"""
-	@summary: Removes the specified list of observations.
-	@param excluded_seqs: [list] The names of the observations to remove.
-	"""
-	excluded = []
-	excluded_file = open(excluded_seqs,'r').readlines()
-	if excluded_file is not None:
-		for li in excluded_file:
-			excluded.append(li.strip())
-
-	biom = BiomIO.from_json( input_biom )
-	biom.remove_observations( excluded )
-	BiomIO.write( output_biom, biom )
-
-
 def write_summary(in_fasta, align_out, biomfile, closest_ref_file, category, summary_file):
 	"""
 	@summary: Writes the process summary in one html file.
@@ -220,10 +183,8 @@ def write_summary(in_fasta, align_out, biomfile, closest_ref_file, category, sum
 	summary_info['nb_kept'] = number_otu_all - summary_info['nb_removed']
 	summary_info['abundance_kept'] = number_abundance_all - summary_info['abundance_removed']
 
-
 	FH_summary_tpl = open( os.path.join(CURRENT_DIR, "FPStep1_tpl.html") )
 	FH_summary_out = open( summary_file, "wt" )
-
 
 	for line in FH_summary_tpl:
 		if "###DETECTION_CATEGORIES###" in line:
@@ -236,7 +197,6 @@ def write_summary(in_fasta, align_out, biomfile, closest_ref_file, category, sum
 
 	FH_summary_out.close()
 	FH_summary_tpl.close()
-
 
 ##################################################################################################################################################
 #
@@ -257,9 +217,9 @@ if __name__ == "__main__":
 	# Outputs
 	group_output = parser.add_argument_group('Outputs')
 	group_output.add_argument('-o', '--out_tree', default='out.tree', help='Tree output with insert sequences (format: newick).')
-	group_output.add_argument('-e', '--excluded', default='excluded.fasta', help='List of sequences not inserted in the tree.')
+	group_output.add_argument('-e', '--excluded', default='excluded.txt', help='List of sequences not inserted in the tree.')
 	group_output.add_argument('-s', '--insert_sequences', default='FPStep1.fasta', help='sequences file without non insert sequences. (format: FASTA). [Default: %(default)s]')
-	group_output.add_argument('-m', '--insert_biom', default='FPStep1.biom', help='abundance file without chimera (format: BIOM)')
+	group_output.add_argument('-m', '--insert_biom', default='FPStep1.biom', help='abundance file without non insert sequences. (format: BIOM)')
 	group_output.add_argument('-l', '--log_file', default=sys.stdout, help='List of commands executed.')
 	group_output.add_argument('-t', '--html', default='summary.html', help="Path to store resulting html file. [Default: %(default)s]" )
 	args = parser.parse_args()
@@ -292,8 +252,9 @@ if __name__ == "__main__":
 		PlaceSeqs(tmp_fasta, args.out_tree, args.placement_tool, args.category, tmp_place_seqs).submit(args.log_file)
 
 		excluded_sequence(args.out_tree,args.input_fasta,args.excluded)
+
 		remove_excluded_fasta(args.input_fasta, args.insert_sequences, args.excluded)
-		remove_observations(args.input_biom, args.insert_biom, args.excluded)
+		remove_excluded_biom(excluded, args.input_biom, args.insert_biom)
 
 		closest_ref_files = tmp_files.add( "closest_ref.tsv" )
 		tmp_find_closest_ref = tmp_files.add( 'tmp_find_closest_ref.log' )
