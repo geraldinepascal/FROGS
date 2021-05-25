@@ -39,27 +39,42 @@ def find_clusters(tree):
 	list_cluster = re.findall("(Cluster_[0-9]+)", fi)
 	return list_cluster
 
-def find_closest_ref_sequences(tree, biom_file, clusters, ref_file, output):
+def find_closest_ref_sequences(tree, biom_file, fasta_file, clusters, ref_file, output):
 	"""
 	@summary: Find closest reference sequence in the tree for every cluster.
 	@param tree: [str] Path to tree output from place_seqs.py.
 	@param biom_file: [str] path to BIOM input file.
+	@param fasta_file: [str] path to fasta input file.
 	@param clusters: [list] clusters insert in tree (find_clusters output).
 	@ref_file: [str] path to reference map file in order to have taxonomies informations.
     """
 	biom=BiomIO.from_json(biom_file)
 	if args.category == '16S':
 		ref_file = os.path.abspath(os.path.join(os.path.dirname(CURRENT_DIR), "tools/FPStep1/data/JGI_ID_to_taxonomy.txt"))
+		picrust_aln = os.path.join(os.path.dirname(os.__file__),'site-packages/picrust2/default_files/prokaryotic/pro_ref/pro_ref.fna')
+
 	elif args.category == 'ITS':
 		ref_file = os.path.abspath(os.path.join(os.path.dirname(CURRENT_DIR), "tools/FPStep1/data/JGI_ID_ITS_to_taxonomy.txt"))
+		picrust_aln = os.path.join(os.path.dirname(os.__file__),'site-packages/picrust2/default_files/fungi/fungi_ITS/fungi_ITS.fna')
+	
 	ref = open(ref_file,'r').readlines()
 	ID_to_taxo = {}
-
 	for li in ref[1:]:
-
 		li = li.strip().split('\t')
 		#ID of reference sequence to [sequence name, taxonomy]
 		ID_to_taxo[li[0]] = [li[1],li[2]]
+
+	ref_seqs = {}
+	FH_picrust2_aln = FastaIO( picrust_aln )
+	for record in FH_picrust2_aln:
+		record.id = record.id.split('-')[0]
+		record.string = record.string.replace('-','').upper()
+		ref_seqs[record.id] = record.string
+
+	cluster_to_seq = {}
+	FH_input = FastaIO( fasta_file )
+	for record in FH_input:
+		cluster_to_seq[record.id] = record.string
 
 	FH_out = open(output,'wt')
 	FH_out.write('Cluster\tTaxonomy\tClosest_ref_ID\tClosest_ref_name\tClosest_ref_taxonomy\tClosest_ref_distance\n')
@@ -83,7 +98,10 @@ def find_closest_ref_sequences(tree, biom_file, clusters, ref_file, output):
 			if best_leaf in ID_to_taxo:
 				#cleaning leaf name
 				best_leaf = best_leaf.split('-')[0]
-				FH_out.write(best_leaf+'\t'+ID_to_taxo[best_leaf][0]+'\t'+ID_to_taxo[best_leaf][1]+'\t'+str(leaf_to_dist[best_leaf])+'\n')
+				if cluster_to_seq[cluster] in ref_seqs[best_leaf]:
+					FH_out.write(best_leaf+'\t'+ID_to_taxo[best_leaf][0]+'\t'+ID_to_taxo[best_leaf][1]+'\tSame sequence\n')
+				else:
+					FH_out.write(best_leaf+'\t'+ID_to_taxo[best_leaf][0]+'\t'+ID_to_taxo[best_leaf][1]+'\t'+str(leaf_to_dist[best_leaf])+'\n')
 
 			else:
 				FH_out.write(' \t \t \t \t \n')
@@ -100,7 +118,8 @@ if __name__ == "__main__":
 	# Inputs
 	group_input = parser.add_argument_group('Inputs')
 	group_input.add_argument('-t', '--tree_file', required=True, help='Tree file (output of place_seqs.py')
-	group_input.add_argument('-b', '--biom_file', required=True, help='Biom file.')
+	group_input.add_argument('-f', '--fasta_file', required=True, help='Input fasta file.')
+	group_input.add_argument('-b', '--biom_file', required=True, help='Input biom file.')
 	group_input.add_argument('-c', '--category', choices=['16S', 'ITS'], default='16S', help='Specifies which category 16S or ITS')
 	# Outputs
 	group_output = parser.add_argument_group('Outputs')
@@ -112,5 +131,5 @@ if __name__ == "__main__":
 
 	clusters = find_clusters(args.tree_file)
 
-	find_closest_ref_sequences(args.tree_file, args.biom_file, clusters, args.category, args.output)
+	find_closest_ref_sequences(args.tree_file, args.biom_file, args.fasta_file, clusters, args.category, args.output)
 	

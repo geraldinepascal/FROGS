@@ -69,7 +69,7 @@ class FindClosestsRefSequences(Cmd):
 	'''
 	@summary: find OTUs closest reference sequences into a reference tree.
 	'''
-	def __init__(self, in_tree, in_biom, category, out_summary, log):
+	def __init__(self, in_tree, in_biom, in_fasta, category, out_summary, log):
 		'''
 		@param in_tree: [str] Path to resulting tree file with insert clusters sequences.(place_seqs.py output).
 		@param in_biom: [str] Path to BIOM input file.
@@ -81,7 +81,7 @@ class FindClosestsRefSequences(Cmd):
 		Cmd.__init__(self,
 			'find_closest_ref_sequence.py',
 			'find OTUs closests reference sequences into a reference tree.',
-			'--tree_file ' + in_tree + ' --biom_file ' + in_biom + ' --category ' + category + ' --output ' + out_summary + " 2> " + log,
+			'--tree_file ' + in_tree + ' --biom_file ' + in_biom + ' --fasta_file ' + in_fasta + ' --category ' + category + ' --output ' + out_summary + " 2> " + log,
 			'--version')
 
 	def get_version(self):
@@ -278,7 +278,7 @@ if __name__ == "__main__":
 
 		closest_ref_files = tmp_files.add( "closest_ref.tsv" )
 		tmp_find_closest_ref = tmp_files.add( 'tmp_find_closest_ref.log' )
-		FindClosestsRefSequences(args.out_tree, args.input_biom, args.category, closest_ref_files, tmp_find_closest_ref).submit(args.log_file)
+		FindClosestsRefSequences(args.out_tree, args.input_biom, tmp_fasta, args.category, closest_ref_files, tmp_find_closest_ref).submit(args.log_file)
 		write_summary(tmp_fasta, args.excluded, args.input_biom, closest_ref_files, args.category, args.html)
 
 	finally:
