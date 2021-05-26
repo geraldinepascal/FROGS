@@ -237,12 +237,12 @@ if __name__ == "__main__":
 	group_input.add_argument('-p', '--placement_tool', default='epa-ng', help='Placement tool to use when placing sequences into reference tree. One of "epa-ng" or "sepp" must be input')
 	# Outputs
 	group_output = parser.add_argument_group('Outputs')
-	group_output.add_argument('-o', '--out_tree', default='out.tree', help='Tree output with insert sequences (format: newick).')
-	group_output.add_argument('-e', '--excluded', default='excluded.txt', help='List of sequences not inserted in the tree.')
+	group_output.add_argument('-o', '--out_tree', default='FPStep1.tree', help='Tree output with insert sequences (format: newick).')
+	group_output.add_argument('-e', '--excluded', default='FPSTep1_excluded.txt', help='List of sequences not inserted in the tree.')
 	group_output.add_argument('-s', '--insert_fasta', default='FPStep1.fasta', help='sequences file without non insert sequences. (format: FASTA). [Default: %(default)s]')
 	group_output.add_argument('-m', '--insert_biom', default='FPStep1.biom', help='abundance file without non insert sequences. (format: BIOM)')
 	group_output.add_argument('-l', '--log_file', default=sys.stdout, help='List of commands executed.')
-	group_output.add_argument('-t', '--html', default='summary.html', help="Path to store resulting html file. [Default: %(default)s]" )
+	group_output.add_argument('-t', '--html', default='FPStep1_summary.html', help="Path to store resulting html file. [Default: %(default)s]" )
 	args = parser.parse_args()
 	prevent_shell_injections(args)
 
