@@ -77,7 +77,7 @@ def find_closest_ref_sequences(tree, biom_file, fasta_file, clusters, ref_file, 
 		cluster_to_seq[record.id] = record.string
 
 	FH_out = open(output,'wt')
-	FH_out.write('Cluster\tTaxonomy\tClosest_ref_ID\tClosest_ref_name\tClosest_ref_taxonomy\tClosest_ref_distance\n')
+	FH_out.write('Cluster\tTaxonomy\tClosest_ref_ID\tClosest_ref_name\tClosest_ref_taxonomy\tClosest_ref_distance\nComment')
 
 	t=ete.Tree(tree)
 
@@ -98,10 +98,20 @@ def find_closest_ref_sequences(tree, biom_file, fasta_file, clusters, ref_file, 
 			if best_leaf in ID_to_taxo:
 				#cleaning leaf name
 				best_leaf = best_leaf.split('-')[0]
+				comment = "/"
+				genus_picrust = ID_to_taxo[best_leaf][1].split(';')[-2]
+				species_picrust = " ".join(ID_to_taxo[best_leaf][1].split(';')[-1].split(' ')[0:2])
+				genus_frogs = biom.get_observation_metadata(cluster)["blast_taxonomy"][-2]
+				species_frogs = biom.get_observation_metadata(cluster)["blast_taxonomy"][-1]
+				if genus_picrust == genus_frogs and species_picrust == species_frogs:
+					comment = "identical taxonomy"
+				# if 100% identity on OTU length against reference
 				if cluster_to_seq[cluster] in ref_seqs[best_leaf]:
-					FH_out.write(best_leaf+'\t'+ID_to_taxo[best_leaf][0]+'\t'+ID_to_taxo[best_leaf][1]+'\tSame sequence\n')
-				else:
-					FH_out.write(best_leaf+'\t'+ID_to_taxo[best_leaf][0]+'\t'+ID_to_taxo[best_leaf][1]+'\t'+str(leaf_to_dist[best_leaf])+'\n')
+					if comment == "/":
+						comment = "identical sequence"
+					else:
+						comment+=" & identical taxonomy"
+				FH_out.write(best_leaf+'\t'+ID_to_taxo[best_leaf][0]+'\t'+ID_to_taxo[best_leaf][1]+'\t'+str(leaf_to_dist[best_leaf])+'\t'+str(comment)+'\n')
 
 			else:
 				FH_out.write(' \t \t \t \t \n')
