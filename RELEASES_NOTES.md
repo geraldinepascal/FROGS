@@ -1,5 +1,10 @@
 # v3.2.3 [2021-05]
 
+### Installation note:
+
+When installing FROGS and its dependencies via conda, please refer de `frogs-conda-requirements.yaml` available on the master branch of the github repository ( https://github.com/geraldinepascal/FROGS/blob/master/frogs-conda-requirements.yaml ) instead of the one available in the release archive.
+Indeed we may update dependencies versions without changing anything to the FROGS code so whithout making a new release.
+
 ### Bug fixed
 
 * DESeq2 visualisation : correctly identify name of reference condition

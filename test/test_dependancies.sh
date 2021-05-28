@@ -2,8 +2,8 @@
 
 nb_cpu=2
 java_mem=1
-out_dir=res_conda_env_artifacts
-expected_dir=res
+out_dir=res_3.2.3_ter
+expected_dir=res_3.2.3
 run_programs=true	## if true lance les python sinon, fait uniquement les comparatifs de résultats
 
 ## Set ENV
@@ -149,50 +149,13 @@ then
 	echo "difference in clustering: 02-clustering_fastidious_compo.tsv " >&2
 fi
 
-echo "Step clustering denoising `date`"
-
-if $run_programs
-then
-	clustering.py \
-	 --distance 3 \
-	 --denoising \
-	 --input-fasta $expected_dir/01-prepro-vsearch.fasta \
-	 --input-count $expected_dir/01-prepro-vsearch.tsv \
-	 --output-biom $out_dir/02-clustering.biom \
-	 --output-fasta $out_dir/02-clustering.fasta \
-	 --output-compo $out_dir/02-clustering_compo.tsv \
-	 --log-file $out_dir/02-clustering.log \
-	 --nb-cpus $nb_cpu
-
-	if [ $? -ne 0 ]
-	then
-		echo "Error in clustering denoising" >&2
-		exit 1;
-	fi
-fi
-
-if diff_line $out_dir/02-clustering.fasta $expected_dir/02-clustering.fasta 0
-then
-	echo "difference in clustering: 02-clustering.fasta " >&2
-fi
-
-if diff_size $out_dir/02-clustering.biom $expected_dir/02-clustering.biom 0
-then
-	echo "difference in clustering: 02-clustering.biom " >&2
-fi
-
-if diff_line $out_dir/02-clustering_compo.tsv $expected_dir/02-clustering_compo.tsv 0
-then
-	echo "difference in clustering: 02-clustering_compo.tsv " >&2
-fi
-
 echo "Step remove_chimera `date`"
 
 if $run_programs
 then
 	remove_chimera.py \
-	 --input-fasta $expected_dir/02-clustering.fasta \
-	 --input-biom $expected_dir/02-clustering.biom \
+	 --input-fasta $expected_dir/02-clustering_fastidious.fasta \
+	 --input-biom $expected_dir/02-clustering_fastidious.biom \
 	 --non-chimera $out_dir/03-chimera.fasta \
 	 --out-abundance $out_dir/03-chimera.biom \
 	 --summary $out_dir/03-chimera.html \
@@ -668,6 +631,16 @@ then
 fi
 
 # mafft produit des résultats différents même avec la même version. Faire des tests individuel pour fasttree et phangorn
+# mafft_aln=`ls $out_dir/*_mafft_aligned.fasta`
+# pref=`echo $mafft_aln | sed 's/_mafft_aligned.fasta//'`
+# FastTree -nt -gtr $mafft_aln > ${prefix}_fasttree.nwk2 2> ${prefix}_fasttree.stderr2
+# ls -l ${prefix}_fasttree.nwk*
+# sdiff -s ${prefix}_fasttree.nwk* |wc -l
+# root_tree.R ${prefix}_fasttree.nwk2 $out_dir/15-tree-mafft.nwk2
+# ls -l res_3.2.3-r4/15-tree-mafft.nwk*
+# sdiff -s res_3.2.3-r4/15-tree-mafft.nwk* |wc -l
+
+
 if diff_size $out_dir/15-tree-mafft.nwk $expected_dir/15-tree-mafft.nwk 10
 then
 	echo "Difference in tree : 15-tree-mafft.nwk" >&2
@@ -705,8 +678,9 @@ fi
 
 if diff_size $out_dir/16-phylo_import.Rdata $expected_dir/16-phylo_import.Rdata 5
 then
-	echo "Difference in phyloseq_import_data : 16-phylo_import.Rdata" >&2
+	echo "Difference in size phyloseq_import_data : 16-phylo_import.Rdata" >&2
 fi
+
 
 echo "Step phyloseq_composition `date`"
 
@@ -831,9 +805,9 @@ then
 	fi
 fi
 
-if diff_line $out_dir/21-phylo_clutering.nb.html $expected_dir/21-phylo_clutering.nb.html 0
+if diff_line $out_dir/21-phylo_clustering.nb.html $expected_dir/21-phylo_clustering.nb.html 0
 then
-	echo "Difference in phyloseq_clustering : 21-phylo_clutering.nb.html" >&2
+	echo "Difference in phyloseq_clustering : 21-phylo_clustering.nb.html" >&2
 fi
 
 echo "Step phyloseq_manova `date`"
@@ -902,14 +876,17 @@ then
 	fi
 fi
 
-grep otu_01582 $out_dir/24-deseq2_visualisation.nb.html | sed 's/],/],\n/g' > tmp
-grep otu_01582 $expected_dir/24-deseq2_visualisation.nb.html | sed 's/],/],\n/g'  > tmp1
+# récupérer les tableau CSV via la page HTML
+# et faire sdiff
 
-if diff_line tmp tmp1 1
+grep otu_01582 $out_dir/24-deseq2_visualisation.nb.html | sed 's/],/],\n/g' > /tmp/tmp
+grep otu_01582 $expected_dir/24-deseq2_visualisation.nb.html | sed 's/],/],\n/g'  > /tmp/tmp1
+
+if diff_line /tmp/tmp /tmp/tmp1 1
 then
 	echo "Difference in deseq2_visualisation : 24-deseq2_visualisation.nb.html  " >&2
 fi
 
-rm tmp tmp1
+rm /tmp/tmp /tmp/tmp1
 echo "Completed with success"
 
