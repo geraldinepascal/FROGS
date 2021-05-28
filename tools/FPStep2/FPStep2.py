@@ -32,8 +32,9 @@ if os.getenv('PYTHONPATH') is None: os.environ['PYTHONPATH'] = LIB_DIR
 else: os.environ['PYTHONPATH'] = os.environ['PYTHONPATH'] + os.pathsep + LIB_DIR
 # Default table PATH
 ITS_PATH = os.path.join(os.path.dirname(os.__file__), "site-packages/picrust2/default_files/fungi/ITS_counts.txt.gz")
-EC_PATH = os.path.join(os.path.dirname(os.__file__), "site-packages/picrust2/default_files/fungi/ec_ITS_counts.txt.gz")
-
+ITS_EC_PATH = os.path.join(os.path.dirname(os.__file__), "site-packages/picrust2/default_files/fungi/ec_ITS_counts.txt.gz")
+_18S_PATH = os.path.join(os.path.dirname(os.__file__), "site-packages/picrust2/default_files/fungi/18S_counts.txt.gz")
+_18S_EC_PATH = os.path.join(os.path.dirname(os.__file__), "site-packages/picrust2/default_files/fungi/ec_18S_counts.txt.gz")
 #import frogs
 from frogsUtils import *
 from frogsSequenceIO import * 
@@ -83,7 +84,7 @@ class HspFunction(Cmd):
 		if category == "16S":
 			input_function = " -i " + function
 		elif category == "ITS":
-			input_function = " --observed_trait_table " + EC_PATH
+			input_function = " --observed_trait_table " + ITS_EC_PATH
 
 		Cmd.__init__(self,
 				 'hsp.py',
@@ -203,6 +204,7 @@ if __name__ == "__main__":
 		args.output_marker = args.category + "_nsti_predicted.tsv.gz"
 
 	tmp_files=TmpFiles(os.path.split(args.output_marker)[0])
+	functions_files = []
 
 	try:
 		Logger.static_write(args.log_file, "## Application\nSoftware :" + sys.argv[0] + " (version : " + str(__version__) + ")\nCommand : " + " ".join(sys.argv) + "\n\n")
@@ -224,8 +226,7 @@ if __name__ == "__main__":
 			else:
 				suffix = args.output_function
 				cur_output_function = function + "_" + suffix
+			functions_files.append(cur_output_function)
 			Logger.static_write(args.log_file, '\n\nRunning ' + function + ' functions prediction.\n')
 			HspFunction(args.category, function, args.tree, cur_output_function, tmp_hsp_function).submit(args.log_file)
-	finally:
-		if not args.debug:
-			tmp_files.deleteAll()
+
