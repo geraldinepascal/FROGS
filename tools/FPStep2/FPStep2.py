@@ -211,25 +211,21 @@ if __name__ == "__main__":
 		HspMarker(args.category, args.tree, args.output_marker, tmp_hsp_marker).submit(args.log_file)
 
 		tmp_hsp_function = tmp_files.add( 'tmp_hsp_function.log' )
+		# if the user add mulitple functions prediction
 		if "," in args.function:
 			functions = args.function.split(',')
-			for function in functions:
-				#default output names 
-				if args.output_function is None:
-					args.output_function = function + "_predicted.tsv.gz"
-				else:
-					args.output_function = function + "_" + args.output_function
-				Logger.static_write(args.log_file, '\n\nRunning ' + function + ' functions prediction.\n')
-				HspFunction(args.category, function, args.tree, args.output_function, tmp_hsp_function).submit(args.log_file)
 		else:
+			functions = [args.function]
+		for function in functions:
 			#default output names 
 			if args.output_function is None:
-				args.output_function = args.function+ "_predicted.tsv.gz"
+				suffix = "_predicted.tsv.gz"
+				cur_output_function = function + suffix
 			else:
-				args.output_function = args.function + "_" + args.output_function
-			Logger.static_write(args.log_file, '\n\nRunning ' + args.function + ' functions prediction.\n')
-			HspFunction(args.category, args.function, args.tree, args.output_function, tmp_hsp_function).submit(args.log_file)
-
+				suffix = args.output_function
+				cur_output_function = function + "_" + suffix
+			Logger.static_write(args.log_file, '\n\nRunning ' + function + ' functions prediction.\n')
+			HspFunction(args.category, function, args.tree, cur_output_function, tmp_hsp_function).submit(args.log_file)
 	finally:
 		if not args.debug:
 			tmp_files.deleteAll()
