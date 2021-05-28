@@ -178,7 +178,7 @@ if __name__ == "__main__":
 	# Inputs
 	group_input = parser.add_argument_group( 'Inputs' )
 	group_input.add_argument('-c', '--category', choices=['16S', 'ITS'], default='16S', help='Specifies which category 16S or ITS')
-	group_input.add_argument('-f', '--function', choices=['COG', 'EC', 'KO', 'PFAM', 'TIGRFAM', 'PHENO'], default=None,help='Specifies which default trait table should be used. (if ITS category used : only EC available')
+	group_input.add_argument('-f', '--function', default=None,help="Specifies which default trait table should be used ('COG', 'EC', 'KO', 'PFAM', 'TIGRFAM' or 'PHENO'). To run the command with several functions, separate the functions with commas (ex: COG,KO,PFAM) (for ITS or 18S : only EC available")
 	group_input.add_argument('-t', '--tree', required=True, type=str, help='FPStep1 output tree in newick format containing both study sequences (i.e. ASVs or OTUs) and reference sequences.')
 	group_input.add_argument('-s', '--hsp_method', default='mp', choices=['mp', 'emp_prob', 'pic', 'scp', 'subtree_average'], help='HSP method to use.' +'"mp": predict discrete traits using max parsimony. ''"emp_prob": predict discrete traits based on empirical ''state probabilities across tips. "subtree_average": ''predict continuous traits using subtree averaging. ' '"pic": predict continuous traits with phylogentic ' 'independent contrast. "scp": reconstruct continuous ''traits using squared-change parsimony (default: ''%(default)s).')
 	# Output
@@ -198,11 +198,9 @@ if __name__ == "__main__":
 		Logger.static_write(args.log_file, '\n\n#WARNING : --function parameter: only EC available with --category set to ITS.\n')
 		Logger.static_write(args.log_file, '\n--function parameter set to EC.\n\n')
 		args.function = "EC"
-	# default output files names
+	# default output marker file name
 	if args.output_marker is None:
 		args.output_marker = args.category + "_nsti_predicted.tsv.gz"
-	if args.output_function is None:
-		args.output_function = args.function + "_predicted.tsv.gz"
 
 	tmp_files=TmpFiles(os.path.split(args.output_marker)[0])
 
@@ -211,8 +209,26 @@ if __name__ == "__main__":
 
 		tmp_hsp_marker = tmp_files.add( 'tmp_hsp_marker.log' )
 		HspMarker(args.category, args.tree, args.output_marker, tmp_hsp_marker).submit(args.log_file)
+
 		tmp_hsp_function = tmp_files.add( 'tmp_hsp_function.log' )
-		HspFunction(args.category, args.function, args.tree, args.output_function, tmp_hsp_function).submit(args.log_file)
+		if "," in args.function:
+			functions = args.function.split(',')
+			for function in functions:
+				#default output names 
+				if args.output_function is None:
+					args.output_function = function + "_predicted.tsv.gz"
+				else:
+					args.output_function = function + "_" + args.output_function
+				Logger.static_write(args.log_file, '\n\nRunning ' + function + ' functions prediction.\n')
+				HspFunction(args.category, function, args.tree, args.output_function, tmp_hsp_function).submit(args.log_file)
+		else:
+			#default output names 
+			if args.output_function is None:
+				args.output_function = args.function+ "_predicted.tsv.gz"
+			else:
+				args.output_function = args.function + "_" + args.output_function
+			Logger.static_write(args.log_file, '\n\nRunning ' + args.function + ' functions prediction.\n')
+			HspFunction(args.category, args.function, args.tree, args.output_function, tmp_hsp_function).submit(args.log_file)
 
 	finally:
 		if not args.debug:

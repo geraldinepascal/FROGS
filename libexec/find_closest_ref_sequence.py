@@ -77,7 +77,7 @@ def find_closest_ref_sequences(tree, biom_file, fasta_file, clusters, ref_file, 
 		cluster_to_seq[record.id] = record.string
 
 	FH_out = open(output,'wt')
-	FH_out.write('Cluster\tTaxonomy\tClosest_ref_ID\tClosest_ref_name\tClosest_ref_taxonomy\tClosest_ref_distance\nComment')
+	FH_out.write('Cluster\tTaxonomy\tClosest_ref_ID\tClosest_ref_name\tClosest_ref_taxonomy\tClosest_ref_distance\tComment')
 
 	t=ete.Tree(tree)
 
@@ -110,7 +110,7 @@ def find_closest_ref_sequences(tree, biom_file, fasta_file, clusters, ref_file, 
 					if comment == "/":
 						comment = "identical sequence"
 					else:
-						comment+=" & identical taxonomy"
+						comment+=";identical sequence"
 				FH_out.write(best_leaf+'\t'+ID_to_taxo[best_leaf][0]+'\t'+ID_to_taxo[best_leaf][1]+'\t'+str(leaf_to_dist[best_leaf])+'\t'+str(comment)+'\n')
 
 			else:
