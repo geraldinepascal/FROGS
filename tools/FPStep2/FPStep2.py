@@ -197,28 +197,6 @@ if __name__ == "__main__":
 			Logger.static_write(args.log_file, '\n\nRunning ' + function + ' functions prediction.\n')
 			HspFunction(args.category, function, args.tree, cur_output_function, final_predicted, tmp_hsp_function).submit(args.log_file)
 
-
-		dict_tsv ={}
-		for output in functions_files:
-			f3(output)
-
-		fout = open(args.output, "w")
-		print("test1")
-		header ="sequence"
-		print(dict_tsv, "dict_tsv-------------------")
-		for seq_id in dict_tsv:
-			print("aaaaaa#1", seq_id)
-			if header == "sequence":
-				header = header + "\t" + "\t".join(dict_tsv[seq_id].keys()) + "\n"
-				fout.write(header)
-				print("aaaaaa#lllll", seq_id)
-			line=seq_id
-			for annot in dict_tsv[seq_id]:
-				line=line + "\t" + dict_tsv[seq_id][annot]
-			fout.write(line + "\n")  
-			print("45545#1", seq_id)
-		fout.close()
-
 	finally:
 		if not args.debug:
 			tmp_files.deleteAll()
