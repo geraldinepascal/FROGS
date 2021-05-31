@@ -13,7 +13,7 @@ import sys
 import argparse
 import json
 import re
-from numpy import median
+import gzip
 from collections import OrderedDict
 import pandas as pd
 #import argparse
@@ -66,6 +66,9 @@ class HspMarker(Cmd):
 				 input_marker + " -t " + in_tree + " -o " + output + " -n  2> " + log,
 				"--version")
 
+		self.output = output
+		self.log = log
+
 	def get_version(self):
 		"""
 		@summary: Returns the program version number.
@@ -80,7 +83,7 @@ class HspFunction(Cmd):
 	@summary: use 16S, EC and/or KO 
 	@see: https://github.com/picrust/picrust2/wiki
 	"""
-	def __init__(self, category, function, in_tree, output, log):
+	def __init__(self, category, function, in_tree, output, result_file, log):
 		if category == "16S":
 			input_function = " -i " + function
 		elif category == "ITS":
@@ -92,6 +95,9 @@ class HspFunction(Cmd):
 				  input_function + " -t " + in_tree + " -o " + output + " -n 2>> " + log,
 				"--version")
 
+		self.output = output
+		self.result_file = result_file
+
 	def get_version(self):
 		"""
 		@summary: Returns the program version number.
@@ -99,71 +105,29 @@ class HspFunction(Cmd):
 		"""
 		return Cmd.get_version(self, 'stdout').split()[1].strip()
 
+	def parser(self, log_file):
+
+		FH_in = gzip.open(self.output,'rt').readlines()
+		if not os.path.exists(self.result_file):
+			FH_results = open(self.result_file,'w')
+			for line in FH_in:
+				FH_results.write(line)
+			FH_results.close()
+		else:
+			tmp = open(self.result_file+'.tmp', 'w')
+			FH_results = open(self.result_file,'rt').readlines()
+			for cur_line in range(len(FH_in)):
+				line = FH_in[cur_line].split('\t')[1:-1]
+				result = FH_results[cur_line].split('\t')
+				tmp.write("\t".join(result[0:-1])+"\t"+"\t".join(line)+"\t"+result[-1])
+			tmp.close()
+			os.rename(self.result_file+'.tmp', self.result_file)
+
 ##################################################################################################################################################
 #
 # FUNCTIONS
 #
 ##################################################################################################################################################
-
-########### Dico fichier finale  ###################
-#### Methode de Maria
-def f3(output):
-	global dict_tsv
-	#dict_tsv = OrderedDict()
-
-	FH = open(output,"rt")
-
-	keys = FH.readline().strip().split()
-
-	for line in FH:   
-		for idx,value in enumerate(line.split()):
-			if idx == 0:
-				seq_id = value
-				if seq_id not in dict_tsv:
-					dict_tsv[seq_id] = OrderedDict()
-			else :
-				annot = keys[idx]
-				dict_tsv[seq_id][annot] = value
-	FH.close()
-
-#########   Dico marker ###############
-def f3marker(output):
-	global dict_tsv1
-	#dict_tsv = OrderedDict()
-
-	FH1 = open(output,"rt")
-
-	keys = FH1.readline().strip().split()
-
-	for line in FH1:   
-		for idx,value in enumerate(line.split()):
-			if idx == 0:
-				seq_id = value
-				if seq_id not in dict_tsv1:
-					dict_tsv1[seq_id] = OrderedDict()
-			else :
-				annot = keys[idx]
-				dict_tsv1[seq_id][annot] = value
-	FH1.close()
-######### Dico reaction #################
-def f3reaction(output):
-	global dict_tsv1
-	#dict_tsv = OrderedDict()
-
-	FH1 = open(output,"rt")
-
-	keys = FH1.readline().strip().split()
-
-	for line in FH1:   
-		for idx,value in enumerate(line.split()):
-			if idx == 0:
-				seq_id = value
-				if seq_id not in dict_tsv1:
-					dict_tsv1[seq_id] = OrderedDict()
-			else :
-				annot = keys[idx]
-				dict_tsv1[seq_id][annot] = value
-	FH1.close()
 
 ##################################################################################################################################################
 #
@@ -192,7 +156,7 @@ if __name__ == "__main__":
 
 	# manage category and function input parameters
 	if args.category == "16S" and args.function is None:
-		args.function = "COG"
+		args.function = "EC"
 	if args.category == "ITS" and args.function is None:
 		args.function = "EC"
 	if args.category == "ITS" and args.function != "EC":
@@ -205,6 +169,11 @@ if __name__ == "__main__":
 
 	tmp_files=TmpFiles(os.path.split(args.output_marker)[0])
 	functions_files = []
+	# if the user add mulitple functions prediction
+	if "," in args.function:
+		functions = args.function.split(',')
+	else:
+		functions = [args.function]
 
 	try:
 		Logger.static_write(args.log_file, "## Application\nSoftware :" + sys.argv[0] + " (version : " + str(__version__) + ")\nCommand : " + " ".join(sys.argv) + "\n\n")
@@ -213,20 +182,43 @@ if __name__ == "__main__":
 		HspMarker(args.category, args.tree, args.output_marker, tmp_hsp_marker).submit(args.log_file)
 
 		tmp_hsp_function = tmp_files.add( 'tmp_hsp_function.log' )
-		# if the user add mulitple functions prediction
-		if "," in args.function:
-			functions = args.function.split(',')
-		else:
-			functions = [args.function]
+
 		for function in functions:
 			#default output names 
 			if args.output_function is None:
 				suffix = "_predicted.tsv.gz"
+				final_predicted = "all_predicted.tsv.gz"
 				cur_output_function = function + suffix
 			else:
 				suffix = args.output_function
+				final_predicted = "all_" + args.output_function
 				cur_output_function = function + "_" + suffix
 			functions_files.append(cur_output_function)
 			Logger.static_write(args.log_file, '\n\nRunning ' + function + ' functions prediction.\n')
-			HspFunction(args.category, function, args.tree, cur_output_function, tmp_hsp_function).submit(args.log_file)
+			HspFunction(args.category, function, args.tree, cur_output_function, final_predicted, tmp_hsp_function).submit(args.log_file)
 
+
+		dict_tsv ={}
+		for output in functions_files:
+			f3(output)
+
+		fout = open(args.output, "w")
+		print("test1")
+		header ="sequence"
+		print(dict_tsv, "dict_tsv-------------------")
+		for seq_id in dict_tsv:
+			print("aaaaaa#1", seq_id)
+			if header == "sequence":
+				header = header + "\t" + "\t".join(dict_tsv[seq_id].keys()) + "\n"
+				fout.write(header)
+				print("aaaaaa#lllll", seq_id)
+			line=seq_id
+			for annot in dict_tsv[seq_id]:
+				line=line + "\t" + dict_tsv[seq_id][annot]
+			fout.write(line + "\n")  
+			print("45545#1", seq_id)
+		fout.close()
+
+	finally:
+		if not args.debug:
+			tmp_files.deleteAll()
