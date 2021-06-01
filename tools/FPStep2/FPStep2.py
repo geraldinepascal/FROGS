@@ -48,7 +48,7 @@ class HspMarker(Cmd):
 	@summary: use 16S, EC and/or KO 
 	@see: https://github.com/picrust/picrust2/wiki
 	"""
-	def __init__(self, category, in_tree, output, log):
+	def __init__(self, category, in_tree, output, result_file, log):
 		if category == "16S":
 			input_marker = " -i 16S"
 		elif category == "ITS":
@@ -62,12 +62,27 @@ class HspMarker(Cmd):
 				 input_marker + " -t " + in_tree + " -o " + output + " -n  2> " + log,
 				"--version")
 
+		self.output = output
+		self.result_file = result_file
+
 	def get_version(self):
-		"""
-		@summary: Returns the program version number.
-		@return: [str] Version number if this is possible, otherwise this method return 'unknown'.
-		"""
 		return Cmd.get_version(self, 'stdout').split()[1].strip()
+
+	def parser(self, log_file):
+		"""
+		@summary: Write first column (Clusters names) and last column (nsti score) into final functions results file.
+		"""
+		if is_gzip(self.output):
+			FH_in = gzip.open(self.output,'rt').readlines()
+		else:
+			FH_in = open(self.output,'rt').readlines()
+		
+		FH_results = gzip.open(self.result_file,'wt')
+		for line in FH_in:
+			cluster = line.strip().split('\t')[0]
+			nsti = line.strip().split('\t')[2]
+			FH_results.write(cluster + "\t" + nsti + "\n")
+		FH_results.close()
 
 class HspFunction(Cmd):
 	"""
@@ -93,10 +108,6 @@ class HspFunction(Cmd):
 		self.result_file = result_file
 
 	def get_version(self):
-		"""
-		@summary: Returns the program version number.
-		@return: [str] Version number if this is possible, otherwise this method return 'unknown'.
-		"""
 		return Cmd.get_version(self, 'stdout').split()[1].strip()
 
 	def parser(self, log_file):
@@ -107,22 +118,15 @@ class HspFunction(Cmd):
 			FH_in = gzip.open(self.output,'rt').readlines()
 		else:
 			FH_in = open(self.output,'rt').readlines()
-		# if it's the first function
-		if not os.path.exists(self.result_file):
-			FH_results = open(self.result_file,'w')
-			for line in FH_in:
-				FH_results.write(line)
-			FH_results.close()
-		# we add columns of others tables without the first column (Cluster names) and last (nsti score).
-		else:
-			tmp = open(self.result_file+'.tmp', 'w')
-			FH_results = open(self.result_file,'rt').readlines()
-			for cur_line in range(len(FH_in)):
-				line = FH_in[cur_line].split('\t')[1:-1]
-				result = FH_results[cur_line].split('\t')
-				tmp.write("\t".join(result[0:-1])+"\t"+"\t".join(line)+"\t"+result[-1])
-			tmp.close()
-			os.rename(self.result_file+'.tmp', self.result_file)
+
+		tmp = gzip.open(self.result_file+'.tmp', 'wt')
+		FH_results = gzip.open(self.result_file,'rt').readlines()
+		for cur_line in range(len(FH_in)):
+			line = FH_in[cur_line].split('\t')[1:-1]
+			result = FH_results[cur_line].split('\t')
+			tmp.write("\t".join(result[0:-1])+"\t"+"\t".join(line)+"\t"+result[-1])
+		tmp.close()
+		os.rename(self.result_file+'.tmp', self.result_file)
 
 ##################################################################################################################################################
 #
@@ -207,7 +211,7 @@ if __name__ == "__main__":
 		Logger.static_write(args.log_file, "## Application\nSoftware :" + sys.argv[0] + " (version : " + str(__version__) + ")\nCommand : " + " ".join(sys.argv) + "\n\n")
 
 		tmp_hsp_marker = tmp_files.add( 'tmp_hsp_marker.log' )
-		HspMarker(args.category, args.tree, args.output_marker, tmp_hsp_marker).submit(args.log_file)
+		HspMarker(args.category, args.tree, args.output_marker, args.output_function, tmp_hsp_marker).submit(args.log_file)
 
 		tmp_hsp_function = tmp_files.add( 'tmp_hsp_function.log' )
 
