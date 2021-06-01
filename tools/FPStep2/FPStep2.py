@@ -103,7 +103,7 @@ class HspFunction(Cmd):
 		"""
 		@summary: Concatane function tables of predicted abundances into one global.
 		"""
-		if is_gzip(FH_in):
+		if is_gzip(self.output):
 			FH_in = gzip.open(self.output,'rt').readlines()
 		else:
 			FH_in = open(self.output,'rt').readlines()
@@ -146,6 +146,21 @@ def is_gzip( file ):
 		FH_input.close()
 	return is_gzip
 
+def check_functions( functions ):
+	"""
+	@summary: check if --function parameter is valid.
+	"""
+	VALID_FUNCTIONS = ['EC','COG','KO','PFAM','TIGRFAM','PHENO']
+	# if the user add mulitple functions prediction
+	if "," in functions:
+		functions = functions.split(',')
+	else:
+		functions = [functions]
+	for function in functions:
+		if function not in VALID_FUNCTIONS:
+			raise_exception( argparse.ArgumentTypeError( "\n\n#ERROR : With '--function' parameter: " + function + " not a valid function.\n\n" ))
+	return functions
+
 ##################################################################################################################################################
 #
 # MAIN
@@ -185,11 +200,8 @@ if __name__ == "__main__":
 		args.output_marker = args.category + "_nsti_predicted.tsv.gz"
 
 	tmp_files=TmpFiles(os.path.split(args.output_marker)[0])
-	# if the user add mulitple functions prediction
-	if "," in args.function:
-		functions = args.function.split(',')
-	else:
-		functions = [args.function]
+
+	functions = check_functions(args.function)
 
 	try:
 		Logger.static_write(args.log_file, "## Application\nSoftware :" + sys.argv[0] + " (version : " + str(__version__) + ")\nCommand : " + " ".join(sys.argv) + "\n\n")
