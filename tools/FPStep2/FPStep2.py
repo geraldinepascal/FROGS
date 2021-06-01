@@ -8,12 +8,12 @@ __email__ = 'frogs@inrae.fr'
 __status__ = 'dev'
 
 #Import
+import re
 import os
 import sys
-import argparse
 import json
-import re
 import gzip
+import argparse
 from collections import OrderedDict
 
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -103,7 +103,10 @@ class HspFunction(Cmd):
 		"""
 		@summary: Concatane function tables of predicted abundances into one global.
 		"""
-		FH_in = gzip.open(self.output,'rt').readlines()
+		if is_gzip(FH_in):
+			FH_in = gzip.open(self.output,'rt').readlines()
+		else:
+			FH_in = open(self.output,'rt').readlines()
 		# if it's the first function
 		if not os.path.exists(self.result_file):
 			FH_results = open(self.result_file,'w')
@@ -127,6 +130,22 @@ class HspFunction(Cmd):
 #
 ##################################################################################################################################################
 
+def is_gzip( file ):
+	"""
+	@return: [bool] True if the file is gziped.
+	@param file: [str] Path to processed file.
+	"""
+	is_gzip = None
+	FH_input = gzip.open( file )
+	try:
+		FH_input.readline()
+		is_gzip = True
+	except:
+		is_gzip = False
+	finally:
+		FH_input.close()
+	return is_gzip
+
 ##################################################################################################################################################
 #
 # MAIN
@@ -136,7 +155,7 @@ class HspFunction(Cmd):
 if __name__ == "__main__":
 	# Manage parameters
 	parser = argparse.ArgumentParser( description='predict gene family for OTU' )
-	parser.add_argument('--verbose', default=False, action='store_true',help='If specified, print out wrapped commands and other ''details to screen.')
+	parser.add_argument('-v', '--version', action='version', version=__version__)
 	parser.add_argument( '--debug', default=False, action='store_true', help="Keep temporary files to debug program." )
 	# Inputs
 	group_input = parser.add_argument_group( 'Inputs' )
@@ -147,7 +166,7 @@ if __name__ == "__main__":
 	# Output
 	group_output = parser.add_argument_group( 'Outputs' )
 	group_output.add_argument('-m', '--output_marker', default=None, type=str, help='Output table of predicted marker gene copy numbers per study sequence in input tree. If the extension \".gz\" is added the table will automatically be gzipped.')
-	group_output.add_argument('-o', '--output_function', default=None, type=str, help='Output table with predicted abundances per study sequence in input tree. If the extension \".gz\" is added the table will automatically be gzipped.')
+	group_output.add_argument('-o', '--output_function', default="all_predicted.tsv.gz", type=str, help='Output table with predicted abundances per study sequence in input tree. If the extension \".gz\" is added the table will automatically be gzipped.')
 	group_output.add_argument('-l', '--log_file', default=sys.stdout, help='List of commands executed.')
 	args = parser.parse_args()
 	prevent_shell_injections(args)
@@ -166,7 +185,6 @@ if __name__ == "__main__":
 		args.output_marker = args.category + "_nsti_predicted.tsv.gz"
 
 	tmp_files=TmpFiles(os.path.split(args.output_marker)[0])
-	functions_files = []
 	# if the user add mulitple functions prediction
 	if "," in args.function:
 		functions = args.function.split(',')
@@ -181,19 +199,11 @@ if __name__ == "__main__":
 
 		tmp_hsp_function = tmp_files.add( 'tmp_hsp_function.log' )
 
+		suffix_name = "_predicted.tsv.gz"
 		for function in functions:
-			#default output names 
-			if args.output_function is None:
-				suffix = "_predicted.tsv.gz"
-				final_predicted = "all_predicted.tsv.gz"
-				cur_output_function = function + suffix
-			else:
-				suffix = args.output_function
-				final_predicted = "all_" + args.output_function
-				cur_output_function = function + "_" + suffix
-			functions_files.append(cur_output_function)
+			cur_output_function = function + suffix_name
 			Logger.static_write(args.log_file, '\n\nRunning ' + function + ' functions prediction.\n')
-			HspFunction(args.category, function, args.tree, cur_output_function, final_predicted, tmp_hsp_function).submit(args.log_file)
+			HspFunction(args.category, function, args.tree, cur_output_function, args.output_function, tmp_hsp_function).submit(args.log_file)
 
 	finally:
 		if not args.debug:

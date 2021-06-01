@@ -8,13 +8,13 @@ __email__ = 'frogs@inrae.fr'
 __status__ = 'dev'
 
 import os
+import re
 import sys
-import argparse
 import gzip
 import json
-import re
-import ete3 as ete
 import inspect
+import argparse
+import ete3 as ete
 
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
 # PATH
@@ -233,7 +233,7 @@ if __name__ == "__main__":
 	group_input = parser.add_argument_group('Inputs')
 	group_input.add_argument('-i', '--input_fasta', required=True, help="Input fasta file of unaligned studies sequences")
 	group_input.add_argument('-b', '--input_biom', required=True, help='Biom file.')
-	group_input.add_argument('-c', '--category',choices=['16S', 'ITS'], default='16S', help='Specifies which category 16S or ITS')
+	group_input.add_argument('-c', '--category',choices=['16S', 'ITS', '18S'], default='16S', help='Specifies which category 16S, ITS, 18S')
 	group_input.add_argument('-p', '--placement_tool', default='epa-ng', help='Placement tool to use when placing sequences into reference tree. One of "epa-ng" or "sepp" must be input')
 	# Outputs
 	group_output = parser.add_argument_group('Outputs')
