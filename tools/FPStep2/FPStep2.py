@@ -15,11 +15,6 @@ import json
 import re
 import gzip
 from collections import OrderedDict
-import pandas as pd
-#import argparse
-#from picrust2.wrap_hsp import castor_hsp_workflow
-#from picrust2.util import make_output_dir_for_file, check_files_exist
-#from picrust2.default import default_tables
 
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
 # PATH
@@ -56,18 +51,16 @@ class HspMarker(Cmd):
 	def __init__(self, category, in_tree, output, log):
 		if category == "16S":
 			input_marker = " -i 16S"
-
 		elif category == "ITS":
 			input_marker = " --observed_trait_table " + ITS_PATH
+		elif category == "18S":
+			input_marker = " --observed_trait_table " + _18S_PATH			
 
 		Cmd.__init__(self,
 				 'hsp.py',
 				 'predict gene copy numer per sequence.', 
 				 input_marker + " -t " + in_tree + " -o " + output + " -n  2> " + log,
 				"--version")
-
-		self.output = output
-		self.log = log
 
 	def get_version(self):
 		"""
@@ -88,7 +81,8 @@ class HspFunction(Cmd):
 			input_function = " -i " + function
 		elif category == "ITS":
 			input_function = " --observed_trait_table " + ITS_EC_PATH
-
+		elif category == "18S":
+			input_function = " --observed_trait_table " + _18S_EC_PATH
 		Cmd.__init__(self,
 				 'hsp.py',
 				 'predict function abundance per sequence.', 
@@ -106,13 +100,17 @@ class HspFunction(Cmd):
 		return Cmd.get_version(self, 'stdout').split()[1].strip()
 
 	def parser(self, log_file):
-
+		"""
+		@summary: Concatane function tables of predicted abundances into one global.
+		"""
 		FH_in = gzip.open(self.output,'rt').readlines()
+		# if it's the first function
 		if not os.path.exists(self.result_file):
 			FH_results = open(self.result_file,'w')
 			for line in FH_in:
 				FH_results.write(line)
 			FH_results.close()
+		# we add columns of others tables without the first column (Cluster names) and last (nsti score).
 		else:
 			tmp = open(self.result_file+'.tmp', 'w')
 			FH_results = open(self.result_file,'rt').readlines()
@@ -142,8 +140,8 @@ if __name__ == "__main__":
 	parser.add_argument( '--debug', default=False, action='store_true', help="Keep temporary files to debug program." )
 	# Inputs
 	group_input = parser.add_argument_group( 'Inputs' )
-	group_input.add_argument('-c', '--category', choices=['16S', 'ITS'], default='16S', help='Specifies which category 16S or ITS')
-	group_input.add_argument('-f', '--function', default=None,help="Specifies which default trait table should be used ('COG', 'EC', 'KO', 'PFAM', 'TIGRFAM' or 'PHENO'). To run the command with several functions, separate the functions with commas (ex: COG,KO,PFAM) (for ITS or 18S : only EC available")
+	group_input.add_argument('-c', '--category', choices=['16S', '18S', 'ITS'], default='16S', help='Specifies which category 16S, 18S or ITS')
+	group_input.add_argument('-f', '--function', default=None,help="Specifies which default trait table should be used ('EC', 'COG', 'KO', 'PFAM', 'TIGRFAM' or 'PHENO'). To run the command with several functions, separate the functions with commas (ex: COG,KO,PFAM) (for ITS or 18S : only EC available")
 	group_input.add_argument('-t', '--tree', required=True, type=str, help='FPStep1 output tree in newick format containing both study sequences (i.e. ASVs or OTUs) and reference sequences.')
 	group_input.add_argument('-s', '--hsp_method', default='mp', choices=['mp', 'emp_prob', 'pic', 'scp', 'subtree_average'], help='HSP method to use.' +'"mp": predict discrete traits using max parsimony. ''"emp_prob": predict discrete traits based on empirical ''state probabilities across tips. "subtree_average": ''predict continuous traits using subtree averaging. ' '"pic": predict continuous traits with phylogentic ' 'independent contrast. "scp": reconstruct continuous ''traits using squared-change parsimony (default: ''%(default)s).')
 	# Output
