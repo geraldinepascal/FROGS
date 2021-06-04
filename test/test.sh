@@ -23,10 +23,11 @@ then
 fi
 
 echo "Step demultiplexe `date`"
-demultiplex.py \
-  --input-R1 data/demultiplex.fastq.gz --input-barcode data/demultiplex.barcode.txt \
-  --mismatches 1 --end both \
-  --output-demultiplexed $out_dir/demultiplexed.tar.gz --output-excluded $out_dir/undemultiplexed.tar.gz --log-file $out_dir/demultiplex.log --summary $out_dir/demultiplex_summary.txt 
+demultiplex.py --input-R1 data/demultiplex_test2_R1.fq.gz --input-R2 data/demultiplex_test2_R2.fq.gz --input-barcode data/demultiplex_barcode.txt \
+    --mismatches 1 --end both \
+    --output-demultiplexed $out_dir/demultiplexed.tar.gz --output-excluded $out_dir/undemultiplexed.tar.gz \
+    --log-file $out_dir/demultiplex.log --summary $out_dir/demultiplex_summary.txt
+
 
 if [ $? -ne 0 ]
 then
@@ -82,15 +83,31 @@ clustering.py \
  --output-biom $out_dir/02-clustering_fastidious.biom \
  --output-fasta $out_dir/02-clustering_fastidious.fasta \
  --output-compo $out_dir/02-clustering_fastidious_compo.tsv \
- --log-file $out_dir/02-clustering.log \
+ --log-file $out_dir/02-clustering_fastidious.log \
  --nb-cpus $nb_cpu
 
 if [ $? -ne 0 ]
 then
-	echo "Error in clustering" >&2
+	echo "Error in clustering fastidious" >&2
 	exit 1;
 fi
 
+clustering.py \
+ --distance 3 \
+ --denoising \
+ --input-fasta $out_dir/01-prepro-vsearch.fasta \
+ --input-count $out_dir/01-prepro-vsearch.tsv \
+ --output-biom $out_dir/02-clustering_denoising.biom \
+ --output-fasta $out_dir/02-clustering_denoising.fasta \
+ --output-compo $out_dir/02-clustering_denoising_compo.tsv \
+ --log-file $out_dir/02-clustering_denoising.log \
+ --nb-cpus $nb_cpu
+
+if [ $? -ne 0 ]
+then
+    echo "Error in clustering denoising" >&2
+    exit 1;
+fi
 
 echo "Step remove_chimera `date`"
 
