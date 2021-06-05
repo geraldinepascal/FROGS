@@ -399,7 +399,7 @@ class TemporaryDirectory(object):
 			_shutil.rmtree(self.name)
 
 """
-				derive of picrust2 : End
+			derive of picrust2 : End
 	
 """
 
