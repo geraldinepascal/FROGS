@@ -40,16 +40,18 @@ from frogsBiom import BiomIO
 
 class MetagenomePipeline(Cmd):
 	"""
-	@summary: PICRUSt2 (Phylogenetic Investigation of Communities by Reconstruction of Unobserved States)
-	@summary: predict gene abudance
-	@see: https://github.com/picrust/picrust2/wiki
+	@summary: Per-sample metagenome functional profiles are generated based on the predicted functions for each study sequence.
 	"""
-	def __init__(self, in_biom, marker, function, out_dir, log):
+	def __init__(self, in_biom, marker, function, out_dir, max_nsti, min_reads, min_samples, strat_out, log):
+		"""
+		@param: in_biom: Path to BIOM input file used in FPStep1
+		"""
+		opt = ' --strat_out ' if strat_out else ''
 	
 		Cmd.__init__(self,
 				 'metagenome_pipeline.py ',
 				 'Per-sample functional profiles prediction.', 
-				 " -i " +  in_biom + " -m " + marker + " -f " + function + " -o " + out_dir + ' 2> ' + log,
+				 " --input " +  in_biom + " --marker " + marker + " --function " + function + " --out_dir " + out_dir + " --max_nsti " + str(max_nsti) + " --min_reads " + str(min_reads) + " --min_samples " + str(min_samples) + opt + ' 2> ' + log,
 				"--version") 
 	  
 	def get_version(self):
@@ -58,7 +60,6 @@ class MetagenomePipeline(Cmd):
 class Biom2tsv(Cmd):
 	"""
 	@summary: Converts BIOM file to TSV file.
-	@note: taxonomyRDP seedID seedSequence blastSubject blastEvalue blastLength blastPercentCoverage blastPercentIdentity blastTaxonomy OTUname SommeCount sample_count
 	"""
 	def __init__(self, in_biom, out_tsv):
 
@@ -71,53 +72,11 @@ class Biom2tsv(Cmd):
 	def get_version(self):
 		 return Cmd.get_version(self, 'stdout').strip() 
 
-
-class Biom2multiAffi(Cmd):
-	"""
-	@summary: Extracts multi-affiliations from a FROGS BIOM file.
-	"""
-	def __init__( self, out_tsv, in_biom ):
-		"""
-		@param in_biom: [str] Path to BIOM file.
-		@param out_tsv: [str] Path to output TSV file.
-		"""
-		# Set command
-		Cmd.__init__( self,
-					  'multiAffiFromBiom.py',
-					  'Extracts multi-affiliations data from a FROGS BIOM file.',
-					  '--input-file ' + in_biom + ' --output-file ' + out_tsv,
-					  '--version' )
-
 ##################################################################################################################################################
 #
 # FUNCTIONS
 #
 ##################################################################################################################################################
-
-def tsvParse(out_tsv):
-
-	tsv_parse = "out_tsv.tsv"
-	# je crée un dataframe
-	df = pd.read_csv(out_tsv, header=0, delimiter='\t')
-	# Je suprime les mauvaises colonnes
-	al = df.drop(df.columns[[0, 1, 3]], axis=1)
-	#print(df.drop(df.columns[[0, 1]], axis=1))
-	print(al)
-	# J écris dans un nouveau fichier
-	al.to_csv(tsv_parse, "\t", index=None)
-
-##### Fonction dezip
-def dezip(file1, out_file1):
-
-	#file_zip = gzip.GzipFile("/Users/moussa/FROGS_moussa/tools/FPStep3/DonneesPourTest/pred_met1.tsv.gz", 'rb')
-	file_zip = gzip.GzipFile(file1, 'rb')
-	s = file_zip.read()
-	file_zip.close()
-
-	#file_dezip = open ("/Users/moussa/FROGS_moussa/tools/FPStep3/DonneesPourTest/pred_met1.tsv", 'wb')
-	file_dezip = open (out_file1, 'wb')
-	file_dezip.write(s)
-	file_dezip.close()
 
 ##################################################################################################################################################
 #
@@ -149,12 +108,12 @@ if __name__ == "__main__":
 	tmp_files=TmpFiles(os.path.split(args.marker)[0])
 	try:	 
 		Logger.static_write(args.log_file, "## Application\nSoftware :" + sys.argv[0] + " (version : " + str(__version__) + ")\nCommand : " + " ".join(sys.argv) + "\n\n")
-
+		#temp tsv file necessary for metagenome_pipeline.py
 		tmp_biom_to_tsv = tmp_files.add( 'tmp_biom_to_tsv' )
 		Biom2tsv(args.input_biom, tmp_biom_to_tsv).submit( args.log_file )
 
 		tmp_metag_pipeline = tmp_files.add( 'tmp_metagenome_pipeline.log' )	
-		MetagenomePipeline(tmp_biom_to_tsv, args.marker, args.function, args.out_dir, tmp_metag_pipeline).submit( args.log_file )
+		MetagenomePipeline(tmp_biom_to_tsv, args.marker, args.function, args.out_dir, args.max_nsti, args.min_reads, args.min_samples, args.strat_out, tmp_metag_pipeline).submit( args.log_file )
 
 	finally:
 		if not args.debug:
