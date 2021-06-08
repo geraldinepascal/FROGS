@@ -13,7 +13,6 @@ import sys
 import json
 import gzip
 import argparse
-import pandas as pd
 from numpy import median
 from shutil import rmtree
 from tempfile import gettempdir
