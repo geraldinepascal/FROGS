@@ -10,11 +10,11 @@ __status__ = 'dev'
 import os
 import re
 import sys
-import json
 import gzip
+import glob
 import argparse
 from numpy import median
-from shutil import rmtree
+import shutil
 from tempfile import gettempdir
 
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -31,6 +31,7 @@ from frogsUtils import *
 from frogsSequenceIO import * 
 from frogsBiom import BiomIO
 
+DESCRIPTION_DIR = os.path.join(os.path.dirname(os.__file__), "site-packages/picrust2/default_files/description_mapfiles/")
 ##################################################################################################################################################
 #
 # COMMAND LINES
@@ -56,6 +57,24 @@ class MetagenomePipeline(Cmd):
 	def get_version(self):
 		 return Cmd.get_version(self, 'stdout').split()[1].strip() 
 
+class AddDescriptions(Cmd):
+	"""
+	@summary: Adds a description column to a function abundance table and outputs a new file.
+	"""
+	def __init__(self, function_file, description_file, out_file):
+		"""
+		@param function_file: [str] Path to input function abundance table. (ex: EC_metagenome_out/pred_metagenome_unstrat.tsv.gz)
+		@param function_type: [str] Function type between COG,EC,KO,PFAM and TIGRFAM.
+		"""
+		Cmd.__init__(self,
+			'add_descriptions.py ',
+			'Adds a description column to a function abundance table.',
+			'--input ' + function_file + ' --custom_map_table ' + description_file + ' --output ' + out_file,
+			'--version')
+
+	def get_version(self):
+		 return Cmd.get_version(self, 'stdout').split()[1].strip() 
+
 class Biom2tsv(Cmd):
 	"""
 	@summary: Converts BIOM file to TSV file.
@@ -77,6 +96,16 @@ class Biom2tsv(Cmd):
 #
 ##################################################################################################################################################
 
+def formate_description_file(description_dir, description_out):
+	"""
+	@summary: concatane all picrust2 descriptions file into one temporary global description file.
+	"""
+	with open(description_out, 'wb') as outfile:
+		for filename in glob.glob(description_dir+'/*'):
+			if filename != description_out and not 'KEGG' in filename:
+				with open(filename, 'rb') as readfile:
+					shutil.copyfileobj(readfile, outfile)
+
 ##################################################################################################################################################
 #
 # MAIN
@@ -88,6 +117,7 @@ if __name__ == "__main__":
 	parser.add_argument('-v', '--version', action='version', version=__version__)
 	parser.add_argument('--debug', default=False, action='store_true', help="Keep temporary files to debug program." )
 	parser.add_argument('--strat_out', default=False, action='store_true', help='Output table stratified by sequences as well. By ''default this will be in \"contributional\" format ''(i.e. long-format) unless the \"--wide_table\" ''option is set. The startified outfile is named ''\"metagenome_contrib.tsv.gz\" when in long-format.')
+	parser.add_argument('--skip_descriptions', default=False, action='store_true', help='Skipping add_descriptions.py step that add a description column to the function abundance table. (default: False')
 	# Inputs
 	group_input = parser.add_argument_group( 'Inputs' )
 	group_input.add_argument('-b', '--input_biom', required=True, type=str, help='Input table of sequence abundances (BIOM file used in FPStep1).')
@@ -114,6 +144,12 @@ if __name__ == "__main__":
 		tmp_metag_pipeline = tmp_files.add( 'tmp_metagenome_pipeline.log' )	
 		MetagenomePipeline(tmp_biom_to_tsv, args.marker, args.function, args.out_dir, args.max_nsti, args.min_reads, args.min_samples, args.strat_out, tmp_metag_pipeline).submit( args.log_file )
 
+		if not args.skip_descriptions:
+			tmp_description_file = tmp_files.add('descriptions_file.tsv.gz')
+			formate_description_file(DESCRIPTION_DIR, tmp_description_file )
+
+			pred_file = args.out_dir + "/pred_metagenome_unstrat.tsv.gz"
+			AddDescriptions(pred_file,  tmp_description_file, pred_file).submit( args.log_file)
 	finally:
 		if not args.debug:
 			tmp_files.deleteAll()

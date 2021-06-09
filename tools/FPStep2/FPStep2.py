@@ -30,9 +30,7 @@ ITS_PATH = os.path.join(os.path.dirname(os.__file__), "site-packages/picrust2/de
 ITS_EC_PATH = os.path.join(os.path.dirname(os.__file__), "site-packages/picrust2/default_files/fungi/ec_ITS_counts.txt.gz")
 _18S_PATH = os.path.join(os.path.dirname(os.__file__), "site-packages/picrust2/default_files/fungi/18S_counts.txt.gz")
 _18S_EC_PATH = os.path.join(os.path.dirname(os.__file__), "site-packages/picrust2/default_files/fungi/ec_18S_counts.txt.gz")
-print(ITS_PATH)
-print(os.__file__)
-#import frogs
+
 from frogsUtils import *
 from frogsSequenceIO import * 
 from frogsBiom import BiomIO

@@ -9,13 +9,13 @@ __status__ = 'dev'
 
 #Import
 import os
-import sys
-import argparse
-import json
 import re
-from numpy import median
+import sys
+import json
+import glob
 import gzip
-import pandas as pd
+import shutil
+import argparse
 
 
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -32,6 +32,8 @@ else: os.environ['PYTHONPATH'] = os.environ['PYTHONPATH'] + os.pathsep + LIB_DIR
 from frogsUtils import *
 from frogsSequenceIO import * 
 from frogsBiom import BiomIO
+
+DESCRIPTION_DIR = os.path.join(os.path.dirname(os.__file__), "site-packages/picrust2/default_files/description_mapfiles/")
 
 ##################################################################################################################################################
 #
@@ -58,19 +60,19 @@ class PathwayPipeline(Cmd):
 
 class AddDescriptions(Cmd):
 	"""
-	@summary: PICRUSt2 (Phylogenetic Investigation of Communities by Reconstruction of Unobserved States)
-	@summary: predict gene abudance
-	@see: https://github.com/picrust/picrust2/wiki
+	@summary: Adds a description column to a function abundance table and outputs a new file.
 	"""
-	def __init__(self, input_file, out_dir, log):
-	
+	def __init__(self, abund_file, description_file, out_file):
+		"""
+		@param function_file: [str] Path to input function abundance table. (ex: EC_metagenome_out/pred_metagenome_unstrat.tsv.gz)
+		@param function_type: [str] Function type between COG,EC,KO,PFAM and TIGRFAM.
+		"""
 		Cmd.__init__(self,
-				 'pathway_pipeline.py ',
-				 'predict abundance pathway', 
-				  " -i " + input_file + " -o " + out_dir + ' 2> ' + log,
-				"--version") 
-	  
-		
+			'add_descriptions.py ',
+			'Adds a description column to a function abundance table.',
+			'--input ' + abund_file + ' --custom_map_table ' + description_file + ' --output ' + out_file,
+			'--version')
+
 	def get_version(self):
 		 return Cmd.get_version(self, 'stdout').split()[1].strip() 
 
@@ -79,6 +81,16 @@ class AddDescriptions(Cmd):
 # FUNCTIONS
 #
 ##################################################################################################################################################
+
+def formate_description_file(description_dir, description_out):
+	"""
+	@summary: concatane all picrust2 descriptions file into one temporary global description file.
+	"""
+	with open(description_out, 'wb') as outfile:
+		for filename in glob.glob(description_dir+'/*'):
+			if filename != description_out and not 'KEGG' in filename:
+				with open(filename, 'rb') as readfile:
+					shutil.copyfileobj(readfile, outfile)
 
 def dezip(file1, out_file1):
 
@@ -101,6 +113,9 @@ if __name__ == "__main__":
 
 	# Manage parameters
 	parser = argparse.ArgumentParser( description='Infer the presence and abundances of pathways based on gene family abundances in a sample.' )
+	parser.add_argument('--debug', default=False, action='store_true', help="Keep temporary files to debug program." )
+	parser.add_argument('--skip_descriptions', default=False, action='store_true', help='Skipping add_descriptions.py step that add a description column to the function abundance table. (default: False')
+
 	# Inputs
 	group_input = parser.add_argument_group( 'Inputs' )
 	group_input.add_argument('-i', '--input_file', required=True, type=str, help='Input TSV table of gene family abundances (either ''the unstratified or stratified output of ' 'metagenome_pipeline.py).')
@@ -122,7 +137,14 @@ if __name__ == "__main__":
 		tmp_pathway = tmp_files.add( 'pathway_pipeline.log' )
 		PathwayPipeline(args.input_file, args.out_dir, tmp_pathway).submit(args.log_file)
 
-	finally:
-		print("Partie Finale ")
+		if not args.skip_descriptions:
+			tmp_description_file = tmp_files.add('descriptions_file.tsv.gz')
+			formate_description_file(DESCRIPTION_DIR, tmp_description_file )
 
+			abund_file = args.out_dir + "/path_abun_unstrat.tsv.gz"
+			AddDescriptions(abund_file,  tmp_description_file, abund_file).submit( args.log_file)
+
+	finally:
+		if not args.debug:
+			tmp_files.deleteAll()
 
