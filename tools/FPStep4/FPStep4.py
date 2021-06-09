@@ -66,8 +66,7 @@ class AddDescriptions(Cmd):
 	"""
 	def __init__(self, abund_file, description_file, out_file):
 		"""
-		@param function_file: [str] Path to input function abundance table. (ex: EC_metagenome_out/pred_metagenome_unstrat.tsv.gz)
-		@param function_type: [str] Function type between COG,EC,KO,PFAM and TIGRFAM.
+		@param function_file: [str] Path to input pathway file. (ex: pathway_out/path_abun_unstrat.tsv.gz)
 		"""
 		Cmd.__init__(self,
 			'add_descriptions.py ',
