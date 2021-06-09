@@ -37,21 +37,23 @@ DESCRIPTION_DIR = os.path.join(os.path.dirname(os.__file__), "site-packages/picr
 
 ##################################################################################################################################################
 #
-# COMMAND LINES #  pathway_pipeline.py -i EC_metagenome_out/pred_metagenome_unstrat.tsv.gz \ -o pathways_out \ --intermediate minpath_working \ -p 1
-				
+# COMMAND LINES 
+#
 ##################################################################################################################################################
 class PathwayPipeline(Cmd):
 	"""
-	@summary: PICRUSt2 (Phylogenetic Investigation of Communities by Reconstruction of Unobserved States)
-	@summary: predict gene abudance
-	@see: https://github.com/picrust/picrust2/wiki
+	@summary: pathway_pipeline.py : Infer the presence and abundances of pathways based on gene family abundances in a sample.
 	"""
-	def __init__(self, input_file, out_dir, log):
+	def __init__(self, input_file, out_dir, per_sequence_contrib, per_sequence_abun, per_sequence_function, log):
+		opt_contrib = ''
+		if per_sequence_contrib:
+			opt_contrib = ' --per_sequence_contrib --per_sequence_abun ' +  per_sequence_abun + ' --per_sequence_function ' + per_sequence_function
+
 	
 		Cmd.__init__(self,
 				 'pathway_pipeline.py ',
 				 'predict abundance pathway', 
-				  " -i " + input_file + " -o " + out_dir + ' 2> ' + log,
+				  " --input " + input_file + " --out_dir " + out_dir + opt_contrib + ' 2> ' + log,
 				"--version") 
 	  
 		
@@ -115,14 +117,15 @@ if __name__ == "__main__":
 	parser = argparse.ArgumentParser( description='Infer the presence and abundances of pathways based on gene family abundances in a sample.' )
 	parser.add_argument('--debug', default=False, action='store_true', help="Keep temporary files to debug program." )
 	parser.add_argument('--skip_descriptions', default=False, action='store_true', help='Skipping add_descriptions.py step that add a description column to the function abundance table. (default: False')
-
+	parser.add_argument('--per_sequence_contrib', default=False, action='store_true', help='Flag to specify that MinPath is run on the genes contributed by each sequence individualy. (in contrast to the default stratified output, which is the contribution to the community-wide pathway abundances.) Options --per_sequence_abun and --per_sequence_function need to be set when this option is used (default: False) ')
 	# Inputs
 	group_input = parser.add_argument_group( 'Inputs' )
 	group_input.add_argument('-i', '--input_file', required=True, type=str, help='Input TSV table of gene family abundances (either ''the unstratified or stratified output of ' 'metagenome_pipeline.py).')
+	group_input.add_argument('--per_sequence_abun', default=None, help='Path to table of sequence abundances across samples normalized by marker copy number (typically the normalized sequence abundance table output at the metagenome pipeline step). This input is required when the --per_sequence_contrib option is set. (default: None).')
+	group_input.add_argument('--per_sequence_function', default=None, help='ath to table of function abundances per sequence, which was outputted at the hidden-state prediction step. This input is required when the --per_sequence_contrib option is set. Note that this file should be the same input table as used for the metagenome pipeline step (default: None).')
 	#Outputs
 	group_output = parser.add_argument_group( 'Outputs')
 	group_output.add_argument('-o', '--out_dir', default='pathways_out', help='Output folder for pathway abundance output.')
-	group_output.add_argument('--path_abund', default='path_abun_unstrat.tsv.gz', help='Output file for metagenome predictions abundance. (default: %(default)s).')
 	group_output.add_argument('-v', '--version', default=False, action='version', version="%(prog)s " + __version__)
 	group_output.add_argument('-l', '--log-file', default=sys.stdout, help='This output file will contain several information on executed commands.')
 	args = parser.parse_args()
@@ -131,11 +134,13 @@ if __name__ == "__main__":
 	tmp_files=TmpFiles(os.path.split(args.input_file)[0])
 	try:	 
 		Logger.static_write(args.log_file, "## Application\nSoftware :" + sys.argv[0] + " (version : " + str(__version__) + ")\nCommand : " + " ".join(sys.argv) + "\n\n")
-		 ########### Création de chemin ############# 
-		output = os.path.abspath(os.path.dirname(args.path_abund)) + "/" +str(time.time()) + "_" + str(os.getpid())
 
+		if args.per_sequence_contrib:
+			if args.per_sequence_abun == None or args.per_sequence_function == None:
+				raise_exception( Exception("\n\n#ERROR : --per_sequence_abun and --per_sequence_function required when --per_sequence_contrib option is set!\n\n"))
+		
 		tmp_pathway = tmp_files.add( 'pathway_pipeline.log' )
-		PathwayPipeline(args.input_file, args.out_dir, tmp_pathway).submit(args.log_file)
+		PathwayPipeline(args.input_file, args.out_dir, args.per_sequence_contrib, args.per_sequence_abun, args.per_sequence_function, tmp_pathway).submit(args.log_file)
 
 		if not args.skip_descriptions:
 			tmp_description_file = tmp_files.add('descriptions_file.tsv.gz')
@@ -147,4 +152,3 @@ if __name__ == "__main__":
 	finally:
 		if not args.debug:
 			tmp_files.deleteAll()
-

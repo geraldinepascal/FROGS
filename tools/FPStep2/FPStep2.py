@@ -43,10 +43,8 @@ from frogsBiom import BiomIO
 
 class HspMarker(Cmd):
 	"""
-	@summary: PICRUSt2 (Phylogenetic Investigation of Communities by Reconstruction of Unobserved States)
-	@summary: hsp.py program  predict number copie of gene family for each OTU.
-	@summary: use 16S, EC and/or KO 
-	@see: https://github.com/picrust/picrust2/wiki
+	@summary: hsp.py : predict number of marker copies (16S, 18S or ITS) for each OTU.
+
 	"""
 	def __init__(self, category, in_tree, output, result_file, log):
 		if category == "16S":
@@ -86,10 +84,7 @@ class HspMarker(Cmd):
 
 class HspFunction(Cmd):
 	"""
-	@summary: PICRUSt2 (Phylogenetic Investigation of Communities by Reconstruction of Unobserved States)
-	@summary: hsp.py program  predict number copie of gene family for each OTU.
-	@summary: use 16S, EC and/or KO 
-	@see: https://github.com/picrust/picrust2/wiki
+	@summary: hsp.py predict number of genes family for each OTU.
 	"""
 	def __init__(self, category, function, in_tree, output, result_file, log):
 		if category == "16S":

@@ -47,7 +47,7 @@ class MetagenomePipeline(Cmd):
 		@param: in_biom: Path to BIOM input file used in FPStep1
 		"""
 		opt = ' --strat_out ' if strat_out else ''
-	
+
 		Cmd.__init__(self,
 				 'metagenome_pipeline.py ',
 				 'Per-sample functional profiles prediction.', 
