@@ -100,7 +100,6 @@ def dezip(file1, out_file1):
 	s = file_zip.read()
 	file_zip.close()
 
-	#file_dezip = open ("/Users/moussa/FROGS_moussa/tools/FPStep3/DonneesPourTest/pred_met1.tsv", 'wb')
 	file_dezip = open (out_file1, 'wb')
 	file_dezip.write(s)
 	file_dezip.close()

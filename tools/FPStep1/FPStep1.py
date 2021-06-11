@@ -29,7 +29,6 @@ else: os.environ['PYTHONPATH'] = LIB_DIR + os.pathsep + os.environ['PYTHONPATH']
 PRO_DIR = os.path.join(os.path.dirname(os.__file__),'site-packages/picrust2/default_files/prokaryotic/pro_ref/')
 ITS_DIR = os.path.join(os.path.dirname(os.__file__),'site-packages/picrust2/default_files/fungi/fungi_ITS/')
 
-
 from frogsUtils import *
 from frogsBiom import BiomIO
 from frogsSequenceIO import *
@@ -240,7 +239,7 @@ if __name__ == "__main__":
 	group_output.add_argument('-o', '--out_tree', default='FPStep1.tree', help='Tree output with insert sequences (format: newick).')
 	group_output.add_argument('-e', '--excluded', default='FPSTep1_excluded.txt', help='List of sequences not inserted in the tree.')
 	group_output.add_argument('-s', '--insert_fasta', default='FPStep1.fasta', help='sequences file without non insert sequences. (format: FASTA). [Default: %(default)s]')
-	group_output.add_argument('-m', '--insert_biom', default='FPStep1.biom', help='abundance file without non insert sequences. (format: BIOM)')
+	group_output.add_argument('-m', '--insert_biom', default='FPStep1.biom', help='abundance file without non insert sequences. (format: BIOM) [Default: %(default)s]')
 	group_output.add_argument('-l', '--log_file', default=sys.stdout, help='List of commands executed.')
 	group_output.add_argument('-t', '--html', default='FPStep1_summary.html', help="Path to store resulting html file. [Default: %(default)s]" )
 	args = parser.parse_args()

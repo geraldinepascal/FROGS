@@ -7,8 +7,8 @@ __version__ = '1.0'
 __email__ = 'frogs@inrae.fr'
 __status__ = 'dev'
 -->
-<tool id="FROGS_PICRUSt2_hsp" name="FROGS_PICRUSt2_Step2" version= "1.0">
-	<description>Predict gene copy: OTU_name, OTU_count, NSTI</description>
+<tool id="FROGS_PICRUSt2_hsp" name="FPStep2" version= "1.0">
+	<description>Predict gene copies number</description>
 
 	<requirements>
                

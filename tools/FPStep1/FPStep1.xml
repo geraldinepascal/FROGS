@@ -1,14 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-__author__ = ' Moussa Samb & Maria Bernard  & Geraldine Pascal INRAE - SIGENAE '
-__copyright__ = 'Copyright (C) 2020 INRAE'
-__license__ = 'GNU General Public License'
-__version__ = '1.0'
-__email__ = 'frogs@inrae.fr'
-__status__ = 'dev'
+# Copyright (C) 2015 INRA
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
 <tool id="FROGS_PICRUSt2_place_seqs" name="FPStep1" version= "1.0">
-	<description>phylogenetic placement of reads: HMMER, EPA-NG, GAPPA</description>
+	<description>Place studies sequences (i.e. OTUs) into a reference tree.</description>
 
 	<requirements>
                
@@ -22,46 +30,46 @@ __status__ = 'dev'
 	
 
     <command >
-	  $GALAXY_ROOT_DIR/tools/FROGS_moussa/app/placement.py --study_fasta $fasta_file --out_tree $out_file --ref_dir $input_ref --min_align $min -b $biom_file;
+	   $GALAXY_ROOT_DIR/tools/FROGS/app/FPStep1.py
+	   		--input_fasta $input_fasta
+	   		--input_biom $input_biom
+	   		--category $category
+	   		--placement_tool $placement_tool
+	   		--out_tree $out_tree 
+	   		--excluded $excluded
+	   		--insert_biom $insert_biom
+	   		--insert_fasta $insert_fasta
+	   		--html $html
+
+
 	</command> 
 
 
 	<inputs>
-	         	 <!-- Files -->
-	    <!-- <param format="Fasta" name="fasta_file" type="data" label="Fasta file" help="The sequence file to filter (format: fasta)." /> -->
-
-	    <param format="Fasta" name="fasta_file" type="data" label="Fasta file" help="The sequence file to filter (format: fasta)."
-	    	optional="false">
+		<param format="fasta" name="input_fasta" type="data" label="Sequence file" help="The sequence file to filter (format: fasta)." optional="false">
+       		<validator type="empty_field" message="This parameter is required." />
+    	</param>
+		<param format="biom1" name="input_biom" type="data" label="Biom file" help="The abundance table of OTUs (format: biom)." optional="false">
         	<validator type="empty_field" message="This parameter is required." />
         </param>
-
-         <param format="biom1" name="biom_file" type="data" label="Biom file" help="The abundance table of OTUs (format: biom)." optional="false">
-        	<validator type="empty_field" message="This parameter is required." />
-        </param>
-
-	    <!-- <param format="biom1" name="biom_file" type="data" label="Biom file" help="The abundance file to filter (format: BIOM)."/> -->
-
-
-	   			 <!-- Paramemtre-->
-	   	<param name="input_ref" type="select" label="Reference Tree">
-		    <option value="/Users/moussa/galaxy/tools/FROGS_moussa/tools/placement_tree/data/ref_tree_picrust2/default_files/prokaryotic/pro_ref">Procaryote</option>
-		    <option value="/Users/moussa/galaxy/tools/FROGS_moussa/tools/placement_tree/data/ref_tree_picrust2/default_files/fungi/fungi_ITS">Fungi_ITS</option>
-		    <option value="/Users/moussa/galaxy/tools/FROGS_moussa/tools/placement_tree/data/ref_tree_picrust2/default_files/fungi/fungi_18S">Fungi_18S</option>
+        <param name="category" type="select" label="Taxonomic marker" help="Taxonomic marker of interest." multiple="false" display="radio">
+        	<option value="16S">16S</option>
+        	<option value="ITS">ITS</option>
 		</param>
-	 
-		<param name="min" type="float" label="Total length" help="Proportion of the total length of an input query, minimum coverage between input query and sequences of reference tree." value="0.8" min="0" max="1" optional="false" /> 
+        <param name="placement_tool" type="select" label="Placement tool" help="Placement tool to insert OTU (or ASV) into the reference tree." multiple="false" display="radio">
+        	<option value="epa-ng">epa-ng</option>
+        	<option value="sepp">sepp</option>
+		</param>
+<!-- 		<param name="min" type="float" label="Total length" help="Proportion of the total length of an input query, minimum coverage between input query and sequences of reference tree." value="0.8" min="0" max="1" optional="false" />  -->
 	</inputs>
 
 
 	<outputs>
-		<!-- <data format="tree" name="out_file1" /> -->
-		<!-- <data format="nhx" name="out_file"/> -->
-		<!-- <data format="tabular" name="output_excluded" />  -->
-		<!-- <data format="html" name="summary.html" /> -->
-
-		<data format="html" name="html" label="${tool.name}: summary.html" from_work_dir="summary.html"/>
-		<data format="nhx" name="out_file" label="${tool.name}: tree.nwk" from_work_dir="tree.nwk"/>
-		<data format="tabular" name="output_excluded" label="${tool.name}: excluded.tsv" from_work_dir="excluded.tsv"/> 
+		<data format="html" name="html" label="${tool.name}: FPStep1_summary.html" from_work_dir="FPStep1_summary.html"/>
+		<data format="nhx" name="out_tree" label="${tool.name}: tree.nwk" from_work_dir="tree.nwk"/>
+		<data format="tabular" name="excluded" label="${tool.name}: excluded.tsv" from_work_dir="excluded.tsv"/> 
+		<data format="fasta" name="insert_fasta" label="${tool.name}: FPStep1.fasta" from_work_dir="FPSTep1.fasta"/> 
+		<data format="biom1" name="insert_biom" label="${tool.name}: FPStep1.biom" from_work_dir="FPSTep1.biom"/> 
 	</outputs>
 
 
@@ -69,16 +77,14 @@ __status__ = 'dev'
 		<test>
 			<param name="fasta_file" value="references/04-filters.fasta"/>
 			<param name="biom_file"  value="references/06-affiliation.biom"/>
-			<!--output name="out_tree" value="references/13-tree-mafft.nwk"/-->
-			<!--output name="html" value="references/13-tree-mafft.html"/-->
 			<output name="html">
- 		        	<assert_contents>
-                    		<has_text_matching expression="FROGS\sTree" />
-                    		<has_text_matching expression="abundance_removed.*:\s0" />
-                    		<has_text_matching expression="abundance_kept.*:\s45574" />
-                    		<has_text_matching expression="otu_removed.*:\s0" />
-                    		<has_text_matching expression="otu_kept.*:\s86" />
-                	</assert_contents>
+ 		        <assert_contents>
+                    	<has_text_matching expression="FROGS\sTree" />
+                    	<has_text_matching expression="abundance_removed.*:\s0" />
+                    	<has_text_matching expression="abundance_kept.*:\s45574" />
+                    	<has_text_matching expression="otu_removed.*:\s0" />
+                    	<has_text_matching expression="otu_kept.*:\s86" />
+                </assert_contents>
 			</output>
 		</test>
 	</tests>
