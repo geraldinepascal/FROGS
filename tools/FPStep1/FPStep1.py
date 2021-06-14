@@ -43,7 +43,7 @@ class PlaceSeqs(Cmd):
 	"""
 	@summary: place studies sequences (i.e. OTUs) into a reference tree
 	"""
-	def __init__(self, in_fasta, out_tree, placement_tool, category, log):
+	def __init__(self, in_fasta, out_tree, placement_tool, category, min_align, log):
 		"""
 		@param in_fasta: [str] Path to input fasta file of unaligned cluster sequences.
 		@param out_tree: [str] Path to output resulting tree file with insert clusters sequences.
@@ -58,7 +58,7 @@ class PlaceSeqs(Cmd):
 		Cmd.__init__(self,
 		'place_seqs.py',
 		'place OTU on reference tree.',
-		'--study_fasta ' + in_fasta + ' --out_tree ' + out_tree + ' --placement_tool ' + placement_tool + " --ref_dir " + category + " 2> " + log,
+		'--study_fasta ' + in_fasta + ' --out_tree ' + out_tree + ' --placement_tool ' + placement_tool + " --min_align " + str(min_align) + " --ref_dir " + category + " 2> " + log,
 		'--version')
 
 	def get_version(self):
@@ -145,6 +145,20 @@ def excluded_sequence(tree_file, in_fasta, excluded):
 			excluded.write(record.id+"\n")
 	FH_input.close()
 	excluded.close()
+
+def restricted_float(in_arg):
+	"""
+	@summary: Custom argparse type to force an input float to be between 0 and 1.
+	"""
+	try:
+		in_arg = float(in_arg)
+	except ValueError:
+		raise argparse.ArgumentTypeError(in_arg + " is not a floating-point "
+										 "literal (i.e. not a proportion)")
+
+	if in_arg < 0.0 or in_arg > 1.0:
+		raise argparse.ArgumentTypeError(in_arg + "is not in range 0.0 - 1.0")
+	return in_arg
 
 def write_summary(in_fasta, align_out, biomfile, closest_ref_file, category, summary_file):
 	"""
@@ -234,6 +248,7 @@ if __name__ == "__main__":
 	group_input.add_argument('-b', '--input_biom', required=True, help='Biom file.')
 	group_input.add_argument('-c', '--category',choices=['16S', 'ITS', '18S'], default='16S', help='Specifies which category 16S, ITS, 18S')
 	group_input.add_argument('-p', '--placement_tool', default='epa-ng', help='Placement tool to use when placing sequences into reference tree. One of "epa-ng" or "sepp" must be input')
+	group_input.add_argument('--min_align', type=restricted_float, default=0.8, help='Proportion of the total length of an input query ''sequence that must align with reference sequences. ''Any sequences with lengths below this value after ''making an alignment with reference sequences will ''be excluded from the placement and all subsequent ''steps. (default: %(default)d).')
 	# Outputs
 	group_output = parser.add_argument_group('Outputs')
 	group_output.add_argument('-o', '--out_tree', default='FPStep1.tree', help='Tree output with insert sequences (format: newick).')
@@ -269,7 +284,7 @@ if __name__ == "__main__":
 				os.remove(gz_ref_fasta)
 
 		tmp_place_seqs = tmp_files.add( 'tmp_place_seqs.log' )
-		PlaceSeqs(tmp_fasta, args.out_tree, args.placement_tool, args.category, tmp_place_seqs).submit(args.log_file)
+		PlaceSeqs(tmp_fasta, args.out_tree, args.placement_tool, args.category, args.min_align, tmp_place_seqs).submit(args.log_file)
 
 		excluded_sequence(args.out_tree,args.input_fasta,args.excluded)
 
