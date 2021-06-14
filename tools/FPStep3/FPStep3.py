@@ -128,7 +128,7 @@ if __name__ == "__main__":
 	#Outputs
 	group_output = parser.add_argument_group( 'Outputs')
 	group_output.add_argument('-o', '--out_dir', metavar='PATH', type=str, default='metagenome_out', help='Output directory for metagenome predictions. ''(default: %(default)s).')
-	group_output.add_argument('-t', '--output-tsv', default='FPStep3_abundance.tsv', help='This output file will contain the abundance and metadata (format: TSV). [Default: %(default)s]' )
+	group_output.add_argument('-t', '--output_tsv', default='FPStep3_abundance.tsv', help='This output file will contain the abundance and metadata (format: TSV). [Default: %(default)s]' )
 	group_output.add_argument('-l', '--log_file', default=sys.stdout, help='List of commands executed.')
 	args = parser.parse_args()
 	prevent_shell_injections(args)

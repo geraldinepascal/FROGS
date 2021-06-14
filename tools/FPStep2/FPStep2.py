@@ -46,7 +46,7 @@ class HspMarker(Cmd):
 	@summary: hsp.py : predict number of marker copies (16S, 18S or ITS) for each OTU.
 
 	"""
-	def __init__(self, category, in_tree, output, result_file, log):
+	def __init__(self, category, in_tree, hsp_method, output, result_file, log):
 		if category == "16S":
 			input_marker = " -i 16S"
 		elif category == "ITS":
@@ -57,7 +57,7 @@ class HspMarker(Cmd):
 		Cmd.__init__(self,
 				 'hsp.py',
 				 'predict gene copy numer per sequence.', 
-				 input_marker + " -t " + in_tree + " -o " + output + " -n  2> " + log,
+				 input_marker + " -t " + in_tree + " --hsp_method " + hsp_method + " -o " + output + " -n  2> " + log,
 				"--version")
 
 		self.output = output
@@ -72,10 +72,11 @@ class HspMarker(Cmd):
 		"""
 		if is_gzip(self.output):
 			FH_in = gzip.open(self.output,'rt').readlines()
+			FH_results = gzip.open(self.result_file,'wt')
 		else:
 			FH_in = open(self.output,'rt').readlines()
-		
-		FH_results = gzip.open(self.result_file,'wt')
+			FH_results = open(self.result_file,'wt')
+	
 		for line in FH_in:
 			cluster = line.strip().split('\t')[0]
 			nsti = line.strip().split('\t')[2]
@@ -86,7 +87,7 @@ class HspFunction(Cmd):
 	"""
 	@summary: hsp.py predict number of genes family for each OTU.
 	"""
-	def __init__(self, category, function, in_tree, output, result_file, log):
+	def __init__(self, category, function, in_tree, hsp_method, output, result_file, log):
 		if category == "16S":
 			input_function = " -i " + function
 		elif category == "ITS":
@@ -96,7 +97,7 @@ class HspFunction(Cmd):
 		Cmd.__init__(self,
 				 'hsp.py',
 				 'predict function abundance per sequence.', 
-				  input_function + " -t " + in_tree + " -o " + output + " -n 2>> " + log,
+				  input_function + " -t " + in_tree + " --hsp_method " + hsp_method +  " -o " + output + " -n 2>> " + log,
 				"--version")
 
 		self.output = output
@@ -111,11 +112,13 @@ class HspFunction(Cmd):
 		"""
 		if is_gzip(self.output):
 			FH_in = gzip.open(self.output,'rt').readlines()
+			tmp = gzip.open(self.result_file+'.tmp', 'wt')
+			FH_results = gzip.open(self.result_file,'rt').readlines()
 		else:
 			FH_in = open(self.output,'rt').readlines()
+			tmp = open(self.result_file+'.tmp', 'wt')
+			FH_results = open(self.result_file,'rt').readlines()
 
-		tmp = gzip.open(self.result_file+'.tmp', 'wt')
-		FH_results = gzip.open(self.result_file,'rt').readlines()
 		for cur_line in range(len(FH_in)):
 			line = FH_in[cur_line].split('\t')[1:-1]
 			result = FH_results[cur_line].split('\t')
@@ -174,29 +177,25 @@ if __name__ == "__main__":
 	# Inputs
 	group_input = parser.add_argument_group( 'Inputs' )
 	group_input.add_argument('-c', '--category', choices=['16S', '18S', 'ITS'], default='16S', help='Specifies which category 16S, 18S or ITS')
-	group_input.add_argument('-f', '--function', default=None,help="Specifies which default trait table should be used ('EC', 'COG', 'KO', 'PFAM', 'TIGRFAM' or 'PHENO'). To run the command with several functions, separate the functions with commas (ex: COG,KO,PFAM) (for ITS or 18S : only EC available")
+	group_input.add_argument('-f', '--function', default="EC",help="Specifies which default trait table should be used ('EC', 'COG', 'KO', 'PFAM', 'TIGRFAM' or 'PHENO'). To run the command with several functions, separate the functions with commas (ex: COG,KO,PFAM) (for ITS or 18S : only EC available")
 	group_input.add_argument('-t', '--tree', required=True, type=str, help='FPStep1 output tree in newick format containing both study sequences (i.e. ASVs or OTUs) and reference sequences.')
 	group_input.add_argument('-s', '--hsp_method', default='mp', choices=['mp', 'emp_prob', 'pic', 'scp', 'subtree_average'], help='HSP method to use.' +'"mp": predict discrete traits using max parsimony. ''"emp_prob": predict discrete traits based on empirical ''state probabilities across tips. "subtree_average": ''predict continuous traits using subtree averaging. ' '"pic": predict continuous traits with phylogentic ' 'independent contrast. "scp": reconstruct continuous ''traits using squared-change parsimony (default: ''%(default)s).')
 	# Output
 	group_output = parser.add_argument_group( 'Outputs' )
 	group_output.add_argument('-m', '--output_marker', default=None, type=str, help='Output table of predicted marker gene copy numbers per study sequence in input tree. If the extension \".gz\" is added the table will automatically be gzipped.')
-	group_output.add_argument('-o', '--output_function', default="all_predicted.tsv.gz", type=str, help='Output table with predicted abundances per study sequence in input tree. If the extension \".gz\" is added the table will automatically be gzipped.')
+	group_output.add_argument('-o', '--output_function', default="all_predicted.tsv", type=str, help='Output table with predicted abundances per study sequence in input tree. If the extension \".gz\" is added the table will automatically be gzipped.')
 	group_output.add_argument('-l', '--log_file', default=sys.stdout, help='List of commands executed.')
 	args = parser.parse_args()
 	prevent_shell_injections(args)
 
 	# manage category and function input parameters
-	if args.category == "16S" and args.function is None:
-		args.function = "EC"
-	if args.category == "ITS" and args.function is None:
-		args.function = "EC"
 	if args.category == "ITS" and args.function != "EC":
 		Logger.static_write(args.log_file, '\n\n#WARNING : --function parameter: only EC available with --category set to ITS.\n')
 		Logger.static_write(args.log_file, '\n--function parameter set to EC.\n\n')
 		args.function = "EC"
 	# default output marker file name
 	if args.output_marker is None:
-		args.output_marker = args.category + "_nsti_predicted.tsv.gz"
+		args.output_marker = args.category + "_nsti_predicted.tsv"
 
 	tmp_files=TmpFiles(os.path.split(args.output_marker)[0])
 
@@ -206,15 +205,15 @@ if __name__ == "__main__":
 		Logger.static_write(args.log_file, "## Application\nSoftware :" + sys.argv[0] + " (version : " + str(__version__) + ")\nCommand : " + " ".join(sys.argv) + "\n\n")
 
 		tmp_hsp_marker = tmp_files.add( 'tmp_hsp_marker.log' )
-		HspMarker(args.category, args.tree, args.output_marker, args.output_function, tmp_hsp_marker).submit(args.log_file)
+		HspMarker(args.category, args.tree, args.hsp_method, args.output_marker, args.output_function, tmp_hsp_marker).submit(args.log_file)
 
 		tmp_hsp_function = tmp_files.add( 'tmp_hsp_function.log' )
 
-		suffix_name = "_predicted.tsv.gz"
+		suffix_name = "_predicted.tsv"
 		for function in functions:
 			cur_output_function = function + suffix_name
 			Logger.static_write(args.log_file, '\n\nRunning ' + function + ' functions prediction.\n')
-			HspFunction(args.category, function, args.tree, cur_output_function, args.output_function, tmp_hsp_function).submit(args.log_file)
+			HspFunction(args.category, function, args.tree, args.hsp_method, cur_output_function, args.output_function, tmp_hsp_function).submit(args.log_file)
 
 	finally:
 		if not args.debug:

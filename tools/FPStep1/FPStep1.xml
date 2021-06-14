@@ -34,6 +34,7 @@
 	   		--input_fasta $input_fasta
 	   		--input_biom $input_biom
 	   		--category $category
+	   		--min_align $min_align
 	   		--placement_tool $placement_tool
 	   		--out_tree $out_tree 
 	   		--excluded $excluded
@@ -60,7 +61,7 @@
         	<option value="epa-ng">epa-ng</option>
         	<option value="sepp">sepp</option>
 		</param>
-<!-- 		<param name="min" type="float" label="Total length" help="Proportion of the total length of an input query, minimum coverage between input query and sequences of reference tree." value="0.8" min="0" max="1" optional="false" />  -->
+		<param name="min_align" type="float" label="Minimum alignment length" help="Proportion of the total length of an input query sequence that must align with reference sequences. Any sequences with lengths below this value after making an alignment with reference sequences will be excluded from the placement and all subsequent steps. (default: 0.80)" value="0.8" min="0" max="1" optional="false" /> 
 	</inputs>
 
 

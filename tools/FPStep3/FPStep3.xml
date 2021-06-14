@@ -8,7 +8,7 @@ __email__ = 'frogs@inrae.fr'
 __status__ = 'dev'
 -->
 <tool id="FROGS_PICRUSt2_metagenome" name="FPStep3" version= "1.0">
-    <description>predict abundance gene</description>
+    <description>Predict abundance gene</description>
 
     <stdio>
         <exit_code range="1:" />
@@ -16,50 +16,43 @@ __status__ = 'dev'
     </stdio>
     
 
-    <command >   
-        $GALAXY_ROOT_DIR/tools/FROGS_moussa/app/FPStep3.py -i $input_biom -m $marker -f $function -o $out_file;
-        <!-- $GALAXY_ROOT_DIR/tools/FROGS_moussa/app/FPStep3.py -i $input_biom -e $function -o $out_file; -->
+    <command >
+       $GALAXY_ROOT_DIR/tools/FROGS/app/FPStep3.py
+            --input_biom $input_biom
+            --function $function
+            --marker $marker
+            --max_nsti $max_nsti
+            --min_reads $min_reads 
+            --min_samples $min_samples
+            --out_dir $out_dir
+            #if $strat
+                --strat_out
+            #end if
 
 
-    <!-- ../FPStep3.py -i test_16S.biom1 -m 16S_count_table_1_sorti_etape2.tsv -f ../resultat_parse_KO.tsv -o Sorti_etape3_Test_KO -->
     </command> 
-        <!-- outlocation=$(mktemp -d your_path/galaxy/database/XXXXXX)
-        mkdir $outlocation"/outputfolder"
-        mkdir $outlocation"/inputfolder"
-        unzip $1 -d $outlocation"/inputfolder"
-        mytool.py -input [inputfolder files] -param $3 -param2 $4 -outputfolder $outlocation"/outputfolder"
-        zip -r -j $outlocation"/output.zip" $outlocation"/outputfolder"
-        mv  $outlocation"/output.zip" $2
-        rm -rf $outlocation -->
-
 
 
     <inputs>
-             
-        <param format="biom1" name="input_biom" type="data" label="Biom file" help="The BIOM file to convert (format: BIOM)"
-            optional="false">
+        <param format="biom1" name="input_biom" type="data" label="Biom file" help="The abundance table of OTUs used in FPStep1(format: biom)." optional="false">
             <validator type="empty_field" message="This parameter is required." />
         </param>
-
-        <param format="tabular" name= "marker" type="data" label="Table of predicted marker gene copy numbers ''(output of FPStep2 - typically for 16S).'" />
-
-        <param format="tabular" name="function" type="data" label=" table of prediction: marker gene copy numbers and function " help="Table of predicted gene family copy numbers''(output of FPStep2.py).')"/>
-        
-
-        <!-- Paramemtre-->
-        
-        <!-- Paramemtre-->
-   
+        <param format="tabular" name="function" type="data" label="Function file" help="Table of predicted gene family copy numbers (output of
+                        FPStep2 : all_predicted.tsv)" optional="false">
+            <validator type="empty_field" message="This parameter is required." />
+        </param>
+        <param format="tabular" name="marker" type="data" label="Marker file" help="Table of predicted marker gene copy numbers (output of FPStep2 : exemple 16S_nsti_predicted.tsv)." optional="false">
+            <validator type="empty_field" message="This parameter is required." />
+        </param>
+        <param name="max_nsti" type="float" label="NSTI cut-off" help="Sequences with NSTI values above this value will be excluded (default: 2)" value="2" min="0" max="4" optional="false" /> 
+        <param name="min_reads" type="integer" optional="false" min="1" value="1" label="Minimum number of reads accross all samples" help='Minimum number of reads across all samples for each input ASV. ASVs below this cut-off will be counted as part of the "RARE" category in the stratified output (default: 1).' />
+       <param name="min_samples" type="integer" optional="false" min="1" value="1" label="Minimum number of samples to be identified"  help='Minimum number of samples that an ASV needs to be identified within. ASVs below this cut-off will be counted as part of the "RARE" category in the stratified output (default: 1).' />
+        <param name="strat" type="boolean" label="Also produce table stratified by sequences ?" help='Output table stratified by sequences as well. By default this will be in "contributional" format (default No)' />
     </inputs>
 
 
     <outputs>
-         <!-- <data format="directory" name="out_file" label="${tool.name}: gene_abundance" from_work_dir="Abundance_gene"/>    
-         <datatype extension="directory" type="galaxy.datatypes.data:Directory"> </datatype> -->
-
-        <data format="directory" name="out_file" label="${tool.name}: excluded" from_work_dir="excluded"/> 
-
-
+        <data name="out_dir" label="${tool.name}: metagenome_out" from_work_dir="metagenome_out/"/>
     </outputs>
 
      <help>

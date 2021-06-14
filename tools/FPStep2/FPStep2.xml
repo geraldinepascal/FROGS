@@ -22,7 +22,13 @@ __status__ = 'dev'
 	
 
     <command >
-	  $GALAXY_ROOT_DIR/tools/FROGS_moussa/app/gene_placement.py -c $categorie -i $table -t $tree_file -o $out_file  -b $biom_file;
+	   $GALAXY_ROOT_DIR/tools/FROGS/app/FPStep2.py
+	   		--tree $input_tree
+	   		--category $category
+	   		--function $function
+	   		--hsp_method $hsp_method
+	   		--output_marker $out_marker
+	   		--output_function $out_function
 	</command> 
 
 
@@ -30,58 +36,38 @@ __status__ = 'dev'
 	         	 <!-- Files -->
 	    <!-- <param format="Fasta" name="fasta_file" type="data" label="Fasta file" help="The sequence file to filter (format: fasta)." /> -->
 
-	    <param format="nhx" name="tree_file" type="data" label="Tree file" help="The tree file of OTU (format: newick)."
+	    <param format="nhx" name="input_tree" type="data" label="Tree file" help="The full reference tree in newick format containing both study sequences (i.e. ASVs or OTUs) and reference sequences (FPStep1 output)."
 	    	optional="false">
         	<validator type="empty_field" message="This parameter is required." />
         </param>
 
-        <param format="biom1" name="biom_file" type="data" label="Biom file" help="The abundance table of OTUs (format: biom)." optional="false">
-        	<validator type="empty_field" message="This parameter is required." />
-        </param>
-
-	   			 <!-- Paramemtre-->
-	   	<param name="categorie" type="select" label="Categorie">
-		    <option value="16S">Procaryote_16S</option>
-		    <option value="ITS">Fungi_ITS</option>
-		    <option value="18S">Fungi_18S</option>
+	   			 <!-- Parameters-->
+        <param name="category" type="select" label="Taxonomic marker" help="Taxonomic marker of interest." multiple="false" display="radio">
+        	<option value="16S">16S</option>
+        	<option value="ITS">ITS</option>
+        	<option value="18S">18S</option>
 		</param>
-
-		<!-- <param name="table" type="select" label="Reference Table">
-		    <option value="16S">16S_Count</option>
-		    <option value="EC">EC</option>
-		    <option value="KO">KO</option>
-		</param> -->
-
-		<param name="table" type="select" label="Reference Table" multiple="true" display="checkboxes">
-             <option value="16S">16S_Count</option>
+		<param name="function" type="select" label="Function table" help="Specifies which default trait table should be used." multiple="true" display="checkboxes">
              <option value="EC">EC</option>
              <option value="KO">KO</option>
              <option value="PFAM">PFAM</option>
              <option value="COG">COG</option>
              <option value="TIGRFAM">TIGRFAM</option>
              <option value="PHENO">PHENO</option>
-        </param>
-
+		</param> 
+		<param name="hsp_method" type="select" label="HSP method" help='HSP method to use."mp": predict discrete traits usingmax parsimony. "emp_prob": predict discrete traits based on empirical state probabilities across tips. "subtree_average": predict continuous traits using subtree averaging. "pic": predict continuous traits with phylogentic independent contrast. "scp": reconstruct continuous traits using squared-change parsimony (default: mp).' multiple="false" display="radio">
+             <option value="mp">mp</option>
+             <option value="emp_prob">emp_prob</option>
+             <option value="pic">pic</option>
+             <option value="scp">scp</option>
+             <option value="subtree_average">subtree_average</option>
+		</param> 
 	</inputs>
 
 
 	<outputs>
-		<!-- <data format="tree" name="out_file1" /> -->
-		<!-- <data format="nhx" name="out_file"/> -->
-		<!-- <data format="tabular" name="output_excluded" />  -->
-		<!-- <data format="html" name="summary.html" /> -->
-		<data format="html" name="html" label="${tool.name}: summary.html" from_work_dir="summary.html"/><!-- 
-		<data format="tabular" name="out_file" label="${tool.name}:out.txt" from_work_dir="out"/> -->
-		 <data format="tabular" name="out_file" label="${tool.name}: OTU_Count.tsv" from_work_dir="OTU_Count.tsv"/> 
-
-		  
-   <!--  <data format="tabular" name="output">
-        <actions>
-            <action name="output" type="metadata" default="Firstname,Lastname,Age" />
-        </actions>
-    </data> -->
-
-
+		<data format="tabular" name="out_function" label="${tool.name}: all_predicted.tsv" from_work_dir="all_predicted.tsv"/>
+		<data format="tabular" name="out_marker" label="${tool.name}: marker_nsti_predicted.tsv" from_work_dir="${category}_nsti_predicted.tsv"/> 
 	</outputs>
 
 
