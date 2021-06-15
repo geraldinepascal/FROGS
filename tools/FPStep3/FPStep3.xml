@@ -27,9 +27,9 @@ __status__ = 'dev'
             --function_abund $function_abund
             --seqtab $seqtab
             --weighted $weighted
-            --debug
             #if $strat
                 --strat_out
+                --contrib $contrib
             #end if
 
 
@@ -55,9 +55,12 @@ __status__ = 'dev'
 
 
     <outputs>
-        <data format="tabular" name="function_abund" label="${tool.name}: pred_metagenome_unstrat.tsv.gz" from_work_dir="pred_metagenome_unstrat.tsv.gz"/> 
-        <data format="tabular" name="seqtab" label="${tool.name}: seqtab_norm.tsv.gz" from_work_dir="seqtab_norm.tsv.gz"/> 
-        <data format="tabular" name="weighted" label="${tool.name}: weighted_nsti.tsv.gz" from_work_dir="weighted_nsti.tsv.gz"/> 
+        <data format="tabular" name="function_abund" label="${tool.name}: pred_metagenome_unstrat.tsv" from_work_dir="pred_metagenome_unstrat.tsv"/> 
+        <data format="tabular" name="seqtab" label="${tool.name}: seqtab_norm.tsv" from_work_dir="seqtab_norm.tsv"/> 
+        <data format="tabular" name="weighted" label="${tool.name}: weighted_nsti.tsv" from_work_dir="weighted_nsti.tsv"/> 
+        <data format="tabular" name="contrib" label="${tool.name}: pred_metagenome_contrib.tsv" from_work_dir="pred_metagenome_contrib.tsv">
+            <filter>strat</filter>
+        </data>
     </outputs>
 
      <help>

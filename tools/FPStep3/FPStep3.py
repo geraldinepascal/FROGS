@@ -41,7 +41,7 @@ class MetagenomePipeline(Cmd):
 	"""
 	@summary: Per-sample metagenome functional profiles are generated based on the predicted functions for each study sequence.
 	"""
-	def __init__(self, in_biom, marker, function, max_nsti, min_reads, min_samples, strat_out, function_abund, seqtab, weighted, log):
+	def __init__(self, in_biom, marker, function, max_nsti, min_reads, min_samples, strat_out, function_abund, seqtab, weighted, contrib, log):
 		"""
 		@param: in_biom: Path to BIOM input file used in FPStep1
 		"""
@@ -56,6 +56,8 @@ class MetagenomePipeline(Cmd):
 		self.abund = function_abund
 		self.seqtab = seqtab
 		self.weighted = weighted
+		self.strat = strat_out
+		self.contrib = contrib
 
 	def get_version(self):
 		 return Cmd.get_version(self, 'stdout').split()[1].strip() 
@@ -72,6 +74,11 @@ class MetagenomePipeline(Cmd):
 		with gzip.open('weighted_nsti.tsv.gz', 'rb') as f_in:
 			with open(self.weighted, 'wb') as f_out:
 				shutil.copyfileobj(f_in, f_out)
+
+		if self.strat:
+			with gzip.open('pred_metagenome_contrib.tsv.gz', 'rb') as f_in:
+				with open(self.contrib, 'wb') as f_out:
+					shutil.copyfileobj(f_in, f_out)
 
 class AddDescriptions(Cmd):
 	"""
@@ -146,9 +153,16 @@ if __name__ == "__main__":
 	group_output.add_argument('--function_abund', default='pred_metagenome_unstrat.tsv', help='Output file for metagenome predictions abundance. (default: %(default)s).')
 	group_output.add_argument('--seqtab', default='seqtab_norm.tsv', help='This output file will contain abundance normalized. (default: %(default)s).')
 	group_output.add_argument('--weighted', default='weighted_nsti.tsv', help='This output file will contain the nsti value per sample (format: TSV). [Default: %(default)s]' )
+	group_output.add_argument('--contrib', default=None, help='Stratified output that represents contributions to community-wide abundances')
 	group_output.add_argument('-l', '--log_file', default=sys.stdout, help='List of commands executed.')
 	args = parser.parse_args()
 	prevent_shell_injections(args)
+
+	if args.strat_out and args.contrib is None:
+		args.contrib = 'pred_metagenome_contrib.tsv'
+
+	if not args.strat_out and args.contrib is not None:
+		parser.error('--contrib FILENAME must be include with --strat_out flag')
 
 	tmp_files=TmpFiles(os.path.split(args.marker)[0])
 	try:	 
@@ -158,7 +172,7 @@ if __name__ == "__main__":
 		Biom2tsv(args.input_biom, tmp_biom_to_tsv).submit( args.log_file )
 
 		tmp_metag_pipeline = tmp_files.add( 'tmp_metagenome_pipeline.log' )	
-		MetagenomePipeline(tmp_biom_to_tsv, args.marker, args.function, args.max_nsti, args.min_reads, args.min_samples, args.strat_out, args.function_abund, args.seqtab, args.weighted, tmp_metag_pipeline).submit( args.log_file )
+		MetagenomePipeline(tmp_biom_to_tsv, args.marker, args.function, args.max_nsti, args.min_reads, args.min_samples, args.strat_out, args.function_abund, args.seqtab, args.weighted, args.contrib, tmp_metag_pipeline).submit( args.log_file )
 
 		if not args.skip_descriptions:
 			tmp_description_file = tmp_files.add('descriptions_file.tsv.gz')
