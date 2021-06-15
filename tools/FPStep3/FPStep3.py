@@ -42,7 +42,7 @@ class MetagenomePipeline(Cmd):
 	"""
 	@summary: Per-sample metagenome functional profiles are generated based on the predicted functions for each study sequence.
 	"""
-	def __init__(self, in_biom, marker, function, out_dir, max_nsti, min_reads, min_samples, strat_out, log):
+	def __init__(self, in_biom, marker, function, max_nsti, min_reads, min_samples, strat_out, function_abund, seqtab, weighted, log):
 		"""
 		@param: in_biom: Path to BIOM input file used in FPStep1
 		"""
@@ -51,11 +51,20 @@ class MetagenomePipeline(Cmd):
 		Cmd.__init__(self,
 				 'metagenome_pipeline.py ',
 				 'Per-sample functional profiles prediction.', 
-				 " --input " +  in_biom + " --marker " + marker + " --function " + function + " --out_dir " + out_dir + " --max_nsti " + str(max_nsti) + " --min_reads " + str(min_reads) + " --min_samples " + str(min_samples) + opt + ' 2> ' + log,
-				"--version") 
-	  
+				 " --input " +  in_biom + " --marker " + marker + " --function " + function + " --out_dir ./ --max_nsti " + str(max_nsti) + " --min_reads " + str(min_reads) + " --min_samples " + str(min_samples) + opt + ' 2> ' + log,
+				"--version")
+
+		self.abund = function_abund
+		self.seqtab = seqtab
+		self.weighted = weighted
+
 	def get_version(self):
 		 return Cmd.get_version(self, 'stdout').split()[1].strip() 
+
+	def parser(self, log_file):
+		os.rename("pred_metagenome_unstrat.tsv.gz", self.abund)
+		os.rename("seqtab_norm.tsv.gz", self.seqtab)
+		os.rename("weighted_nsti.tsv.gz", self.weighted)
 
 class AddDescriptions(Cmd):
 	"""
@@ -127,8 +136,9 @@ if __name__ == "__main__":
 	group_input.add_argument('--min_samples', metavar='INT', type=int, default=1, help='Minimum number of samples that an ASV needs to be ''identfied within. ASVs below this cut-off will be ''counted as part of the \"RARE\" category in the ''stratified output (default: %(default)d).')
 	#Outputs
 	group_output = parser.add_argument_group( 'Outputs')
-	group_output.add_argument('-o', '--out_dir', metavar='PATH', type=str, default='metagenome_out', help='Output directory for metagenome predictions. ''(default: %(default)s).')
-	group_output.add_argument('-t', '--output_tsv', default='FPStep3_abundance.tsv', help='This output file will contain the abundance and metadata (format: TSV). [Default: %(default)s]' )
+	group_output.add_argument('--function_abund', default='pred_metagenome_unstrat.tsv.gz', help='Output file for metagenome predictions abundance. (default: %(default)s).')
+	group_output.add_argument('--seqtab', default='seqtab_norm.tsv.gz', help='This output file will contain abundance normalized. (default: %(default)s).')
+	group_output.add_argument('--weighted', default='weighted_nsti.tsv.gz', help='This output file will contain the nsti value per sample (format: TSV). [Default: %(default)s]' )
 	group_output.add_argument('-l', '--log_file', default=sys.stdout, help='List of commands executed.')
 	args = parser.parse_args()
 	prevent_shell_injections(args)
@@ -141,13 +151,13 @@ if __name__ == "__main__":
 		Biom2tsv(args.input_biom, tmp_biom_to_tsv).submit( args.log_file )
 
 		tmp_metag_pipeline = tmp_files.add( 'tmp_metagenome_pipeline.log' )	
-		MetagenomePipeline(tmp_biom_to_tsv, args.marker, args.function, args.out_dir, args.max_nsti, args.min_reads, args.min_samples, args.strat_out, tmp_metag_pipeline).submit( args.log_file )
+		MetagenomePipeline(tmp_biom_to_tsv, args.marker, args.function, args.max_nsti, args.min_reads, args.min_samples, args.strat_out, args.function_abund, args.seqtab, args.weighted, tmp_metag_pipeline).submit( args.log_file )
 
 		if not args.skip_descriptions:
 			tmp_description_file = tmp_files.add('descriptions_file.tsv.gz')
 			formate_description_file(DESCRIPTION_DIR, tmp_description_file )
 
-			pred_file = args.out_dir + "/pred_metagenome_unstrat.tsv.gz"
+			pred_file = args.function_abund
 			AddDescriptions(pred_file,  tmp_description_file, pred_file).submit( args.log_file)
 	finally:
 		if not args.debug:

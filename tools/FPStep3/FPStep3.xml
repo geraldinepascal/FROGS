@@ -25,6 +25,7 @@ __status__ = 'dev'
             --min_reads $min_reads 
             --min_samples $min_samples
             --out_dir $out_dir
+            --debug
             #if $strat
                 --strat_out
             #end if
@@ -52,7 +53,7 @@ __status__ = 'dev'
 
 
     <outputs>
-        <data name="out_dir" label="${tool.name}: metagenome_out" from_work_dir="metagenome_out/"/>
+        <data name="out_dir" format="directory" label="${tool.name}: metagenome_out" from_work_dir="metagenome_out/"/>
     </outputs>
 
      <help>
