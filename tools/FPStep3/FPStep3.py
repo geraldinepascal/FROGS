@@ -12,9 +12,8 @@ import re
 import sys
 import gzip
 import glob
-import argparse
-from numpy import median
 import shutil
+import argparse
 from tempfile import gettempdir
 
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -62,22 +61,30 @@ class MetagenomePipeline(Cmd):
 		 return Cmd.get_version(self, 'stdout').split()[1].strip() 
 
 	def parser(self, log_file):
-		os.rename("pred_metagenome_unstrat.tsv.gz", self.abund)
-		os.rename("seqtab_norm.tsv.gz", self.seqtab)
-		os.rename("weighted_nsti.tsv.gz", self.weighted)
+		with gzip.open('pred_metagenome_unstrat.tsv.gz', 'rb') as f_in:
+			with open(self.abund, 'wb') as f_out:
+				shutil.copyfileobj(f_in, f_out)
+
+		with gzip.open('seqtab_norm.tsv.gz', 'rb') as f_in:
+			with open(self.seqtab, 'wb') as f_out:
+				shutil.copyfileobj(f_in, f_out)
+
+		with gzip.open('weighted_nsti.tsv.gz', 'rb') as f_in:
+			with open(self.weighted, 'wb') as f_out:
+				shutil.copyfileobj(f_in, f_out)
 
 class AddDescriptions(Cmd):
 	"""
 	@summary: Adds a description column to a function abundance table and outputs a new file.
 	"""
-	def __init__(self, function_file, description_file, out_file):
+	def __init__(self, function_file, description_file, out_file, log):
 		"""
 		@param function_file: [str] Path to input function abundance table. (ex: EC_metagenome_out/pred_metagenome_unstrat.tsv.gz)
 		"""
 		Cmd.__init__(self,
 			'add_descriptions.py ',
 			'Adds a description column to a function abundance table.',
-			'--input ' + function_file + ' --custom_map_table ' + description_file + ' --output ' + out_file,
+			'--input ' + function_file + ' --custom_map_table ' + description_file + ' --output ' + out_file + " 2> " + log,
 			'--version')
 
 	def get_version(self):
@@ -136,9 +143,9 @@ if __name__ == "__main__":
 	group_input.add_argument('--min_samples', metavar='INT', type=int, default=1, help='Minimum number of samples that an ASV needs to be ''identfied within. ASVs below this cut-off will be ''counted as part of the \"RARE\" category in the ''stratified output (default: %(default)d).')
 	#Outputs
 	group_output = parser.add_argument_group( 'Outputs')
-	group_output.add_argument('--function_abund', default='pred_metagenome_unstrat.tsv.gz', help='Output file for metagenome predictions abundance. (default: %(default)s).')
-	group_output.add_argument('--seqtab', default='seqtab_norm.tsv.gz', help='This output file will contain abundance normalized. (default: %(default)s).')
-	group_output.add_argument('--weighted', default='weighted_nsti.tsv.gz', help='This output file will contain the nsti value per sample (format: TSV). [Default: %(default)s]' )
+	group_output.add_argument('--function_abund', default='pred_metagenome_unstrat.tsv', help='Output file for metagenome predictions abundance. (default: %(default)s).')
+	group_output.add_argument('--seqtab', default='seqtab_norm.tsv', help='This output file will contain abundance normalized. (default: %(default)s).')
+	group_output.add_argument('--weighted', default='weighted_nsti.tsv', help='This output file will contain the nsti value per sample (format: TSV). [Default: %(default)s]' )
 	group_output.add_argument('-l', '--log_file', default=sys.stdout, help='List of commands executed.')
 	args = parser.parse_args()
 	prevent_shell_injections(args)
@@ -157,8 +164,9 @@ if __name__ == "__main__":
 			tmp_description_file = tmp_files.add('descriptions_file.tsv.gz')
 			formate_description_file(DESCRIPTION_DIR, tmp_description_file )
 
+			tmp_add_descriptions = tmp_files.add( 'tmp_add_descriptions.log' )	
 			pred_file = args.function_abund
-			AddDescriptions(pred_file,  tmp_description_file, pred_file).submit( args.log_file)
+			AddDescriptions(pred_file,  tmp_description_file, pred_file, tmp_add_descriptions).submit( args.log_file)
 	finally:
 		if not args.debug:
 			tmp_files.deleteAll()

@@ -24,7 +24,9 @@ __status__ = 'dev'
             --max_nsti $max_nsti
             --min_reads $min_reads 
             --min_samples $min_samples
-            --out_dir $out_dir
+            --function_abund $function_abund
+            --seqtab $seqtab
+            --weighted $weighted
             --debug
             #if $strat
                 --strat_out
@@ -53,7 +55,9 @@ __status__ = 'dev'
 
 
     <outputs>
-        <data name="out_dir" format="directory" label="${tool.name}: metagenome_out" from_work_dir="metagenome_out/"/>
+        <data format="tabular" name="function_abund" label="${tool.name}: pred_metagenome_unstrat.tsv.gz" from_work_dir="pred_metagenome_unstrat.tsv.gz"/> 
+        <data format="tabular" name="seqtab" label="${tool.name}: seqtab_norm.tsv.gz" from_work_dir="seqtab_norm.tsv.gz"/> 
+        <data format="tabular" name="weighted" label="${tool.name}: weighted_nsti.tsv.gz" from_work_dir="weighted_nsti.tsv.gz"/> 
     </outputs>
 
      <help>
