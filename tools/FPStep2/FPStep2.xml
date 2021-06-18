@@ -48,8 +48,7 @@ __status__ = 'dev'
         	<option value="ITS">ITS</option>
         	<option value="18S">18S</option>
 		</param>
-		<param name="function" type="select" label="Function table" help="Specifies which default trait table should be used." multiple="true" display="checkboxes">
-             <option value="EC" selected="true">EC</option>
+		<param name="function" type="select" label="Function table" help="Specifies which default trait table should be used. EC is performed automatically because necessary for FPStep4" multiple="true" display="checkboxes">
              <option value="KO">KO</option>
              <option value="PFAM">PFAM</option>
              <option value="COG">COG</option>

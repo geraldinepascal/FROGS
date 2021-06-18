@@ -177,7 +177,7 @@ if __name__ == "__main__":
 	# Inputs
 	group_input = parser.add_argument_group( 'Inputs' )
 	group_input.add_argument('-c', '--category', choices=['16S', '18S', 'ITS'], default='16S', help='Specifies which category 16S, 18S or ITS')
-	group_input.add_argument('-f', '--function', default="EC",help="Specifies which default trait table should be used ('EC', 'COG', 'KO', 'PFAM', 'TIGRFAM' or 'PHENO'). To run the command with several functions, separate the functions with commas (ex: COG,KO,PFAM) (for ITS or 18S : only EC available")
+	group_input.add_argument('-f', '--function', default="EC",help="Specifies which default trait table should be used ('KO', 'PFAM', 'TIGRFAM' or 'PHENO'). EC is used by default because necessary for FPStep4. To run the command with several functions, separate the functions with commas (ex: KO,PFAM) (for ITS or 18S : only EC available)")
 	group_input.add_argument('-t', '--tree', required=True, type=str, help='FPStep1 output tree in newick format containing both study sequences (i.e. ASVs or OTUs) and reference sequences.')
 	group_input.add_argument('-s', '--hsp_method', default='mp', choices=['mp', 'emp_prob', 'pic', 'scp', 'subtree_average'], help='HSP method to use.' +'"mp": predict discrete traits using max parsimony. ''"emp_prob": predict discrete traits based on empirical ''state probabilities across tips. "subtree_average": ''predict continuous traits using subtree averaging. ' '"pic": predict continuous traits with phylogentic ' 'independent contrast. "scp": reconstruct continuous ''traits using squared-change parsimony (default: ''%(default)s).')
 	# Output
@@ -193,6 +193,8 @@ if __name__ == "__main__":
 		Logger.static_write(args.log_file, '\n\n#WARNING : --function parameter: only EC available with --category set to ITS.\n')
 		Logger.static_write(args.log_file, '\n--function parameter set to EC.\n\n')
 		args.function = "EC"
+	if args.function != "EC":
+		args.function = "EC,"+args.function
 	# default output marker file name
 	if args.output_marker is None:
 		args.output_marker = args.category + "_nsti_predicted.tsv"
