@@ -22,28 +22,56 @@ __status__ = 'dev'
 	
 
     <command >   
-	  $GALAXY_ROOT_DIR/tools/FROGS_moussa/app/FPStep4.py -i $input_file -o $output;
+       $GALAXY_ROOT_DIR/tools/FROGS/app/FPStep4.py
+            --input_file $input_file
+            --debug
+            #if $is_per_sequence_contrib.per_sequence_contrib == "yes"
+                --per_sequence_contrib
+                --per_sequence_abun $per_sequence_abun
+                --per_sequence_function $per_sequence_function 
+            #end if
+			#if $skip_descriptions
+                --skip_descriptions
+            #end if
+	   		--html $html
 	</command> 
 
 	<inputs>
 	         
-	    <param format="tabular" name="input_file" type="data" label="input file" help="Table of predicted gene family copy numbers ''(output of FPStep3.py).')"
-	    	optional="false">
-        	<validator type="empty_field" message="This parameter is required." />
+        <param format="tabular" name="input_file" type="data" label="FPStep3 prediction abundance file" help="Input TSV table of gene family abundances (either the unstratified or stratified output of FPStep3, by default pred_metagenome_unstrat.tsv)" optional="false">
+            <validator type="empty_field" message="This parameter is required." />
         </param>
-        
 
-	   	<!-- Paramemtre-->
-	   	
-        <!-- Paramemtre-->
+       <conditional name="is_per_sequence_contrib">
+       <param name="per_sequence_contrib" type="select" label="Also produce table stratified by sequences ?" help='Also product the predicted pathway abundance contributed by each individual sequence. This is in contrast to the default stratified output, which is the contribution to the community-wide pathway abundances. Note this will greatly increase the runtime.' >
+			<option value="no" selected="true">No</option>
+			<option value="yes">Yes</option>
+		</param>
+       	<when value="yes">
+       		<param name="per_sequence_abun" type="data" label="FPStep3 abundance per sequence file" help="Path to table of sequence abundances across samples normalized by marker copy number (FPStep3 output: seqtab_norm.tsv by default). This input is required when the --per_sequence_contrib option is set." optional="false">
+            <validator type="empty_field" message="This parameter is required." />
+            </param>
+       		<param name="per_sequence_function" type="data" label="FPStep2 abundance function file" help="Path to table of function abundances per sequence, which was outputted at the FPStep2 (all_predicted.tsv by default). This input is required when the --per_sequence_contrib option is set." optional="false">
+            <validator type="empty_field" message="This parameter is required." />
+        	</param>
+       	</when>
+       </conditional>
 
+
+        <param name="skip_descriptions" type="boolean" label="Skipping add_descriptions step " help='Skip adding descriptions of metabolic pathways in outputs files.' />
    
 	</inputs>
 
 
 	<outputs>
-		 <data format="tabular" name="output" label="${tool.name}: pathway.tsv" from_work_dir="pathway_abundance.tsv"/> 
-
+		<data format="html" name="html" label="${tool.name}: FPStep4_summary.html" from_work_dir="FPStep4_summary.html"/>
+		 <data format="tabular" name="abund" label="${tool.name}: FPStep4_path_abun_unstrat.tsv" from_work_dir="FPStep4_path_abun_unstrat.tsv"/> 
+         <data format="tabular" name="contrib" label="${tool.name}: FPStep4_path_abun_contrib.tsv" from_work_dir="FPStep4_path_abun_contrib.tsv"> 
+            <filter>is_per_sequence_contrib['per_sequence_contrib'] == "yes"</filter>
+         </data>
+         <data format="tabular" name="predictions" label="${tool.name}: FPSTep4_path_abun_predictions.tsv" from_work_dir="FPSTep4_path_abun_predictions.tsv">
+            <filter>is_per_sequence_contrib['per_sequence_contrib'] == "yes"</filter>
+         </data>
 		  
 	</outputs>
 

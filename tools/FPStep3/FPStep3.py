@@ -66,19 +66,20 @@ class MetagenomePipeline(Cmd):
 		with gzip.open('pred_metagenome_unstrat.tsv.gz', 'rb') as f_in:
 			with open(self.abund, 'wb') as f_out:
 				shutil.copyfileobj(f_in, f_out)
-
+			os.remove('pred_metagenome_unstrat.tsv.gz')
 		with gzip.open('seqtab_norm.tsv.gz', 'rb') as f_in:
 			with open(self.seqtab, 'wb') as f_out:
 				shutil.copyfileobj(f_in, f_out)
-
+			os.remove('seqtab_norm.tsv.gz')
 		with gzip.open('weighted_nsti.tsv.gz', 'rb') as f_in:
 			with open(self.weighted, 'wb') as f_out:
 				shutil.copyfileobj(f_in, f_out)
-
+			os.remove('weighted_nsti.tsv.gz')
 		if self.strat:
 			with gzip.open('pred_metagenome_contrib.tsv.gz', 'rb') as f_in:
 				with open(self.contrib, 'wb') as f_out:
 					shutil.copyfileobj(f_in, f_out)
+				os.remove('pred_metagenome_contrib.tsv.gz')
 
 class AddDescriptions(Cmd):
 	"""
@@ -150,16 +151,16 @@ if __name__ == "__main__":
 	group_input.add_argument('--min_samples', metavar='INT', type=int, default=1, help='Minimum number of samples that an ASV needs to be ''identfied within. ASVs below this cut-off will be ''counted as part of the \"RARE\" category in the ''stratified output (default: %(default)d).')
 	#Outputs
 	group_output = parser.add_argument_group( 'Outputs')
-	group_output.add_argument('--function_abund', default='pred_metagenome_unstrat.tsv', help='Output file for metagenome predictions abundance. (default: %(default)s).')
-	group_output.add_argument('--seqtab', default='seqtab_norm.tsv', help='This output file will contain abundance normalized. (default: %(default)s).')
-	group_output.add_argument('--weighted', default='weighted_nsti.tsv', help='This output file will contain the nsti value per sample (format: TSV). [Default: %(default)s]' )
-	group_output.add_argument('--contrib', default=None, help='Stratified output that represents contributions to community-wide abundances')
+	group_output.add_argument('--function_abund', default='FPStep3_pred_metagenome_unstrat.tsv', help='Output file for metagenome predictions abundance. (default: %(default)s).')
+	group_output.add_argument('--seqtab', default='FPStep3_seqtab_norm.tsv', help='This output file will contain abundance normalized. (default: %(default)s).')
+	group_output.add_argument('--weighted', default='FPStep3_weighted_nsti.tsv', help='This output file will contain the nsti value per sample (format: TSV). [Default: %(default)s]' )
+	group_output.add_argument('--contrib', default=None, help='Stratified output that represents contributions to community-wide abundances (ex pred_metagenome_contrib.tsv)')
 	group_output.add_argument('-l', '--log_file', default=sys.stdout, help='List of commands executed.')
 	args = parser.parse_args()
 	prevent_shell_injections(args)
 
 	if args.strat_out and args.contrib is None:
-		args.contrib = 'pred_metagenome_contrib.tsv'
+		args.contrib = 'FPStep3_pred_metagenome_contrib.tsv'
 
 	if not args.strat_out and args.contrib is not None:
 		parser.error('--contrib FILENAME must be include with --strat_out flag')
