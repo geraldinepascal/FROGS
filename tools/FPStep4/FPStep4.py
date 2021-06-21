@@ -34,6 +34,7 @@ from frogsSequenceIO import *
 from frogsBiom import BiomIO
 
 DESCRIPTION_DIR = os.path.join(os.path.dirname(os.__file__), "site-packages/picrust2/default_files/description_mapfiles/")
+FUNGI_MAP = os.path.join(os.path.dirname(os.__file__), "site-packages/picrust2/default_files/pathway_mapfiles/metacyc_path2rxn_struc_filt_fungi.txt")
 
 ##################################################################################################################################################
 #
@@ -44,15 +45,17 @@ class PathwayPipeline(Cmd):
 	"""
 	@summary: pathway_pipeline.py : Infer the presence and abundances of pathways based on gene family abundances in a sample.
 	"""
-	def __init__(self, input_file, per_sequence_contrib, per_sequence_abun, per_sequence_function, pathways_abund, pathways_contrib, pathways_predictions, log):
-		opt_contrib = ''
+	def __init__(self, input_file, category, per_sequence_contrib, per_sequence_abun, per_sequence_function, pathways_abund, pathways_contrib, pathways_predictions, log):
+		opt = ''
 		if per_sequence_contrib:
-			opt_contrib = ' --per_sequence_contrib --per_sequence_abun ' +  per_sequence_abun + ' --per_sequence_function ' + per_sequence_function
+			opt = ' --per_sequence_contrib --per_sequence_abun ' +  per_sequence_abun + ' --per_sequence_function ' + per_sequence_function
+		if category == 'ITS' or category == '18S':
+			opt += " --map " + FUNGI_MAP
 
 		Cmd.__init__(self,
 				 'pathway_pipeline.py ',
 				 'predict abundance pathway', 
-				  " --input " + input_file + " --out_dir ./ " + opt_contrib + ' 2> ' + log,
+				  " --input " + input_file + " --out_dir ./ " + opt + ' 2> ' + log,
 				"--version")
 
 		self.pathways_abund = pathways_abund
@@ -174,6 +177,7 @@ if __name__ == "__main__":
 	# Inputs
 	group_input = parser.add_argument_group( 'Inputs' )
 	group_input.add_argument('-i', '--input_file', required=True, type=str, help='Input TSV table of gene family abundances (either ''the stratified output of ' 'metagenome_pipeline.py).')
+	group_input.add_argument('-c', '--category', choices=['16S', '18S', 'ITS'], default='16S', help='Specifies which category 16S, 18S or ITS')	
 	group_input.add_argument('--per_sequence_abun', default=None, help='Path to table of sequence abundances across samples normalized by marker copy number (typically the normalized sequence abundance table output at the metagenome pipeline step: seqtab_norm.tsv by default). This input is required when the --per_sequence_contrib option is set. (default: None).')
 	group_input.add_argument('--per_sequence_function', default=None, help='Path to table of function abundances per sequence, which was outputted at the hidden-state prediction step. This input is required when the --per_sequence_contrib option is set. Note that this file should be the same input table as used for the metagenome pipeline step (default: None).')
 	#Outputs
@@ -203,14 +207,14 @@ if __name__ == "__main__":
 		if (args.per_sequence_abun is not None or args.per_sequence_function is not None) and not args.per_sequence_contrib:
 			parser.error("\n\n#ERROR : --per_sequence_contrib required when --per_sequence_contrib and --per_sequence_function option is set!\n\n")
 
-		# tmp_pathway = tmp_files.add( 'pathway_pipeline.log' )
-		# PathwayPipeline(args.input_file, args.per_sequence_contrib, args.per_sequence_abun, args.per_sequence_function, args.pathways_abund, args.pathways_contrib, args.pathways_predictions, tmp_pathway).submit(args.log_file)
+		tmp_pathway = tmp_files.add( 'pathway_pipeline.log' )
+		PathwayPipeline(args.input_file, args.category, args.per_sequence_contrib, args.per_sequence_abun, args.per_sequence_function, args.pathways_abund, args.pathways_contrib, args.pathways_predictions, tmp_pathway).submit(args.log_file)
 
-		# if not args.skip_descriptions:
-		# 	tmp_description_file = tmp_files.add('descriptions_file.tsv.gz')
-		# 	formate_description_file(DESCRIPTION_DIR, tmp_description_file )
+		if not args.skip_descriptions:
+			tmp_description_file = tmp_files.add('descriptions_file.tsv.gz')
+			formate_description_file(DESCRIPTION_DIR, tmp_description_file )
 
-		# 	AddDescriptions(args.pathways_abund,  tmp_description_file, args.pathways_abund).submit( args.log_file)
+			AddDescriptions(args.pathways_abund,  tmp_description_file, args.pathways_abund).submit( args.log_file)
 
 		write_summary(args.pathways_abund, args.html)
 

@@ -24,6 +24,7 @@ __status__ = 'dev'
     <command >   
        $GALAXY_ROOT_DIR/tools/FROGS/app/FPStep4.py
             --input_file $input_file
+            --category $category
             --debug
             #if $is_per_sequence_contrib.per_sequence_contrib == "yes"
                 --per_sequence_contrib
@@ -41,7 +42,11 @@ __status__ = 'dev'
         <param format="tabular" name="input_file" type="data" label="FPStep3 prediction abundance file" help="Input TSV table of gene family abundances (either the unstratified or stratified output of FPStep3, by default pred_metagenome_unstrat.tsv)" optional="false">
             <validator type="empty_field" message="This parameter is required." />
         </param>
-
+        <param name="category" type="select" label="Taxonomic marker" help="Taxonomic marker of interest." multiple="false" display="radio">
+        	<option value="16S">16S</option>
+        	<option value="ITS">ITS</option>
+        	<option value="18S">18S</option>
+		</param>
        <conditional name="is_per_sequence_contrib">
        <param name="per_sequence_contrib" type="select" label="Also produce table stratified by sequences ?" help='Also product the predicted pathway abundance contributed by each individual sequence. This is in contrast to the default stratified output, which is the contribution to the community-wide pathway abundances. Note this will greatly increase the runtime.' >
 			<option value="no" selected="true">No</option>
