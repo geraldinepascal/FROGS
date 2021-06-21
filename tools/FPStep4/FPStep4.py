@@ -138,6 +138,9 @@ def write_summary(strat_file, summary_file):
 		pathway = li[0]
 		li[0] = START_METACYC_LINK + pathway + "'>" + pathway + '</a>'
 
+		for i in range(len(li[2:])):
+			li[i+2] = round(float(li[i+2]),1)
+
 		infos_otus.append({
 			'name': li[0],
 			'data': list(map(str,li[1:]))
@@ -200,14 +203,14 @@ if __name__ == "__main__":
 		if (args.per_sequence_abun is not None or args.per_sequence_function is not None) and not args.per_sequence_contrib:
 			parser.error("\n\n#ERROR : --per_sequence_contrib required when --per_sequence_contrib and --per_sequence_function option is set!\n\n")
 
-		tmp_pathway = tmp_files.add( 'pathway_pipeline.log' )
-		PathwayPipeline(args.input_file, args.per_sequence_contrib, args.per_sequence_abun, args.per_sequence_function, args.pathways_abund, args.pathways_contrib, args.pathways_predictions, tmp_pathway).submit(args.log_file)
+		# tmp_pathway = tmp_files.add( 'pathway_pipeline.log' )
+		# PathwayPipeline(args.input_file, args.per_sequence_contrib, args.per_sequence_abun, args.per_sequence_function, args.pathways_abund, args.pathways_contrib, args.pathways_predictions, tmp_pathway).submit(args.log_file)
 
-		if not args.skip_descriptions:
-			tmp_description_file = tmp_files.add('descriptions_file.tsv.gz')
-			formate_description_file(DESCRIPTION_DIR, tmp_description_file )
+		# if not args.skip_descriptions:
+		# 	tmp_description_file = tmp_files.add('descriptions_file.tsv.gz')
+		# 	formate_description_file(DESCRIPTION_DIR, tmp_description_file )
 
-			AddDescriptions(args.pathways_abund,  tmp_description_file, args.pathways_abund).submit( args.log_file)
+		# 	AddDescriptions(args.pathways_abund,  tmp_description_file, args.pathways_abund).submit( args.log_file)
 
 		write_summary(args.pathways_abund, args.html)
 

@@ -31,8 +31,7 @@ __status__ = 'dev'
                 --strat_out
                 --contrib $contrib
             #end if
-
-
+            --html $html
     </command> 
 
 
@@ -55,6 +54,7 @@ __status__ = 'dev'
 
 
     <outputs>
+        <data format="html" name="html" label="${tool.name}: FPStep3_summary.html" from_work_dir="FPStep3_summary.html"/>
         <data format="tabular" name="function_abund" label="${tool.name}: FPStep3_pred_metagenome_unstrat.tsv" from_work_dir="FPStep3_pred_metagenome_unstrat.tsv"/> 
         <data format="tabular" name="seqtab" label="${tool.name}: FPStep3_seqtab_norm.tsv" from_work_dir="FPStep3_seqtab_norm.tsv"/> 
         <data format="tabular" name="weighted" label="${tool.name}: FPStep3_weighted_nsti.tsv" from_work_dir="FPStep3_weighted_nsti.tsv"/> 

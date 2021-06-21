@@ -12,6 +12,7 @@ import re
 import sys
 import gzip
 import glob
+import json
 import shutil
 import argparse
 from tempfile import gettempdir
@@ -129,6 +130,55 @@ def formate_description_file(description_dir, description_out):
 				with open(filename, 'rb') as readfile:
 					shutil.copyfileobj(readfile, outfile)
 
+def write_summary(strat_file, summary_file):
+	"""
+	@summary: Writes the process summary in one html file.
+	@param summary_file: [str] path to the output html file.
+	@param align_out: [str] path to the fasta file of unaligned OTU
+	@param biomfile: [str] path to the input BIOM file.
+	@param closest_ref_files: [str] Path to tmp colest ref file.
+	@param category: ITS or 16S
+	"""
+	# to summary OTUs number && abundances number			   
+	infos_otus = list()
+	details_categorys =["Function", "Description" ,"Observation_sum"]
+	START_GENOME_LINK = "<a href='https://www.genome.jp/dbget-bin/www_bget?"
+
+	abund = open(strat_file)
+	for li in abund:
+		if "function" in li:
+			li = li.strip().split('\t')
+			for sample in li[3:]:
+				details_categorys.append(sample)
+			break
+
+	for li in abund:
+		li = li.strip().split('\t')
+		function = li[0]
+		li[0] = START_GENOME_LINK + function + "'>" + function + '</a>'
+
+		for i in range(len(li[2:])):
+			li[i+2] = round(float(li[i+2]),1)
+
+		infos_otus.append({
+			'name': li[0],
+			'data': list(map(str,li[1:]))
+			})
+	# record details about removed OTU
+
+	FH_summary_tpl = open( os.path.join(CURRENT_DIR, "FPStep3_tpl.html") )
+	FH_summary_out = open( summary_file, "wt" )
+
+	for line in FH_summary_tpl:
+		if "###DETECTION_CATEGORIES###" in line:
+			line = line.replace( "###DETECTION_CATEGORIES###", json.dumps(details_categorys) )
+		if "###DETECTION_DATA###" in line:
+			line = line.replace( "###DETECTION_DATA###", json.dumps(infos_otus) )
+		FH_summary_out.write( line )
+
+	FH_summary_out.close()
+	FH_summary_tpl.close()
+
 ##################################################################################################################################################
 #
 # MAIN
@@ -154,8 +204,9 @@ if __name__ == "__main__":
 	group_output.add_argument('--function_abund', default='FPStep3_pred_metagenome_unstrat.tsv', help='Output file for metagenome predictions abundance. (default: %(default)s).')
 	group_output.add_argument('--seqtab', default='FPStep3_seqtab_norm.tsv', help='This output file will contain abundance normalized. (default: %(default)s).')
 	group_output.add_argument('--weighted', default='FPStep3_weighted_nsti.tsv', help='This output file will contain the nsti value per sample (format: TSV). [Default: %(default)s]' )
-	group_output.add_argument('--contrib', default=None, help='Stratified output that represents contributions to community-wide abundances (ex pred_metagenome_contrib.tsv)')
+	group_output.add_argument('--contrib', default=None, help=' Stratified output that represents contributions to community-wide abundances (ex pred_metagenome_contrib.tsv)')
 	group_output.add_argument('-l', '--log_file', default=sys.stdout, help='List of commands executed.')
+	group_output.add_argument('-t', '--html', default='FPStep3_summary.html', help="Path to store resulting html file. [Default: %(default)s]" )	
 	args = parser.parse_args()
 	prevent_shell_injections(args)
 
@@ -182,6 +233,8 @@ if __name__ == "__main__":
 			tmp_add_descriptions = tmp_files.add( 'tmp_add_descriptions.log' )	
 			pred_file = args.function_abund
 			AddDescriptions(pred_file,  tmp_description_file, pred_file, tmp_add_descriptions).submit( args.log_file)
+
+		write_summary(args.function_abund, args.html)
 	finally:
 		if not args.debug:
 			tmp_files.deleteAll()
