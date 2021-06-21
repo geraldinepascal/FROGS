@@ -41,6 +41,7 @@
 	   		--insert_biom $insert_biom
 	   		--insert_fasta $insert_fasta
 	   		--html $html
+	   		--debug
 
 
 	</command> 

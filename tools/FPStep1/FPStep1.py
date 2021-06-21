@@ -57,18 +57,35 @@ class PlaceSeqs(Cmd):
 
 		Cmd.__init__(self,
 		'place_seqs.py',
-		'place OTU on reference tree.',
+		'Place OTU on reference tree.',
 		'--study_fasta ' + in_fasta + ' --out_tree ' + out_tree + ' --placement_tool ' + placement_tool + " --min_align " + str(min_align) + " --ref_dir " + category + " 2> " + log,
 		'--version')
 
 	def get_version(self):
 		return Cmd.get_version(self, 'stdout').split()[1].strip()
 
+class multiAffiFromBiom(Cmd):
+	'''
+    @summary: Extracts multi-affiliations data from a FROGS BIOM file, in order to find dentical sequences for FindClosestRefSequences step.
+    @param in_biom: [Biom] The BIOM object.
+    @param output_tsv: [str] Path to the output file (format : TSV).
+    '''
+	def __init__(self, in_biom, out_tsv):
+
+		Cmd.__init__(self,
+			'multiAffiFromBiom.py',
+			'Extracts multi-affiliations data from a FROGS BIOM file.',
+			'--input-file ' + in_biom + ' --output-file ' + out_tsv,
+			'--version')
+
+	def get_version(self):
+		return Cmd.get_version(self, 'stdout').strip()
+
 class FindClosestsRefSequences(Cmd):
 	'''
 	@summary: find OTUs closest reference sequences into a reference tree.
 	'''
-	def __init__(self, in_tree, in_biom, in_fasta, category, out_summary, log):
+	def __init__(self, in_tree, in_biom, multi_affiliations, in_fasta, category, out_summary, log):
 		'''
 		@param in_tree: [str] Path to resulting tree file with insert clusters sequences.(place_seqs.py output).
 		@param in_biom: [str] Path to BIOM input file.
@@ -80,7 +97,7 @@ class FindClosestsRefSequences(Cmd):
 		Cmd.__init__(self,
 			'find_closest_ref_sequence.py',
 			'find OTUs closests reference sequences into a reference tree.',
-			'--tree_file ' + in_tree + ' --biom_file ' + in_biom + ' --fasta_file ' + in_fasta + ' --category ' + category + ' --output ' + out_summary + " 2> " + log,
+			'--tree_file ' + in_tree + ' --biom_file ' + in_biom + ' --multi_affi ' + multi_affiliations + ' --fasta_file ' + in_fasta + ' --category ' + category + ' --output ' + out_summary + " 2> " + log,
 			'--version')
 
 	def get_version(self):
@@ -286,13 +303,16 @@ if __name__ == "__main__":
 		tmp_place_seqs = tmp_files.add( 'tmp_place_seqs.log' )
 		PlaceSeqs(tmp_fasta, args.out_tree, args.placement_tool, args.category, args.min_align, tmp_place_seqs).submit(args.log_file)
 
+		tmp_multi_affiliations = tmp_files.add( 'multi_affiliations.tsv' )
+		multiAffiFromBiom(args.input_biom, tmp_multi_affiliations).submit(args.log_file)
+
 		excluded_sequence(args.out_tree,args.input_fasta,args.excluded)
 
 		RemoveSeqsBiomFasta(tmp_fasta, args.input_biom, args.insert_fasta, args.insert_biom, args.excluded).submit(args.log_file)
 
 		closest_ref_files = tmp_files.add( "closest_ref.tsv" )
 		tmp_find_closest_ref = tmp_files.add( 'tmp_find_closest_ref.log' )
-		FindClosestsRefSequences(args.out_tree, args.input_biom, tmp_fasta, args.category, closest_ref_files, tmp_find_closest_ref).submit(args.log_file)
+		FindClosestsRefSequences(args.out_tree, args.input_biom, tmp_multi_affiliations, tmp_fasta, args.category, closest_ref_files, tmp_find_closest_ref).submit(args.log_file)
 		write_summary(tmp_fasta, args.excluded, args.input_biom, closest_ref_files, args.category, args.html)
 
 	finally:

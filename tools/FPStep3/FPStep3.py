@@ -142,7 +142,10 @@ def write_summary(strat_file, summary_file):
 	# to summary OTUs number && abundances number			   
 	infos_otus = list()
 	details_categorys =["Function", "Description" ,"Observation_sum"]
-	START_GENOME_LINK = "<a href='https://www.genome.jp/dbget-bin/www_bget?"
+	START_GENBANK_LINK = "<a href='https://www.genome.jp/dbget-bin/www_bget?"
+	START_COG_LINK = "<a href='https://www.ncbi.nlm.nih.gov/research/cog/cog/"
+	START_PFAM_LINK = "<a href='https://pfam.xfam.org/family/"
+	START_TIGR_LINK = "<a href='https://0-www-ncbi-nlm-nih-gov.linyanti.ub.bw/genome/annotation_prok/evidence/"
 
 	abund = open(strat_file)
 	for li in abund:
@@ -155,7 +158,14 @@ def write_summary(strat_file, summary_file):
 	for li in abund:
 		li = li.strip().split('\t')
 		function = li[0]
-		li[0] = START_GENOME_LINK + function + "'>" + function + '</a>'
+		if "COG" in function:
+			li[0] = START_COG_LINK + function + "'>" + function + '</a>'
+		if "PF" in function:
+			li[0] = START_PFAM_LINK + function + "'>" + function + '</a>'
+		if "TIGR" in function:
+			li[0] = START_TIGR_LINK + function + "'>" + function + '</a>'
+		elif re.search('K[0-9]{5}',function) or "EC:" in function:
+			li[0] = START_GENBANK_LINK + function + "'>" + function + '</a>'
 
 		for i in range(len(li[2:])):
 			li[i+2] = round(float(li[i+2]),1)
