@@ -8,7 +8,7 @@ __email__ = 'frogs@inrae.fr'
 __status__ = 'dev'
 -->
 <tool id="FROGS_PICRUSt2_hsp" name="FPStep2" version= "1.0">
-	<description>Predict gene copies number</description>
+	<description>Predict the copy number of gene families present in the predicted genome for each amplicon sequence variant</description>
 
 	<requirements>
                
@@ -48,7 +48,8 @@ __status__ = 'dev'
         	<option value="ITS">ITS</option>
         	<option value="18S">18S</option>
 		</param>
-		<param name="function" type="select" label="Function table" help="Specifies which default trait table should be used. EC is performed automatically because necessary for FPStep4" multiple="true" display="checkboxes">
+		<param name="function" type="select" label="Function table" help="Note that EC is required for FPStep4." multiple="true" display="checkboxes">
+			 <option value="EC" selected="true">EC</option>
              <option value="KO">KO</option>
              <option value="PFAM">PFAM</option>
              <option value="COG">COG</option>
@@ -66,7 +67,7 @@ __status__ = 'dev'
 
 
 	<outputs>
-		<data format="tabular" name="out_function" label="${tool.name}: all_predicted.tsv" from_work_dir="all_predicted.tsv"/>
+		<data format="tabular" name="out_function" label="${tool.name}: FPStep2_all_predicted.tsv" from_work_dir="FPStep2_all_predicted.tsv"/>
 		<data format="tabular" name="out_marker" label="${tool.name}: marker_nsti_predicted.tsv" from_work_dir="${category}_nsti_predicted.tsv"/> 
 	</outputs>
 

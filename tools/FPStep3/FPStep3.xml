@@ -8,7 +8,7 @@ __email__ = 'frogs@inrae.fr'
 __status__ = 'dev'
 -->
 <tool id="FROGS_PICRUSt2_metagenome" name="FPStep3" version= "1.0">
-    <description>Predict abundance gene</description>
+    <description>Per-sample metagenome functional profiles based on the predicted functions for each study sequence.</description>
 
     <stdio>
         <exit_code range="1:" />
@@ -17,7 +17,7 @@ __status__ = 'dev'
     
 
     <command >
-       $GALAXY_ROOT_DIR/tools/FROGS/app/FPStep3.py
+       FPStep3.py
             --input_biom $input_biom
             --function $function
             --marker $marker
@@ -32,6 +32,7 @@ __status__ = 'dev'
                 --contrib $contrib
             #end if
             --html $html
+            --debug
     </command> 
 
 

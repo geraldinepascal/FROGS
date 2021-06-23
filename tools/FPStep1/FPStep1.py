@@ -28,6 +28,7 @@ else: os.environ['PYTHONPATH'] = LIB_DIR + os.pathsep + os.environ['PYTHONPATH']
 
 PRO_DIR = os.path.join(os.path.dirname(os.__file__),'site-packages/picrust2/default_files/prokaryotic/pro_ref/')
 ITS_DIR = os.path.join(os.path.dirname(os.__file__),'site-packages/picrust2/default_files/fungi/fungi_ITS/')
+_18S_DIR = os.path.join(os.path.dirname(os.__file__),'site-packages/picrust2/default_files/fungi/fungi_18S/')
 
 from frogsUtils import *
 from frogsBiom import BiomIO
@@ -54,6 +55,8 @@ class PlaceSeqs(Cmd):
 			category = PRO_DIR
 		elif category == "ITS":
 			category = ITS_DIR
+		elif category == "18S":
+			category = _18S_DIR
 
 		Cmd.__init__(self,
 		'place_seqs.py',
@@ -70,12 +73,12 @@ class multiAffiFromBiom(Cmd):
     @param in_biom: [Biom] The BIOM object.
     @param output_tsv: [str] Path to the output file (format : TSV).
     '''
-	def __init__(self, in_biom, out_tsv):
+	def __init__(self, in_biom, out_tsv, log):
 
 		Cmd.__init__(self,
 			'multiAffiFromBiom.py',
 			'Extracts multi-affiliations data from a FROGS BIOM file.',
-			'--input-file ' + in_biom + ' --output-file ' + out_tsv,
+			'--input-file ' + in_biom + ' --output-file ' + out_tsv + " 2> " + log,
 			'--version')
 
 	def get_version(self):
@@ -286,16 +289,19 @@ if __name__ == "__main__":
 		tmp_fasta = tmp_files.add('cleaned.fasta')
 		convert_fasta(args.input_fasta,tmp_fasta)
 
-		if args.category == "ITS":
+		if args.category == "ITS" or args.category =="18S":
 
-			gz_ref_fasta = os.path.join(os.path.dirname(os.__file__),'site-packages/picrust2/default_files/fungi/fungi_ITS/fungi_ITS.fna.gz')
+			if args.category == "ITS":
+				gz_ref_fasta = os.path.join(os.path.dirname(os.__file__),'site-packages/picrust2/default_files/fungi/fungi_ITS/fungi_ITS.fna.gz')
+				output = open(os.path.join(os.path.dirname(os.__file__),'site-packages/picrust2/default_files/fungi/fungi_ITS/fungi_ITS.fna'), 'wb')
+			elif args.category =="18S":
+				gz_ref_fasta = os.path.join(os.path.dirname(os.__file__),'site-packages/picrust2/default_files/fungi/fungi_18S/fungi_18S.fna.gz')
+				output = open(os.path.join(os.path.dirname(os.__file__),'site-packages/picrust2/default_files/fungi/fungi_18S/fungi_18S.fna'), 'wb')
 
 			if os.path.exists(gz_ref_fasta):
-
 				input_ref = gzip.GzipFile(gz_ref_fasta, 'rb')
 				f = input_ref.read()
 				input_ref.close()
-				output = open(os.path.join(os.path.dirname(os.__file__),'site-packages/picrust2/default_files/fungi/fungi_ITS/fungi_ITS.fna'), 'wb')
 				output.write(f)
 				output.close()
 				os.remove(gz_ref_fasta)
@@ -304,7 +310,8 @@ if __name__ == "__main__":
 		PlaceSeqs(tmp_fasta, args.out_tree, args.placement_tool, args.category, args.min_align, tmp_place_seqs).submit(args.log_file)
 
 		tmp_multi_affiliations = tmp_files.add( 'multi_affiliations.tsv' )
-		multiAffiFromBiom(args.input_biom, tmp_multi_affiliations).submit(args.log_file)
+		tmp_multi_affi_log = tmp_files.add( 'multi_affiliations.log' )
+		multiAffiFromBiom(args.input_biom, tmp_multi_affiliations, tmp_multi_affi_log).submit(args.log_file)
 
 		excluded_sequence(args.out_tree,args.input_fasta,args.excluded)
 

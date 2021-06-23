@@ -16,7 +16,7 @@ import glob
 import gzip
 import shutil
 import argparse
-
+import inspect
 
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
 # PATH: executable
@@ -27,12 +27,11 @@ LIB_DIR = os.path.abspath(os.path.join(os.path.dirname(CURRENT_DIR), "lib"))
 sys.path.append(LIB_DIR) 
 if os.getenv('PYTHONPATH') is None: os.environ['PYTHONPATH'] = LIB_DIR 
 else: os.environ['PYTHONPATH'] = os.environ['PYTHONPATH'] + os.pathsep + LIB_DIR
-
 #import frogs
 from frogsUtils import *
 from frogsSequenceIO import * 
 from frogsBiom import BiomIO
-
+print(sys.executable)
 DESCRIPTION_DIR = os.path.join(os.path.dirname(os.__file__), "site-packages/picrust2/default_files/description_mapfiles/")
 FUNGI_MAP = os.path.join(os.path.dirname(os.__file__), "site-packages/picrust2/default_files/pathway_mapfiles/metacyc_path2rxn_struc_filt_fungi.txt")
 

@@ -30,7 +30,7 @@ ITS_PATH = os.path.join(os.path.dirname(os.__file__), "site-packages/picrust2/de
 ITS_EC_PATH = os.path.join(os.path.dirname(os.__file__), "site-packages/picrust2/default_files/fungi/ec_ITS_counts.txt.gz")
 _18S_PATH = os.path.join(os.path.dirname(os.__file__), "site-packages/picrust2/default_files/fungi/18S_counts.txt.gz")
 _18S_EC_PATH = os.path.join(os.path.dirname(os.__file__), "site-packages/picrust2/default_files/fungi/ec_18S_counts.txt.gz")
-print(ITS_PATH)
+
 from frogsUtils import *
 from frogsSequenceIO import * 
 from frogsBiom import BiomIO
@@ -182,25 +182,21 @@ if __name__ == "__main__":
 	group_input.add_argument('-s', '--hsp_method', default='mp', choices=['mp', 'emp_prob', 'pic', 'scp', 'subtree_average'], help='HSP method to use.' +'"mp": predict discrete traits using max parsimony. ''"emp_prob": predict discrete traits based on empirical ''state probabilities across tips. "subtree_average": ''predict continuous traits using subtree averaging. ' '"pic": predict continuous traits with phylogentic ' 'independent contrast. "scp": reconstruct continuous ''traits using squared-change parsimony (default: ''%(default)s).')
 	# Output
 	group_output = parser.add_argument_group( 'Outputs' )
-	group_output.add_argument('-m', '--output_marker', default=None, type=str, help='Output table of predicted marker gene copy numbers per study sequence in input tree. If the extension \".gz\" is added the table will automatically be gzipped.')
+	group_output.add_argument('-m', '--output_marker', default="EC", type=str, help='Output table of predicted marker gene copy numbers per study sequence in input tree. If the extension \".gz\" is added the table will automatically be gzipped.')
 	group_output.add_argument('-o', '--output_function', default="FPStep2_all_predicted.tsv", type=str, help='Output table with predicted abundances per study sequence in input tree. If the extension \".gz\" is added the table will automatically be gzipped.')
 	group_output.add_argument('-l', '--log_file', default=sys.stdout, help='List of commands executed.')
 	args = parser.parse_args()
 	prevent_shell_injections(args)
-
 	# manage category and function input parameters
 	if args.category == "ITS" and args.function != "EC":
 		Logger.static_write(args.log_file, '\n\n#WARNING : --function parameter: only EC available with --category set to ITS.\n')
 		Logger.static_write(args.log_file, '\n--function parameter set to EC.\n\n')
 		args.function = "EC"
-	if args.function != "EC":
-		args.function = "EC,"+args.function
 	# default output marker file name
 	if args.output_marker is None:
 		args.output_marker = args.category + "_nsti_predicted.tsv"
 
 	tmp_files=TmpFiles(os.path.split(args.output_marker)[0])
-
 	functions = check_functions(args.function)
 
 	try:

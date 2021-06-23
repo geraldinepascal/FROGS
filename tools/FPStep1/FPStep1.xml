@@ -30,7 +30,7 @@
 	
 
     <command >
-	   $GALAXY_ROOT_DIR/tools/FROGS/app/FPStep1.py
+	   FPStep1.py
 	   		--input_fasta $input_fasta
 	   		--input_biom $input_biom
 	   		--category $category

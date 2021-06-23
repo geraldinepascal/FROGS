@@ -8,7 +8,7 @@ __email__ = 'frogs@inrae.fr'
 __status__ = 'dev'
 -->
 <tool id="FROGS_PICRUSt4_pathway" name="FPStep4" version= "1.0">
-	<description>predict pathway abundance</description>
+	<description>Infer the presence and abundances of pathways based on gene family abundances in a sample. </description>
 
 	<requirements>
                
@@ -22,7 +22,7 @@ __status__ = 'dev'
 	
 
     <command >   
-       $GALAXY_ROOT_DIR/tools/FROGS/app/FPStep4.py
+       FPStep4.py
             --input_file $input_file
             --category $category
             --debug
@@ -35,6 +35,7 @@ __status__ = 'dev'
                 --skip_descriptions
             #end if
 	   		--html $html
+	   		--debug
 	</command> 
 
 	<inputs>

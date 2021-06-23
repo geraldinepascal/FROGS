@@ -75,6 +75,10 @@ def find_closest_ref_sequences(tree, biom_file, multi_affi, fasta_file, clusters
 	elif args.category == 'ITS':
 		ref_file = os.path.abspath(os.path.join(os.path.dirname(CURRENT_DIR), "tools/FPStep1/data/JGI_ID_ITS_to_taxonomy.txt"))
 		picrust_aln = os.path.join(os.path.dirname(os.__file__),'site-packages/picrust2/default_files/fungi/fungi_ITS/fungi_ITS.fna')
+
+	elif args.category == '18S':
+		ref_file = os.path.abspath(os.path.join(os.path.dirname(CURRENT_DIR), "tools/FPStep1/data/JGI_ID_18S_to_taxonomy.txt"))
+		picrust_aln = os.path.join(os.path.dirname(os.__file__),'site-packages/picrust2/default_files/fungi/fungi_18S/fungi_ITS.fna')
 	
 	ref = open(ref_file,'r').readlines()
 	ID_to_taxo = {}
@@ -173,7 +177,7 @@ if __name__ == "__main__":
 	group_input.add_argument('-f', '--fasta_file', required=True, help='Input fasta file.')
 	group_input.add_argument('-b', '--biom_file', required=True, help='Input biom file.')
 	group_input.add_argument('-m', '--multi_affi', required=True, help='Multi-affiliations from biom input file. Run multiAffiFromBiom.py to generate this input.')
-	group_input.add_argument('-c', '--category', choices=['16S', 'ITS'], default='16S', help='Specifies which category 16S or ITS')
+	group_input.add_argument('-c', '--category', choices=['16S', 'ITS', '18S'], default='16S', help='Specifies which category 16S, ITS, 18S')
 	# Outputs
 	group_output = parser.add_argument_group('Outputs')
 	group_output = parser.add_argument('-o', '--output', default='closests_ref_sequences.txt')
