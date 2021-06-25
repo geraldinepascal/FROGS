@@ -7,7 +7,7 @@ __version__ = '1.0'
 __email__ = 'frogs@inrae.fr'
 __status__ = 'dev'
 -->
-<tool id="FROGS_PICRUSt2_metagenome" name="FPStep3" version= "1.0">
+<tool id="FROGS_PICRUSt2_metagenome" name="FPStep3" version= "beta">
     <description>Per-sample metagenome functional profiles based on the predicted functions for each study sequence.</description>
 
     <stdio>
@@ -32,7 +32,6 @@ __status__ = 'dev'
                 --contrib $contrib
             #end if
             --html $html
-            --debug
     </command> 
 
 

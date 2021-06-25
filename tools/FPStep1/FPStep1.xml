@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
-<tool id="FROGS_PICRUSt2_place_seqs" name="FPStep1" version= "1.0">
+<tool id="FROGS_PICRUSt2_place_seqs" name="FPStep1" version= "beta">
 	<description>Place studies sequences (i.e. OTUs) into a reference tree.</description>
 
 	<requirements>
@@ -30,7 +30,7 @@
 	
 
     <command >
-	   FPStep1.py
+	   	FPStep1.py
 	   		--input_fasta $input_fasta
 	   		--input_biom $input_biom
 	   		--category $category

@@ -7,7 +7,7 @@ __version__ = '1.0'
 __email__ = 'frogs@inrae.fr'
 __status__ = 'dev'
 -->
-<tool id="FROGS_PICRUSt4_pathway" name="FPStep4" version= "1.0">
+<tool id="FROGS_PICRUSt4_pathway" name="FPStep4" version= "beta">
 	<description>Infer the presence and abundances of pathways based on gene family abundances in a sample. </description>
 
 	<requirements>

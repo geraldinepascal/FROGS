@@ -7,7 +7,7 @@ __version__ = '1.0'
 __email__ = 'frogs@inrae.fr'
 __status__ = 'dev'
 -->
-<tool id="FROGS_PICRUSt2_hsp" name="FPStep2" version= "1.0">
+<tool id="FROGS_PICRUSt2_hsp" name="FPStep2" version= "beta">
 	<description>Predict the copy number of gene families present in the predicted genome for each amplicon sequence variant</description>
 
 	<requirements>

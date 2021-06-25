@@ -73,7 +73,7 @@ def find_closest_ref_sequences(tree, biom_file, multi_affi, fasta_file, clusters
 		picrust_aln = os.path.join(os.path.dirname(os.__file__),'site-packages/picrust2/default_files/prokaryotic/pro_ref/pro_ref.fna')
 
 	elif args.category == 'ITS':
-		ref_file = os.path.abspath(os.path.join(os.path.dirname(CURRENT_DIR), "tools/FPStep1/data/JGI_ID_ITS_to_taxonomy.txt"))
+		ref_file = os.path.abspath(os.path.join(os.path.dirname(CURRENT_DIR), "tools/FPStep1/data/new_JGI_ITS_to_taxonomy.txt"))
 		picrust_aln = os.path.join(os.path.dirname(os.__file__),'site-packages/picrust2/default_files/fungi/fungi_ITS/fungi_ITS.fna')
 
 	elif args.category == '18S':

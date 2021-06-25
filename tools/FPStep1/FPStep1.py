@@ -293,12 +293,18 @@ if __name__ == "__main__":
 
 			if args.category == "ITS":
 				gz_ref_fasta = os.path.join(os.path.dirname(os.__file__),'site-packages/picrust2/default_files/fungi/fungi_ITS/fungi_ITS.fna.gz')
-				output = open(os.path.join(os.path.dirname(os.__file__),'site-packages/picrust2/default_files/fungi/fungi_ITS/fungi_ITS.fna'), 'wb')
+				
 			elif args.category =="18S":
 				gz_ref_fasta = os.path.join(os.path.dirname(os.__file__),'site-packages/picrust2/default_files/fungi/fungi_18S/fungi_18S.fna.gz')
 				output = open(os.path.join(os.path.dirname(os.__file__),'site-packages/picrust2/default_files/fungi/fungi_18S/fungi_18S.fna'), 'wb')
 
 			if os.path.exists(gz_ref_fasta):
+				if agrs.category == "ITS":
+					output = open(os.path.join(os.path.dirname(os.__file__),'site-packages/picrust2/default_files/fungi/fungi_ITS/fungi_ITS.fna'), 'wb')
+
+				if args.category == "18S":
+					output = open(os.path.join(os.path.dirname(os.__file__),'site-packages/picrust2/default_files/fungi/fungi_18S/fungi_18S.fna'), 'wb')
+				
 				input_ref = gzip.GzipFile(gz_ref_fasta, 'rb')
 				f = input_ref.read()
 				input_ref.close()
