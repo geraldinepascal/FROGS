@@ -129,6 +129,7 @@ def find_closest_ref_sequences(tree, biom_file, multi_affi, fasta_file, clusters
 					leaf_to_dist[leaf.name] = t.get_distance(leaf,cluster)
 
 			best_leaf = sorted(leaf_to_dist, key=leaf_to_dist.get)[0]
+
 			if best_leaf in ID_to_taxo:
 				#cleaning leaf name
 				best_leaf = best_leaf.split('-')[0]
@@ -139,16 +140,20 @@ def find_closest_ref_sequences(tree, biom_file, multi_affi, fasta_file, clusters
 
 				if cluster in cluster_to_multiaffi:
 					for affi in cluster_to_multiaffi[cluster]:
-						genus_frogs = affi.split(';')[-2]
-						species_frogs = affi.split(';')[-1]
 
+						#formate taxonomy when when it's k__Fungi. k__Fungi --> Fungi
+						affis = ";".join(["".join(af.split('_')[1:]) for af in affi.split(';')])
+
+						genus_frogs = affis.split(';')[-2]
+						species_frogs = affis.split(';')[-1]
 						if genus_picrust == genus_frogs and species_picrust == species_frogs:
 							comment = "identical taxonomy"
 							break
 				else:
-					genus_frogs = biom.get_observation_metadata(cluster)["blast_taxonomy"][-2]
-					species_frogs = biom.get_observation_metadata(cluster)["blast_taxonomy"][-1]
-
+					affi = biom.get_observation_metadata(cluster)["blast_taxonomy"]
+					print(affi)
+					affis = ";".join(["".join(af.split('_')[1:]) for af in affi.split(';')])
+					print(affis)
 					if genus_picrust == genus_frogs and species_picrust == species_frogs:
 						comment = "identical taxonomy"
 				# if 100% identity on OTU length against reference
