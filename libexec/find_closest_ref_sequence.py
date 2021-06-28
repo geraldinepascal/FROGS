@@ -170,26 +170,27 @@ def find_closest_ref_sequences(tree, biom, cluster_to_multiaffi, ID_to_taxo, ref
 							affis_frogs = ";".join(["".join(af.split('__')[1:]) for af in affi.split(';')])
 						else:
 							affis_frogs = affi.replace(' ','_')
-						print(affis_frogs, affis_picrust)
+
 						if is_same_taxonomies(affis_frogs, affis_picrust):
 							comment = "identical taxonomy"
 							break
 				else:
 					affis_frogs = ";".join(biom.get_observation_metadata(cluster)["blast_taxonomy"])
-					affis_frogs = ";".join(["_".join(af.split('__')[1:]) for af in affis_frogs.split(';')])
-					print(affis_picrust)
-					print(affis_frogs)
+					if '__' in affi:
+						affis_frogs = ";".join(["_".join(af.split('__')[1:]) for af in affis_frogs.split(';')])
+					else:
+						affis_frogs = affis_frogs.replace(' ','_')
+
 					if is_same_taxonomies(affis_frogs, affis_picrust):
 						comment = "identical taxonomy"
 						
-
 				if cluster_to_seq[cluster] in ref_seqs[best_leaf]:
 					if comment == "/":
 						comment = "identical sequence"
 					else:
 						comment+=";identical sequence"
 				FH_out.write(best_leaf+'\t'+ID_to_taxo[best_leaf][0]+'\t'+ID_to_taxo[best_leaf][1]+'\t'+str(rounding(leaf_to_dist[best_leaf]))+'\t'+str(comment)+'\n')
-
+				
 			else:
 				FH_out.write(' \t \t \t \t \n')
 ##################################################################################################################################################
