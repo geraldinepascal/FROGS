@@ -58,27 +58,36 @@ def rounding(nb):
 	else:
 		return nb
 
-def find_closest_ref_sequences(tree, biom_file, multi_affi, fasta_file, clusters, ref_file, output):
-	"""
-	@summary: Find closest reference sequence in the tree for every cluster.
+def is_same_taxonomies(taxo_frogs, taxo_picrust):
+	'''
+	@summary: compare if frogs and picrust taxonomies are egal are not
+	@note: taxo inputs must be on this format: Fungi;Ascomycota;Eurotiomycetes;Eurotiales;Aspergillaceae;Penicillium;Penicillium_antarcticum
+	'''
+	for i in range(len(taxo_frogs.split(';'))):
+
+		if taxo_frogs.split(';')[i].lower() != taxo_picrust.split(';')[i].lower():
+			return False
+	return True
+
+def check_ref_files(tree_file, biom_file, multi_affi_file, fasta_file, category, output ):
+	'''
 	@param tree: [str] Path to tree output from place_seqs.py.
 	@param biom_file: [str] path to BIOM input file.
+	@param multi_affi: [str] path to multi-affiliations from biom input file. Run multiAffiFromBiom.py to generate this input.
 	@param fasta_file: [str] path to fasta input file.
-	@param clusters: [list] clusters insert in tree (find_clusters output).
 	@ref_file: [str] path to reference map file in order to have taxonomies informations.
-    """
+	'''
 	biom=BiomIO.from_json(biom_file)
-	if args.category == '16S':
+	if category == '16S':
 		ref_file = os.path.abspath(os.path.join(os.path.dirname(CURRENT_DIR), "tools/FPStep1/data/JGI_ID_to_taxonomy.txt"))
 		picrust_aln = os.path.join(os.path.dirname(os.__file__),'site-packages/picrust2/default_files/prokaryotic/pro_ref/pro_ref.fna')
 
-	elif args.category == 'ITS':
+	elif category == 'ITS' or category == '18S':
 		ref_file = os.path.abspath(os.path.join(os.path.dirname(CURRENT_DIR), "tools/FPStep1/data/new_JGI_ITS_to_taxonomy.txt"))
-		picrust_aln = os.path.join(os.path.dirname(os.__file__),'site-packages/picrust2/default_files/fungi/fungi_ITS/fungi_ITS.fna')
-
-	elif args.category == '18S':
-		ref_file = os.path.abspath(os.path.join(os.path.dirname(CURRENT_DIR), "tools/FPStep1/data/JGI_ID_18S_to_taxonomy.txt"))
-		picrust_aln = os.path.join(os.path.dirname(os.__file__),'site-packages/picrust2/default_files/fungi/fungi_18S/fungi_ITS.fna')
+		if category == 'ITS':
+			picrust_aln = os.path.join(os.path.dirname(os.__file__),'site-packages/picrust2/default_files/fungi/fungi_ITS/fungi_ITS.fna')
+		else:
+			picrust_aln = os.path.join(os.path.dirname(os.__file__),'site-packages/picrust2/default_files/fungi/fungi_18S/fungi_ITS.fna')
 	
 	ref = open(ref_file,'r').readlines()
 	ID_to_taxo = {}
@@ -88,6 +97,7 @@ def find_closest_ref_sequences(tree, biom_file, multi_affi, fasta_file, clusters
 		ID_to_taxo[li[0]] = [li[1],li[2]]
 
 	ref_seqs = {}
+	#Assign each picrust ref sequence name to its sequence
 	FH_picrust2_aln = FastaIO( picrust_aln )
 	for record in FH_picrust2_aln:
 		record.id = record.id.split('-')[0]
@@ -95,12 +105,14 @@ def find_closest_ref_sequences(tree, biom_file, multi_affi, fasta_file, clusters
 		ref_seqs[record.id] = record.string
 
 	cluster_to_seq = {}
+	#Assign each FROGS cluster sequence name to its sequence
 	FH_input = FastaIO( fasta_file )
 	for record in FH_input:
 		cluster_to_seq[record.id] = record.string
 
 	cluster_to_multiaffi = {}
-	multi_affiliations = open(multi_affi,'r').readlines()
+	# Find each affiliation of FROGS multi-affiliations cluster 
+	multi_affiliations = open(multi_affi_file,'r').readlines()
 	for li in multi_affiliations:
 		li = li.strip().split('\t')
 		cluster = li[0]
@@ -110,15 +122,30 @@ def find_closest_ref_sequences(tree, biom_file, multi_affi, fasta_file, clusters
 		else:
 			cluster_to_multiaffi[cluster].append(affi)
 
+	# ete3 input tree file
+	tree=ete.Tree(tree_file)
+
+	return [tree, biom, cluster_to_multiaffi, ID_to_taxo, ref_seqs, cluster_to_seq, output]
+
+def find_closest_ref_sequences(tree, biom, cluster_to_multiaffi, ID_to_taxo, ref_seqs, cluster_to_seq, output):
+	"""
+	@summary: find each closest picrust ref sequence from FROGS cluster, from FPStep1 tree output file.
+	@param tree: Tree as input for ete3.
+	@param biom: Biom read from jason file.
+	@param biom cluster_to_multi_affi: [dico] Associate each FROGS cluster to its multi-affiliations.
+	@param ID_to_taxo: [dico] Associate each picrust2 ref sequence to its taxonomy.
+	@param ref_seqs: [dico] Assign each picrust ref sequence name to its sequence.
+	@param clusters: [list] clusters insert in tree (find_clusters output).
+	@ref_file: [str] path to reference map file in order to have taxonomies informations.
+    """
+
 	FH_out = open(output,'wt')
 	FH_out.write('Cluster\tTaxonomy\tClosest_ref_ID\tClosest_ref_name\tClosest_ref_taxonomy\tClosest_ref_distance\tComment')
-
-	t=ete.Tree(tree)
 
 	for cluster in clusters:
 		FH_out.write(cluster+'\t'+";".join(biom.get_observation_metadata(cluster)["blast_taxonomy"])+'\t')
 
-		node = t.search_nodes(name=cluster)[0]
+		node = tree.search_nodes(name=cluster)[0]
 		#find distances from cluster to every reference sequences is sister group.
 		for sister_group in node.get_sisters():
 			leaf_to_dist = {}
@@ -126,7 +153,7 @@ def find_closest_ref_sequences(tree, biom_file, multi_affi, fasta_file, clusters
 				leaf.name = leaf.name.replace('-cluster','')
 				# if sequence in sister group is not another cluster
 				if leaf.name not in clusters:
-					leaf_to_dist[leaf.name] = t.get_distance(leaf,cluster)
+					leaf_to_dist[leaf.name] = tree.get_distance(leaf,cluster)
 
 			best_leaf = sorted(leaf_to_dist, key=leaf_to_dist.get)[0]
 
@@ -134,29 +161,28 @@ def find_closest_ref_sequences(tree, biom_file, multi_affi, fasta_file, clusters
 				#cleaning leaf name
 				best_leaf = best_leaf.split('-')[0]
 				comment = "/"
-
-				genus_picrust = ID_to_taxo[best_leaf][1].split(';')[-2]
-				species_picrust = " ".join(ID_to_taxo[best_leaf][1].split(';')[-1].split(' ')[0:2])
+				affis_picrust = ID_to_taxo[best_leaf][1].replace(' ','_')
 
 				if cluster in cluster_to_multiaffi:
 					for affi in cluster_to_multiaffi[cluster]:
-
-						#formate taxonomy when when it's k__Fungi. k__Fungi --> Fungi
-						affis = ";".join(["".join(af.split('_')[1:]) for af in affi.split(';')])
-
-						genus_frogs = affis.split(';')[-2]
-						species_frogs = affis.split(';')[-1]
-						if genus_picrust == genus_frogs and species_picrust == species_frogs:
+						#formate FROGS taxonomy when when it's k__Fungi. k__Fungi --> Fungi
+						if '__' in affi:
+							affis_frogs = ";".join(["".join(af.split('__')[1:]) for af in affi.split(';')])
+						else:
+							affis_frogs = affi.replace(' ','_')
+						print(affis_frogs, affis_picrust)
+						if is_same_taxonomies(affis_frogs, affis_picrust):
 							comment = "identical taxonomy"
 							break
 				else:
-					affi = biom.get_observation_metadata(cluster)["blast_taxonomy"]
-					print(affi)
-					affis = ";".join(["".join(af.split('_')[1:]) for af in affi.split(';')])
-					print(affis)
-					if genus_picrust == genus_frogs and species_picrust == species_frogs:
+					affis_frogs = ";".join(biom.get_observation_metadata(cluster)["blast_taxonomy"])
+					affis_frogs = ";".join(["_".join(af.split('__')[1:]) for af in affis_frogs.split(';')])
+					print(affis_picrust)
+					print(affis_frogs)
+					if is_same_taxonomies(affis_frogs, affis_picrust):
 						comment = "identical taxonomy"
-				# if 100% identity on OTU length against reference
+						
+
 				if cluster_to_seq[cluster] in ref_seqs[best_leaf]:
 					if comment == "/":
 						comment = "identical sequence"
@@ -193,5 +219,7 @@ if __name__ == "__main__":
 
 	clusters = find_clusters(args.tree_file)
 
-	find_closest_ref_sequences(args.tree_file, args.biom_file, args.multi_affi, args.fasta_file, clusters, args.category, args.output)
+	inputs = check_ref_files(args.tree_file, args.biom_file, args.multi_affi, args.fasta_file, args.category, args.output )
+
+	find_closest_ref_sequences(*inputs)
 	
