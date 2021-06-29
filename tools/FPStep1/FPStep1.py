@@ -26,10 +26,6 @@ sys.path.append(LIB_DIR)
 if os.getenv('PYTHONPATH') is None: os.environ['PYTHONPATH'] = LIB_DIR
 else: os.environ['PYTHONPATH'] = LIB_DIR + os.pathsep + os.environ['PYTHONPATH']
 
-PRO_DIR = os.path.join(os.path.dirname(os.__file__),'site-packages/picrust2/default_files/prokaryotic/pro_ref/')
-ITS_DIR = os.path.join(os.path.dirname(os.__file__),'site-packages/picrust2/default_files/fungi/fungi_ITS/')
-_18S_DIR = os.path.join(os.path.dirname(os.__file__),'site-packages/picrust2/default_files/fungi/fungi_18S/')
-
 from frogsUtils import *
 from frogsBiom import BiomIO
 from frogsSequenceIO import *
@@ -60,7 +56,7 @@ class PlaceSeqs(Cmd):
 
 		Cmd.__init__(self,
 		'place_seqs.py',
-		'Place OTU on reference tree.',
+		'Place studies sequences (i.e. OTUs) on reference tree.',
 		'--study_fasta ' + in_fasta + ' --out_tree ' + out_tree + ' --placement_tool ' + placement_tool + " --min_align " + str(min_align) + " --ref_dir " + category + " 2> " + log,
 		'--version')
 
@@ -126,6 +122,32 @@ class RemoveSeqsBiomFasta(Cmd):
 
 	def get_version(self):
 		return Cmd.get_version(self, 'stdout').strip()
+
+class GetPicrustRefFile(Cmd):
+	'''
+	@summary: get ref file for picrust2
+	'''
+	def __init__(self, log):
+
+		Cmd.__init__(self,
+			'place_seqs.py',
+			'Retrieve picrust default_files directory.',
+			'-h > ' + log,
+			'--version')
+		self.log = log
+
+	def get_version(self):
+		return Cmd.get_version(self, 'stdout').split()[1].strip()
+
+	def parser(self, log_file):
+		help_file = open(self.log,'r').readlines()
+		tmp = open(self.log+'.tmp', 'w')
+
+		help_file = ''.join(li.strip() for li in help_file)
+		path = re.compile('[^\s]+default_files/')
+		tmp.write(path.findall(help_file)[0])
+		tmp.close()
+		os.rename(self.log+'.tmp', self.log)
 
 ##################################################################################################################################################
 #
@@ -285,32 +307,34 @@ if __name__ == "__main__":
 	try:
 		Logger.static_write(args.log_file, "## Application\nSoftware :" + sys.argv[0] + " (version : " + str(__version__) + ")\nCommand : " + " ".join(sys.argv) + "\n\n")
 
+		tmp_get_ref_file = tmp_files.add('get_ref_file.log')
+		GetPicrustRefFile(tmp_get_ref_file).submit(args.log_file)
+		PATH_PICRUST = open(tmp_get_ref_file,'r').readlines()[0]
+
+		PRO_DIR = os.path.join(os.path.dirname(PATH_PICRUST), "prokaryotic/pro_ref")
+
+		if args.category in ['ITS','18S']:
+			if args.category == "ITS":
+				ITS_DIR = os.path.join(os.path.dirname(PATH_PICRUST), "fungi/fungi_ITS/")
+				ref_fasta = os.path.join(os.path.dirname(ITS_DIR),"fungi_ITS.fna.gz")
+			elif args.category == "18S":
+				_18S_DIR = os.path.join(os.path.dirname(PATH_PICRUST), "fungi/fungi_18S/")
+				ref_fasta = os.path.join(os.path.dirname(_18S_DIR),"fungi_18S.fna.gz")
+			if os.path.exists(ref_fasta):
+				if args.category == "ITS":
+					ref_dezip = open(os.path.join(os.path.dirname(ITS_DIR),"fungi_ITS.fna"), 'wb')
+				elif args.category == "18S":
+					ref_dezip = open(os.path.join(os.path.dirname(_18S_DIR),"fungi_18S.fna"), 'wb')
+				input_ref = gzip.GzipFile(ref_fasta, 'rb')
+				f = input_ref.read()
+				input_ref.close()
+				ref_dezip.write(f)
+				ref_dezip.close()
+				os.remove(ref_fasta)
+
 		Logger.static_write(args.log_file,'\n# Cleaning fasta headers\n\tstart: ' + time.strftime("%d %b %Y %H:%M:%S", time.localtime()) + '\n\n' )
 		tmp_fasta = tmp_files.add('cleaned.fasta')
 		convert_fasta(args.input_fasta,tmp_fasta)
-
-		if args.category == "ITS" or args.category =="18S":
-
-			if args.category == "ITS":
-				gz_ref_fasta = os.path.join(os.path.dirname(os.__file__),'site-packages/picrust2/default_files/fungi/fungi_ITS/fungi_ITS.fna.gz')
-				
-			elif args.category =="18S":
-				gz_ref_fasta = os.path.join(os.path.dirname(os.__file__),'site-packages/picrust2/default_files/fungi/fungi_18S/fungi_18S.fna.gz')
-				output = open(os.path.join(os.path.dirname(os.__file__),'site-packages/picrust2/default_files/fungi/fungi_18S/fungi_18S.fna'), 'wb')
-
-			if os.path.exists(gz_ref_fasta):
-				if agrs.category == "ITS":
-					output = open(os.path.join(os.path.dirname(os.__file__),'site-packages/picrust2/default_files/fungi/fungi_ITS/fungi_ITS.fna'), 'wb')
-
-				if args.category == "18S":
-					output = open(os.path.join(os.path.dirname(os.__file__),'site-packages/picrust2/default_files/fungi/fungi_18S/fungi_18S.fna'), 'wb')
-				
-				input_ref = gzip.GzipFile(gz_ref_fasta, 'rb')
-				f = input_ref.read()
-				input_ref.close()
-				output.write(f)
-				output.close()
-				os.remove(gz_ref_fasta)
 
 		tmp_place_seqs = tmp_files.add( 'tmp_place_seqs.log' )
 		PlaceSeqs(tmp_fasta, args.out_tree, args.placement_tool, args.category, args.min_align, tmp_place_seqs).submit(args.log_file)
