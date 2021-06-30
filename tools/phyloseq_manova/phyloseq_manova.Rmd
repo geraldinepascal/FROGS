@@ -1,5 +1,5 @@
 ---
-title: "FROGS Phyloseq: Multivariate Analysis of Variance (version 3.2.1)"
+title: "FROGS Phyloseq: Multivariate Analysis of Variance (version 3.2.3)"
 output:
   html_notebook:
     code_folding : hide

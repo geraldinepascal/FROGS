@@ -170,12 +170,16 @@ def get_bests_blast_affi( blast_files, taxonomy_by_subject ):
             if query_id not in blast_annot or blast_annot[query_id]['score'] < score:
                 blast_annot[query_id] = {
                     'score': score,
-                    'alignments': list(),
+                    'alignments': dict(),
                 }
             if blast_annot[query_id]['score'] == score: # select best HSP
                 # ~ subject_id = parts[1].split("#")[0]  # Subject field : <ID>#<PARTIAL_DESC> # why do not take into account the partial description ?
                 subject_id = parts[1]
-                blast_annot[query_id]['alignments'].append({
+                #store alignment by taxonomy to ordered affiliations by taxonomy and allow ordered output in bio_to_tsv tool
+                taxonomy = ';'.join(taxonomy_by_subject[subject_id])
+                if not taxonomy in blast_annot[query_id]['alignments']:
+                    blast_annot[query_id]['alignments'][taxonomy] = list()
+                blast_annot[query_id]['alignments'][taxonomy].append({
                     'subject': subject_id,
                     'taxonomy': taxonomy_by_subject[subject_id],
                     'evalue': parts[10],
@@ -219,8 +223,9 @@ def aff_to_metadata(reference_file, biom_in, biom_out, blast_files=None, rdp_fil
             blast_taxonomy = list()
             blast_affiliations = list()
             if cluster_id in cluster_blast_annot: # Current observation has a match
-                blast_taxonomy = get_tax_consensus( [alignment['taxonomy'] for alignment in cluster_blast_annot[cluster_id]['alignments']] )
-                blast_affiliations = cluster_blast_annot[cluster_id]['alignments']
+                blast_taxonomy = get_tax_consensus( [taxonomy.split(';') for taxonomy in cluster_blast_annot[cluster_id]['alignments']] )
+                for taxonomy in  cluster_blast_annot[cluster_id]['alignments']:
+                    blast_affiliations.extend(cluster_blast_annot[cluster_id]['alignments'][taxonomy])
             biom.add_metadata( cluster_id, "blast_affiliations", blast_affiliations, "observation" )
             biom.add_metadata( cluster_id, "blast_taxonomy", blast_taxonomy, "observation" )
         # RDP

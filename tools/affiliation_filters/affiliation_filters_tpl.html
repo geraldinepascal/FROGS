@@ -19,7 +19,7 @@
 	<head>
 		<title>FROGS Affiliation Filters</title>
 		<meta charset="UTF-8">
-		<meta name="version" content="2.0.1">
+		<meta name="version" content="3.2.3">
 		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.1.1/css/bootstrap.css"></link>
 		<link rel="stylesheet" href="https://cdn.datatables.net/1.10.19/css/dataTables.bootstrap4.min.css"></link>
 		<link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
@@ -453,7 +453,7 @@
 						if (global_taxon_lost[method][global_taxon_list[taxon_idx]].length  == 2){
 							s = numberDisplay(global_taxon_lost[method][global_taxon_list[taxon_idx]][0]);
 							if (global_taxon_lost[method][global_taxon_list[taxon_idx]][1] > 0){
-								s += ' ( ' + numberDisplay(global_taxon_lost[method][global_taxon_list[taxon_idx]][1]) +' multi-affiliation(s) )' ;
+								s += ' ( including  ' + numberDisplay(global_taxon_lost[method][global_taxon_list[taxon_idx]][1]) +' multi-affiliation(s) ) ' ;
 							}
 							method_data.push( s);
 						}else{

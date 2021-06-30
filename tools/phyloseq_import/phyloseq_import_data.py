@@ -18,7 +18,7 @@
 __author__ = ' Ta Thi Ngan & Maria Bernard INRA - SIGENAE '
 __copyright__ = 'Copyright (C) 2017 INRA'
 __license__ = 'GNU General Public License'
-__version__ = '3.2.1'
+__version__ = '3.2.3'
 __email__ = 'frogs-support@inrae.fr'
 __status__ = 'prod'
 
@@ -59,16 +59,16 @@ class Rscript(Cmd):
     @see: http://rmarkdown.rstudio.com/
           https://joey711.github.io/phyloseq/
     """
-    def __init__(self, biomfile, samplefile, treefile, html, normalization, phyloseq, ranks, rmd_stderr):
+    def __init__(self, biomfile, samplefile, treefile, html, normalisation, phyloseq, ranks, rmd_stderr):
         """
         @param biomfile: [str] The biom file contains the  OTU's informations: abundance and taxonomy. These file is the result of FROGS.
         @param samplefile: [str] The tabular file contains the samples's informations. 
                                  Advice: within SampleID or without SampleID
         @param treefile: [str] The Newick file contains the tree's informations from Frogs Tree.
         @param html: [str] The path to store resulting html file.
-        @param normalization: [str] To normalize data before analysis.
+        @param normalisation: [str] To normalise data before analysis.
         @param phyloseq: [str] The path to store one phyloseq-class object in Rdata file.
-        @param ranks: [str] The ordered taxonomic ranks levels stored in BIOM. Each rank is separated by one space.
+        @param ranks: [list] The ordered taxonomic ranks levels stored in BIOM. Each rank is separated by one space.
         @param rmd_stderr: [str] Path to temporary Rmarkdown stderr output file
         """ 
         # rmd = os.path.join(CURRENT_DIR, "r_import_data_notebook.Rmd")
@@ -78,7 +78,7 @@ class Rscript(Cmd):
                       'Run r_import_data.Rmd',
                       '-e "rmarkdown::render(' + "'" + rmd + "',output_file='" + html + \
                       "', params=list(biomfile='" + biomfile + "', samplefile='" + samplefile + "', treefile='"+ treefile + \
-                      "', normalization=" + normalization + ", outputRdata='" + phyloseq + "', ranks='" + ranks +"', libdir ='" + LIBR_DIR + "'), intermediates_dir='" + os.path.dirname(html) + "')" + '" 2> ' + rmd_stderr,
+                      "', normalisation=" + normalisation + ", outputRdata='" + phyloseq + "', ranks='" + ranks +"', libdir ='" + LIBR_DIR + "'), intermediates_dir='" + os.path.dirname(html) + "')" + '" 2> ' + rmd_stderr,
                        "-e '(sessionInfo()[[1]][13])[[1]][1]; paste(\"Rmarkdown version: \",packageVersion(\"rmarkdown\")) ; library(phyloseq); paste(\"Phyloseq version: \",packageVersion(\"phyloseq\"))'")
     def get_version(self):
         """
@@ -124,7 +124,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser( description='Launch Rmardown script to import data from 3 files: biomfile, samplefile, treefile into a phyloseq object')
     parser.add_argument( '--debug', default=False, action='store_true', help="Keep temporary files to debug program." )   
     parser.add_argument( '--version', action='version', version=__version__ )
-    parser.add_argument( '-n','--normalization', default=False, action='store_true', help='To normalize data before analysis. Use this option if you didnt do it in FROGS Abundance normalisation. [Default: %(default)s]')
+    parser.add_argument( '-n','--normalisation', default=False, action='store_true', help='To normalise data before analysis. Use this option if you didnt do it in FROGS Abundance normalisation. [Default: %(default)s]')
     parser.add_argument( '-r','--ranks', type=str, nargs='*', default=['Kingdom', 'Phylum', 'Class', 'Order','Family','Genus', 'Species'], help='The ordered taxonomic ranks levels stored in BIOM. Each rank is separated by one space. [Default: %(default)s]')      
     # Inputs
     group_input = parser.add_argument_group( 'Inputs' )
@@ -162,6 +162,7 @@ if __name__ == "__main__":
     for line in FH_in:
         sample_metadata_list.add(line.split()[0])
 
+    # Control sample name list
     biom_sample_list = set([name for name in biom.get_samples_names()])
     sample_metadata_spec = sample_metadata_list.difference(biom_sample_list) 
     sample_biom_spec = biom_sample_list.difference(sample_metadata_list)
@@ -184,7 +185,17 @@ if __name__ == "__main__":
             FROGSBiomToStdBiom(biomfile, std_biom, blast_metadata).submit(args.log_file)
             biomfile = std_biom
         rmd_stderr = tmpFiles.add("rmarkdown.stderr")
-        Rscript(biomfile, samplefile, treefile, html, str(args.normalization).upper(), phyloseq, ranks, rmd_stderr).submit(args.log_file)
+
+        # Control taxon rank number
+        biom = BiomIO.from_json(biomfile)
+        for observation in biom.get_observations():
+            taxonomy = observation['metadata']['taxonomy']
+            if taxonomy != None:
+                break
+        if len(taxonomy) != len(args.ranks):
+            raise_exception(Exception('\n\n#ERROR : you declare that taxonomies are defined on ' + str(len(args.ranks)) + ' ranks but your biom file contains taxonomy defined on ' + str(len(taxonomy)) + ', at least for ' + observation['id'] + '\n\n'))
+
+        Rscript(biomfile, samplefile, treefile, html, str(args.normalisation).upper(), phyloseq, ranks, rmd_stderr).submit(args.log_file)
     finally :
         if not args.debug:
             tmpFiles.deleteAll()

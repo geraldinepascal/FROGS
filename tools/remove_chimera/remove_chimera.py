@@ -19,7 +19,7 @@
 __author__ = 'Frederic Escudie - Plateforme bioinformatique Toulouse - Maria Bernard - Sigenae Jouy en Josas'
 __copyright__ = 'Copyright (C) 2015 INRA'
 __license__ = 'GNU General Public License'
-__version__ = '3.2.1'
+__version__ = '3.2.3'
 __email__ = 'frogs-support@inrae.fr'
 __status__ = 'prod'
 
@@ -118,7 +118,8 @@ def write_summary( summary_file, results_chimera ):
     @param results_chimera: [str] Path to the input chimera step summary.
     """
     # Get data
-    detection_categories = ["Kept nb", "Kept abundance", "Removed nb", "Removed abundance", "Abundance of the most abundant removed", "Detected nb", "Detected abundance", "Abundance of the most abundant detected"]
+    # detection_categories = ["Kept nb", "Kept abundance", "Removed nb", "Removed abundance", "Abundance of the most abundant removed", "Detected nb", "Detected abundance", "Abundance of the most abundant detected"]
+    # detection_categories = ["Clusters kept", "Cluster abundance kept", "Chimeric clusters removed", "Chimeric abundance removed", "Abundance of the most abundant chimera removed", "Individual chimera detected", "Individual chimera abundance detected", "Abundance of the most abundant individual chimera detected"]
     detection_data = list()
     remove_data = dict()
 
@@ -129,13 +130,13 @@ def write_summary( summary_file, results_chimera ):
     log_fh = open(results_chimera)
     for line in log_fh:
         line = line.strip()
-        if line.startswith('##Metrics by sample'):
-            remove_metrics = False
-            in_detection_metrics = True
-            section_first_line = True
-        elif line.startswith('##Metrics global'):
+        if line.startswith('##Metrics global'):
             remove_metrics = True
             in_detection_metrics = False
+            section_first_line = True
+        elif line.startswith('##Metrics by sample'):
+            remove_metrics = False
+            in_detection_metrics = True
             section_first_line = True
         elif line == "":
             in_detection_metrics = False

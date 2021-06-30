@@ -1,5 +1,5 @@
 ---
-title: "FROGS Phyloseq: Import Data (version 3.2.1)"
+title: "FROGS Phyloseq: Import Data (version 3.2.3)"
 output: 
   html_notebook:
     code_folding: hide
@@ -13,8 +13,8 @@ params:
   # (optional) Path to OTUs tree NWK file
   treefile:
     value: x
-  # (optional) normalization string option : TRUE or FALSE
-  normalization:
+  # (optional) normalisation string option : TRUE or FALSE
+  normalisation:
     value: x
   # Path to phyloseq object store in Rdata file
   outputRdata:
@@ -81,10 +81,10 @@ library(ape)
   # ranks <- ""
 
   ## Do you want to normalise your data ? "True" or "False"
-  # normalization <- ""
+  # normalisation <- ""
 
 ## Create input and parameters dataframe
-  # params <- data.frame( "biomfile" = biomfile, "samplefile" = samplefile, "tree" = tree, "ranks" = ranks, "normalization" = normalization)
+  # params <- data.frame( "biomfile" = biomfile, "samplefile" = samplefile, "tree" = tree, "ranks" = ranks, "normalisation" = normalisation)
 
 
 ## Import data
@@ -126,8 +126,8 @@ empty_samples <- sample_names(data)[which(sample_sums(data)==0)]
 sample_to_keep <- sample_names(data)[which(sample_sums(data)>0)]
 data <- prune_samples(sample_to_keep, data)
 
-## abundance normalization
-if(params$normalization){ data <- rarefy_even_depth(data, rngseed = 1121983)}
+## abundance normalisation
+if(params$normalisation){ data <- rarefy_even_depth(data, rngseed = 1121983)}
 
 ## save phyloseq object in Rdata file
 save(data, file=params$outputRdata)
@@ -138,7 +138,7 @@ save(data, file=params$outputRdata)
 ```{r summary}
 data
 if(length(empty_samples) > 0) {cat(paste('Remove empty samples: ', paste(empty_samples, collapse=",")))}
-if(params$normalization){cat(paste('Number of sequences in each sample after normalization: ', head(sample_sums(data))[[1]]))}
+if(params$normalisation){cat(paste('Number of sequences in each sample after normalisation: ', head(sample_sums(data))[[1]]))}
 ```
 
 ## Ranks Names

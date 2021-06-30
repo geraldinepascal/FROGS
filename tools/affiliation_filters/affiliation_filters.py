@@ -19,7 +19,7 @@
 __author__ = 'Katia Vidal - Team NED Toulouse AND Frederic Escudie - Plateforme bioinformatique Toulouse AND Maria Bernard - Sigenae Jouy en Josas'
 __copyright__ = 'Copyright (C) 2020 INRAE'
 __license__ = 'GNU General Public License'
-__version__ = '3.2.1'
+__version__ = '3.2.3'
 __email__ = 'frogs-support@inrae.fr'
 __status__ = 'prod'
 
@@ -336,7 +336,7 @@ def filter_biom(in_biom_file, impacted_file, output_file, params):
             # add rdp bootstrap criteria
             label = "RDP bootstrap for " + params.min_rdp_bootstrap["rank"] + " < " + str(params.min_rdp_bootstrap["value"])
             
-            filter_on_rdpBootstrap = impacted_obs_on_rdpBootstrap(observation, params.rdp_taxonomy_ranks.index(params.min_rdp_bootstrap["rank"]), params.min_rdp_bootstrap["value"])
+            filter_on_rdpBootstrap = impacted_obs_on_rdpBootstrap(observation, params.taxonomic_ranks.index(params.min_rdp_bootstrap["rank"]), params.min_rdp_bootstrap["value"])
             if filter_on_rdpBootstrap :
                 if not label in impacted_dict:
                     impacted_dict[label] = list()
@@ -562,7 +562,8 @@ def write_summary( summary_file, input_biom, output_biom, discards, params ):
             for filter in filters_intersections[observation_name]:
                 if filter not in samples_results[sample]['filtered']:
                     samples_results[sample]['filtered'][filter] = 0
-                samples_results[sample]['filtered'][filter] += 1
+                if in_biom.get_count(observation_name,sample) > 0 :
+                    samples_results[sample]['filtered'][filter] += 1
 
     # compute globale_results
     for observation_name in in_biom.get_observations_names():
@@ -746,7 +747,6 @@ if __name__ == '__main__':
     group_filter = parser.add_argument_group( 'Filters' )
     group_filter.add_argument( '--ignore-blast-taxa', type=str, nargs='*', help="Taxon list to maks/delete in Blast affiliations")
     group_filter.add_argument( '-b', '--min-rdp-bootstrap', type=str, action=BootstrapParameter, metavar=("TAXONOMIC_LEVEL:MIN_BOOTSTRAP"), help="The minimal RDP bootstrap must be superior to this value (between 0 and 1)." )
-    group_filter.add_argument( '-t', '--rdp-taxonomy-ranks', nargs='*', default=["Domain", "Phylum", "Class", "Order", "Family", "Genus", "Species"], help='The ordered ranks levels present in the reference databank. [Default: %(default)s]' )
     group_filter.add_argument( '-i', '--min-blast-identity', type=ratioParameter, help="The number corresponding to the blast percentage identity (between 0 and 1)." )
     group_filter.add_argument( '-c', '--min-blast-coverage', type=ratioParameter, help="The number corresponding to the blast percentage coverage (between 0 and 1)." )
     group_filter.add_argument( '-e', '--max-blast-evalue', type=float, help="The number corresponding to the blast e value (between 0 and 1).")
@@ -797,8 +797,8 @@ if __name__ == '__main__':
     if args.min_rdp_bootstrap is not None:
         if not in_biom.has_observation_metadata("rdp_bootstrap"):
             raise_exception( argparse.ArgumentTypeError( "\n\n#ERROR : The BIOM input does not contain the metadata 'rdp_bootstrap'. You cannot use the parameter '--min-rdp-bootstrap' on this file.\n\n" ))
-        elif not args.min_rdp_bootstrap["rank"] in args.rdp_taxonomy_ranks:
-            raise_exception( argparse.ArgumentTypeError( "\n\n#ERROR : The taxonomic rank choosen in '--min-rdp-bootstrap' must be in '--rdp-taxonomy-ranks' (" + ";".join(args.rdp_taxonomy_ranks) + ").\n\n" ))
+        elif not args.min_rdp_bootstrap["rank"] in args.taxonomic_ranks:
+            raise_exception( argparse.ArgumentTypeError( "\n\n#ERROR : The taxonomic rank choosen in '--min-rdp-bootstrap' must be in '--taxonomic-ranks' (" + ";".join(args.taxonomic_ranks) + ").\n\n" ))
         else:
             nb_rank = 0
             for observation in in_biom.get_observations():
@@ -818,6 +818,15 @@ if __name__ == '__main__':
             raise_exception( argparse.ArgumentTypeError( "\n\n#ERROR : The BIOM input does not contain the metadata 'blast_affiliations'. You cannot use the parameter '--max-blast-coverage' on this file.\n\n" ))
         if args.ignore_blast_taxa is not None:
             raise_exception( argparse.ArgumentTypeError( "\n\n#ERROR : The BIOM input does not contain the metadata 'blast_affiliations'. You cannot use the parameter '--ignore-blast-taxa' on this file.\n\n" ))
+     
+     # Control blast taxonomy rank number
+    for observation in in_biom.get_observations():
+        taxonomy = observation['metadata']['blast_taxonomy']
+        if taxonomy != None:
+            break
+    if len(taxonomy) != len(args.taxonomic_ranks):
+        raise_exception(Exception('\n\n#ERROR : you declare that taxonomies are defined on ' + str(len(args.taxonomic_ranks)) + ' ranks but your biom file contains taxonomy defined on ' + str(len(taxonomy)) + ', at least for ' + observation['id'] + '\n\n'))
+
     del in_biom
 
     if args.delete and (not args.input_fasta or not args.output_fasta):

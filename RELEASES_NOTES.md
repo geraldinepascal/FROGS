@@ -1,3 +1,43 @@
+# v3.2.3 [2021-05]
+
+### Installation note:
+
+When installing FROGS and its dependencies via conda, please refer de `frogs-conda-requirements.yaml` available on the master branch of the github repository ( https://github.com/geraldinepascal/FROGS/blob/master/frogs-conda-requirements.yaml ) instead of the one available in the release archive.
+Indeed we may update dependencies versions without changing anything to the FROGS code so whithout making a new release.
+
+### Bug fixed
+
+* DESeq2 visualisation : correctly identify name of reference condition
+
+# v3.2.2 [2021-04]
+
+### Modifications
+
+* Preprocess: use maxdiffpct instead of maxdiffs in vsearch fastq_mergepairs command line, and recommand 2.17.0 version. 
+* DESeq2 : 
+  * rename tool in DESeq2 visualisation (with s instead of z)
+  * improve filter in datatable
+  * change color
+  * add padj threshold in MAplot
+* ITSx : add organims model option (it was restrict to Fungi, take care of increase computing time
+* OTU affiliation : sort blast affiliations in biom by taxonomy
+* Clusters stat : add precision in HTML
+* Remove chimera : add precision in HTML, and rename table columns names
+* Affiliation Filter : add precision in HTML
+* Various tools:
+  * add taxonomic rank consistency between user declaration and input files (reference database, biom)
+  * correct typo
+
+### Bug fixed
+
+* DESeq2 visualisation : 
+  * add intermediates_dir argument in Rscript command
+  * debug pie charts color attribution
+* Normalisation : correct bug when calculating number of OTU by sample
+* ITSx : correct stderr scanning
+* Affiliation filter : correct bug in OTU filter by sample and by filter
+
+
 # v3.2.1 [2021-02-22]
 
 ### Bug fixed

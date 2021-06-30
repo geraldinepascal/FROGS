@@ -19,7 +19,7 @@
 __author__ = 'Maria Bernard INRA - SIGENAE AND Frederic Escudie - Plateforme bioinformatique Toulouse'
 __copyright__ = 'Copyright (C) 2015 INRA'
 __license__ = 'GNU General Public License'
-__version__ = '3.2.1'
+__version__ = '3.2.3'
 __email__ = 'frogs-support@inrae.fr'
 __status__ = 'prod'
 
@@ -546,6 +546,17 @@ if __name__ == "__main__":
     group_output.add_argument('-l', '--log-file', default=sys.stdout, help='The list of commands executed.')
     args = parser.parse_args()
     prevent_shell_injections(args)
+
+    # control number of ranks in reference fasta file and in user declaration
+    # Line example : '>ADC62191 Bacteria; Proteobacteria; Gammaproteobacteria; Chromatiales; Chromatiaceae; Allochromatium.; Allochromatium vinosum DSM 180'
+    taxonomy = open(args.reference).readline()[1:].strip().split(None, 1)[1]
+    if taxonomy.endswith(';'):
+        taxonomy = taxonomy[:-1] # Removes last ';'
+    taxonomy = taxonomy.split(';') 
+    if taxonomy[0].split('[id')[0].strip() == 'Root':
+        taxonomy = taxonomy[1:]
+    if len(taxonomy) != len(args.taxonomy_ranks):
+        raise_exception(Exception('\n\n#ERROR : you declare that taxonomies are defined on ' + str(len(args.taxonomy_ranks)) + ' ranks but your reference file contains taxonomy defined on ' + str(len(taxonomy)) + ', like ' + ";".join(taxonomy) + '\n\n'))
 
     # Temporary files
     tmpFiles = TmpFiles( os.path.split(args.output_biom)[0] )

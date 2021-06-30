@@ -7,7 +7,7 @@ It has been tested on a Xubuntu 16.04 virtual machine.
 Here we suppose to install dependencies in the same directory as FROGS.
 
 ```bash
-version=3.2.1
+version=3.2.3
 DIR=`pwd`
 BIN_DIR=$DIR/bin
 mkdir -p $BIN_DIR
@@ -51,7 +51,7 @@ sudo apt-get install python3-scipy
 
 
 
-## 1) vsearch 2.15.1 , for FROGS Preprocess and FROGS Remove_chimera
+## 1) vsearch 2.17.0 , for FROGS Preprocess and FROGS Remove_chimera
 
 **require** :  autoconf, zlib and bzip2 libraries
 
@@ -63,16 +63,17 @@ sudo apt-get install autoconf libz-dev libbz2-dev
 
 ```bash
 cd $BIN_DIR
-wget https://github.com/torognes/vsearch/archive/v2.15.1.tar.gz
-tar xzf v2.15.1.tar.gz
-cd vsearch-2.15.1
+wget https://github.com/torognes/vsearch/archive/v2.17.0.tar.gz
+tar xzf v2.17.0.tar.gz
+cd vsearch-2.17.0
 ./autogen.sh
 ./configure
 make
+make install
 # test installation
 ./bin/vsearch -version
 # add to FROGS
-ln -s $BIN_DIR/vsearch-2.15.1/bin/vsearch $FROGS_libexec/.
+ln -s $BIN_DIR/vsearch-2.17.0/bin/vsearch $FROGS_libexec/.
 ```
 
 ## 2) FLASH 1.2.11 (optional), for FROGS Preprocess
@@ -467,6 +468,6 @@ Step phyloseq_structure lundi 4 janvier 2021, 14:19:47 (UTC+0100)
 Step phyloseq_clustering lundi 4 janvier 2021, 14:20:38 (UTC+0100)
 Step phyloseq_manova lundi 4 janvier 2021, 14:20:54 (UTC+0100)
 Step deseq2_preprocess lundi 4 janvier 2021, 14:21:10 (UTC+0100)
-Step deseq2_visualization lundi 4 janvier 2021, 14:21:43 (UTC+0100)
+Step deseq2_visualisation lundi 4 janvier 2021, 14:21:43 (UTC+0100)
 Completed with success
 ```

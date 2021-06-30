@@ -129,14 +129,13 @@ def submit_cmd( cmd, cwd=None):
     stdout, stderr = p.communicate()
 
     # check error status
-    if p.returncode != 0:
-        # stdeh = open(stderr)
-        error_msg = "".join( map(str, stderr.decode('utf-8').readlines()) )
-        # stdeh.close()
-        raise_exception( Exception( "\n\n#ERROR : " + error_msg + "\n\n" ))
+    # if p.returncode != 0:		# ==> ITSx do not return exit code 1!!
+    error_msg = stderr.decode('utf-8')
+    if "ERROR" in error_msg:      
+        raise_exception( Exception( "\n\n#ERROR : \n" + error_msg + "\n\n" ))
 
-def parallel_submission( function, inputs, its, cwds, outputs, logs, cpu_used):
-    processes = [{'process':None, 'inputs':None, 'its':its, 'cwd' : None, 'outputs':None, 'log_files':None} for idx in range(cpu_used)]
+def parallel_submission( function, inputs, its, organism_groups, cwds, outputs, logs, cpu_used):
+    processes = [{'process':None, 'inputs':None, 'its':its, 'organism_groups':organism_groups, 'cwd' : None, 'outputs':None, 'log_files':None} for idx in range(cpu_used)]
     # Launch processes
     for idx in range(len(inputs)):
         process_idx = idx % cpu_used
@@ -148,10 +147,10 @@ def parallel_submission( function, inputs, its, cwds, outputs, logs, cpu_used):
     for current_process in processes:
         if idx == 0:  # First process is threaded with parent job
             current_process['process'] = threading.Thread(target=function,
-                                                          args=(current_process['inputs'],current_process['its'], current_process['cwd'], current_process['outputs'], current_process['log_files']))
+                                                          args=(current_process['inputs'],current_process['its'], current_process['organism_groups'], current_process['cwd'], current_process['outputs'], current_process['log_files']))
         else:  # Others processes are processed on diffrerent CPU
             current_process['process'] = multiprocessing.Process(target=function,
-                                                                 args=(current_process['inputs'], current_process['its'], current_process['cwd'], current_process['outputs'], current_process['log_files']))
+                                                                 args=(current_process['inputs'], current_process['its'], current_process['organism_groups'], current_process['cwd'], current_process['outputs'], current_process['log_files']))
         current_process['process'].start()
     # Wait processes end
     for current_process in processes:
@@ -211,7 +210,7 @@ def parseITSxResult(input_dir, prefix, its, out, log):
                 FH_log.write("\tnb "+detection_type+ " (removed): " + str(count_ITSx[detection_type]) + "\n")
     FH_log.close()
 
-def process_ITSx(in_fasta, its, cwd, out, log_file):
+def process_ITSx(in_fasta, its, organism_groups, cwd, out, log_file):
 
     os.mkdir(cwd)
     prefix = os.path.splitext(os.path.split(in_fasta)[1])[0]
@@ -220,7 +219,7 @@ def process_ITSx(in_fasta, its, cwd, out, log_file):
     FH_log = Logger( log_file )
     FH_log.write("## Input file : " + os.path.split(in_fasta)[1] + "\n" ) 
     FH_log.write("## in working directory: " + cwd + "\n")
-    cmd = ["ITSx", "-i", in_fasta, "-o", prefix , "--preserve", "T","-t","F","--save_regions","all"]
+    cmd = ["ITSx", "-i", in_fasta, "-o", prefix , "--preserve", "T","-t",",".join(organism_groups),"--save_regions","all"]
     FH_log.write("## ITSx command: " + " ".join(cmd) + "\n")
     submit_cmd( cmd , cwd )
     FH_log.close()
@@ -418,9 +417,9 @@ def main_process(args):
             in_fasta = os.path.abspath(args.input_fasta)
             tmp_dir = tmpFiles.add_dir(os.path.split(args.output_fasta)[1])
             if not args.check_its_only:
-                process_ITSx(in_fasta, args.its, tmp_dir, args.output_fasta, args.log_file)
+                process_ITSx(in_fasta, args.its, args.organism_groups, tmp_dir, args.output_fasta, args.log_file)
             else:
-                process_ITSx(in_fasta, 'no_detections', tmp_dir, args.output_fasta, args.log_file)
+                process_ITSx(in_fasta, 'no_detections', args.organism_groups, tmp_dir, args.output_fasta, args.log_file)
         else:
             fasta_ITSx_list = list()
             ITSx_outputs = list()
@@ -432,9 +431,9 @@ def main_process(args):
             logs_ITSx = [tmpFiles.add(os.path.basename(current_fasta) + "_itsx.log") for current_fasta in fasta_ITSx_list]
             tmp_dirs = [ tmpFiles.add_dir(os.path.split(current_fasta)[1]) for current_fasta in fasta_ITSx_list ]
             if not args.check_its_only:
-                parallel_submission( process_ITSx, fasta_ITSx_list, args.its, tmp_dirs, ITSx_outputs, logs_ITSx, len(fasta_ITSx_list) )
+                parallel_submission( process_ITSx, fasta_ITSx_list, args.its, args.organism_groups, tmp_dirs, ITSx_outputs, logs_ITSx, len(fasta_ITSx_list) )
             else:
-                parallel_submission( process_ITSx, fasta_ITSx_list, 'no_detections', tmp_dirs, ITSx_outputs, logs_ITSx, len(fasta_ITSx_list) )
+                parallel_submission( process_ITSx, fasta_ITSx_list, 'no_detections', args.organism_groups, tmp_dirs, ITSx_outputs, logs_ITSx, len(fasta_ITSx_list) )
 
             # Logs
             append_results(ITSx_outputs, logs_ITSx, args.output_fasta, args.log_file)
@@ -470,6 +469,7 @@ if __name__ == "__main__":
     parser.add_argument( '--debug', default=False, action='store_true', help="Keep temporary files to debug program." )
     parser.add_argument( '-v', '--version', action='version', version=__version__ + " [ITSx " + get_ITSx_version() + "]" )
     parser.add_argument( '-i', '--its', type=str, required=True, choices=['ITS1','ITS2'], help='Which ITS region are targeted. either ITS1 or ITS2 ')
+    parser.add_argument( '--organism-groups', type=str, nargs="*", default=['F'], help='Reduce ITSx scan to specified organim groups. [Default: %(default)s , which means Fungi only]')
     parser.add_argument( '--check-its-only', action='store_true', default=False, help='Check only if sequences seem to be an ITS. No sequence trimming will happen' )
     group_input = parser.add_argument_group( 'Inputs' ) # Inputs
     group_input.add_argument( '-f', '--input-fasta', required=True, help='The fasta input sequences to treat' )
