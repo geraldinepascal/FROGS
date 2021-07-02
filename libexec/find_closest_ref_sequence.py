@@ -1,5 +1,21 @@
 #!/usr/bin/env python3
-
+#
+# Copyright (C) 2018 INRA
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+__author__ = 'Vincent Darbot INRAE - GENPHYSE'
 __copyright__ = 'Copyright (C) 2018 INRA'
 __license__ = 'GNU General Public License'
 __version__ = '1.0'
@@ -69,7 +85,7 @@ def is_same_taxonomies(taxo_frogs, taxo_picrust):
 			return False
 	return True
 
-def check_ref_files(tree_file, biom_file, multi_affi_file, fasta_file, category, output ):
+def check_ref_files(tree_file, biom_file, multi_affi_file, fasta_file, ref_aln, output ):
 	'''
 	@param tree: [str] Path to tree output from place_seqs.py.
 	@param biom_file: [str] path to BIOM input file.
@@ -78,16 +94,8 @@ def check_ref_files(tree_file, biom_file, multi_affi_file, fasta_file, category,
 	@ref_file: [str] path to reference map file in order to have taxonomies informations.
 	'''
 	biom=BiomIO.from_json(biom_file)
-	if category == '16S':
-		ref_file = os.path.abspath(os.path.join(os.path.dirname(CURRENT_DIR), "tools/FPStep1/data/JGI_ID_to_taxonomy.txt"))
-		picrust_aln = os.path.join(os.path.dirname(os.__file__),'site-packages/picrust2/default_files/prokaryotic/pro_ref/pro_ref.fna')
-
-	elif category == 'ITS' or category == '18S':
-		ref_file = os.path.abspath(os.path.join(os.path.dirname(CURRENT_DIR), "tools/FPStep1/data/new_JGI_ITS_to_taxonomy.txt"))
-		if category == 'ITS':
-			picrust_aln = os.path.join(os.path.dirname(os.__file__),'site-packages/picrust2/default_files/fungi/fungi_ITS/fungi_ITS.fna')
-		else:
-			picrust_aln = os.path.join(os.path.dirname(os.__file__),'site-packages/picrust2/default_files/fungi/fungi_18S/fungi_ITS.fna')
+	ref_file = os.path.abspath(os.path.join(os.path.dirname(CURRENT_DIR), "tools/FPStep1/data/JGI_ID_to_taxonomy.txt"))
+	picrust_aln = ref_aln
 	
 	ref = open(ref_file,'r').readlines()
 	ID_to_taxo = {}
@@ -138,7 +146,6 @@ def find_closest_ref_sequences(tree, biom, cluster_to_multiaffi, ID_to_taxo, ref
 	@param clusters: [list] clusters insert in tree (find_clusters output).
 	@ref_file: [str] path to reference map file in order to have taxonomies informations.
     """
-
 	FH_out = open(output,'wt')
 	FH_out.write('Cluster\tTaxonomy\tClosest_ref_ID\tClosest_ref_name\tClosest_ref_taxonomy\tClosest_ref_distance\tComment')
 
@@ -162,28 +169,27 @@ def find_closest_ref_sequences(tree, biom, cluster_to_multiaffi, ID_to_taxo, ref
 				best_leaf = best_leaf.split('-')[0]
 				comment = "/"
 				affis_picrust = ID_to_taxo[best_leaf][1].replace(' ','_')
-
 				if cluster in cluster_to_multiaffi:
 					for affi in cluster_to_multiaffi[cluster]:
+
 						#formate FROGS taxonomy when when it's k__Fungi. k__Fungi --> Fungi
 						if '__' in affi:
 							affis_frogs = ";".join(["".join(af.split('__')[1:]) for af in affi.split(';')])
-						else:
-							affis_frogs = affi.replace(' ','_')
+						
+						affis_frogs = affi.replace(' ','_')
 
 						if is_same_taxonomies(affis_frogs, affis_picrust):
 							comment = "identical taxonomy"
 							break
 				else:
 					affis_frogs = ";".join(biom.get_observation_metadata(cluster)["blast_taxonomy"])
-					if '__' in affi:
+					if '__' in affis_frogs:
 						affis_frogs = ";".join(["_".join(af.split('__')[1:]) for af in affis_frogs.split(';')])
-					else:
-						affis_frogs = affis_frogs.replace(' ','_')
-
+					
+					affis_frogs = affis_frogs.replace(' ','_')
 					if is_same_taxonomies(affis_frogs, affis_picrust):
 						comment = "identical taxonomy"
-						
+
 				if cluster_to_seq[cluster] in ref_seqs[best_leaf]:
 					if comment == "/":
 						comment = "identical sequence"
@@ -209,7 +215,7 @@ if __name__ == "__main__":
 	group_input.add_argument('-f', '--fasta_file', required=True, help='Input fasta file.')
 	group_input.add_argument('-b', '--biom_file', required=True, help='Input biom file.')
 	group_input.add_argument('-m', '--multi_affi', required=True, help='Multi-affiliations from biom input file. Run multiAffiFromBiom.py to generate this input.')
-	group_input.add_argument('-c', '--category', choices=['16S', 'ITS', '18S'], default='16S', help='Specifies which category 16S, ITS, 18S')
+	group_input.add_argument('-r', '--ref_aln', required=True, help='Alignment of reference sequences used in FPStep1 in order to execute place_seqs.py (ie $PICRUST_PATH/default_files/fungi/fungi_ITS/')
 	# Outputs
 	group_output = parser.add_argument_group('Outputs')
 	group_output = parser.add_argument('-o', '--output', default='closests_ref_sequences.txt')
@@ -220,7 +226,7 @@ if __name__ == "__main__":
 
 	clusters = find_clusters(args.tree_file)
 
-	inputs = check_ref_files(args.tree_file, args.biom_file, args.multi_affi, args.fasta_file, args.category, args.output )
+	inputs = check_ref_files(args.tree_file, args.biom_file, args.multi_affi, args.fasta_file, args.ref_aln, args.output )
 
 	find_closest_ref_sequences(*inputs)
 	

@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+__author__ = 'Vincent Darbot INRAE - GENPHYSE'
 __copyright__ = 'Copyright (C) 2018 INRA'
 __license__ = 'GNU General Public License'
 __version__ = '1.0'

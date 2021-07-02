@@ -26,10 +26,6 @@ sys.path.append(LIB_DIR)
 if os.getenv('PYTHONPATH') is None: os.environ['PYTHONPATH'] = LIB_DIR 
 else: os.environ['PYTHONPATH'] = os.environ['PYTHONPATH'] + os.pathsep + LIB_DIR
 # Default table PATH
-ITS_PATH = os.path.join(os.path.dirname(os.__file__), "site-packages/picrust2/default_files/fungi/ITS_counts.txt.gz")
-ITS_EC_PATH = os.path.join(os.path.dirname(os.__file__), "site-packages/picrust2/default_files/fungi/ec_ITS_counts.txt.gz")
-_18S_PATH = os.path.join(os.path.dirname(os.__file__), "site-packages/picrust2/default_files/fungi/18S_counts.txt.gz")
-_18S_EC_PATH = os.path.join(os.path.dirname(os.__file__), "site-packages/picrust2/default_files/fungi/ec_18S_counts.txt.gz")
 
 from frogsUtils import *
 from frogsSequenceIO import * 
@@ -46,13 +42,11 @@ class HspMarker(Cmd):
 	@summary: hsp.py : predict number of marker copies (16S, 18S or ITS) for each OTU.
 
 	"""
-	def __init__(self, category, in_tree, hsp_method, output, result_file, log):
-		if category == "16S":
+	def __init__(self, observed_marker_table, in_tree, hsp_method, output, result_file, log):
+		if observed_marker_table is None:
 			input_marker = " -i 16S"
-		elif category == "ITS":
-			input_marker = " --observed_trait_table " + ITS_PATH
-		elif category == "18S":
-			input_marker = " --observed_trait_table " + _18S_PATH			
+		else:
+			input_marker = " --observed_trait_table " + ITS_PATH		
 
 		Cmd.__init__(self,
 				 'hsp.py',
@@ -87,13 +81,12 @@ class HspFunction(Cmd):
 	"""
 	@summary: hsp.py predict number of genes family for each OTU.
 	"""
-	def __init__(self, category, function, in_tree, hsp_method, output, result_file, log):
-		if category == "16S":
-			input_function = " -i " + function
-		elif category == "ITS":
-			input_function = " --observed_trait_table " + ITS_EC_PATH
-		elif category == "18S":
-			input_function = " --observed_trait_table " + _18S_EC_PATH
+	def __init__(self, in_trait, observed_trait_table, function, in_tree, hsp_method, output, result_file, log):
+		if observed_trait_table is None:
+			input_function = " --in_trait " + in_trait
+		else:
+			input_function = " --observed_trait_table " + observed_trait_table
+
 		Cmd.__init__(self,
 				 'hsp.py',
 				 'predict function abundance per sequence.', 
@@ -176,42 +169,46 @@ if __name__ == "__main__":
 	parser.add_argument( '--debug', default=False, action='store_true', help="Keep temporary files to debug program." )
 	# Inputs
 	group_input = parser.add_argument_group( 'Inputs' )
-	group_input.add_argument('-c', '--category', choices=['16S', '18S', 'ITS'], default='16S', help='Specifies which category 16S, 18S or ITS')
-	group_input.add_argument('-f', '--function', default="EC",help="Specifies which default trait table should be used ('KO', 'COG', PFAM', 'TIGRFAM' or 'PHENO'). EC is used by default because necessary for FPStep4. To run the command with several functions, separate the functions with commas (ex: KO,PFAM) (for ITS or 18S : only EC available)")
+	group_input.add_argument('-i', '--in_trait', default="EC",help="For 16S marker input: Specifies which default trait table should be used ('EC', 'KO', 'COG', PFAM', 'TIGRFAM' or 'PHENO'). EC is used by default because necessary for FPStep4. To run the command with several functions, separate the functions with commas (ex: KO,PFAM). (for ITS or 18S : only EC available)")
+	group_input.add_argument('--observed_marker_table',help="The input marker table describing directly observed traits (e.g. sequenced genomes) in tab-delimited format. Necessary if you don't work on 16S marker. (ex $PICRUST_PATH/picrust2/default_files/fungi/ITS_counts.txt.gz). This input is required when the --observed_trait_table option is set. ")
+	group_input.add_argument('--observed_trait_table',help="The input trait table describing directly observed traits (e.g. sequenced genomes) in tab-delimited format. Necessary if you want to use a custom table. (ex $PICRUST_PATH/picrust2/default_files/fungi/ec_ITS_counts.txt.gz). This input is required when the --observed_marker_table option is set. ")
 	group_input.add_argument('-t', '--tree', required=True, type=str, help='FPStep1 output tree in newick format containing both study sequences (i.e. ASVs or OTUs) and reference sequences.')
 	group_input.add_argument('-s', '--hsp_method', default='mp', choices=['mp', 'emp_prob', 'pic', 'scp', 'subtree_average'], help='HSP method to use.' +'"mp": predict discrete traits using max parsimony. ''"emp_prob": predict discrete traits based on empirical ''state probabilities across tips. "subtree_average": ''predict continuous traits using subtree averaging. ' '"pic": predict continuous traits with phylogentic ' 'independent contrast. "scp": reconstruct continuous ''traits using squared-change parsimony (default: ''%(default)s).')
 	# Output
 	group_output = parser.add_argument_group( 'Outputs' )
-	group_output.add_argument('-m', '--output_marker', default="EC", type=str, help='Output table of predicted marker gene copy numbers per study sequence in input tree. If the extension \".gz\" is added the table will automatically be gzipped.')
+	group_output.add_argument('-m', '--output_marker', default="FPStep2_marker_nsti_predicted.tsv", type=str, help='Output table of predicted marker gene copy numbers per study sequence in input tree. If the extension \".gz\" is added the table will automatically be gzipped.')
 	group_output.add_argument('-o', '--output_function', default="FPStep2_all_predicted.tsv", type=str, help='Output table with predicted abundances per study sequence in input tree. If the extension \".gz\" is added the table will automatically be gzipped.')
 	group_output.add_argument('-l', '--log_file', default=sys.stdout, help='List of commands executed.')
 	args = parser.parse_args()
 	prevent_shell_injections(args)
-	# manage category and function input parameters
-	if args.category == "ITS" and args.function != "EC":
-		Logger.static_write(args.log_file, '\n\n#WARNING : --function parameter: only EC available with --category set to ITS.\n')
-		Logger.static_write(args.log_file, '\n--function parameter set to EC.\n\n')
-		args.function = "EC"
+
+	if (args.observed_trait_table is not None and args.observed_marker_table is None) or (args.observed_trait_table is None and args.observed_marker_table is not None):
+		parser.error("\n\n#ERROR : --args.observed_trait_table and --args.observed_trait_table both required when studied marker is not 16S!\n\n")
+	elif args.observed_trait_table is not None and args.observed_marker_table is not None:
+		args.in_trait = Non
+
 	# default output marker file name
 	if args.output_marker is None:
-		args.output_marker = args.category + "_nsti_predicted.tsv"
+		args.output_marker = "FPStep2_marker_nsti_predicted.tsv"
 
 	tmp_files=TmpFiles(os.path.split(args.output_marker)[0])
-	functions = check_functions(args.function)
+
+
+	in_traits = check_functions(args.in_trait)
 
 	try:
 		Logger.static_write(args.log_file, "## Application\nSoftware :" + sys.argv[0] + " (version : " + str(__version__) + ")\nCommand : " + " ".join(sys.argv) + "\n\n")
 
 		tmp_hsp_marker = tmp_files.add( 'tmp_hsp_marker.log' )
-		HspMarker(args.category, args.tree, args.hsp_method, args.output_marker, args.output_function, tmp_hsp_marker).submit(args.log_file)
+		HspMarker(args.observed_marker_table, args.tree, args.hsp_method, args.output_marker, args.output_function, tmp_hsp_marker).submit(args.log_file)
 
 		tmp_hsp_function = tmp_files.add( 'tmp_hsp_function.log' )
 
 		suffix_name = "_predicted.tsv"
-		for function in functions:
-			cur_output_function = function + suffix_name
-			Logger.static_write(args.log_file, '\n\nRunning ' + function + ' functions prediction.\n')
-			HspFunction(args.category, function, args.tree, args.hsp_method, cur_output_function, args.output_function, tmp_hsp_function).submit(args.log_file)
+		for trait in in_traits:
+			cur_output_function = trait + suffix_name
+			Logger.static_write(args.log_file, '\n\nRunning ' + trait + ' functions prediction.\n')
+			HspFunction(trait, args.observed_trait_table, args.tree, args.hsp_method, cur_output_function, args.output_function, tmp_hsp_function).submit(args.log_file)
 
 	finally:
 		if not args.debug:

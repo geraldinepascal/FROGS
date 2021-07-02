@@ -40,24 +40,22 @@ class PlaceSeqs(Cmd):
 	"""
 	@summary: place studies sequences (i.e. OTUs) into a reference tree
 	"""
-	def __init__(self, in_fasta, out_tree, placement_tool, category, min_align, log):
+	def __init__(self, in_fasta, out_tree, placement_tool, ref_dir, min_align, log):
 		"""
 		@param in_fasta: [str] Path to input fasta file of unaligned cluster sequences.
 		@param out_tree: [str] Path to output resulting tree file with insert clusters sequences.
 		@param placement_tool: [str] Placement tool to use (epa-ng or sepp).
 		@param ref_dir: [str] Directory containing reference sequence files.
 		"""
-		if category == "16S":
-			category = PRO_DIR
-		elif category == "ITS":
-			category = ITS_DIR
-		elif category == "18S":
-			category = _18S_DIR
+		if ref_dir is None:
+			opt = ''
+		else:
+			opt = ' --ref_dir ' + ref_dir
 
 		Cmd.__init__(self,
 		'place_seqs.py',
 		'Place studies sequences (i.e. OTUs) on reference tree.',
-		'--study_fasta ' + in_fasta + ' --out_tree ' + out_tree + ' --placement_tool ' + placement_tool + " --min_align " + str(min_align) + " --ref_dir " + category + " 2> " + log,
+		'--study_fasta ' + in_fasta + ' --out_tree ' + out_tree + ' --placement_tool ' + placement_tool + " --min_align " + str(min_align) + opt + " --verbose 2>> " + log,
 		'--version')
 
 	def get_version(self):
@@ -84,7 +82,7 @@ class FindClosestsRefSequences(Cmd):
 	'''
 	@summary: find OTUs closest reference sequences into a reference tree.
 	'''
-	def __init__(self, in_tree, in_biom, multi_affiliations, in_fasta, category, out_summary, log):
+	def __init__(self, in_tree, in_biom, multi_affiliations, in_fasta, ref_aln, out_summary, log):
 		'''
 		@param in_tree: [str] Path to resulting tree file with insert clusters sequences.(place_seqs.py output).
 		@param in_biom: [str] Path to BIOM input file.
@@ -96,7 +94,7 @@ class FindClosestsRefSequences(Cmd):
 		Cmd.__init__(self,
 			'find_closest_ref_sequence.py',
 			'find OTUs closests reference sequences into a reference tree.',
-			'--tree_file ' + in_tree + ' --biom_file ' + in_biom + ' --multi_affi ' + multi_affiliations + ' --fasta_file ' + in_fasta + ' --category ' + category + ' --output ' + out_summary + " 2> " + log,
+			'--tree_file ' + in_tree + ' --biom_file ' + in_biom + ' --multi_affi ' + multi_affiliations + ' --fasta_file ' + in_fasta + ' --ref_aln ' + ref_aln + ' --output ' + out_summary + " 2> " + log,
 			'--version')
 
 	def get_version(self):
@@ -122,32 +120,6 @@ class RemoveSeqsBiomFasta(Cmd):
 
 	def get_version(self):
 		return Cmd.get_version(self, 'stdout').strip()
-
-class GetPicrustRefFile(Cmd):
-	'''
-	@summary: get ref file for picrust2
-	'''
-	def __init__(self, log):
-
-		Cmd.__init__(self,
-			'place_seqs.py',
-			'Retrieve picrust default_files directory.',
-			'-h > ' + log,
-			'--version')
-		self.log = log
-
-	def get_version(self):
-		return Cmd.get_version(self, 'stdout').split()[1].strip()
-
-	def parser(self, log_file):
-		help_file = open(self.log,'r').readlines()
-		tmp = open(self.log+'.tmp', 'w')
-
-		help_file = ''.join(li.strip() for li in help_file)
-		path = re.compile('[^\s]+default_files/')
-		tmp.write(path.findall(help_file)[0])
-		tmp.close()
-		os.rename(self.log+'.tmp', self.log)
 
 ##################################################################################################################################################
 #
@@ -288,7 +260,7 @@ if __name__ == "__main__":
 	group_input = parser.add_argument_group('Inputs')
 	group_input.add_argument('-i', '--input_fasta', required=True, help="Input fasta file of unaligned studies sequences")
 	group_input.add_argument('-b', '--input_biom', required=True, help='Biom file.')
-	group_input.add_argument('-c', '--category',choices=['16S', 'ITS', '18S'], default='16S', help='Specifies which category 16S, ITS, 18S')
+	group_input.add_argument('-r', '--ref_dir', help='Directory containing reference sequence files, if studied marker is not 16S. (ex: /picrust2/default_files/fungi/fungi_ITS')
 	group_input.add_argument('-p', '--placement_tool', default='epa-ng', help='Placement tool to use when placing sequences into reference tree. One of "epa-ng" or "sepp" must be input')
 	group_input.add_argument('--min_align', type=restricted_float, default=0.8, help='Proportion of the total length of an input query ''sequence that must align with reference sequences. ''Any sequences with lengths below this value after ''making an alignment with reference sequences will ''be excluded from the placement and all subsequent ''steps. (default: %(default)d).')
 	# Outputs
@@ -307,37 +279,39 @@ if __name__ == "__main__":
 	try:
 		Logger.static_write(args.log_file, "## Application\nSoftware :" + sys.argv[0] + " (version : " + str(__version__) + ")\nCommand : " + " ".join(sys.argv) + "\n\n")
 
-		tmp_get_ref_file = tmp_files.add('get_ref_file.log')
-		GetPicrustRefFile(tmp_get_ref_file).submit(args.log_file)
-		PATH_PICRUST = open(tmp_get_ref_file,'r').readlines()[0]
+		if args.ref_dir is None:
+			category = '16S'
+		else:
+			category = 'ITS'
 
-		PRO_DIR = os.path.join(os.path.dirname(PATH_PICRUST), "prokaryotic/pro_ref")
-
-		if args.category in ['ITS','18S']:
-			if args.category == "ITS":
-				ITS_DIR = os.path.join(os.path.dirname(PATH_PICRUST), "fungi/fungi_ITS/")
-				ref_fasta = os.path.join(os.path.dirname(ITS_DIR),"fungi_ITS.fna.gz")
-			elif args.category == "18S":
-				_18S_DIR = os.path.join(os.path.dirname(PATH_PICRUST), "fungi/fungi_18S/")
-				ref_fasta = os.path.join(os.path.dirname(_18S_DIR),"fungi_18S.fna.gz")
-			if os.path.exists(ref_fasta):
-				if args.category == "ITS":
-					ref_dezip = open(os.path.join(os.path.dirname(ITS_DIR),"fungi_ITS.fna"), 'wb')
-				elif args.category == "18S":
-					ref_dezip = open(os.path.join(os.path.dirname(_18S_DIR),"fungi_18S.fna"), 'wb')
-				input_ref = gzip.GzipFile(ref_fasta, 'rb')
-				f = input_ref.read()
-				input_ref.close()
-				ref_dezip.write(f)
-				ref_dezip.close()
-				os.remove(ref_fasta)
+		# if args.category in ['ITS','18S']:
+		# 	if args.category == "ITS":
+		# 		ITS_DIR = os.path.join(os.path.dirname(PATH_PICRUST), "fungi/fungi_ITS/")
+		# 		ref_fasta = os.path.join(os.path.dirname(ITS_DIR),"fungi_ITS.fna.gz")
+		# 	elif args.category == "18S":
+		# 		_18S_DIR = os.path.join(os.path.dirname(PATH_PICRUST), "fungi/fungi_18S/")
+		# 		ref_fasta = os.path.join(os.path.dirname(_18S_DIR),"fungi_18S.fna.gz")
+		# 	if os.path.exists(ref_fasta):
+		# 		if args.category == "ITS":
+		# 			ref_dezip = open(os.path.join(os.path.dirname(ITS_DIR),"fungi_ITS.fna"), 'wb')
+		# 		elif args.category == "18S":
+		# 			ref_dezip = open(os.path.join(os.path.dirname(_18S_DIR),"fungi_18S.fna"), 'wb')
+		# 		input_ref = gzip.GzipFile(ref_fasta, 'rb')
+		# 		f = input_ref.read()
+		# 		input_ref.close()
+		# 		ref_dezip.write(f)
+		# 		ref_dezip.close()
+		# 		os.remove(ref_fasta)
 
 		Logger.static_write(args.log_file,'\n# Cleaning fasta headers\n\tstart: ' + time.strftime("%d %b %Y %H:%M:%S", time.localtime()) + '\n\n' )
 		tmp_fasta = tmp_files.add('cleaned.fasta')
 		convert_fasta(args.input_fasta,tmp_fasta)
 
 		tmp_place_seqs = tmp_files.add( 'tmp_place_seqs.log' )
-		PlaceSeqs(tmp_fasta, args.out_tree, args.placement_tool, args.category, args.min_align, tmp_place_seqs).submit(args.log_file)
+		PlaceSeqs(tmp_fasta, args.out_tree, args.placement_tool, args.ref_dir, args.min_align, tmp_place_seqs).submit(args.log_file)
+		# parse place_seqs.py output in order to retrieve references sequences alignment, necessary for find_closest_ref_sequences step.
+		ref_aln = open(tmp_place_seqs).readlines()[0].strip().split()[4]
+
 
 		tmp_multi_affiliations = tmp_files.add( 'multi_affiliations.tsv' )
 		tmp_multi_affi_log = tmp_files.add( 'multi_affiliations.log' )
@@ -349,8 +323,8 @@ if __name__ == "__main__":
 
 		closest_ref_files = tmp_files.add( "closest_ref.tsv" )
 		tmp_find_closest_ref = tmp_files.add( 'tmp_find_closest_ref.log' )
-		FindClosestsRefSequences(args.out_tree, args.input_biom, tmp_multi_affiliations, tmp_fasta, args.category, closest_ref_files, tmp_find_closest_ref).submit(args.log_file)
-		write_summary(tmp_fasta, args.excluded, args.input_biom, closest_ref_files, args.category, args.html)
+		FindClosestsRefSequences(args.out_tree, args.input_biom, tmp_multi_affiliations, tmp_fasta, ref_aln, closest_ref_files, tmp_find_closest_ref).submit(args.log_file)
+		write_summary(tmp_fasta, args.excluded, args.input_biom, closest_ref_files, category, args.html)
 
 	finally:
 		if not args.debug:
