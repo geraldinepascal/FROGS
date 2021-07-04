@@ -260,7 +260,7 @@ if __name__ == "__main__":
 	group_input = parser.add_argument_group('Inputs')
 	group_input.add_argument('-i', '--input_fasta', required=True, help="Input fasta file of unaligned studies sequences")
 	group_input.add_argument('-b', '--input_biom', required=True, help='Biom file.')
-	group_input.add_argument('-r', '--ref_dir', help='Directory containing reference sequence files, if studied marker is not 16S. (ex: /picrust2/default_files/fungi/fungi_ITS')
+	group_input.add_argument('-r', '--ref_dir', help='Directory containing reference sequence files, if studied marker is not 16S. (ex: $PICRUST2_PATH/default_files/fungi/fungi_ITS')
 	group_input.add_argument('-p', '--placement_tool', default='epa-ng', help='Placement tool to use when placing sequences into reference tree. One of "epa-ng" or "sepp" must be input')
 	group_input.add_argument('--min_align', type=restricted_float, default=0.8, help='Proportion of the total length of an input query ''sequence that must align with reference sequences. ''Any sequences with lengths below this value after ''making an alignment with reference sequences will ''be excluded from the placement and all subsequent ''steps. (default: %(default)d).')
 	# Outputs

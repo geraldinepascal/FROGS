@@ -46,7 +46,7 @@ class HspMarker(Cmd):
 		if observed_marker_table is None:
 			input_marker = " -i 16S"
 		else:
-			input_marker = " --observed_trait_table " + ITS_PATH		
+			input_marker = " --observed_trait_table " + observed_marker_table		
 
 		Cmd.__init__(self,
 				 'hsp.py',
@@ -81,7 +81,7 @@ class HspFunction(Cmd):
 	"""
 	@summary: hsp.py predict number of genes family for each OTU.
 	"""
-	def __init__(self, in_trait, observed_trait_table, function, in_tree, hsp_method, output, result_file, log):
+	def __init__(self, in_trait, observed_trait_table, in_tree, hsp_method, output, result_file, log):
 		if observed_trait_table is None:
 			input_function = " --in_trait " + in_trait
 		else:
@@ -171,7 +171,7 @@ if __name__ == "__main__":
 	group_input = parser.add_argument_group( 'Inputs' )
 	group_input.add_argument('-i', '--in_trait', default="EC",help="For 16S marker input: Specifies which default trait table should be used ('EC', 'KO', 'COG', PFAM', 'TIGRFAM' or 'PHENO'). EC is used by default because necessary for FPStep4. To run the command with several functions, separate the functions with commas (ex: KO,PFAM). (for ITS or 18S : only EC available)")
 	group_input.add_argument('--observed_marker_table',help="The input marker table describing directly observed traits (e.g. sequenced genomes) in tab-delimited format. Necessary if you don't work on 16S marker. (ex $PICRUST_PATH/picrust2/default_files/fungi/ITS_counts.txt.gz). This input is required when the --observed_trait_table option is set. ")
-	group_input.add_argument('--observed_trait_table',help="The input trait table describing directly observed traits (e.g. sequenced genomes) in tab-delimited format. Necessary if you want to use a custom table. (ex $PICRUST_PATH/picrust2/default_files/fungi/ec_ITS_counts.txt.gz). This input is required when the --observed_marker_table option is set. ")
+	group_input.add_argument('--observed_trait_table',help="The input trait table describing directly observed traits (e.g. sequenced genomes) in tab-delimited format. Necessary if you don't work on 16S marker. (ex $PICRUST_PATH/picrust2/default_files/fungi/ec_ITS_counts.txt.gz). This input is required when the --observed_marker_table option is set. ")
 	group_input.add_argument('-t', '--tree', required=True, type=str, help='FPStep1 output tree in newick format containing both study sequences (i.e. ASVs or OTUs) and reference sequences.')
 	group_input.add_argument('-s', '--hsp_method', default='mp', choices=['mp', 'emp_prob', 'pic', 'scp', 'subtree_average'], help='HSP method to use.' +'"mp": predict discrete traits using max parsimony. ''"emp_prob": predict discrete traits based on empirical ''state probabilities across tips. "subtree_average": ''predict continuous traits using subtree averaging. ' '"pic": predict continuous traits with phylogentic ' 'independent contrast. "scp": reconstruct continuous ''traits using squared-change parsimony (default: ''%(default)s).')
 	# Output
@@ -185,16 +185,13 @@ if __name__ == "__main__":
 	if (args.observed_trait_table is not None and args.observed_marker_table is None) or (args.observed_trait_table is None and args.observed_marker_table is not None):
 		parser.error("\n\n#ERROR : --args.observed_trait_table and --args.observed_trait_table both required when studied marker is not 16S!\n\n")
 	elif args.observed_trait_table is not None and args.observed_marker_table is not None:
-		args.in_trait = Non
+		args.in_trait = None
 
 	# default output marker file name
 	if args.output_marker is None:
 		args.output_marker = "FPStep2_marker_nsti_predicted.tsv"
 
 	tmp_files=TmpFiles(os.path.split(args.output_marker)[0])
-
-
-	in_traits = check_functions(args.in_trait)
 
 	try:
 		Logger.static_write(args.log_file, "## Application\nSoftware :" + sys.argv[0] + " (version : " + str(__version__) + ")\nCommand : " + " ".join(sys.argv) + "\n\n")
@@ -204,12 +201,18 @@ if __name__ == "__main__":
 
 		tmp_hsp_function = tmp_files.add( 'tmp_hsp_function.log' )
 
-		suffix_name = "_predicted.tsv"
-		for trait in in_traits:
-			cur_output_function = trait + suffix_name
-			Logger.static_write(args.log_file, '\n\nRunning ' + trait + ' functions prediction.\n')
-			HspFunction(trait, args.observed_trait_table, args.tree, args.hsp_method, cur_output_function, args.output_function, tmp_hsp_function).submit(args.log_file)
+		if args.in_trait is not None:
+			in_traits = check_functions(args.in_trait)
 
+			suffix_name = "_predicted.tsv"
+			for trait in in_traits:
+				cur_output_function = trait + suffix_name
+				Logger.static_write(args.log_file, '\n\nRunning ' + trait + ' functions prediction.\n')
+				HspFunction(trait, args.observed_trait_table, args.tree, args.hsp_method, cur_output_function, args.output_function, tmp_hsp_function).submit(args.log_file)
+		else:
+			cur_output_function = "function_predicted.tsv"
+			HspFunction(args.in_trait, args.observed_trait_table, args.tree, args.hsp_method, cur_output_function, args.output_function, tmp_hsp_function).submit(args.log_file)
+	
 	finally:
 		if not args.debug:
 			tmp_files.deleteAll()

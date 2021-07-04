@@ -31,8 +31,7 @@ else: os.environ['PYTHONPATH'] = os.environ['PYTHONPATH'] + os.pathsep + LIB_DIR
 from frogsUtils import *
 from frogsSequenceIO import * 
 from frogsBiom import BiomIO
-print(sys.executable)
-DESCRIPTION_DIR = os.path.join(os.path.dirname(os.__file__), "site-packages/picrust2/default_files/description_mapfiles/")
+
 FUNGI_MAP = os.path.join(os.path.dirname(os.__file__), "site-packages/picrust2/default_files/pathway_mapfiles/metacyc_path2rxn_struc_filt_fungi.txt")
 
 ##################################################################################################################################################
@@ -44,12 +43,12 @@ class PathwayPipeline(Cmd):
 	"""
 	@summary: pathway_pipeline.py : Infer the presence and abundances of pathways based on gene family abundances in a sample.
 	"""
-	def __init__(self, input_file, category, per_sequence_contrib, per_sequence_abun, per_sequence_function, pathways_abund, pathways_contrib, pathways_predictions, log):
+	def __init__(self, input_file, map_file, per_sequence_contrib, per_sequence_abun, per_sequence_function, pathways_abund, pathways_contrib, pathways_predictions, log):
 		opt = ''
 		if per_sequence_contrib:
 			opt = ' --per_sequence_contrib --per_sequence_abun ' +  per_sequence_abun + ' --per_sequence_function ' + per_sequence_function
-		if category == 'ITS' or category == '18S':
-			opt += " --map " + FUNGI_MAP
+		if map_file is not None:
+			opt += " --map " + map_file
 
 		Cmd.__init__(self,
 				 'pathway_pipeline.py ',
@@ -171,12 +170,12 @@ if __name__ == "__main__":
 	# Manage parameters
 	parser = argparse.ArgumentParser( description='Infer the presence and abundances of pathways based on gene family abundances in a sample.' )
 	parser.add_argument('--debug', default=False, action='store_true', help="Keep temporary files to debug program." )
-	parser.add_argument('--skip_descriptions', default=False, action='store_true', help='Skipping add_descriptions.py step that add a description column to the function abundance table. (default: False')
 	parser.add_argument('--per_sequence_contrib', default=False, action='store_true', help='Flag to specify that MinPath is run on the genes contributed by each sequence individualy. (in contrast to the default stratified output, which is the contribution to the community-wide pathway abundances.) Options --per_sequence_abun and --per_sequence_function need to be set when this option is used (default: False) ')
 	# Inputs
 	group_input = parser.add_argument_group( 'Inputs' )
 	group_input.add_argument('-i', '--input_file', required=True, type=str, help='Input TSV table of gene family abundances (FPStep3_pred_metagenome_unstrat.tsv from FPStep3.py).')
-	group_input.add_argument('-c', '--category', choices=['16S', '18S', 'ITS'], default='16S', help='Specifies which category 16S, 18S or ITS')	
+	group_input.add_argument('--description_dir', type=str, help='Specified picrust2 description directory in order to adds a description column to the function abundance table (ex $PICRUST2_PATH/default_files/description_mapfiles/')
+	group_input.add_argument('-m', '--map', type=str, help='Mapping of pathways to reactions, necessary if marker studied is not 16S (metacyc_path2rxn_struc_filt_pro.txt used by default). For ITS analysis, required file is here: $PICRUST2_PATH/default_files/pathway_mapfiles/metacyc_path2rxn_struc_filt_fungi.txt).')
 	group_input.add_argument('--per_sequence_abun', default=None, help='Path to table of sequence abundances across samples normalized by marker copy number (typically the normalized sequence abundance table output at the metagenome pipeline step: seqtab_norm.tsv by default). This input is required when the --per_sequence_contrib option is set. (default: None).')
 	group_input.add_argument('--per_sequence_function', default=None, help='Path to table of function abundances per sequence, which was outputted at the hidden-state prediction step. This input is required when the --per_sequence_contrib option is set. Note that this file should be the same input table as used for the metagenome pipeline step (default: None).')
 	#Outputs
@@ -207,11 +206,11 @@ if __name__ == "__main__":
 			parser.error("\n\n#ERROR : --per_sequence_contrib required when --per_sequence_contrib and --per_sequence_function option is set!\n\n")
 
 		tmp_pathway = tmp_files.add( 'pathway_pipeline.log' )
-		PathwayPipeline(args.input_file, args.category, args.per_sequence_contrib, args.per_sequence_abun, args.per_sequence_function, args.pathways_abund, args.pathways_contrib, args.pathways_predictions, tmp_pathway).submit(args.log_file)
+		PathwayPipeline(args.input_file, args.map, args.per_sequence_contrib, args.per_sequence_abun, args.per_sequence_function, args.pathways_abund, args.pathways_contrib, args.pathways_predictions, tmp_pathway).submit(args.log_file)
 
-		if not args.skip_descriptions:
+		if args.description_dir is not None:
 			tmp_description_file = tmp_files.add('descriptions_file.tsv.gz')
-			formate_description_file(DESCRIPTION_DIR, tmp_description_file )
+			formate_description_file(args.description_dir, tmp_description_file )
 
 			AddDescriptions(args.pathways_abund,  tmp_description_file, args.pathways_abund).submit( args.log_file)
 
