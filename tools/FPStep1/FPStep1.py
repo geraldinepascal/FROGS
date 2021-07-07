@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*-coding:Utf-8 -*
-__author__ = ' Moussa Samb & Maria Bernard  & Geraldine Pascal INRAE - SIGENAE '
+__author__ = ' Moussa Samb & Maria Bernard & Vincent Darbot & Geraldine Pascal INRAE - SIGENAE '
 __copyright__ = 'Copyright (C) 2020 INRAE'
 __license__ = 'GNU General Public License'
 __version__ = '1.0'
@@ -283,25 +283,6 @@ if __name__ == "__main__":
 			category = '16S'
 		else:
 			category = 'ITS'
-
-		# if args.category in ['ITS','18S']:
-		# 	if args.category == "ITS":
-		# 		ITS_DIR = os.path.join(os.path.dirname(PATH_PICRUST), "fungi/fungi_ITS/")
-		# 		ref_fasta = os.path.join(os.path.dirname(ITS_DIR),"fungi_ITS.fna.gz")
-		# 	elif args.category == "18S":
-		# 		_18S_DIR = os.path.join(os.path.dirname(PATH_PICRUST), "fungi/fungi_18S/")
-		# 		ref_fasta = os.path.join(os.path.dirname(_18S_DIR),"fungi_18S.fna.gz")
-		# 	if os.path.exists(ref_fasta):
-		# 		if args.category == "ITS":
-		# 			ref_dezip = open(os.path.join(os.path.dirname(ITS_DIR),"fungi_ITS.fna"), 'wb')
-		# 		elif args.category == "18S":
-		# 			ref_dezip = open(os.path.join(os.path.dirname(_18S_DIR),"fungi_18S.fna"), 'wb')
-		# 		input_ref = gzip.GzipFile(ref_fasta, 'rb')
-		# 		f = input_ref.read()
-		# 		input_ref.close()
-		# 		ref_dezip.write(f)
-		# 		ref_dezip.close()
-		# 		os.remove(ref_fasta)
 
 		Logger.static_write(args.log_file,'\n# Cleaning fasta headers\n\tstart: ' + time.strftime("%d %b %Y %H:%M:%S", time.localtime()) + '\n\n' )
 		tmp_fasta = tmp_files.add('cleaned.fasta')

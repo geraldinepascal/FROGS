@@ -1,13 +1,12 @@
 #!/usr/bin/env python3
 # -*-coding:Utf-8 -*
-__author__ = ' Moussa Samb & Maria Bernard  & Geraldine Pascal INRAE - SIGENAE '
+__author__ = ' Moussa Samb & Maria Bernard & Vincent Darbot & Geraldine Pascal INRAE - SIGENAE '
 __copyright__ = 'Copyright (C) 2020 INRAE'
 __license__ = 'GNU General Public License'
 __version__ = '1.0'
 __email__ = 'frogs@inrae.fr'
 __status__ = 'dev'
 
-#Import
 import re
 import os
 import sys
@@ -170,8 +169,8 @@ if __name__ == "__main__":
 	# Inputs
 	group_input = parser.add_argument_group( 'Inputs' )
 	group_input.add_argument('-i', '--in_trait', default="EC",help="For 16S marker input: Specifies which default trait table should be used ('EC', 'KO', 'COG', PFAM', 'TIGRFAM' or 'PHENO'). EC is used by default because necessary for FPStep4. To run the command with several functions, separate the functions with commas (ex: KO,PFAM). (for ITS or 18S : only EC available)")
-	group_input.add_argument('--observed_marker_table',help="The input marker table describing directly observed traits (e.g. sequenced genomes) in tab-delimited format. Necessary if you don't work on 16S marker. (ex $PICRUST_PATH/picrust2/default_files/fungi/ITS_counts.txt.gz). This input is required when the --observed_trait_table option is set. ")
-	group_input.add_argument('--observed_trait_table',help="The input trait table describing directly observed traits (e.g. sequenced genomes) in tab-delimited format. Necessary if you don't work on 16S marker. (ex $PICRUST_PATH/picrust2/default_files/fungi/ec_ITS_counts.txt.gz). This input is required when the --observed_marker_table option is set. ")
+	group_input.add_argument('--observed_marker_table',help="The input marker table describing directly observed traits (e.g. sequenced genomes) in tab-delimited format. Necessary if you don't work on 16S marker. (ex $PICRUST2_PATH/default_files/fungi/ITS_counts.txt.gz). This input is required when the --observed_trait_table option is set. ")
+	group_input.add_argument('--observed_trait_table',help="The input trait table describing directly observed traits (e.g. sequenced genomes) in tab-delimited format. Necessary if you don't work on 16S marker. (ex $PICRUST2_PATH/default_files/fungi/ec_ITS_counts.txt.gz). This input is required when the --observed_marker_table option is set. ")
 	group_input.add_argument('-t', '--tree', required=True, type=str, help='FPStep1 output tree in newick format containing both study sequences (i.e. ASVs or OTUs) and reference sequences.')
 	group_input.add_argument('-s', '--hsp_method', default='mp', choices=['mp', 'emp_prob', 'pic', 'scp', 'subtree_average'], help='HSP method to use.' +'"mp": predict discrete traits using max parsimony. ''"emp_prob": predict discrete traits based on empirical ''state probabilities across tips. "subtree_average": ''predict continuous traits using subtree averaging. ' '"pic": predict continuous traits with phylogentic ' 'independent contrast. "scp": reconstruct continuous ''traits using squared-change parsimony (default: ''%(default)s).')
 	# Output

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*-coding:Utf-8 -*
-__author__ = ' Moussa Samb & Maria Bernard  & Geraldine Pascal INRAE - SIGENAE '
+__author__ = ' Moussa Samb & Maria Bernard & Vincent Darbot & Geraldine Pascal INRAE - SIGENAE '
 __copyright__ = 'Copyright (C) 2020 INRAE'
 __license__ = 'GNU General Public License'
 __version__ = '1.0'
@@ -204,7 +204,7 @@ if __name__ == "__main__":
 	group_input.add_argument('-b', '--input_biom', required=True, type=str, help='Input table of sequence abundances (BIOM file used in FPStep1).')
 	group_input.add_argument('-f', '--function', required=True, type=str, help='Table of predicted gene family copy numbers ''(FPStep2 output, ex FPStep2_all_predicted.tsv).')
 	group_input.add_argument('-m', '--marker', required=True, type=str, help='Table of predicted marker gene copy numbers ''(FPStep2 output, ex FPStep2_marker_nsti_predicted.tsv.')
-	group_input.add_argument('--description_dir', type=str, help='Specified picrust2 description directory in order to adds a description column to the function abundance table (ex $PICRUST2_PATH/default_files/description_mapfiles/')
+	group_input.add_argument('--description_dir', type=str, help='Specified picrust2 description folder in order to adds a description column to the function abundance table (ex $PICRUST2_PATH/default_files/description_mapfiles/')
 	group_input.add_argument('--max_nsti', type=float, default=2.0, help='Sequences with NSTI values above this value will ' 'be excluded (default: %(default)d).')
 	group_input.add_argument('--min_reads', metavar='INT', type=int, default=1, help='Minimum number of reads across all samples for ''each input ASV. ASVs below this cut-off will be ''counted as part of the \"RARE\" category in the ''stratified output (default: %(default)d).')
 	group_input.add_argument('--min_samples', metavar='INT', type=int, default=1, help='Minimum number of samples that an ASV needs to be ''identfied within. ASVs below this cut-off will be ''counted as part of the \"RARE\" category in the ''stratified output (default: %(default)d).')

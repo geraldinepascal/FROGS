@@ -1,13 +1,12 @@
 #!/usr/bin/env python3
 # -*-coding:Utf-8 -*
-__author__ = ' Moussa Samb & Maria Bernard  & Geraldine Pascal INRAE - SIGENAE '
+__author__ = ' Moussa Samb & Maria Bernard & Vincent Darbot & Geraldine Pascal INRAE - SIGENAE '
 __copyright__ = 'Copyright (C) 2020 INRAE'
 __license__ = 'GNU General Public License'
 __version__ = '1.0'
 __email__ = 'frogs@inrae.fr'
 __status__ = 'dev'
 
-#Import
 import os
 import re
 import sys
@@ -31,8 +30,6 @@ else: os.environ['PYTHONPATH'] = os.environ['PYTHONPATH'] + os.pathsep + LIB_DIR
 from frogsUtils import *
 from frogsSequenceIO import * 
 from frogsBiom import BiomIO
-
-FUNGI_MAP = os.path.join(os.path.dirname(os.__file__), "site-packages/picrust2/default_files/pathway_mapfiles/metacyc_path2rxn_struc_filt_fungi.txt")
 
 ##################################################################################################################################################
 #
