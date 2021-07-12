@@ -40,12 +40,14 @@ class PathwayPipeline(Cmd):
 	"""
 	@summary: pathway_pipeline.py : Infer the presence and abundances of pathways based on gene family abundances in a sample.
 	"""
-	def __init__(self, input_file, map_file, per_sequence_contrib, per_sequence_abun, per_sequence_function, pathways_abund, pathways_contrib, pathways_predictions, log):
+	def __init__(self, input_file, map_file, per_sequence_contrib, per_sequence_abun, per_sequence_function, no_regroup, pathways_abund, pathways_contrib, pathways_predictions, log):
 		opt = ''
 		if per_sequence_contrib:
 			opt = ' --per_sequence_contrib --per_sequence_abun ' +  per_sequence_abun + ' --per_sequence_function ' + per_sequence_function
 		if map_file is not None:
 			opt += " --map " + map_file
+		if no_regroup:
+			opt += " --no_regroup "
 
 		Cmd.__init__(self,
 				 'pathway_pipeline.py ',
@@ -168,6 +170,7 @@ if __name__ == "__main__":
 	parser = argparse.ArgumentParser( description='Infer the presence and abundances of pathways based on gene family abundances in a sample.' )
 	parser.add_argument('--debug', default=False, action='store_true', help="Keep temporary files to debug program." )
 	parser.add_argument('--per_sequence_contrib', default=False, action='store_true', help='Flag to specify that MinPath is run on the genes contributed by each sequence individualy. (in contrast to the default stratified output, which is the contribution to the community-wide pathway abundances.) Options --per_sequence_abun and --per_sequence_function need to be set when this option is used (default: False) ')
+	parser.add_argument('--no_regroup', default=False, action='store_true', help='Do not regroup input gene families to reactions as specified in the regrouping mapfile. ')
 	# Inputs
 	group_input = parser.add_argument_group( 'Inputs' )
 	group_input.add_argument('-i', '--input_file', required=True, type=str, help='Input TSV table of gene family abundances (FPStep3_pred_metagenome_unstrat.tsv from FPStep3.py).')
@@ -203,7 +206,7 @@ if __name__ == "__main__":
 			parser.error("\n\n#ERROR : --per_sequence_contrib required when --per_sequence_contrib and --per_sequence_function option is set!\n\n")
 
 		tmp_pathway = tmp_files.add( 'pathway_pipeline.log' )
-		PathwayPipeline(args.input_file, args.map, args.per_sequence_contrib, args.per_sequence_abun, args.per_sequence_function, args.pathways_abund, args.pathways_contrib, args.pathways_predictions, tmp_pathway).submit(args.log_file)
+		PathwayPipeline(args.input_file, args.map, args.per_sequence_contrib, args.per_sequence_abun, args.per_sequence_function, args.no_regroup,  args.pathways_abund, args.pathways_contrib, args.pathways_predictions, tmp_pathway).submit(args.log_file)
 
 		if args.description_dir is not None:
 			tmp_description_file = tmp_files.add('descriptions_file.tsv.gz')
