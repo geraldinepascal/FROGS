@@ -154,10 +154,15 @@ def excluded_sequence(tree_file, in_fasta, excluded):
 	FH_input = FastaIO(in_fasta)
 	excluded = open(excluded, "wt")
 
+	no_excluded = True 
 	for record in FH_input:
 		if record.id not in list_cluster:
 			excluded.write(record.id+"\n")
+			no_excluded = False
 	FH_input.close()
+
+	if no_excluded:
+		excluded.write('No excluded OTUs.\n')
 	excluded.close()
 
 def restricted_float(in_arg):
@@ -223,10 +228,10 @@ def write_summary(in_fasta, align_out, biomfile, closest_ref_file, category, sum
 
 	# record details about removed OTU
 	if align_out is not None:
-		for otu in open(align_out).readlines():
-			otu = otu.strip()
-			summary_info['nb_removed'] +=1
-			summary_info['abundance_removed'] += biom.get_observation_count(otu)
+		for li in open(align_out).readlines():
+			if re.match("(Cluster_[0-9]+)",li):
+				summary_info['nb_removed'] +=1
+				summary_info['abundance_removed'] += biom.get_observation_count(li.strip())
 	
 	summary_info['nb_kept'] = number_otu_all - summary_info['nb_removed']
 	summary_info['abundance_kept'] = number_abundance_all - summary_info['abundance_removed']

@@ -175,8 +175,8 @@ if __name__ == "__main__":
 	group_input.add_argument('-s', '--hsp_method', default='mp', choices=['mp', 'emp_prob', 'pic', 'scp', 'subtree_average'], help='HSP method to use.' +'"mp": predict discrete traits using max parsimony. ''"emp_prob": predict discrete traits based on empirical ''state probabilities across tips. "subtree_average": ''predict continuous traits using subtree averaging. ' '"pic": predict continuous traits with phylogentic ' 'independent contrast. "scp": reconstruct continuous ''traits using squared-change parsimony (default: ''%(default)s).')
 	# Output
 	group_output = parser.add_argument_group( 'Outputs' )
-	group_output.add_argument('-m', '--output_marker', default="FPStep2_marker_nsti_predicted.tsv", type=str, help='Output table of predicted marker gene copy numbers per study sequence in input tree. If the extension \".gz\" is added the table will automatically be gzipped.')
-	group_output.add_argument('-o', '--output_function', default="FPStep2_all_predicted.tsv", type=str, help='Output table with predicted abundances per study sequence in input tree. If the extension \".gz\" is added the table will automatically be gzipped.')
+	group_output.add_argument('-m', '--output_marker', default="FPStep2_marker_copy_number.tsv", type=str, help='Output table of predicted marker gene copy numbers per study sequence in input tree. If the extension \".gz\" is added the table will automatically be gzipped.')
+	group_output.add_argument('-o', '--output_function', default="FPStep2_predicted_functions.tsv", type=str, help='Output table with predicted abundances per study sequence in input tree. If the extension \".gz\" is added the table will automatically be gzipped.')
 	group_output.add_argument('-l', '--log_file', default=sys.stdout, help='List of commands executed.')
 	args = parser.parse_args()
 	prevent_shell_injections(args)

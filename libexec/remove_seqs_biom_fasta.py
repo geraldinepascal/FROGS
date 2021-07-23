@@ -41,9 +41,11 @@ def find_excluded(excluded_file):
 	"""
 	excluded = []
 	excluded_file = open(excluded_file,'r').readlines()
+
 	if excluded_file is not None:
 		for li in excluded_file:
-			excluded.append(li.strip())
+			if re.match("(Cluster_[0-9]+)",li):
+				excluded.append(li.strip())
 	return excluded
 
 def remove_excluded_fasta( in_fasta, out_fasta, excluded_seqs):
