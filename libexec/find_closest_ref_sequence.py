@@ -150,6 +150,7 @@ def find_closest_ref_sequences(tree, biom, cluster_to_multiaffi, ID_to_taxo, ref
 	FH_out.write('Cluster\tTaxonomy\tClosest_ref_ID\tClosest_ref_name\tClosest_ref_taxonomy\tClosest_ref_distance\tComment')
 
 	for cluster in clusters:
+
 		FH_out.write(cluster+'\t'+";".join(biom.get_observation_metadata(cluster)["blast_taxonomy"])+'\t')
 
 		node = tree.search_nodes(name=cluster)[0]
