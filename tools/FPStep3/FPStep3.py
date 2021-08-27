@@ -125,7 +125,7 @@ def formate_description_file(description_dir, description_out):
 	"""
 	with open(description_out, 'wb') as outfile:
 		for filename in glob.glob(description_dir+'/*'):
-			if filename != description_out and not 'KEGG' in filename:
+			if filename != description_out:
 				with open(filename, 'rb') as readfile:
 					shutil.copyfileobj(readfile, outfile)
 
