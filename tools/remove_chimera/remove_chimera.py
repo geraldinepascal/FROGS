@@ -150,6 +150,7 @@ def write_summary( summary_file, results_chimera ):
                     section_first_line = False
                 else:
                     line_fields = line.split("\t")
+                    # Calculate % of abundance kep on fly:
                     line_fields.insert(1,float(100-(float(int(int(line_fields[4])*100)/\
                         int(int(line_fields[2])+int(line_fields[4]))))))
                     detection_data.append({
