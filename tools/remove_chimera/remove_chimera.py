@@ -145,13 +145,16 @@ def write_summary( summary_file, results_chimera ):
             if in_detection_metrics:
                 if section_first_line:
                     line_fields = line[1:].split("\t")[1:]
+                    line_fields.insert(0,"%  abundance kept")
                     detection_categories = line_fields
                     section_first_line = False
                 else:
                     line_fields = line.split("\t")
+                    line_fields.insert(1,float(100-(float(int(int(line_fields[4])*100)/\
+                        int(int(line_fields[2])+int(line_fields[4]))))))
                     detection_data.append({
                              'name': line_fields[0],
-                             'data': list(map(int, line_fields[1:]))
+                             'data': list(map(float, line_fields[1:]))
                     })
             elif in_remove_metrics:
                 if section_first_line:
