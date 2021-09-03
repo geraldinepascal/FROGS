@@ -284,10 +284,11 @@ if __name__ == "__main__":
 	try:
 		Logger.static_write(args.log_file, "## Application\nSoftware :" + sys.argv[0] + " (version : " + str(__version__) + ")\nCommand : " + " ".join(sys.argv) + "\n\n")
 
-		if args.ref_dir is None:
+		if args.ref_dir is None or 'pro_ref' in args.ref_dir:
 			category = '16S'
 		else:
 			category = 'ITS'
+		print(category)
 
 		Logger.static_write(args.log_file,'\n# Cleaning fasta headers\n\tstart: ' + time.strftime("%d %b %Y %H:%M:%S", time.localtime()) + '\n\n' )
 		tmp_fasta = tmp_files.add('cleaned.fasta')
