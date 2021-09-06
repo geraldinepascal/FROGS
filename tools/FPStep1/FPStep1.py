@@ -288,7 +288,6 @@ if __name__ == "__main__":
 			category = '16S'
 		else:
 			category = 'ITS'
-		print(category)
 
 		Logger.static_write(args.log_file,'\n# Cleaning fasta headers\n\tstart: ' + time.strftime("%d %b %Y %H:%M:%S", time.localtime()) + '\n\n' )
 		tmp_fasta = tmp_files.add('cleaned.fasta')

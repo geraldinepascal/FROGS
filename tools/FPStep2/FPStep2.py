@@ -182,9 +182,12 @@ if __name__ == "__main__":
 	prevent_shell_injections(args)
 
 	if (args.observed_trait_table is not None and args.observed_marker_table is None) or (args.observed_trait_table is None and args.observed_marker_table is not None):
-		parser.error("\n\n#ERROR : --args.observed_trait_table and --args.observed_trait_table both required when studied marker is not 16S!\n\n")
+		parser.error("\n\n#ERROR : --observed_trait_table and --observed_marker_table both required when studied marker is not 16S!\n\n")
 	elif args.observed_trait_table is not None and args.observed_marker_table is not None:
 		args.in_trait = None
+	print(args.in_trait)
+	if not 'EC' in args.in_trait and not 'KO' in args.in_trait:
+		parser.error("\n\n#ERROR : --in_trait : 'EC' and/or 'KO' must be at least indicated (others functions are optionnal)")
 
 	# default output marker file name
 	if args.output_marker is None:
