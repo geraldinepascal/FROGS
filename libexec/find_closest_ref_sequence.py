@@ -147,7 +147,7 @@ def find_closest_ref_sequences(tree, biom, cluster_to_multiaffi, ID_to_taxo, ref
 	@ref_file: [str] path to reference map file in order to have taxonomies informations.
     """
 	FH_out = open(output,'wt')
-	FH_out.write('Cluster\tTaxonomy\tClosest_ref_ID\tClosest_ref_name\tClosest_ref_taxonomy\tClosest_ref_distance\tComment')
+	FH_out.write('Cluster\tFROGS_Taxonomy\tPicrust2_Closest_ID\tPicrust2_closest_name\tPicrust2_closest_taxonomy\tPicrust2_closest_distance\tComment')
 
 	for cluster in clusters:
 
