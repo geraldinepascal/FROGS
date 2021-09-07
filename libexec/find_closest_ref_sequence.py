@@ -223,6 +223,7 @@ if __name__ == "__main__":
 	# Outputs
 	group_output = parser.add_argument_group('Outputs')
 	group_output = parser.add_argument('-o', '--output', default='closests_ref_sequences.txt')
+	group_output = parser.add_argument('-e', '--out_biom', default='FPStep1.biom', help='abundance file without non insert sequences. (format: BIOM) [Default: %(default)s]')
 	group_output = parser.add_argument('-l', '--log-file', default=sys.stdout, help='The list of commands executed.')
 
 	args = parser.parse_args()
@@ -230,7 +231,7 @@ if __name__ == "__main__":
 
 	clusters = find_clusters(args.tree_file)
 
-	inputs = check_ref_files(args.tree_file, args.biom_file, args.biom_file, args.multi_affi, args.fasta_file, args.ref_aln, args.output )
+	inputs = check_ref_files(args.tree_file, args.biom_file, args.out_biom, args.multi_affi, args.fasta_file, args.ref_aln, args.output )
 
 	find_closest_ref_sequences(*inputs)
 	
