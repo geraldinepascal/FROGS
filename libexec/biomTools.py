@@ -108,18 +108,19 @@ def update_tree_for_sample( biom, tree, sample_name, taxonomy_key, sample_id=Non
 #
 ####################################################################################################################
 def task_sampling( args ):
-    if args.nb_sampled is None and args.sampled_ratio is None:
-        raise_exception( Exception('\n\n#ERROR :--nb-sampled or --sampled-ratio must be provided.\n\n'))
-    sampling_by_sample( args.input_file, args.output_file, args.nb_sampled, args.sampled_ratio )
+    if args.nb_sampled is None and args.sampled_ratio is None and not args.sampling_by_min:
+        raise_exception( Exception('\n\n#ERROR : --sampling-by-min, --nb-sampled or --sampled-ratio must be provided.\n\n'))
+    sampling_by_sample( args.input_file, args.output_file, args.sampling_by_min, args.nb_sampled, args.sampled_ratio )
 
 
-def sampling_by_sample( input_biom, output_biom, nb_sampled=None, sampled_ratio=None ):
+def sampling_by_sample( input_biom, output_biom, sampling_by_min, nb_sampled=None, sampled_ratio=None ):
     """
     @summary: Writes a BIOM after a random sampling in each sample.
     @param input_biom: [str] Path to the processed BIOM.
     @param output_biom: [str] Path to outputed BIOM.
     @param nb_sampled: [int] Number of sampled sequences by sample.
     @param sampled_ratio: [float] Ratio of sampled sequences by sample.
+    @param sampling_by_min : [boolean] Sampling by the number of the smallest sample.
     @note: nb_sampled and sampled_ratio are mutually exclusive.
     """
     initial_biom = BiomIO.from_json( input_biom )
@@ -128,6 +129,9 @@ def sampling_by_sample( input_biom, output_biom, nb_sampled=None, sampled_ratio=
                     generated_by="Sampling " + (str(nb_sampled) if nb_sampled is not None else str(sampled_ratio) + "%" ) + " elements by sample from " + input_biom
     )
     observations_already_added = dict()
+    if sampling_by_min:
+        nb_sampled = min([initial_biom.get_sample_count(sample_name) for sample_name in initial_biom.get_samples_names()])
+
     for sample_name in initial_biom.get_samples_names():
         new_biom.add_sample( sample_name, initial_biom.get_sample_metadata(sample_name) )
         sample_seq = initial_biom.get_sample_count(sample_name)
@@ -468,6 +472,7 @@ if __name__ == "__main__":
     parser_sampling.add_argument( '-o', '--output-file', required=True, type=str, help='Sampling results in BIOM format.' )
     group_exclusion_sampling = parser_sampling.add_mutually_exclusive_group()
     group_exclusion_sampling.add_argument( '-n', '--nb-sampled', type=int, help='Number of sampled sequences by sample.' )
+    group_exclusion_sampling.add_argument( '--sampling-by-min', default=False, action='store_true', help='Sampling by the number of the smallest sample.' )
     group_exclusion_sampling.add_argument( '-r', '--sampled-ratio', type=float, help='Ratio of sampled sequences by sample.' )
     parser_sampling.set_defaults(func=task_sampling)
 

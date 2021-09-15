@@ -166,6 +166,30 @@ def excluded_obs_on_abundance(input_biom, min_abundance, excluded_file):
             FH_excluded_file.write( str(observation["id"]) + "\n" )
     FH_excluded_file.close()
 
+def excluded_obs_on_sample_abundance(input_biom, min_abundance, excluded_file):
+    """
+    @summary: Writes the list of the observations with an insufficient abundance for at least one sample.
+    @param input_biom: [str] The path to the BIOM file to check.
+    @param min_abundance: [int/float] The observations with an abundance inferior than this value are reported in the excluded file.
+    @param excluded_file: [str] The path to the output file.
+    """
+    biom = BiomIO.from_json( input_biom )
+    FH_excluded_file = open( excluded_file, "wt" )
+    min_nb_seq = min_abundance
+    to_exclude = list()
+    for sample in biom.get_samples_names():
+        done = False
+        if type(min_abundance) == float:
+            min_nb_seq = sum(biom.get_sample_obs(sample)) * min_abundance
+        for observation in biom.get_observations_by_sample(sample):
+                observation_abundance = biom.get_count(observation['id'], sample)
+                if observation_abundance < min_nb_seq and not str(observation["id"]) in to_exclude:
+                    FH_excluded_file.write( str(observation["id"]) + "\n" )
+                    to_exclude.append( str(observation["id"] ))
+                    continue
+
+    for observation in biom.get_observations_by_sample(sample):
+    FH_excluded_file.close()
 
 def excluded_obs_on_nBiggest( input_biom, nb_selected, excluded_file ):
     """
@@ -367,6 +391,16 @@ def process( args ):
             discards[label] = tmpFiles.add( "min_abundance" )
             excluded_obs_on_abundance( args.input_biom, args.min_abundance, discards[label] )
 
+        if args.min_abundance_sample is not None:
+        
+            biom = BiomIO.from_json( args.input_biom )
+            if type(args.min_abundance) == float:
+                label = "Abundance < " + str(args.min_abundance_sample) + "\% of the abundance of at least one sample )"
+            else:
+                label = "Abundance < " + str(args.min_abundance_sample) + " for at least one sample )"
+            discards[label] = tmpFiles.add( "min_abundance_sample" )
+            excluded_obs_on_sample_abundance( args.input_biom, args.min_abundance_sample, discards[label] )
+
         if args.contaminant is not None:
             label = "Present in databank of contaminants"
             discards[label] = tmpFiles.add( "contaminant" )
@@ -417,6 +451,7 @@ if __name__ == '__main__':
     group_filter.add_argument( '--nb-biggest-otu', type=int, default=None, required=False, help="Number of most abundant OTUs you want to keep.") 
     group_filter.add_argument( '-s', '--min-sample-presence', type=int, help="Keep OTU present in at least this number of samples.") 
     group_filter.add_argument( '-a', '--min-abundance', type=minAbundParameter, default=None, required=False, help="Minimum percentage/number of sequences, comparing to the total number of sequences, of an OTU (between 0 and 1 if percentage desired)." )
+    group_filter.add_argument( '-m', '--min-abundance-sample', type=minAbundParameter, default=None, required=False, help="Minimum percentage/number of sequences, comparing to the total number of sequences in every samples, of an OTU (between 0 and 1 if percentage desired)." )
     # group_filter.add_argument( '--abundance-by-sample', type=bool, default=False, action='store_true', help="Abundance threshold is applied by default on the total abundance of OTU. Activate this option if you want to applied the threshold on sample abundances (if float, each OTU must be present in a " )
     #     Inputs
     group_input = parser.add_argument_group( 'Inputs' )
@@ -438,6 +473,8 @@ if __name__ == '__main__':
     if args.nb_biggest_otu is None and args.min_sample_presence is None and args.min_abundance is None and args.contaminant is None:
         raise_exception( argparse.ArgumentTypeError( "\n\n#ERROR : At least one filter must be set to run " + os.path.basename(sys.argv[0]) + "\n\n"))
     if not args.min_abundance is None and (args.min_abundance <= 0 or (type(args.min_abundance) == float and args.min_abundance >= 1.0 ) ):
+        raise_exception( argparse.ArgumentTypeError( "\n\n#ERROR : If filtering on abundance, you must indicate a positive threshold and if percentage abundance threshold must be smaller than 1.0. \n\n" ))
+    if not args.min_abundance_sample is None and (args.min_abundance_sample <= 0 or (type(args.min_abundance_sample) == float and args.min_abundance_sample >= 1.0 ) ):
         raise_exception( argparse.ArgumentTypeError( "\n\n#ERROR : If filtering on abundance, you must indicate a positive threshold and if percentage abundance threshold must be smaller than 1.0. \n\n" ))
 
     # Process
