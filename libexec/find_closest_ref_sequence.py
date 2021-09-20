@@ -85,7 +85,7 @@ def is_same_taxonomies(taxo_frogs, taxo_picrust):
 			return False
 	return True
 
-def check_ref_files(tree_file, biom_file, multi_affi_file, fasta_file, ref_aln, output ):
+def check_ref_files(tree_file, biom_file, biom_path, multi_affi_file, fasta_file, ref_aln, output ):
 	'''
 	@param tree: [str] Path to tree output from place_seqs.py.
 	@param biom_file: [str] path to BIOM input file.
@@ -133,9 +133,9 @@ def check_ref_files(tree_file, biom_file, multi_affi_file, fasta_file, ref_aln, 
 	# ete3 input tree file
 	tree=ete.Tree(tree_file)
 
-	return [tree, biom, cluster_to_multiaffi, ID_to_taxo, ref_seqs, cluster_to_seq, output]
+	return [tree, biom, biom_path, cluster_to_multiaffi, ID_to_taxo, ref_seqs, cluster_to_seq, output]
 
-def find_closest_ref_sequences(tree, biom, cluster_to_multiaffi, ID_to_taxo, ref_seqs, cluster_to_seq, output):
+def find_closest_ref_sequences(tree, biom, biom_path, cluster_to_multiaffi, ID_to_taxo, ref_seqs, cluster_to_seq, output):
 	"""
 	@summary: find each closest picrust ref sequence from FROGS cluster, from FPStep1 tree output file.
 	@param tree: Tree as input for ete3.
@@ -147,7 +147,6 @@ def find_closest_ref_sequences(tree, biom, cluster_to_multiaffi, ID_to_taxo, ref
 	@ref_file: [str] path to reference map file in order to have taxonomies informations.
     """
 	FH_out = open(output,'wt')
-	FH_out.write('Cluster\tFROGS_Taxonomy\tPicrust2_Closest_ID\tPicrust2_closest_name\tPicrust2_closest_taxonomy\tPicrust2_closest_distance\tComment')
 
 	for cluster in clusters:
 
@@ -170,6 +169,8 @@ def find_closest_ref_sequences(tree, biom, cluster_to_multiaffi, ID_to_taxo, ref
 				best_leaf = best_leaf.split('-')[0]
 				comment = "/"
 				affis_picrust = ID_to_taxo[best_leaf][1].replace(' ','_')
+				biom.add_metadata(cluster, "picrust2_affiliations", affis_picrust, "observation", erase_warning = False)
+
 				if cluster in cluster_to_multiaffi:
 					for affi in cluster_to_multiaffi[cluster]:
 
@@ -200,6 +201,8 @@ def find_closest_ref_sequences(tree, biom, cluster_to_multiaffi, ID_to_taxo, ref
 				
 			else:
 				FH_out.write(' \t \t \t \t \n')
+
+	BiomIO.write(biom_path, biom)
 ##################################################################################################################################################
 #
 # MAIN
@@ -220,6 +223,7 @@ if __name__ == "__main__":
 	# Outputs
 	group_output = parser.add_argument_group('Outputs')
 	group_output = parser.add_argument('-o', '--output', default='closests_ref_sequences.txt')
+	group_output = parser.add_argument('-e', '--out_biom', default='FPStep1.biom', help='abundance file without non insert sequences. (format: BIOM) [Default: %(default)s]')
 	group_output = parser.add_argument('-l', '--log-file', default=sys.stdout, help='The list of commands executed.')
 
 	args = parser.parse_args()
@@ -227,7 +231,7 @@ if __name__ == "__main__":
 
 	clusters = find_clusters(args.tree_file)
 
-	inputs = check_ref_files(args.tree_file, args.biom_file, args.multi_affi, args.fasta_file, args.ref_aln, args.output )
+	inputs = check_ref_files(args.tree_file, args.biom_file, args.out_biom, args.multi_affi, args.fasta_file, args.ref_aln, args.output )
 
 	find_closest_ref_sequences(*inputs)
 	
