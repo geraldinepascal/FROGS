@@ -52,16 +52,22 @@ class BIOM_sampling(Cmd):
     """
     @summary: Random sampling in each sample.
     """
-    def __init__(self, in_biom, out_biom, nb_read):
+    def __init__(self, in_biom, out_biom, nb_read, sampling_by_min, delete_samples):
         """
         @param in_biom: [str] Path to BIOM file.
         @param out_biom: [str] Path to output BIOM file.
         @param nb_read : [int] Number of reads per sample.
+        @param sampling_by_min : [boolean] Sampling by the number of the smallest sample.
         """
+        argument = " --nb-sampled " + str(nb_read)
+        if sampling_by_min :
+            argument = " --sampling-by-min "
+        if delete_samples:
+            argument += " --delete-samples"
         Cmd.__init__( self,
                       "biomTools.py",
                       "Random sampling in each sample.",
-                      "sampling --nb-sampled " + str(nb_read) + " --input-file " + in_biom + " --output-file " + out_biom,
+                      "sampling  --input-file " + in_biom + " --output-file " + out_biom + argument,
                       "--version" )
 
     def get_version(self):   
@@ -100,9 +106,12 @@ def write_log(in_biom, out_biom, log):
     new_biom = BiomIO.from_json( out_biom )
 
     for sample_name in initial_biom.get_samples_names():
-        nb_otu_before = len([ i for i in initial_biom.get_sample_obs(sample_name) if i >0 ])
-        nb_otu_after = len([ i for i in new_biom.get_sample_obs(sample_name) if i > 0])
-        FH_log.write("Sample name: "+sample_name+"\n\tnb initials OTU: "+str(nb_otu_before)+"\n\tnb normalised OTU: "+str(nb_otu_after)+"\n")
+        if sample_name in new_biom.get_samples_names():
+            nb_otu_before = len([ i for i in initial_biom.get_sample_obs(sample_name) if i >0 ])
+            nb_otu_after = len([ i for i in new_biom.get_sample_obs(sample_name) if i > 0])
+            FH_log.write("Sample name: "+sample_name+"\n\tnb initials OTU: "+str(nb_otu_before)+"\n\tnb normalised OTU: "+str(nb_otu_after)+"\n")
+        else:
+            Logger.static_write(args.log_file,"WARNING: Deleted sample: "+str(sample_name) + " (Only " + str(initial_biom.get_sample_count(sample_name)) + " sequences).\n")
 
     nb_initial_otu=len(initial_biom.rows)
     nb_new_otu=len(new_biom.rows)
@@ -174,7 +183,9 @@ def get_sample_resuts( log_file, output_list ):
 if __name__ == "__main__":
     # Manage parameters
     parser = argparse.ArgumentParser(description="Normalisation in BIOM by random sampling.")
-    parser.add_argument('-n', '--num-reads', type=int, required=True, help="Number of reads per sample after normalisation")
+    parser.add_argument('-n', '--num-reads', type=int, help="Sampling by the number of sequences of the smallest sample")
+    parser.add_argument('--sampling-by-min', default=False, action='store_true', help='Number of sampled sequences by sample.' )
+    parser.add_argument('--delete-samples', default=False, action='store_true', help='Delete samples that have a number of sequences below the selected filter.')
     parser.add_argument('--debug', default=False, action='store_true', help="Keep temporary files to debug program.")
     parser.add_argument('-v', '--version', action='version', version=__version__)
     # Inputs
@@ -199,7 +210,7 @@ if __name__ == "__main__":
         
         Logger.static_write(args.log_file,'\n#Normalisation calculation\n\tstart: ' + time.strftime("%d %b %Y %H:%M:%S", time.localtime()) + '\n' )
         tmp_subsampling = tmp_files.add( 'tmp_biom_subsample.log' )
-        BIOM_sampling(args.input_biom, args.output_biom, args.num_reads).submit(args.log_file)
+        BIOM_sampling(args.input_biom, args.output_biom, args.num_reads, args.sampling_by_min, args.delete_samples).submit(args.log_file)
         write_log(args.input_biom, args.output_biom, tmp_subsampling)
         Logger.static_write(args.log_file,'\tend: ' + time.strftime("%d %b %Y %H:%M:%S", time.localtime()) + '\n\n' )
         tmp_fastaUpdate = tmp_files.add( 'tmp_fasta_update.log' )
