@@ -231,7 +231,7 @@ if __name__ == "__main__":
 
 	clusters = find_clusters(args.tree_file)
 
-	inputs = check_ref_files(args.tree_file, args.biom_file, args.outdi_biom, args.multi_affi, args.fasta_file, args.ref_aln, args.output )
+	inputs = check_ref_files(args.tree_file, args.biom_file, args.out_biom, args.multi_affi, args.fasta_file, args.ref_aln, args.output )
 
 	find_closest_ref_sequences(*inputs)
 	
