@@ -119,16 +119,6 @@ class Biom2tsv(Cmd):
 #
 ##################################################################################################################################################
 
-def formate_description_file(description_dir, description_out):
-	"""
-	@summary: concatane all picrust2 descriptions file into one temporary global description file.
-	"""
-	with open(description_out, 'wb') as outfile:
-		for filename in glob.glob(description_dir+'/*'):
-			if filename != description_out and "KEGG_modules_info.tsv.gz" not in filename:
-				with open(filename, 'rb') as readfile:
-					shutil.copyfileobj(readfile, outfile)
-
 def write_summary(strat_file, summary_file):
 	"""
 	@summary: Writes the process summary in one html file.
@@ -198,13 +188,13 @@ if __name__ == "__main__":
 	parser = argparse.ArgumentParser( description='Per-sample functional profiles prediction.' )
 	parser.add_argument('-v', '--version', action='version', version=__version__)
 	parser.add_argument('--debug', default=False, action='store_true', help="Keep temporary files to debug program." )
-	parser.add_argument('--strat_out', default=False, action='store_true', help='Output table stratified by sequences as well. By ''default this will be in \"contributional\" format ''(i.e. long-format) unless the \"--wide_table\" ''option is set. The startified outfile is named ''\"metagenome_contrib.tsv.gz\" when in long-format.')
+	parser.add_argument('--strat_out', default=False, action='store_true', help='Output table stratified by sequences as well. By default this will be in \"contributional\" format ''(i.e. long-format) unless the \"--wide_table\" ''option is set. The startified outfile is named ''\"metagenome_contrib.tsv.gz\" when in long-format.')
 	# Inputs
 	group_input = parser.add_argument_group( 'Inputs' )
 	group_input.add_argument('-b', '--input_biom', required=True, type=str, help='Input table of sequence abundances (BIOM file used in FPStep1).')
 	group_input.add_argument('-f', '--function', required=True, type=str, help='Table of predicted gene family copy numbers ''(FPStep2 output, ex FPStep2_all_predicted.tsv).')
 	group_input.add_argument('-m', '--marker', required=True, type=str, help='Table of predicted marker gene copy numbers ''(FPStep2 output, ex FPStep2_marker_nsti_predicted.tsv.')
-	group_input.add_argument('--description_dir', type=str, help='Specified picrust2 description folder in order to adds a description column to the function abundance table (ex $PICRUST2_PATH/default_files/description_mapfiles/')
+	group_input.add_argument('--add_description', default=False, action='store_true', help='Flag to adds a description column to the function abundance table')
 	group_input.add_argument('--max_nsti', type=float, default=2.0, help='Sequences with NSTI values above this value will ' 'be excluded (default: %(default)d).')
 	group_input.add_argument('--min_reads', metavar='INT', type=int, default=1, help='Minimum number of reads across all samples for ''each input ASV. ASVs below this cut-off will be ''counted as part of the \"RARE\" category in the ''stratified output (default: %(default)d).')
 	group_input.add_argument('--min_samples', metavar='INT', type=int, default=1, help='Minimum number of samples that an ASV needs to be ''identfied within. ASVs below this cut-off will be ''counted as part of the \"RARE\" category in the ''stratified output (default: %(default)d).')
@@ -235,13 +225,11 @@ if __name__ == "__main__":
 		tmp_metag_pipeline = tmp_files.add( 'tmp_metagenome_pipeline.log' )	
 		MetagenomePipeline(tmp_biom_to_tsv, args.marker, args.function, args.max_nsti, args.min_reads, args.min_samples, args.strat_out, args.function_abund, args.seqtab, args.weighted, args.contrib, tmp_metag_pipeline).submit( args.log_file )
 
-		if args.description_dir != None:
-			tmp_description_file = tmp_files.add('descriptions_file.tsv.gz')
-			formate_description_file(args.description_dir, tmp_description_file )
-
+		if args.add_description != None:
+			description_file = 'default_files/pathways_description_file.txt.gz'
 			tmp_add_descriptions = tmp_files.add( 'tmp_add_descriptions.log' )	
 			pred_file = args.function_abund
-			AddDescriptions(pred_file,  tmp_description_file, pred_file, tmp_add_descriptions).submit( args.log_file)
+			AddDescriptions(pred_file,  description_file, pred_file, tmp_add_descriptions).submit( args.log_file)
 
 		write_summary(args.function_abund, args.html)
 	finally:
