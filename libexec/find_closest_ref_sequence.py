@@ -22,6 +22,7 @@ __version__ = '1.0'
 __email__ = 'frogs-support@inrae.fr'
 __status__ = 'dev'
 
+import gzip
 import os, sys
 import argparse
 import re
@@ -94,10 +95,10 @@ def check_ref_files(tree_file, biom_file, biom_path, multi_affi_file, fasta_file
 	@ref_file: [str] path to reference map file in order to have taxonomies informations.
 	'''
 	biom=BiomIO.from_json(biom_file)
-	ref_file = os.path.abspath(os.path.join(os.path.dirname(CURRENT_DIR), "tools/FPStep1/data/JGI_ID_to_taxonomy.txt"))
+	ref_file = os.path.abspath(os.path.join(os.path.dirname(CURRENT_DIR), "default_files/JGI_ID_to_taxonomy.txt.gz"))
 	picrust_aln = ref_aln
 	
-	ref = open(ref_file,'r').readlines()
+	ref = gzip.open(ref_file,'rt').readlines()
 	ID_to_taxo = {}
 	for li in ref[1:]:
 		li = li.strip().split('\t')
