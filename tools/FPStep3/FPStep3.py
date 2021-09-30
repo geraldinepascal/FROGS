@@ -226,7 +226,7 @@ if __name__ == "__main__":
 		MetagenomePipeline(tmp_biom_to_tsv, args.marker, args.function, args.max_nsti, args.min_reads, args.min_samples, args.strat_out, args.function_abund, args.seqtab, args.weighted, args.contrib, tmp_metag_pipeline).submit( args.log_file )
 
 		if args.add_description != None:
-			description_file = 'default_files/pathways_description_file.txt.gz'
+			description_file = os.path.abspath(os.path.join(os.path.dirname(CURRENT_DIR), "default_files/pathways_description_file.txt.gz"))
 			tmp_add_descriptions = tmp_files.add( 'tmp_add_descriptions.log' )	
 			pred_file = args.function_abund
 			AddDescriptions(pred_file,  description_file, pred_file, tmp_add_descriptions).submit( args.log_file)

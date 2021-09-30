@@ -200,7 +200,7 @@ if __name__ == "__main__":
 		PathwayPipeline(args.input_file, args.map, args.per_sequence_contrib, args.per_sequence_abun, args.per_sequence_function, args.no_regroup,  args.pathways_abund, args.pathways_contrib, args.pathways_predictions, tmp_pathway).submit(args.log_file)
 
 		if args.add_description is not None:
-			description_file = 'default_files/pathways_description_file.txt.gz'
+			description_file = os.path.abspath(os.path.join(os.path.dirname(CURRENT_DIR), "default_files/pathways_description_file.txt.gz"))
 			AddDescriptions(args.pathways_abund,  description_file, args.pathways_abund).submit( args.log_file)
 
 		write_summary(args.pathways_abund, args.html)
