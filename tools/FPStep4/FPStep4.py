@@ -41,10 +41,10 @@ class PathwayPipeline(Cmd):
 	"""
 	@summary: pathway_pipeline.py : Infer the presence and abundances of pathways based on gene family abundances in a sample.
 	"""
-	def __init__(self, input_file, map_file, per_sequence_contrib, per_sequence_abun, per_sequence_function, no_regroup, pathways_abund, pathways_contrib, pathways_predictions, log):
+	def __init__(self, input_file, map_file, per_sequence_contrib, per_sequence_abun, per_sequence_function, no_regroup, pathways_abund, pathways_contrib, pathways_predictions, pathways_abund_per_seq, log):
 		opt = ''
 		if per_sequence_contrib:
-			opt = ' --per_sequence_contrib --per_sequence_abun ' +  per_sequence_abun + ' --per_sequence_function ' + per_sequence_function
+			opt = ' --per_sequence_contrib --per_sequence_abun ' +  per_sequence_abun + ' --per_sequence_function ' + per_sequence_function 
 		if map_file is not None:
 			opt += " --map " + map_file
 		if no_regroup:
@@ -60,6 +60,7 @@ class PathwayPipeline(Cmd):
 		self.per_sequence_contrib = per_sequence_contrib
 		self.pathways_contrib = pathways_contrib
 		self.pathways_predictions = pathways_predictions
+		self.pathways_abund_per_seq = pathways_abund_per_seq
 		
 	def get_version(self):
 		 return Cmd.get_version(self, 'stdout').split()[1].strip()
@@ -78,7 +79,10 @@ class PathwayPipeline(Cmd):
 				with open(self.pathways_predictions, 'wb') as f_out:
 					shutil.copyfileobj(f_in, f_out)
 				os.remove('path_abun_predictions.tsv.gz')
-
+			with gzip.open('path_abun_unstrat_per_seq.tsv.gz', 'rb') as f_in:
+				with open(self.pathways_abund_per_seq, 'wb') as f_out:
+					shutil.copyfileobj(f_in, f_out)
+				os.remove('path_abun_unstrat_per_seq.tsv.gz')
 class AddDescriptions(Cmd):
 	"""
 	@summary: Adds a description column to a function abundance table and outputs a new file.
@@ -174,6 +178,7 @@ if __name__ == "__main__":
 	group_output.add_argument('-o', '--pathways_abund', default='FPStep4_path_abun_unstrat.tsv', help='Pathway abundance file output.')
 	group_output.add_argument('--pathways_contrib', default=None, help='Stratified output corresponding to contribution of predicted gene family abundances within each predicted genome.')
 	group_output.add_argument('--pathways_predictions', default=None, help='Stratified output corresponding to contribution of predicted gene family abundances within each predicted genome.')
+	group_output.add_argument('--pathways_abund_per_seq', default=None, help='')
 	group_output.add_argument('-v', '--version', default=False, action='version', version="%(prog)s " + __version__)
 	group_output.add_argument('-l', '--log-file', default=sys.stdout, help='This output file will contain several information on executed commands.')
 	group_output.add_argument('-t', '--html', default='FPStep4_summary.html', help="Path to store resulting html file. [Default: %(default)s]" )	
@@ -190,17 +195,19 @@ if __name__ == "__main__":
 			if args.pathways_contrib is None:
 				args.pathways_contrib = 'FPStep4_path_abun_contrib.tsv'
 			if args.pathways_predictions is None:
-				args.pathways_predictions = 'FPSTep4_path_abun_predictions.tsv'
+				args.pathways_predictions = 'FPStep4_path_abun_predictions.tsv'
+			if args.pathways_abund_per_seq is None:
+				args.pathways_abund_per_seq = "FPStep4_path_abun_unstrat_per_seq.tsv"
 
 
 		if (args.per_sequence_abun is not None or args.per_sequence_function is not None) and not args.per_sequence_contrib:
 			parser.error("\n\n#ERROR : --per_sequence_contrib required when --per_sequence_contrib and --per_sequence_function option is set!\n\n")
 
 		tmp_pathway = tmp_files.add( 'pathway_pipeline.log' )
-		PathwayPipeline(args.input_file, args.map, args.per_sequence_contrib, args.per_sequence_abun, args.per_sequence_function, args.no_regroup,  args.pathways_abund, args.pathways_contrib, args.pathways_predictions, tmp_pathway).submit(args.log_file)
+		PathwayPipeline(args.input_file, args.map, args.per_sequence_contrib, args.per_sequence_abun, args.per_sequence_function, args.no_regroup,  args.pathways_abund, args.pathways_contrib, args.pathways_predictions, args.pathways_abund_per_seq, tmp_pathway).submit(args.log_file)
 
 		if args.add_description is not None:
-			description_file = 'default_files/pathways_description_file.txt.gz'
+			description_file = os.path.abspath(os.path.join(os.path.dirname(CURRENT_DIR), "default_files/pathways_description_file.txt.gz"))
 			AddDescriptions(args.pathways_abund,  description_file, args.pathways_abund).submit( args.log_file)
 
 		write_summary(args.pathways_abund, args.html)
