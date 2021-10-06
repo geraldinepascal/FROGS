@@ -27,6 +27,7 @@ LIB_DIR = os.path.abspath(os.path.join(os.path.dirname(CURRENT_DIR), "lib"))
 sys.path.append(LIB_DIR) 
 if os.getenv('PYTHONPATH') is None: os.environ['PYTHONPATH'] = LIB_DIR 
 else: os.environ['PYTHONPATH'] = os.environ['PYTHONPATH'] + os.pathsep + LIB_DIR
+description_file = os.path.abspath(os.path.join(os.path.dirname(CURRENT_DIR), "default_files/pathways_description_file.txt.gz"))
 #import frogs
 from frogsUtils import *
 from frogsSequenceIO import * 
@@ -207,7 +208,6 @@ if __name__ == "__main__":
 		PathwayPipeline(args.input_file, args.map, args.per_sequence_contrib, args.per_sequence_abun, args.per_sequence_function, args.no_regroup,  args.pathways_abund, args.pathways_contrib, args.pathways_predictions, args.pathways_abund_per_seq, tmp_pathway).submit(args.log_file)
 
 		if args.add_description is not None:
-			description_file = os.path.abspath(os.path.join(os.path.dirname(CURRENT_DIR), "default_files/pathways_description_file.txt.gz"))
 			AddDescriptions(args.pathways_abund,  description_file, args.pathways_abund).submit( args.log_file)
 
 		write_summary(args.pathways_abund, args.html)

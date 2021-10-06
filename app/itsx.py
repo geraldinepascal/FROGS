@@ -1,1 +1,1 @@
-../tools/itsx/itsx.py
+/home/vdarbot/Bureau/FROGS/tools/itsx/itsx.py
