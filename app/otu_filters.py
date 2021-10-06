@@ -1,1 +1,1 @@
-/home/vdarbot/Bureau/FROGS/tools/otu_filters/otu_filters.py
+../tools/otu_filters/otu_filters.py

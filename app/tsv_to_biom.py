@@ -1,1 +1,1 @@
-/home/vdarbot/Bureau/FROGS/tools/tsv_to_biom/tsv_to_biom.py
+../tools/tsv_to_biom/tsv_to_biom.py

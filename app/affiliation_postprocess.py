@@ -1,1 +1,1 @@
-/home/vdarbot/Bureau/FROGS/tools/affiliation_postprocess/affiliation_postprocess.py
+../tools/affiliation_postprocess/affiliation_postprocess.py

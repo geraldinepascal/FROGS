@@ -1,1 +1,1 @@
-/home/vdarbot/Bureau/FROGS/tools/affiliation_OTU/affiliation_OTU.py
+../tools/affiliation_OTU/affiliation_OTU.py
