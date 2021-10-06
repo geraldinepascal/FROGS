@@ -1,1 +1,1 @@
-/home/vdarbot/Bureau/FROGS/tools/affiliations_stat/affiliations_stat.py
+../tools/affiliations_stat/affiliations_stat.py

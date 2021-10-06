@@ -1,1 +1,1 @@
-/home/vdarbot/Bureau/FROGS/tools/affiliation_filters/affiliation_filters.py
+../tools/affiliation_filters/affiliation_filters.py

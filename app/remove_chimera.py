@@ -1,1 +1,1 @@
-/home/vdarbot/Bureau/FROGS/tools/remove_chimera/remove_chimera.py
+../tools/remove_chimera/remove_chimera.py

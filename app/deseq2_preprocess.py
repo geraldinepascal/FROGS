@@ -1,1 +1,1 @@
-/home/vdarbot/Bureau/FROGS/tools/deseq2_preprocess/deseq2_preprocess.py
+../tools/deseq2_preprocess/deseq2_preprocess.py

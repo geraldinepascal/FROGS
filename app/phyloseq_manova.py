@@ -1,1 +1,1 @@
-/home/vdarbot/Bureau/FROGS/tools/phyloseq_manova/phyloseq_manova.py
+../tools/phyloseq_manova/phyloseq_manova.py

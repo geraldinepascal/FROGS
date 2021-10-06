@@ -1,1 +1,1 @@
-/home/vdarbot/Bureau/FROGS/tools/biom_to_stdBiom/biom_to_stdBiom.py
+../tools/biom_to_stdBiom/biom_to_stdBiom.py
