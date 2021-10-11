@@ -261,7 +261,6 @@ def write_summary( summary_file, input_biom, tree_count_file, tree_ids_file, rar
     bootstrap_results = None
     if args.bootstrap_tag is not None:
         bootstrap_results = get_bootstrap_distrib( input_biom, args.bootstrap_tag, args.multiple_tag )
-
     # Get alignment metrics
     aln_results = None
     if args.identity_tag is not None and args.coverage_tag is not None:
@@ -283,6 +282,7 @@ def write_summary( summary_file, input_biom, tree_count_file, tree_ids_file, rar
                     rarefaction = dict()
                     for sample in samples:
                         rarefaction[sample] = dict()
+                        rarefaction[sample]['nb_otus'] = len([ i for i in biom.get_sample_obs(sample) if i >0 ])
                         rarefaction[sample]['nb_seq'] = biom.get_sample_count( sample )
                 for sample in samples:
                     rarefaction[sample][rank] = list()
@@ -348,7 +348,6 @@ def process( args ):
         rarefaction_cmd = Rarefaction(tmp_biom, tmp_files, used_taxonomy_tag, tax_depth, args.add_otu_rarefaction)
         rarefaction_cmd.submit( args.log_file )
         rarefaction_files = rarefaction_cmd.output_files
-        print(rarefaction_files)
         # Taxonomy tree
         tree_count_file = tmp_files.add( "taxCount.enewick" )
         tree_ids_file = tmp_files.add( "taxCount_ids.tsv" )

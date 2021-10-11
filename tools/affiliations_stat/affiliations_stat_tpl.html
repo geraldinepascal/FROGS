@@ -868,6 +868,7 @@
 				for( var rank = 0 ; rank < taxonomic_ranks.length ; rank++ ){
 					titles.push( "Nb " + taxonomic_ranks[rank].toLowerCase() );
 				}
+				titles.push( "Nb otus" );
 				titles.push( "Nb sequences" );
 				$('#taxBySample-table thead').append( '<tr><th>' + titles.join("</th><th>") + '</th></tr>' );
 				$('#taxBySample-table .title').attr( "colspan", titles.length );
@@ -885,6 +886,7 @@
 					for( var rank = 0 ; rank < taxonomic_ranks.length ; rank++ ){
 						sample_data.push( numberDisplay(tree.getNodeByDepth(rank+1).length) );
 					}
+					sample_data.push( numberDisplay(rarefaction[sample_name]['nb_otus']) );
 					sample_data.push( numberDisplay(rarefaction[sample_name]['nb_seq']) );
 					// Add row data
 					$('#taxBySample-table tbody').append( '<tr><td>' + sample_data.join("</td><td>") + '</td></tr>' );
