@@ -165,13 +165,13 @@ def sampling_by_sample( input_biom, output_biom, sampling_by_min, delete_samples
 #
 ####################################################################################################################
 def task_rarefaction( args ):
-    rarefaction_data = rarefaction( args.input_file, args.step_size, args.ranks, args.taxonomy_key )
+    rarefaction_data = rarefaction( args.input_file, args.add_otu_rarefaction, args.step_size, args.ranks, args.taxonomy_key)
     for current_rank in args.ranks:
         output_file = args.output_file_pattern.replace('##RANK##', str(current_rank))
         write_output( output_file, rarefaction_data[current_rank], args.step_size )
 
 
-def rarefaction( input_biom, interval=10000, ranks=None, taxonomy_key="taxonomy" ):
+def rarefaction( input_biom, add_otu_rarefaction, interval=10000, ranks=None, taxonomy_key="taxonomy" ):
     """
     @summary: Returns the rarefaction by ranks by samples.
     @param input_biom: [str] Path to the biom file processed.
@@ -200,6 +200,9 @@ def rarefaction( input_biom, interval=10000, ranks=None, taxonomy_key="taxonomy"
     """
     sample_rarefaction = dict()
     biom = BiomIO.from_json( input_biom )
+    if add_otu_rarefaction:
+        otu_rank = ranks[-1] + 1
+        ranks.append(otu_rank)
     for current_rank in ranks:
         sample_rarefaction[current_rank] = dict()
     for sample in biom.get_samples_names():
@@ -225,6 +228,10 @@ def rarefaction( input_biom, interval=10000, ranks=None, taxonomy_key="taxonomy"
                     taxa[current_rank][taxonomy_str] = True
             for current_rank in ranks:
                 sample_rarefaction[current_rank][sample].append( str(len(taxa[current_rank])) )
+            if add_otu_rarefaction:
+                cluster = current_selected['observation']["id"]
+                taxa[otu_rank][cluster] = True 
+                sample_rarefaction[otu_rank][sample].append(str(len(taxa[otu_rank])))
     return sample_rarefaction
 
 
@@ -489,6 +496,7 @@ if __name__ == "__main__":
     parser_rarefaction.add_argument( '-s', '--step-size', type=strict_positive_int, default=10000, help='Additional number of sampled sequences by round of sampling. [Default: %(default)s]' )
     parser_rarefaction.add_argument( '-r', '--ranks', nargs='+', required=True, type=int, default=None, help='The taxonomy depth used to evaluate diversity.' )
     parser_rarefaction.add_argument( '-k', '--taxonomy-key', type=str, default="taxonomy", help='The metadata title for the taxonomy in your BIOM file. Example : "rdp_taxonomy". [Default: %(default)s]' )
+    parser_rarefaction.add_argument( '--add_otu_rarefaction', action='store_true', default=True)
     parser_rarefaction.set_defaults(func=task_rarefaction)
 
     # Hierarchical classification parameters

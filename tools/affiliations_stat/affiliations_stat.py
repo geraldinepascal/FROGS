@@ -52,7 +52,7 @@ class Rarefaction(Cmd):
     """
     @summary: Writes by sample the rarefaction data.
     """
-    def __init__(self, in_biom, tmp_files_manager, taxonomy_tag, rarefaction_levels):
+    def __init__(self, in_biom, tmp_files_manager, taxonomy_tag, rarefaction_levels, add_otu_rarefaction):
         """
         @param in_biom: [str] The processed BIOM path.
         @param out_tsv: [str] The path of the output.
@@ -65,6 +65,10 @@ class Rarefaction(Cmd):
         # Out files management
         out_basename_pattern = "rarefaction_rank_##RANK##.tsv"
         out_files = list()
+        if add_otu_rarefaction:
+            opt = ' --add_otu_rarefaction'
+        else:
+            opt = ''
         for rank in rarefaction_levels:
             out_files.append( tmp_files_manager.add(out_basename_pattern.replace('##RANK##', str(rank))) )
         out_path_pattern = os.path.join( tmp_files_manager.tmp_dir, tmp_files_manager.prefix + "_" + out_basename_pattern )
@@ -72,7 +76,7 @@ class Rarefaction(Cmd):
         Cmd.__init__( self,
                       'biomTools.py',
                       'Writes by sample the rarefaction data for rank(s) ' + ', '.join([str(lvl) for lvl in rarefaction_levels]) + '.',
-                      'rarefaction --input-file ' + in_biom + ' --output-file-pattern ' + out_path_pattern + ' --taxonomy-key "' + taxonomy_tag + '" --step-size ' + str(step_size) + ' --ranks ' + ' '.join([str(lvl) for lvl in rarefaction_levels]),
+                      'rarefaction --input-file ' + in_biom + ' --output-file-pattern ' + out_path_pattern + ' --taxonomy-key "' + taxonomy_tag + '" --step-size ' + str(step_size) + ' --ranks ' + ' '.join([str(lvl) for lvl in rarefaction_levels]) + opt,
                       '--version' )
         self.output_files = out_files
         
@@ -262,11 +266,12 @@ def write_summary( summary_file, input_biom, tree_count_file, tree_ids_file, rar
     aln_results = None
     if args.identity_tag is not None and args.coverage_tag is not None:
         aln_results = get_alignment_distrib( input_biom, args.identity_tag, args.coverage_tag, args.multiple_tag )
-
     # Get rarefaction data
     rarefaction_step_size = None
     rarefaction = None
     biom = BiomIO.from_json( input_biom )
+    if args.add_otu_rarefaction:
+        args.rarefaction_ranks.append('Otus')
     for rank_idx, current_file in enumerate(rarefaction_files):
         rank = args.rarefaction_ranks[rank_idx]
         FH_rarefaction = open( current_file )
@@ -338,10 +343,12 @@ def process( args ):
 
         # Rarefaction
         tax_depth = [args.taxonomic_ranks.index(rank) for rank in args.rarefaction_ranks]
-        rarefaction_cmd = Rarefaction(tmp_biom, tmp_files, used_taxonomy_tag, tax_depth)
+        if args.add_otu_rarefaction:
+            tax_depth.append(tax_depth[-1]+1)
+        rarefaction_cmd = Rarefaction(tmp_biom, tmp_files, used_taxonomy_tag, tax_depth, args.add_otu_rarefaction)
         rarefaction_cmd.submit( args.log_file )
         rarefaction_files = rarefaction_cmd.output_files
-
+        print(rarefaction_files)
         # Taxonomy tree
         tree_count_file = tmp_files.add( "taxCount.enewick" )
         tree_ids_file = tmp_files.add( "taxCount_ids.tsv" )
@@ -366,6 +373,7 @@ if __name__ == '__main__':
     parser.add_argument( '-v', '--version', action='version', version=__version__ )
     parser.add_argument( '--taxonomic-ranks', nargs='*', default=["Domain", "Phylum", "Class", "Order", "Family", "Genus", "Species"], help='The ordered ranks levels used in the metadata taxonomy. [Default: %(default)s]' )
     parser.add_argument( '--rarefaction-ranks', nargs='*', default=["Genus"], help='The ranks that will be evaluated in rarefaction. [Default: %(default)s]' )
+    parser.add_argument( '--add_otu_rarefaction', action='store_true', default=True)
     group_exclusion_taxonomy = parser.add_mutually_exclusive_group()
     group_exclusion_taxonomy.add_argument( '--taxonomy-tag', type=str, help='The metadata tag used in BIOM file to store the taxonomy. Use this parameter if the taxonomic affiliation has been processed by a software that adds only one affiliation or if you does not have a metadata with the consensus taxonomy (see "--tax-consensus-tag").Not allowed with --tax-consensus-tag.' )
     group_exclusion_taxonomy.add_argument( '--tax-consensus-tag', type=str, help='The metadata tag used in BIOM file to store the consensus taxonomy. This parameter is used instead of "--taxonomy-tag" when you have several affiliations for each OTU.' )
