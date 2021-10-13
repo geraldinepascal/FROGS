@@ -29,6 +29,7 @@ import sys
 import json
 import operator
 import argparse
+import collections
 
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
 # PATH
@@ -146,6 +147,28 @@ def excluded_obs_on_samplePresence(input_biom, min_sample_presence, excluded_fil
         if nb_samples < min_sample_presence:
             FH_excluded_file.write( observation_name + "\n" )
     FH_excluded_file.close()
+
+def excluded_obs_on_replicatePresence(input_biom, replicate_file, min_replicate_presence, excluded_file):
+    """
+    @summary:
+    """
+    biom = BiomIO.from_json( input_biom )
+    FH_replicate_file = open(replicate_file)
+    FH_excluded_file = open( excluded_file, "wt" )
+    groups_to_replicates = collections.defaultdict(list)
+    for l in FH_replicate_file.readlines():
+        l = l.strip().split('\t')
+        groups_to_replicates[l[1].strip()].append(l[0])
+    for observation_name in biom.get_observations_names():
+        groups_to_counts = collections.defaultdict(int)
+        for sample in biom.get_samples_by_observation(observation_name):
+            group = [group for group, replicates in groups_to_replicates.items() if sample['id'] in replicates][0]
+            groups_to_counts[group] += 1
+
+        for group, count in groups_to_counts.items():
+            if min_replicate_presence * len(groups_to_replicates[group]) > count:
+                FH_excluded_file.write( observation_name + "\n" )
+                break
 
 def excluded_obs_on_abundance(input_biom, min_abundance, excluded_file):
     """
@@ -356,6 +379,11 @@ def process( args ):
             discards[label] = tmpFiles.add( "min_sample_presence" )
             excluded_obs_on_samplePresence( args.input_biom, args.min_sample_presence, discards[label] )
 
+        if args.min_replicate_presence is not None and args.replicate_file is not None:
+            label = "Present in less than " + str(args.min_replicate_presence*100) + "%  of replicates of one group."
+            discards[label] = tmpFiles.add( "min_replicate_presence")
+            excluded_obs_on_replicatePresence( args.input_biom, args.replicate_file, args.min_replicate_presence, discards[label])
+
         if args.min_abundance is not None:
             
             if type(args.min_abundance) == float:
@@ -416,6 +444,8 @@ if __name__ == '__main__':
     group_filter = parser.add_argument_group( 'Filters' )
     group_filter.add_argument( '--nb-biggest-otu', type=int, default=None, required=False, help="Number of most abundant OTUs you want to keep.") 
     group_filter.add_argument( '-s', '--min-sample-presence', type=int, help="Keep OTU present in at least this number of samples.") 
+    group_filter.add_argument( '-r', '--min-replicate-presence', type=minAbundParameter, default=None, help="Keep OTU present in at least this proportion of replicates (please indicate a proportion between 0 and 1). Replicates must be defined with --replicate_file REPLICATE FILE")
+    group_filter.add_argument( '--replicate_file', help='Replicate file must be specified if --min-replicate-presence is set. First column of the file must indicate the sample name, and the second column the group name of this replicate. Exemple: TEM1_L0001_R   Temoin.')
     group_filter.add_argument( '-a', '--min-abundance', type=minAbundParameter, default=None, required=False, help="Minimum percentage/number of sequences, comparing to the total number of sequences, of an OTU (between 0 and 1 if percentage desired)." )
     # group_filter.add_argument( '--abundance-by-sample', type=bool, default=False, action='store_true', help="Abundance threshold is applied by default on the total abundance of OTU. Activate this option if you want to applied the threshold on sample abundances (if float, each OTU must be present in a " )
     #     Inputs
@@ -435,10 +465,13 @@ if __name__ == '__main__':
 
     Logger.static_write(args.log_file, "## Application\nSoftware: " + os.path.basename(sys.argv[0]) + " (version: " + str(__version__) + ")\nCommand: " + " ".join(sys.argv) + "\n\n")
 
-    if args.nb_biggest_otu is None and args.min_sample_presence is None and args.min_abundance is None and args.contaminant is None:
+    if args.nb_biggest_otu is None and args.min_sample_presence is None and args.min_replicate_presence is None and args.min_abundance is None and args.contaminant is None:
         raise_exception( argparse.ArgumentTypeError( "\n\n#ERROR : At least one filter must be set to run " + os.path.basename(sys.argv[0]) + "\n\n"))
     if not args.min_abundance is None and (args.min_abundance <= 0 or (type(args.min_abundance) == float and args.min_abundance >= 1.0 ) ):
         raise_exception( argparse.ArgumentTypeError( "\n\n#ERROR : If filtering on abundance, you must indicate a positive threshold and if percentage abundance threshold must be smaller than 1.0. \n\n" ))
-
+    if not args.min_replicate_presence is None and args.replicate_file is None or not args.replicate_file is None and args.min_replicate_presence is None:
+        raise_exception( argparse.ArgumentTypeError( "\n\n#ERROR : --min-replicate-presence and --replicate_file must be both specified.\n\n" ))
+    elif not args.min_replicate_presence is None and (args.min_replicate_presence < 0 or args.min_replicate_presence > 1):
+        raise_exception( argparse.ArgumentTypeError( "\n\n#ERROR : --min_replicate_presence must be a proportion (between 0 and 1).\n\n "))
     # Process
     process( args )
