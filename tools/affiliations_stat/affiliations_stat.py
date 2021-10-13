@@ -67,6 +67,7 @@ class Rarefaction(Cmd):
         out_files = list()
         if add_otu_rarefaction:
             opt = ' --add_otu_rarefaction'
+            out_files.append( tmp_files_manager.add(out_basename_pattern.replace('##RANK##', 'otu')) )
         else:
             opt = ''
         for rank in rarefaction_levels:
@@ -270,7 +271,7 @@ def write_summary( summary_file, input_biom, tree_count_file, tree_ids_file, rar
     rarefaction = None
     biom = BiomIO.from_json( input_biom )
     if args.add_otu_rarefaction:
-        args.rarefaction_ranks.append('Otus')
+        args.rarefaction_ranks.insert(0,'Otus')
     for rank_idx, current_file in enumerate(rarefaction_files):
         rank = args.rarefaction_ranks[rank_idx]
         FH_rarefaction = open( current_file )
@@ -343,8 +344,6 @@ def process( args ):
 
         # Rarefaction
         tax_depth = [args.taxonomic_ranks.index(rank) for rank in args.rarefaction_ranks]
-        if args.add_otu_rarefaction:
-            tax_depth.append(tax_depth[-1]+1)
         rarefaction_cmd = Rarefaction(tmp_biom, tmp_files, used_taxonomy_tag, tax_depth, args.add_otu_rarefaction)
         rarefaction_cmd.submit( args.log_file )
         rarefaction_files = rarefaction_cmd.output_files
@@ -372,7 +371,7 @@ if __name__ == '__main__':
     parser.add_argument( '-v', '--version', action='version', version=__version__ )
     parser.add_argument( '--taxonomic-ranks', nargs='*', default=["Domain", "Phylum", "Class", "Order", "Family", "Genus", "Species"], help='The ordered ranks levels used in the metadata taxonomy. [Default: %(default)s]' )
     parser.add_argument( '--rarefaction-ranks', nargs='*', default=["Genus"], help='The ranks that will be evaluated in rarefaction. [Default: %(default)s]' )
-    parser.add_argument( '--add_otu_rarefaction', action='store_true', default=True)
+    parser.add_argument( '--add_otu_rarefaction', action='store_true', default=False)
     group_exclusion_taxonomy = parser.add_mutually_exclusive_group()
     group_exclusion_taxonomy.add_argument( '--taxonomy-tag', type=str, help='The metadata tag used in BIOM file to store the taxonomy. Use this parameter if the taxonomic affiliation has been processed by a software that adds only one affiliation or if you does not have a metadata with the consensus taxonomy (see "--tax-consensus-tag").Not allowed with --tax-consensus-tag.' )
     group_exclusion_taxonomy.add_argument( '--tax-consensus-tag', type=str, help='The metadata tag used in BIOM file to store the consensus taxonomy. This parameter is used instead of "--taxonomy-tag" when you have several affiliations for each OTU.' )
