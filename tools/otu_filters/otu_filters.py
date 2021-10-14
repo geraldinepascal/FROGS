@@ -157,18 +157,23 @@ def excluded_obs_on_replicatePresence(input_biom, replicate_file, min_replicate_
     FH_excluded_file = open( excluded_file, "wt" )
     groups_to_replicates = collections.defaultdict(list)
     for l in FH_replicate_file.readlines():
-        l = l.strip().split('\t')
-        groups_to_replicates[l[1].strip()].append(l[0])
+        l = l.strip().split()
+        groups_to_replicates["".join(l[1:]).strip()].append(l[0])
     for observation_name in biom.get_observations_names():
         groups_to_counts = collections.defaultdict(int)
         for sample in biom.get_samples_by_observation(observation_name):
             group = [group for group, replicates in groups_to_replicates.items() if sample['id'] in replicates][0]
             groups_to_counts[group] += 1
-
+        print(observation_name, groups_to_counts)
+        to_exclude = True
         for group, count in groups_to_counts.items():
-            if min_replicate_presence * len(groups_to_replicates[group]) > count:
-                FH_excluded_file.write( observation_name + "\n" )
-                break
+            if min_replicate_presence * len(groups_to_replicates[group]) <= count:
+                to_exclude = False
+            else:
+                print(min_replicate_presence * len(groups_to_replicates[group]), len(groups_to_replicates[group]),count, group)
+        if to_exclude:  
+            FH_excluded_file.write( observation_name + "\n" )
+    FH_excluded_file.close()
 
 def excluded_obs_on_abundance(input_biom, min_abundance, excluded_file):
     """
@@ -380,7 +385,7 @@ def process( args ):
             excluded_obs_on_samplePresence( args.input_biom, args.min_sample_presence, discards[label] )
 
         if args.min_replicate_presence is not None and args.replicate_file is not None:
-            label = "Present in less than " + str(args.min_replicate_presence*100) + "%  of replicates of one group."
+            label = "Present in less than " + str(args.min_replicate_presence*100) + "%  of replicates of all replicate groups."
             discards[label] = tmpFiles.add( "min_replicate_presence")
             excluded_obs_on_replicatePresence( args.input_biom, args.replicate_file, args.min_replicate_presence, discards[label])
 
