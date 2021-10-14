@@ -148,31 +148,37 @@ def excluded_obs_on_samplePresence(input_biom, min_sample_presence, excluded_fil
             FH_excluded_file.write( observation_name + "\n" )
     FH_excluded_file.close()
 
-def excluded_obs_on_replicatePresence(input_biom, replicate_file, min_replicate_presence, excluded_file):
+def excluded_obs_on_replicatePresence(input_biom, replicate_file, min_replicate_presence, log_file, excluded_file):
     """
     @summary:
     """
+    # Files handling
+    FH_log = Logger(log_file)
+    FH_log.write('Replicate groups:\n')
     biom = BiomIO.from_json( input_biom )
     FH_replicate_file = open(replicate_file)
     FH_excluded_file = open( excluded_file, "wt" )
+    # Indentify replicates
     groups_to_replicates = collections.defaultdict(list)
     for l in FH_replicate_file.readlines():
         l = l.strip().split()
         groups_to_replicates["".join(l[1:]).strip()].append(l[0])
+    # Writes replicate groups into log file
+    for group, replicates in groups_to_replicates.items():
+        FH_log.write(group+"\t"+",".join(replicates)+"\n")
+    # Search the excluded clusters
     for observation_name in biom.get_observations_names():
         groups_to_counts = collections.defaultdict(int)
         for sample in biom.get_samples_by_observation(observation_name):
             group = [group for group, replicates in groups_to_replicates.items() if sample['id'] in replicates][0]
             groups_to_counts[group] += 1
-        print(observation_name, groups_to_counts)
         to_exclude = True
         for group, count in groups_to_counts.items():
             if min_replicate_presence * len(groups_to_replicates[group]) <= count:
                 to_exclude = False
-            else:
-                print(min_replicate_presence * len(groups_to_replicates[group]), len(groups_to_replicates[group]),count, group)
         if to_exclude:  
             FH_excluded_file.write( observation_name + "\n" )
+    FH_log.close()
     FH_excluded_file.close()
 
 def excluded_obs_on_abundance(input_biom, min_abundance, excluded_file):
@@ -267,7 +273,7 @@ def write_exclusion( discards, excluded_file ):
             FH_excluded.write( "\t".join(discards_line_fields)  + "\n" )
     FH_excluded.close()
 
-def write_summary( summary_file, input_biom, output_biom, discards ):
+def write_summary( summary_file, input_biom, output_biom, replicate_groups, discards ):
     """
     @summary: Writes the process summary.
     @param summary_file: [str] The path to the output file.
@@ -384,10 +390,14 @@ def process( args ):
             discards[label] = tmpFiles.add( "min_sample_presence" )
             excluded_obs_on_samplePresence( args.input_biom, args.min_sample_presence, discards[label] )
 
-        if args.min_replicate_presence is not None and args.replicate_file is not None:
+        replicate_groups_log = tmpFiles.add( "replicate_groups.txt" )
+        if args.min_replicate_presence is None:
+            FH_log = Logger(replicate_groups_log)
+            FH_log.write('No replicate groups defined\n')
+        elif args.min_replicate_presence is not None and args.replicate_file is not None:
             label = "Present in less than " + str(args.min_replicate_presence*100) + "%  of replicates of all replicate groups."
             discards[label] = tmpFiles.add( "min_replicate_presence")
-            excluded_obs_on_replicatePresence( args.input_biom, args.replicate_file, args.min_replicate_presence, discards[label])
+            excluded_obs_on_replicatePresence( args.input_biom, args.replicate_file, args.min_replicate_presence, replicate_groups_log, discards[label])
 
         if args.min_abundance is not None:
             
@@ -427,7 +437,7 @@ def process( args ):
         update_fasta_log = tmpFiles.add( "update_fasta_log.txt" )
         UpdateFasta( args.output_biom, args.input_fasta, args.output_fasta, update_fasta_log ).submit( args.log_file )
         write_exclusion( discards, args.excluded )
-        write_summary( args.summary, args.input_biom, args.output_biom, discards )
+        write_summary( args.summary, args.input_biom, args.output_biom, replicate_groups_log, discards )
 
     finally:
         if not args.debug : 
