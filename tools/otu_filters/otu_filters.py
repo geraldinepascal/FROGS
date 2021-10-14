@@ -154,7 +154,7 @@ def excluded_obs_on_replicatePresence(input_biom, replicate_file, min_replicate_
     """
     # Files handling
     FH_log = Logger(log_file)
-    FH_log.write('Replicate groups:\n')
+    FH_log.write('#Replicate groups:\n')
     biom = BiomIO.from_json( input_biom )
     FH_replicate_file = open(replicate_file)
     FH_excluded_file = open( excluded_file, "wt" )
@@ -273,7 +273,7 @@ def write_exclusion( discards, excluded_file ):
             FH_excluded.write( "\t".join(discards_line_fields)  + "\n" )
     FH_excluded.close()
 
-def write_summary( summary_file, input_biom, output_biom, replicate_groups, discards ):
+def write_summary( summary_file, input_biom, output_biom, replicate_log, discards ):
     """
     @summary: Writes the process summary.
     @param summary_file: [str] The path to the output file.
@@ -330,6 +330,16 @@ def write_summary( summary_file, input_biom, output_biom, replicate_groups, disc
                 samples_results[sample['id']]['filtered'][filter] += 1
     del in_biom
 
+    # Write replicate groups informations
+    replicate_groups = dict()
+    FH_replicate_log = open(replicate_log)
+    for line in FH_replicate_log:
+        if not line.startswith('#'):
+            line = line.strip().split('\t')
+            replicate_groups[line[0]] = { 
+            'Replicates' : line[1]
+            }
+
     # Global after filters
     out_biom = BiomIO.from_json( output_biom )
     for observation_name in out_biom.get_observations_names():
@@ -349,6 +359,8 @@ def write_summary( summary_file, input_biom, output_biom, replicate_groups, disc
             line = line.replace( "###GLOBAL_RESULTS###", json.dumps(global_results) )
         elif "###SAMPLES_RESULTS###" in line:
             line = line.replace( "###SAMPLES_RESULTS###", json.dumps(samples_results) )
+        elif "###REPLICATE_GROUPS###" in line:
+            line = line.replace( "###REPLICATE_GROUPS###", json.dumps(replicate_groups) )
         elif "###FILTERS_RESULTS###" in line:
             line = line.replace( "###FILTERS_RESULTS###", json.dumps(list(filters_results.values())) )
         FH_summary_out.write( line )

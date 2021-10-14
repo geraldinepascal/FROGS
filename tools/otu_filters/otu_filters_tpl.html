@@ -550,6 +550,26 @@
 				});
 			}
 
+			var replicate_groups_load = function( container_id ){
+				var group_table_titles = $.merge( ["Name", "Replicates"]);
+				var group_table_data = new Array();
+				for( var group in replicate_groups ){
+					group_data = [group, replicate_groups[group]['Replicates']];
+					group_table_data.push( group_data );
+				}
+				$('#' + container_id).append( table("OTUs removed by sample", group_table_titles, group_table_data) );
+				$('#' + container_id + ' table').prop( 'id', 'details-table' );
+				$('#' + container_id + ' table').DataTable({
+					dom: 	"<'#details-csv-export'><'row'<'col-sm-5'l><'col-sm-7'f>>" +
+							"<'row'<'col-sm-12'tr>>" +
+							"<'row'<'col-sm-5'i><'col-sm-7'p>>"
+				});
+				$('#details-csv-export').html( '<button class="btn"><span class="fa fa-download" aria-hidden="true"> CSV</span></button>' );
+				$('#details-csv-export').addClass( 'dataTables_filter' );
+				$('#details-csv-export').datatableExport({
+					'table_id': "details-table"
+				});
+			}
 
 			///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 			//
@@ -589,11 +609,14 @@
 					}
 				}
 			*/
+			var replicate_groups = ###REPLICATE_GROUPS### ;
+
+
 			var by_filters_results = ###FILTERS_RESULTS### ;
 			/* Example:
 				[
 					{'filters':['filterA'], 'count': 10},
-					{'filters':['filterB'], 'count': 20},
+					{'filters':['filterB'], 'count': 20}replicate_groups,
 					{'filters':['filterC'], 'count': 30},
 					{'filters':['filterA', 'filterB'], 'count': 1},
 					{'filters':['filterA', 'filterC'], 'count': 2},
@@ -624,6 +647,11 @@
 						$('#view-by-samples').removeClass('disabled')
 						samples_filters_load( "filter-log" );
 					}
+					if( $(this).attr('href') == "#view-by-replicates" && $('#view-by-replicates').hasClass('disabled') )
+						{
+						$('#view-by-replicates').removeClass('disabled')
+						replicate_groups_load( "replicate-log" );
+					}
 				})
 			});
 		</script>
@@ -641,6 +669,7 @@
         	<ul class="nav nav-tabs">
 				<li class="nav-item active"><a class="nav-link active" href="#view-by-filters">Filters by OTUs</a></li>
 				<li class="nav-item"><a class="nav-link" href="#view-by-samples">Filters by samples</a></li>
+				<li class="nav-item"><a class="nav-link" href="#view-by-replicates">Replicate Groups</a></li>
 			</ul>
 
 			<div id="tab-content" class="tab-content">
@@ -668,6 +697,11 @@
                 <div id="view-by-samples" role="tabpanel" class="tab-pane disabled">
 					<h2 class="pb-2 mt-4 mb-2 border-bottom">Details by samples</h2>
 		            <div id="filter-log"></div>
+                </div>
+
+                <div id="view-by-replicates" role="tabpanel" class="tab-pane disabled">
+					<h2 class="pb-2 mt-4 mb-2 border-bottom">Replicate groups</h2>
+		            <div id="replicate-log"></div>
                 </div>
             </div>
         </div>
