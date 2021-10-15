@@ -554,13 +554,13 @@
 				var group_table_titles = $.merge( ["Name", "Replicates"]);
 				var group_table_data = new Array();
 				for( var group in replicate_groups ){
-					group_data = [group, replicate_groups[group]['Replicates']];
+					group_data = [group, replicate_groups[group]['Replicates']] ;
 					group_table_data.push( group_data );
 				}
 				$('#' + container_id).append( table("OTUs removed by sample", group_table_titles, group_table_data) );
 				$('#' + container_id + ' table').prop( 'id', 'details-table' );
 				$('#' + container_id + ' table').DataTable({
-					dom: 	"<'#details-csv-export'><'row'<'col-sm-5'l><'col-sm-7'f>>" +
+					dom:	"<'#details-csv-export'><'row'<'col-sm-5'l><'col-sm-7'f>>" +
 							"<'row'<'col-sm-12'tr>>" +
 							"<'row'<'col-sm-5'i><'col-sm-7'p>>"
 				});
