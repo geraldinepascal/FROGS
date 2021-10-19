@@ -121,10 +121,10 @@ class Biom2tsv(Cmd):
 
 def excluded_sequence(in_marker, out_seqtab, excluded):
 	"""
-	@summary: Returns the excluded sequence, not insert into reference tree.
-	@param fasta_file: [str] Path to the fasta file to process.
-	@param tree_file: [str] Path to the tree file to process.
-	@output: The file of no aligned sequence names.
+	@summary: Returns the excluded sequence, that have a NSTI score above the NSTI threshold.
+	@param in_marker: [str] Path to FPStep2 marker file to process.
+	@param out_seqtab: [str] Path to FPStep3 seqtab file to process.
+	@output: The file of excluded sequence names.
 	"""
 	marker_file = open( in_marker )
 	seqtab_file = open( out_seqtab )
@@ -145,11 +145,10 @@ def excluded_sequence(in_marker, out_seqtab, excluded):
 def write_summary(in_biom, strat_file, excluded, summary_file):
 	"""
 	@summary: Writes the process summary in one html file.
+	@param in_biom: [str] path to the input BIOM file.
+	@param strat_file: [str] path to the gene abondancies fonction file.
+	@param excluded: [str] The file of excluded sequence names.
 	@param summary_file: [str] path to the output html file.
-	@param align_out: [str] path to the fasta file of unaligned OTU
-	@param biomfile: [str] path to the input BIOM file.
-	@param closest_ref_files: [str] Path to tmp colest ref file.
-	@param category: ITS or 16S
 	"""
 	# to summary OTUs number && abundances number
 	summary_info = {
@@ -173,7 +172,7 @@ def write_summary(in_biom, strat_file, excluded, summary_file):
 
 	summary_info['nb_kept'] = number_otu_all - summary_info['nb_removed']
 	summary_info['abundance_kept'] = number_abundance_all - summary_info['abundance_removed']
-	
+
 	# function abundances table			   
 	infos_otus = list()
 	details_categorys =["Function", "Description" ,"Observation_sum"]
