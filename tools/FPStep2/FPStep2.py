@@ -161,7 +161,7 @@ def write_summary( output_marker, depth_nsti_file, summary_file ):
 	depth_nsti = open(output_marker).readlines()
 	FH_log = Logger( depth_nsti_file )
 	FH_log.write("#nsti\tnb_clust_kept\n")
-	step_nsti = [i/50 for i in range(0,6)] + [i/10 for i in range(2,11)] + [i/5 for i in range(6,11)]
+	step_nsti = [i/50 for i in range(0,101)] 
 	cluster_kept = dict()
 	for cur_nsti in step_nsti:
 		cluster_kept[cur_nsti] = []
@@ -170,10 +170,10 @@ def write_summary( output_marker, depth_nsti_file, summary_file ):
 			if float(li[2]) <= cur_nsti:
 				cluster_kept[cur_nsti].append(li[0])
 	clusters_size = list()
-	counts = list()
+	nstis = list()
 	for nsti,clusters in cluster_kept.items():
 		clusters_size.append(len(clusters))
-		counts.append(nsti)
+		nstis.append(nsti)
 		FH_log.write("\t".join([str(nsti), str(len(clusters))])+"\n")
 	FH_log.close()
 
@@ -182,8 +182,8 @@ def write_summary( output_marker, depth_nsti_file, summary_file ):
 	for line in FH_summary_tpl:
 		if "###CLUSTERS_SIZES###" in line:
 			line = line.replace( "###CLUSTERS_SIZES###", json.dumps(clusters_size) )
-		elif "###DATA_COUNTS###" in line:
-			line = line.replace( "###DATA_COUNTS###", json.dumps(counts) )
+		elif "###NSTI_THRESH###" in line:
+			line = line.replace( "###NSTI_THRESH###", json.dumps(nstis) )
 		FH_summary_out.write( line )
 	FH_summary_out.close()
 	FH_summary_tpl.close()
