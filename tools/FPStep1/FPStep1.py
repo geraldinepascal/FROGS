@@ -150,7 +150,6 @@ def excluded_sequence(tree_file, in_fasta, excluded):
 	line = file.readline()
 	list_cluster = re.findall("(Cluster_[0-9]+)", line)
 	file.close()
-
 	FH_input = FastaIO(in_fasta)
 	excluded = open(excluded, "wt")
 
@@ -160,7 +159,6 @@ def excluded_sequence(tree_file, in_fasta, excluded):
 			excluded.write(record.id+"\n")
 			no_excluded = False
 	FH_input.close()
-
 	if no_excluded:
 		excluded.write('No excluded OTUs.\n')
 	excluded.close()

@@ -137,12 +137,12 @@ def excluded_sequence(in_marker, out_seqtab, excluded):
 			no_excluded = False
 			excluded.write(cluster+"\n")
 	if no_excluded:
-		excluded.write('No excluded OTUs.\n')
+		excluded.write('#No excluded OTUs.\n')
 	excluded.close()
 	marker_file.close()
 	seqtab_file.close()
 
-def write_summary(strat_file, summary_file):
+def write_summary(in_biom, strat_file, excluded, summary_file):
 	"""
 	@summary: Writes the process summary in one html file.
 	@param summary_file: [str] path to the output html file.
@@ -151,7 +151,30 @@ def write_summary(strat_file, summary_file):
 	@param closest_ref_files: [str] Path to tmp colest ref file.
 	@param category: ITS or 16S
 	"""
-	# to summary OTUs number && abundances number			   
+	# to summary OTUs number && abundances number
+	summary_info = {
+	   'nb_kept' : 0,
+	   'nb_removed' : 0,
+	   'abundance_kept' : 0,
+	   'abundance_removed' : 0	   
+	}
+	number_otu_all = 0
+	number_abundance_all = 0
+
+	biom=BiomIO.from_json(in_biom)
+	for otu in biom.get_observations_names():
+		number_otu_all +=1
+		number_abundance_all += biom.get_observation_count(otu)
+	excluded_clusters = open( excluded ).readlines()
+	if not excluded_clusters[0].startswith('#'):
+		for otu in excluded_clusters:
+			summary_info['nb_removed'] +=1
+			summary_info['abundance_removed'] += biom.get_observation_count(otu.strip())
+
+	summary_info['nb_kept'] = number_otu_all - summary_info['nb_removed']
+	summary_info['abundance_kept'] = number_abundance_all - summary_info['abundance_removed']
+	
+	# function abundances table			   
 	infos_otus = list()
 	details_categorys =["Function", "Description" ,"Observation_sum"]
 	START_GENBANK_LINK = "<a href='https://www.genome.jp/dbget-bin/www_bget?"
@@ -186,6 +209,7 @@ def write_summary(strat_file, summary_file):
 			'name': li[0],
 			'data': list(map(str,li[1:]))
 			})
+	abund.close()
 	# record details about removed OTU
 
 	FH_summary_tpl = open( os.path.join(CURRENT_DIR, "FPStep3_tpl.html") )
@@ -194,8 +218,10 @@ def write_summary(strat_file, summary_file):
 	for line in FH_summary_tpl:
 		if "###DETECTION_CATEGORIES###" in line:
 			line = line.replace( "###DETECTION_CATEGORIES###", json.dumps(details_categorys) )
-		if "###DETECTION_DATA###" in line:
+		elif "###DETECTION_DATA###" in line:
 			line = line.replace( "###DETECTION_DATA###", json.dumps(infos_otus) )
+		elif "###REMOVE_DATA###" in line:
+			line = line.replace( "###REMOVE_DATA###", json.dumps(summary_info) )
 		FH_summary_out.write( line )
 
 	FH_summary_out.close()
@@ -214,7 +240,7 @@ if __name__ == "__main__":
 	parser.add_argument('--strat_out', default=False, action='store_true', help='Output table stratified by sequences as well. By default this will be in \"contributional\" format ''(i.e. long-format) unless the \"--wide_table\" ''option is set. The startified outfile is named ''\"metagenome_contrib.tsv.gz\" when in long-format.')
 	# Inputs
 	group_input = parser.add_argument_group( 'Inputs' )
-	group_input.add_argument('-b', '--input_biom', required=True, type=str, help='Input table of sequence abundances (BIOM file used in FPStep1).')
+	group_input.add_argument('-b', '--input_biom', required=True, type=str, help='FPStep1 sequence abundances output file (FPStep1.biom).')
 	group_input.add_argument('-f', '--function', required=True, type=str, help='Table of predicted gene family copy numbers ''(FPStep2 output, ex FPStep2_all_predicted.tsv).')
 	group_input.add_argument('-m', '--marker', required=True, type=str, help='Table of predicted marker gene copy numbers ''(FPStep2 output, ex FPStep2_marker_nsti_predicted.tsv.')
 	group_input.add_argument('--add_description', default=False, action='store_true', help='Flag to adds a description column to the function abundance table')
@@ -257,7 +283,7 @@ if __name__ == "__main__":
 			pred_file = args.function_abund
 			AddDescriptions(pred_file,  description_file, pred_file, tmp_add_descriptions).submit( args.log_file)
 
-		write_summary(args.function_abund, args.html)
+		write_summary(args.input_biom, args.function_abund, args.excluded, args.html)
 	finally:
 		if not args.debug:
 			tmp_files.deleteAll()
