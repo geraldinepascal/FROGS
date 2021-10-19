@@ -119,6 +119,29 @@ class Biom2tsv(Cmd):
 #
 ##################################################################################################################################################
 
+def excluded_sequence(in_marker, out_seqtab, excluded):
+	"""
+	@summary: Returns the excluded sequence, not insert into reference tree.
+	@param fasta_file: [str] Path to the fasta file to process.
+	@param tree_file: [str] Path to the tree file to process.
+	@output: The file of no aligned sequence names.
+	"""
+	marker_file = open( in_marker )
+	seqtab_file = open( out_seqtab )
+	excluded = open(excluded, "wt")
+	clusters_in = [ li.strip().split('\t')[0] for li in marker_file.readlines()[1:]]
+	clusters_out = [ li.strip().split('\t')[0] for li in seqtab_file.readlines()[1:]]
+	no_excluded = True
+	for cluster in clusters_in:
+		if cluster not in clusters_out:
+			no_excluded = False
+			excluded.write(cluster+"\n")
+	if no_excluded:
+		excluded.write('No excluded OTUs.\n')
+	excluded.close()
+	marker_file.close()
+	seqtab_file.close()
+
 def write_summary(strat_file, summary_file):
 	"""
 	@summary: Writes the process summary in one html file.
@@ -204,6 +227,7 @@ if __name__ == "__main__":
 	group_output.add_argument('--seqtab', default='FPStep3_seqtab_norm.tsv', help='This output file will contain abundance normalized. (default: %(default)s).')
 	group_output.add_argument('--weighted', default='FPStep3_weighted_nsti.tsv', help='This output file will contain the nsti value per sample (format: TSV). [Default: %(default)s]' )
 	group_output.add_argument('--contrib', default=None, help=' Stratified output that represents contributions to community-wide abundances (ex pred_metagenome_contrib.tsv)')
+	group_output.add_argument('-e', '--excluded', default='FPStep3_excluded.txt', help='List of sequences with NSTI values above NSTI threshold ( --max_NSTI NSTI ).')
 	group_output.add_argument('-l', '--log_file', default=sys.stdout, help='List of commands executed.')
 	group_output.add_argument('-t', '--html', default='FPStep3_summary.html', help="Path to store resulting html file. [Default: %(default)s]" )	
 	args = parser.parse_args()
@@ -224,6 +248,8 @@ if __name__ == "__main__":
 
 		tmp_metag_pipeline = tmp_files.add( 'tmp_metagenome_pipeline.log' )	
 		MetagenomePipeline(tmp_biom_to_tsv, args.marker, args.function, args.max_nsti, args.min_reads, args.min_samples, args.strat_out, args.function_abund, args.seqtab, args.weighted, args.contrib, tmp_metag_pipeline).submit( args.log_file )
+		
+		excluded_sequence(args.marker, args.seqtab, args.excluded)
 
 		if args.add_description != None:
 			description_file = os.path.abspath(os.path.join(os.path.dirname(CURRENT_DIR), "default_files/pathways_description_file.txt.gz"))
