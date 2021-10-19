@@ -646,8 +646,7 @@
 					if( $(this).attr('href') == "#view-by-samples" && $('#view-by-samples').hasClass('disabled') ){
 						$('#view-by-samples').removeClass('disabled')
 						samples_filters_load( "filter-log" );
-					}
-					if( $(this).attr('href') == "#view-by-replicates" && $('#view-by-replicates').hasClass('disabled') )
+					} else if ( $(this).attr('href') == "#view-by-replicates" && $('#view-by-replicates').hasClass('disabled') )
 						{
 						$('#view-by-replicates').removeClass('disabled')
 						replicate_groups_load( "replicate-log" );

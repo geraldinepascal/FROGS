@@ -155,6 +155,39 @@ def check_functions( functions ):
 			raise_exception( argparse.ArgumentTypeError( "\n\n#ERROR : With '--function' parameter: " + function + " not a valid function.\n\n" ))
 	return functions
 
+def write_summary( output_marker, depth_nsti_file, summary_file ):
+	"""
+	"""
+	depth_nsti = open(output_marker).readlines()
+	FH_log = Logger( depth_nsti_file )
+	FH_log.write("#nsti\tnb_clust_kept\n")
+	step_nsti = [i/50 for i in range(0,6)] + [i/10 for i in range(2,11)] + [i/5 for i in range(6,11)]
+	cluster_kept = dict()
+	for cur_nsti in step_nsti:
+		cluster_kept[cur_nsti] = []
+		for li in depth_nsti[1:]:
+			li = li.strip().split('\t')
+			if float(li[2]) <= cur_nsti:
+				cluster_kept[cur_nsti].append(li[0])
+	clusters_size = list()
+	counts = list()
+	for nsti,clusters in cluster_kept.items():
+		clusters_size.append(len(clusters))
+		counts.append(nsti)
+		FH_log.write("\t".join([str(nsti), str(len(clusters))])+"\n")
+	FH_log.close()
+
+	FH_summary_tpl = open( os.path.join(CURRENT_DIR, "FPStep2_tpl.html") )
+	FH_summary_out = open( summary_file, "wt" )
+	for line in FH_summary_tpl:
+		if "###CLUSTERS_SIZES###" in line:
+			line = line.replace( "###CLUSTERS_SIZES###", json.dumps(clusters_size) )
+		elif "###DATA_COUNTS###" in line:
+			line = line.replace( "###DATA_COUNTS###", json.dumps(counts) )
+		FH_summary_out.write( line )
+	FH_summary_out.close()
+	FH_summary_tpl.close()
+
 ##################################################################################################################################################
 #
 # MAIN
@@ -178,6 +211,7 @@ if __name__ == "__main__":
 	group_output.add_argument('-m', '--output_marker', default="FPStep2_marker_copy_number.tsv", type=str, help='Output table of predicted marker gene copy numbers per study sequence in input tree. If the extension \".gz\" is added the table will automatically be gzipped.')
 	group_output.add_argument('-o', '--output_function', default="FPStep2_predicted_functions.tsv", type=str, help='Output table with predicted abundances per study sequence in input tree. If the extension \".gz\" is added the table will automatically be gzipped.')
 	group_output.add_argument('-l', '--log_file', default=sys.stdout, help='List of commands executed.')
+	group_output.add_argument('--html', default='FPStep2_summary.html', help="Path to store resulting html file. [Default: %(default)s]" )
 	args = parser.parse_args()
 	prevent_shell_injections(args)
 
@@ -204,8 +238,10 @@ if __name__ == "__main__":
 		tmp_hsp_marker = tmp_files.add( 'tmp_hsp_marker.log' )
 		HspMarker(args.observed_marker_table, args.tree, args.hsp_method, args.output_marker, args.output_function, tmp_hsp_marker).submit(args.log_file)
 
-		tmp_hsp_function = tmp_files.add( 'tmp_hsp_function.log' )
+		tmp_depth_nsti = tmp_files.add( 'depth_nsti.txt' )
+		write_summary(args.output_marker, tmp_depth_nsti, args.html)
 
+		tmp_hsp_function = tmp_files.add( 'tmp_hsp_function.log' )
 		if args.in_trait is not None:
 			in_traits = check_functions(args.in_trait)
 
