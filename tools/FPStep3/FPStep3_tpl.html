@@ -277,10 +277,24 @@
 			$(function() {
 				var detection_categories = ###DETECTION_CATEGORIES### ;
 				var detection_series = ###DETECTION_DATA### ;
+				var remove_info = ###REMOVE_DATA### ;
 				// Remove alert
 				// Display chimera detection data
 				var table_categories = detection_categories.slice() ;
 				var table_series = new Array();
+
+			 	// Display remove data
+				var nb_filtered_data = [
+					['Inserted', remove_info['nb_kept']],
+					['Removed', remove_info['nb_removed']]
+				];
+				$('#nb-filtered').highcharts( pie_param('Clusters', nb_filtered_data, 'Clusters') );
+				var abundance_filtered_data = [
+  					['Inserted', remove_info['abundance_kept']],
+  					['Removed', remove_info['abundance_removed']]
+  				];
+				$('#abundance-filtered').highcharts( pie_param('Abundance', abundance_filtered_data, 'Sequences') );
+
 				for( var spl_idx = 0 ; spl_idx < detection_series.length ; spl_idx++ ){
 					var nb_by_step = detection_series[spl_idx]['data'].slice() ;
 					nb_by_step.unshift( detection_series[spl_idx]['name'] );
@@ -311,6 +325,15 @@
 		
 		<!-- Content -->
 		<div id="content" class="hidden">
+			<div id="filter-summary">
+        		<h2 class="pb-2 mt-4 mb-2 border-bottom">OTUs below the NSTI threshold
+
+</h2>
+        		<div class="row">
+	        		<div id="nb-filtered" class="col-md-6"></div> 
+	        		<div id="abundance-filtered" class="col-md-6"></div>
+        		</div>
+			</div>
 			<div id="filter-log">
 				<h2 class="pb-2 mt-4 mb-2 border-bottom">Gene families abundances per samples</h2>
 			</div>

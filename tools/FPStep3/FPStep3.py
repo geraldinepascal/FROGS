@@ -119,16 +119,61 @@ class Biom2tsv(Cmd):
 #
 ##################################################################################################################################################
 
-def write_summary(strat_file, summary_file):
+def excluded_sequence(in_marker, out_seqtab, excluded):
+	"""
+	@summary: Returns the excluded sequence, that have a NSTI score above the NSTI threshold.
+	@param in_marker: [str] Path to FPStep2 marker file to process.
+	@param out_seqtab: [str] Path to FPStep3 seqtab file to process.
+	@output: The file of excluded sequence names.
+	"""
+	marker_file = open( in_marker )
+	seqtab_file = open( out_seqtab )
+	excluded = open(excluded, "wt")
+	clusters_in = [ li.strip().split('\t')[0] for li in marker_file.readlines()[1:]]
+	clusters_out = [ li.strip().split('\t')[0] for li in seqtab_file.readlines()[1:]]
+	no_excluded = True
+	for cluster in clusters_in:
+		if cluster not in clusters_out:
+			no_excluded = False
+			excluded.write(cluster+"\n")
+	if no_excluded:
+		excluded.write('#No excluded OTUs.\n')
+	excluded.close()
+	marker_file.close()
+	seqtab_file.close()
+
+def write_summary(in_biom, strat_file, excluded, summary_file):
 	"""
 	@summary: Writes the process summary in one html file.
+	@param in_biom: [str] path to the input BIOM file.
+	@param strat_file: [str] path to the gene abondancies fonction file.
+	@param excluded: [str] The file of excluded sequence names.
 	@param summary_file: [str] path to the output html file.
-	@param align_out: [str] path to the fasta file of unaligned OTU
-	@param biomfile: [str] path to the input BIOM file.
-	@param closest_ref_files: [str] Path to tmp colest ref file.
-	@param category: ITS or 16S
 	"""
-	# to summary OTUs number && abundances number			   
+	# to summary OTUs number && abundances number
+	summary_info = {
+	   'nb_kept' : 0,
+	   'nb_removed' : 0,
+	   'abundance_kept' : 0,
+	   'abundance_removed' : 0	   
+	}
+	number_otu_all = 0
+	number_abundance_all = 0
+
+	biom=BiomIO.from_json(in_biom)
+	for otu in biom.get_observations_names():
+		number_otu_all +=1
+		number_abundance_all += biom.get_observation_count(otu)
+	excluded_clusters = open( excluded ).readlines()
+	if not excluded_clusters[0].startswith('#'):
+		for otu in excluded_clusters:
+			summary_info['nb_removed'] +=1
+			summary_info['abundance_removed'] += biom.get_observation_count(otu.strip())
+
+	summary_info['nb_kept'] = number_otu_all - summary_info['nb_removed']
+	summary_info['abundance_kept'] = number_abundance_all - summary_info['abundance_removed']
+
+	# function abundances table			   
 	infos_otus = list()
 	details_categorys =["Function", "Description" ,"Observation_sum"]
 	START_GENBANK_LINK = "<a href='https://www.genome.jp/dbget-bin/www_bget?"
@@ -163,6 +208,7 @@ def write_summary(strat_file, summary_file):
 			'name': li[0],
 			'data': list(map(str,li[1:]))
 			})
+	abund.close()
 	# record details about removed OTU
 
 	FH_summary_tpl = open( os.path.join(CURRENT_DIR, "FPStep3_tpl.html") )
@@ -171,8 +217,10 @@ def write_summary(strat_file, summary_file):
 	for line in FH_summary_tpl:
 		if "###DETECTION_CATEGORIES###" in line:
 			line = line.replace( "###DETECTION_CATEGORIES###", json.dumps(details_categorys) )
-		if "###DETECTION_DATA###" in line:
+		elif "###DETECTION_DATA###" in line:
 			line = line.replace( "###DETECTION_DATA###", json.dumps(infos_otus) )
+		elif "###REMOVE_DATA###" in line:
+			line = line.replace( "###REMOVE_DATA###", json.dumps(summary_info) )
 		FH_summary_out.write( line )
 
 	FH_summary_out.close()
@@ -191,7 +239,7 @@ if __name__ == "__main__":
 	parser.add_argument('--strat_out', default=False, action='store_true', help='Output table stratified by sequences as well. By default this will be in \"contributional\" format ''(i.e. long-format) unless the \"--wide_table\" ''option is set. The startified outfile is named ''\"metagenome_contrib.tsv.gz\" when in long-format.')
 	# Inputs
 	group_input = parser.add_argument_group( 'Inputs' )
-	group_input.add_argument('-b', '--input_biom', required=True, type=str, help='Input table of sequence abundances (BIOM file used in FPStep1).')
+	group_input.add_argument('-b', '--input_biom', required=True, type=str, help='FPStep1 sequence abundances output file (FPStep1.biom).')
 	group_input.add_argument('-f', '--function', required=True, type=str, help='Table of predicted gene family copy numbers ''(FPStep2 output, ex FPStep2_all_predicted.tsv).')
 	group_input.add_argument('-m', '--marker', required=True, type=str, help='Table of predicted marker gene copy numbers ''(FPStep2 output, ex FPStep2_marker_nsti_predicted.tsv.')
 	group_input.add_argument('--add_description', default=False, action='store_true', help='Flag to adds a description column to the function abundance table')
@@ -204,6 +252,7 @@ if __name__ == "__main__":
 	group_output.add_argument('--seqtab', default='FPStep3_seqtab_norm.tsv', help='This output file will contain abundance normalized. (default: %(default)s).')
 	group_output.add_argument('--weighted', default='FPStep3_weighted_nsti.tsv', help='This output file will contain the nsti value per sample (format: TSV). [Default: %(default)s]' )
 	group_output.add_argument('--contrib', default=None, help=' Stratified output that represents contributions to community-wide abundances (ex pred_metagenome_contrib.tsv)')
+	group_output.add_argument('-e', '--excluded', default='FPStep3_excluded.txt', help='List of sequences with NSTI values above NSTI threshold ( --max_NSTI NSTI ).')
 	group_output.add_argument('-l', '--log_file', default=sys.stdout, help='List of commands executed.')
 	group_output.add_argument('-t', '--html', default='FPStep3_summary.html', help="Path to store resulting html file. [Default: %(default)s]" )	
 	args = parser.parse_args()
@@ -224,6 +273,8 @@ if __name__ == "__main__":
 
 		tmp_metag_pipeline = tmp_files.add( 'tmp_metagenome_pipeline.log' )	
 		MetagenomePipeline(tmp_biom_to_tsv, args.marker, args.function, args.max_nsti, args.min_reads, args.min_samples, args.strat_out, args.function_abund, args.seqtab, args.weighted, args.contrib, tmp_metag_pipeline).submit( args.log_file )
+		
+		excluded_sequence(args.marker, args.seqtab, args.excluded)
 
 		if args.add_description != None:
 			description_file = os.path.abspath(os.path.join(os.path.dirname(CURRENT_DIR), "default_files/pathways_description_file.txt.gz"))
@@ -231,7 +282,7 @@ if __name__ == "__main__":
 			pred_file = args.function_abund
 			AddDescriptions(pred_file,  description_file, pred_file, tmp_add_descriptions).submit( args.log_file)
 
-		write_summary(args.function_abund, args.html)
+		write_summary(args.input_biom, args.function_abund, args.excluded, args.html)
 	finally:
 		if not args.debug:
 			tmp_files.deleteAll()

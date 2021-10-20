@@ -132,6 +132,7 @@ def write_summary( summary_file, input_biom, depth_file, classif_file ):
     counts = list()
     FH_depth = open( depth_file )
     for line in FH_depth:
+        print(line)
         if not line.startswith('#'):
             fields = line.strip().split()
             if fields[1] != "0":

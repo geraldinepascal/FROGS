@@ -155,6 +155,44 @@ def check_functions( functions ):
 			raise_exception( argparse.ArgumentTypeError( "\n\n#ERROR : With '--function' parameter: " + function + " not a valid function.\n\n" ))
 	return functions
 
+def write_summary(biom_file, output_marker, depth_nsti_file, summary_file ):
+	"""
+	"""
+	depth_nsti = open(output_marker).readlines()
+	biom=BiomIO.from_json(biom_file)
+	FH_log = Logger( depth_nsti_file )
+	FH_log.write("#nsti\tnb_clust_kept\tnb_abundances_kept\n")
+	step_nsti = [i/50 for i in range(0,101)] 
+	cluster_kept = dict()
+	for cur_nsti in step_nsti:
+		cluster_kept[cur_nsti] = { 'Nb' : [], 'Abundances' : 0 }
+		for li in depth_nsti[1:]:
+			li = li.strip().split('\t')
+			if float(li[2]) <= cur_nsti:
+				cluster_kept[cur_nsti]['Nb'].append(li[0])
+				cluster_kept[cur_nsti]['Abundances']+=biom.get_observation_count(li[0])
+	clusters_size = list()
+	abundances_size = list()
+	nstis = list()
+	for nsti,clusters in cluster_kept.items():
+		clusters_size.append(len(clusters['Nb']))
+		abundances_size.append(clusters['Abundances'])
+		nstis.append(nsti)
+		FH_log.write("\t".join([str(nsti), str(len(clusters['Nb'])), str(clusters['Abundances']) ])+"\n")
+	FH_log.close()
+	FH_summary_tpl = open( os.path.join(CURRENT_DIR, "FPStep2_tpl.html") )
+	FH_summary_out = open( summary_file, "wt" )
+	for line in FH_summary_tpl:
+		if "###CLUSTERS_SIZES###" in line:
+			line = line.replace( "###CLUSTERS_SIZES###", json.dumps(clusters_size) )
+		elif "###ABUNDANCES_SIZES###" in line:
+			line = line.replace( "###ABUNDANCES_SIZES###", json.dumps( abundances_size) )
+		elif "###NSTI_THRESH###" in line:
+			line = line.replace( "###NSTI_THRESH###", json.dumps(nstis) )
+		FH_summary_out.write( line )
+	FH_summary_out.close()
+	FH_summary_tpl.close()
+
 ##################################################################################################################################################
 #
 # MAIN
@@ -168,6 +206,7 @@ if __name__ == "__main__":
 	parser.add_argument( '--debug', default=False, action='store_true', help="Keep temporary files to debug program." )
 	# Inputs
 	group_input = parser.add_argument_group( 'Inputs' )
+	group_input.add_argument('-b', '--input_biom', required=True, help='Biom file.')
 	group_input.add_argument('-i', '--in_trait', default="EC",help="For 16S marker input: Specifies which default trait table should be used ('EC', 'KO', 'COG', PFAM', 'TIGRFAM' or 'PHENO'). EC is used by default because necessary for FPStep4. To run the command with several functions, separate the functions with commas (ex: KO,PFAM). (for ITS or 18S : only EC available)")
 	group_input.add_argument('--observed_marker_table',help="The input marker table describing directly observed traits (e.g. sequenced genomes) in tab-delimited format. Necessary if you don't work on 16S marker. (ex $PICRUST2_PATH/default_files/fungi/ITS_counts.txt.gz). This input is required when the --observed_trait_table option is set. ")
 	group_input.add_argument('--observed_trait_table',help="The input trait table describing directly observed traits (e.g. sequenced genomes) in tab-delimited format. Necessary if you don't work on 16S marker. (ex $PICRUST2_PATH/default_files/fungi/ec_ITS_counts.txt.gz). This input is required when the --observed_marker_table option is set. ")
@@ -178,6 +217,7 @@ if __name__ == "__main__":
 	group_output.add_argument('-m', '--output_marker', default="FPStep2_marker_copy_number.tsv", type=str, help='Output table of predicted marker gene copy numbers per study sequence in input tree. If the extension \".gz\" is added the table will automatically be gzipped.')
 	group_output.add_argument('-o', '--output_function', default="FPStep2_predicted_functions.tsv", type=str, help='Output table with predicted abundances per study sequence in input tree. If the extension \".gz\" is added the table will automatically be gzipped.')
 	group_output.add_argument('-l', '--log_file', default=sys.stdout, help='List of commands executed.')
+	group_output.add_argument('--html', default='FPStep2_summary.html', help="Path to store resulting html file. [Default: %(default)s]" )
 	args = parser.parse_args()
 	prevent_shell_injections(args)
 
@@ -204,8 +244,10 @@ if __name__ == "__main__":
 		tmp_hsp_marker = tmp_files.add( 'tmp_hsp_marker.log' )
 		HspMarker(args.observed_marker_table, args.tree, args.hsp_method, args.output_marker, args.output_function, tmp_hsp_marker).submit(args.log_file)
 
-		tmp_hsp_function = tmp_files.add( 'tmp_hsp_function.log' )
+		tmp_depth_nsti = tmp_files.add( 'depth_nsti.txt' )
+		write_summary(args.input_biom, args.output_marker, tmp_depth_nsti, args.html)
 
+		tmp_hsp_function = tmp_files.add( 'tmp_hsp_function.log' )
 		if args.in_trait is not None:
 			in_traits = check_functions(args.in_trait)
 
