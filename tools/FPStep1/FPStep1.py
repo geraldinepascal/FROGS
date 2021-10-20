@@ -160,7 +160,7 @@ def excluded_sequence(tree_file, in_fasta, excluded):
 			no_excluded = False
 	FH_input.close()
 	if no_excluded:
-		excluded.write('No excluded OTUs.\n')
+		excluded.write('#No excluded OTUs.\n')
 	excluded.close()
 
 def restricted_float(in_arg):
@@ -196,7 +196,7 @@ def write_summary(in_fasta, align_out, biomfile, closest_ref_file, category, sum
 	number_otu_all = 0
 	number_abundance_all = 0
 	# to detail removed OTU
-	details_categorys =["FROGS Taxonomy","Picrust2 closest ID","Picrust2 closest reference name","Picrust2 closest taxonomy","Picrust2 closest distance from cluster","Comment"]
+	details_categorys =["FROGS Taxonomy","Picrust2 closest ID","Picrust2 closest reference name","Picrust2 closest taxonomy","Picrust2 closest distance from cluster","Comment", "Picrust2 closest reference sequence"]
 	infos_otus = list()
 	biom=BiomIO.from_json(biomfile)
 	list_otu_all = []
