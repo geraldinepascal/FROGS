@@ -144,8 +144,8 @@ def find_closest_ref_sequences(tree, biom, biom_path, cluster_to_multiaffi, ID_t
 	@param biom cluster_to_multi_affi: [dico] Associate each FROGS cluster to its multi-affiliations.
 	@param ID_to_taxo: [dico] Associate each picrust2 ref sequence to its taxonomy.
 	@param ref_seqs: [dico] Assign each picrust ref sequence name to its sequence.
-	@param clusters: [list] clusters insert in tree (find_clusters output).
-	@ref_file: [str] path to reference map file in order to have taxonomies informations.
+	@param clusters_to_seq: [list] clusters insert in tree and their sequences(find_clusters output).
+	@param output: [str] path to tmp output file in order to write frogs and picrust2 taxonomic comparaisons.
     """
 	FH_out = open(output,'wt')
 
@@ -162,7 +162,6 @@ def find_closest_ref_sequences(tree, biom, biom_path, cluster_to_multiaffi, ID_t
 				# if sequence in sister group is not another cluster
 				if leaf.name not in clusters:
 					leaf_to_dist[leaf.name] = tree.get_distance(leaf,cluster)
-
 			best_leaf = sorted(leaf_to_dist, key=leaf_to_dist.get)[0]
 
 			if best_leaf in ID_to_taxo:
@@ -174,13 +173,10 @@ def find_closest_ref_sequences(tree, biom, biom_path, cluster_to_multiaffi, ID_t
 
 				if cluster in cluster_to_multiaffi:
 					for affi in cluster_to_multiaffi[cluster]:
-
 						#formate FROGS taxonomy when when it's k__Fungi. k__Fungi --> Fungi
 						if '__' in affi:
 							affis_frogs = ";".join(["".join(af.split('__')[1:]) for af in affi.split(';')])
-						
 						affis_frogs = affi.replace(' ','_')
-
 						if is_same_taxonomies(affis_frogs, affis_picrust):
 							comment = "identical taxonomy"
 							break
@@ -188,22 +184,19 @@ def find_closest_ref_sequences(tree, biom, biom_path, cluster_to_multiaffi, ID_t
 					affis_frogs = ";".join(biom.get_observation_metadata(cluster)["blast_taxonomy"])
 					if '__' in affis_frogs:
 						affis_frogs = ";".join(["_".join(af.split('__')[1:]) for af in affis_frogs.split(';')])
-					
 					affis_frogs = affis_frogs.replace(' ','_')
 					if is_same_taxonomies(affis_frogs, affis_picrust):
 						comment = "identical taxonomy"
-
 				if cluster_to_seq[cluster] in ref_seqs[best_leaf]:
 					if comment == "/":
 						comment = "identical sequence"
 					else:
 						comment+=";identical sequence"
-				FH_out.write(best_leaf+'\t'+ID_to_taxo[best_leaf][0]+'\t'+ID_to_taxo[best_leaf][1]+'\t'+str(rounding(leaf_to_dist[best_leaf]))+'\t'+str(comment)+'\n')
-				
+				FH_out.write(best_leaf+'\t'+ID_to_taxo[best_leaf][0]+'\t'+ID_to_taxo[best_leaf][1]+'\t'+str(rounding(leaf_to_dist[best_leaf]))+'\t'+str(comment)+'\t'+ref_seqs[best_leaf]+'\n')
 			else:
 				FH_out.write(' \t \t \t \t \n')
-
 	BiomIO.write(biom_path, biom)
+
 ##################################################################################################################################################
 #
 # MAIN
