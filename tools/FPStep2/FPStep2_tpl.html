@@ -509,7 +509,7 @@
 
 			var clusters_ditrib_load = function( container_id ) {
 
-				var cluster_by_nsti = lineplot_param("Cluster kept by NSTI threshold", "Cluster size", "Nb abundances kept", "Nb Clusters kept", nsti_threshold, series);
+				var cluster_by_nsti = lineplot_param("", "Cluster size", "Nb abundances kept", "Nb Clusters kept", nsti_threshold, series);
 					$('#' + container_id).append('<div></div>');
 					$('#' + container_id).highcharts( cluster_by_nsti );
 					$('#' + container_id).append('<p class="graph-nb">N.B.: Select area to zoom in.</p>');
@@ -555,10 +555,8 @@
 		</p>
 		
 		<div id="content" class="hidden">
-			<ul class="nav nav-tabs">
-				<li class="nav-item active"><a class="nav-link active" href="#sequence-distrib">Sequences distribution</a></li>
-			</ul>
 			<div class="tab-content">
+				<h2 class="pb-2 mt-4 mb-2 border-bottom">Cluster kept by NSTI threshold</h2>
 				<div id="sequence-distrib" role="tabpanel" class="tab-pane active">
 				</div>
 			</div>
