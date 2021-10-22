@@ -148,7 +148,8 @@ def find_closest_ref_sequences(tree, biom, biom_path, cluster_to_multiaffi, ID_t
 	@param output: [str] path to tmp output file in order to write frogs and picrust2 taxonomic comparaisons.
     """
 	FH_out = open(output,'wt')
-
+	header = "\t".join(["Cluster","FROGS Taxonomy","Picrust2 closest ID","Picrust2 closest reference name","Picrust2 closest taxonomy","Picrust2 closest distance from cluster (NSTI)","Comment", "Cluster sequence", "Picrust2 closest reference sequence"])
+	FH_out.write(header+"\n")
 	for cluster in clusters:
 
 		FH_out.write(cluster+'\t'+";".join(biom.get_observation_metadata(cluster)["blast_taxonomy"])+'\t')
@@ -192,9 +193,9 @@ def find_closest_ref_sequences(tree, biom, biom_path, cluster_to_multiaffi, ID_t
 						comment = "identical sequence"
 					else:
 						comment+=";identical sequence"
-				FH_out.write(best_leaf+'\t'+ID_to_taxo[best_leaf][0]+'\t'+ID_to_taxo[best_leaf][1]+'\t'+str(rounding(leaf_to_dist[best_leaf]))+'\t'+str(comment)+'\t'+ref_seqs[best_leaf]+'\n')
+				FH_out.write(best_leaf+'\t'+ID_to_taxo[best_leaf][0]+'\t'+ID_to_taxo[best_leaf][1]+'\t'+str(rounding(leaf_to_dist[best_leaf]))+'\t'+str(comment)+'\t'+cluster_to_seq[cluster]+'\t'+ref_seqs[best_leaf]+'\n')
 			else:
-				FH_out.write(' \t \t \t \t \n')
+				FH_out.write(' \t \t \t \t \t \t \n')
 	BiomIO.write(biom_path, biom)
 
 ##################################################################################################################################################
@@ -216,8 +217,8 @@ if __name__ == "__main__":
 	group_input.add_argument('-r', '--ref_aln', required=True, help='Alignment of reference sequences used in FPStep1 in order to execute place_seqs.py (ie $PICRUST_PATH/default_files/fungi/fungi_ITS/')
 	# Outputs
 	group_output = parser.add_argument_group('Outputs')
-	group_output = parser.add_argument('-o', '--output', default='closests_ref_sequences.txt')
-	group_output = parser.add_argument('-e', '--out_biom', default='FPStep1.biom', help='abundance file without non insert sequences. (format: BIOM) [Default: %(default)s]')
+	group_output = parser.add_argument('-o', '--output', default='FPStep1_closests_ref_sequences.txt', help='Informations about clusters and picrust2 closest reference from cluster sequences (identifiants, taxonomies, phylogenetic distance from reference, nucleotidics sequences')
+	group_output = parser.add_argument('-e', '--out_biom', default='FPStep1.biom', help='Abundance file without non insert sequences. (format: BIOM) [Default: %(default)s]')
 	group_output = parser.add_argument('-l', '--log-file', default=sys.stdout, help='The list of commands executed.')
 
 	args = parser.parse_args()

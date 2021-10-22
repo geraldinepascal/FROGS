@@ -282,7 +282,41 @@
 				// Display chimera detection data
 				var table_categories = detection_categories.slice() ;
 				var table_series = new Array();
-
+				// Remove alert
+				$('#js-alert').remove();
+				$('#content').removeClass("hidden");
+				// Radializes colors
+				Highcharts.setOptions({
+					 colors : ['#8EADAC', '#DE9F73'] ,
+					 lang: {thousandsSep: ','}
+					});
+					Highcharts.SVGRenderer.prototype.symbols.download = function (x, y, w, h) {
+					var path = [
+						// Arrow stem
+						'M', x + w * 0.5, y,
+						'L', x + w * 0.5, y + h * 0.7,
+						// Arrow head
+						'M', x + w * 0.3, y + h * 0.5,
+						'L', x + w * 0.5, y + h * 0.7,
+						'L', x + w * 0.7, y + h * 0.5,
+						// Box
+						'M', x, y + h * 0.9,
+						'L', x, y + h,
+						'L', x + w, y + h,
+						'L', x + w, y + h * 0.9
+					];
+					return path;
+				};
+				/* Radial gradient ?*/
+			    Highcharts.getOptions().colors = Highcharts.map(Highcharts.getOptions().colors, function (color) {
+			        return {
+			            radialGradient: { cx: 0.5, cy: 0.3, r: 0.7 },
+			            stops: [
+			                [0, color],
+			                [1, Highcharts.Color(color).brighten(-0.1).get('rgb')] // darken
+			            ]
+			        };
+			    });
 			 	// Display remove data
 				var nb_filtered_data = [
 					['Inserted', remove_info['nb_kept']],

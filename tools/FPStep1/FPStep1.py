@@ -179,12 +179,12 @@ def restricted_float(in_arg):
 
 def write_summary(in_fasta, align_out, biomfile, closest_ref_file, category, summary_file):
 	"""
-	@summary: Writes the process summary in one html file.
-	@param summary_file: [str] path to the output html file.
+	@param in_fasta: [str] path to the input fasta file.
 	@param align_out: [str] path to the fasta file of unaligned OTU
 	@param biomfile: [str] path to the input BIOM file.
-	@param closest_ref_files: [str] Path to tmp colest ref file.
+	@param closest_ref_files: [str] Path to closests reference information file (find_closest_ref_sequence.py output).
 	@param category: ITS or 16S
+	@param summary_file: [str] path to the output html file.
 	"""
 	# to summary OTUs number && abundances number			   
 	summary_info = {
@@ -196,7 +196,7 @@ def write_summary(in_fasta, align_out, biomfile, closest_ref_file, category, sum
 	number_otu_all = 0
 	number_abundance_all = 0
 	# to detail removed OTU
-	details_categorys =["FROGS Taxonomy","Picrust2 closest ID","Picrust2 closest reference name","Picrust2 closest taxonomy","Picrust2 closest distance from cluster","Comment", "Picrust2 closest reference sequence"]
+	details_categorys =["FROGS Taxonomy","Picrust2 closest ID","Picrust2 closest reference name","Picrust2 closest taxonomy","Picrust2 closest distance from cluster (NSTI)","Comment"]
 	infos_otus = list()
 	biom=BiomIO.from_json(biomfile)
 	list_otu_all = []
@@ -212,16 +212,15 @@ def write_summary(in_fasta, align_out, biomfile, closest_ref_file, category, sum
 		START_IMG_LINK = "<a href='https://mycocosm.jgi.doe.gov/"
 
 
-	closest_ref = open(closest_ref_file)
-	for li in closest_ref:
+	closest_ref = open(closest_ref_file).readlines()
+	for li in closest_ref[1:]:
 		li = li.strip().split('\t')
 		if category in ['16S','ITS']:
 			id_cur = li[2]
 			li[2] = START_IMG_LINK + id_cur + "'>" + id_cur + '</a>'
-		if "Closest_ref_name" not in li:
 			infos_otus.append({
 				'name': li[0],
-				'data': list(map(str,li[1:]))
+				'data': list(map(str,li[1:-2]))
 				})
 
 	# record details about removed OTU
@@ -272,6 +271,7 @@ if __name__ == "__main__":
 	group_output.add_argument('-e', '--excluded', default='FPSTep1_excluded.txt', help='List of sequences not inserted in the tree.')
 	group_output.add_argument('-s', '--insert_fasta', default='FPStep1.fasta', help='sequences file without non insert sequences. (format: FASTA). [Default: %(default)s]')
 	group_output.add_argument('-m', '--insert_biom', default='FPStep1.biom', help='abundance file without non insert sequences. (format: BIOM) [Default: %(default)s]')
+	group_output.add_argument('-c', '--closests_ref', default='FPStep1_closests_ref_sequences.txt', help='Informations about clusters and picrust2 closest reference from cluster sequences (identifiants, taxonomies, phylogenetic distance from reference, nucleotidics sequences')
 	group_output.add_argument('-l', '--log_file', default=sys.stdout, help='List of commands executed.')
 	group_output.add_argument('-t', '--html', default='FPStep1_summary.html', help="Path to store resulting html file. [Default: %(default)s]" )
 	args = parser.parse_args()
@@ -305,10 +305,9 @@ if __name__ == "__main__":
 
 		RemoveSeqsBiomFasta(tmp_fasta, args.input_biom, args.insert_fasta, args.insert_biom, args.excluded).submit(args.log_file)
 
-		closest_ref_files = tmp_files.add( "closest_ref.tsv" )
 		tmp_find_closest_ref = tmp_files.add( 'tmp_find_closest_ref.log' )
-		FindClosestsRefSequences(args.out_tree, args.input_biom, tmp_multi_affiliations, tmp_fasta, ref_aln, args.insert_biom, closest_ref_files).submit(args.log_file)
-		write_summary(tmp_fasta, args.excluded, args.input_biom, closest_ref_files, category, args.html)
+		FindClosestsRefSequences(args.out_tree, args.input_biom, tmp_multi_affiliations, tmp_fasta, ref_aln, args.insert_biom, args.closests_ref).submit(args.log_file)
+		write_summary(tmp_fasta, args.excluded, args.input_biom, args.closests_ref, category, args.html)
 
 	finally:
 		if not args.debug:

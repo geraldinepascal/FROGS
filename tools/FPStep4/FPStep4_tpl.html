@@ -286,6 +286,10 @@
 					nb_by_step.unshift( detection_series[spl_idx]['name'] );
 					table_series.push( nb_by_step );
 				};
+				// Remove alert
+				$('#js-alert').remove();
+				$('#content').removeClass("hidden");
+				
 				$('#filter-log').append( table("Chimera detection by sample", table_categories, table_series) );
 				$('#filter-log table').prop( 'id', 'details-table' );
 				$('#filter-log table').DataTable({
