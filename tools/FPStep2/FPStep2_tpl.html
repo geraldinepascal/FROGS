@@ -509,7 +509,7 @@
 
 			var clusters_ditrib_load = function( container_id ) {
 
-				var cluster_by_nsti = lineplot_param("", "Cluster size", "Nb abundances kept", "Nb Clusters kept", nsti_threshold, series);
+				var cluster_by_nsti = lineplot_param("", "NSTI value", "Nb abundances kept", "Nb Clusters kept", nsti_threshold, series);
 					$('#' + container_id).append('<div></div>');
 					$('#' + container_id).highcharts( cluster_by_nsti );
 					$('#' + container_id).append('<p class="graph-nb">N.B.: Select area to zoom in.</p>');
