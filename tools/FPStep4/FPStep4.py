@@ -16,7 +16,7 @@ import gzip
 import shutil
 import inspect
 import argparse
-
+import pandas as pd
 
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
 # PATH: executable
@@ -27,7 +27,9 @@ LIB_DIR = os.path.abspath(os.path.join(os.path.dirname(CURRENT_DIR), "lib"))
 sys.path.append(LIB_DIR) 
 if os.getenv('PYTHONPATH') is None: os.environ['PYTHONPATH'] = LIB_DIR 
 else: os.environ['PYTHONPATH'] = os.environ['PYTHONPATH'] + os.pathsep + LIB_DIR
-description_file = os.path.abspath(os.path.join(os.path.dirname(CURRENT_DIR), "default_files/pathways_description_file.txt.gz"))
+DESCRIPTION_FILE = os.path.abspath(os.path.join(os.path.dirname(CURRENT_DIR), "default_files/pathways_description_file.txt.gz"))
+PATHWAYS_HIERARCHY_FILE = os.path.abspath(os.path.join(os.path.dirname(CURRENT_DIR), "default_files/pathways_hierarchy_one_path_4lvls.txt"))
+
 
 #import frogs
 from frogsUtils import *
@@ -85,6 +87,7 @@ class PathwayPipeline(Cmd):
 				with open(self.pathways_abund_per_seq, 'wb') as f_out:
 					shutil.copyfileobj(f_in, f_out)
 				os.remove('path_abun_unstrat_per_seq.tsv.gz')
+
 class AddDescriptions(Cmd):
 	"""
 	@summary: Adds a description column to a function abundance table and outputs a new file.
@@ -102,11 +105,53 @@ class AddDescriptions(Cmd):
 	def get_version(self):
 		 return Cmd.get_version(self, 'stdout').split()[1].strip() 
 
+class Biom2tsv(Cmd):
+	"""
+	@summary: In order to creates a temporary biom file that links every pathway to samples abundances.
+	This is necessary in order to display sunburst plots.
+
+	"""
+	def __init__(self, in_biom, out_tsv):
+
+		Cmd.__init__( self,
+					  'biom2tsv.py',
+					  'Converts a BIOM file in TSV file.',
+					  "--input-file " + in_biom + " --output-file " + out_tsv,
+					  '--version' )
+
+	def get_version(self):
+		 return Cmd.get_version(self, 'stdout').strip() 
+
 ##################################################################################################################################################
 #
 # FUNCTIONS
 #
 ##################################################################################################################################################
+
+def formate_abundances_file(strat_file, pathways_hierarchy_file, tmp_tsv):
+	"""
+	@summary: Formate FPSTep4 output in order to create a biom file of pathways abundances.
+	@param start_file: FPStep4 output of pathway abundances prediction (FPStep4_path_abun_unstrat.tsv)
+	"""
+	df = pd.read_csv(strat_file,sep='\t')
+	if "description" in df:
+		del df["description"]
+	df.rename(columns = {'pathway':'observation_name'}, inplace = True)
+	for column in df:
+		if column != "observation_name":
+			df[column] = df[column].round(0).astype(int)
+	df.to_csv(tmp_tsv, sep='\t', index = False)
+
+	id_to_hierarchy = {}
+	path_fi = open(pathways_hierarchy_file).readlines()
+	for li in path_in:
+		li = li.strip().split('\t')
+		id_to_hierarchy[li[-1]] = ";".join(li)
+
+	FH_in = open(tmp_tsv).readlines()
+	FH_in.strip().split('\t').insert(1,'hierarchy')
+	for li in FH_in[1:]:
+		
 
 def write_summary(strat_file, summary_file):
 	"""
@@ -209,7 +254,10 @@ if __name__ == "__main__":
 		PathwayPipeline(args.input_file, args.map, args.per_sequence_contrib, args.per_sequence_abun, args.per_sequence_function, args.no_regroup,  args.pathways_abund, args.pathways_contrib, args.pathways_predictions, args.pathways_abund_per_seq, tmp_pathway).submit(args.log_file)
 
 		if args.add_description is not None:
-			AddDescriptions(args.pathways_abund,  description_file, args.pathways_abund).submit( args.log_file)
+			AddDescriptions(args.pathways_abund,  DESCRIPTION_FILE, args.pathways_abund).submit( args.log_file)
+
+		tmp_tsv = tmp_files.add( 'pathway_abundances.tsv')
+		formate_abundances_file(args.pathways_abund, PATHWAYS_HIERARCHY_FILE, tmp_tsv)
 
 		write_summary(args.pathways_abund, args.html)
 
