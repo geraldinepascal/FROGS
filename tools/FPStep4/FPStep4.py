@@ -186,7 +186,7 @@ def formate_abundances_file(strat_file, pathways_hierarchy_file, tmp_tsv, hierar
 	os.rename(tmp_tsv+'.tmp', tmp_tsv)
 	return hierarchy_tag
 
-def write_summary(strat_file, summary_file):
+def write_summary(strat_file, tree_count_file, tree_ids_file, summary_file):
 	"""
 	@summary: Writes the process summary in one html file.
 	@param summary_file: [str] path to the output html file.
@@ -195,6 +195,18 @@ def write_summary(strat_file, summary_file):
 	@param closest_ref_files: [str] Path to tmp colest ref file.
 	@param category: ITS or 16S
 	"""
+
+	# Get taxonomy distribution
+	FH_tree_count = open( tree_count_file )
+	newick_tree = FH_tree_count.readline()
+	FH_tree_count.close()
+	ordered_samples_names = list()
+	FH_tree_ids = open( tree_ids_file )
+	for line in FH_tree_ids:
+		id, sample_name = line.strip().split( "\t", 1 )
+		ordered_samples_names.append( sample_name )
+	FH_tree_ids.close()
+
 	# to summary OTUs number && abundances number			   
 	infos_otus = list()
 	details_categorys =["Pathway", "Description" ,"Observation_sum"]
@@ -228,7 +240,13 @@ def write_summary(strat_file, summary_file):
 	for line in FH_summary_tpl:
 		if "###DETECTION_CATEGORIES###" in line:
 			line = line.replace( "###DETECTION_CATEGORIES###", json.dumps(details_categorys) )
-		if "###DETECTION_DATA###" in line:
+		elif "###TAXONOMIC_RANKS###" in line:
+			line = line.replace( "###TAXONOMIC_RANKS###", json.dumps(args.hierarchy_ranks) )
+		elif "###SAMPLES_NAMES###" in line:
+			line = line.replace( "###SAMPLES_NAMES###", json.dumps(ordered_samples_names) )
+		elif "###TREE_DISTRIBUTION###" in line:
+			line = line.replace( "###TREE_DISTRIBUTION###", json.dumps(newick_tree) )
+		elif "###DETECTION_DATA###" in line:
 			line = line.replace( "###DETECTION_DATA###", json.dumps(infos_otus) )
 		FH_summary_out.write( line )
 
@@ -253,6 +271,7 @@ if __name__ == "__main__":
 	group_input.add_argument('-m', '--map', type=str, help='Mapping of pathways to reactions, necessary if marker studied is not 16S (metacyc_path2rxn_struc_filt_pro.txt used by default). For ITS analysis, required file is here: $PICRUST2_PATH/default_files/pathway_mapfiles/metacyc_path2rxn_struc_filt_fungi.txt).')
 	group_input.add_argument('--per_sequence_abun', default=None, help='Path to table of sequence abundances across samples normalized by marker copy number (typically the normalized sequence abundance table output at the metagenome pipeline step: seqtab_norm.tsv by default). This input is required when the --per_sequence_contrib option is set. (default: None).')
 	group_input.add_argument('--per_sequence_function', default=None, help='Path to table of function abundances per sequence, which was outputted at the hidden-state prediction step. This input is required when the --per_sequence_contrib option is set. Note that this file should be the same input table as used for the metagenome pipeline step (default: None).')
+	group_input.add_argument('--hierarchy_ranks', nargs='*', default=["Level1", "Level2", "Level3", "Pathway"], help='The ordered ranks levels used in the metadata hierarchy pathways. [Default: %(default)s]' )
 	#Outputs
 	group_output = parser.add_argument_group( 'Outputs')
 	group_output.add_argument('-o', '--pathways_abund', default='FPStep4_path_abun_unstrat.tsv', help='Pathway abundance file output.')
@@ -297,7 +316,7 @@ if __name__ == "__main__":
 		tree_ids_file = tmp_files.add( "pathwayCount_ids.tsv" )
 		TaxonomyTree(tmp_biom, hierarchy_tag, tree_count_file, tree_ids_file).submit( args.log_file )
 
-		write_summary(args.pathways_abund, args.html)
+		write_summary(args.pathways_abund, tree_count_file, tree_ids_file, args.html)
 
 	finally:
 		if not args.debug:
