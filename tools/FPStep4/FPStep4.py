@@ -28,7 +28,7 @@ sys.path.append(LIB_DIR)
 if os.getenv('PYTHONPATH') is None: os.environ['PYTHONPATH'] = LIB_DIR 
 else: os.environ['PYTHONPATH'] = os.environ['PYTHONPATH'] + os.pathsep + LIB_DIR
 DESCRIPTION_FILE = os.path.abspath(os.path.join(os.path.dirname(CURRENT_DIR), "default_files/pathways_description_file.txt.gz"))
-PATHWAYS_HIERARCHY_FILE = os.path.abspath(os.path.join(os.path.dirname(CURRENT_DIR), "default_files/pathways_hierarchy_one_path_4lvls.txt"))
+PATHWAYS_HIERARCHY_FILE = os.path.abspath(os.path.join(os.path.dirname(CURRENT_DIR), "default_files/pathways_hierarchy_3lvl.tsv"))
 
 
 #import frogs
@@ -105,22 +105,44 @@ class AddDescriptions(Cmd):
 	def get_version(self):
 		 return Cmd.get_version(self, 'stdout').split()[1].strip() 
 
-class Biom2tsv(Cmd):
+class Tsv2biom(Cmd):
 	"""
 	@summary: In order to creates a temporary biom file that links every pathway to samples abundances.
 	This is necessary in order to display sunburst plots.
 
 	"""
-	def __init__(self, in_biom, out_tsv):
+	def __init__(self, in_tsv, out_biom):
 
 		Cmd.__init__( self,
-					  'biom2tsv.py',
+					  'tsv_to_biom.py',
 					  'Converts a BIOM file in TSV file.',
-					  "--input-file " + in_biom + " --output-file " + out_tsv,
+					  "--input-tsv " + in_tsv + " --output-biom " + out_biom,
 					  '--version' )
 
 	def get_version(self):
 		 return Cmd.get_version(self, 'stdout').strip() 
+
+
+class TaxonomyTree(Cmd):
+	"""
+	@summary: Produces a tree with pathways abundances by sample in extended newick format.
+	"""
+	def __init__(self, in_biom, taxonomy_tag, out_tree, out_ids):
+		"""
+		@param in_biom: [str] The processed BIOM path.
+		@param taxonomy_tag: [str] The metadata title for the taxonomy in BIOM file.
+		@param out_tree: [str] Path to the enewick output.
+		@param out_ids: [str] Path to the IDs/samples output.
+		"""
+		# Cmd
+		Cmd.__init__( self,
+					  'biomTools.py',
+					  'Produces a taxonomy tree with counts by sample.',
+					  'treeCount --input-file ' + in_biom + ' --taxonomy-key "' + taxonomy_tag + '" --output-enewick ' + out_tree + ' --output-samples ' + out_ids,
+					  '--version' )
+					  
+	def get_version(self):   
+		return Cmd.get_version(self, 'stdout').strip()  
 
 ##################################################################################################################################################
 #
@@ -128,11 +150,17 @@ class Biom2tsv(Cmd):
 #
 ##################################################################################################################################################
 
-def formate_abundances_file(strat_file, pathways_hierarchy_file, tmp_tsv):
+def formate_abundances_file(strat_file, pathways_hierarchy_file, tmp_tsv, hierarchy_tag = "hierarchy"):
 	"""
 	@summary: Formate FPSTep4 output in order to create a biom file of pathways abundances.
 	@param start_file: FPStep4 output of pathway abundances prediction (FPStep4_path_abun_unstrat.tsv)
 	"""
+	id_to_hierarchy = {}
+	path_fi = open(pathways_hierarchy_file).readlines()
+	for li in path_fi:
+		li = li.strip().split('\t')
+		id_to_hierarchy[li[-1]] = ";".join(li)
+
 	df = pd.read_csv(strat_file,sep='\t')
 	if "description" in df:
 		del df["description"]
@@ -140,18 +168,23 @@ def formate_abundances_file(strat_file, pathways_hierarchy_file, tmp_tsv):
 	for column in df:
 		if column != "observation_name":
 			df[column] = df[column].round(0).astype(int)
-	df.to_csv(tmp_tsv, sep='\t', index = False)
 
-	id_to_hierarchy = {}
-	path_fi = open(pathways_hierarchy_file).readlines()
-	for li in path_in:
-		li = li.strip().split('\t')
-		id_to_hierarchy[li[-1]] = ";".join(li)
-
+	df.to_csv(tmp_tsv,sep='\t',index=False)
+	tmp = open(tmp_tsv +'.tmp', 'wt')
 	FH_in = open(tmp_tsv).readlines()
-	FH_in.strip().split('\t').insert(1,'hierarchy')
+	header = FH_in[0].strip().split('\t')
+	header.insert(0, hierarchy_tag)
+	tmp.write("\t".join(header)+"\n")
 	for li in FH_in[1:]:
-		
+		li = li.strip().split('\t')
+		if li[0] in id_to_hierarchy:
+			li.insert(0,id_to_hierarchy[li[0]])
+		else:
+			li.insert(0,'')
+		tmp.write("\t".join(li)+"\n")
+	tmp.close()
+	os.rename(tmp_tsv+'.tmp', tmp_tsv)
+	return hierarchy_tag
 
 def write_summary(strat_file, summary_file):
 	"""
@@ -257,7 +290,12 @@ if __name__ == "__main__":
 			AddDescriptions(args.pathways_abund,  DESCRIPTION_FILE, args.pathways_abund).submit( args.log_file)
 
 		tmp_tsv = tmp_files.add( 'pathway_abundances.tsv')
-		formate_abundances_file(args.pathways_abund, PATHWAYS_HIERARCHY_FILE, tmp_tsv)
+		hierarchy_tag = formate_abundances_file(args.pathways_abund, PATHWAYS_HIERARCHY_FILE, tmp_tsv)
+		tmp_biom = tmp_files.add( 'pathway_abundances.biom' )
+		Tsv2biom(tmp_tsv, tmp_biom).submit( args.log_file)
+		tree_count_file = tmp_files.add( "pathwayCount.enewick" )
+		tree_ids_file = tmp_files.add( "pathwayCount_ids.tsv" )
+		TaxonomyTree(tmp_biom, hierarchy_tag, tree_count_file, tree_ids_file).submit( args.log_file )
 
 		write_summary(args.pathways_abund, args.html)
 
