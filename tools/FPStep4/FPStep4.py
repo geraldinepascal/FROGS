@@ -208,30 +208,30 @@ def write_summary(strat_file, tree_count_file, tree_ids_file, summary_file):
 	FH_tree_ids.close()
 
 	# to summary OTUs number && abundances number			   
-	infos_otus = list()
-	details_categorys =["Pathway", "Description" ,"Observation_sum"]
-	START_METACYC_LINK = "<a href='https://biocyc.org/META/NEW-IMAGE?type=PATHWAY&object="
+	# infos_otus = list()
+	# details_categorys =["Pathway", "Description" ,"Observation_sum"]
+	# START_METACYC_LINK = "<a href='https://biocyc.org/META/NEW-IMAGE?type=PATHWAY&object="
 
-	abund = open(strat_file)
-	for li in abund:
-		if "pathway" in li:
-			li = li.strip().split('\t')
-			for sample in li[3:]:
-				details_categorys.append(sample)
-			break
+	# abund = open(strat_file)
+	# for li in abund:
+	# 	if "pathway" in li:
+	# 		li = li.strip().split('\t')
+	# 		for sample in li[3:]:
+	# 			details_categorys.append(sample)
+	# 		break
 
-	for li in abund:
-		li = li.strip().split('\t')
-		pathway = li[0]
-		li[0] = START_METACYC_LINK + pathway + "'>" + pathway + '</a>'
+	# for li in abund:
+	# 	li = li.strip().split('\t')
+	# 	pathway = li[0]
+	# 	li[0] = START_METACYC_LINK + pathway + "'>" + pathway + '</a>'
 
-		for i in range(len(li[2:])):
-			li[i+2] = round(float(li[i+2]),1)
+	# 	for i in range(len(li[2:])):
+	# 		li[i+2] = round(float(li[i+2]),1)
 
-		infos_otus.append({
-			'name': li[0],
-			'data': list(map(str,li[1:]))
-			})
+	# 	infos_otus.append({
+	# 		'name': li[0],
+	# 		'data': list(map(str,li[1:]))
+	# 		})
 	# record details about removed OTU
 
 	FH_summary_tpl = open( os.path.join(CURRENT_DIR, "FPStep4_tpl.html") )
