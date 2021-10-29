@@ -160,9 +160,11 @@ def excluded_obs_on_replicatePresence(input_biom, replicate_file, min_replicate_
     FH_excluded_file = open( excluded_file, "wt" )
     # Indentify replicates
     groups_to_replicates = collections.defaultdict(list)
+    samples_to_search = list()
     for l in FH_replicate_file.readlines():
         l = l.strip().split()
         groups_to_replicates["".join(l[1:]).strip()].append(l[0])
+        samples_to_search.append(l[0])
     # Writes replicate groups into log file
     for group, replicates in groups_to_replicates.items():
         FH_log.write(group+"\t"+",".join(replicates)+"\n")
@@ -170,8 +172,9 @@ def excluded_obs_on_replicatePresence(input_biom, replicate_file, min_replicate_
     for observation_name in biom.get_observations_names():
         groups_to_counts = collections.defaultdict(int)
         for sample in biom.get_samples_by_observation(observation_name):
-            group = [group for group, replicates in groups_to_replicates.items() if sample['id'] in replicates][0]
-            groups_to_counts[group] += 1
+            if sample['id'] in samples_to_search:
+                group = [group for group, replicates in groups_to_replicates.items() if sample['id'] in replicates][0]
+                groups_to_counts[group] += 1
         to_exclude = True
         for group, count in groups_to_counts.items():
             if min_replicate_presence * len(groups_to_replicates[group]) <= count:
