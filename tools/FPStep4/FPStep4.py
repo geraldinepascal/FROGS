@@ -16,7 +16,7 @@ import gzip
 import shutil
 import inspect
 import argparse
-
+import pandas as pd
 
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
 # PATH: executable
@@ -27,7 +27,9 @@ LIB_DIR = os.path.abspath(os.path.join(os.path.dirname(CURRENT_DIR), "lib"))
 sys.path.append(LIB_DIR) 
 if os.getenv('PYTHONPATH') is None: os.environ['PYTHONPATH'] = LIB_DIR 
 else: os.environ['PYTHONPATH'] = os.environ['PYTHONPATH'] + os.pathsep + LIB_DIR
-description_file = os.path.abspath(os.path.join(os.path.dirname(CURRENT_DIR), "default_files/pathways_description_file.txt.gz"))
+DESCRIPTION_FILE = os.path.abspath(os.path.join(os.path.dirname(CURRENT_DIR), "default_files/pathways_description_file.txt.gz"))
+PATHWAYS_HIERARCHY_FILE = os.path.abspath(os.path.join(os.path.dirname(CURRENT_DIR), "default_files/pathways_hierarchy.tsv"))
+
 
 #import frogs
 from frogsUtils import *
@@ -85,6 +87,7 @@ class PathwayPipeline(Cmd):
 				with open(self.pathways_abund_per_seq, 'wb') as f_out:
 					shutil.copyfileobj(f_in, f_out)
 				os.remove('path_abun_unstrat_per_seq.tsv.gz')
+
 class AddDescriptions(Cmd):
 	"""
 	@summary: Adds a description column to a function abundance table and outputs a new file.
@@ -102,13 +105,86 @@ class AddDescriptions(Cmd):
 	def get_version(self):
 		 return Cmd.get_version(self, 'stdout').split()[1].strip() 
 
+class Tsv2biom(Cmd):
+	"""
+	@summary: In order to creates a temporary biom file that links every pathway to samples abundances.
+	This is necessary in order to display sunburst plots.
+
+	"""
+	def __init__(self, in_tsv, out_biom):
+
+		Cmd.__init__( self,
+					  'tsv_to_biom.py',
+					  'Converts a BIOM file in TSV file.',
+					  "--input-tsv " + in_tsv + " --output-biom " + out_biom,
+					  '--version' )
+
+	def get_version(self):
+		 return Cmd.get_version(self, 'stdout').strip() 
+
+
+class TaxonomyTree(Cmd):
+	"""
+	@summary: Produces a tree with pathways abundances by sample in extended newick format.
+	"""
+	def __init__(self, in_biom, taxonomy_tag, out_tree, out_ids):
+		"""
+		@param in_biom: [str] The processed BIOM path.
+		@param taxonomy_tag: [str] The metadata title for the taxonomy in BIOM file.
+		@param out_tree: [str] Path to the enewick output.
+		@param out_ids: [str] Path to the IDs/samples output.
+		"""
+		# Cmd
+		Cmd.__init__( self,
+					  'biomTools.py',
+					  'Produces a taxonomy tree with counts by sample.',
+					  'treeCount --input-file ' + in_biom + ' --taxonomy-key "' + taxonomy_tag + '" --output-enewick ' + out_tree + ' --output-samples ' + out_ids,
+					  '--version' )
+					  
+	def get_version(self):   
+		return Cmd.get_version(self, 'stdout').strip()  
+
 ##################################################################################################################################################
 #
 # FUNCTIONS
 #
 ##################################################################################################################################################
 
-def write_summary(strat_file, summary_file):
+def formate_abundances_file(strat_file, pathways_hierarchy_file, tmp_tsv, hierarchy_tag = "hierarchy"):
+	"""
+	@summary: Formate FPSTep4 output in order to create a biom file of pathways abundances.
+	@param start_file: FPStep4 output of pathway abundances prediction (FPStep4_path_abun_unstrat.tsv)
+	"""
+	id_to_hierarchy = {}
+	path_fi = open(pathways_hierarchy_file).readlines()
+	for li in path_fi:
+		li = li.strip().split('\t')
+		id_to_hierarchy[li[-1]] = ";".join(li)
+
+	df = pd.read_csv(strat_file,sep='\t')
+	if "description" in df:
+		del df["description"]
+	df.rename(columns = {'pathway':'observation_name'}, inplace = True)
+	for column in df:
+		if column != "observation_name":
+			df[column] = df[column].round(0).astype(int)
+
+	df.to_csv(tmp_tsv,sep='\t',index=False)
+	tmp = open(tmp_tsv +'.tmp', 'wt')
+	FH_in = open(tmp_tsv).readlines()
+	header = FH_in[0].strip().split('\t')
+	header.insert(0, hierarchy_tag)
+	tmp.write("\t".join(header)+"\n")
+	for li in FH_in[1:]:
+		li = li.strip().split('\t')
+		if li[0] in id_to_hierarchy:
+			li.insert(0,id_to_hierarchy[li[0]])
+			tmp.write("\t".join(li)+"\n")
+	tmp.close()
+	os.rename(tmp_tsv+'.tmp', tmp_tsv)
+	return hierarchy_tag
+
+def write_summary(strat_file, tree_count_file, tree_ids_file, summary_file):
 	"""
 	@summary: Writes the process summary in one html file.
 	@param summary_file: [str] path to the output html file.
@@ -117,31 +193,43 @@ def write_summary(strat_file, summary_file):
 	@param closest_ref_files: [str] Path to tmp colest ref file.
 	@param category: ITS or 16S
 	"""
+
+	# Get taxonomy distribution
+	FH_tree_count = open( tree_count_file )
+	newick_tree = FH_tree_count.readline()
+	FH_tree_count.close()
+	ordered_samples_names = list()
+	FH_tree_ids = open( tree_ids_file )
+	for line in FH_tree_ids:
+		id, sample_name = line.strip().split( "\t", 1 )
+		ordered_samples_names.append( sample_name )
+	FH_tree_ids.close()
+
 	# to summary OTUs number && abundances number			   
-	infos_otus = list()
-	details_categorys =["Pathway", "Description" ,"Observation_sum"]
-	START_METACYC_LINK = "<a href='https://biocyc.org/META/NEW-IMAGE?type=PATHWAY&object="
+	# infos_otus = list()
+	# details_categorys =["Pathway", "Description" ,"Observation_sum"]
+	# START_METACYC_LINK = "<a href='https://biocyc.org/META/NEW-IMAGE?type=PATHWAY&object="
 
-	abund = open(strat_file)
-	for li in abund:
-		if "pathway" in li:
-			li = li.strip().split('\t')
-			for sample in li[3:]:
-				details_categorys.append(sample)
-			break
+	# abund = open(strat_file)
+	# for li in abund:
+	# 	if "pathway" in li:
+	# 		li = li.strip().split('\t')
+	# 		for sample in li[3:]:
+	# 			details_categorys.append(sample)
+	# 		break
 
-	for li in abund:
-		li = li.strip().split('\t')
-		pathway = li[0]
-		li[0] = START_METACYC_LINK + pathway + "'>" + pathway + '</a>'
+	# for li in abund:
+	# 	li = li.strip().split('\t')
+	# 	pathway = li[0]
+	# 	li[0] = START_METACYC_LINK + pathway + "'>" + pathway + '</a>'
 
-		for i in range(len(li[2:])):
-			li[i+2] = round(float(li[i+2]),1)
+	# 	for i in range(len(li[2:])):
+	# 		li[i+2] = round(float(li[i+2]),1)
 
-		infos_otus.append({
-			'name': li[0],
-			'data': list(map(str,li[1:]))
-			})
+	# 	infos_otus.append({
+	# 		'name': li[0],
+	# 		'data': list(map(str,li[1:]))
+	# 		})
 	# record details about removed OTU
 
 	FH_summary_tpl = open( os.path.join(CURRENT_DIR, "FPStep4_tpl.html") )
@@ -150,7 +238,13 @@ def write_summary(strat_file, summary_file):
 	for line in FH_summary_tpl:
 		if "###DETECTION_CATEGORIES###" in line:
 			line = line.replace( "###DETECTION_CATEGORIES###", json.dumps(details_categorys) )
-		if "###DETECTION_DATA###" in line:
+		elif "###TAXONOMIC_RANKS###" in line:
+			line = line.replace( "###TAXONOMIC_RANKS###", json.dumps(args.hierarchy_ranks) )
+		elif "###SAMPLES_NAMES###" in line:
+			line = line.replace( "###SAMPLES_NAMES###", json.dumps(ordered_samples_names) )
+		elif "###TREE_DISTRIBUTION###" in line:
+			line = line.replace( "###TREE_DISTRIBUTION###", json.dumps(newick_tree) )
+		elif "###DETECTION_DATA###" in line:
 			line = line.replace( "###DETECTION_DATA###", json.dumps(infos_otus) )
 		FH_summary_out.write( line )
 
@@ -175,6 +269,7 @@ if __name__ == "__main__":
 	group_input.add_argument('-m', '--map', type=str, help='Mapping of pathways to reactions, necessary if marker studied is not 16S (metacyc_path2rxn_struc_filt_pro.txt used by default). For ITS analysis, required file is here: $PICRUST2_PATH/default_files/pathway_mapfiles/metacyc_path2rxn_struc_filt_fungi.txt).')
 	group_input.add_argument('--per_sequence_abun', default=None, help='Path to table of sequence abundances across samples normalized by marker copy number (typically the normalized sequence abundance table output at the metagenome pipeline step: seqtab_norm.tsv by default). This input is required when the --per_sequence_contrib option is set. (default: None).')
 	group_input.add_argument('--per_sequence_function', default=None, help='Path to table of function abundances per sequence, which was outputted at the hidden-state prediction step. This input is required when the --per_sequence_contrib option is set. Note that this file should be the same input table as used for the metagenome pipeline step (default: None).')
+	group_input.add_argument('--hierarchy_ranks', nargs='*', default=["Level1", "Level2", "Level3", "Pathway"], help='The ordered ranks levels used in the metadata hierarchy pathways. [Default: %(default)s]' )
 	#Outputs
 	group_output = parser.add_argument_group( 'Outputs')
 	group_output.add_argument('-o', '--pathways_abund', default='FPStep4_path_abun_unstrat.tsv', help='Pathway abundance file output.')
@@ -209,9 +304,17 @@ if __name__ == "__main__":
 		PathwayPipeline(args.input_file, args.map, args.per_sequence_contrib, args.per_sequence_abun, args.per_sequence_function, args.no_regroup,  args.pathways_abund, args.pathways_contrib, args.pathways_predictions, args.pathways_abund_per_seq, tmp_pathway).submit(args.log_file)
 
 		if args.add_description is not None:
-			AddDescriptions(args.pathways_abund,  description_file, args.pathways_abund).submit( args.log_file)
+			AddDescriptions(args.pathways_abund,  DESCRIPTION_FILE, args.pathways_abund).submit( args.log_file)
 
-		write_summary(args.pathways_abund, args.html)
+		tmp_tsv = tmp_files.add( 'pathway_abundances.tsv')
+		hierarchy_tag = formate_abundances_file(args.pathways_abund, PATHWAYS_HIERARCHY_FILE, tmp_tsv)
+		tmp_biom = tmp_files.add( 'pathway_abundances.biom' )
+		Tsv2biom(tmp_tsv, tmp_biom).submit( args.log_file)
+		tree_count_file = tmp_files.add( "pathwayCount.enewick" )
+		tree_ids_file = tmp_files.add( "pathwayCount_ids.tsv" )
+		TaxonomyTree(tmp_biom, hierarchy_tag, tree_count_file, tree_ids_file).submit( args.log_file )
+
+		write_summary(args.pathways_abund, tree_count_file, tree_ids_file, args.html)
 
 	finally:
 		if not args.debug:

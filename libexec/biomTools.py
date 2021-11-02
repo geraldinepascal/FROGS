@@ -517,7 +517,7 @@ if __name__ == "__main__":
     parser_rarefaction.add_argument( '-s', '--step-size', type=strict_positive_int, default=10000, help='Additional number of sampled sequences by round of sampling. [Default: %(default)s]' )
     parser_rarefaction.add_argument( '-r', '--ranks', nargs='+', required=True, type=int, default=None, help='The taxonomy depth used to evaluate diversity.' )
     parser_rarefaction.add_argument( '-k', '--taxonomy-key', type=str, default="taxonomy", help='The metadata title for the taxonomy in your BIOM file. Example : "rdp_taxonomy". [Default: %(default)s]' )
-    parser_rarefaction.add_argument( '--add_otu_rarefaction', action='store_true', default=True)
+    parser_rarefaction.add_argument( '--add-otu-rarefaction', action='store_true', default=True)
     parser_rarefaction.set_defaults(func=task_rarefaction)
 
     # Hierarchical classification parameters

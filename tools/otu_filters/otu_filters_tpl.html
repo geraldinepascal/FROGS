@@ -551,7 +551,7 @@
 			}
 
 			var replicate_groups_load = function( container_id ){
-				var group_table_titles = $.merge( ["Name", "Replicates"]);
+				var group_table_titles = ["Name", "Replicates"];
 				var group_table_data = new Array();
 				for( var group in replicate_groups ){
 					group_data = [group, replicate_groups[group]['Replicates']] ;

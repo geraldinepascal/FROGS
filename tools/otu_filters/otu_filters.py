@@ -160,18 +160,23 @@ def excluded_obs_on_replicatePresence(input_biom, replicate_file, min_replicate_
     FH_excluded_file = open( excluded_file, "wt" )
     # Indentify replicates
     groups_to_replicates = collections.defaultdict(list)
+    samples_to_search = list()
     for l in FH_replicate_file.readlines():
         l = l.strip().split()
+        if l[0] not in biom.get_samples_names():
+            raise_exception( Exception( "\n\n#ERROR : "+l[0]+" sample not in biom file.\n\n" ))
         groups_to_replicates["".join(l[1:]).strip()].append(l[0])
+        samples_to_search.append(l[0])
     # Writes replicate groups into log file
     for group, replicates in groups_to_replicates.items():
-        FH_log.write(group+"\t"+",".join(replicates)+"\n")
+        FH_log.write(group+"\t"+", ".join(replicates)+"\n")
     # Search the excluded clusters
     for observation_name in biom.get_observations_names():
         groups_to_counts = collections.defaultdict(int)
         for sample in biom.get_samples_by_observation(observation_name):
-            group = [group for group, replicates in groups_to_replicates.items() if sample['id'] in replicates][0]
-            groups_to_counts[group] += 1
+            if sample['id'] in samples_to_search:
+                group = [group for group, replicates in groups_to_replicates.items() if sample['id'] in replicates][0]
+                groups_to_counts[group] += 1
         to_exclude = True
         for group, count in groups_to_counts.items():
             if min_replicate_presence * len(groups_to_replicates[group]) <= count:
@@ -471,7 +476,7 @@ if __name__ == '__main__':
     group_filter = parser.add_argument_group( 'Filters' )
     group_filter.add_argument( '--nb-biggest-otu', type=int, default=None, required=False, help="Number of most abundant OTUs you want to keep.") 
     group_filter.add_argument( '-s', '--min-sample-presence', type=int, help="Keep OTU present in at least this number of samples.") 
-    group_filter.add_argument( '-r', '--min-replicate-presence', type=minAbundParameter, default=None, help="Keep OTU present in at least this proportion of replicates (please indicate a proportion between 0 and 1). Replicates must be defined with --replicate_file REPLICATE FILE")
+    group_filter.add_argument( '-r', '--min-replicate-presence', type=minAbundParameter, default=None, help="Keep OTU present in at least this proportion of replicates in at least one group (please indicate a proportion between 0 and 1). Replicates must be defined with --replicate_file REPLICATE FILE")
     group_filter.add_argument( '--replicate_file', help='Replicate file must be specified if --min-replicate-presence is set. First column of the file must indicate the sample name, and the second column the group name of this replicate. Exemple: TEM1_L0001_R   Temoin.')
     group_filter.add_argument( '-a', '--min-abundance', type=minAbundParameter, default=None, required=False, help="Minimum percentage/number of sequences, comparing to the total number of sequences, of an OTU (between 0 and 1 if percentage desired)." )
     # group_filter.add_argument( '--abundance-by-sample', type=bool, default=False, action='store_true', help="Abundance threshold is applied by default on the total abundance of OTU. Activate this option if you want to applied the threshold on sample abundances (if float, each OTU must be present in a " )

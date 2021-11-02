@@ -66,7 +66,7 @@ class Rarefaction(Cmd):
         out_basename_pattern = "rarefaction_rank_##RANK##.tsv"
         out_files = list()
         if add_otu_rarefaction:
-            opt = ' --add_otu_rarefaction'
+            opt = ' --add-otu-rarefaction'
             out_files.append( tmp_files_manager.add(out_basename_pattern.replace('##RANK##', 'otu')) )
         else:
             opt = ''
@@ -371,7 +371,7 @@ if __name__ == '__main__':
     parser.add_argument( '-v', '--version', action='version', version=__version__ )
     parser.add_argument( '--taxonomic-ranks', nargs='*', default=["Domain", "Phylum", "Class", "Order", "Family", "Genus", "Species"], help='The ordered ranks levels used in the metadata taxonomy. [Default: %(default)s]' )
     parser.add_argument( '--rarefaction-ranks', nargs='*', default=["Genus"], help='The ranks that will be evaluated in rarefaction. [Default: %(default)s]' )
-    parser.add_argument( '--add_otu_rarefaction', action='store_true', default=False)
+    parser.add_argument( '--add-otu-rarefaction', action='store_true', default=False)
     group_exclusion_taxonomy = parser.add_mutually_exclusive_group()
     group_exclusion_taxonomy.add_argument( '--taxonomy-tag', type=str, help='The metadata tag used in BIOM file to store the taxonomy. Use this parameter if the taxonomic affiliation has been processed by a software that adds only one affiliation or if you does not have a metadata with the consensus taxonomy (see "--tax-consensus-tag").Not allowed with --tax-consensus-tag.' )
     group_exclusion_taxonomy.add_argument( '--tax-consensus-tag', type=str, help='The metadata tag used in BIOM file to store the consensus taxonomy. This parameter is used instead of "--taxonomy-tag" when you have several affiliations for each OTU.' )
