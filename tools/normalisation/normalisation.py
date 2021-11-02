@@ -111,6 +111,7 @@ def write_log(in_biom, out_biom, log):
             nb_otu_after = len([ i for i in new_biom.get_sample_obs(sample_name) if i > 0])
             FH_log.write("Sample name: "+sample_name+"\n\tnb initials OTU: "+str(nb_otu_before)+"\n\tnb normalised OTU: "+str(nb_otu_after)+"\n")
         else:
+            FH_log.write("Deleted sample: "+sample_name+"\n\tnb sequences: "+str(initial_biom.get_sample_count(sample_name))+"\n")
             Logger.static_write(args.log_file,"WARNING: Deleted sample: "+str(sample_name) + " (Only " + str(initial_biom.get_sample_count(sample_name)) + " sequences).\n")
 
     nb_initial_otu=len(initial_biom.rows)

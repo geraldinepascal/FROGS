@@ -163,11 +163,13 @@ def excluded_obs_on_replicatePresence(input_biom, replicate_file, min_replicate_
     samples_to_search = list()
     for l in FH_replicate_file.readlines():
         l = l.strip().split()
+        if l[0] not in biom.get_samples_names():
+            raise_exception( Exception( "\n\n#ERROR : "+l[0]+" sample not in biom file.\n\n" ))
         groups_to_replicates["".join(l[1:]).strip()].append(l[0])
         samples_to_search.append(l[0])
     # Writes replicate groups into log file
     for group, replicates in groups_to_replicates.items():
-        FH_log.write(group+"\t"+",".join(replicates)+"\n")
+        FH_log.write(group+"\t"+", ".join(replicates)+"\n")
     # Search the excluded clusters
     for observation_name in biom.get_observations_names():
         groups_to_counts = collections.defaultdict(int)

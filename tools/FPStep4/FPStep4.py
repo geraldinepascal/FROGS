@@ -28,7 +28,7 @@ sys.path.append(LIB_DIR)
 if os.getenv('PYTHONPATH') is None: os.environ['PYTHONPATH'] = LIB_DIR 
 else: os.environ['PYTHONPATH'] = os.environ['PYTHONPATH'] + os.pathsep + LIB_DIR
 DESCRIPTION_FILE = os.path.abspath(os.path.join(os.path.dirname(CURRENT_DIR), "default_files/pathways_description_file.txt.gz"))
-PATHWAYS_HIERARCHY_FILE = os.path.abspath(os.path.join(os.path.dirname(CURRENT_DIR), "default_files/pathways_hierarchy_3lvl.tsv"))
+PATHWAYS_HIERARCHY_FILE = os.path.abspath(os.path.join(os.path.dirname(CURRENT_DIR), "default_files/pathways_hierarchy.tsv"))
 
 
 #import frogs
@@ -179,9 +179,7 @@ def formate_abundances_file(strat_file, pathways_hierarchy_file, tmp_tsv, hierar
 		li = li.strip().split('\t')
 		if li[0] in id_to_hierarchy:
 			li.insert(0,id_to_hierarchy[li[0]])
-		else:
-			li.insert(0,'')
-		tmp.write("\t".join(li)+"\n")
+			tmp.write("\t".join(li)+"\n")
 	tmp.close()
 	os.rename(tmp_tsv+'.tmp', tmp_tsv)
 	return hierarchy_tag
