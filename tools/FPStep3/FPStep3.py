@@ -15,6 +15,7 @@ import glob
 import json
 import shutil
 import argparse
+import pandas as pd
 from tempfile import gettempdir
 
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -26,6 +27,7 @@ LIB_DIR = os.path.abspath(os.path.join(os.path.dirname(CURRENT_DIR), "lib"))
 sys.path.append(LIB_DIR) 
 if os.getenv('PYTHONPATH') is None: os.environ['PYTHONPATH'] = LIB_DIR 
 else: os.environ['PYTHONPATH'] = os.environ['PYTHONPATH'] + os.pathsep + LIB_DIR
+GENE_HIERARCHY_FILE = os.path.abspath(os.path.join(os.path.dirname(CURRENT_DIR), "default_files/gene_family_hierarchy.tsv"))
 
 from frogsUtils import *
 from frogsSequenceIO import * 
@@ -111,8 +113,46 @@ class Biom2tsv(Cmd):
 					  '--version' )
 
 	def get_version(self):
+		 return Cmd.get_version(self, 'stdout').strip()
+
+class Tsv2biom(Cmd):
+	"""
+	@summary: In order to creates a temporary biom file that links every pathway to samples abundances.
+	This is necessary in order to display sunburst plots.
+
+	"""
+	def __init__(self, in_tsv, out_biom):
+
+		Cmd.__init__( self,
+					  'tsv_to_biom.py',
+					  'Converts a BIOM file in TSV file.',
+					  "--input-tsv " + in_tsv + " --output-biom " + out_biom,
+					  '--version' )
+
+	def get_version(self):
 		 return Cmd.get_version(self, 'stdout').strip() 
 
+
+class TaxonomyTree(Cmd):
+	"""
+	@summary: Produces a tree with pathways abundances by sample in extended newick format.
+	"""
+	def __init__(self, in_biom, taxonomy_tag, out_tree, out_ids):
+		"""
+		@param in_biom: [str] The processed BIOM path.
+		@param taxonomy_tag: [str] The metadata title for the taxonomy in BIOM file.
+		@param out_tree: [str] Path to the enewick output.
+		@param out_ids: [str] Path to the IDs/samples output.
+		"""
+		# Cmd
+		Cmd.__init__( self,
+					  'biomTools.py',
+					  'Produces a taxonomy tree with counts by sample.',
+					  'treeCount --input-file ' + in_biom + ' --taxonomy-key "' + taxonomy_tag + '" --output-enewick ' + out_tree + ' --output-samples ' + out_ids,
+					  '--version' )
+					  
+	def get_version(self):   
+		return Cmd.get_version(self, 'stdout').strip()  
 ##################################################################################################################################################
 #
 # FUNCTIONS
@@ -142,7 +182,42 @@ def excluded_sequence(in_marker, out_seqtab, excluded):
 	marker_file.close()
 	seqtab_file.close()
 
-def write_summary(in_biom, strat_file, excluded, summary_file):
+
+def formate_abundances_file(strat_file, gene_hierarchy_file, tmp_tsv, hierarchy_tag = "hierarchy"):
+	"""
+	@summary: Formate FPSTep4 output in order to create a biom file of pathways abundances.
+	@param start_file: FPStep4 output of pathway abundances prediction (FPStep4_path_abun_unstrat.tsv)
+	"""
+	id_to_hierarchy = {}
+	path_fi = open(gene_hierarchy_file).readlines()
+	for li in path_fi:
+		li = li.strip().split('\t')
+		id_to_hierarchy[li[-1]] = ";".join(li)
+
+	df = pd.read_csv(strat_file,sep='\t')
+	if "description" in df:
+		del df["description"]
+	df.rename(columns = {'function':'observation_name'}, inplace = True)
+	for column in df:
+		if column != "observation_name":
+			df[column] = df[column].round(0).astype(int)
+
+	df.to_csv(tmp_tsv,sep='\t',index=False)
+	tmp = open(tmp_tsv +'.tmp', 'wt')
+	FH_in = open(tmp_tsv).readlines()
+	header = FH_in[0].strip().split('\t')
+	header.insert(0, hierarchy_tag)
+	tmp.write("\t".join(header)+"\n")
+	for li in FH_in[1:]:
+		li = li.strip().split('\t')
+		if li[0] in id_to_hierarchy:
+			li.insert(0,id_to_hierarchy[li[0]])
+			tmp.write("\t".join(li)+"\n")
+	tmp.close()
+	os.rename(tmp_tsv+'.tmp', tmp_tsv)
+	return hierarchy_tag
+
+def write_summary(in_biom, strat_file, excluded, tree_count_file, tree_ids_file, summary_file):
 	"""
 	@summary: Writes the process summary in one html file.
 	@param in_biom: [str] path to the input BIOM file.
@@ -172,6 +247,16 @@ def write_summary(in_biom, strat_file, excluded, summary_file):
 
 	summary_info['nb_kept'] = number_otu_all - summary_info['nb_removed']
 	summary_info['abundance_kept'] = number_abundance_all - summary_info['abundance_removed']
+
+	FH_tree_count = open( tree_count_file )
+	newick_tree = FH_tree_count.readline()
+	FH_tree_count.close()
+	ordered_samples_names = list()
+	FH_tree_ids = open( tree_ids_file )
+	for line in FH_tree_ids:
+		id, sample_name = line.strip().split( "\t", 1 )
+		ordered_samples_names.append( sample_name )
+	FH_tree_ids.close()
 
 	# function abundances table			   
 	infos_otus = list()
@@ -221,6 +306,12 @@ def write_summary(in_biom, strat_file, excluded, summary_file):
 			line = line.replace( "###DETECTION_DATA###", json.dumps(infos_otus) )
 		elif "###REMOVE_DATA###" in line:
 			line = line.replace( "###REMOVE_DATA###", json.dumps(summary_info) )
+		elif "###TAXONOMIC_RANKS###" in line:
+			line = line.replace( "###TAXONOMIC_RANKS###", json.dumps(args.hierarchy_ranks) )
+		elif "###SAMPLES_NAMES###" in line:
+			line = line.replace( "###SAMPLES_NAMES###", json.dumps(ordered_samples_names) )
+		elif "###TREE_DISTRIBUTION###" in line:
+			line = line.replace( "###TREE_DISTRIBUTION###", json.dumps(newick_tree) )
 		FH_summary_out.write( line )
 
 	FH_summary_out.close()
@@ -246,6 +337,7 @@ if __name__ == "__main__":
 	group_input.add_argument('--max_nsti', type=float, default=2.0, help='Sequences with NSTI values above this value will ' 'be excluded (default: %(default)d).')
 	group_input.add_argument('--min_reads', metavar='INT', type=int, default=1, help='Minimum number of reads across all samples for ''each input ASV. ASVs below this cut-off will be ''counted as part of the \"RARE\" category in the ''stratified output (default: %(default)d).')
 	group_input.add_argument('--min_samples', metavar='INT', type=int, default=1, help='Minimum number of samples that an ASV needs to be ''identfied within. ASVs below this cut-off will be ''counted as part of the \"RARE\" category in the ''stratified output (default: %(default)d).')
+	group_input.add_argument('--hierarchy_ranks', nargs='*', default=["Level1", "Level2", "Level3", "Gene"], help='The ordered ranks levels used in the metadata hierarchy pathways. [Default: %(default)s]' )
 	#Outputs
 	group_output = parser.add_argument_group( 'Outputs')
 	group_output.add_argument('--function_abund', default='FPStep3_pred_metagenome_unstrat.tsv', help='Output file for metagenome predictions abundance. (default: %(default)s).')
@@ -282,7 +374,16 @@ if __name__ == "__main__":
 			pred_file = args.function_abund
 			AddDescriptions(pred_file,  description_file, pred_file, tmp_add_descriptions).submit( args.log_file)
 
-		write_summary(args.input_biom, args.function_abund, args.excluded, args.html)
+
+		tmp_tsv = tmp_files.add( 'gene_abundances.tsv')
+		hierarchy_tag = formate_abundances_file(args.function_abund, GENE_HIERARCHY_FILE, tmp_tsv)
+		tmp_biom = tmp_files.add( 'gene_abundances.biom' )
+		Tsv2biom(tmp_tsv, tmp_biom).submit( args.log_file)
+		tree_count_file = tmp_files.add( "geneCount.enewick" )
+		tree_ids_file = tmp_files.add( "geneCount_ids.tsv" )
+		TaxonomyTree(tmp_biom, hierarchy_tag, tree_count_file, tree_ids_file).submit( args.log_file )
+
+		write_summary(args.input_biom, args.function_abund, args.excluded, tree_count_file, tree_ids_file, args.html)
 	finally:
 		if not args.debug:
 			tmp_files.deleteAll()
