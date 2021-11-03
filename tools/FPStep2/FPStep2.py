@@ -177,9 +177,11 @@ def write_summary(biom_file, output_marker, depth_nsti_file, summary_file ):
 	for nsti,clusters in cluster_kept.items():
 		clusters_size.append(len(clusters['Nb']))
 		abundances_size.append(clusters['Abundances'])
-		nstis.append(nsti)
+		nstis.append(float(nsti))
 		FH_log.write("\t".join([str(nsti), str(len(clusters['Nb'])), str(clusters['Abundances']) ])+"\n")
-	FH_log.close()
+	nstis = sorted(nstis)
+	clusters_size = sorted(nstis)
+	abundances_size = sorted(abundances_size)
 	FH_summary_tpl = open( os.path.join(CURRENT_DIR, "FPStep2_tpl.html") )
 	FH_summary_out = open( summary_file, "wt" )
 	for line in FH_summary_tpl:
@@ -190,6 +192,7 @@ def write_summary(biom_file, output_marker, depth_nsti_file, summary_file ):
 		elif "###NSTI_THRESH###" in line:
 			line = line.replace( "###NSTI_THRESH###", json.dumps(nstis) )
 		FH_summary_out.write( line )
+	FH_log.close()
 	FH_summary_out.close()
 	FH_summary_tpl.close()
 
