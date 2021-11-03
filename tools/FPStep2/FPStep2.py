@@ -180,7 +180,7 @@ def write_summary(biom_file, output_marker, depth_nsti_file, summary_file ):
 		nstis.append(float(nsti))
 		FH_log.write("\t".join([str(nsti), str(len(clusters['Nb'])), str(clusters['Abundances']) ])+"\n")
 	nstis = sorted(nstis)
-	clusters_size = sorted(nstis)
+	clusters_size = sorted(clusters_size)
 	abundances_size = sorted(abundances_size)
 	FH_summary_tpl = open( os.path.join(CURRENT_DIR, "FPStep2_tpl.html") )
 	FH_summary_out = open( summary_file, "wt" )

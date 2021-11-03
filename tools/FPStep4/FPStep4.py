@@ -154,6 +154,8 @@ def formate_abundances_file(strat_file, pathways_hierarchy_file, tmp_tsv, hierar
 	"""
 	@summary: Formate FPSTep4 output in order to create a biom file of pathways abundances.
 	@param start_file: FPStep4 output of pathway abundances prediction (FPStep4_path_abun_unstrat.tsv)
+	@param pathways_hierarchy_file: reference file that links every pathways ID to its hierarchy levels.
+	@param tmp_tsv: temporary tsv output of abundances per samples.
 	"""
 	id_to_hierarchy = {}
 	path_fi = open(pathways_hierarchy_file).readlines()

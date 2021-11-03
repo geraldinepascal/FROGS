@@ -117,7 +117,7 @@ class Biom2tsv(Cmd):
 
 class Tsv2biom(Cmd):
 	"""
-	@summary: In order to creates a temporary biom file that links every pathway to samples abundances.
+	@summary: In order to creates a temporary biom file that links every gene to samples abundances.
 	This is necessary in order to display sunburst plots.
 
 	"""
@@ -132,10 +132,9 @@ class Tsv2biom(Cmd):
 	def get_version(self):
 		 return Cmd.get_version(self, 'stdout').strip() 
 
-
 class TaxonomyTree(Cmd):
 	"""
-	@summary: Produces a tree with pathways abundances by sample in extended newick format.
+	@summary: Produces a tree with gene abundances by sample in extended newick format.
 	"""
 	def __init__(self, in_biom, taxonomy_tag, out_tree, out_ids):
 		"""
@@ -153,6 +152,7 @@ class TaxonomyTree(Cmd):
 					  
 	def get_version(self):   
 		return Cmd.get_version(self, 'stdout').strip()  
+
 ##################################################################################################################################################
 #
 # FUNCTIONS
@@ -182,11 +182,12 @@ def excluded_sequence(in_marker, out_seqtab, excluded):
 	marker_file.close()
 	seqtab_file.close()
 
-
 def formate_abundances_file(strat_file, gene_hierarchy_file, tmp_tsv, hierarchy_tag = "hierarchy"):
 	"""
-	@summary: Formate FPSTep4 output in order to create a biom file of pathways abundances.
-	@param start_file: FPStep4 output of pathway abundances prediction (FPStep4_path_abun_unstrat.tsv)
+	@summary: Formate FPSTep3 output in order to create a biom file of pathways abundances.
+	@param strat_file: FPStep3 output of gene abundances prediction (FPStep3_pred_metagenome_unstrat.tsv)
+	@param gene_hierarchy_file: reference file that links every gene ID to its hierarchy levels.
+	@param tmp_tsv: temporary tsv output of abundances per samples.
 	"""
 	id_to_hierarchy = {}
 	path_fi = open(gene_hierarchy_file).readlines()
