@@ -65,10 +65,28 @@ class MetagenomePipeline(Cmd):
 		 return Cmd.get_version(self, 'stdout').split()[1].strip() 
 
 	def parser(self, log_file):
-		with gzip.open('pred_metagenome_unstrat.tsv.gz', 'rb') as f_in:
-			with open(self.abund, 'wb') as f_out:
-				shutil.copyfileobj(f_in, f_out)
-			os.remove('pred_metagenome_unstrat.tsv.gz')
+		START_GENBANK_LINK = "https://www.genome.jp/dbget-bin/www_bget?"
+		START_COG_LINK = "https://www.ncbi.nlm.nih.gov/research/cog/cog/"
+		START_PFAM_LINK = "https://pfam.xfam.org/family/"
+		START_TIGR_LINK = "https://0-www-ncbi-nlm-nih-gov.linyanti.ub.bw/genome/annotation_prok/evidence/"
+		f_in = gzip.open('pred_metagenome_unstrat.tsv.gz', 'rt').readlines()
+		f_out = open(self.abund, 'wt')
+		header = f_in[0].strip().split('\t')
+		header.insert(0,'db_link')
+		f_out.write("\t".join(header)+"\n")
+		for li in f_in[1:]:
+			li = li.strip().split('\t')
+			function = li[0]
+			if "COG" in function:
+				li.insert(0,START_COG_LINK + function )
+			if "PF" in function:
+				li.insert(0,START_PFAM_LINK + function )
+			if "TIGR" in function:
+				li.insert(0,START_TIGR_LINK + function )
+			elif re.search('K[0-9]{5}',function) or "EC:" in function:
+				li.insert(0,START_GENBANK_LINK + function )
+			f_out.write("\t".join(li)+"\n")
+		os.remove('pred_metagenome_unstrat.tsv.gz')
 		with gzip.open('seqtab_norm.tsv.gz', 'rb') as f_in:
 			with open(self.seqtab, 'wb') as f_out:
 				shutil.copyfileobj(f_in, f_out)
@@ -82,23 +100,6 @@ class MetagenomePipeline(Cmd):
 				with open(self.contrib, 'wb') as f_out:
 					shutil.copyfileobj(f_in, f_out)
 				os.remove('pred_metagenome_contrib.tsv.gz')
-
-class AddDescriptions(Cmd):
-	"""
-	@summary: Adds a description column to a function abundance table and outputs a new file.
-	"""
-	def __init__(self, function_file, description_file, out_file, log):
-		"""
-		@param function_file: [str] Path to input function abundance table. (ex: EC_metagenome_out/pred_metagenome_unstrat.tsv.gz)
-		"""
-		Cmd.__init__(self,
-			'add_descriptions.py ',
-			'Adds a description column to a function abundance table.',
-			'--input ' + function_file + ' --custom_map_table ' + description_file + ' --output ' + out_file + " 2> " + log,
-			'--version')
-
-	def get_version(self):
-		 return Cmd.get_version(self, 'stdout').split()[1].strip() 
 
 class Biom2tsv(Cmd):
 	"""
@@ -199,8 +200,10 @@ def formate_abundances_file(strat_file, gene_hierarchy_file, tmp_tsv, hierarchy_
 	if "description" in df:
 		del df["description"]
 	df.rename(columns = {'function':'observation_name'}, inplace = True)
+	headers = ['observation_name', 'db_link']
 	for column in df:
-		if column != "observation_name":
+		if column not in headers:
+			print(column)
 			df[column] = df[column].round(0).astype(int)
 
 	df.to_csv(tmp_tsv,sep='\t',index=False)
@@ -211,8 +214,8 @@ def formate_abundances_file(strat_file, gene_hierarchy_file, tmp_tsv, hierarchy_
 	tmp.write("\t".join(header)+"\n")
 	for li in FH_in[1:]:
 		li = li.strip().split('\t')
-		if li[0] in id_to_hierarchy:
-			li.insert(0,id_to_hierarchy[li[0]])
+		if li[1] in id_to_hierarchy:
+			li.insert(0,id_to_hierarchy[li[1]])
 			tmp.write("\t".join(li)+"\n")
 	tmp.close()
 	os.rename(tmp_tsv+'.tmp', tmp_tsv)
@@ -262,10 +265,6 @@ def write_summary(in_biom, strat_file, excluded, tree_count_file, tree_ids_file,
 	# function abundances table			   
 	infos_otus = list()
 	details_categorys =["Function", "Description" ,"Observation_sum"]
-	START_GENBANK_LINK = "<a href='https://www.genome.jp/dbget-bin/www_bget?"
-	START_COG_LINK = "<a href='https://www.ncbi.nlm.nih.gov/research/cog/cog/"
-	START_PFAM_LINK = "<a href='https://pfam.xfam.org/family/"
-	START_TIGR_LINK = "<a href='https://0-www-ncbi-nlm-nih-gov.linyanti.ub.bw/genome/annotation_prok/evidence/"
 
 	abund = open(strat_file)
 	for li in abund:
@@ -278,15 +277,6 @@ def write_summary(in_biom, strat_file, excluded, tree_count_file, tree_ids_file,
 	for li in abund:
 		li = li.strip().split('\t')
 		function = li[0]
-		if "COG" in function:
-			li[0] = START_COG_LINK + function + "'>" + function + '</a>'
-		if "PF" in function:
-			li[0] = START_PFAM_LINK + function + "'>" + function + '</a>'
-		if "TIGR" in function:
-			li[0] = START_TIGR_LINK + function + "'>" + function + '</a>'
-		elif re.search('K[0-9]{5}',function) or "EC:" in function:
-			li[0] = START_GENBANK_LINK + function + "'>" + function + '</a>'
-
 		for i in range(len(li[2:])):
 			li[i+2] = round(float(li[i+2]),1)
 
@@ -369,11 +359,11 @@ if __name__ == "__main__":
 		
 		excluded_sequence(args.marker, args.seqtab, args.excluded)
 
-		if args.add_description != None:
-			description_file = os.path.abspath(os.path.join(os.path.dirname(CURRENT_DIR), "default_files/pathways_description_file.txt.gz"))
-			tmp_add_descriptions = tmp_files.add( 'tmp_add_descriptions.log' )	
-			pred_file = args.function_abund
-			AddDescriptions(pred_file,  description_file, pred_file, tmp_add_descriptions).submit( args.log_file)
+		# if args.add_description != None:
+		# 	description_file = os.path.abspath(os.path.join(os.path.dirname(CURRENT_DIR), "default_files/pathways_description_file.txt.gz"))
+		# 	tmp_add_descriptions = tmp_files.add( 'tmp_add_descriptions.log' )	
+		# 	pred_file = args.function_abund
+		# 	AddDescriptions(pred_file,  description_file, pred_file, tmp_add_descriptions).submit( args.log_file)
 
 
 		tmp_tsv = tmp_files.add( 'gene_abundances.tsv')
