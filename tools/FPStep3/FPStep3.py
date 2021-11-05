@@ -183,7 +183,7 @@ def excluded_sequence(in_marker, out_seqtab, excluded):
 	marker_file.close()
 	seqtab_file.close()
 
-def formate_abundances_file(strat_file, gene_hierarchy_file, tmp_tsv, hierarchy_tag = "hierarchy"):
+def formate_abundances_file(strat_file, gene_hierarchy_file, hierarchy_tag = "hierarchy"):
 	"""
 	@summary: Formate FPSTep3 output in order to create a biom file of pathways abundances.
 	@param strat_file: FPStep3 output of gene abundances prediction (FPStep3_pred_metagenome_unstrat.tsv)
@@ -197,18 +197,15 @@ def formate_abundances_file(strat_file, gene_hierarchy_file, tmp_tsv, hierarchy_
 		id_to_hierarchy[li[-1]] = ";".join(li)
 
 	df = pd.read_csv(strat_file,sep='\t')
-	if "description" in df:
-		del df["description"]
 	df.rename(columns = {'function':'observation_name'}, inplace = True)
 	headers = ['observation_name', 'db_link']
 	for column in df:
 		if column not in headers:
-			print(column)
 			df[column] = df[column].round(0).astype(int)
 
-	df.to_csv(tmp_tsv,sep='\t',index=False)
-	tmp = open(tmp_tsv +'.tmp', 'wt')
-	FH_in = open(tmp_tsv).readlines()
+	df.to_csv(strat_file ,sep='\t',index=False)
+	FH_in = open(strat_file).readlines()
+	tmp = open(strat_file + ".tmp", 'wt')
 	header = FH_in[0].strip().split('\t')
 	header.insert(0, hierarchy_tag)
 	tmp.write("\t".join(header)+"\n")
@@ -218,7 +215,7 @@ def formate_abundances_file(strat_file, gene_hierarchy_file, tmp_tsv, hierarchy_
 			li.insert(0,id_to_hierarchy[li[1]])
 			tmp.write("\t".join(li)+"\n")
 	tmp.close()
-	os.rename(tmp_tsv+'.tmp', tmp_tsv)
+	os.rename(strat_file +'.tmp', strat_file)
 	return hierarchy_tag
 
 def write_summary(in_biom, strat_file, excluded, tree_count_file, tree_ids_file, summary_file):
@@ -268,21 +265,21 @@ def write_summary(in_biom, strat_file, excluded, tree_count_file, tree_ids_file,
 
 	abund = open(strat_file)
 	for li in abund:
-		if "function" in li:
+		if "observation_name" in li:
 			li = li.strip().split('\t')
-			for sample in li[3:]:
+			for sample in li[4:]:
 				details_categorys.append(sample)
 			break
 
 	for li in abund:
 		li = li.strip().split('\t')
-		function = li[0]
-		for i in range(len(li[2:])):
-			li[i+2] = round(float(li[i+2]),1)
+		function = li[2]
+		for i in range(len(li[3:])):
+			li[i+2] = round(float(li[i+3]),1)
 
 		infos_otus.append({
-			'name': li[0],
-			'data': list(map(str,li[1:]))
+			'name': li[2],
+			'data': list(map(str,li[3:]))
 			})
 	abund.close()
 	# record details about removed OTU
@@ -324,7 +321,6 @@ if __name__ == "__main__":
 	group_input.add_argument('-b', '--input_biom', required=True, type=str, help='FPStep1 sequence abundances output file (FPStep1.biom).')
 	group_input.add_argument('-f', '--function', required=True, type=str, help='Table of predicted gene family copy numbers ''(FPStep2 output, ex FPStep2_all_predicted.tsv).')
 	group_input.add_argument('-m', '--marker', required=True, type=str, help='Table of predicted marker gene copy numbers ''(FPStep2 output, ex FPStep2_marker_nsti_predicted.tsv.')
-	group_input.add_argument('--add_description', default=False, action='store_true', help='Flag to adds a description column to the function abundance table')
 	group_input.add_argument('--max_nsti', type=float, default=2.0, help='Sequences with NSTI values above this value will ' 'be excluded (default: %(default)d).')
 	group_input.add_argument('--min_reads', metavar='INT', type=int, default=1, help='Minimum number of reads across all samples for ''each input ASV. ASVs below this cut-off will be ''counted as part of the \"RARE\" category in the ''stratified output (default: %(default)d).')
 	group_input.add_argument('--min_samples', metavar='INT', type=int, default=1, help='Minimum number of samples that an ASV needs to be ''identfied within. ASVs below this cut-off will be ''counted as part of the \"RARE\" category in the ''stratified output (default: %(default)d).')
@@ -359,17 +355,9 @@ if __name__ == "__main__":
 		
 		excluded_sequence(args.marker, args.seqtab, args.excluded)
 
-		# if args.add_description != None:
-		# 	description_file = os.path.abspath(os.path.join(os.path.dirname(CURRENT_DIR), "default_files/pathways_description_file.txt.gz"))
-		# 	tmp_add_descriptions = tmp_files.add( 'tmp_add_descriptions.log' )	
-		# 	pred_file = args.function_abund
-		# 	AddDescriptions(pred_file,  description_file, pred_file, tmp_add_descriptions).submit( args.log_file)
-
-
-		tmp_tsv = tmp_files.add( 'gene_abundances.tsv')
-		hierarchy_tag = formate_abundances_file(args.function_abund, GENE_HIERARCHY_FILE, tmp_tsv)
+		hierarchy_tag = formate_abundances_file(args.function_abund, GENE_HIERARCHY_FILE)
 		tmp_biom = tmp_files.add( 'gene_abundances.biom' )
-		Tsv2biom(tmp_tsv, tmp_biom).submit( args.log_file)
+		Tsv2biom(args.function_abund, tmp_biom).submit( args.log_file)
 		tree_count_file = tmp_files.add( "geneCount.enewick" )
 		tree_ids_file = tmp_files.add( "geneCount_ids.tsv" )
 		TaxonomyTree(tmp_biom, hierarchy_tag, tree_count_file, tree_ids_file).submit( args.log_file )
