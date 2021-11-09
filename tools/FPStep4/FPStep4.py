@@ -70,10 +70,18 @@ class PathwayPipeline(Cmd):
 		 return Cmd.get_version(self, 'stdout').split()[1].strip()
 
 	def parser(self, log_file):
-		with gzip.open('path_abun_unstrat.tsv.gz', 'rb') as f_in:
-			with open(self.pathways_abund, 'wb') as f_out:
-				shutil.copyfileobj(f_in, f_out)
-			os.remove('path_abun_unstrat.tsv.gz')
+		START_PATHWAY_LINK = "https://biocyc.org/META/NEW-IMAGE?type=PATHWAY&object="
+		f_in = gzip.open('path_abun_unstrat.tsv.gz', 'rt').readlines()
+		f_out = open(self.pathways_abund, 'wt')
+		header = f_in[0].strip().split('\t')
+		header.insert(0,'db_link')
+		f_out.write("\t".join(header)+"\n")
+		for li in f_in[1:]:
+			li = li.strip().split('\t')
+			function = li[0]
+			li.insert(0,START_PATHWAY_LINK + function )
+			f_out.write("\t".join(li)+"\n")
+		os.remove('path_abun_unstrat.tsv.gz')
 		if self.per_sequence_contrib:
 			with gzip.open('path_abun_contrib.tsv.gz', 'rb') as f_in:
 				with open(self.pathways_contrib, 'wb') as f_out:
@@ -88,22 +96,20 @@ class PathwayPipeline(Cmd):
 					shutil.copyfileobj(f_in, f_out)
 				os.remove('path_abun_unstrat_per_seq.tsv.gz')
 
-class AddDescriptions(Cmd):
+class Biom2tsv(Cmd):
 	"""
-	@summary: Adds a description column to a function abundance table and outputs a new file.
+	@summary: Converts BIOM file to TSV file.
 	"""
-	def __init__(self, abund_file, description_file, out_file):
-		"""
-		@param function_file: [str] Path to input pathway file. (ex: pathway_out/path_abun_unstrat.tsv.gz)
-		"""
-		Cmd.__init__(self,
-			'add_descriptions.py ',
-			'Adds a description column to a function abundance table.',
-			'--input ' + abund_file + ' --custom_map_table ' + description_file + ' --output ' + out_file,
-			'--version')
+	def __init__(self, in_biom, out_tsv):
+
+		Cmd.__init__( self,
+					  'biom2tsv.py',
+					  'Converts a BIOM file in TSV file.',
+					  "--input-file " + in_biom + " --output-file " + out_tsv,
+					  '--version' )
 
 	def get_version(self):
-		 return Cmd.get_version(self, 'stdout').split()[1].strip() 
+		 return Cmd.get_version(self, 'stdout').strip()
 
 class Tsv2biom(Cmd):
 	"""
@@ -150,7 +156,32 @@ class TaxonomyTree(Cmd):
 #
 ##################################################################################################################################################
 
-def formate_abundances_file(strat_file, pathways_hierarchy_file, tmp_tsv, hierarchy_tag = "hierarchy"):
+def formate_input_file(input_file, tmp_tsv):
+	"""
+	@summary: formate gene abundances file in order to use pathways_pipeline.py
+	"""
+	FH_in = open(input_file).readlines()
+	FH_out = open(tmp_tsv, 'wt')
+	header = FH_in[0].strip().split('\t')
+	formatted_col = ['hierarchy', 'db_link']
+	to_keep = list()
+	to_write = list()
+	for col_n in range(len(header)):
+		if header[col_n] == "observation_name":
+			header[col_n] = "function"
+		if header[col_n] not in formatted_col:
+			to_write.append(header[col_n])
+			to_keep.append(col_n)
+	FH_out.write('\t'.join(to_write)+'\n')
+	for li in FH_in[1:]:
+		li = li.strip().split('\t')
+		to_write = list()
+		for i in range(len(li)):
+			if i in to_keep:
+				to_write.append(li[i])
+		FH_out.write('\t'.join(to_write)+'\n')
+
+def formate_abundances_file(strat_file, pathways_hierarchy_file, hierarchy_tag = "hierarchy"):
 	"""
 	@summary: Formate FPSTep4 output in order to create a biom file of pathways abundances.
 	@param start_file: FPStep4 output of pathway abundances prediction (FPStep4_path_abun_unstrat.tsv)
@@ -164,26 +195,25 @@ def formate_abundances_file(strat_file, pathways_hierarchy_file, tmp_tsv, hierar
 		id_to_hierarchy[li[-1]] = ";".join(li)
 
 	df = pd.read_csv(strat_file,sep='\t')
-	if "description" in df:
-		del df["description"]
 	df.rename(columns = {'pathway':'observation_name'}, inplace = True)
+	headers = ['observation_name', 'db_link']
 	for column in df:
-		if column != "observation_name":
+		if column not in headers:
 			df[column] = df[column].round(0).astype(int)
 
-	df.to_csv(tmp_tsv,sep='\t',index=False)
-	tmp = open(tmp_tsv +'.tmp', 'wt')
-	FH_in = open(tmp_tsv).readlines()
+	df.to_csv(strat_file ,sep='\t', index=False)
+	tmp = open(strat_file +'.tmp', 'wt')
+	FH_in = open(strat_file).readlines()
 	header = FH_in[0].strip().split('\t')
 	header.insert(0, hierarchy_tag)
 	tmp.write("\t".join(header)+"\n")
 	for li in FH_in[1:]:
 		li = li.strip().split('\t')
-		if li[0] in id_to_hierarchy:
-			li.insert(0,id_to_hierarchy[li[0]])
+		if li[1] in id_to_hierarchy:
+			li.insert(0,id_to_hierarchy[li[1]])
 			tmp.write("\t".join(li)+"\n")
 	tmp.close()
-	os.rename(tmp_tsv+'.tmp', tmp_tsv)
+	os.rename(strat_file+'.tmp', strat_file)
 	return hierarchy_tag
 
 def write_summary(strat_file, tree_count_file, tree_ids_file, summary_file):
@@ -238,16 +268,12 @@ def write_summary(strat_file, tree_count_file, tree_ids_file, summary_file):
 	FH_summary_out = open( summary_file, "wt" )
 
 	for line in FH_summary_tpl:
-		if "###DETECTION_CATEGORIES###" in line:
-			line = line.replace( "###DETECTION_CATEGORIES###", json.dumps(details_categorys) )
 		elif "###TAXONOMIC_RANKS###" in line:
 			line = line.replace( "###TAXONOMIC_RANKS###", json.dumps(args.hierarchy_ranks) )
 		elif "###SAMPLES_NAMES###" in line:
 			line = line.replace( "###SAMPLES_NAMES###", json.dumps(ordered_samples_names) )
 		elif "###TREE_DISTRIBUTION###" in line:
 			line = line.replace( "###TREE_DISTRIBUTION###", json.dumps(newick_tree) )
-		elif "###DETECTION_DATA###" in line:
-			line = line.replace( "###DETECTION_DATA###", json.dumps(infos_otus) )
 		FH_summary_out.write( line )
 
 	FH_summary_out.close()
@@ -302,17 +328,20 @@ if __name__ == "__main__":
 			parser.error("\n\n#ERROR : --per_sequence_contrib required when --per_sequence_contrib and --per_sequence_function option is set!\n\n")
 
 		tmp_pathway = tmp_files.add( 'pathway_pipeline.log' )
-		PathwayPipeline(args.input_file, args.map, args.per_sequence_contrib, args.per_sequence_abun, args.per_sequence_function, args.no_regroup,  args.pathways_abund, args.pathways_contrib, args.pathways_predictions, args.pathways_abund_per_seq, tmp_pathway).submit(args.log_file)
+		tmp_tsv = tmp_files.add( 'genes_abundances_formatted.tsv')
+		formate_input_file(args.input_file, tmp_tsv)
 
-		tmp_tsv = tmp_files.add( 'pathway_abundances.tsv')
-		hierarchy_tag = formate_abundances_file(args.pathways_abund, PATHWAYS_HIERARCHY_FILE, tmp_tsv)
+
+		PathwayPipeline(tmp_tsv, args.map, args.per_sequence_contrib, args.per_sequence_abun, args.per_sequence_function, args.no_regroup,  args.pathways_abund, args.pathways_contrib, args.pathways_predictions, args.pathways_abund_per_seq, tmp_pathway).submit(args.log_file)
+
+		hierarchy_tag = formate_abundances_file( args.pathways_abund, PATHWAYS_HIERARCHY_FILE )
 		tmp_biom = tmp_files.add( 'pathway_abundances.biom' )
-		Tsv2biom(tmp_tsv, tmp_biom).submit( args.log_file)
+		Tsv2biom( args.pathways_abund, tmp_biom ).submit( args.log_file)
 		tree_count_file = tmp_files.add( "pathwayCount.enewick" )
 		tree_ids_file = tmp_files.add( "pathwayCount_ids.tsv" )
-		TaxonomyTree(tmp_biom, hierarchy_tag, tree_count_file, tree_ids_file).submit( args.log_file )
+		TaxonomyTree( tmp_biom, hierarchy_tag, tree_count_file, tree_ids_file ).submit( args.log_file )
 
-		write_summary(args.pathways_abund, tree_count_file, tree_ids_file, args.html)
+		write_summary( args.pathways_abund, tree_count_file, tree_ids_file, args.html )
 
 	finally:
 		if not args.debug:

@@ -203,9 +203,9 @@ def formate_abundances_file(strat_file, gene_hierarchy_file, hierarchy_tag = "hi
 		if column not in headers:
 			df[column] = df[column].round(0).astype(int)
 
-	df.to_csv(strat_file ,sep='\t',index=False)
-	FH_in = open(strat_file).readlines()
+	df.to_csv(strat_file ,sep='\t' ,index=False)
 	tmp = open(strat_file + ".tmp", 'wt')
+	FH_in = open(strat_file).readlines()
 	header = FH_in[0].strip().split('\t')
 	header.insert(0, hierarchy_tag)
 	tmp.write("\t".join(header)+"\n")
