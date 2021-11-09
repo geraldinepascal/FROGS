@@ -160,23 +160,30 @@ class TaxonomyTree(Cmd):
 #
 ##################################################################################################################################################
 
-def excluded_sequence(in_marker, out_seqtab, excluded):
+def excluded_sequence(in_biom, in_marker, out_seqtab, excluded):
 	"""
 	@summary: Returns the excluded sequence, that have a NSTI score above the NSTI threshold.
+	@param in_biom: Biom file.
 	@param in_marker: [str] Path to FPStep2 marker file to process.
 	@param out_seqtab: [str] Path to FPStep3 seqtab file to process.
 	@output: The file of excluded sequence names.
 	"""
 	marker_file = open( in_marker )
 	seqtab_file = open( out_seqtab )
+	biom = BiomIO.from_json(in_biom)
 	excluded = open(excluded, "wt")
 	clusters_in = [ li.strip().split('\t')[0] for li in marker_file.readlines()[1:]]
 	clusters_out = [ li.strip().split('\t')[0] for li in seqtab_file.readlines()[1:]]
 	no_excluded = True
+	write_header = True
 	for cluster in clusters_in:
 		if cluster not in clusters_out:
 			no_excluded = False
-			excluded.write(cluster+"\n")
+			if write_header:
+				excluded.write('\t'.join(['Cluster','FROGS_taxonomy','Picrust2_taxonomy'])+"\n")
+				write_header = False
+			excluded.write(cluster+"\t")
+			excluded.write("\t".join([str(';'.join(biom.get_observation_metadata(cluster)['blast_taxonomy']))  ,str(biom.get_observation_metadata(cluster)['picrust2_affiliations'])])+"\n")
 	if no_excluded:
 		excluded.write('#No excluded OTUs.\n')
 	excluded.close()
@@ -242,9 +249,10 @@ def write_summary(in_biom, strat_file, excluded, tree_count_file, tree_ids_file,
 		number_abundance_all += biom.get_observation_count(otu)
 	excluded_clusters = open( excluded ).readlines()
 	if not excluded_clusters[0].startswith('#'):
-		for otu in excluded_clusters:
+		#[1:] for skip header
+		for otu in excluded_clusters[1:]:
 			summary_info['nb_removed'] +=1
-			summary_info['abundance_removed'] += biom.get_observation_count(otu.strip())
+			summary_info['abundance_removed'] += biom.get_observation_count(otu.strip().split('\t')[0])
 
 	summary_info['nb_kept'] = number_otu_all - summary_info['nb_removed']
 	summary_info['abundance_kept'] = number_abundance_all - summary_info['abundance_removed']
@@ -353,7 +361,7 @@ if __name__ == "__main__":
 		tmp_metag_pipeline = tmp_files.add( 'tmp_metagenome_pipeline.log' )	
 		MetagenomePipeline(tmp_biom_to_tsv, args.marker, args.function, args.max_nsti, args.min_reads, args.min_samples, args.strat_out, args.function_abund, args.seqtab, args.weighted, args.contrib, tmp_metag_pipeline).submit( args.log_file )
 		
-		excluded_sequence(args.marker, args.seqtab, args.excluded)
+		excluded_sequence(args.input_biom, args.marker, args.seqtab, args.excluded)
 
 		hierarchy_tag = formate_abundances_file(args.function_abund, GENE_HIERARCHY_FILE)
 		tmp_biom = tmp_files.add( 'gene_abundances.biom' )

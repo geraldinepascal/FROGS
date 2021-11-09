@@ -268,7 +268,7 @@ def write_summary(strat_file, tree_count_file, tree_ids_file, summary_file):
 	FH_summary_out = open( summary_file, "wt" )
 
 	for line in FH_summary_tpl:
-		elif "###TAXONOMIC_RANKS###" in line:
+		if "###TAXONOMIC_RANKS###" in line:
 			line = line.replace( "###TAXONOMIC_RANKS###", json.dumps(args.hierarchy_ranks) )
 		elif "###SAMPLES_NAMES###" in line:
 			line = line.replace( "###SAMPLES_NAMES###", json.dumps(ordered_samples_names) )
@@ -294,8 +294,8 @@ if __name__ == "__main__":
 	group_input = parser.add_argument_group( 'Inputs' )
 	group_input.add_argument('-i', '--input_file', required=True, type=str, help='Input TSV table of gene family abundances (FPStep3_pred_metagenome_unstrat.tsv from FPStep3.py).')
 	group_input.add_argument('-m', '--map', type=str, help='Mapping of pathways to reactions, necessary if marker studied is not 16S (metacyc_path2rxn_struc_filt_pro.txt used by default). For ITS analysis, required file is here: $PICRUST2_PATH/default_files/pathway_mapfiles/metacyc_path2rxn_struc_filt_fungi.txt).')
-	group_input.add_argument('--per_sequence_abun', default=None, help='Path to table of sequence abundances across samples normalized by marker copy number (typically the normalized sequence abundance table output at the metagenome pipeline step: seqtab_norm.tsv by default). This input is required when the --per_sequence_contrib option is set. (default: None).')
-	group_input.add_argument('--per_sequence_function', default=None, help='Path to table of function abundances per sequence, which was outputted at the hidden-state prediction step. This input is required when the --per_sequence_contrib option is set. Note that this file should be the same input table as used for the metagenome pipeline step (default: None).')
+	group_input.add_argument('--per_sequence_abun', default=None, help='Path to table of sequence abundances across samples normalized by marker copy number (typically the normalized sequence abundance table output at the metagenome pipeline step: FPStep3_seqtab_norm.tsv by default). This input is required when the --per_sequence_contrib option is set. (default: None).')
+	group_input.add_argument('--per_sequence_function', default=None, help='Path to table of function abundances per sequence, which was outputted at the hidden-state prediction step (FPStep2_predicted_functions.tsv by default). This input is required when the --per_sequence_contrib option is set. Note that this file should be the same input table as used for the metagenome pipeline step (default: None).')
 	group_input.add_argument('--hierarchy_ranks', nargs='*', default=["Level1", "Level2", "Level3", "Pathway"], help='The ordered ranks levels used in the metadata hierarchy pathways. [Default: %(default)s]' )
 	#Outputs
 	group_output = parser.add_argument_group( 'Outputs')

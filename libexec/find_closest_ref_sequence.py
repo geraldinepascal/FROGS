@@ -94,6 +94,7 @@ def find_lowest_same_taxo_rank(taxo_frogs, taxo_picrust, hierarchy = ["Kingdom",
 
 	for i in range(len(hierarchy)-1, 0, -1):
 		if taxo_frogs[i] == taxo_picrust[i]:
+			print(taxo_frogs[i], taxo_picrust[i])
 			return hierarchy[i]
 	return "/"
 
