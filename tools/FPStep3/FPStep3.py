@@ -65,10 +65,28 @@ class MetagenomePipeline(Cmd):
 		 return Cmd.get_version(self, 'stdout').split()[1].strip() 
 
 	def parser(self, log_file):
-		with gzip.open('pred_metagenome_unstrat.tsv.gz', 'rb') as f_in:
-			with open(self.abund, 'wb') as f_out:
-				shutil.copyfileobj(f_in, f_out)
-			os.remove('pred_metagenome_unstrat.tsv.gz')
+		START_GENBANK_LINK = "https://www.genome.jp/dbget-bin/www_bget?"
+		START_COG_LINK = "https://www.ncbi.nlm.nih.gov/research/cog/cog/"
+		START_PFAM_LINK = "https://pfam.xfam.org/family/"
+		START_TIGR_LINK = "https://0-www-ncbi-nlm-nih-gov.linyanti.ub.bw/genome/annotation_prok/evidence/"
+		f_in = gzip.open('pred_metagenome_unstrat.tsv.gz', 'rt').readlines()
+		f_out = open(self.abund, 'wt')
+		header = f_in[0].strip().split('\t')
+		header.insert(0,'db_link')
+		f_out.write("\t".join(header)+"\n")
+		for li in f_in[1:]:
+			li = li.strip().split('\t')
+			function = li[0]
+			if "COG" in function:
+				li.insert(0,START_COG_LINK + function )
+			if "PF" in function:
+				li.insert(0,START_PFAM_LINK + function )
+			if "TIGR" in function:
+				li.insert(0,START_TIGR_LINK + function )
+			elif re.search('K[0-9]{5}',function) or "EC:" in function:
+				li.insert(0,START_GENBANK_LINK + function )
+			f_out.write("\t".join(li)+"\n")
+		os.remove('pred_metagenome_unstrat.tsv.gz')
 		with gzip.open('seqtab_norm.tsv.gz', 'rb') as f_in:
 			with open(self.seqtab, 'wb') as f_out:
 				shutil.copyfileobj(f_in, f_out)
@@ -82,23 +100,6 @@ class MetagenomePipeline(Cmd):
 				with open(self.contrib, 'wb') as f_out:
 					shutil.copyfileobj(f_in, f_out)
 				os.remove('pred_metagenome_contrib.tsv.gz')
-
-class AddDescriptions(Cmd):
-	"""
-	@summary: Adds a description column to a function abundance table and outputs a new file.
-	"""
-	def __init__(self, function_file, description_file, out_file, log):
-		"""
-		@param function_file: [str] Path to input function abundance table. (ex: EC_metagenome_out/pred_metagenome_unstrat.tsv.gz)
-		"""
-		Cmd.__init__(self,
-			'add_descriptions.py ',
-			'Adds a description column to a function abundance table.',
-			'--input ' + function_file + ' --custom_map_table ' + description_file + ' --output ' + out_file + " 2> " + log,
-			'--version')
-
-	def get_version(self):
-		 return Cmd.get_version(self, 'stdout').split()[1].strip() 
 
 class Biom2tsv(Cmd):
 	"""
@@ -117,7 +118,7 @@ class Biom2tsv(Cmd):
 
 class Tsv2biom(Cmd):
 	"""
-	@summary: In order to creates a temporary biom file that links every pathway to samples abundances.
+	@summary: In order to creates a temporary biom file that links every gene to samples abundances.
 	This is necessary in order to display sunburst plots.
 
 	"""
@@ -132,10 +133,9 @@ class Tsv2biom(Cmd):
 	def get_version(self):
 		 return Cmd.get_version(self, 'stdout').strip() 
 
-
 class TaxonomyTree(Cmd):
 	"""
-	@summary: Produces a tree with pathways abundances by sample in extended newick format.
+	@summary: Produces a tree with gene abundances by sample in extended newick format.
 	"""
 	def __init__(self, in_biom, taxonomy_tag, out_tree, out_ids):
 		"""
@@ -153,6 +153,7 @@ class TaxonomyTree(Cmd):
 					  
 	def get_version(self):   
 		return Cmd.get_version(self, 'stdout').strip()  
+
 ##################################################################################################################################################
 #
 # FUNCTIONS
@@ -182,11 +183,12 @@ def excluded_sequence(in_marker, out_seqtab, excluded):
 	marker_file.close()
 	seqtab_file.close()
 
-
-def formate_abundances_file(strat_file, gene_hierarchy_file, tmp_tsv, hierarchy_tag = "hierarchy"):
+def formate_abundances_file(strat_file, gene_hierarchy_file, hierarchy_tag = "hierarchy"):
 	"""
-	@summary: Formate FPSTep4 output in order to create a biom file of pathways abundances.
-	@param start_file: FPStep4 output of pathway abundances prediction (FPStep4_path_abun_unstrat.tsv)
+	@summary: Formate FPSTep3 output in order to create a biom file of pathways abundances.
+	@param strat_file: FPStep3 output of gene abundances prediction (FPStep3_pred_metagenome_unstrat.tsv)
+	@param gene_hierarchy_file: reference file that links every gene ID to its hierarchy levels.
+	@param tmp_tsv: temporary tsv output of abundances per samples.
 	"""
 	id_to_hierarchy = {}
 	path_fi = open(gene_hierarchy_file).readlines()
@@ -195,26 +197,25 @@ def formate_abundances_file(strat_file, gene_hierarchy_file, tmp_tsv, hierarchy_
 		id_to_hierarchy[li[-1]] = ";".join(li)
 
 	df = pd.read_csv(strat_file,sep='\t')
-	if "description" in df:
-		del df["description"]
 	df.rename(columns = {'function':'observation_name'}, inplace = True)
+	headers = ['observation_name', 'db_link']
 	for column in df:
-		if column != "observation_name":
+		if column not in headers:
 			df[column] = df[column].round(0).astype(int)
 
-	df.to_csv(tmp_tsv,sep='\t',index=False)
-	tmp = open(tmp_tsv +'.tmp', 'wt')
-	FH_in = open(tmp_tsv).readlines()
+	df.to_csv(strat_file ,sep='\t' ,index=False)
+	tmp = open(strat_file + ".tmp", 'wt')
+	FH_in = open(strat_file).readlines()
 	header = FH_in[0].strip().split('\t')
 	header.insert(0, hierarchy_tag)
 	tmp.write("\t".join(header)+"\n")
 	for li in FH_in[1:]:
 		li = li.strip().split('\t')
-		if li[0] in id_to_hierarchy:
-			li.insert(0,id_to_hierarchy[li[0]])
+		if li[1] in id_to_hierarchy:
+			li.insert(0,id_to_hierarchy[li[1]])
 			tmp.write("\t".join(li)+"\n")
 	tmp.close()
-	os.rename(tmp_tsv+'.tmp', tmp_tsv)
+	os.rename(strat_file +'.tmp', strat_file)
 	return hierarchy_tag
 
 def write_summary(in_biom, strat_file, excluded, tree_count_file, tree_ids_file, summary_file):
@@ -261,37 +262,24 @@ def write_summary(in_biom, strat_file, excluded, tree_count_file, tree_ids_file,
 	# function abundances table			   
 	infos_otus = list()
 	details_categorys =["Function", "Description" ,"Observation_sum"]
-	START_GENBANK_LINK = "<a href='https://www.genome.jp/dbget-bin/www_bget?"
-	START_COG_LINK = "<a href='https://www.ncbi.nlm.nih.gov/research/cog/cog/"
-	START_PFAM_LINK = "<a href='https://pfam.xfam.org/family/"
-	START_TIGR_LINK = "<a href='https://0-www-ncbi-nlm-nih-gov.linyanti.ub.bw/genome/annotation_prok/evidence/"
 
 	abund = open(strat_file)
 	for li in abund:
-		if "function" in li:
+		if "observation_name" in li:
 			li = li.strip().split('\t')
-			for sample in li[3:]:
+			for sample in li[4:]:
 				details_categorys.append(sample)
 			break
 
 	for li in abund:
 		li = li.strip().split('\t')
-		function = li[0]
-		if "COG" in function:
-			li[0] = START_COG_LINK + function + "'>" + function + '</a>'
-		if "PF" in function:
-			li[0] = START_PFAM_LINK + function + "'>" + function + '</a>'
-		if "TIGR" in function:
-			li[0] = START_TIGR_LINK + function + "'>" + function + '</a>'
-		elif re.search('K[0-9]{5}',function) or "EC:" in function:
-			li[0] = START_GENBANK_LINK + function + "'>" + function + '</a>'
-
-		for i in range(len(li[2:])):
-			li[i+2] = round(float(li[i+2]),1)
+		function = li[2]
+		for i in range(len(li[3:])):
+			li[i+2] = round(float(li[i+3]),1)
 
 		infos_otus.append({
-			'name': li[0],
-			'data': list(map(str,li[1:]))
+			'name': li[2],
+			'data': list(map(str,li[3:]))
 			})
 	abund.close()
 	# record details about removed OTU
@@ -333,7 +321,6 @@ if __name__ == "__main__":
 	group_input.add_argument('-b', '--input_biom', required=True, type=str, help='FPStep1 sequence abundances output file (FPStep1.biom).')
 	group_input.add_argument('-f', '--function', required=True, type=str, help='Table of predicted gene family copy numbers ''(FPStep2 output, ex FPStep2_all_predicted.tsv).')
 	group_input.add_argument('-m', '--marker', required=True, type=str, help='Table of predicted marker gene copy numbers ''(FPStep2 output, ex FPStep2_marker_nsti_predicted.tsv.')
-	group_input.add_argument('--add_description', default=False, action='store_true', help='Flag to adds a description column to the function abundance table')
 	group_input.add_argument('--max_nsti', type=float, default=2.0, help='Sequences with NSTI values above this value will ' 'be excluded (default: %(default)d).')
 	group_input.add_argument('--min_reads', metavar='INT', type=int, default=1, help='Minimum number of reads across all samples for ''each input ASV. ASVs below this cut-off will be ''counted as part of the \"RARE\" category in the ''stratified output (default: %(default)d).')
 	group_input.add_argument('--min_samples', metavar='INT', type=int, default=1, help='Minimum number of samples that an ASV needs to be ''identfied within. ASVs below this cut-off will be ''counted as part of the \"RARE\" category in the ''stratified output (default: %(default)d).')
@@ -368,17 +355,9 @@ if __name__ == "__main__":
 		
 		excluded_sequence(args.marker, args.seqtab, args.excluded)
 
-		if args.add_description != None:
-			description_file = os.path.abspath(os.path.join(os.path.dirname(CURRENT_DIR), "default_files/pathways_description_file.txt.gz"))
-			tmp_add_descriptions = tmp_files.add( 'tmp_add_descriptions.log' )	
-			pred_file = args.function_abund
-			AddDescriptions(pred_file,  description_file, pred_file, tmp_add_descriptions).submit( args.log_file)
-
-
-		tmp_tsv = tmp_files.add( 'gene_abundances.tsv')
-		hierarchy_tag = formate_abundances_file(args.function_abund, GENE_HIERARCHY_FILE, tmp_tsv)
+		hierarchy_tag = formate_abundances_file(args.function_abund, GENE_HIERARCHY_FILE)
 		tmp_biom = tmp_files.add( 'gene_abundances.biom' )
-		Tsv2biom(tmp_tsv, tmp_biom).submit( args.log_file)
+		Tsv2biom(args.function_abund, tmp_biom).submit( args.log_file)
 		tree_count_file = tmp_files.add( "geneCount.enewick" )
 		tree_ids_file = tmp_files.add( "geneCount_ids.tsv" )
 		TaxonomyTree(tmp_biom, hierarchy_tag, tree_count_file, tree_ids_file).submit( args.log_file )

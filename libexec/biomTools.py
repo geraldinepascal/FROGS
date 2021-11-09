@@ -139,11 +139,10 @@ def sampling_by_sample( input_biom, output_biom, sampling_by_min, delete_samples
         sample_nb_sampled = nb_sampled
         if nb_sampled is None:
             sample_nb_sampled = int(sample_seq * sampled_ratio)
-        if sample_seq < nb_sampled:
-            if not delete_samples:
-                raise_exception( Exception( "\n\n#ERROR : " + str(sample_nb_sampled) + " sequences cannot be sampled in sample '" + str(sample_name) + "'. It only contains " + str(sample_seq) + " sequences.\n\n" ))
-
-            else:
+        if sample_seq < nb_sampled and not delete_samples:
+            sample_nb_sampled = sample_seq
+            # raise_exception( Exception( "\n\n#ERROR : " + str(sample_nb_sampled) + " sequences cannot be sampled in sample '" + str(sample_name) + "'. It only contains " + str(sample_seq) + " sequences.\n\n" ))
+        if sample_seq < nb_sampled and delete_samples:
                 new_biom.remove_samples([str(sample_name)])
         else:
             for current_nb_iter in range(sample_nb_sampled):
