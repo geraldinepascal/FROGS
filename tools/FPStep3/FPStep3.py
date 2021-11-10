@@ -190,7 +190,7 @@ def excluded_sequence(in_biom, in_marker, out_seqtab, excluded):
 	marker_file.close()
 	seqtab_file.close()
 
-def formate_abundances_file(strat_file, gene_hierarchy_file, hierarchy_tag = "hierarchy"):
+def formate_abundances_file(strat_file, gene_hierarchy_file, hierarchy_tag = "classification"):
 	"""
 	@summary: Formate FPSTep3 output in order to create a biom file of pathways abundances.
 	@param strat_file: FPStep3 output of gene abundances prediction (FPStep3_pred_metagenome_unstrat.tsv)

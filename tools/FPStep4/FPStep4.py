@@ -163,7 +163,7 @@ def formate_input_file(input_file, tmp_tsv):
 	FH_in = open(input_file).readlines()
 	FH_out = open(tmp_tsv, 'wt')
 	header = FH_in[0].strip().split('\t')
-	formatted_col = ['hierarchy', 'db_link']
+	formatted_col = ['classification', 'db_link']
 	to_keep = list()
 	to_write = list()
 	for col_n in range(len(header)):
@@ -181,7 +181,7 @@ def formate_input_file(input_file, tmp_tsv):
 				to_write.append(li[i])
 		FH_out.write('\t'.join(to_write)+'\n')
 
-def formate_abundances_file(strat_file, pathways_hierarchy_file, hierarchy_tag = "hierarchy"):
+def formate_abundances_file(strat_file, pathways_hierarchy_file, hierarchy_tag = "classification"):
 	"""
 	@summary: Formate FPSTep4 output in order to create a biom file of pathways abundances.
 	@param start_file: FPStep4 output of pathway abundances prediction (FPStep4_path_abun_unstrat.tsv)
