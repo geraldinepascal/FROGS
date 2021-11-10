@@ -99,7 +99,10 @@ class BIOM_FASTA_update(Cmd):
 # FUNCTIONS
 #
 ##################################################################################################################################################
-def write_log(in_biom, out_biom, log):
+def write_log(in_biom, num_reads, out_biom, log):
+    sampling_by_min = False
+    if num_reads is None:
+        sampling_by_min = True
     FH_log=open(log,"wt")
     FH_log.write("#sample\tnb_otu_before\tnb_otu_after\n")
     initial_biom = BiomIO.from_json( in_biom )
@@ -110,13 +113,18 @@ def write_log(in_biom, out_biom, log):
     for sample_name in initial_biom.get_samples_names():
         if sample_name in new_biom.get_samples_names():
             nb_otu_before = len([ i for i in initial_biom.get_sample_obs(sample_name) if i >0 ])
-            tot_seqs_before += sum([ i for i in initial_biom.get_sample_obs(sample_name) if i >0 ])
+            nb_seqs_before = sum([ i for i in initial_biom.get_sample_obs(sample_name) if i >0 ])
+            tot_seqs_before += nb_seqs_before
             nb_otu_after = len([ i for i in new_biom.get_sample_obs(sample_name) if i > 0])
             tot_seqs_after += sum([ i for i in new_biom.get_sample_obs(sample_name) if i >0 ])
-            FH_log.write("Sample name: "+sample_name+"\n\tnb initials OTU: "+str(nb_otu_before)+"\n\tnb normalised OTU: "+str(nb_otu_after)+"\n")
+            if sampling_by_min is True or nb_seqs_before >= num_reads:
+                FH_log.write("Sample name: "+sample_name+"\n\tnb initials OTU: "+str(nb_otu_before)+"\n\tnb normalised OTU: "+str(nb_otu_after)+"\n")
+            else:
+                FH_log.write("Below threshold sample: "+sample_name+"\n\tnb sequences: "+str(initial_biom.get_sample_count(sample_name))+"\n")
+                FH_log.write("Sample name: "+sample_name+"\n\tnb initials OTU: "+str(nb_otu_before)+"\n\tnb normalised OTU: "+str(nb_otu_after)+"\n")
         else:
             tot_seqs_before += sum([ i for i in initial_biom.get_sample_obs(sample_name) if i >0 ])
-            FH_log.write("Deleted sample: "+sample_name+"\n\tnb sequences: "+str(initial_biom.get_sample_count(sample_name))+"\n")
+            FH_log.write("Below threshold sample: "+sample_name+"\n\tnb sequences: "+str(initial_biom.get_sample_count(sample_name))+"\n")
             Logger.static_write(args.log_file,"WARNING: Deleted sample: "+str(sample_name) + " (Only " + str(initial_biom.get_sample_count(sample_name)) + " sequences).\n")
 
     nb_initial_otu=len(initial_biom.rows)
@@ -126,7 +134,7 @@ def write_log(in_biom, out_biom, log):
     FH_log.write("Sample name: all samples\n\tnb sequences kept: "+str(tot_seqs_after)+"\n\tnb sequences removed: "+str(nb_seqs_removed)+"\n\tnb OTU kept: "+str(nb_new_otu)+"\n\tnb OTU removed: "+str(nb_otus_removed)+"\n")
     FH_log.close()
 
-def summarise_results( summary_file, num_reads, biom_subsample_log ):
+def summarise_results( summary_file, is_delete_samples, num_reads, biom_subsample_log ):
     """
     @summary: Writes one summary of results from several logs.
     @param summary_file: [str] The output file.
@@ -145,8 +153,8 @@ def summarise_results( summary_file, num_reads, biom_subsample_log ):
         if series[i]["name"]=="all samples":
             summary = series.pop(i)["data"]
             n -= 1
-        elif series[i]["name"].startswith('Delete:'):
-            series[i]["name"] = series[i]["name"].replace('Delete:','')
+        elif series[i]["name"].startswith('Below threshold sample:'):
+            series[i]["name"] = series[i]["name"].replace('Below threshold sample:','')
             deletes.append(series.pop(i))
             n -= 1
         else:
@@ -157,9 +165,14 @@ def summarise_results( summary_file, num_reads, biom_subsample_log ):
        'nb_kept' : summary[2],
        'nb_removed' : summary[3]
     }
-    # Write
+    # Write Deleted samples (nb sequences < ###NB_SEQS###)
     FH_summary_tpl = open( os.path.join(CURRENT_DIR, "normalisation_tpl.html") )
     FH_summary_out = open( summary_file, "wt" )
+    if is_delete_samples:
+        title = 'Deleted samples (nb sequences < ' + str(num_reads) + ')'
+    else:
+        title = 'Kept samples (nb sequences < ' + str(num_reads) + ')'
+
     for line in FH_summary_tpl:
         if "###DATA_CATEGORIES###" in line:
             line = line.replace( "###DATA_CATEGORIES###", json.dumps(categories) )
@@ -171,8 +184,8 @@ def summarise_results( summary_file, num_reads, biom_subsample_log ):
             line = line.replace( "###DELETE_SERIES###", json.dumps(deletes) )
         elif "###REMOVE_DATA###" in line:
             line = line.replace( "###REMOVE_DATA###", json.dumps(summary_info) )
-        elif "###NB_SEQS###" in line:
-            line = line.replace( "###NB_SEQS###", str(num_reads) )
+        elif "###TITLE###" in line:
+            line = line.replace( "###TITLE###", title )
         FH_summary_out.write( line )
 
     FH_summary_out.close()
@@ -203,8 +216,8 @@ def get_sample_resuts( log_file, output_list ):
         elif line.strip().startswith('nb initials OTU:'):
             results['data'].append( int(line.split(':')[1].strip()) )
         # case if informations about deleted sample
-        elif line.strip().startswith('Deleted sample:'):
-            results['name'] = "Delete:" + line.split(':')[1].strip()
+        elif line.strip().startswith('Below threshold sample:'):
+            results['name'] = "Below threshold sample: " + line.split(':')[1].strip()
         # end of every cases and add all informations
         elif line.strip().startswith('nb sequences:') or\
          line.strip().startswith('nb normalised OTU:') or \
@@ -253,12 +266,12 @@ if __name__ == "__main__":
         Logger.static_write(args.log_file,'\n#Normalisation calculation\n\tstart: ' + time.strftime("%d %b %Y %H:%M:%S", time.localtime()) + '\n' )
         tmp_subsampling = tmp_files.add( 'tmp_biom_subsample.log' )
         BIOM_sampling(args.input_biom, args.output_biom, args.num_reads, args.sampling_by_min, args.delete_samples).submit(args.log_file)
-        write_log(args.input_biom, args.output_biom, tmp_subsampling)
+        write_log(args.input_biom, args.num_reads, args.output_biom, tmp_subsampling)
         Logger.static_write(args.log_file,'\tend: ' + time.strftime("%d %b %Y %H:%M:%S", time.localtime()) + '\n\n' )
         tmp_fastaUpdate = tmp_files.add( 'tmp_fasta_update.log' )
         BIOM_FASTA_update(args.output_biom, args.input_fasta, args.output_fasta, tmp_fastaUpdate).submit(args.log_file)
         Logger.static_write(args.log_file,'\n#Summarise\n\tstart: ' + time.strftime("%d %b %Y %H:%M:%S", time.localtime()) + '\n' )
-        summarise_results( args.summary_file, args.num_reads, tmp_subsampling )
+        summarise_results( args.summary_file, args.delete_samples, args.num_reads, tmp_subsampling )
         Logger.static_write(args.log_file,'\tend: ' + time.strftime("%d %b %Y %H:%M:%S", time.localtime()) + '\n\n' )
         Logger.static_write(args.log_file,'Application end: ' + time.strftime("%d %b %Y %H:%M:%S", time.localtime()) + '\n' )
     # Remove temporary files
