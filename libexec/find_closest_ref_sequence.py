@@ -81,10 +81,22 @@ def is_same_taxonomies(taxo_frogs, taxo_picrust):
 	@note: taxo inputs must be on this format: Fungi;Ascomycota;Eurotiomycetes;Eurotiales;Aspergillaceae;Penicillium;Penicillium_antarcticum
 	'''
 	for i in range(len(taxo_frogs.split(';'))):
-
 		if taxo_frogs.split(';')[i].lower() != taxo_picrust.split(';')[i].lower():
 			return False
 	return True
+
+def find_lowest_same_taxo_rank(taxo_frogs, taxo_picrust, hierarchy = ["Kingdom","Phylum","Class","Order","Family","Genus","Species"]):
+	'''
+	@summary: find lowest identical taxonomic rank between frogs and picrust2 taxonomies
+	'''
+	taxo_frogs = [taxo_frogs.split(';')[i].lower() for i in range(len(taxo_frogs.split(';')))]
+	taxo_picrust = [taxo_picrust.split(';')[i].lower() for i in range(len(taxo_picrust.split(';')))]
+
+	for i in range(len(hierarchy)-1, 0, -1):
+		if taxo_frogs[i] == taxo_picrust[i]:
+			print(taxo_frogs[i], taxo_picrust[i])
+			return hierarchy[i]
+	return "/"
 
 def check_ref_files(tree_file, biom_file, biom_path, multi_affi_file, fasta_file, ref_aln, output ):
 	'''
@@ -148,7 +160,7 @@ def find_closest_ref_sequences(tree, biom, biom_path, cluster_to_multiaffi, ID_t
 	@param output: [str] path to tmp output file in order to write frogs and picrust2 taxonomic comparaisons.
     """
 	FH_out = open(output,'wt')
-	header = "\t".join(["Cluster","FROGS Taxonomy","Picrust2 closest ID","Picrust2 closest reference name","Picrust2 closest taxonomy","Picrust2 closest distance from cluster (NSTI)","Comment", "Cluster sequence", "Picrust2 closest reference sequence"])
+	header = "\t".join(["Cluster","FROGS Taxonomy","Picrust2 closest ID","Picrust2 closest reference name","Picrust2 closest taxonomy","Picrust2 closest distance from cluster (NSTI)", "FROGS and Picrust2 lowest same taxonomic rank", "Comment", "Cluster sequence", "Picrust2 closest reference sequence"])
 	FH_out.write(header+"\n")
 	for cluster in clusters:
 
@@ -178,6 +190,7 @@ def find_closest_ref_sequences(tree, biom, biom_path, cluster_to_multiaffi, ID_t
 						if '__' in affi:
 							affis_frogs = ";".join(["".join(af.split('__')[1:]) for af in affi.split(';')])
 						affis_frogs = affi.replace(' ','_')
+						lowest_same_rank = find_lowest_same_taxo_rank(affis_frogs, affis_picrust)
 						if is_same_taxonomies(affis_frogs, affis_picrust):
 							comment = "identical taxonomy"
 							break
@@ -186,6 +199,7 @@ def find_closest_ref_sequences(tree, biom, biom_path, cluster_to_multiaffi, ID_t
 					if '__' in affis_frogs:
 						affis_frogs = ";".join(["_".join(af.split('__')[1:]) for af in affis_frogs.split(';')])
 					affis_frogs = affis_frogs.replace(' ','_')
+					lowest_same_rank = find_lowest_same_taxo_rank(affis_frogs, affis_picrust)
 					if is_same_taxonomies(affis_frogs, affis_picrust):
 						comment = "identical taxonomy"
 				if cluster_to_seq[cluster] in ref_seqs[best_leaf]:
@@ -193,9 +207,9 @@ def find_closest_ref_sequences(tree, biom, biom_path, cluster_to_multiaffi, ID_t
 						comment = "identical sequence"
 					else:
 						comment+=";identical sequence"
-				FH_out.write(best_leaf+'\t'+ID_to_taxo[best_leaf][0]+'\t'+ID_to_taxo[best_leaf][1]+'\t'+str(rounding(leaf_to_dist[best_leaf]))+'\t'+str(comment)+'\t'+cluster_to_seq[cluster]+'\t'+ref_seqs[best_leaf]+'\n')
+				FH_out.write(best_leaf+'\t'+ID_to_taxo[best_leaf][0]+'\t'+ID_to_taxo[best_leaf][1]+'\t'+str(rounding(leaf_to_dist[best_leaf]))+'\t'+str(lowest_same_rank)+'\t'+str(comment)+'\t'+cluster_to_seq[cluster]+'\t'+ref_seqs[best_leaf]+'\n')
 			else:
-				FH_out.write(' \t \t \t \t \t \t \n')
+				FH_out.write(' \t \t \t \t \t \t \t \n')
 	BiomIO.write(biom_path, biom)
 
 ##################################################################################################################################################

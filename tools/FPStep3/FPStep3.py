@@ -160,30 +160,37 @@ class TaxonomyTree(Cmd):
 #
 ##################################################################################################################################################
 
-def excluded_sequence(in_marker, out_seqtab, excluded):
+def excluded_sequence(in_biom, in_marker, out_seqtab, excluded):
 	"""
 	@summary: Returns the excluded sequence, that have a NSTI score above the NSTI threshold.
+	@param in_biom: Biom file.
 	@param in_marker: [str] Path to FPStep2 marker file to process.
 	@param out_seqtab: [str] Path to FPStep3 seqtab file to process.
 	@output: The file of excluded sequence names.
 	"""
 	marker_file = open( in_marker )
 	seqtab_file = open( out_seqtab )
+	biom = BiomIO.from_json(in_biom)
 	excluded = open(excluded, "wt")
 	clusters_in = [ li.strip().split('\t')[0] for li in marker_file.readlines()[1:]]
 	clusters_out = [ li.strip().split('\t')[0] for li in seqtab_file.readlines()[1:]]
 	no_excluded = True
+	write_header = True
 	for cluster in clusters_in:
 		if cluster not in clusters_out:
 			no_excluded = False
-			excluded.write(cluster+"\n")
+			if write_header:
+				excluded.write('\t'.join(['Cluster','FROGS_taxonomy','Picrust2_taxonomy'])+"\n")
+				write_header = False
+			excluded.write(cluster+"\t")
+			excluded.write("\t".join([str(';'.join(biom.get_observation_metadata(cluster)['blast_taxonomy']))  ,str(biom.get_observation_metadata(cluster)['picrust2_affiliations'])])+"\n")
 	if no_excluded:
 		excluded.write('#No excluded OTUs.\n')
 	excluded.close()
 	marker_file.close()
 	seqtab_file.close()
 
-def formate_abundances_file(strat_file, gene_hierarchy_file, hierarchy_tag = "hierarchy"):
+def formate_abundances_file(strat_file, gene_hierarchy_file, hierarchy_tag = "classification"):
 	"""
 	@summary: Formate FPSTep3 output in order to create a biom file of pathways abundances.
 	@param strat_file: FPStep3 output of gene abundances prediction (FPStep3_pred_metagenome_unstrat.tsv)
@@ -218,7 +225,7 @@ def formate_abundances_file(strat_file, gene_hierarchy_file, hierarchy_tag = "hi
 	os.rename(strat_file +'.tmp', strat_file)
 	return hierarchy_tag
 
-def write_summary(in_biom, strat_file, excluded, tree_count_file, tree_ids_file, summary_file):
+def write_summary(in_biom, strat_file, nsti_file, excluded, tree_count_file, tree_ids_file, summary_file):
 	"""
 	@summary: Writes the process summary in one html file.
 	@param in_biom: [str] path to the input BIOM file.
@@ -242,12 +249,22 @@ def write_summary(in_biom, strat_file, excluded, tree_count_file, tree_ids_file,
 		number_abundance_all += biom.get_observation_count(otu)
 	excluded_clusters = open( excluded ).readlines()
 	if not excluded_clusters[0].startswith('#'):
-		for otu in excluded_clusters:
+		#[1:] for skip header
+		for otu in excluded_clusters[1:]:
 			summary_info['nb_removed'] +=1
-			summary_info['abundance_removed'] += biom.get_observation_count(otu.strip())
+			summary_info['abundance_removed'] += biom.get_observation_count(otu.strip().split('\t')[0])
 
 	summary_info['nb_kept'] = number_otu_all - summary_info['nb_removed']
 	summary_info['abundance_kept'] = number_abundance_all - summary_info['abundance_removed']
+
+	samples_distrib = dict()
+	FH_nsti = open(nsti_file).readlines()
+	for li in FH_nsti:
+		li = li.strip().split('\t')
+		if li[0] in biom.get_samples_names():
+			samples_distrib[li[0]] = {
+			'mean_nsti' : round(float(li[1]), 3)
+			}
 
 	FH_tree_count = open( tree_count_file )
 	newick_tree = FH_tree_count.readline()
@@ -263,27 +280,25 @@ def write_summary(in_biom, strat_file, excluded, tree_count_file, tree_ids_file,
 	infos_otus = list()
 	details_categorys =["Function", "Description" ,"Observation_sum"]
 
-	abund = open(strat_file)
-	for li in abund:
-		if "observation_name" in li:
-			li = li.strip().split('\t')
-			for sample in li[4:]:
-				details_categorys.append(sample)
-			break
+	abund = open(strat_file).readlines()
+	#Header
+	header = abund[0].strip().split('\t')
+	for sample in header[4:]:
+		details_categorys.append(sample)
 
-	for li in abund:
+	for li in abund[1:]:
 		li = li.strip().split('\t')
 		function = li[2]
 		for i in range(len(li[3:])):
+			sample = abund[0].strip().split('\t')[i+3]
 			li[i+2] = round(float(li[i+3]),1)
 
 		infos_otus.append({
 			'name': li[2],
 			'data': list(map(str,li[3:]))
 			})
-	abund.close()
-	# record details about removed OTU
 
+	# record details about removed OTU
 	FH_summary_tpl = open( os.path.join(CURRENT_DIR, "FPStep3_tpl.html") )
 	FH_summary_out = open( summary_file, "wt" )
 
@@ -298,6 +313,8 @@ def write_summary(in_biom, strat_file, excluded, tree_count_file, tree_ids_file,
 			line = line.replace( "###TAXONOMIC_RANKS###", json.dumps(args.hierarchy_ranks) )
 		elif "###SAMPLES_NAMES###" in line:
 			line = line.replace( "###SAMPLES_NAMES###", json.dumps(ordered_samples_names) )
+		elif "###DATA_SAMPLE###" in line:
+			line = line.replace( "###DATA_SAMPLE###", json.dumps(samples_distrib) )
 		elif "###TREE_DISTRIBUTION###" in line:
 			line = line.replace( "###TREE_DISTRIBUTION###", json.dumps(newick_tree) )
 		FH_summary_out.write( line )
@@ -353,7 +370,7 @@ if __name__ == "__main__":
 		tmp_metag_pipeline = tmp_files.add( 'tmp_metagenome_pipeline.log' )	
 		MetagenomePipeline(tmp_biom_to_tsv, args.marker, args.function, args.max_nsti, args.min_reads, args.min_samples, args.strat_out, args.function_abund, args.seqtab, args.weighted, args.contrib, tmp_metag_pipeline).submit( args.log_file )
 		
-		excluded_sequence(args.marker, args.seqtab, args.excluded)
+		excluded_sequence(args.input_biom, args.marker, args.seqtab, args.excluded)
 
 		hierarchy_tag = formate_abundances_file(args.function_abund, GENE_HIERARCHY_FILE)
 		tmp_biom = tmp_files.add( 'gene_abundances.biom' )
@@ -362,7 +379,7 @@ if __name__ == "__main__":
 		tree_ids_file = tmp_files.add( "geneCount_ids.tsv" )
 		TaxonomyTree(tmp_biom, hierarchy_tag, tree_count_file, tree_ids_file).submit( args.log_file )
 
-		write_summary(args.input_biom, args.function_abund, args.excluded, tree_count_file, tree_ids_file, args.html)
+		write_summary(args.input_biom, args.function_abund, args.weighted, args.excluded, tree_count_file, tree_ids_file, args.html)
 	finally:
 		if not args.debug:
 			tmp_files.deleteAll()
