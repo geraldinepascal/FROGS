@@ -225,7 +225,7 @@ def formate_abundances_file(strat_file, gene_hierarchy_file, hierarchy_tag = "cl
 	os.rename(strat_file +'.tmp', strat_file)
 	return hierarchy_tag
 
-def write_summary(in_biom, strat_file, excluded, tree_count_file, tree_ids_file, summary_file):
+def write_summary(in_biom, strat_file, nsti_file, excluded, tree_count_file, tree_ids_file, summary_file):
 	"""
 	@summary: Writes the process summary in one html file.
 	@param in_biom: [str] path to the input BIOM file.
@@ -257,6 +257,15 @@ def write_summary(in_biom, strat_file, excluded, tree_count_file, tree_ids_file,
 	summary_info['nb_kept'] = number_otu_all - summary_info['nb_removed']
 	summary_info['abundance_kept'] = number_abundance_all - summary_info['abundance_removed']
 
+	samples_distrib = dict()
+	FH_nsti = open(nsti_file).readlines()
+	for li in FH_nsti:
+		li = li.strip().split('\t')
+		if li[0] in biom.get_samples_names():
+			samples_distrib[li[0]] = {
+			'mean_nsti' : round(float(li[1]), 3)
+			}
+
 	FH_tree_count = open( tree_count_file )
 	newick_tree = FH_tree_count.readline()
 	FH_tree_count.close()
@@ -271,27 +280,25 @@ def write_summary(in_biom, strat_file, excluded, tree_count_file, tree_ids_file,
 	infos_otus = list()
 	details_categorys =["Function", "Description" ,"Observation_sum"]
 
-	abund = open(strat_file)
-	for li in abund:
-		if "observation_name" in li:
-			li = li.strip().split('\t')
-			for sample in li[4:]:
-				details_categorys.append(sample)
-			break
+	abund = open(strat_file).readlines()
+	#Header
+	header = abund[0].strip().split('\t')
+	for sample in header[4:]:
+		details_categorys.append(sample)
 
-	for li in abund:
+	for li in abund[1:]:
 		li = li.strip().split('\t')
 		function = li[2]
 		for i in range(len(li[3:])):
+			sample = abund[0].strip().split('\t')[i+3]
 			li[i+2] = round(float(li[i+3]),1)
 
 		infos_otus.append({
 			'name': li[2],
 			'data': list(map(str,li[3:]))
 			})
-	abund.close()
-	# record details about removed OTU
 
+	# record details about removed OTU
 	FH_summary_tpl = open( os.path.join(CURRENT_DIR, "FPStep3_tpl.html") )
 	FH_summary_out = open( summary_file, "wt" )
 
@@ -306,6 +313,8 @@ def write_summary(in_biom, strat_file, excluded, tree_count_file, tree_ids_file,
 			line = line.replace( "###TAXONOMIC_RANKS###", json.dumps(args.hierarchy_ranks) )
 		elif "###SAMPLES_NAMES###" in line:
 			line = line.replace( "###SAMPLES_NAMES###", json.dumps(ordered_samples_names) )
+		elif "###DATA_SAMPLE###" in line:
+			line = line.replace( "###DATA_SAMPLE###", json.dumps(samples_distrib) )
 		elif "###TREE_DISTRIBUTION###" in line:
 			line = line.replace( "###TREE_DISTRIBUTION###", json.dumps(newick_tree) )
 		FH_summary_out.write( line )
@@ -370,7 +379,7 @@ if __name__ == "__main__":
 		tree_ids_file = tmp_files.add( "geneCount_ids.tsv" )
 		TaxonomyTree(tmp_biom, hierarchy_tag, tree_count_file, tree_ids_file).submit( args.log_file )
 
-		write_summary(args.input_biom, args.function_abund, args.excluded, tree_count_file, tree_ids_file, args.html)
+		write_summary(args.input_biom, args.function_abund, args.weighted, args.excluded, tree_count_file, tree_ids_file, args.html)
 	finally:
 		if not args.debug:
 			tmp_files.deleteAll()

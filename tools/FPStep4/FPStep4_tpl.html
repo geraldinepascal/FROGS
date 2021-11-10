@@ -271,9 +271,7 @@
 				// Table titles
 				//var titles = [ '<input id="taxBySample-check-all" type="checkbox" value="1">', "Samples" ];
 				var titles = ['<label class="container"><input type="checkbox" id="taxBySample-check-all" value="1"><span class="checkmark"></span></label>','Samples'];
-				for( var rank = 0 ; rank < taxonomic_ranks.length ; rank++ ){
-					titles.push( "Nb " + taxonomic_ranks[rank].toLowerCase() );
-				}
+				titles.push( "Nb " + taxonomic_ranks[taxonomic_ranks.length-1].toLowerCase() + " retrieved");
 				$('#taxBySample-table thead').append( '<tr><th>' + titles.join("</th><th>") + '</th></tr>' );
 				$('#taxBySample-table .title').attr( "colspan", titles.length );
 				$('#taxBySample-table tfoot th').each(function(){
@@ -287,9 +285,9 @@
 					tree.keepOnlySamples( [sample_idx] );
 					//var sample_data = [ '<input id="taxBySample-chk-' + sample_name + '" type="checkbox" value="1">', sample_name ];
 					var sample_data = ['<label class="container"><input type="checkbox" id="taxBySample-chk-' + sample_name + '" value="1"><span class="checkmark"></span></label>',sample_name];
-					for( var rank = 0 ; rank < taxonomic_ranks.length ; rank++ ){
-						sample_data.push( numberDisplay(tree.getNodeByDepth(rank+1).length) );
-					}
+
+					var last_rank = taxonomic_ranks.length;
+					sample_data.push( numberDisplay(tree.getNodeByDepth(last_rank).length) );
 					// Add row data
 					$('#taxBySample-table tbody').append( '<tr><td>' + sample_data.join("</td><td>") + '</td></tr>' );
 				}

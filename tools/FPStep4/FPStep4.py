@@ -236,7 +236,7 @@ def write_summary(strat_file, tree_count_file, tree_ids_file, summary_file):
 		id, sample_name = line.strip().split( "\t", 1 )
 		ordered_samples_names.append( sample_name )
 	FH_tree_ids.close()
-
+	
 	# to summary OTUs number && abundances number			   
 	# infos_otus = list()
 	# details_categorys =["Pathway", "Description" ,"Observation_sum"]
@@ -272,6 +272,8 @@ def write_summary(strat_file, tree_count_file, tree_ids_file, summary_file):
 			line = line.replace( "###TAXONOMIC_RANKS###", json.dumps(args.hierarchy_ranks) )
 		elif "###SAMPLES_NAMES###" in line:
 			line = line.replace( "###SAMPLES_NAMES###", json.dumps(ordered_samples_names) )
+		elif "###DATA_SAMPLE###" in line:
+			line = line.replace( "###DATA_SAMPLE###", json.dumps(samples_distrib) )
 		elif "###TREE_DISTRIBUTION###" in line:
 			line = line.replace( "###TREE_DISTRIBUTION###", json.dumps(newick_tree) )
 		FH_summary_out.write( line )
