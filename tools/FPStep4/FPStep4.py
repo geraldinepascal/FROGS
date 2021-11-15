@@ -216,16 +216,27 @@ def formate_abundances_file(strat_file, pathways_hierarchy_file, hierarchy_tag =
 	os.rename(strat_file+'.tmp', strat_file)
 	return hierarchy_tag
 
+def normalized_abundances_file( strat_file ):
+	"""
+	@summary normalized final output table in order to make the values comparable between samples. 
+	Normalisation is done as follow :
+	 (value)/(sum of the value in that column)*10^6, which gives CPM values
+	 @param strat_file: [str] path to FPStep4 output abundances file.
+	"""
+	df = pd.read_csv(strat_file,sep='\t')
+	for column in df.iloc[:,3:]:
+		df[column] = df[column] / df[column].sum() * 1000000
+		df[column] = df[column].round(0).astype(int)
+	df.to_csv(strat_file, sep='\t', index=False)
+
 def write_summary(strat_file, tree_count_file, tree_ids_file, summary_file):
 	"""
 	@summary: Writes the process summary in one html file.
 	@param summary_file: [str] path to the output html file.
-	@param align_out: [str] path to the fasta file of unaligned OTU
-	@param biomfile: [str] path to the input BIOM file.
+	@param align_out: [str] path to the fasta file of unaligned OTU.
 	@param closest_ref_files: [str] Path to tmp colest ref file.
 	@param category: ITS or 16S
 	"""
-
 	# Get taxonomy distribution
 	FH_tree_count = open( tree_count_file )
 	newick_tree = FH_tree_count.readline()
@@ -299,6 +310,7 @@ if __name__ == "__main__":
 	group_input.add_argument('--per_sequence_abun', default=None, help='Path to table of sequence abundances across samples normalized by marker copy number (typically the normalized sequence abundance table output at the metagenome pipeline step: FPStep3_seqtab_norm.tsv by default). This input is required when the --per_sequence_contrib option is set. (default: None).')
 	group_input.add_argument('--per_sequence_function', default=None, help='Path to table of function abundances per sequence, which was outputted at the hidden-state prediction step (FPStep2_predicted_functions.tsv by default). This input is required when the --per_sequence_contrib option is set. Note that this file should be the same input table as used for the metagenome pipeline step (default: None).')
 	group_input.add_argument('--hierarchy_ranks', nargs='*', default=["Level1", "Level2", "Level3", "Pathway"], help='The ordered ranks levels used in the metadata hierarchy pathways. [Default: %(default)s]' )
+	group_input.add_argument( '-n','--normalisation', default=False, action='store_true', help='To normalise data after analysis. Values are divided by sum of columns , then multiplied by 10^6 (CPM values). [Default: %(default)s]')
 	#Outputs
 	group_output = parser.add_argument_group( 'Outputs')
 	group_output.add_argument('-o', '--pathways_abund', default='FPStep4_path_abun_unstrat.tsv', help='Pathway abundance file output.')
@@ -333,10 +345,11 @@ if __name__ == "__main__":
 		tmp_tsv = tmp_files.add( 'genes_abundances_formatted.tsv')
 		formate_input_file(args.input_file, tmp_tsv)
 
-
 		PathwayPipeline(tmp_tsv, args.map, args.per_sequence_contrib, args.per_sequence_abun, args.per_sequence_function, args.no_regroup,  args.pathways_abund, args.pathways_contrib, args.pathways_predictions, args.pathways_abund_per_seq, tmp_pathway).submit(args.log_file)
 
 		hierarchy_tag = formate_abundances_file( args.pathways_abund, PATHWAYS_HIERARCHY_FILE )
+		if args.normalisation:
+			normalized_abundances_file( args.pathways_abund)
 		tmp_biom = tmp_files.add( 'pathway_abundances.biom' )
 		Tsv2biom( args.pathways_abund, tmp_biom ).submit( args.log_file)
 		tree_count_file = tmp_files.add( "pathwayCount.enewick" )
