@@ -91,7 +91,7 @@ def find_lowest_same_taxo_rank(taxo_frogs, taxo_picrust, hierarchy = ["Kingdom",
 	'''
 	taxo_frogs = [taxo_frogs.split(';')[i].lower() for i in range(len(taxo_frogs.split(';')))]
 	taxo_picrust = [taxo_picrust.split(';')[i].lower() for i in range(len(taxo_picrust.split(';')))]
-	for i in range(len(hierarchy)-1, 0, -1):
+	for i in range(len(hierarchy)-1, -1, -1):
 		if taxo_frogs[i] == taxo_picrust[i]:
 			return hierarchy[i]
 	return "/"
@@ -161,7 +161,6 @@ def find_closest_ref_sequences(tree, biom, biom_path, cluster_to_multiaffi, ID_t
 	header = "\t".join(["Cluster","FROGS Taxonomy","Picrust2 closest ID","Picrust2 closest reference name","Picrust2 closest taxonomy","Picrust2 closest distance from cluster (NSTI)", "FROGS and Picrust2 lowest same taxonomic rank", "Comment", "Cluster sequence", "Picrust2 closest reference sequence"])
 	FH_out.write(header+"\n")
 	for cluster in clusters:
-
 		FH_out.write(cluster+'\t'+";".join(biom.get_observation_metadata(cluster)["blast_taxonomy"])+'\t')
 
 		node = tree.search_nodes(name=cluster)[0]
@@ -186,7 +185,7 @@ def find_closest_ref_sequences(tree, biom, biom_path, cluster_to_multiaffi, ID_t
 					for affi in cluster_to_multiaffi[cluster]:
 						#formate FROGS taxonomy when when it's k__Fungi. k__Fungi --> Fungi
 						if '__' in affi:
-							affis_frogs = ";".join(["".join(af.split('__')[1:]) for af in affi.split(';')])
+							affi = ";".join(["".join(af.split('__')[1:]) for af in affi.split(';')])
 						affis_frogs = affi.replace(' ','_')
 						lowest_same_rank = find_lowest_same_taxo_rank(affis_frogs, affis_picrust)
 						if is_same_taxonomies(affis_frogs, affis_picrust):
