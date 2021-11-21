@@ -80,6 +80,8 @@ def is_same_taxonomies(taxo_frogs, taxo_picrust):
 	@summary: compare if frogs and picrust taxonomies are egal are not
 	@note: taxo inputs must be on this format: Fungi;Ascomycota;Eurotiomycetes;Eurotiales;Aspergillaceae;Penicillium;Penicillium_antarcticum
 	'''
+	if taxo_frogs == "unknown":
+		return False
 	for i in range(len(taxo_frogs.split(';'))):
 		if taxo_frogs.split(';')[i].lower() != taxo_picrust.split(';')[i].lower():
 			return False
@@ -89,6 +91,8 @@ def find_lowest_same_taxo_rank(taxo_frogs, taxo_picrust, hierarchy = ["Kingdom",
 	'''
 	@summary: find lowest identical taxonomic rank between frogs and picrust2 taxonomies
 	'''
+	if taxo_frogs == "unknown":
+		return "/"
 	taxo_frogs = [taxo_frogs.split(';')[i].lower() for i in range(len(taxo_frogs.split(';')))]
 	taxo_picrust = [taxo_picrust.split(';')[i].lower() for i in range(len(taxo_picrust.split(';')))]
 	for i in range(len(hierarchy)-1, -1, -1):
@@ -160,8 +164,13 @@ def find_closest_ref_sequences(tree, biom, biom_path, cluster_to_multiaffi, ID_t
 	FH_out = open(output,'wt')
 	header = "\t".join(["Cluster","FROGS Taxonomy","Picrust2 closest ID","Picrust2 closest reference name","Picrust2 closest taxonomy","Picrust2 closest distance from cluster (NSTI)", "FROGS and Picrust2 lowest same taxonomic rank", "Comment", "Cluster sequence", "Picrust2 closest reference sequence"])
 	FH_out.write(header+"\n")
+	find_frogs_taxo = True
 	for cluster in clusters:
-		FH_out.write(cluster+'\t'+";".join(biom.get_observation_metadata(cluster)["blast_taxonomy"])+'\t')
+		try:
+			FH_out.write(cluster+'\t'+";".join(biom.get_observation_metadata(cluster)["blast_taxonomy"])+'\t')
+		except:
+			find_frogs_taxo = False
+			FH_out.write(cluster+'\t'+'unknown\t')
 
 		node = tree.search_nodes(name=cluster)[0]
 		#find distances from cluster to every reference sequences is sister group.
@@ -192,7 +201,10 @@ def find_closest_ref_sequences(tree, biom, biom_path, cluster_to_multiaffi, ID_t
 							comment = "identical taxonomy"
 							break
 				else:
-					affis_frogs = ";".join(biom.get_observation_metadata(cluster)["blast_taxonomy"])
+					if find_frogs_taxo:
+						affis_frogs = ";".join(biom.get_observation_metadata(cluster)["blast_taxonomy"])
+					else:
+						affis_frogs = "unknown"
 					if '__' in affis_frogs:
 						affis_frogs = ";".join(["_".join(af.split('__')[1:]) for af in affis_frogs.split(';')])
 					affis_frogs = affis_frogs.replace(' ','_')

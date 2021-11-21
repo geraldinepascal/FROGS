@@ -1,5 +1,21 @@
 #!/usr/bin/env python3
-# -*-coding:Utf-8 -*
+#
+# Copyright (C) 2018 INRA
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+
 __author__ = ' Moussa Samb & Maria Bernard & Vincent Darbot & Geraldine Pascal INRAE - SIGENAE '
 __copyright__ = 'Copyright (C) 2020 INRAE'
 __license__ = 'GNU General Public License'
@@ -38,7 +54,7 @@ from frogsSequenceIO import *
 
 class PlaceSeqs(Cmd):
 	"""
-	@summary: place studies sequences (i.e. OTUs) into a reference tree
+	@summary: place cluster sequences (i.e. OTUs) into a reference tree.
 	"""
 	def __init__(self, in_fasta, out_tree, placement_tool, ref_dir, min_align, log):
 		"""
@@ -46,6 +62,7 @@ class PlaceSeqs(Cmd):
 		@param out_tree: [str] Path to output resulting tree file with insert clusters sequences.
 		@param placement_tool: [str] Placement tool to use (epa-ng or sepp).
 		@param ref_dir: [str] Directory containing reference sequence files.
+		@param min_align: [float] Proportion of the total length of an input query sequence that must align with reference sequences.
 		"""
 		if ref_dir is None:
 			opt = ''
@@ -63,12 +80,13 @@ class PlaceSeqs(Cmd):
 
 class multiAffiFromBiom(Cmd):
 	'''
-    @summary: Extracts multi-affiliations data from a FROGS BIOM file, in order to find dentical sequences for FindClosestRefSequences step.
-    @param in_biom: [Biom] The BIOM object.
-    @param output_tsv: [str] Path to the output file (format : TSV).
-    '''
+	@summary: Extracts multi-affiliations data from a FROGS BIOM file, in order to detect identical sequences in FindClosestRefSequences step.
+	'''
 	def __init__(self, in_biom, out_tsv, log):
-
+		"""
+		@param in_biom: [Biom] The BIOM object.
+		@param output_tsv: [str] Path to the output file (format : TSV).
+		"""
 		Cmd.__init__(self,
 			'multiAffiFromBiom.py',
 			'Extracts multi-affiliations data from a FROGS BIOM file.',
@@ -80,13 +98,16 @@ class multiAffiFromBiom(Cmd):
 
 class FindClosestsRefSequences(Cmd):
 	'''
-	@summary: find OTUs closest reference sequences into a reference tree.
+	@summary: find OTUs closest reference sequences into a reference tree. 
 	'''
 	def __init__(self, in_tree, in_biom, multi_affiliations, in_fasta, ref_aln, out_biom, out_summary):
 		'''
 		@param in_tree: [str] Path to resulting tree file with insert clusters sequences.(place_seqs.py output).
 		@param in_biom: [str] Path to BIOM input file.
-		@param category: [str] ITS or 16S
+		@param multi_affiliations: [str] Path to multiAffiFromBiom.py output file.
+		@param in_fasta: [str] 	Path to input fasta file of unaligned cluster sequences.
+		@param ref_aln [str]: Path to the alignment file of reference sequences.
+		@param out_biom [str]: Path to output Biom file with picrust2 taxonomic affiliations informations.
 		@summary out_summary: [str] Path to output summary file.
 		@note : Header of summary file:
 		Cluster	Taxonomy	Closest_ref_ID	Closest_ref_name	Closest_ref_taxonomy	Closest_ref_distance
