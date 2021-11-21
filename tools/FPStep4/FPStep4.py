@@ -62,6 +62,18 @@ class PathwayPipeline(Cmd):
 	@summary: pathway_pipeline.py : Infer the presence and abundances of pathways based on gene family abundances in a sample.
 	"""
 	def __init__(self, input_file, map_file, per_sequence_contrib, per_sequence_abun, per_sequence_function, no_regroup, pathways_abund, pathways_contrib, pathways_predictions, pathways_abund_per_seq, log):
+		"""
+		@param input_file: [str] Input TSV table of gene family abundances (FPStep3_pred_metagenome_unstrat.tsv from FPStep3.py.
+		@param map_file: [str] Mapping file of pathways to reactions, necessary if marker studied is not 16S.
+		@param per_sequence_contrib: [boolean] Flag to specify that MinPath is run on the genes contributed by each sequence individualy.
+		@param per_sequence_abun: [str] Path to table of sequence abundances across samples normalized by marker copy number (if per_sequence_contrib).
+		@param per_sequence_function: [str] Path to table of function abundances per sequence, which was outputted at the hidden-state prediction step (if per_sequence_contrib).
+		@param no_regroup [boolean] if KEGG database used, flag neccesary.
+		@param pathways_abund: [str] Pathway abundance file output..
+		@param pathways_contrib: [str] Stratified output corresponding to contribution of predicted gene family abundances within each predicted genome (if per_sequence_contrib).
+		@param pathways_predictions: [str] Stratified output corresponding to contribution of predicted gene family abundances within each predicted genome.
+		@param pathways_abund_per_seq: [str] Pathway abundance file output per sequences (if --per_sequence_contrib set).
+		"""	
 		opt = ''
 		if per_sequence_contrib:
 			opt = ' --per_sequence_contrib --per_sequence_abun ' +  per_sequence_abun + ' --per_sequence_function ' + per_sequence_function 
@@ -200,9 +212,8 @@ def formate_input_file(input_file, tmp_tsv):
 def formate_abundances_file(strat_file, pathways_hierarchy_file, hierarchy_tag = "classification"):
 	"""
 	@summary: Formate FPSTep4 output in order to create a biom file of pathways abundances.
-	@param start_file: FPStep4 output of pathway abundances prediction (FPStep4_path_abun_unstrat.tsv)
+	@param strat_file: FPStep4 output of pathway abundances prediction (FPStep4_path_abun_unstrat.tsv)
 	@param pathways_hierarchy_file: reference file that links every pathways ID to its hierarchy levels.
-	@param tmp_tsv: temporary tsv output of abundances per samples.
 	"""
 	id_to_hierarchy = {}
 	path_fi = open(pathways_hierarchy_file).readlines()
@@ -248,10 +259,9 @@ def normalized_abundances_file( strat_file ):
 def write_summary(strat_file, tree_count_file, tree_ids_file, summary_file):
 	"""
 	@summary: Writes the process summary in one html file.
+	@param tree_count_file [str]: newick file of pathway abudances per samples and per hierarchy.
+	@param tree_ids_file: [str] file that link id to its sample.
 	@param summary_file: [str] path to the output html file.
-	@param align_out: [str] path to the fasta file of unaligned OTU.
-	@param closest_ref_files: [str] Path to tmp colest ref file.
-	@param category: ITS or 16S
 	"""
 	# Get taxonomy distribution
 	FH_tree_count = open( tree_count_file )
@@ -322,7 +332,7 @@ if __name__ == "__main__":
 	# Inputs
 	group_input = parser.add_argument_group( 'Inputs' )
 	group_input.add_argument('-i', '--input_file', required=True, type=str, help='Input TSV table of gene family abundances (FPStep3_pred_metagenome_unstrat.tsv from FPStep3.py).')
-	group_input.add_argument('-m', '--map', type=str, help='Mapping of pathways to reactions, necessary if marker studied is not 16S (metacyc_path2rxn_struc_filt_pro.txt used by default). For ITS analysis, required file is here: $PICRUST2_PATH/default_files/pathway_mapfiles/metacyc_path2rxn_struc_filt_fungi.txt).')
+	group_input.add_argument('-m', '--map', type=str, help='Mapping file of pathways to reactions, necessary if marker studied is not 16S (metacyc_path2rxn_struc_filt_pro.txt used by default). For ITS analysis, required file is here: $PICRUST2_PATH/default_files/pathway_mapfiles/metacyc_path2rxn_struc_filt_fungi.txt).')
 	group_input.add_argument('--per_sequence_abun', default=None, help='Path to table of sequence abundances across samples normalized by marker copy number (typically the normalized sequence abundance table output at the metagenome pipeline step: FPStep3_seqtab_norm.tsv by default). This input is required when the --per_sequence_contrib option is set. (default: None).')
 	group_input.add_argument('--per_sequence_function', default=None, help='Path to table of function abundances per sequence, which was outputted at the hidden-state prediction step (FPStep2_predicted_functions.tsv by default). This input is required when the --per_sequence_contrib option is set. Note that this file should be the same input table as used for the metagenome pipeline step (default: None).')
 	group_input.add_argument('--hierarchy_ranks', nargs='*', default=["Level1", "Level2", "Level3", "Pathway"], help='The ordered ranks levels used in the metadata hierarchy pathways. [Default: %(default)s]' )
@@ -332,7 +342,7 @@ if __name__ == "__main__":
 	group_output.add_argument('-o', '--pathways_abund', default='FPStep4_path_abun_unstrat.tsv', help='Pathway abundance file output.')
 	group_output.add_argument('--pathways_contrib', default=None, help='Stratified output corresponding to contribution of predicted gene family abundances within each predicted genome.')
 	group_output.add_argument('--pathways_predictions', default=None, help='Stratified output corresponding to contribution of predicted gene family abundances within each predicted genome.')
-	group_output.add_argument('--pathways_abund_per_seq', default=None, help='')
+	group_output.add_argument('--pathways_abund_per_seq', default=None, help='Pathway abundance file output per sequences (if --per_sequence_contrib set)')
 	group_output.add_argument('-v', '--version', default=False, action='version', version="%(prog)s " + __version__)
 	group_output.add_argument('-l', '--log-file', default=sys.stdout, help='This output file will contain several information on executed commands.')
 	group_output.add_argument('-t', '--html', default='FPStep4_summary.html', help="Path to store resulting html file. [Default: %(default)s]" )	

@@ -61,7 +61,17 @@ class MetagenomePipeline(Cmd):
 	"""
 	def __init__(self, in_biom, marker, function, max_nsti, min_reads, min_samples, strat_out, function_abund, seqtab, weighted, contrib, log):
 		"""
-		@param: in_biom: Path to BIOM input file used in FPStep1
+		@param in_biom: [str] Path to BIOM input file used in FPStep1.
+		@param marker: [str] Table of predicted marker gene copy numbers (FPStep2 output : FPStep2_marker_nsti_predicted.tsv).
+		@param function: [str] Table of predicted gene family copy numbers (FPStep2 output : FPStep2_predicted_functions.tsv).
+		@param max_nsti: [float] Sequences with NSTI values above this value will be excluded .
+		@param min_reads: [int] Minimum number of reads across all samples for each input OTU.
+		@param min_samples [int] Minimum number of samples that an OTU needs to be identfied within.
+		@param strat_out: [boolean] if strat_out, output table stratified by sequences as well.
+		@param function_abund: [str] Output file for metagenome predictions abundance.
+		@param seqtab: [str] Output file with abundance normalized per marker copies number.
+		@param weighted: [str] Output file with the mean of nsti value per sample.
+		@param contrib: [str] Stratified output that reports contributions to community-wide abundances.
 		"""
 		opt = ' --strat_out ' if strat_out else ''
 
@@ -134,9 +144,8 @@ class Biom2tsv(Cmd):
 
 class Tsv2biom(Cmd):
 	"""
-	@summary: In order to creates a temporary biom file that links every gene to samples abundances.
+	@summary: Create a temporary biom file that links every gene to samples abundances.
 	This is necessary in order to display sunburst plots.
-
 	"""
 	def __init__(self, in_tsv, out_biom):
 
@@ -160,7 +169,6 @@ class TaxonomyTree(Cmd):
 		@param out_tree: [str] Path to the enewick output.
 		@param out_ids: [str] Path to the IDs/samples output.
 		"""
-		# Cmd
 		Cmd.__init__( self,
 					  'biomTools.py',
 					  'Produces a taxonomy tree with counts by sample.',
@@ -199,19 +207,21 @@ def excluded_sequence(in_biom, in_marker, out_seqtab, excluded):
 				excluded.write('\t'.join(['Cluster','FROGS_taxonomy','Picrust2_taxonomy'])+"\n")
 				write_header = False
 			excluded.write(cluster+"\t")
-			excluded.write("\t".join([str(';'.join(biom.get_observation_metadata(cluster)['blast_taxonomy']))  ,str(biom.get_observation_metadata(cluster)['picrust2_affiliations'])])+"\n")
+			try:
+				excluded.write("\t".join([str(';'.join(biom.get_observation_metadata(cluster)['blast_taxonomy']))  ,str(biom.get_observation_metadata(cluster)['picrust2_affiliations'])])+"\n")
+			except:
+				excluded.write("\t".join(["unknown"  ,str(biom.get_observation_metadata(cluster)['picrust2_affiliations'])])+"\n")
 	if no_excluded:
 		excluded.write('#No excluded OTUs.\n')
 	excluded.close()
 	marker_file.close()
 	seqtab_file.close()
 
-def formate_abundances_file(strat_file, gene_hierarchy_file, hierarchy_tag = "classification"):
+def formate_abundances_file(function_file, gene_hierarchy_file, hierarchy_tag = "classification"):
 	"""
 	@summary: Formate FPSTep3 output in order to create a biom file of pathways abundances.
-	@param strat_file: FPStep3 output of gene abundances prediction (FPStep3_pred_metagenome_unstrat.tsv)
+	@param function_file: FPStep3 output of gene abundances prediction (FPStep3_pred_metagenome_unstrat.tsv)
 	@param gene_hierarchy_file: reference file that links every gene ID to its hierarchy levels.
-	@param tmp_tsv: temporary tsv output of abundances per samples.
 	"""
 	id_to_hierarchy = {}
 	path_fi = open(gene_hierarchy_file).readlines()
@@ -219,16 +229,16 @@ def formate_abundances_file(strat_file, gene_hierarchy_file, hierarchy_tag = "cl
 		li = li.strip().split('\t')
 		id_to_hierarchy[li[-1]] = ";".join(li)
 
-	df = pd.read_csv(strat_file,sep='\t')
+	df = pd.read_csv(function_file,sep='\t')
 	df.rename(columns = {'function':'observation_name'}, inplace = True)
 	headers = ['observation_name', 'db_link']
 	for column in df:
 		if column not in headers:
 			df[column] = df[column].round(0).astype(int)
 
-	df.to_csv(strat_file ,sep='\t' ,index=False)
-	tmp = open(strat_file + ".tmp", 'wt')
-	FH_in = open(strat_file).readlines()
+	df.to_csv(function_file ,sep='\t' ,index=False)
+	tmp = open(function_file + ".tmp", 'wt')
+	FH_in = open(function_file).readlines()
 	header = FH_in[0].strip().split('\t')
 	header.insert(0, hierarchy_tag)
 	tmp.write("\t".join(header)+"\n")
@@ -238,15 +248,17 @@ def formate_abundances_file(strat_file, gene_hierarchy_file, hierarchy_tag = "cl
 			li.insert(0,id_to_hierarchy[li[1]])
 			tmp.write("\t".join(li)+"\n")
 	tmp.close()
-	os.rename(strat_file +'.tmp', strat_file)
+	os.rename(function_file +'.tmp', function_file)
 	return hierarchy_tag
 
-def write_summary(in_biom, strat_file, nsti_file, excluded, tree_count_file, tree_ids_file, summary_file):
+def write_summary(in_biom, function_file, nsti_file, excluded, tree_count_file, tree_ids_file, summary_file):
 	"""
 	@summary: Writes the process summary in one html file.
 	@param in_biom: [str] path to the input BIOM file.
-	@param strat_file: [str] path to the gene abondancies fonction file.
+	@param function_file: [str] path to the gene abondancies fonction file.
 	@param excluded: [str] The file of excluded sequence names.
+	@param tree_count_file: [str] newick file of functions abundances per semple and per hierarchy.
+	@param tree_ids_file: [str] file that link id to its sample.
 	@param summary_file: [str] path to the output html file.
 	"""
 	# to summary OTUs number && abundances number
@@ -296,7 +308,7 @@ def write_summary(in_biom, strat_file, nsti_file, excluded, tree_count_file, tre
 	infos_otus = list()
 	details_categorys =["Function", "Description" ,"Observation_sum"]
 
-	abund = open(strat_file).readlines()
+	abund = open(function_file).readlines()
 	#Header
 	header = abund[0].strip().split('\t')
 	for sample in header[4:]:
@@ -348,22 +360,22 @@ if __name__ == "__main__":
 	parser = argparse.ArgumentParser( description='Per-sample functional profiles prediction.' )
 	parser.add_argument('-v', '--version', action='version', version=__version__)
 	parser.add_argument('--debug', default=False, action='store_true', help="Keep temporary files to debug program." )
-	parser.add_argument('--strat_out', default=False, action='store_true', help='Output table stratified by sequences as well. By default this will be in \"contributional\" format ''(i.e. long-format) unless the \"--wide_table\" ''option is set. The startified outfile is named ''\"metagenome_contrib.tsv.gz\" when in long-format.')
+	parser.add_argument('--strat_out', default=False, action='store_true', help='Output table stratified by sequences as well. By default this will be in \"contributional\" format ''(i.e. long-format) unless the \"--wide_table\" option is set. The startified outfile is named ''\"metagenome_contrib.tsv.gz\" when in long-format.')
 	# Inputs
 	group_input = parser.add_argument_group( 'Inputs' )
 	group_input.add_argument('-b', '--input_biom', required=True, type=str, help='FPStep1 sequence abundances output file (FPStep1.biom).')
-	group_input.add_argument('-f', '--function', required=True, type=str, help='Table of predicted gene family copy numbers ''(FPStep2 output, ex FPStep2_all_predicted.tsv).')
-	group_input.add_argument('-m', '--marker', required=True, type=str, help='Table of predicted marker gene copy numbers ''(FPStep2 output, ex FPStep2_marker_nsti_predicted.tsv.')
-	group_input.add_argument('--max_nsti', type=float, default=2.0, help='Sequences with NSTI values above this value will ' 'be excluded (default: %(default)d).')
-	group_input.add_argument('--min_reads', metavar='INT', type=int, default=1, help='Minimum number of reads across all samples for ''each input ASV. ASVs below this cut-off will be ''counted as part of the \"RARE\" category in the ''stratified output (default: %(default)d).')
-	group_input.add_argument('--min_samples', metavar='INT', type=int, default=1, help='Minimum number of samples that an ASV needs to be ''identfied within. ASVs below this cut-off will be ''counted as part of the \"RARE\" category in the ''stratified output (default: %(default)d).')
+	group_input.add_argument('-f', '--function', required=True, type=str, help='Table of predicted gene family copy numbers (FPStep2 output, ex FPStep2_all_predicted.tsv).')
+	group_input.add_argument('-m', '--marker', required=True, type=str, help='Table of predicted marker gene copy numbers (FPStep2 output, ex FPStep2_marker_nsti_predicted.tsv.')
+	group_input.add_argument('--max_nsti', type=float, default=2.0, help='Sequences with NSTI values above this value will be excluded (default: %(default)d).')
+	group_input.add_argument('--min_reads', metavar='INT', type=int, default=1, help='Minimum number of reads across all samples for each input OTU. OTUs below this cut-off will be counted as part of the \"RARE\" category in the stratified output (default: %(default)d).')
+	group_input.add_argument('--min_samples', metavar='INT', type=int, default=1, help='Minimum number of samples that an OTU needs to be identfied within. OTUs below this cut-off will be counted as part of the \"RARE\" category in the stratified output (default: %(default)d).')
 	group_input.add_argument('--hierarchy_ranks', nargs='*', default=["Level1", "Level2", "Level3", "Gene"], help='The ordered ranks levels used in the metadata hierarchy pathways. [Default: %(default)s]' )
 	#Outputs
 	group_output = parser.add_argument_group( 'Outputs')
 	group_output.add_argument('--function_abund', default='FPStep3_pred_metagenome_unstrat.tsv', help='Output file for metagenome predictions abundance. (default: %(default)s).')
-	group_output.add_argument('--seqtab', default='FPStep3_seqtab_norm.tsv', help='This output file will contain abundance normalized. (default: %(default)s).')
-	group_output.add_argument('--weighted', default='FPStep3_weighted_nsti.tsv', help='This output file will contain the nsti value per sample (format: TSV). [Default: %(default)s]' )
-	group_output.add_argument('--contrib', default=None, help=' Stratified output that represents contributions to community-wide abundances (ex pred_metagenome_contrib.tsv)')
+	group_output.add_argument('--seqtab', default='FPStep3_seqtab_norm.tsv', help='Output file with abundance normalized per marker copies number. (default: %(default)s).')
+	group_output.add_argument('--weighted', default='FPStep3_weighted_nsti.tsv', help='Output file with the mean of nsti value per sample (format: TSV). [Default: %(default)s]' )
+	group_output.add_argument('--contrib', default=None, help=' Stratified output that reports contributions to community-wide abundances (ex pred_metagenome_contrib.tsv)')
 	group_output.add_argument('-e', '--excluded', default='FPStep3_excluded.txt', help='List of sequences with NSTI values above NSTI threshold ( --max_NSTI NSTI ).')
 	group_output.add_argument('-l', '--log_file', default=sys.stdout, help='List of commands executed.')
 	group_output.add_argument('-t', '--html', default='FPStep3_summary.html', help="Path to store resulting html file. [Default: %(default)s]" )	

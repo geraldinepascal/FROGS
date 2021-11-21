@@ -153,14 +153,14 @@ def check_ref_files(tree_file, biom_file, biom_path, multi_affi_file, fasta_file
 def find_closest_ref_sequences(tree, biom, biom_path, cluster_to_multiaffi, ID_to_taxo, ref_seqs, cluster_to_seq, output):
 	"""
 	@summary: find each closest picrust ref sequence from FROGS cluster, from FPStep1 tree output file.
-	@param tree: Tree as input for ete3.
-	@param biom: Biom read from jason file.
-	@param biom cluster_to_multi_affi: [dico] Associate each FROGS cluster to its multi-affiliations.
+	@param tree: [str]  Tree as input for ete3.
+	@param biom: [str] Biom read from jason file.
+	@param cluster_to_multi_affi: [dico] Associate each FROGS cluster to its multi-affiliations.
 	@param ID_to_taxo: [dico] Associate each picrust2 ref sequence to its taxonomy.
 	@param ref_seqs: [dico] Assign each picrust ref sequence name to its sequence.
-	@param clusters_to_seq: [list] clusters insert in tree and their sequences(find_clusters output).
+	@param clusters_to_seq: [list] clusters insert in tree and sequences associated(find_clusters output).
 	@param output: [str] path to tmp output file in order to write frogs and picrust2 taxonomic comparaisons.
-    """
+	"""
 	FH_out = open(output,'wt')
 	header = "\t".join(["Cluster","FROGS Taxonomy","Picrust2 closest ID","Picrust2 closest reference name","Picrust2 closest taxonomy","Picrust2 closest distance from cluster (NSTI)", "FROGS and Picrust2 lowest same taxonomic rank", "Comment", "Cluster sequence", "Picrust2 closest reference sequence"])
 	FH_out.write(header+"\n")
