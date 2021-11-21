@@ -23,7 +23,9 @@
 		<!-- CSS -->
 		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.1.1/css/bootstrap.css"></link>
 		<link rel="stylesheet" href="https://cdn.datatables.net/1.10.19/css/dataTables.bootstrap4.min.css"></link>
+		<link rel="stylesheet" href="https://cdn.datatables.net/searchpanes/1.4.0/css/searchPanes.dataTables.min.css"></link>
 		<link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+		<link href="https://cdn.datatables.net/select/1.3.3/css/select.dataTables.min.css" rel="stylesheet">
 		<style type="text/css">
 			#js-alert {
 				width: 90%;
@@ -108,14 +110,24 @@
 				background-color: #648a89;
 				cursor:pointer !important;
 			}
+			tbody > tr.selected, table.dataTable tbody > tr > .selected {
+				background-color: #8EAEAF !important;
+			}
+			div.dtsp-panesContainer div.dtsp-searchPanes div.dtsp-searchPane div.dtsp-selected {
+				border: 2px solid #e1e5e8;
+			}
 		</style>
 		<!-- JS -->
 		<script type="text/javascript" src="https://code.jquery.com/jquery-2.1.3.min.js"></script>
 		<script type="text/javascript" src="https://code.highcharts.com/8.2.0/highcharts.js"></script>
 		<script type="text/javascript" src="https://code.highcharts.com/8.2.0/modules/exporting.js"></script>
-		<script type="text/javascript" src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
+		<!--<script type="text/javascript" src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
 		<script type="text/javascript" src="https://cdn.datatables.net/1.10.19/js/dataTables.bootstrap4.min.js"></script>
-		<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js" integrity="sha384-smHYKdLADwkXOn1EmN1qk/HfnUcbVRZyYmZ4qpPea6sjB/pTJ0euyQp0Mk8ck+5T" crossorigin="anonymous"></script>
+		<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js" integrity="sha384-smHYKdLADwkXOn1EmN1qk/HfnUcbVRZyYmZ4qpPea6sjB/pTJ0euyQp0Mk8ck+5T" crossorigin="anonymous"></script>-->
+		
+		<script type="text/javascript" src="https://cdn.datatables.net/1.11.3/js/jquery.dataTables.min.js"></script>
+		<script type="text/javascript" src="https://cdn.datatables.net/searchpanes/1.4.0/js/dataTables.searchPanes.min.js"></script>
+		<script type="text/javascript" src="https://cdn.datatables.net/select/1.3.3/js/dataTables.select.min.js"></script>
 		<script type="text/javascript">
 			/*
 			 * HTMLTable.js 0.1.0 - HTMLTable Library
@@ -339,12 +351,116 @@
 				};
 				$('#filter-log').append( table("Chimera detection by sample", table_categories, table_series) );
 				$('#filter-log table').prop( 'id', 'details-table' );
-				$('#filter-log table').DataTable({
-					dom: 	"<'#details-csv-export'><'row'<'col-sm-5'l><'col-sm-7'f>>" +
+				var dt = $('#filter-log table').DataTable({
+					searchPanes: {
+						viewTotal: true,
+						columns: [5,6]
+					},
+					columnDefs: [
+						{
+							orderable: false,
+							searchPanes: {
+								show: true,
+								dtOpts:{
+							order:[[1,'asc']]
+						  },
+								options: [
+									{
+										label: 'To exclude (>2)',
+										value: function(rowData,rowIdx) {
+											return rowData[5] > 2;
+										}
+									},{
+										label: 'Bad confidence (1 to 2)',
+										value: function(rowData,rowIdx) {
+											return rowData[5] > 1 && rowData[5] <= 2 ;
+										}
+									},
+									{
+										label: 'Medium confidence (0.5 to 1)',
+										value: function(rowData, rowIdx) {
+											return rowData[5] > 0.5 && rowData[5] <= 1;
+										}
+									},
+									{
+										label: 'Good confidence (0 to 0.5)',
+										value: function(rowData, rowIdx) {
+											return rowData[5] <= 0.5;
+										}
+									}
+								]
+							},
+							targets: [5]
+						},
+						{
+							orderable: true,
+							//className: 'select-checkbox',
+							searchPanes: {
+								show: true,
+								dtOpts:{
+							order:[[1,'asc']]
+						  },
+								options: [
+									{
+										label: 'Kingdom',
+										value: function(rowData,rowIdx) {
+											return rowData[6] == 'Kingdom';
+										}
+									},
+									{
+										label: 'Phylum',
+										value: function(rowData,rowIdx) {
+											return rowData[6] == 'Phylum';
+										}
+									},
+									{
+										label: 'Class',
+										value: function(rowData,rowIdx) {
+											return rowData[6] == 'Class';
+										}
+									},
+									{
+										label: 'Order',
+										value: function(rowData,rowIdx) {
+											return rowData[6] == 'Order';
+										}
+									},
+									{
+										label: 'Family',
+										value: function(rowData,rowIdx) {
+											return rowData[6] == 'Family';
+										}
+									},
+									{
+										label: 'Genus',
+										value: function(rowData,rowIdx) {
+											return rowData[6] == 'Genus';
+										}
+									},
+									{
+										label: 'Species',
+										value: function(rowData,rowIdx) {
+											return rowData[6] == 'Species';
+										}
+									}
+								]
+							},
+							targets: [6]
+						}],
+					dom:  	"<'#details-csv-export'><'row'<'col-sm-5'l><'col-sm-7'f>>" +
 							"<'row'<'col-sm-12'tr>>" +
-							"<'row'<'col-sm-5'i><'col-sm-7'p>>",
+							"<'row'<'col-sm-5'i><'col-sm-7'p>>P",
 					'lengthMenu': [[10, 25, 50, 100, -1], [10, 25, 50, 100, "All"]],
 				});
+
+				dt.on('select.dt', () => {          
+					dt.searchPanes.rebuildPane(0, true);
+				});
+			 
+				dt.on('deselect.dt', () => {
+					dt.searchPanes.rebuildPane(0, true);
+				});
+				
 				$('#details-csv-export').html( '<button class="btn"><span class="fa fa-download" aria-hidden="true"> CSV</span></button>' );
 				$('#details-csv-export').addClass( 'dataTables_filter' );
 				$('#details-csv-export').datatableExport({
