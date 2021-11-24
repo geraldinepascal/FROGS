@@ -1,5 +1,21 @@
 #!/usr/bin/env python3
-# -*-coding:Utf-8 -*
+#
+# Copyright (C) 2018 INRA
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+
 __author__ = ' Moussa Samb & Maria Bernard & Vincent Darbot & Geraldine Pascal INRAE - SIGENAE '
 __copyright__ = 'Copyright (C) 2020 INRAE'
 __license__ = 'GNU General Public License'
@@ -38,10 +54,16 @@ from frogsBiom import BiomIO
 
 class HspMarker(Cmd):
 	"""
-	@summary: hsp.py : predict number of marker copies (16S, 18S or ITS) for each OTU.
-
+	@summary: Predict number of marker copies (16S, 18S or ITS) for each cluster sequence (i.e OTU).
 	"""
 	def __init__(self, observed_marker_table, in_tree, hsp_method, output, result_file, log):
+		"""
+		@param observed_marker_table: [str] Path to marker table file if marker studied is not 16S.
+		@param in_tree: [str] Path to resulting tree file with insert clusters sequences from FPStep1.
+		@param hsp_method: [str] HSP method to use.
+		@param output: [str] Picrust2 marker output file.
+		@param result_file: [str] FPStep2 formatted output file.
+		"""
 		if observed_marker_table is None:
 			input_marker = " -i 16S"
 		else:
@@ -78,9 +100,17 @@ class HspMarker(Cmd):
 
 class HspFunction(Cmd):
 	"""
-	@summary: hsp.py predict number of genes family for each OTU.
+	@summary: Predict number of genes family for each cluster sequence (i.e OTU).
 	"""
 	def __init__(self, in_trait, observed_trait_table, in_tree, hsp_method, output, result_file, log):
+		"""
+		@param in_trait: [str] Database ID if marker studied is 16S.
+		@param observed_trait_table: [str] Path to database trait table if marker studied is not 16S.
+		@param in_tree: [str] Path to resulting tree file with insert clusters sequences from FPStep1.
+		@param hsp_method: [str] HSP method to use.
+		@param output: [str] Picrust2 marker output file.
+		@param result_file: [str] FPStep2 formatted output file.
+		"""
 		if observed_trait_table is None:
 			input_function = " --in_trait " + in_trait
 		else:
@@ -142,7 +172,7 @@ def is_gzip( file ):
 
 def check_functions( functions ):
 	"""
-	@summary: check if --function parameter is valid.
+	@summary: check if --in_trait parameter is valid.
 	"""
 	VALID_FUNCTIONS = ['EC','COG','KO','PFAM','TIGRFAM','PHENO']
 	# if the user add mulitple functions prediction
@@ -157,6 +187,10 @@ def check_functions( functions ):
 
 def write_summary(biom_file, output_marker, depth_nsti_file, summary_file ):
 	"""
+	@summary: Writes the informations to generate graph of the number of OTUs and sequences removed according NCTI score.
+	@param biom_file: [str] Biom file (output of FPStep1).
+	@param output_marker: [str] HspMarker step output file, used to find NSTI score per Cluster.
+	@param depth_nsti_file: [str] Writes log of nb OTUs and nb sequences kept according to NSTI score.
 	"""
 	depth_nsti = open(output_marker).readlines()
 	biom=BiomIO.from_json(biom_file)
@@ -171,6 +205,7 @@ def write_summary(biom_file, output_marker, depth_nsti_file, summary_file ):
 			if float(li[2]) <= cur_nsti:
 				cluster_kept[cur_nsti]['Nb'].append(li[0])
 				cluster_kept[cur_nsti]['Abundances']+=biom.get_observation_count(li[0])
+				
 	clusters_size = list()
 	abundances_size = list()
 	nstis = list()
@@ -182,6 +217,7 @@ def write_summary(biom_file, output_marker, depth_nsti_file, summary_file ):
 	nstis = sorted(nstis)
 	clusters_size = sorted(clusters_size)
 	abundances_size = sorted(abundances_size)
+
 	FH_summary_tpl = open( os.path.join(CURRENT_DIR, "FPStep2_tpl.html") )
 	FH_summary_out = open( summary_file, "wt" )
 	for line in FH_summary_tpl:
@@ -209,7 +245,7 @@ if __name__ == "__main__":
 	parser.add_argument( '--debug', default=False, action='store_true', help="Keep temporary files to debug program." )
 	# Inputs
 	group_input = parser.add_argument_group( 'Inputs' )
-	group_input.add_argument('-b', '--input_biom', required=True, help='Biom file.')
+	group_input.add_argument('-b', '--input_biom', required=True, help='Biom file (output of FPStep1).')
 	group_input.add_argument('-i', '--in_trait', default="EC",help="For 16S marker input: Specifies which default trait table should be used ('EC', 'KO', 'COG', PFAM', 'TIGRFAM' or 'PHENO'). EC is used by default because necessary for FPStep4. To run the command with several functions, separate the functions with commas (ex: KO,PFAM). (for ITS or 18S : only EC available)")
 	group_input.add_argument('--observed_marker_table',help="The input marker table describing directly observed traits (e.g. sequenced genomes) in tab-delimited format. Necessary if you don't work on 16S marker. (ex $PICRUST2_PATH/default_files/fungi/ITS_counts.txt.gz). This input is required when the --observed_trait_table option is set. ")
 	group_input.add_argument('--observed_trait_table',help="The input trait table describing directly observed traits (e.g. sequenced genomes) in tab-delimited format. Necessary if you don't work on 16S marker. (ex $PICRUST2_PATH/default_files/fungi/ec_ITS_counts.txt.gz). This input is required when the --observed_marker_table option is set. ")
@@ -231,9 +267,6 @@ if __name__ == "__main__":
 		parser.error("\n\n#ERROR : --observed_trait_table and --observed_marker_table both required when studied marker is not 16S!\n\n")
 	elif args.observed_trait_table is not None and args.observed_marker_table is not None:
 		args.in_trait = None
-
-
-
 
 	# default output marker file name
 	if args.output_marker is None:

@@ -23,7 +23,6 @@ __version__ = '3.2.3'
 __email__ = 'frogs-support@inrae.fr'
 __status__ = 'prod'
 
-
 import os
 import sys
 import json
