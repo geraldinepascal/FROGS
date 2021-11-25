@@ -246,7 +246,9 @@ def formate_abundances_file(function_file, gene_hierarchy_file, hierarchy_tag = 
 		li = li.strip().split('\t')
 		if li[1] in id_to_hierarchy:
 			li.insert(0,id_to_hierarchy[li[1]])
-			tmp.write("\t".join(li)+"\n")
+		else:
+			li.insert(0,'unknown')
+		tmp.write("\t".join(li)+"\n")
 	tmp.close()
 	os.rename(function_file +'.tmp', function_file)
 	return hierarchy_tag

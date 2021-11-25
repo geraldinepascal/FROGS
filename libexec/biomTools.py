@@ -87,7 +87,7 @@ def update_tree_for_sample( biom, tree, sample_name, taxonomy_key, sample_id=Non
     sample_key = sample_name if sample_id is None else str(sample_id)
     for observation in biom.get_observations_by_sample( sample_name ):
         current_node = tree
-        if taxonomy_key in observation["metadata"] and observation["metadata"][taxonomy_key] is not None:
+        if taxonomy_key in observation["metadata"] and observation["metadata"][taxonomy_key] is not None and observation["metadata"][taxonomy_key] != 'unknown':
             # Get taxonomy
             taxonomy = biom.get_observation_taxonomy( observation["id"], taxonomy_key )
             # Add taxon in tree
