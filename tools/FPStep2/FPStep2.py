@@ -245,26 +245,26 @@ if __name__ == "__main__":
 	parser.add_argument( '--debug', default=False, action='store_true', help="Keep temporary files to debug program." )
 	# Inputs
 	group_input = parser.add_argument_group( 'Inputs' )
-	group_input.add_argument('-b', '--input_biom', required=True, help='Biom file (output of FPStep1).')
-	group_input.add_argument('-i', '--in_trait', default="EC",help="For 16S marker input: Specifies which default trait table should be used ('EC', 'KO', 'COG', PFAM', 'TIGRFAM' or 'PHENO'). EC is used by default because necessary for FPStep4. To run the command with several functions, separate the functions with commas (ex: KO,PFAM). (for ITS or 18S : only EC available)")
-	group_input.add_argument('--observed_marker_table',help="The input marker table describing directly observed traits (e.g. sequenced genomes) in tab-delimited format. Necessary if you don't work on 16S marker. (ex $PICRUST2_PATH/default_files/fungi/ITS_counts.txt.gz). This input is required when the --observed_trait_table option is set. ")
-	group_input.add_argument('--observed_trait_table',help="The input trait table describing directly observed traits (e.g. sequenced genomes) in tab-delimited format. Necessary if you don't work on 16S marker. (ex $PICRUST2_PATH/default_files/fungi/ec_ITS_counts.txt.gz). This input is required when the --observed_marker_table option is set. ")
+	group_input.add_argument('-b', '--input-biom', required=True, help='FPStep1 output Biom file (FPStep1.biom).')
+	group_input.add_argument('-i', '--in-trait', default="EC",help="For 16S marker input: Specifies which default trait table should be used ('EC', 'KO', 'COG', PFAM', 'TIGRFAM' or 'PHENO'). EC is used by default because necessary for FPStep4. To run the command with several functions, separate the functions with commas (ex: KO,PFAM). (for ITS or 18S : only EC available)")
+	group_input.add_argument('--observed-marker-table',help="The input marker table describing directly observed traits (e.g. sequenced genomes) in tab-delimited format. Necessary if you don't work on 16S marker. (ex $PICRUST2_PATH/default_files/fungi/ITS_counts.txt.gz). This input is required when the --observed-trait-table option is set. ")
+	group_input.add_argument('--observed-trait-table',help="The input trait table describing directly observed traits (e.g. sequenced genomes) in tab-delimited format. Necessary if you don't work on 16S marker. (ex $PICRUST2_PATH/default_files/fungi/ec_ITS_counts.txt.gz). This input is required when the --observed-marker-table option is set. ")
 	group_input.add_argument('-t', '--tree', required=True, type=str, help='FPStep1 output tree in newick format containing both study sequences (i.e. ASVs or OTUs) and reference sequences.')
-	group_input.add_argument('-s', '--hsp_method', default='mp', choices=['mp', 'emp_prob', 'pic', 'scp', 'subtree_average'], help='HSP method to use.' +'"mp": predict discrete traits using max parsimony. ''"emp_prob": predict discrete traits based on empirical ''state probabilities across tips. "subtree_average": ''predict continuous traits using subtree averaging. ' '"pic": predict continuous traits with phylogentic ' 'independent contrast. "scp": reconstruct continuous ''traits using squared-change parsimony (default: ''%(default)s).')
+	group_input.add_argument('-s', '--hsp-method', default='mp', choices=['mp', 'emp_prob', 'pic', 'scp', 'subtree_average'], help='HSP method to use.' +'"mp": predict discrete traits using max parsimony. ''"emp_prob": predict discrete traits based on empirical ''state probabilities across tips. "subtree_average": ''predict continuous traits using subtree averaging. ' '"pic": predict continuous traits with phylogentic ' 'independent contrast. "scp": reconstruct continuous ''traits using squared-change parsimony (default: ''%(default)s).')
 	# Output
 	group_output = parser.add_argument_group( 'Outputs' )
-	group_output.add_argument('-m', '--output_marker', default="FPStep2_marker_copy_number.tsv", type=str, help='Output table of predicted marker gene copy numbers per study sequence in input tree. If the extension \".gz\" is added the table will automatically be gzipped.')
-	group_output.add_argument('-o', '--output_function', default="FPStep2_predicted_functions.tsv", type=str, help='Output table with predicted abundances per study sequence in input tree. If the extension \".gz\" is added the table will automatically be gzipped.')
-	group_output.add_argument('-l', '--log_file', default=sys.stdout, help='List of commands executed.')
+	group_output.add_argument('-m', '--output-marker', default="FPStep2_marker_copy_number.tsv", type=str, help='Output table of predicted marker gene copy numbers per study sequence in input tree. If the extension \".gz\" is added the table will automatically be gzipped.')
+	group_output.add_argument('-o', '--output-function', default="FPStep2_predicted_functions.tsv", type=str, help='Output table with predicted abundances per study sequence in input tree. If the extension \".gz\" is added the table will automatically be gzipped.')
+	group_output.add_argument('-l', '--log-file', default=sys.stdout, help='List of commands executed.')
 	group_output.add_argument('--html', default='FPStep2_summary.html', help="Path to store resulting html file. [Default: %(default)s]" )
 	args = parser.parse_args()
 	prevent_shell_injections(args)
 
 	if args.in_trait is not None:
 		if not 'EC' in args.in_trait and not 'KO' in args.in_trait:
-			parser.error("\n\n#ERROR : --in_trait : 'EC' and/or 'KO' must be at least indicated (others functions are optionnal)")
+			parser.error("\n\n#ERROR : --in-trait : 'EC' and/or 'KO' must be at least indicated (others functions are optionnal)")
 	if (args.observed_trait_table is not None and args.observed_marker_table is None) or (args.observed_trait_table is None and args.observed_marker_table is not None):
-		parser.error("\n\n#ERROR : --observed_trait_table and --observed_marker_table both required when studied marker is not 16S!\n\n")
+		parser.error("\n\n#ERROR : --observed-trait-table and --observed-marker-table both required when studied marker is not 16S!\n\n")
 	elif args.observed_trait_table is not None and args.observed_marker_table is not None:
 		args.in_trait = None
 

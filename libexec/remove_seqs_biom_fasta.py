@@ -82,13 +82,13 @@ if __name__ == "__main__":
 
 	# Inputs
 	group_input = parser.add_argument_group( 'Inputs' ) # Outputs
-	group_input.add_argument( '-b', '--input_biom', required=True, help='Path to the abundance input file (format: biom).' )
-	group_input.add_argument( '-i', '--input_fasta', required=True, help='Path to the sequences input file (format: fasta).' )
-	group_input.add_argument( '-e', '--excluded_sequences', required=True, help='Path to the excluded observations IDs. Must be one ID per line.')
+	group_input.add_argument( '-b', '--input-biom', required=True, help='Path to the abundance input file (format: biom).' )
+	group_input.add_argument( '-i', '--input-fasta', required=True, help='Path to the sequences input file (format: fasta).' )
+	group_input.add_argument( '-e', '--excluded-sequences', required=True, help='Path to the excluded observations IDs. Must be one ID per line.')
 	# Outputs
 	group_output = parser.add_argument_group( 'Outputs' ) # Outputs
-	group_output.add_argument( '-o', '--output_biom', default='without_excluded_clusters.biom', help='Path to the Biom output file (format: biom).')
-	group_output.add_argument( '-f', '--output_fasta', default='without_excluded_clusters.fasta', help='Path to the Fasta output file (format: fasta).')
+	group_output.add_argument( '-o', '--output-biom', default='without_excluded_clusters.biom', help='Path to the Biom output file (format: biom).')
+	group_output.add_argument( '-f', '--output-fasta', default='without_excluded_clusters.fasta', help='Path to the Fasta output file (format: fasta).')
 	args = parser.parse_args()
 	prevent_shell_injections(args)
 

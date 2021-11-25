@@ -237,8 +237,8 @@ def get_sample_resuts( log_file, output_list ):
 if __name__ == "__main__":
     # Manage parameters
     parser = argparse.ArgumentParser(description="Normalisation in BIOM by random sampling.")
-    parser.add_argument('-n', '--num-reads', type=int, help="Sampling by the number of sequences of the smallest sample")
-    parser.add_argument('--sampling-by-min', default=False, action='store_true', help='Number of sampled sequences by sample.' )
+    parser.add_argument('-n', '--num-reads', type=int, help="Number of sampled sequences by sample.")
+    parser.add_argument('--sampling-by-min', default=False, action='store_true', help='Sampling by the number of sequences of the smallest sample.' )
     parser.add_argument('--delete-samples', default=False, action='store_true', help='Delete samples that have a number of sequences below the selected filter.')
     parser.add_argument('--debug', default=False, action='store_true', help="Keep temporary files to debug program.")
     parser.add_argument('-v', '--version', action='version', version=__version__)

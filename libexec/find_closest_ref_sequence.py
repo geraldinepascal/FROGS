@@ -233,15 +233,15 @@ if __name__ == "__main__":
 
 	# Inputs
 	group_input = parser.add_argument_group('Inputs')
-	group_input.add_argument('-t', '--tree_file', required=True, help='Tree file (output of place_seqs.py')
-	group_input.add_argument('-f', '--fasta_file', required=True, help='Input fasta file.')
-	group_input.add_argument('-b', '--biom_file', required=True, help='Input biom file.')
-	group_input.add_argument('-m', '--multi_affi', required=True, help='Multi-affiliations from biom input file. Run multiAffiFromBiom.py to generate this input.')
-	group_input.add_argument('-r', '--ref_aln', required=True, help='Alignment of reference sequences used in FPStep1 in order to execute place_seqs.py (ie $PICRUST_PATH/default_files/fungi/fungi_ITS/')
+	group_input.add_argument('-t', '--tree-file', required=True, help='Tree file (output of place_seqs.py')
+	group_input.add_argument('-f', '--fasta-file', required=True, help='Input fasta file.')
+	group_input.add_argument('-b', '--biom-file', required=True, help='Input biom file.')
+	group_input.add_argument('-m', '--multi-affi', required=True, help='Multi-affiliations from biom input file. Run multiAffiFromBiom.py to generate this input.')
+	group_input.add_argument('-r', '--ref-aln', required=True, help='Alignment of reference sequences used in FPStep1 in order to execute place_seqs.py (ie $PICRUST_PATH/default_files/fungi/fungi_ITS/')
 	# Outputs
 	group_output = parser.add_argument_group('Outputs')
 	group_output = parser.add_argument('-o', '--output', default='FPStep1_closests_ref_sequences.txt', help='Informations about clusters and picrust2 closest reference from cluster sequences (identifiants, taxonomies, phylogenetic distance from reference, nucleotidics sequences')
-	group_output = parser.add_argument('-e', '--out_biom', default='FPStep1.biom', help='Abundance file without non insert sequences. (format: BIOM) [Default: %(default)s]')
+	group_output = parser.add_argument('-e', '--out-biom', default='FPStep1.biom', help='Biom file without non insert sequences. (format: BIOM) [Default: %(default)s]')
 	group_output = parser.add_argument('-l', '--log-file', default=sys.stdout, help='The list of commands executed.')
 
 	args = parser.parse_args()

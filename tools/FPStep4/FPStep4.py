@@ -68,7 +68,7 @@ class PathwayPipeline(Cmd):
 		@param per_sequence_contrib: [boolean] Flag to specify that MinPath is run on the genes contributed by each sequence individualy.
 		@param per_sequence_abun: [str] Path to table of sequence abundances across samples normalized by marker copy number (if per_sequence_contrib).
 		@param per_sequence_function: [str] Path to table of function abundances per sequence, which was outputted at the hidden-state prediction step (if per_sequence_contrib).
-		@param no_regroup [boolean] if KEGG database used, flag neccesary.
+		@param no_regroup [boolean] if KEGG database used, this flag neccesary.
 		@param pathways_abund: [str] Pathway abundance file output..
 		@param pathways_contrib: [str] Stratified output corresponding to contribution of predicted gene family abundances within each predicted genome (if per_sequence_contrib).
 		@param pathways_predictions: [str] Stratified output corresponding to contribution of predicted gene family abundances within each predicted genome.
@@ -155,7 +155,6 @@ class Tsv2biom(Cmd):
 
 	def get_version(self):
 		 return Cmd.get_version(self, 'stdout').strip() 
-
 
 class TaxonomyTree(Cmd):
 	"""
@@ -327,22 +326,22 @@ if __name__ == "__main__":
 	# Manage parameters
 	parser = argparse.ArgumentParser( description='Infer the presence and abundances of pathways based on gene family abundances in a sample.' )
 	parser.add_argument('--debug', default=False, action='store_true', help="Keep temporary files to debug program." )
-	parser.add_argument('--per_sequence_contrib', default=False, action='store_true', help='Flag to specify that MinPath is run on the genes contributed by each sequence individualy. (in contrast to the default stratified output, which is the contribution to the community-wide pathway abundances.) Options --per_sequence_abun and --per_sequence_function need to be set when this option is used (default: False) ')
-	parser.add_argument('--no_regroup', default=False, action='store_true', help='Do not regroup input gene families to reactions as specified in the regrouping mapfile. ')
+	parser.add_argument('--per-sequence-contrib', default=False, action='store_true', help='Flag to specify that MinPath is run on the genes contributed by each sequence individualy. (in contrast to the default stratified output, which is the contribution to the community-wide pathway abundances.) Options --per-sequence-abun and --per-sequence-function need to be set when this option is used (default: False) ')
+	parser.add_argument('--no-regroup', default=False, action='store_true', help='Do not regroup input gene families to reactions as specified in the regrouping mapfile. ')
 	# Inputs
 	group_input = parser.add_argument_group( 'Inputs' )
-	group_input.add_argument('-i', '--input_file', required=True, type=str, help='Input TSV table of gene family abundances (FPStep3_pred_metagenome_unstrat.tsv from FPStep3.py).')
+	group_input.add_argument('-i', '--input-file', required=True, type=str, help='Input TSV table of gene family abundances (FPStep3_pred_metagenome_unstrat.tsv from FPStep3.py).')
 	group_input.add_argument('-m', '--map', type=str, help='Mapping file of pathways to reactions, necessary if marker studied is not 16S (metacyc_path2rxn_struc_filt_pro.txt used by default). For ITS analysis, required file is here: $PICRUST2_PATH/default_files/pathway_mapfiles/metacyc_path2rxn_struc_filt_fungi.txt).')
-	group_input.add_argument('--per_sequence_abun', default=None, help='Path to table of sequence abundances across samples normalized by marker copy number (typically the normalized sequence abundance table output at the metagenome pipeline step: FPStep3_seqtab_norm.tsv by default). This input is required when the --per_sequence_contrib option is set. (default: None).')
-	group_input.add_argument('--per_sequence_function', default=None, help='Path to table of function abundances per sequence, which was outputted at the hidden-state prediction step (FPStep2_predicted_functions.tsv by default). This input is required when the --per_sequence_contrib option is set. Note that this file should be the same input table as used for the metagenome pipeline step (default: None).')
-	group_input.add_argument('--hierarchy_ranks', nargs='*', default=["Level1", "Level2", "Level3", "Pathway"], help='The ordered ranks levels used in the metadata hierarchy pathways. [Default: %(default)s]' )
-	group_input.add_argument( '-n','--normalisation', default=False, action='store_true', help='To normalise data after analysis. Values are divided by sum of columns , then multiplied by 10^6 (CPM values). [Default: %(default)s]')
+	group_input.add_argument('--per-sequence-abun', default=None, help='Path to table of sequence abundances across samples normalized by marker copy number (typically the normalized sequence abundance table output at the metagenome pipeline step: FPStep3_seqtab_norm.tsv by default). This input is required when the --per-sequence-contrib option is set. (default: None).')
+	group_input.add_argument('--per-sequence-function', default=None, help='Path to table of function abundances per sequence, which was outputted at the hidden-state prediction step (FPStep2_predicted_functions.tsv by default). This input is required when the --per-sequence-contrib option is set. Note that this file should be the same input table as used for the metagenome pipeline step (default: None).')
+	group_input.add_argument('--hierarchy-ranks', nargs='*', default=["Level1", "Level2", "Level3", "Pathway"], help='The ordered ranks levels used in the metadata hierarchy pathways. [Default: %(default)s]' )
+	group_input.add_argument( '--normalisation', default=False, action='store_true', help='To normalise data after analysis. Values are divided by sum of columns , then multiplied by 10^6 (CPM values). [Default: %(default)s]')
 	#Outputs
 	group_output = parser.add_argument_group( 'Outputs')
-	group_output.add_argument('-o', '--pathways_abund', default='FPStep4_path_abun_unstrat.tsv', help='Pathway abundance file output.')
-	group_output.add_argument('--pathways_contrib', default=None, help='Stratified output corresponding to contribution of predicted gene family abundances within each predicted genome.')
-	group_output.add_argument('--pathways_predictions', default=None, help='Stratified output corresponding to contribution of predicted gene family abundances within each predicted genome.')
-	group_output.add_argument('--pathways_abund_per_seq', default=None, help='Pathway abundance file output per sequences (if --per_sequence_contrib set)')
+	group_output.add_argument('-o', '--pathways-abund', default='FPStep4_path_abun_unstrat.tsv', help='Pathway abundance file output.')
+	group_output.add_argument('--pathways-contrib', default=None, help='Stratified output corresponding to contribution of predicted gene family abundances within each predicted genome.')
+	group_output.add_argument('--pathways-predictions', default=None, help='Stratified output corresponding to contribution of predicted gene family abundances within each predicted genome.')
+	group_output.add_argument('--pathways-abund-per-seq', default=None, help='Pathway abundance file output per sequences (if --per-sequence-contrib set)')
 	group_output.add_argument('-v', '--version', default=False, action='version', version="%(prog)s " + __version__)
 	group_output.add_argument('-l', '--log-file', default=sys.stdout, help='This output file will contain several information on executed commands.')
 	group_output.add_argument('-t', '--html', default='FPStep4_summary.html', help="Path to store resulting html file. [Default: %(default)s]" )	
@@ -355,7 +354,7 @@ if __name__ == "__main__":
 
 		if args.per_sequence_contrib:
 			if args.per_sequence_abun == None or args.per_sequence_function == None:
-				parser.error("\n\n#ERROR : --per_sequence_abun and --per_sequence_function required when --per_sequence_contrib option is set!\n\n")
+				parser.error("\n\n#ERROR : --per-sequence-abun and --per-sequence-function required when --per-sequence-contrib option is set!\n\n")
 			if args.pathways_contrib is None:
 				args.pathways_contrib = 'FPStep4_path_abun_contrib.tsv'
 			if args.pathways_predictions is None:
@@ -363,9 +362,8 @@ if __name__ == "__main__":
 			if args.pathways_abund_per_seq is None:
 				args.pathways_abund_per_seq = "FPStep4_path_abun_unstrat_per_seq.tsv"
 
-
 		if (args.per_sequence_abun is not None or args.per_sequence_function is not None) and not args.per_sequence_contrib:
-			parser.error("\n\n#ERROR : --per_sequence_contrib required when --per_sequence_contrib and --per_sequence_function option is set!\n\n")
+			parser.error("\n\n#ERROR : --per-sequence-contrib required when --per-sequence-contrib and --per-sequence-function option is set!\n\n")
 
 		tmp_pathway = tmp_files.add( 'pathway_pipeline.log' )
 		tmp_tsv = tmp_files.add( 'genes_abundances_formatted.tsv')

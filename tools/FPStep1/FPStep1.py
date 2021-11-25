@@ -110,12 +110,13 @@ class FindClosestsRefSequences(Cmd):
 		@param out_biom [str]: Path to output Biom file with picrust2 taxonomic affiliations informations.
 		@summary out_summary: [str] Path to output summary file.
 		@note : Header of summary file:
-		Cluster	Taxonomy	Closest_ref_ID	Closest_ref_name	Closest_ref_taxonomy	Closest_ref_distance
+		Cluster	FROGS Taxonomy	Picrust2_closest_ID	Picrust2_closest_reference_name	Picrust2_closest_taxonomy	
+		Picrust2_closest_distance_from_cluster_(NSTI)	FROGS_and_Picrust2_lowest_same_taxonomic_rank	Comment	Cluster_sequence	Picrust2_closest_reference_sequence
 		'''
 		Cmd.__init__(self,
 			'find_closest_ref_sequence.py',
 			'find OTUs closests reference sequences into a reference tree.',
-			'--tree_file ' + in_tree + ' --biom_file ' + in_biom + ' --multi_affi ' + multi_affiliations + ' --fasta_file ' + in_fasta + ' --ref_aln ' + ref_aln + ' --out_biom ' + out_biom + ' --output ' + out_summary ,
+			'--tree-file ' + in_tree + ' --biom-file ' + in_biom + ' --multi-affi ' + multi_affiliations + ' --fasta-file ' + in_fasta + ' --ref-aln ' + ref_aln + ' --out-biom ' + out_biom + ' --output ' + out_summary ,
 			'--version')
 
 	def get_version(self):
@@ -136,7 +137,7 @@ class RemoveSeqsBiomFasta(Cmd):
 		Cmd.__init__(self,
 			'remove_seqs_biom_fasta.py',
 			'remove not insert sequences in tree from fasta and biom file.',
-			'--input_biom ' + in_biom + ' --input_fasta ' + in_fasta + ' --excluded_sequences ' + excluded_file + ' --output_biom ' + out_biom + " --output_fasta " + out_fasta,
+			'--input-biom ' + in_biom + ' --input-fasta ' + in_fasta + ' --excluded-sequences ' + excluded_file + ' --output-biom ' + out_biom + " --output-fasta " + out_fasta,
 			'--version')
 
 	def get_version(self):
@@ -150,7 +151,9 @@ class RemoveSeqsBiomFasta(Cmd):
 
 def convert_fasta(in_fasta, out_fasta):
 	"""
-	@summary: Change fasta headers to be compatible with picrust2. 
+	@summary: Change fasta headers to be compatible with picrust2.
+	@param in_fasta [str]: Path to fasta input file.
+	@param out_fasta [str]: Path to fasta output file.
 	"""
 	FH_input = FastaIO(in_fasta)
 	FH_output = FastaIO(out_fasta,"wt" )
@@ -281,19 +284,19 @@ if __name__ == "__main__":
 	parser.add_argument( '--debug', default=False, action='store_true', help="Keep temporary files to debug program." )
 	# Inputs
 	group_input = parser.add_argument_group('Inputs')
-	group_input.add_argument('-i', '--input_fasta', required=True, help="Input fasta file of unaligned studies sequences")
-	group_input.add_argument('-b', '--input_biom', required=True, help='Biom file.')
-	group_input.add_argument('-r', '--ref_dir', help='Directory containing reference sequence files, if studied marker is not 16S. (ex: $PICRUST2_PATH/default_files/fungi/fungi_ITS')
-	group_input.add_argument('-p', '--placement_tool', default='epa-ng', help='Placement tool to use when placing sequences into reference tree. One of "epa-ng" or "sepp" must be input')
-	group_input.add_argument('--min_align', type=restricted_float, default=0.8, help='Proportion of the total length of an input query ''sequence that must align with reference sequences. ''Any sequences with lengths below this value after ''making an alignment with reference sequences will ''be excluded from the placement and all subsequent ''steps. (default: %(default)d).')
+	group_input.add_argument('-i', '--input-fasta', required=True, help="Input fasta file of unaligned studies sequences.")
+	group_input.add_argument('-b', '--input-biom', required=True, help='Input biom file of unaligned studies sequences.')
+	group_input.add_argument('-r', '--ref-dir', help='Directory containing reference sequence files, if studied marker is not 16S. (ex: $PICRUST2_PATH/default_files/fungi/fungi_ITS')
+	group_input.add_argument('-p', '--placement-tool', default='epa-ng', help='Placement tool to use when placing sequences into reference tree. One of "epa-ng" or "sepp" must be input')
+	group_input.add_argument('--min-align', type=restricted_float, default=0.8, help='Proportion of the total length of an input query sequence that must align with reference sequences. Any sequences with lengths below this value after making an alignment with reference sequences will be excluded from the placement and all subsequent steps. (default: %(default)d).')
 	# Outputs
 	group_output = parser.add_argument_group('Outputs')
-	group_output.add_argument('-o', '--out_tree', default='FPStep1.tree', help='Tree output with insert sequences (format: newick).')
+	group_output.add_argument('-o', '--out-tree', default='FPStep1.tree', help='Reference tree output with insert sequences (format: newick).')
 	group_output.add_argument('-e', '--excluded', default='FPSTep1_excluded.txt', help='List of sequences not inserted in the tree.')
-	group_output.add_argument('-s', '--insert_fasta', default='FPStep1.fasta', help='sequences file without non insert sequences. (format: FASTA). [Default: %(default)s]')
-	group_output.add_argument('-m', '--insert_biom', default='FPStep1.biom', help='abundance file without non insert sequences. (format: BIOM) [Default: %(default)s]')
-	group_output.add_argument('-c', '--closests_ref', default='FPStep1_closests_ref_sequences.txt', help='Informations about clusters and picrust2 closest reference from cluster sequences (identifiants, taxonomies, phylogenetic distance from reference, nucleotidics sequences')
-	group_output.add_argument('-l', '--log_file', default=sys.stdout, help='List of commands executed.')
+	group_output.add_argument('-s', '--insert-fasta', default='FPStep1.fasta', help='Fasta file without non insert sequences. (format: FASTA). [Default: %(default)s]')
+	group_output.add_argument('-m', '--insert-biom', default='FPStep1.biom', help='Biom file without non insert sequences. (format: BIOM) [Default: %(default)s]')
+	group_output.add_argument('-c', '--closests-ref', default='FPStep1_closests_ref_sequences.txt', help='Informations about Clusters (i.e OTUs) and picrust2 closest reference from cluster sequences (identifiants, taxonomies, phylogenetic distance from reference, nucleotidics sequences).')
+	group_output.add_argument('-l', '--log-file', default=sys.stdout, help='List of commands executed.')
 	group_output.add_argument('-t', '--html', default='FPStep1_summary.html', help="Path to store resulting html file. [Default: %(default)s]" )
 	args = parser.parse_args()
 	prevent_shell_injections(args)
