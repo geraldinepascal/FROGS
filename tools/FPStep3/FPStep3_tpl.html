@@ -391,7 +391,7 @@
 				// Table titles
 				//var titles = [ '<input id="taxBySample-check-all" type="checkbox" value="1">', "Samples" ];
 				var titles = ['<label class="container"><input type="checkbox" id="taxBySample-check-all" value="1"><span class="checkmark"></span></label>','Samples'];
-				titles.push( "Mean NSTI");		
+				titles.push( "Weighted NSTI");		
 				titles.push( "Nb " + taxonomic_ranks[taxonomic_ranks.length-1].toLowerCase() + " retrieved");
 
 				$('#taxBySample-table thead').append( '<tr><th>' + titles.join("</th><th>") + '</th></tr>' );
