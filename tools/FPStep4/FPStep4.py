@@ -98,7 +98,8 @@ class PathwayPipeline(Cmd):
 		 return Cmd.get_version(self, 'stdout').split()[1].strip()
 
 	def parser(self, log_file):
-		START_PATHWAY_LINK = "https://biocyc.org/META/NEW-IMAGE?type=PATHWAY&object="
+		START_METAYC_PATHWAY_LINK = "https://biocyc.org/META/NEW-IMAGE?type=PATHWAY&object="
+		START_KEGG_PATHWAY_LINK = "https://www.genome.jp/entry/"
 		f_in = gzip.open('path_abun_unstrat.tsv.gz', 'rt').readlines()
 		f_out = open(self.pathways_abund, 'wt')
 		header = f_in[0].strip().split('\t')
@@ -107,7 +108,10 @@ class PathwayPipeline(Cmd):
 		for li in f_in[1:]:
 			li = li.strip().split('\t')
 			function = li[0]
-			li.insert(0,START_PATHWAY_LINK + function )
+			if function.startswith('ko'):
+				li.insert(0,START_KEGG_PATHWAY_LINK + function )
+			else:
+				li.insert(0,START_METAYC_PATHWAY_LINK + function )
 			f_out.write("\t".join(li)+"\n")
 		os.remove('path_abun_unstrat.tsv.gz')
 		if self.per_sequence_contrib:
