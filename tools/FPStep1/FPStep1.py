@@ -244,7 +244,7 @@ def write_summary(in_fasta, align_out, biomfile, closest_ref_file, category, sum
 			li[2] = START_IMG_LINK + id_cur + "'>" + id_cur + '</a>'
 			infos_otus.append({
 				'name': li[0],
-				'data': list(map(str,li[1:-2]))
+				'data': list(li[1:-2])
 				})
 
 	# record details about removed OTU
