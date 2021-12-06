@@ -145,13 +145,20 @@ def write_summary( summary_file, results_chimera ):
             if in_detection_metrics:
                 if section_first_line:
                     line_fields = line[1:].split("\t")[1:]
+                    line_fields.insert(1,"%  Clusters kept")
+                    line_fields.insert(3,"%  Cluster abundance kept")
                     detection_categories = line_fields
                     section_first_line = False
                 else:
                     line_fields = line.split("\t")
+                    # Calculate % of abundance kep on fly:
+                    line_fields.insert(2,float(100-(float(int(int(line_fields[3])*100)/\
+                        int(int(line_fields[1])+int(line_fields[3]))))))
+                    line_fields.insert(4,float(100-(float(int(int(line_fields[5])*100)/\
+                        int(int(line_fields[3])+int(line_fields[5]))))))
                     detection_data.append({
                              'name': line_fields[0],
-                             'data': list(map(int, line_fields[1:]))
+                             'data': list(map(float, line_fields[1:]))
                     })
             elif in_remove_metrics:
                 if section_first_line:
@@ -195,6 +202,9 @@ if __name__ == "__main__":
     # Inputs
     group_input = parser.add_argument_group( 'Inputs' )
     group_input.add_argument( '-f', '--input-fasta', required=True, help='The cluster sequences (format: FASTA).' )
+    # group_exclusion_filter = group_input.add_mutually_exclusive_group()
+    # group_exclusion_filter.add_argument( '--lenient-filter', default=True, action='store_true', help="Removes one sequence in all samples only if it is detected as chimera in all samples where it is present (default paramater). To use less lenient filter, --prop-filter PROPORTION allows you to chose a minimal proportion of samples for which a sequence should be detected as chimera to be removed." )
+    # group_exclusion_filter.add_argument( '--prop-filter', type=float, help="Minimal proportion of samples for which a sequence should be detected as chimera to be removed. " )
     group_exclusion_abundance = group_input.add_mutually_exclusive_group()
     group_exclusion_abundance.add_argument( '-b', '--input-biom', help='The abundance file for clusters by sample (format: BIOM).' )
     group_exclusion_abundance.add_argument( '-c', '--input-count', help='The counts file for clusters by sample (format: TSV).' )
