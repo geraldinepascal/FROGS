@@ -58,7 +58,9 @@ class BIOM_sampling(Cmd):
         @param nb_read : [int] Number of reads per sample.
         @param sampling_by_min : [boolean] Sampling by the number of the smallest sample.
         """
-        argument = " --nb-sampled " + str(nb_read)
+        argument = ''
+        if nb_read is not None:
+            argument = " --nb-sampled " + str(nb_read)
         if sampling_by_min :
             argument = " --sampling-by-min "
         if delete_samples:
@@ -71,7 +73,6 @@ class BIOM_sampling(Cmd):
 
     def get_version(self):   
         return Cmd.get_version(self, 'stdout').strip()                      
-
 
 class BIOM_FASTA_update(Cmd):
     """
@@ -264,6 +265,10 @@ if __name__ == "__main__":
         
         Logger.static_write(args.log_file,'\n#Normalisation calculation\n\tstart: ' + time.strftime("%d %b %Y %H:%M:%S", time.localtime()) + '\n' )
         tmp_subsampling = tmp_files.add( 'tmp_biom_subsample.log' )
+
+        if args.num_reads is None and not args.sampling_by_min:
+            raise_exception( Exception('\n\n#ERROR : --sampling-by-min or --num-reads must be provided.\n\n'))
+
         BIOM_sampling(args.input_biom, args.output_biom, args.num_reads, args.sampling_by_min, args.delete_samples).submit(args.log_file)
         write_log(args.input_biom, args.num_reads, args.output_biom, tmp_subsampling)
         Logger.static_write(args.log_file,'\tend: ' + time.strftime("%d %b %Y %H:%M:%S", time.localtime()) + '\n\n' )

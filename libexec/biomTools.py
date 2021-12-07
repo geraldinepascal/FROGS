@@ -139,22 +139,24 @@ def sampling_by_sample( input_biom, output_biom, sampling_by_min, delete_samples
         sample_nb_sampled = nb_sampled
         if nb_sampled is None:
             sample_nb_sampled = int(sample_seq * sampled_ratio)
-        if sample_seq < nb_sampled and not delete_samples:
-            sample_nb_sampled = sample_seq
-            # raise_exception( Exception( "\n\n#ERROR : " + str(sample_nb_sampled) + " sequences cannot be sampled in sample '" + str(sample_name) + "'. It only contains " + str(sample_seq) + " sequences.\n\n" ))
-        if sample_seq < nb_sampled and delete_samples:
-                new_biom.remove_samples([str(sample_name)])
         else:
-            for current_nb_iter in range(sample_nb_sampled):
-                # Take an observation in initial BIOM
-                selected_observation = initial_biom.random_obs_by_sample(sample_name)
-                selected_observation_id = selected_observation['id']
-                initial_biom.subtract_count( selected_observation_id, sample_name, 1 )
-                # Put in new BIOM
-                if selected_observation_id not in observations_already_added:
-                    new_biom.add_observation( selected_observation_id, initial_biom.get_observation_metadata(selected_observation_id) )
-                    observations_already_added[selected_observation_id] = True
-                new_biom.add_count( selected_observation_id, sample_name, 1 )
+            nb_sampled = int(nb_sampled)
+            if sample_seq < nb_sampled and not delete_samples:
+                sample_nb_sampled = sample_seq
+                # raise_exception( Exception( "\n\n#ERROR : " + str(sample_nb_sampled) + " sequences cannot be sampled in sample '" + str(sample_name) + "'. It only contains " + str(sample_seq) + " sequences.\n\n" ))
+            if sample_seq < nb_sampled and delete_samples:
+                    new_biom.remove_samples([str(sample_name)])
+            else:
+                for current_nb_iter in range(sample_nb_sampled):
+                    # Take an observation in initial BIOM
+                    selected_observation = initial_biom.random_obs_by_sample(sample_name)
+                    selected_observation_id = selected_observation['id']
+                    initial_biom.subtract_count( selected_observation_id, sample_name, 1 )
+                    # Put in new BIOM
+                    if selected_observation_id not in observations_already_added:
+                        new_biom.add_observation( selected_observation_id, initial_biom.get_observation_metadata(selected_observation_id) )
+                        observations_already_added[selected_observation_id] = True
+                    new_biom.add_count( selected_observation_id, sample_name, 1 )
     BiomIO.write( output_biom, new_biom )
 
 
