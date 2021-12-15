@@ -43,7 +43,10 @@ LIB_DIR = os.path.abspath(os.path.join(os.path.dirname(CURRENT_DIR), "lib"))
 sys.path.append(LIB_DIR) 
 if os.getenv('PYTHONPATH') is None: os.environ['PYTHONPATH'] = LIB_DIR 
 else: os.environ['PYTHONPATH'] = os.environ['PYTHONPATH'] + os.pathsep + LIB_DIR
-GENE_HIERARCHY_FILE = os.path.abspath(os.path.join(os.path.dirname(CURRENT_DIR), "default_files/gene_family_hierarchy.tsv"))
+if os.getenv('GENE_HIERARCHY_FILE'):
+   GENE_HIERARCHY_FILE=os.environ['GENE_HIERARCHY_FILE']  
+else:
+   GENE_HIERARCHY_FILE=os.path.abspath(os.path.join(os.path.dirname(CURRENT_DIR), "default_files/gene_family_hierarchy.tsv"))
 
 from frogsUtils import *
 from frogsSequenceIO import * 

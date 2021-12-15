@@ -43,9 +43,15 @@ LIB_DIR = os.path.abspath(os.path.join(os.path.dirname(CURRENT_DIR), "lib"))
 sys.path.append(LIB_DIR) 
 if os.getenv('PYTHONPATH') is None: os.environ['PYTHONPATH'] = LIB_DIR 
 else: os.environ['PYTHONPATH'] = os.environ['PYTHONPATH'] + os.pathsep + LIB_DIR
-DESCRIPTION_FILE = os.path.abspath(os.path.join(os.path.dirname(CURRENT_DIR), "default_files/pathways_description_file.txt.gz"))
-PATHWAYS_HIERARCHY_FILE = os.path.abspath(os.path.join(os.path.dirname(CURRENT_DIR), "default_files/pathways_hierarchy.tsv"))
-
+if os.getenv('DESCRIPTION_FILE'):
+   DESCRIPTION_FILE=os.environ['DESCRIPTION_FILE']  
+else:
+   DESCRIPTION_FILE=os.path.abspath(os.path.join(os.path.dirname(CURRENT_DIR), "default_files/pathways_description_file.txt.gz"))
+if os.getenv('PATHWAYS_HIERARCHY_FILE'):
+	
+   PATHWAYS_HIERARCHY_FILE =os.environ['PATHWAYS_HIERARCHY_FILE']  
+else:
+   PATHWAYS_HIERARCHY_FILE =os.path.abspath(os.path.join(os.path.dirname(CURRENT_DIR), "default_files/pathways_hierarchy.tsv"))
 
 #import frogs
 from frogsUtils import *

@@ -3,6 +3,8 @@ FROGS_DIR=`dirname $(dirname $(pwd))`
 export PATH=$FROGS_DIR/libexec:$PATH
 export PYTHONPATH=$FROGS_DIR/lib:$PYTHONPATH
 export GENE_HIERARCHY_FILE=$FROGS_DIR/default_files/gene_family_hierarchy.tsv
+export DESCRIPTION_FILE=$FROGS_DIR/default_files/pathways_description_file.txt.gz
+export PATHWAYS_HIERARCHY_FILE=$FROGS_DIR/default_files/pathways_hierarchy.tsv
 
 # Create output folder
 if [ ! -d "test" ]
