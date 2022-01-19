@@ -59,10 +59,10 @@ class HspMarker(Cmd):
 	def __init__(self, observed_marker_table, in_tree, hsp_method, output, result_file, log):
 		"""
 		@param observed_marker_table: [str] Path to marker table file if marker studied is not 16S.
-		@param in_tree: [str] Path to resulting tree file with insert clusters sequences from FPStep1.
+		@param in_tree: [str] Path to resulting tree file with insert clusters sequences from frogsfunc_placeseqs.
 		@param hsp_method: [str] HSP method to use.
 		@param output: [str] Picrust2 marker output file.
-		@param result_file: [str] FPStep2 formatted output file.
+		@param result_file: [str] frogsfunc_copynumbers formatted output file.
 		"""
 		if observed_marker_table is None:
 			input_marker = " -i 16S"
@@ -106,10 +106,10 @@ class HspFunction(Cmd):
 		"""
 		@param in_trait: [str] Database ID if marker studied is 16S.
 		@param observed_trait_table: [str] Path to database trait table if marker studied is not 16S.
-		@param in_tree: [str] Path to resulting tree file with insert clusters sequences from FPStep1.
+		@param in_tree: [str] Path to resulting tree file with insert clusters sequences from frogsfunc_placeseqs.
 		@param hsp_method: [str] HSP method to use.
 		@param output: [str] Picrust2 marker output file.
-		@param result_file: [str] FPStep2 formatted output file.
+		@param result_file: [str] frogsfunc_copynumbers formatted output file.
 		"""
 		if observed_trait_table is None:
 			input_function = " --in_trait " + in_trait
@@ -188,7 +188,7 @@ def check_functions( functions ):
 def write_summary(biom_file, output_marker, depth_nsti_file, summary_file ):
 	"""
 	@summary: Writes the informations to generate graph of the number of OTUs and sequences removed according NCTI score.
-	@param biom_file: [str] Biom file (output of FPStep1).
+	@param biom_file: [str] Biom file (output of frogsfunc_placeseqs).
 	@param output_marker: [str] HspMarker step output file, used to find NSTI score per Cluster.
 	@param depth_nsti_file: [str] Writes log of nb OTUs and nb sequences kept according to NSTI score.
 	"""
@@ -218,7 +218,7 @@ def write_summary(biom_file, output_marker, depth_nsti_file, summary_file ):
 	clusters_size = sorted(clusters_size)
 	abundances_size = sorted(abundances_size)
 
-	FH_summary_tpl = open( os.path.join(CURRENT_DIR, "FPStep2_tpl.html") )
+	FH_summary_tpl = open( os.path.join(CURRENT_DIR, "frogsfunc_copynumbers_tpl.html") )
 	FH_summary_out = open( summary_file, "wt" )
 	for line in FH_summary_tpl:
 		if "###CLUSTERS_SIZES###" in line:
@@ -245,18 +245,18 @@ if __name__ == "__main__":
 	parser.add_argument( '--debug', default=False, action='store_true', help="Keep temporary files to debug program." )
 	# Inputs
 	group_input = parser.add_argument_group( 'Inputs' )
-	group_input.add_argument('-b', '--input-biom', required=True, help='FPStep1 output Biom file (FPStep1.biom).')
-	group_input.add_argument('-i', '--in-trait', default="EC",help="For 16S marker input: Specifies which default trait table should be used ('EC', 'KO', 'COG', PFAM', 'TIGRFAM' or 'PHENO'). EC is used by default because necessary for FPStep4. To run the command with several functions, separate the functions with commas (ex: KO,PFAM). (for ITS or 18S : only EC available)")
-	group_input.add_argument('--observed-marker-table',help="The input marker table describing directly observed traits (e.g. sequenced genomes) in tab-delimited format. Necessary if you don't work on 16S marker. (ex $PICRUST2_PATH/default_files/fungi/ITS_counts.txt.gz). This input is required when the --observed-trait-table option is set. ")
-	group_input.add_argument('--observed-trait-table',help="The input trait table describing directly observed traits (e.g. sequenced genomes) in tab-delimited format. Necessary if you don't work on 16S marker. (ex $PICRUST2_PATH/default_files/fungi/ec_ITS_counts.txt.gz). This input is required when the --observed-marker-table option is set. ")
-	group_input.add_argument('-t', '--tree', required=True, type=str, help='FPStep1 output tree in newick format containing both study sequences (i.e. ASVs or OTUs) and reference sequences.')
+	group_input.add_argument('-b', '--input-biom', required=True, help='frogsfunc_placeseqs output Biom file (frogsfunc_placeseqs.biom).')
+	group_input.add_argument('-i', '--in-trait', default="EC",help="For 16S marker input: Specifies which default trait table should be used ('EC', 'KO', 'COG', PFAM', 'TIGRFAM' or 'PHENO'). EC is used by default because necessary for frogsfunc_pathways. To run the command with several functions, separate the functions with commas (ex: KO,PFAM). (for ITS or 18S : only EC available)")
+	group_input.add_argument('--observed-marker-table',help="The input marker table describing directly observed traits (e.g. sequenced genomes) in tab-delimited format. Necessary if you don't work on 16S marker. (ex $PICRUST2_PATH/frogsfunc_suppdata/fungi/ITS_counts.txt.gz). This input is required when the --observed-trait-table option is set. ")
+	group_input.add_argument('--observed-trait-table',help="The input trait table describing directly observed traits (e.g. sequenced genomes) in tab-delimited format. Necessary if you don't work on 16S marker. (ex $PICRUST2_PATH/frogsfunc_suppdata/fungi/ec_ITS_counts.txt.gz). This input is required when the --observed-marker-table option is set. ")
+	group_input.add_argument('-t', '--tree', required=True, type=str, help='frogsfunc_placeseqs output tree in newick format containing both study sequences (i.e. ASVs or OTUs) and reference sequences.')
 	group_input.add_argument('-s', '--hsp-method', default='mp', choices=['mp', 'emp_prob', 'pic', 'scp', 'subtree_average'], help='HSP method to use.' +'"mp": predict discrete traits using max parsimony. ''"emp_prob": predict discrete traits based on empirical ''state probabilities across tips. "subtree_average": ''predict continuous traits using subtree averaging. ' '"pic": predict continuous traits with phylogentic ' 'independent contrast. "scp": reconstruct continuous ''traits using squared-change parsimony (default: ''%(default)s).')
 	# Output
 	group_output = parser.add_argument_group( 'Outputs' )
-	group_output.add_argument('-m', '--output-marker', default="FPStep2_marker_copy_number.tsv", type=str, help='Output table of predicted marker gene copy numbers per study sequence in input tree. If the extension \".gz\" is added the table will automatically be gzipped.')
-	group_output.add_argument('-o', '--output-function', default="FPStep2_predicted_functions.tsv", type=str, help='Output table with predicted abundances per study sequence in input tree. If the extension \".gz\" is added the table will automatically be gzipped.')
+	group_output.add_argument('-m', '--output-marker', default="frogsfunc_copynumbers_marker_copy_number.tsv", type=str, help='Output table of predicted marker gene copy numbers per study sequence in input tree. If the extension \".gz\" is added the table will automatically be gzipped.')
+	group_output.add_argument('-o', '--output-function', default="frogsfunc_copynumbers_predicted_functions.tsv", type=str, help='Output table with predicted abundances per study sequence in input tree. If the extension \".gz\" is added the table will automatically be gzipped.')
 	group_output.add_argument('-l', '--log-file', default=sys.stdout, help='List of commands executed.')
-	group_output.add_argument('--html', default='FPStep2_summary.html', help="Path to store resulting html file. [Default: %(default)s]" )
+	group_output.add_argument('--html', default='frogsfunc_copynumbers_summary.html', help="Path to store resulting html file. [Default: %(default)s]" )
 	args = parser.parse_args()
 	prevent_shell_injections(args)
 
@@ -270,7 +270,7 @@ if __name__ == "__main__":
 
 	# default output marker file name
 	if args.output_marker is None:
-		args.output_marker = "FPStep2_marker_nsti_predicted.tsv"
+		args.output_marker = "frogsfunc_copynumbers_marker_nsti_predicted.tsv"
 
 	tmp_files=TmpFiles(os.path.split(args.output_marker)[0])
 

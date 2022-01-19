@@ -46,7 +46,7 @@ else: os.environ['PYTHONPATH'] = os.environ['PYTHONPATH'] + os.pathsep + LIB_DIR
 if os.getenv('GENE_HIERARCHY_FILE'):
    GENE_HIERARCHY_FILE=os.environ['GENE_HIERARCHY_FILE']  
 else:
-   GENE_HIERARCHY_FILE=os.path.abspath(os.path.join(os.path.dirname(CURRENT_DIR), "default_files/gene_family_hierarchy.tsv"))
+   GENE_HIERARCHY_FILE=os.path.abspath(os.path.join(os.path.dirname(CURRENT_DIR), "frogsfunc_suppdata/gene_family_hierarchy.tsv"))
 
 from frogsUtils import *
 from frogsSequenceIO import * 
@@ -64,9 +64,9 @@ class MetagenomePipeline(Cmd):
 	"""
 	def __init__(self, in_biom, marker, function, max_nsti, min_reads, min_samples, strat_out, function_abund, seqtab, weighted, contrib, log):
 		"""
-		@param in_biom: [str] Path to BIOM input file used in FPStep1.
-		@param marker: [str] Table of predicted marker gene copy numbers (FPStep2 output : FPStep2_marker_nsti_predicted.tsv).
-		@param function: [str] Table of predicted gene family copy numbers (FPStep2 output : FPStep2_predicted_functions.tsv).
+		@param in_biom: [str] Path to BIOM input file used in frogsfunc_placeseqs.
+		@param marker: [str] Table of predicted marker gene copy numbers (frogsfunc_copynumbers output : frogsfunc_copynumbers_marker_nsti_predicted.tsv).
+		@param function: [str] Table of predicted gene family copy numbers (frogsfunc_copynumbers output : frogsfunc_copynumbers_predicted_functions.tsv).
 		@param max_nsti: [float] Sequences with NSTI values above this value will be excluded .
 		@param min_reads: [int] Minimum number of reads across all samples for each input OTU.
 		@param min_samples [int] Minimum number of samples that an OTU needs to be identfied within.
@@ -191,8 +191,8 @@ def excluded_sequence(in_biom, in_marker, out_seqtab, excluded):
 	"""
 	@summary: Returns the excluded sequence, that have a NSTI score above the NSTI threshold.
 	@param in_biom: Biom file.
-	@param in_marker: [str] Path to FPStep2 marker file to process.
-	@param out_seqtab: [str] Path to FPStep3 seqtab file to process.
+	@param in_marker: [str] Path to frogsfunc_copynumbers marker file to process.
+	@param out_seqtab: [str] Path to frogsfunc_genefamilies seqtab file to process.
 	@output: The file of excluded sequence names.
 	"""
 	marker_file = open( in_marker )
@@ -222,8 +222,8 @@ def excluded_sequence(in_biom, in_marker, out_seqtab, excluded):
 
 def formate_abundances_file(function_file, gene_hierarchy_file, hierarchy_tag = "classification"):
 	"""
-	@summary: Formate FPSTep3 output in order to create a biom file of pathways abundances.
-	@param function_file: FPStep3 output of gene abundances prediction (FPStep3_pred_metagenome_unstrat.tsv)
+	@summary: Formate frogsfunc_genefamilies output in order to create a biom file of pathways abundances.
+	@param function_file: frogsfunc_genefamilies output of gene abundances prediction (frogsfunc_genefamilies_pred_metagenome_unstrat.tsv)
 	@param gene_hierarchy_file: reference file that links every gene ID to its hierarchy levels.
 	"""
 	id_to_hierarchy = {}
@@ -332,7 +332,7 @@ def write_summary(in_biom, function_file, nsti_file, excluded, tree_count_file, 
 			})
 
 	# record details about removed OTU
-	FH_summary_tpl = open( os.path.join(CURRENT_DIR, "FPStep3_tpl.html") )
+	FH_summary_tpl = open( os.path.join(CURRENT_DIR, "frogsfunc_genefamilies_tpl.html") )
 	FH_summary_out = open( summary_file, "wt" )
 
 	for line in FH_summary_tpl:
@@ -368,27 +368,27 @@ if __name__ == "__main__":
 	parser.add_argument('--strat-out', default=False, action='store_true', help='Output table stratified by sequences as well. By default this will be in \"contributional\" format ''(i.e. long-format) unless the \"--wide_table\" option is set. The startified outfile is named ''\"metagenome_contrib.tsv.gz\" when in long-format.')
 	# Inputs
 	group_input = parser.add_argument_group( 'Inputs' )
-	group_input.add_argument('-b', '--input-biom', required=True, type=str, help='FPStep1 Biom output file (FPStep1.biom).')
-	group_input.add_argument('-f', '--function', required=True, type=str, help='Table of predicted gene family copy numbers (FPStep2 output, FPStep2_predicted_functions.tsv).')
-	group_input.add_argument('-m', '--marker', required=True, type=str, help='Table of predicted marker gene copy numbers (FPStep2 output, ex FPStep2_marker_copy_number.tsv).')
+	group_input.add_argument('-b', '--input-biom', required=True, type=str, help='frogsfunc_placeseqs Biom output file (frogsfunc_placeseqs.biom).')
+	group_input.add_argument('-f', '--function', required=True, type=str, help='Table of predicted gene family copy numbers (frogsfunc_copynumbers output, frogsfunc_copynumbers_predicted_functions.tsv).')
+	group_input.add_argument('-m', '--marker', required=True, type=str, help='Table of predicted marker gene copy numbers (frogsfunc_copynumbers output, ex frogsfunc_copynumbers_marker_copy_number.tsv).')
 	group_input.add_argument('--max-nsti', type=float, default=2.0, help='Sequences with NSTI values above this value will be excluded (default: %(default)d).')
 	group_input.add_argument('--min-reads', metavar='INT', type=int, default=1, help='Minimum number of reads across all samples for each input OTU. OTUs below this cut-off will be counted as part of the \"RARE\" category in the stratified output (default: %(default)d).')
 	group_input.add_argument('--min-samples', metavar='INT', type=int, default=1, help='Minimum number of samples that an OTU needs to be identfied within. OTUs below this cut-off will be counted as part of the \"RARE\" category in the stratified output (default: %(default)d).')
 	group_input.add_argument('--hierarchy-ranks', nargs='*', default=["Level1", "Level2", "Level3", "Gene"], help='The ordered ranks levels used in the metadata hierarchy pathways. [Default: %(default)s]' )
 	#Outputs
 	group_output = parser.add_argument_group( 'Outputs')
-	group_output.add_argument('--function-abund', default='FPStep3_pred_metagenome_unstrat.tsv', help='Output file for metagenome predictions abundance. (default: %(default)s).')
-	group_output.add_argument('--seqtab', default='FPStep3_seqtab_norm.tsv', help='Output file with abundance normalized per marker copies number. (default: %(default)s).')
-	group_output.add_argument('--weighted', default='FPStep3_weighted_nsti.tsv', help='Output file with the mean of nsti value per sample (format: TSV). [Default: %(default)s]' )
+	group_output.add_argument('--function-abund', default='frogsfunc_genefamilies_pred_metagenome_unstrat.tsv', help='Output file for metagenome predictions abundance. (default: %(default)s).')
+	group_output.add_argument('--seqtab', default='frogsfunc_genefamilies_seqtab_norm.tsv', help='Output file with abundance normalized per marker copies number. (default: %(default)s).')
+	group_output.add_argument('--weighted', default='frogsfunc_genefamilies_weighted_nsti.tsv', help='Output file with the mean of nsti value per sample (format: TSV). [Default: %(default)s]' )
 	group_output.add_argument('--contrib', default=None, help=' Stratified output that reports contributions to community-wide abundances (ex pred_metagenome_contrib.tsv)')
-	group_output.add_argument('-e', '--excluded', default='FPStep3_excluded.txt', help='List of sequences with NSTI values above NSTI threshold ( --max_NSTI NSTI ).')
+	group_output.add_argument('-e', '--excluded', default='frogsfunc_genefamilies_excluded.txt', help='List of sequences with NSTI values above NSTI threshold ( --max_NSTI NSTI ).')
 	group_output.add_argument('-l', '--log-file', default=sys.stdout, help='List of commands executed.')
-	group_output.add_argument('-t', '--html', default='FPStep3_summary.html', help="Path to store resulting html file. [Default: %(default)s]" )	
+	group_output.add_argument('-t', '--html', default='frogsfunc_genefamilies_summary.html', help="Path to store resulting html file. [Default: %(default)s]" )	
 	args = parser.parse_args()
 	prevent_shell_injections(args)
 
 	if args.strat_out and args.contrib is None:
-		args.contrib = 'FPStep3_pred_metagenome_contrib.tsv'
+		args.contrib = 'frogsfunc_genefamilies_pred_metagenome_contrib.tsv'
 
 	if not args.strat_out and args.contrib is not None:
 		parser.error('--contrib FILENAME must be include with --strat_out flag')

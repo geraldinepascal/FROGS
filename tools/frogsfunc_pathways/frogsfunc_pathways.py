@@ -46,12 +46,12 @@ else: os.environ['PYTHONPATH'] = os.environ['PYTHONPATH'] + os.pathsep + LIB_DIR
 if os.getenv('DESCRIPTION_FILE'):
    DESCRIPTION_FILE=os.environ['DESCRIPTION_FILE']  
 else:
-   DESCRIPTION_FILE=os.path.abspath(os.path.join(os.path.dirname(CURRENT_DIR), "default_files/pathways_description_file.txt.gz"))
+   DESCRIPTION_FILE=os.path.abspath(os.path.join(os.path.dirname(CURRENT_DIR), "frogsfunc_suppdata/pathways_description_file.txt.gz"))
 if os.getenv('PATHWAYS_HIERARCHY_FILE'):
 	
    PATHWAYS_HIERARCHY_FILE =os.environ['PATHWAYS_HIERARCHY_FILE']  
 else:
-   PATHWAYS_HIERARCHY_FILE =os.path.abspath(os.path.join(os.path.dirname(CURRENT_DIR), "default_files/pathways_hierarchy.tsv"))
+   PATHWAYS_HIERARCHY_FILE =os.path.abspath(os.path.join(os.path.dirname(CURRENT_DIR), "frogsfunc_suppdata/pathways_hierarchy.tsv"))
 
 #import frogs
 from frogsUtils import *
@@ -69,7 +69,7 @@ class PathwayPipeline(Cmd):
 	"""
 	def __init__(self, input_file, map_file, per_sequence_contrib, per_sequence_abun, per_sequence_function, no_regroup, pathways_abund, pathways_contrib, pathways_predictions, pathways_abund_per_seq, log):
 		"""
-		@param input_file: [str] Input TSV table of gene family abundances (FPStep3_pred_metagenome_unstrat.tsv from FPStep3.py.
+		@param input_file: [str] Input TSV table of gene family abundances (frogsfunc_genefamilies_pred_metagenome_unstrat.tsv from frogsfunc_genefamilies.py.
 		@param map_file: [str] Mapping file of pathways to reactions, necessary if marker studied is not 16S.
 		@param per_sequence_contrib: [boolean] Flag to specify that MinPath is run on the genes contributed by each sequence individualy.
 		@param per_sequence_abun: [str] Path to table of sequence abundances across samples normalized by marker copy number (if per_sequence_contrib).
@@ -220,8 +220,8 @@ def formate_input_file(input_file, tmp_tsv):
 
 def formate_abundances_file(strat_file, pathways_hierarchy_file, hierarchy_tag = "classification"):
 	"""
-	@summary: Formate FPSTep4 output in order to create a biom file of pathways abundances.
-	@param strat_file: FPStep4 output of pathway abundances prediction (FPStep4_path_abun_unstrat.tsv)
+	@summary: Formate frogsfunc_pathways output in order to create a biom file of pathways abundances.
+	@param strat_file: frogsfunc_pathways output of pathway abundances prediction (frogsfunc_pathways_path_abun_unstrat.tsv)
 	@param pathways_hierarchy_file: reference file that links every pathways ID to its hierarchy levels.
 	"""
 	id_to_hierarchy = {}
@@ -257,7 +257,7 @@ def normalized_abundances_file( strat_file ):
 	@summary normalized final output table in order to make the values comparable between samples. 
 	Normalisation is done as follow :
 	 (value)/(sum of the value in that column)*10^6, which gives CPM values
-	 @param strat_file: [str] path to FPStep4 output abundances file.
+	 @param strat_file: [str] path to frogsfunc_pathways output abundances file.
 	"""
 	df = pd.read_csv(strat_file,sep='\t')
 	for column in df.iloc[:,3:]:
@@ -310,7 +310,7 @@ def write_summary(strat_file, tree_count_file, tree_ids_file, summary_file):
 	# 		})
 	# record details about removed OTU
 
-	FH_summary_tpl = open( os.path.join(CURRENT_DIR, "FPStep4_tpl.html") )
+	FH_summary_tpl = open( os.path.join(CURRENT_DIR, "frogsfunc_pathways_tpl.html") )
 	FH_summary_out = open( summary_file, "wt" )
 
 	for line in FH_summary_tpl:
@@ -340,21 +340,21 @@ if __name__ == "__main__":
 	parser.add_argument('--no-regroup', default=False, action='store_true', help='Do not regroup input gene families to reactions as specified in the regrouping mapfile. ')
 	# Inputs
 	group_input = parser.add_argument_group( 'Inputs' )
-	group_input.add_argument('-i', '--input-file', required=True, type=str, help='Input TSV table of gene family abundances (FPStep3_pred_metagenome_unstrat.tsv from FPStep3.py).')
-	group_input.add_argument('-m', '--map', type=str, help='Mapping file of pathways to reactions, necessary if marker studied is not 16S (metacyc_path2rxn_struc_filt_pro.txt used by default). For ITS analysis, required file is here: $PICRUST2_PATH/default_files/pathway_mapfiles/metacyc_path2rxn_struc_filt_fungi.txt).')
-	group_input.add_argument('--per-sequence-abun', default=None, help='Path to table of sequence abundances across samples normalized by marker copy number (typically the normalized sequence abundance table output at the metagenome pipeline step: FPStep3_seqtab_norm.tsv by default). This input is required when the --per-sequence-contrib option is set. (default: None).')
-	group_input.add_argument('--per-sequence-function', default=None, help='Path to table of function abundances per sequence, which was outputted at the hidden-state prediction step (FPStep2_predicted_functions.tsv by default). This input is required when the --per-sequence-contrib option is set. Note that this file should be the same input table as used for the metagenome pipeline step (default: None).')
+	group_input.add_argument('-i', '--input-file', required=True, type=str, help='Input TSV table of gene family abundances (frogsfunc_genefamilies_pred_metagenome_unstrat.tsv from frogsfunc_genefamilies.py).')
+	group_input.add_argument('-m', '--map', type=str, help='Mapping file of pathways to reactions, necessary if marker studied is not 16S (metacyc_path2rxn_struc_filt_pro.txt used by default). For ITS analysis, required file is here: $PICRUST2_PATH/frogsfunc_suppdata/pathway_mapfiles/metacyc_path2rxn_struc_filt_fungi.txt).')
+	group_input.add_argument('--per-sequence-abun', default=None, help='Path to table of sequence abundances across samples normalized by marker copy number (typically the normalized sequence abundance table output at the metagenome pipeline step: frogsfunc_genefamilies_seqtab_norm.tsv by default). This input is required when the --per-sequence-contrib option is set. (default: None).')
+	group_input.add_argument('--per-sequence-function', default=None, help='Path to table of function abundances per sequence, which was outputted at the hidden-state prediction step (frogsfunc_copynumbers_predicted_functions.tsv by default). This input is required when the --per-sequence-contrib option is set. Note that this file should be the same input table as used for the metagenome pipeline step (default: None).')
 	group_input.add_argument('--hierarchy-ranks', nargs='*', default=["Level1", "Level2", "Level3", "Pathway"], help='The ordered ranks levels used in the metadata hierarchy pathways. [Default: %(default)s]' )
 	group_input.add_argument( '--normalisation', default=False, action='store_true', help='To normalise data after analysis. Values are divided by sum of columns , then multiplied by 10^6 (CPM values). [Default: %(default)s]')
 	#Outputs
 	group_output = parser.add_argument_group( 'Outputs')
-	group_output.add_argument('-o', '--pathways-abund', default='FPStep4_path_abun_unstrat.tsv', help='Pathway abundance file output.')
+	group_output.add_argument('-o', '--pathways-abund', default='frogsfunc_pathways_path_abun_unstrat.tsv', help='Pathway abundance file output.')
 	group_output.add_argument('--pathways-contrib', default=None, help='Stratified output corresponding to contribution of predicted gene family abundances within each predicted genome.')
 	group_output.add_argument('--pathways-predictions', default=None, help='Stratified output corresponding to contribution of predicted gene family abundances within each predicted genome.')
 	group_output.add_argument('--pathways-abund-per-seq', default=None, help='Pathway abundance file output per sequences (if --per-sequence-contrib set)')
 	group_output.add_argument('-v', '--version', default=False, action='version', version="%(prog)s " + __version__)
 	group_output.add_argument('-l', '--log-file', default=sys.stdout, help='This output file will contain several information on executed commands.')
-	group_output.add_argument('-t', '--html', default='FPStep4_summary.html', help="Path to store resulting html file. [Default: %(default)s]" )	
+	group_output.add_argument('-t', '--html', default='frogsfunc_pathways_summary.html', help="Path to store resulting html file. [Default: %(default)s]" )	
 	args = parser.parse_args()
 	prevent_shell_injections(args)
 
@@ -366,11 +366,11 @@ if __name__ == "__main__":
 			if args.per_sequence_abun == None or args.per_sequence_function == None:
 				parser.error("\n\n#ERROR : --per-sequence-abun and --per-sequence-function required when --per-sequence-contrib option is set!\n\n")
 			if args.pathways_contrib is None:
-				args.pathways_contrib = 'FPStep4_path_abun_contrib.tsv'
+				args.pathways_contrib = 'frogsfunc_pathways_path_abun_contrib.tsv'
 			if args.pathways_predictions is None:
-				args.pathways_predictions = 'FPStep4_path_abun_predictions.tsv'
+				args.pathways_predictions = 'frogsfunc_pathways_path_abun_predictions.tsv'
 			if args.pathways_abund_per_seq is None:
-				args.pathways_abund_per_seq = "FPStep4_path_abun_unstrat_per_seq.tsv"
+				args.pathways_abund_per_seq = "frogsfunc_pathways_path_abun_unstrat_per_seq.tsv"
 
 		if (args.per_sequence_abun is not None or args.per_sequence_function is not None) and not args.per_sequence_contrib:
 			parser.error("\n\n#ERROR : --per-sequence-contrib required when --per-sequence-contrib and --per-sequence-function option is set!\n\n")

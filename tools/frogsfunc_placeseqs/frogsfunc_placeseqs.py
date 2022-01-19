@@ -257,7 +257,7 @@ def write_summary(in_fasta, align_out, biomfile, closest_ref_file, category, sum
 	summary_info['nb_kept'] = number_otu_all - summary_info['nb_removed']
 	summary_info['abundance_kept'] = number_abundance_all - summary_info['abundance_removed']
 
-	FH_summary_tpl = open( os.path.join(CURRENT_DIR, "FPStep1_tpl.html") )
+	FH_summary_tpl = open( os.path.join(CURRENT_DIR, "frogsfunc_placeseqs_tpl.html") )
 	FH_summary_out = open( summary_file, "wt" )
 
 	for line in FH_summary_tpl:
@@ -286,18 +286,18 @@ if __name__ == "__main__":
 	group_input = parser.add_argument_group('Inputs')
 	group_input.add_argument('-i', '--input-fasta', required=True, help="Input fasta file of unaligned studies sequences.")
 	group_input.add_argument('-b', '--input-biom', required=True, help='Input biom file of unaligned studies sequences.')
-	group_input.add_argument('-r', '--ref-dir', help='If marker studied is not 16S, this is the directory containing reference sequence files (for ITS, see: $PICRUST2_PATH/default_files/fungi/fungi_ITS')
+	group_input.add_argument('-r', '--ref-dir', help='If marker studied is not 16S, this is the directory containing reference sequence files (for ITS, see: $PICRUST2_PATH/frogsfunc_suppdata/fungi/fungi_ITS')
 	group_input.add_argument('-p', '--placement-tool', default='epa-ng', help='Placement tool to use when placing sequences into reference tree. One of "epa-ng" or "sepp" must be input')
 	group_input.add_argument('--min-align', type=restricted_float, default=0.8, help='Proportion of the total length of an input query sequence that must align with reference sequences. Any sequences with lengths below this value after making an alignment with reference sequences will be excluded from the placement and all subsequent steps. (default: %(default)d).')
 	# Outputs
 	group_output = parser.add_argument_group('Outputs')
-	group_output.add_argument('-o', '--out-tree', default='FPStep1.tree', help='Reference tree output with insert sequences (format: newick).')
-	group_output.add_argument('-e', '--excluded', default='FPSTep1_excluded.txt', help='List of sequences not inserted in the tree.')
-	group_output.add_argument('-s', '--insert-fasta', default='FPStep1.fasta', help='Fasta file without non insert sequences. (format: FASTA). [Default: %(default)s]')
-	group_output.add_argument('-m', '--insert-biom', default='FPStep1.biom', help='Biom file without non insert sequences. (format: BIOM) [Default: %(default)s]')
-	group_output.add_argument('-c', '--closests-ref', default='FPStep1_closests_ref_sequences.txt', help='Informations about Clusters (i.e OTUs) and picrust2 closest reference from cluster sequences (identifiants, taxonomies, phylogenetic distance from reference, nucleotidics sequences).')
+	group_output.add_argument('-o', '--out-tree', default='frogsfunc_placeseqs.tree', help='Reference tree output with insert sequences (format: newick).')
+	group_output.add_argument('-e', '--excluded', default='frogsfunc_placeseqs_excluded.txt', help='List of sequences not inserted in the tree.')
+	group_output.add_argument('-s', '--insert-fasta', default='frogsfunc_placeseqs.fasta', help='Fasta file without non insert sequences. (format: FASTA). [Default: %(default)s]')
+	group_output.add_argument('-m', '--insert-biom', default='frogsfunc_placeseqs.biom', help='Biom file without non insert sequences. (format: BIOM) [Default: %(default)s]')
+	group_output.add_argument('-c', '--closests-ref', default='frogsfunc_placeseqs_closests_ref_sequences.txt', help='Informations about Clusters (i.e OTUs) and picrust2 closest reference from cluster sequences (identifiants, taxonomies, phylogenetic distance from reference, nucleotidics sequences).')
 	group_output.add_argument('-l', '--log-file', default=sys.stdout, help='List of commands executed.')
-	group_output.add_argument('-t', '--html', default='FPStep1_summary.html', help="Path to store resulting html file. [Default: %(default)s]" )
+	group_output.add_argument('-t', '--html', default='frogsfunc_placeseqs_summary.html', help="Path to store resulting html file. [Default: %(default)s]" )
 	args = parser.parse_args()
 	prevent_shell_injections(args)
 
