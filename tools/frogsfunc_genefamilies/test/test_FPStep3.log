@@ -1,0 +1,171 @@
+## Application
+Software :./FPStep3.py (version : 1.0)
+Command : ./FPStep3.py -b data/FPStep1.biom -f data/FPStep2_predicted_functions.tsv -m data/FPStep2_marker_nsti.tsv --function-abund test/test_FPStep3_pred_abund_unstrat.tsv --seqtab test/test_FPStep3_seqtab.tsv --weighted test/test_FPStep3_weighted.tsv -e test/test_FPStep3_excluded.txt -l test/test_FPStep3.log --html test/test_FPStep3.html
+
+########################################################################################################
+# Converts a BIOM file in TSV file. (biom2tsv.py version : 1.5.0)
+Command:
+	biom2tsv.py --input-file data/FPStep1.biom --output-file data/1639575820.0514653_43033_tmp_biom_to_tsv
+
+Execution:
+	start: 15 Dec 2021 14:43:40
+	end:   15 Dec 2021 14:43:40
+
+########################################################################################################
+# Per-sample functional profiles prediction. (metagenome_pipeline.py  version : 2.4.1)
+Command:
+	metagenome_pipeline.py   --input data/1639575820.0514653_43033_tmp_biom_to_tsv --marker data/FPStep2_marker_nsti.tsv --function data/FPStep2_predicted_functions.tsv --out_dir ./ --max_nsti 2.0 --min_reads 1 --min_samples 1 2> data/1639575820.0514653_43033_tmp_metagenome_pipeline.log
+
+Execution:
+	start: 15 Dec 2021 14:43:40
+	end:   15 Dec 2021 14:43:41
+
+########################################################################################################
+# Converts a BIOM file in TSV file. (tsv_to_biom.py version : 3.2.3)
+Command:
+	tsv_to_biom.py --input-tsv test/test_FPStep3_pred_abund_unstrat.tsv --output-biom data/1639575820.0514653_43033_gene_abundances.biom
+
+Execution:
+	start: 15 Dec 2021 14:43:41
+	end:   15 Dec 2021 14:43:42
+
+########################################################################################################
+# Produces a taxonomy tree with counts by sample. (biomTools.py version : 0.10.1)
+Command:
+	biomTools.py treeCount --input-file data/1639575820.0514653_43033_gene_abundances.biom --taxonomy-key "classification" --output-enewick data/1639575820.0514653_43033_geneCount.enewick --output-samples data/1639575820.0514653_43033_geneCount_ids.tsv
+
+Execution:
+	start: 15 Dec 2021 14:43:42
+	end:   15 Dec 2021 14:43:43
+
+## Application
+Software :./FPStep3.py (version : 1.0)
+Command : ./FPStep3.py -b data/FPStep1.biom -f data/FPStep2_predicted_functions.tsv -m data/FPStep2_marker_nsti.tsv --function-abund test/test_FPStep3_pred_abund_unstrat.tsv --seqtab test/test_FPStep3_seqtab.tsv --weighted test/test_FPStep3_weighted.tsv -e test/test_FPStep3_excluded.txt -l test/test_FPStep3.log --html test/test_FPStep3.html
+
+########################################################################################################
+# Converts a BIOM file in TSV file. (biom2tsv.py version : 1.5.0)
+Command:
+	biom2tsv.py --input-file data/FPStep1.biom --output-file data/1639576202.1265082_43148_tmp_biom_to_tsv
+
+Execution:
+	start: 15 Dec 2021 14:50:02
+	end:   15 Dec 2021 14:50:02
+
+########################################################################################################
+# Per-sample functional profiles prediction. (metagenome_pipeline.py  version : 2.4.1)
+Command:
+	metagenome_pipeline.py   --input data/1639576202.1265082_43148_tmp_biom_to_tsv --marker data/FPStep2_marker_nsti.tsv --function data/FPStep2_predicted_functions.tsv --out_dir ./ --max_nsti 2.0 --min_reads 1 --min_samples 1 2> data/1639576202.1265082_43148_tmp_metagenome_pipeline.log
+
+Execution:
+	start: 15 Dec 2021 14:50:02
+	end:   15 Dec 2021 14:50:03
+
+## Application
+Software :./FPStep3.py (version : 1.0)
+Command : ./FPStep3.py -b data/FPStep1.biom -f data/FPStep2_predicted_functions.tsv -m data/FPStep2_marker_nsti.tsv --function-abund test/test_FPStep3_pred_abund_unstrat.tsv --seqtab test/test_FPStep3_seqtab.tsv --weighted test/test_FPStep3_weighted.tsv -e test/test_FPStep3_excluded.txt -l test/test_FPStep3.log --html test/test_FPStep3.html
+
+########################################################################################################
+# Converts a BIOM file in TSV file. (biom2tsv.py version : 1.5.0)
+Command:
+	biom2tsv.py --input-file data/FPStep1.biom --output-file data/1639577143.1805816_43790_tmp_biom_to_tsv
+
+Execution:
+	start: 15 Dec 2021 15:05:43
+	end:   15 Dec 2021 15:05:43
+
+########################################################################################################
+# Per-sample functional profiles prediction. (metagenome_pipeline.py  version : 2.4.1)
+Command:
+	metagenome_pipeline.py   --input data/1639577143.1805816_43790_tmp_biom_to_tsv --marker data/FPStep2_marker_nsti.tsv --function data/FPStep2_predicted_functions.tsv --out_dir ./ --max_nsti 2.0 --min_reads 1 --min_samples 1 2> data/1639577143.1805816_43790_tmp_metagenome_pipeline.log
+
+Execution:
+	start: 15 Dec 2021 15:05:43
+	end:   15 Dec 2021 15:05:45
+
+########################################################################################################
+# Converts a BIOM file in TSV file. (tsv_to_biom.py version : 3.2.3)
+Command:
+	tsv_to_biom.py --input-tsv test/test_FPStep3_pred_abund_unstrat.tsv --output-biom data/1639577143.1805816_43790_gene_abundances.biom
+
+Execution:
+	start: 15 Dec 2021 15:05:45
+	end:   15 Dec 2021 15:05:46
+
+########################################################################################################
+# Produces a taxonomy tree with counts by sample. (biomTools.py version : 0.10.1)
+Command:
+	biomTools.py treeCount --input-file data/1639577143.1805816_43790_gene_abundances.biom --taxonomy-key "classification" --output-enewick data/1639577143.1805816_43790_geneCount.enewick --output-samples data/1639577143.1805816_43790_geneCount_ids.tsv
+
+Execution:
+	start: 15 Dec 2021 15:05:46
+	end:   15 Dec 2021 15:05:46
+
+## Application
+Software :./FPStep3.py (version : 1.0)
+Command : ./FPStep3.py -b data/FPStep1.biom -f data/FPStep2_predicted_functions.tsv -m data/FPStep2_marker_nsti.tsv --function-abund test/test_FPStep3_pred_abund_unstrat.tsv --seqtab test/test_FPStep3_seqtab.tsv --weighted test/test_FPStep3_weighted.tsv -e test/test_FPStep3_excluded.txt -l test/test_FPStep3.log --html test/test_FPStep3.html
+
+########################################################################################################
+# Converts a BIOM file in TSV file. (biom2tsv.py version : 1.5.0)
+Command:
+	biom2tsv.py --input-file data/FPStep1.biom --output-file data/1639577162.835582_43993_tmp_biom_to_tsv
+
+Execution:
+	start: 15 Dec 2021 15:06:02
+	end:   15 Dec 2021 15:06:02
+
+########################################################################################################
+# Per-sample functional profiles prediction. (metagenome_pipeline.py  version : 2.4.1)
+Command:
+	metagenome_pipeline.py   --input data/1639577162.835582_43993_tmp_biom_to_tsv --marker data/FPStep2_marker_nsti.tsv --function data/FPStep2_predicted_functions.tsv --out_dir ./ --max_nsti 2.0 --min_reads 1 --min_samples 1 2> data/1639577162.835582_43993_tmp_metagenome_pipeline.log
+
+Execution:
+	start: 15 Dec 2021 15:06:03
+	end:   15 Dec 2021 15:06:04
+
+########################################################################################################
+# Converts a BIOM file in TSV file. (tsv_to_biom.py version : 3.2.3)
+Command:
+	tsv_to_biom.py --input-tsv test/test_FPStep3_pred_abund_unstrat.tsv --output-biom data/1639577162.835582_43993_gene_abundances.biom
+
+Execution:
+	start: 15 Dec 2021 15:06:05
+	end:   15 Dec 2021 15:06:05
+
+########################################################################################################
+# Produces a taxonomy tree with counts by sample. (biomTools.py version : 0.10.1)
+Command:
+	biomTools.py treeCount --input-file data/1639577162.835582_43993_gene_abundances.biom --taxonomy-key "classification" --output-enewick data/1639577162.835582_43993_geneCount.enewick --output-samples data/1639577162.835582_43993_geneCount_ids.tsv
+
+Execution:
+	start: 15 Dec 2021 15:06:05
+	end:   15 Dec 2021 15:06:06
+
+## Application
+Software :./FPStep3.py (version : 1.0)
+Command : ./FPStep3.py -b data/FPStep1.biom -f data/FPStep2_predicted_functions.tsv -m data/FPStep2_marker_nsti.tsv --function-abund test/test_FPStep3_pred_abund_unstrat.tsv --seqtab test/test_FPStep3_seqtab.tsv --weighted test/test_FPStep3_weighted.tsv -e test/test_FPStep3_excluded.txt -l test/test_FPStep3.log --html test/test_FPStep3.html
+
+########################################################################################################
+# Converts a BIOM file in TSV file. (biom2tsv.py version : 1.5.0)
+Command:
+	biom2tsv.py --input-file data/FPStep1.biom --output-file data/1639577257.3802645_44268_tmp_biom_to_tsv
+
+Execution:
+	start: 15 Dec 2021 15:07:37
+	end:   15 Dec 2021 15:07:37
+
+########################################################################################################
+# Per-sample functional profiles prediction. (metagenome_pipeline.py  version : 2.4.1)
+Command:
+	metagenome_pipeline.py   --input data/1639577257.3802645_44268_tmp_biom_to_tsv --marker data/FPStep2_marker_nsti.tsv --function data/FPStep2_predicted_functions.tsv --out_dir ./ --max_nsti 2.0 --min_reads 1 --min_samples 1 2> data/1639577257.3802645_44268_tmp_metagenome_pipeline.log
+
+Execution:
+	start: 15 Dec 2021 15:07:38
+	end:   15 Dec 2021 15:07:39
+
+########################################################################################################
+# Converts a BIOM file in TSV file. (tsv_to_biom.py version : 3.2.3)
+Command:
+	tsv_to_biom.py --input-tsv test/test_FPStep3_pred_abund_unstrat.tsv --output-biom data/1639577257.3802645_44268_gene_abundances.biom
+
+Execution:
+	start: 15 Dec 2021 15:07:39

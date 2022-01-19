@@ -14,7 +14,9 @@ fi
 # Set ENV
 export PATH=$frogs_dir/libexec:$frogs_dir/app:$PATH
 export PYTHONPATH=$frogs_dir/lib:$PYTHONPATH
-
+export GENE_HIERARCHY_FILE=$FROGS_DIR/default_files/gene_family_hierarchy.tsv
+export DESCRIPTION_FILE=$FROGS_DIR/default_files/pathways_description_file.txt.gz
+export PATHWAYS_HIERARCHY_FILE=$FROGS_DIR/default_files/pathways_hierarchy.tsv
 
 # Create output folder
 if [ ! -d "$out_dir" ]
@@ -505,6 +507,20 @@ if [ $? -ne 0 ]
 then
 	echo "Error in deseq2_visualisation " >&2
 	exit 1;
+fi
+
+echo "Step frogsfunc_placeseqs `date`"
+
+deseq2_preprocess.py \
+ --data $out_dir/16-phylo_import.Rdata \
+ --log-file $out_dir/23-deseq2_preprocess.log \
+ --out-Rdata $out_dir/23-deseq2_preprocess.Rdata \
+ --var EnvType
+
+if [ $? -ne 0 ]
+then
+    echo "Error in deseq2_preprocess " >&2
+    exit 1;
 fi
 
 echo "Completed with success"
