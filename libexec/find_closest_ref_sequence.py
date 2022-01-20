@@ -162,7 +162,7 @@ def find_closest_ref_sequences(tree, biom, biom_path, cluster_to_multiaffi, ID_t
 	@param output: [str] path to tmp output file in order to write frogs and picrust2 taxonomic comparaisons.
 	"""
 	FH_out = open(output,'wt')
-	header = "\t".join(["Cluster","FROGS Taxonomy","Picrust2 closest ID","Picrust2 closest reference name","Picrust2 closest taxonomy","Picrust2 closest distance from cluster (NSTI)", "FROGS and Picrust2 lowest same taxonomic rank", "Comment", "Cluster sequence", "Picrust2 closest reference sequence"])
+	header = "\t".join(["Cluster","FROGS Taxonomy","Picrust2 closest ID","Picrust2 closest reference name","Picrust2 closest taxonomy","Picrust2 closest distance from cluster (NSTI)", "NSTI Confidence" ,"FROGS and Picrust2 lowest same taxonomic rank", "Comment", "Cluster sequence", "Picrust2 closest reference sequence"])
 	FH_out.write(header+"\n")
 	find_frogs_taxo = True
 	for cluster in clusters:
@@ -216,7 +216,16 @@ def find_closest_ref_sequences(tree, biom, biom_path, cluster_to_multiaffi, ID_t
 						comment = "identical sequence"
 					else:
 						comment+=";identical sequence"
-				FH_out.write(best_leaf+'\t'+ID_to_taxo[best_leaf][0]+'\t'+ID_to_taxo[best_leaf][1]+'\t'+str(rounding(leaf_to_dist[best_leaf]))+'\t'+str(lowest_same_rank)+'\t'+str(comment)+'\t'+cluster_to_seq[cluster]+'\t'+ref_seqs[best_leaf]+'\n')
+
+				confidence = "To exclude"
+				if rounding(leaf_to_dist[best_leaf]) >= 1 and rounding(leaf_to_dist[best_leaf]) < 2:
+					confidence = "Bad"
+				elif rounding(leaf_to_dist[best_leaf]) >= 0.5 and rounding(leaf_to_dist[best_leaf]) < 1:
+					confidence = "Medium"
+				elif rounding(leaf_to_dist[best_leaf]) < 0.5:
+					confidence = "Good"
+
+				FH_out.write(best_leaf+'\t'+ID_to_taxo[best_leaf][0]+'\t'+ID_to_taxo[best_leaf][1]+'\t'+str(rounding(leaf_to_dist[best_leaf]))+'\t'+confidence+"\t"+str(lowest_same_rank)+'\t'+str(comment)+'\t'+cluster_to_seq[cluster]+'\t'+ref_seqs[best_leaf]+'\n')
 			else:
 				FH_out.write(' \t \t \t \t \t \t \t \n')
 	BiomIO.write(biom_path, biom)

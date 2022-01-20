@@ -220,7 +220,7 @@ def write_summary(in_fasta, align_out, biomfile, closest_ref_file, category, sum
 	number_otu_all = 0
 	number_abundance_all = 0
 	# to detail removed OTU
-	details_categorys =["FROGS Taxonomy","Picrust2 closest ID (JGI)","Picrust2 closest reference name","Picrust2 closest taxonomy","Picrust2 closest distance from cluster (NSTI)","Lowest same taxonomic rank between FROGS and Picrust2","Comment"]
+	details_categorys =["FROGS Taxonomy","Picrust2 closest ID (JGI)","Picrust2 closest reference name","Picrust2 closest taxonomy","Picrust2 closest distance from cluster (NSTI)", "NSTI Confidence" ,"Lowest same taxonomic rank between FROGS and Picrust2","Comment"]
 	infos_otus = list()
 	biom=BiomIO.from_json(biomfile)
 	list_otu_all = []

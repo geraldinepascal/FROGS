@@ -351,44 +351,12 @@
 				};
 				$('#filter-log').append( table("Chimera detection by sample", table_categories, table_series) );
 				$('#filter-log table').prop( 'id', 'details-table' );
-				var dt = $('#filter-log table').DataTable({
-					searchPanes: {
-						viewTotal: true,
-						columns: [5]
-					},
-					columnDefs: [
-						{
-							orderable: true,
-							searchPanes: {
-								show: true,
-								dtOpts:{
-							order:[[1,'asc']]
-						  },
-								options: [
-									{
-										label: 'To exclude (>2)',
-										value: function(rowData,rowIdx) {
-											return rowData[5] > 2;
-										}
-									}
-								]
-							},
-							targets: [5]
-						}],
+				$('#filter-log table').DataTable({
 					dom:  	"<'#details-csv-export'><'row'<'col-sm-5'l><'col-sm-7'f>>" +
 							"<'row'<'col-sm-12'tr>>" +
-							"<'row'<'col-sm-5'i><'col-sm-7'p>>P",
+							"<'row'<'col-sm-5'i><'col-sm-7'p>>",
 					'lengthMenu': [[10, 25, 50, 100, -1], [10, 25, 50, 100, "All"]],
 				});
-
-				dt.on('select.dt', () => {          
-					dt.searchPanes.rebuildPane(0, true);
-				});
-			 
-				dt.on('deselect.dt', () => {
-					dt.searchPanes.rebuildPane(0, true);
-				});
-				
 				$('#details-csv-export').html( '<button class="btn"><span class="fa fa-download" aria-hidden="true"> CSV</span></button>' );
 				$('#details-csv-export').addClass( 'dataTables_filter' );
 				$('#details-csv-export').datatableExport({
