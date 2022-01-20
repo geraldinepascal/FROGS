@@ -109,7 +109,7 @@ def check_ref_files(tree_file, biom_file, biom_path, multi_affi_file, fasta_file
 	@ref_file: [str] path to reference map file in order to have taxonomies informations.
 	'''
 	biom=BiomIO.from_json(biom_file)
-	ref_file = os.path.abspath(os.path.join(os.path.dirname(CURRENT_DIR), "default_files/JGI_ID_to_taxonomy.txt.gz"))
+	ref_file = os.path.abspath(os.path.join(os.path.dirname(CURRENT_DIR), "frogsfunc_suppdata/JGI_ID_to_taxonomy.txt.gz"))
 	picrust_aln = ref_aln
 	
 	ref = gzip.open(ref_file,'rt').readlines()
@@ -237,7 +237,7 @@ if __name__ == "__main__":
 	group_input.add_argument('-f', '--fasta-file', required=True, help='Input fasta file.')
 	group_input.add_argument('-b', '--biom-file', required=True, help='Input biom file.')
 	group_input.add_argument('-m', '--multi-affi', required=True, help='Multi-affiliations from biom input file. Run multiAffiFromBiom.py to generate this input.')
-	group_input.add_argument('-r', '--ref-aln', required=True, help='Alignment of reference sequences used in FPStep1 in order to execute place_seqs.py (ie $PICRUST_PATH/default_files/fungi/fungi_ITS/')
+	group_input.add_argument('-r', '--ref-aln', required=True, help='Alignment of reference sequences used in FPStep1 in order to execute place_seqs.py (ie $PICRUST_PATH/frogsfunc_suppdata/fungi/fungi_ITS/')
 	# Outputs
 	group_output = parser.add_argument_group('Outputs')
 	group_output = parser.add_argument('-o', '--output', default='FPStep1_closests_ref_sequences.txt', help='Informations about clusters and picrust2 closest reference from cluster sequences (identifiants, taxonomies, phylogenetic distance from reference, nucleotidics sequences')
