@@ -511,15 +511,70 @@ fi
 
 echo "Step frogsfunc_placeseqs `date`"
 
-deseq2_preprocess.py \
- --data $out_dir/16-phylo_import.Rdata \
- --log-file $out_dir/23-deseq2_preprocess.log \
- --out-Rdata $out_dir/23-deseq2_preprocess.Rdata \
- --var EnvType
+frogsfunc_placeseqs.py \
+ --input-fasta $frogs_dir/test/data/frogsfunc.fasta \
+ --input-biom $frogs_dir/test/data/frogsfunc.biom \
+ --placement-tool sepp \
+ --out-tree $out_dir/test_frogsfunc_placeseqs.tree \
+ --excluded $out_dir/test_frogsfunc_placeseqs_excluded.txt \
+ --insert-fasta $out_dir/test_frogsfunc_placeseqs.fasta \
+ --insert-biom $out_dir/test_frogsfunc_placeseqs.biom \
+ --closests-ref $out_dir/test_frogsfunc_placeseqs_closests_ref.tsv \
+ --html $out_dir/test_frogsfunc_placeseqs.summary \
+ --log-file $out_dir/test_frogsfunc_placeseqs.log
 
 if [ $? -ne 0 ]
 then
-    echo "Error in deseq2_preprocess " >&2
+    echo "Error in frogsfunc_placeseqs " >&2
+    exit 1;
+fi
+
+echo "Step frogsfunc_copynumbers `date`"
+
+frogsfunc_copynumbers.py \
+ --input-biom $frogs_dir/test/data/frogsfunc.biom \
+ --tree $out_dir/frogsfunc_placeseqs.tree \
+ --output-marker $out_dir/test_frogsfunc_copynumbers_marker_nsti.tsv \
+ --output-function $out_dir/test_frogsfunc_copynumbers_predicted_functions.tsv \
+ --log-file $out_dir/test_frogsfunc_copynumbers.log \
+ --html $out_dir/test_frogsfunc_copynumbers.html
+
+if [ $? -ne 0 ]
+then
+    echo "Error in frogsfunc_copynumbers " >&2
+    exit 1;
+fi
+
+echo "Step frogsfunc_genefamilies `date`"
+
+frogsfunc_genefamilies.py \
+ --input-biom $frogs_dir/test/data/frogsfunc.biom \
+ --function $out_dir/FPStep2_predicted_functions.tsv \
+ --marker $out_dir/FPStep2_marker_nsti.tsv \
+ --function-abund $out_dir/test_frogsfunc_genefamilies_pred_abund_unstrat.tsv \
+ --seqtab $out_dir/test_frogsfunc_genefamilies_seqtab.tsv \
+ --weighted $out_dir/test_frogsfunc_genefamilies_weighted.tsv \
+ --excluded $out_dir/test_frogsfunc_genefamilies_excluded.txt \
+ --log-file $out_dir/test_frogsfunc_genefamilies.log \
+ --html $out_dir/test_frogsfunc_genefamilies.html
+
+if [ $? -ne 0 ]
+then
+    echo "Error in frogsfunc_genefamilies " >&2
+    exit 1;
+fi
+
+echo "Step frogsfunc_pathways `date`"
+
+frogsfunc_pathways.py \
+ --input-file $out_dir/frogsfunc_genefamilies_pred_abund.tsv \
+ --pathways-abund $out_dir/test_frogsfunc_pathways_pathways_abund.tsv \
+ --log-file $out_dir/test_frogsfunc_pathways.log \
+ --html $out_dir/test_frogsfunc_pathways.html
+
+if [ $? -ne 0 ]
+then
+    echo "Error in frogsfunc_pathways " >&2
     exit 1;
 fi
 

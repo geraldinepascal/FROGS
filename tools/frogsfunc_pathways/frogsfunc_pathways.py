@@ -282,33 +282,6 @@ def write_summary(strat_file, tree_count_file, tree_ids_file, summary_file):
 		id, sample_name = line.strip().split( "\t", 1 )
 		ordered_samples_names.append( sample_name )
 	FH_tree_ids.close()
-	
-	# to summary OTUs number && abundances number			   
-	# infos_otus = list()
-	# details_categorys =["Pathway", "Description" ,"Observation_sum"]
-	# START_METACYC_LINK = "<a href='https://biocyc.org/META/NEW-IMAGE?type=PATHWAY&object="
-
-	# abund = open(strat_file)
-	# for li in abund:
-	# 	if "pathway" in li:
-	# 		li = li.strip().split('\t')
-	# 		for sample in li[3:]:
-	# 			details_categorys.append(sample)
-	# 		break
-
-	# for li in abund:
-	# 	li = li.strip().split('\t')
-	# 	pathway = li[0]
-	# 	li[0] = START_METACYC_LINK + pathway + "'>" + pathway + '</a>'
-
-	# 	for i in range(len(li[2:])):
-	# 		li[i+2] = round(float(li[i+2]),1)
-
-	# 	infos_otus.append({
-	# 		'name': li[0],
-	# 		'data': list(map(str,li[1:]))
-	# 		})
-	# record details about removed OTU
 
 	FH_summary_tpl = open( os.path.join(CURRENT_DIR, "frogsfunc_pathways_tpl.html") )
 	FH_summary_out = open( summary_file, "wt" )
@@ -341,7 +314,7 @@ if __name__ == "__main__":
 	# Inputs
 	group_input = parser.add_argument_group( 'Inputs' )
 	group_input.add_argument('-i', '--input-file', required=True, type=str, help='Input TSV table of gene family abundances (frogsfunc_genefamilies_pred_metagenome_unstrat.tsv from frogsfunc_genefamilies.py).')
-	group_input.add_argument('-m', '--map', type=str, help='Mapping file of pathways to reactions, necessary if marker studied is not 16S (metacyc_path2rxn_struc_filt_pro.txt used by default). For ITS analysis, required file is here: $PICRUST2_PATH/frogsfunc_suppdata/pathway_mapfiles/metacyc_path2rxn_struc_filt_fungi.txt).')
+	group_input.add_argument('-m', '--map', type=str, help='if marker studied is not 16S : Path to mapping file of pathways to reactions (metacyc_path2rxn_struc_filt_pro.txt used by default). For ITS analysis, required file is here: $PICRUST2_PATH/fdefault_files/pathway_mapfiles/metacyc_path2rxn_struc_filt_fungi.txt).')
 	group_input.add_argument('--per-sequence-abun', default=None, help='Path to table of sequence abundances across samples normalized by marker copy number (typically the normalized sequence abundance table output at the metagenome pipeline step: frogsfunc_genefamilies_seqtab_norm.tsv by default). This input is required when the --per-sequence-contrib option is set. (default: None).')
 	group_input.add_argument('--per-sequence-function', default=None, help='Path to table of function abundances per sequence, which was outputted at the hidden-state prediction step (frogsfunc_copynumbers_predicted_functions.tsv by default). This input is required when the --per-sequence-contrib option is set. Note that this file should be the same input table as used for the metagenome pipeline step (default: None).')
 	group_input.add_argument('--hierarchy-ranks', nargs='*', default=["Level1", "Level2", "Level3", "Pathway"], help='The ordered ranks levels used in the metadata hierarchy pathways. [Default: %(default)s]' )

@@ -876,6 +876,136 @@ then
 	fi
 fi
 
+echo "Step frogsfunc_placeseqs `date`"
+
+if $run_programs
+then
+	frogsfunc_placeseqs.py \
+	 --input-fasta $frogs_dir/test/data/frogsfunc.fasta \
+	 --input-biom $frogs_dir/test/data/frogsfunc.biom \
+	 --placement-tool sepp \
+	 --out-tree $out_dir/test_frogsfunc_placeseqs.tree \
+	 --excluded $out_dir/test_frogsfunc_placeseqs_excluded.txt \
+	 --insert-fasta $out_dir/test_frogsfunc_placeseqs.fasta \
+	 --insert-biom $out_dir/test_frogsfunc_placeseqs.biom \
+	 --closests-ref $out_dir/test_frogsfunc_placeseqs_closests_ref.tsv \
+	 --html $out_dir/test_frogsfunc_placeseqs.summary \
+	 --log-file $out_dir/test_frogsfunc_placeseqs.log
+
+	if [ $? -ne 0 ]
+	then
+	    echo "Error in frogsfunc_placeseqs " >&2
+	    exit 1;
+	fi
+fi
+
+if diff_line $out_dir/test_frogsfunc_placeseqs.tree $out_dir/test_frogsfunc_placeseqs.tree 0
+then
+	echo "difference in frogsfunc_placeseqs, mask mode :test_frogsfunc_placeseqs.tree" >&2
+fi
+
+if diff_line $out_dir/test_frogsfunc_placeseqs_excluded.txt $out_dir/test_frogsfunc_placeseqs_excluded.txt 0
+then
+	echo "difference in frogsfunc_placeseqs, mask mode :07-affiliation_masked.html" >&2
+fi
+
+if diff_line $out_dir/test_frogsfunc_placeseqs.fasta $out_dir/test_frogsfunc_placeseqs.fasta 0
+then
+	echo "difference in frogsfunc_placeseqs, mask mode :07-impacted_OTU_masked_multihit.tsv" >&2
+fi
+
+if diff_size $out_dir/test_frogsfunc_placeseqs.biom  $out_dir/test_frogsfunc_placeseqs.biom 0
+then
+	echo "difference in frogsfunc_placeseqs, mask mode :07-affiliation_masked.biom" >&2
+fi
+
+if diff_line $out_dir/test_frogsfunc_placeseqs_closests_ref.tsv $out_dir/test_frogsfunc_placeseqs_closests_ref.tsv 0
+then
+	echo "difference in frogsfunc_placeseqs, mask mode :07-impacted_OTU_masked_multihit.tsv" >&2
+fi
+
+if diff_size $out_dir/test_frogsfunc_placeseqs.summary  $out_dir/test_frogsfunc_placeseqs.summary 0
+then
+	echo "difference in frogsfunc_placeseqs, mask mode :07-affiliation_masked.biom" >&2
+fi
+
+echo "Step frogsfunc_copynumbers `date`"
+
+if $run_programs
+then
+	frogsfunc_copynumbers.py \
+	 --input-biom $frogs_dir/test/data/frogsfunc.biom \
+	 --tree $out_dir/frogsfunc_placeseqs.tree \
+	 --output-marker $out_dir/test_frogsfunc_copynumbers_marker_nsti.tsv \
+	 --output-function $out_dir/test_frogsfunc_copynumbers_predicted_functions.tsv \
+	 --log-file $out_dir/test_frogsfunc_copynumbers.log \
+	 --html $out_dir/test_frogsfunc_copynumbers.html
+
+	if [ $? -ne 0 ]
+	then
+	    echo "Error in frogsfunc_copynumbers " >&2
+	    exit 1;
+	fi
+fi
+
+if diff_line $out_dir/23-deseq2_preprocess.Rdata $expected_dir/23-deseq2_preprocess.Rdata 50
+then
+	echo "Difference in deseq2_preprocess : 23-deseq2_preprocess.Rdata " >&2
+fi
+
+
+
+echo "Step frogsfunc_genefamilies `date`"
+
+if $run_programs
+then
+	frogsfunc_genefamilies.py \
+	 --input-biom $frogs_dir/test/data/frogsfunc.biom \
+	 --function $out_dir/FPStep2_predicted_functions.tsv \
+	 --marker $out_dir/FPStep2_marker_nsti.tsv \
+	 --function-abund $out_dir/test_frogsfunc_genefamilies_pred_abund_unstrat.tsv \
+	 --seqtab $out_dir/test_frogsfunc_genefamilies_seqtab.tsv \
+	 --weighted $out_dir/test_frogsfunc_genefamilies_weighted.tsv \
+	 --excluded $out_dir/test_frogsfunc_genefamilies_excluded.txt \
+	 --log-file $out_dir/test_frogsfunc_genefamilies.log \
+	 --html $out_dir/test_frogsfunc_genefamilies.html
+
+	if [ $? -ne 0 ]
+	then
+	    echo "Error in frogsfunc_genefamilies " >&2
+	    exit 1;
+	fi
+fi
+
+if diff_line $out_dir/23-deseq2_preprocess.Rdata $expected_dir/23-deseq2_preprocess.Rdata 50
+then
+	echo "Difference in deseq2_preprocess : 23-deseq2_preprocess.Rdata " >&2
+fi
+
+
+
+echo "Step frogsfunc_placeseqs `date`"
+
+if $run_programs
+then
+	frogsfunc_pathways.py \
+	 --input-file $out_dir/frogsfunc_genefamilies_pred_abund.tsv \
+	 --pathways-abund $out_dir/test_frogsfunc_pathways_pathways_abund.tsv \
+	 --log-file $out_dir/test_frogsfunc_pathways.log \
+	 --html $out_dir/test_frogsfunc_pathways.html
+
+	if [ $? -ne 0 ]
+	then
+	    echo "Error in frogsfunc_pathways " >&2
+	    exit 1;
+	fi
+fi
+
+if diff_line $out_dir/23-deseq2_preprocess.Rdata $expected_dir/23-deseq2_preprocess.Rdata 50
+then
+	echo "Difference in deseq2_preprocess : 23-deseq2_preprocess.Rdata " >&2
+fi
+
 # récupérer les tableau CSV via la page HTML
 # et faire sdiff
 
