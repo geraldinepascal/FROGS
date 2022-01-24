@@ -195,11 +195,15 @@ def excluded_sequence(in_biom, in_marker, out_seqtab, excluded):
 	@param out_seqtab: [str] Path to frogsfunc_genefamilies seqtab file to process.
 	@output: The file of excluded sequence names.
 	"""
-	marker_file = open( in_marker )
+	marker_file = open( in_marker ).readlines()[1:]
 	seqtab_file = open( out_seqtab )
 	biom = BiomIO.from_json(in_biom)
+	cluster_to_nstis = dict()
 	excluded = open(excluded, "wt")
-	clusters_in = [ li.strip().split('\t')[0] for li in marker_file.readlines()[1:]]
+	clusters_in = list()
+	for li in marker_file:
+		clusters_in.append(li.strip().split('\t')[0])
+		cluster_to_nstis[li.strip().split('\t')[0]] = li.strip().split('\t')[2]
 	clusters_out = [ li.strip().split('\t')[0] for li in seqtab_file.readlines()[1:]]
 	no_excluded = True
 	write_header = True
@@ -207,17 +211,16 @@ def excluded_sequence(in_biom, in_marker, out_seqtab, excluded):
 		if cluster not in clusters_out:
 			no_excluded = False
 			if write_header:
-				excluded.write('\t'.join(['Cluster','FROGS_taxonomy','Picrust2_taxonomy'])+"\n")
+				excluded.write('\t'.join(['Cluster','FROGS_taxonomy','Picrust2_taxonomy','NSTI'])+"\n")
 				write_header = False
 			excluded.write(cluster+"\t")
 			try:
-				excluded.write("\t".join([str(';'.join(biom.get_observation_metadata(cluster)['blast_taxonomy']))  ,str(biom.get_observation_metadata(cluster)['picrust2_affiliations'])])+"\n")
+				excluded.write("\t".join([str(';'.join(biom.get_observation_metadata(cluster)['blast_taxonomy']))  ,str(biom.get_observation_metadata(cluster)['picrust2_affiliations']), cluster_to_nstis[cluster]])+"\n")
 			except:
-				excluded.write("\t".join(["unknown"  ,str(biom.get_observation_metadata(cluster)['picrust2_affiliations'])])+"\n")
+				excluded.write("\t".join(["unknown"  ,str(biom.get_observation_metadata(cluster)['picrust2_affiliations']), cluster_to_nstis[cluster]])+"\n")
 	if no_excluded:
 		excluded.write('#No excluded OTUs.\n')
 	excluded.close()
-	marker_file.close()
 	seqtab_file.close()
 
 def formate_abundances_file(function_file, gene_hierarchy_file, hierarchy_tag = "classification"):
