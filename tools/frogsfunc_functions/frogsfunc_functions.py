@@ -192,7 +192,7 @@ def excluded_sequence(in_biom, in_marker, out_seqtab, excluded):
 	@summary: Returns the excluded sequence, that have a NSTI score above the NSTI threshold.
 	@param in_biom: Biom file.
 	@param in_marker: [str] Path to frogsfunc_copynumbers marker file to process.
-	@param out_seqtab: [str] Path to frogsfunc_genefamilies seqtab file to process.
+	@param out_seqtab: [str] Path to frogsfunc_functions seqtab file to process.
 	@output: The file of excluded sequence names.
 	"""
 	marker_file = open( in_marker ).readlines()[1:]
@@ -225,8 +225,8 @@ def excluded_sequence(in_biom, in_marker, out_seqtab, excluded):
 
 def formate_abundances_file(function_file, gene_hierarchy_file, hierarchy_tag = "classification"):
 	"""
-	@summary: Formate frogsfunc_genefamilies output in order to create a biom file of pathways abundances.
-	@param function_file: frogsfunc_genefamilies output of gene abundances prediction (frogsfunc_genefamilies_pred_metagenome_unstrat.tsv)
+	@summary: Formate frogsfunc_functions output in order to create a biom file of pathways abundances.
+	@param function_file: frogsfunc_functions output of gene abundances prediction (frogsfunc_functions_pred_metagenome_unstrat.tsv)
 	@param gene_hierarchy_file: reference file that links every gene ID to its hierarchy levels.
 	"""
 	id_to_hierarchy = {}
@@ -335,7 +335,7 @@ def write_summary(in_biom, function_file, nsti_file, excluded, tree_count_file, 
 			})
 
 	# record details about removed OTU
-	FH_summary_tpl = open( os.path.join(CURRENT_DIR, "frogsfunc_genefamilies_tpl.html") )
+	FH_summary_tpl = open( os.path.join(CURRENT_DIR, "frogsfunc_functions_tpl.html") )
 	FH_summary_out = open( summary_file, "wt" )
 
 	for line in FH_summary_tpl:
@@ -380,18 +380,18 @@ if __name__ == "__main__":
 	group_input.add_argument('--hierarchy-ranks', nargs='*', default=["Level1", "Level2", "Level3", "Gene"], help='The ordered ranks levels used in the metadata hierarchy pathways. [Default: %(default)s]' )
 	#Outputs
 	group_output = parser.add_argument_group( 'Outputs')
-	group_output.add_argument('--function-abund', default='frogsfunc_genefamilies_pred_metagenome_unstrat.tsv', help='Output file for metagenome predictions abundance. (default: %(default)s).')
-	group_output.add_argument('--seqtab', default='frogsfunc_genefamilies_seqtab_norm.tsv', help='Output file with abundance normalized per marker copies number. (default: %(default)s).')
-	group_output.add_argument('--weighted', default='frogsfunc_genefamilies_weighted_nsti.tsv', help='Output file with the mean of nsti value per sample (format: TSV). [Default: %(default)s]' )
+	group_output.add_argument('--function-abund', default='frogsfunc_functions_pred_metagenome_unstrat.tsv', help='Output file for metagenome predictions abundance. (default: %(default)s).')
+	group_output.add_argument('--seqtab', default='frogsfunc_functions_seqtab_norm.tsv', help='Output file with abundance normalized per marker copies number. (default: %(default)s).')
+	group_output.add_argument('--weighted', default='frogsfunc_functions_weighted_nsti.tsv', help='Output file with the mean of nsti value per sample (format: TSV). [Default: %(default)s]' )
 	group_output.add_argument('--contrib', default=None, help=' Stratified output that reports contributions to community-wide abundances (ex pred_metagenome_contrib.tsv)')
-	group_output.add_argument('-e', '--excluded', default='frogsfunc_genefamilies_excluded.txt', help='List of sequences with NSTI values above NSTI threshold ( --max_NSTI NSTI ).')
+	group_output.add_argument('-e', '--excluded', default='frogsfunc_functions_excluded.txt', help='List of sequences with NSTI values above NSTI threshold ( --max_NSTI NSTI ).')
 	group_output.add_argument('-l', '--log-file', default=sys.stdout, help='List of commands executed.')
-	group_output.add_argument('-t', '--html', default='frogsfunc_genefamilies_summary.html', help="Path to store resulting html file. [Default: %(default)s]" )	
+	group_output.add_argument('-t', '--html', default='frogsfunc_functions_summary.html', help="Path to store resulting html file. [Default: %(default)s]" )	
 	args = parser.parse_args()
 	prevent_shell_injections(args)
 
 	if args.strat_out and args.contrib is None:
-		args.contrib = 'frogsfunc_genefamilies_pred_metagenome_contrib.tsv'
+		args.contrib = 'frogsfunc_functions_pred_metagenome_contrib.tsv'
 
 	if not args.strat_out and args.contrib is not None:
 		parser.error('--contrib FILENAME must be include with --strat_out flag')

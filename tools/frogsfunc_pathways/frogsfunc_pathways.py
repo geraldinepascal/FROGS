@@ -168,7 +168,7 @@ class Tsv2biom(Cmd):
 
 class TaxonomyTree(Cmd):
 	"""
-	@summary: Produces a tree with pathways abundances by sample in extended newick format.
+	@summary: Produces a tree with pathway abundances by sample in extended newick format.
 	"""
 	def __init__(self, in_biom, taxonomy_tag, out_tree, out_ids):
 		"""
@@ -220,7 +220,7 @@ def formate_input_file(input_file, tmp_tsv):
 
 def formate_abundances_file(strat_file, pathways_hierarchy_file, hierarchy_tag = "classification"):
 	"""
-	@summary: Formate frogsfunc_pathways output in order to create a biom file of pathways abundances.
+	@summary: Formate frogsfunc_pathways output in order to create a biom file of pathway abundances.
 	@param strat_file: frogsfunc_pathways output of pathway abundances prediction (frogsfunc_pathways_path_abun_unstrat.tsv)
 	@param pathways_hierarchy_file: reference file that links every pathways ID to its hierarchy levels.
 	"""
