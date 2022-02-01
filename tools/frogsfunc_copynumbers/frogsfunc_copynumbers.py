@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (C) 2018 INRA
+# Copyright (C) 2022 INRAE
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -17,7 +17,7 @@
 #
 
 __author__ = ' Moussa Samb & Maria Bernard & Vincent Darbot & Geraldine Pascal INRAE - SIGENAE '
-__copyright__ = 'Copyright (C) 2020 INRAE'
+__copyright__ = 'Copyright (C) 2022 INRAE'
 __license__ = 'GNU General Public License'
 __version__ = '1.0'
 __email__ = 'frogs@inrae.fr'
@@ -61,7 +61,7 @@ class HspMarker(Cmd):
 		@param observed_marker_table: [str] Path to marker table file if marker studied is not 16S.
 		@param in_tree: [str] Path to resulting tree file with insert clusters sequences from frogsfunc_placeseqs.
 		@param hsp_method: [str] HSP method to use.
-		@param output: [str] Picrust2 marker output file.
+		@param output: [str] PICRUSt2 marker output file.
 		@param result_file: [str] frogsfunc_copynumbers formatted output file.
 		"""
 		if observed_marker_table is None:
@@ -108,7 +108,7 @@ class HspFunction(Cmd):
 		@param observed_trait_table: [str] Path to database trait table if marker studied is not 16S.
 		@param in_tree: [str] Path to resulting tree file with insert clusters sequences from frogsfunc_placeseqs.
 		@param hsp_method: [str] HSP method to use.
-		@param output: [str] Picrust2 marker output file.
+		@param output: [str] PICRUSt2 marker output file.
 		@param result_file: [str] frogsfunc_copynumbers formatted output file.
 		"""
 		if observed_trait_table is None:
@@ -249,9 +249,9 @@ if __name__ == "__main__":
 	
 	group_16S = group_input.add_mutually_exclusive_group()
 	group_16S.add_argument('-i', '--in-trait', default="EC",help="For 16S marker input: Specifies which default function database should be used ('EC', 'KO', 'COG', PFAM', 'TIGRFAM' or 'PHENO'). EC is used by default because necessary for frogsfunc_pathways. To run the command with several functions, separate the functions with commas (ex: KO,PFAM). (for ITS or 18S : only EC available)")
-	group_16S.add_argument('--observed-trait-table',help="If you don't work on 16S marker:  The path to input functions table describing directly observed functions,in tab-delimited format.(ex $PICRUST2_PATH/frogsfunc_suppdata/fungi/ec_ITS_counts.txt.gz). This input is required when the --observed-marker-table option is set. ")
+	group_16S.add_argument('--observed-trait-table',help="If you don't work on 16S marker:  The path to input functions table describing directly observed functions,in tab-delimited format.(ex $PICRUSt2_PATH/frogsfunc_suppdata/fungi/ec_ITS_counts.txt.gz). This input is required when the --observed-marker-table option is set. ")
 
-	group_input.add_argument('--observed-marker-table',help="The input marker table describing directly observed traits (e.g. sequenced genomes) in tab-delimited format. Necessary if you don't work on 16S marker. (ex $PICRUST2_PATH/frogsfunc_suppdata/fungi/ITS_counts.txt.gz). This input is required when the --observed-trait-table option is set. ")
+	group_input.add_argument('--observed-marker-table',help="The input marker table describing directly observed traits (e.g. sequenced genomes) in tab-delimited format. Necessary if you don't work on 16S marker. (ex $PICRUSt2_PATH/frogsfunc_suppdata/fungi/ITS_counts.txt.gz). This input is required when the --observed-trait-table option is set. ")
 	group_input.add_argument('-t', '--tree', required=True, type=str, help='frogsfunc_placeseqs output tree in newick format containing both study sequences (i.e. ASVs or OTUs) and reference sequences.')
 	group_input.add_argument('-s', '--hsp-method', default='mp', choices=['mp', 'emp_prob', 'pic', 'scp', 'subtree_average'], help='HSP method to use.' +'"mp": predict discrete traits using max parsimony. ''"emp_prob": predict discrete traits based on empirical ''state probabilities across tips. "subtree_average": ''predict continuous traits using subtree averaging. ' '"pic": predict continuous traits with phylogentic ' 'independent contrast. "scp": reconstruct continuous ''traits using squared-change parsimony (default: ''%(default)s).')
 	# Output

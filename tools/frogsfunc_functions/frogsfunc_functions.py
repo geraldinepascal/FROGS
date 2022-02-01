@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (C) 2018 INRA
+# Copyright (C) 2022 INRAE
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -17,7 +17,7 @@
 #
 
 __author__ = ' Moussa Samb & Maria Bernard & Vincent Darbot & Geraldine Pascal INRAE - SIGENAE '
-__copyright__ = 'Copyright (C) 2020 INRAE'
+__copyright__ = 'Copyright (C) 2022 INRAE'
 __license__ = 'GNU General Public License'
 __version__ = '1.0'
 __email__ = 'frogs@inrae.fr'
@@ -211,7 +211,7 @@ def excluded_sequence(in_biom, in_marker, out_seqtab, excluded):
 		if cluster not in clusters_out:
 			no_excluded = False
 			if write_header:
-				excluded.write('\t'.join(['Cluster','FROGS_taxonomy','Picrust2_taxonomy','NSTI'])+"\n")
+				excluded.write('\t'.join(['Cluster','FROGS_taxonomy','PICRUSt2_taxonomy','NSTI'])+"\n")
 				write_header = False
 			excluded.write(cluster+"\t")
 			try:

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (C) 2018 INRA
+# Copyright (C) 2022 INRAE
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -17,7 +17,7 @@
 #
 
 __author__ = ' Moussa Samb & Maria Bernard & Vincent Darbot & Geraldine Pascal INRAE - SIGENAE '
-__copyright__ = 'Copyright (C) 2020 INRAE'
+__copyright__ = 'Copyright (C) 2022 INRAE'
 __license__ = 'GNU General Public License'
 __version__ = '1.0'
 __email__ = 'frogs@inrae.fr'
@@ -107,11 +107,11 @@ class FindClosestsRefSequences(Cmd):
 		@param multi_affiliations: [str] Path to multiAffiFromBiom.py output file.
 		@param in_fasta: [str] 	Path to input fasta file of unaligned cluster sequences.
 		@param ref_aln [str]: Path to the alignment file of reference sequences.
-		@param out_biom [str]: Path to output Biom file with picrust2 taxonomic affiliations informations.
+		@param out_biom [str]: Path to output Biom file with PICRUSt2 taxonomic affiliations informations.
 		@summary out_summary: [str] Path to output summary file.
 		@note : Header of summary file:
-		Cluster	FROGS Taxonomy	Picrust2_closest_ID	Picrust2_closest_reference_name	Picrust2_closest_taxonomy	
-		Picrust2_closest_distance_from_cluster_(NSTI)	FROGS_and_Picrust2_lowest_same_taxonomic_rank	Comment	Cluster_sequence	Picrust2_closest_reference_sequence
+		Cluster	FROGS Taxonomy	PICRUSt2_closest_ID	PICRUSt2_closest_reference_name	PICRUSt2_closest_taxonomy	
+		PICRUSt2_closest_distance_from_cluster_(NSTI)	FROGS_and_PICRUSt2_lowest_same_taxonomic_rank	Comment	Cluster_sequence	PICRUSt2_closest_reference_sequence
 		'''
 		Cmd.__init__(self,
 			'find_closest_ref_sequence.py',
@@ -151,7 +151,7 @@ class RemoveSeqsBiomFasta(Cmd):
 
 def convert_fasta(in_fasta, out_fasta):
 	"""
-	@summary: Change fasta headers to be compatible with picrust2.
+	@summary: Change fasta headers to be compatible with PICRUSt2.
 	@param in_fasta [str]: Path to fasta input file.
 	@param out_fasta [str]: Path to fasta output file.
 	"""
@@ -220,7 +220,7 @@ def write_summary(in_fasta, align_out, biomfile, closest_ref_file, category, sum
 	number_otu_all = 0
 	number_abundance_all = 0
 	# to detail removed OTU
-	details_categorys =["FROGS Taxonomy","Picrust2 closest ID (JGI)","Picrust2 closest reference name","Picrust2 closest taxonomy","Picrust2 closest distance from cluster (NSTI)", "NSTI Confidence" ,"Lowest same taxonomic rank between FROGS and Picrust2","Comment"]
+	details_categorys =["FROGS Taxonomy","PICRUSt2 closest ID (JGI)","PICRUSt2 closest reference name","PICRUSt2 closest taxonomy","PICRUSt2 closest distance from cluster (NSTI)", "NSTI Confidence" ,"Lowest same taxonomic rank between FROGS and PICRUSt2","Comment"]
 	infos_otus = list()
 	biom=BiomIO.from_json(biomfile)
 	list_otu_all = []
@@ -240,13 +240,15 @@ def write_summary(in_fasta, align_out, biomfile, closest_ref_file, category, sum
 	for li in closest_ref[1:]:
 		li = li.strip().split('\t')
 		if category in ['16S','ITS']:
-			id_cur = li[2]
-			li[2] = START_IMG_LINK + id_cur + "'target=\"_blank\">" + id_cur + '</a>'
-			infos_otus.append({
-				'name': li[0],
-				'data': list(li[1:-2])
-				})
-
+			try:
+				id_cur = li[2]
+				li[2] = START_IMG_LINK + id_cur + "'target=\"_blank\">" + id_cur + '</a>'
+				infos_otus.append({
+					'name': li[0],
+					'data': list(li[1:-2])
+					})
+			except:
+				continue
 	# record details about removed OTU
 	if align_out is not None:
 		for li in open(align_out).readlines():
@@ -295,7 +297,7 @@ if __name__ == "__main__":
 	group_output.add_argument('-e', '--excluded', default='frogsfunc_placeseqs_excluded.txt', help='List of sequences not inserted in the tree.')
 	group_output.add_argument('-s', '--insert-fasta', default='frogsfunc_placeseqs.fasta', help='Fasta file without non insert sequences. (format: FASTA). [Default: %(default)s]')
 	group_output.add_argument('-m', '--insert-biom', default='frogsfunc_placeseqs.biom', help='Biom file without non insert sequences. (format: BIOM) [Default: %(default)s]')
-	group_output.add_argument('-c', '--closests-ref', default='frogsfunc_placeseqs_closests_ref_sequences.txt', help='Informations about Clusters (i.e OTUs) and picrust2 closest reference from cluster sequences (identifiants, taxonomies, phylogenetic distance from reference, nucleotidics sequences).')
+	group_output.add_argument('-c', '--closests-ref', default='frogsfunc_placeseqs_closests_ref_sequences.txt', help='Informations about Clusters (i.e OTUs) and PICRUSt2 closest reference from cluster sequences (identifiants, taxonomies, phylogenetic distance from reference, nucleotidics sequences).')
 	group_output.add_argument('-l', '--log-file', default=sys.stdout, help='List of commands executed.')
 	group_output.add_argument('-t', '--html', default='frogsfunc_placeseqs_summary.html', help="Path to store resulting html file. [Default: %(default)s]" )
 	args = parser.parse_args()

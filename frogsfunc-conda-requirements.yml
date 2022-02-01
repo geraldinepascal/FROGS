@@ -1,0 +1,24 @@
+channels:
+  - conda-forge
+  - bioconda
+  - mariabernard
+dependencies:
+# bioconda
+  - frogs_test
+  # need to be >= 2.17
+  # - rdptool=2.0.3 # is already included in the frogs dependency
+  - picrust2 =2.4.1
+  - ete3 =3.1.2
+# conda-forge
+
+## packages included in previous package (possibly in multiple previous package)
+#   r-essentials includes:
+    # pandoc
+    # r-rmarkdown
+    # r-dplyr
+#   bioconductor-phyloseq includes:
+    # r-ggplot2 
+    # r-vegan
+    # r-ape
+    # r-scales
+    # r-reshape2
