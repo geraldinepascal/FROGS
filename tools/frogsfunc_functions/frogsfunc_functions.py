@@ -346,7 +346,7 @@ def write_summary(in_biom, function_file, nsti_file, excluded, tree_count_file, 
 		elif "###REMOVE_DATA###" in line:
 			line = line.replace( "###REMOVE_DATA###", json.dumps(summary_info) )
 		elif "###TAXONOMIC_RANKS###" in line:
-			line = line.replace( "###TAXONOMIC_RANKS###", json.dumps(args.hierarchy_ranks) )
+			line = line.replace( "###TAXONOMIC_RANKS###", json.dumps(HIERARCHY_RANKS) )
 		elif "###SAMPLES_NAMES###" in line:
 			line = line.replace( "###SAMPLES_NAMES###", json.dumps(ordered_samples_names) )
 		elif "###DATA_SAMPLE###" in line:
@@ -377,7 +377,6 @@ if __name__ == "__main__":
 	group_input.add_argument('--max-nsti', type=float, default=2.0, help='Sequences with NSTI values above this value will be excluded (default: %(default)d).')
 	group_input.add_argument('--min-reads', metavar='INT', type=int, default=1, help='Minimum number of reads across all samples for each input OTU. OTUs below this cut-off will be counted as part of the \"RARE\" category in the stratified output (default: %(default)d).')
 	group_input.add_argument('--min-samples', metavar='INT', type=int, default=1, help='Minimum number of samples that an OTU needs to be identfied within. OTUs below this cut-off will be counted as part of the \"RARE\" category in the stratified output (default: %(default)d).')
-	group_input.add_argument('--hierarchy-ranks', nargs='*', default=["Level1", "Level2", "Level3", "Gene"], help='The ordered ranks levels used in the metadata hierarchy pathways. [Default: %(default)s]' )
 	#Outputs
 	group_output = parser.add_argument_group( 'Outputs')
 	group_output.add_argument('--function-abund', default='frogsfunc_functions_pred_metagenome_unstrat.tsv', help='Output file for metagenome predictions abundance. (default: %(default)s).')
@@ -395,7 +394,7 @@ if __name__ == "__main__":
 
 	if not args.strat_out and args.contrib is not None:
 		parser.error('--contrib FILENAME must be include with --strat_out flag')
-
+	HIERARCHY_RANKS = ["Level1", "Level2", "Level3", "Gene"]
 	tmp_files=TmpFiles(os.path.split(args.marker)[0])
 	try:	 
 		Logger.static_write(args.log_file, "## Application\nSoftware :" + sys.argv[0] + " (version : " + str(__version__) + ")\nCommand : " + " ".join(sys.argv) + "\n\n")
