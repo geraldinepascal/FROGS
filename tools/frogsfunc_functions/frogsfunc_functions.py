@@ -226,7 +226,7 @@ def excluded_sequence(in_biom, in_marker, out_seqtab, excluded):
 def formate_abundances_file(function_file, gene_hierarchy_file, hierarchy_tag = "classification"):
 	"""
 	@summary: Formate frogsfunc_functions output in order to create a biom file of pathways abundances.
-	@param function_file: frogsfunc_functions output of gene abundances prediction (frogsfunc_functions_pred_metagenome_unstrat.tsv)
+	@param function_file: frogsfunc_functions output of gene abundances prediction (frogsfunc_functions_unstrat.tsv)
 	@param gene_hierarchy_file: reference file that links every gene ID to its hierarchy levels.
 	"""
 	id_to_hierarchy = {}
@@ -379,7 +379,7 @@ if __name__ == "__main__":
 	group_input.add_argument('--min-samples', metavar='INT', type=int, default=1, help='Minimum number of samples that an OTU needs to be identfied within. OTUs below this cut-off will be counted as part of the \"RARE\" category in the stratified output (default: %(default)d).')
 	#Outputs
 	group_output = parser.add_argument_group( 'Outputs')
-	group_output.add_argument('--function-abund', default='frogsfunc_functions_pred_metagenome_unstrat.tsv', help='Output file for metagenome predictions abundance. (default: %(default)s).')
+	group_output.add_argument('--function-abund', default='frogsfunc_functions_strat.tsv', help='Output file for metagenome predictions abundance. (default: %(default)s).')
 	group_output.add_argument('--seqtab', default='frogsfunc_functions_seqtab_norm.tsv', help='Output file with abundance normalized per marker copies number. (default: %(default)s).')
 	group_output.add_argument('--weighted', default='frogsfunc_functions_weighted_nsti.tsv', help='Output file with the mean of nsti value per sample (format: TSV). [Default: %(default)s]' )
 	group_output.add_argument('--contrib', default=None, help=' Stratified output that reports contributions to community-wide abundances (ex pred_metagenome_contrib.tsv)')
@@ -390,7 +390,7 @@ if __name__ == "__main__":
 	prevent_shell_injections(args)
 
 	if args.strat_out and args.contrib is None:
-		args.contrib = 'frogsfunc_functions_pred_metagenome_contrib.tsv'
+		args.contrib = 'frogsfunc_functions_strat.tsv'
 
 	if not args.strat_out and args.contrib is not None:
 		parser.error('--contrib FILENAME must be include with --strat_out flag')

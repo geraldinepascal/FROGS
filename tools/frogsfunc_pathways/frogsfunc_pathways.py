@@ -288,7 +288,7 @@ def write_summary(strat_file, tree_count_file, tree_ids_file, summary_file):
 
 	for line in FH_summary_tpl:
 		if "###TAXONOMIC_RANKS###" in line:
-			line = line.replace( "###TAXONOMIC_RANKS###", json.dumps(args.hierarchy_ranks) )
+			line = line.replace( "###TAXONOMIC_RANKS###", json.dumps(HIERARCHY_RANKS) )
 		elif "###SAMPLES_NAMES###" in line:
 			line = line.replace( "###SAMPLES_NAMES###", json.dumps(ordered_samples_names) )
 		elif "###DATA_SAMPLE###" in line:
@@ -332,6 +332,7 @@ if __name__ == "__main__":
 	prevent_shell_injections(args)
 
 	tmp_files=TmpFiles(os.path.split(args.input_file)[0])
+	HIERARCHY_RANKS = ['Level1','Level2','Level3','Pathway']
 	try:	 
 		Logger.static_write(args.log_file, "## Application\nSoftware :" + sys.argv[0] + " (version : " + str(__version__) + ")\nCommand : " + " ".join(sys.argv) + "\n\n")
 
