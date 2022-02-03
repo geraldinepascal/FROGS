@@ -326,6 +326,7 @@ def write_summary(in_biom, function_file, nsti_file, excluded, tree_count_file, 
 		li = li.strip().split('\t')
 		function = li[2]
 		for i in range(len(li[3:])):
+			print(sample)
 			sample = abund[0].strip().split('\t')[i+3]
 			li[i+2] = round(float(li[i+3]),1)
 
@@ -379,7 +380,7 @@ if __name__ == "__main__":
 	group_input.add_argument('--min-samples', metavar='INT', type=int, default=1, help='Minimum number of samples that an OTU needs to be identfied within. OTUs below this cut-off will be counted as part of the \"RARE\" category in the stratified output (default: %(default)d).')
 	#Outputs
 	group_output = parser.add_argument_group( 'Outputs')
-	group_output.add_argument('--function-abund', default='frogsfunc_functions_strat.tsv', help='Output file for metagenome predictions abundance. (default: %(default)s).')
+	group_output.add_argument('--function-abund', default='frogsfunc_functions_unstrat.tsv', help='Output file for metagenome predictions abundance. (default: %(default)s).')
 	group_output.add_argument('--seqtab', default='frogsfunc_functions_seqtab_norm.tsv', help='Output file with abundance normalized per marker copies number. (default: %(default)s).')
 	group_output.add_argument('--weighted', default='frogsfunc_functions_weighted_nsti.tsv', help='Output file with the mean of nsti value per sample (format: TSV). [Default: %(default)s]' )
 	group_output.add_argument('--contrib', default=None, help=' Stratified output that reports contributions to community-wide abundances (ex pred_metagenome_contrib.tsv)')
