@@ -134,7 +134,7 @@ class Biom2tsv(Cmd):
 	"""
 	@summary: Converts BIOM file to TSV file.
 	"""
-	def __init__(self, in_biom, out_tsv):
+	def __init__(self, in_biom, out_tsv, col_sum):
 
 		Cmd.__init__( self,
 					  'biom2tsv.py',
@@ -142,15 +142,24 @@ class Biom2tsv(Cmd):
 					  "--input-file " + in_biom + " --output-file " + out_tsv,
 					  '--version' )
 
+		self.out_tsv = out_tsv
+		self.col_sum = col_sum
+
 	def get_version(self):
 		 return Cmd.get_version(self, 'stdout').strip()
+
+	def parser(self, log_file):
+		f_in = pd.read_csv(self.out_tsv, sep='\t')
+		sum_col = f_in.pop("observation_sum")
+		sum_col.to_csv(self.col_sum ,sep='\t' ,index=False)
+		f_in.to_csv(self.out_tsv ,sep='\t' ,index=False)
 
 class Tsv2biom(Cmd):
 	"""
 	@summary: Create a temporary biom file that links every gene to samples abundances.
 	This is necessary in order to display sunburst plots.
 	"""
-	def __init__(self, in_tsv, out_biom):
+	def __init__(self, in_tsv, sum_col, out_biom):
 
 		Cmd.__init__( self,
 					  'tsv_to_biom.py',
@@ -158,8 +167,15 @@ class Tsv2biom(Cmd):
 					  "--input-tsv " + in_tsv + " --output-biom " + out_biom,
 					  '--version' )
 
+		self.in_tsv = in_tsv
+
 	def get_version(self):
-		 return Cmd.get_version(self, 'stdout').strip() 
+		 return Cmd.get_version(self, 'stdout').strip()
+
+	def parser(self, log_file):
+		f_in = pd.read_csv(self.in_tsv, sep='\t')
+		sum_col = f_in.pop("observation_sum")
+		f_in.to_csv(self.in_tsv ,sep='\t' ,index=False)
 
 class TaxonomyTree(Cmd):
 	"""
@@ -223,7 +239,7 @@ def excluded_sequence(in_biom, in_marker, out_seqtab, excluded):
 	excluded.close()
 	seqtab_file.close()
 
-def formate_abundances_file(function_file, gene_hierarchy_file, hierarchy_tag = "classification"):
+def formate_abundances_file(function_file, col_sum, gene_hierarchy_file, hierarchy_tag = "classification"):
 	"""
 	@summary: Formate frogsfunc_functions output in order to create a biom file of pathways abundances.
 	@param function_file: frogsfunc_functions output of gene abundances prediction (frogsfunc_functions_unstrat.tsv)
@@ -235,7 +251,10 @@ def formate_abundances_file(function_file, gene_hierarchy_file, hierarchy_tag = 
 		li = li.strip().split('\t')
 		id_to_hierarchy[li[-1]] = ";".join(li)
 
+	col_sum_f = pd.read_csv(col_sum, sep="\t")
+	col_sum = col_sum_f['observation_sum']
 	df = pd.read_csv(function_file,sep='\t')
+	df.insert(2,"observation_sum",col_sum)
 	df.rename(columns = {'function':'observation_name'}, inplace = True)
 	headers = ['observation_name', 'db_link']
 	for column in df:
@@ -326,7 +345,6 @@ def write_summary(in_biom, function_file, nsti_file, excluded, tree_count_file, 
 		li = li.strip().split('\t')
 		function = li[2]
 		for i in range(len(li[3:])):
-			print(sample)
 			sample = abund[0].strip().split('\t')[i+3]
 			li[i+2] = round(float(li[i+3]),1)
 
@@ -374,7 +392,7 @@ if __name__ == "__main__":
 	group_input = parser.add_argument_group( 'Inputs' )
 	group_input.add_argument('-b', '--input-biom', required=True, type=str, help='frogsfunc_placeseqs Biom output file (frogsfunc_placeseqs.biom).')
 	group_input.add_argument('-f', '--function', required=True, type=str, help='Table of predicted gene family copy numbers (frogsfunc_copynumbers output, frogsfunc_copynumbers_predicted_functions.tsv).')
-	group_input.add_argument('-m', '--marker', required=True, type=str, help='Table of predicted marker gene copy numbers (frogsfunc_copynumbers output, ex frogsfunc_copynumbers_marker_copy_number.tsv).')
+	group_input.add_argument('-m', '--marker', required=True, type=str, help='Table of predicted marker gene copy numbers (frogsfunc_copynumbers output, ex frogsfunc_copynumbers_marker.tsv).')
 	group_input.add_argument('--max-nsti', type=float, default=2.0, help='Sequences with NSTI values above this value will be excluded (default: %(default)d).')
 	group_input.add_argument('--min-reads', metavar='INT', type=int, default=1, help='Minimum number of reads across all samples for each input OTU. OTUs below this cut-off will be counted as part of the \"RARE\" category in the stratified output (default: %(default)d).')
 	group_input.add_argument('--min-samples', metavar='INT', type=int, default=1, help='Minimum number of samples that an OTU needs to be identfied within. OTUs below this cut-off will be counted as part of the \"RARE\" category in the stratified output (default: %(default)d).')
@@ -401,16 +419,16 @@ if __name__ == "__main__":
 		Logger.static_write(args.log_file, "## Application\nSoftware :" + sys.argv[0] + " (version : " + str(__version__) + ")\nCommand : " + " ".join(sys.argv) + "\n\n")
 		#temp tsv file necessary for metagenome_pipeline.py
 		tmp_biom_to_tsv = tmp_files.add( 'tmp_biom_to_tsv' )
-		Biom2tsv(args.input_biom, tmp_biom_to_tsv).submit( args.log_file )
+		tmp_col_sum = tmp_files.add( 'observation_sum.tmp')
+		Biom2tsv(args.input_biom, tmp_biom_to_tsv, tmp_col_sum).submit( args.log_file )
 
 		tmp_metag_pipeline = tmp_files.add( 'tmp_metagenome_pipeline.log' )	
 		MetagenomePipeline(tmp_biom_to_tsv, args.marker, args.function, args.max_nsti, args.min_reads, args.min_samples, args.strat_out, args.function_abund, args.seqtab, args.weighted, args.contrib, tmp_metag_pipeline).submit( args.log_file )
 		
 		excluded_sequence(args.input_biom, args.marker, args.seqtab, args.excluded)
-
-		hierarchy_tag = formate_abundances_file(args.function_abund, GENE_HIERARCHY_FILE)
+		hierarchy_tag = formate_abundances_file(args.function_abund, tmp_col_sum, GENE_HIERARCHY_FILE)
 		tmp_biom = tmp_files.add( 'gene_abundances.biom' )
-		Tsv2biom(args.function_abund, tmp_biom).submit( args.log_file)
+		Tsv2biom(args.function_abund, tmp_col_sum, tmp_biom).submit( args.log_file)
 		tree_count_file = tmp_files.add( "geneCount.enewick" )
 		tree_ids_file = tmp_files.add( "geneCount_ids.tsv" )
 		TaxonomyTree(tmp_biom, hierarchy_tag, tree_count_file, tree_ids_file).submit( args.log_file )

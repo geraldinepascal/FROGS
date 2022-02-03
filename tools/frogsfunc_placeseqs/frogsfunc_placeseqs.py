@@ -293,7 +293,7 @@ if __name__ == "__main__":
 	group_input.add_argument('--min-align', type=restricted_float, default=0.8, help='Proportion of the total length of an input query sequence that must align with reference sequences. Any sequences with lengths below this value after making an alignment with reference sequences will be excluded from the placement and all subsequent steps. (default: %(default)d).')
 	# Outputs
 	group_output = parser.add_argument_group('Outputs')
-	group_output.add_argument('-o', '--out-tree', default='frogsfunc_placeseqs.tree', help='Reference tree output with insert sequences (format: newick).')
+	group_output.add_argument('-o', '--out-tree', default='frogsfunc_placeseqs_tree.nwk', help='Reference tree output with insert sequences (format: newick).')
 	group_output.add_argument('-e', '--excluded', default='frogsfunc_placeseqs_excluded.txt', help='List of sequences not inserted in the tree.')
 	group_output.add_argument('-s', '--insert-fasta', default='frogsfunc_placeseqs.fasta', help='Fasta file without non insert sequences. (format: FASTA). [Default: %(default)s]')
 	group_output.add_argument('-m', '--insert-biom', default='frogsfunc_placeseqs.biom', help='Biom file without non insert sequences. (format: BIOM) [Default: %(default)s]')

@@ -221,7 +221,7 @@ def formate_input_file(input_file, tmp_tsv):
 def formate_abundances_file(strat_file, pathways_hierarchy_file, hierarchy_tag = "classification"):
 	"""
 	@summary: Formate frogsfunc_pathways output in order to create a biom file of pathway abundances.
-	@param strat_file: frogsfunc_pathways output of pathway abundances prediction (frogsfunc_pathways_path_abun_unstrat.tsv)
+	@param strat_file: frogsfunc_pathways output of pathway abundances prediction (frogsfunc_pathways_unstrat.tsv)
 	@param pathways_hierarchy_file: reference file that links every pathways ID to its hierarchy levels.
 	"""
 	id_to_hierarchy = {}
@@ -321,7 +321,7 @@ if __name__ == "__main__":
 	group_input.add_argument( '--normalisation', default=False, action='store_true', help='To normalise data after analysis. Values are divided by sum of columns , then multiplied by 10^6 (CPM values). [Default: %(default)s]')
 	#Outputs
 	group_output = parser.add_argument_group( 'Outputs')
-	group_output.add_argument('-o', '--pathways-abund', default='frogsfunc_pathways_path_abun_unstrat.tsv', help='Pathway abundance file output.')
+	group_output.add_argument('-o', '--pathways-abund', default='frogsfunc_pathways_unstrat.tsv', help='Pathway abundance file output.')
 	group_output.add_argument('--pathways-contrib', default=None, help='Stratified output corresponding to contribution of predicted gene family abundances within each predicted genome.')
 	group_output.add_argument('--pathways-predictions', default=None, help='Stratified output corresponding to contribution of predicted gene family abundances within each predicted genome.')
 	group_output.add_argument('--pathways-abund-per-seq', default=None, help='Pathway abundance file output per sequences (if --per-sequence-contrib set)')
@@ -340,11 +340,11 @@ if __name__ == "__main__":
 			if args.per_sequence_abun == None or args.per_sequence_function == None:
 				parser.error("\n\n#ERROR : --per-sequence-abun and --per-sequence-function required when --per-sequence-contrib option is set!\n\n")
 			if args.pathways_contrib is None:
-				args.pathways_contrib = 'frogsfunc_pathways_path_abun_contrib.tsv'
+				args.pathways_contrib = 'frogsfunc_pathways_strat.tsv'
 			if args.pathways_predictions is None:
-				args.pathways_predictions = 'frogsfunc_pathways_path_abun_predictions.tsv'
+				args.pathways_predictions = 'frogsfunc_pathways_predictions.tsv'
 			if args.pathways_abund_per_seq is None:
-				args.pathways_abund_per_seq = "frogsfunc_pathways_path_abun_unstrat_per_seq.tsv"
+				args.pathways_abund_per_seq = "frogsfunc_pathways_unstrat_per_seq.tsv"
 
 		if (args.per_sequence_abun is not None or args.per_sequence_function is not None) and not args.per_sequence_contrib:
 			parser.error("\n\n#ERROR : --per-sequence-contrib required when --per-sequence-contrib and --per-sequence-function option is set!\n\n")
