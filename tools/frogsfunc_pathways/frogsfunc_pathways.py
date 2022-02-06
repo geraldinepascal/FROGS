@@ -143,7 +143,7 @@ class Biom2tsv(Cmd):
 		Cmd.__init__( self,
 					  'biom2tsv.py',
 					  'Converts a BIOM file in TSV file.',
-					  "--input-file " + in_biom + " --output-file " + out_tsv,
+					  "--input-file " + in_biom + " --output-file " + out_tsv + " --fields @observation_name @sample_count" ,
 					  '--version' )
 
 	def get_version(self):
@@ -163,8 +163,15 @@ class Tsv2biom(Cmd):
 					  "--input-tsv " + in_tsv + " --output-biom " + out_biom,
 					  '--version' )
 
+		self.in_tsv = in_tsv
+
 	def get_version(self):
 		 return Cmd.get_version(self, 'stdout').strip() 
+
+	def parser(self, log_file):
+		f_in = pd.read_csv(self.in_tsv, sep='\t')
+		sum_col = f_in.pop("observation_sum")
+		f_in.to_csv(self.in_tsv ,sep='\t' ,index=False)
 
 class TaxonomyTree(Cmd):
 	"""
@@ -231,6 +238,7 @@ def formate_abundances_file(strat_file, pathways_hierarchy_file, hierarchy_tag =
 		id_to_hierarchy[li[-1]] = ";".join(li)
 
 	df = pd.read_csv(strat_file,sep='\t')
+	df.insert(2,'observation_sum',df.sum(axis=1, numeric_only=True))
 	df.rename(columns = {'pathway':'observation_name'}, inplace = True)
 	headers = ['observation_name', 'db_link']
 	for column in df:
