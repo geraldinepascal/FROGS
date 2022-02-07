@@ -14,9 +14,9 @@ fi
 # Set ENV
 export PATH=$frogs_dir/libexec:$frogs_dir/app:$PATH
 export PYTHONPATH=$frogs_dir/lib:$PYTHONPATH
-export GENE_HIERARCHY_FILE=$FROGS_DIR/default_files/gene_family_hierarchy.tsv
-export DESCRIPTION_FILE=$FROGS_DIR/default_files/pathways_description_file.txt.gz
-export PATHWAYS_HIERARCHY_FILE=$FROGS_DIR/default_files/pathways_hierarchy.tsv
+export GENE_HIERARCHY_FILE=$FROGS_DIR/frogsfunc_suppdata/gene_family_hierarchy.tsv
+export DESCRIPTION_FILE=$FROGS_DIR/frogsfunc_suppdata/pathways_description_file.txt.gz
+export PATHWAYS_HIERARCHY_FILE=$FROGS_DIR/frogsfunc_suppdata/pathways_hierarchy.tsv
 
 # Create output folder
 if [ ! -d "$out_dir" ]
@@ -515,10 +515,10 @@ frogsfunc_placeseqs.py \
  --input-fasta $frogs_dir/test/data/frogsfunc.fasta \
  --input-biom $frogs_dir/test/data/frogsfunc.biom \
  --placement-tool sepp \
- --out-tree $out_dir/test_frogsfunc_placeseqs.tree \
+ --out-tree $out_dir/test_frogsfunc_placeseqs_tree.nwk \
  --excluded $out_dir/test_frogsfunc_placeseqs_excluded.txt \
  --insert-fasta $out_dir/test_frogsfunc_placeseqs.fasta \
- --insert-biom $out_dir/test_frogsfunc_placeseqs.biom \
+ --insert-biom $out_dir/25-frogsfunc_placeseqs.biom \
  --closests-ref $out_dir/test_frogsfunc_placeseqs_closests_ref.tsv \
  --html $out_dir/test_frogsfunc_placeseqs.summary \
  --log-file $out_dir/test_frogsfunc_placeseqs.log
