@@ -9,14 +9,13 @@ then
     mkdir test
 fi
 
-./FPStep1.py \
- -i data/FPSteps.fasta \
- -b data/FPSteps.biom \
+./frogsfunc_placeseqs.py \
+ -i data/frogsfunc.fasta \
+ -b data/frogsfunc.biom \
  -p sepp \
- -o test/test_FPStep1.tree \
- -e test/test_FPStep1_excluded.txt \
- -s test/test_FPStep1.fasta \
- -m test/test_FPStep1.biom \
- -c test/test_FPStep1_closests_ref.tsv \
- -t test/test_FPStep1.summary \
- -l test/test_FPStep1.log
+ -o test/25-frogsfunc_placeseqs_tree.nwk \
+ -e test/25-frogsfunc_placeseqs_excluded.txt \
+ -s test/25-frogsfunc_placeseqs.fasta \
+ -m test/25-frogsfunc_placeseqs.biom\
+ -c test/25-frogsfunc_placeseqs_closests_ref_sequences.txt \
+ -t test/25-frogsfunc_placeseqs_summary.html 

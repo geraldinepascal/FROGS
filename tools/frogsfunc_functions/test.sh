@@ -10,13 +10,12 @@ then
     mkdir test
 fi
 
-./FPStep3.py \
- -b data/FPStep1.biom \
- -f data/FPStep2_predicted_functions.tsv \
- -m data/FPStep2_marker_nsti.tsv \
- --function-abund test/test_FPStep3_pred_abund_unstrat.tsv \
- --seqtab test/test_FPStep3_seqtab.tsv \
- --weighted test/test_FPStep3_weighted.tsv \
- -e test/test_FPStep3_excluded.txt \
- -l test/test_FPStep3.log \
- --html test/test_FPStep3.html
+./frogsfunc_functions.py \
+ -b data/25-frogsfunc_placeseqs.biom\
+ -f data/26-frogsfunc_copynumbers_predicted_functions.tsv \
+ -m data/26-frogsfunc_copynumbers_marker.tsv \
+ --function-abund test/27-frogsfunc_functions_unstrat.tsv \
+ --seqtab test/27-frogsfunc_functions_marker_norm.tsv \
+ --weighted test/27-frogsfunc_functions_weighted_nsti.tsv \
+ -e test/27-frogsfunc_functions_excluded.txt \
+ --html test/27-frogsfunc_functions_summary.html

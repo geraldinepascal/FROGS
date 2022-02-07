@@ -9,10 +9,9 @@ then
     mkdir test
 fi
 
-./FPStep2.py \
- -b data/FPStep1.biom \
- -t data/FPStep1.tree \
- -m test/test_FPStep2_marker_nsti.tsv \
- -o test/test_FPStep2_predicted_functions.tsv \
- -l test/test_FPStep2.log \
- --html test/test_FPStep2.html
+./frogsfunc_copynumbers.py \
+ -b data/25-frogsfunc_placeseqs.biom\
+ -t data/25-frogsfunc_placeseqs_tree.nwk\
+ -m test/26-frogsfunc_copynumbers_marker.tsv \
+ -o test/26-frogsfunc_copynumbers_predicted_functions.tsv \
+ --html test/26-frogsfunc_copynumbers_summary.html

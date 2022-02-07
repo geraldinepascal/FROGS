@@ -11,8 +11,7 @@ then
     mkdir test
 fi
 
-./FPStep4.py \
- -i data/FPstep3_pred_abund.tsv \
- -o test/test_FPStep4_pathways_abund.tsv \
- -l test/test_FPStep4.log \
- -t test/test_FPStep4.html
+./frogsfunc_pathways.py \
+ -i data/27-frogsfunc_functions_unstrat.tsv \
+ -o test/28-frogsfunc_pathways_unstrat.tsv \
+ -t test/28-frogsfunc_pathways_summary.html

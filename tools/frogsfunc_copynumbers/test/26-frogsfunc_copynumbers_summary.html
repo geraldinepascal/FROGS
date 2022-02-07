@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <!--
-# Copyright (C) 2015 INRA
+# Copyright (C) 2022 INRAE
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -17,7 +17,7 @@
 -->
 <html>
 	<head>
-		<title>FPStep2</title>
+		<title>FrogsFunc copy numbers (Step2)</title>
 		<meta charset="UTF-8">
 		<meta name="version" content="3.2.3">
 		<!-- CSS -->
@@ -361,7 +361,7 @@
 
 			var clusters_ditrib_load = function( container_id ) {
 
-				var cluster_by_nsti = lineplot_param("", "NSTI value", "Nb abundances kept", "Nb Clusters kept", nsti_threshold, series);
+				var cluster_by_nsti = lineplot_param("", "NSTI value", "Nb kept sequences", "Nb kept clusters", nsti_threshold, series);
 					$('#' + container_id).append('<div></div>');
 					$('#' + container_id).highcharts( cluster_by_nsti );
 					$('#' + container_id).append('<p class="graph-nb">N.B.: Select area to zoom in.</p>');
@@ -377,7 +377,7 @@
 				'data': [0, 3, 4, 5, 6, 6, 7, 7, 7, 7, 7, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 9, 9, 9, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10],
 				'yAxis': 1,
 			}, {
-				'name': "Nb abundances",
+				'name': "Nb sequences (cluster abundance)",
 				'data': [0, 371162, 614635, 663777, 766425, 766425, 818838, 818838, 818838, 818838, 818838, 1004066, 1004066, 1004066, 1004066, 1004066, 1004066, 1004066, 1004066, 1004066, 1004066, 1004066, 1004066, 1004066, 1004066, 1004066, 1004066, 1004066, 1004066, 1004066, 1004066, 1004066, 1004066, 1004066, 1004066, 1004066, 1004066, 1004066, 1004066, 1004066, 1117153, 1117153, 1117153, 1221250, 1221250, 1221250, 1221250, 1221250, 1221250, 1221250, 1221250, 1221250, 1221250, 1221250, 1221250, 1221250, 1221250, 1221250, 1221250, 1221250, 1221250, 1221250, 1221250, 1221250, 1221250, 1221250, 1221250, 1221250, 1221250, 1221250, 1221250, 1221250, 1221250, 1221250, 1221250, 1221250, 1221250, 1221250, 1221250, 1221250, 1221250, 1221250, 1221250, 1221250, 1221250, 1221250, 1221250, 1221250, 1221250, 1221250, 1221250, 1221250, 1221250, 1221250, 1221250, 1221250, 1221250, 1221250, 1221250, 1221250, 1221250]
 			}];
 			var sum_series = new Array() ;
@@ -408,7 +408,7 @@
 		
 		<div id="content" class="hidden">
 			<div class="tab-content">
-				<h2 class="pb-2 mt-4 mb-2 border-bottom">Cluster kept by NSTI threshold</h2>
+				<h2 class="pb-2 mt-4 mb-2 border-bottom">Cluster number/sequence number according to NSTI threshold</h2>
 				<div id="sequence-distrib" role="tabpanel" class="tab-pane active">
 				</div>
 			</div>

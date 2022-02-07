@@ -17,7 +17,7 @@
 -->
 <html>
 	<head>
-		<title>FPStep1 (Place Seqs)</title>
+		<title>FrogsFunc place seqs (Step1)</title>
 		<meta charset="UTF-8">
 		<meta name="version" content="1.0.2">
 		<!-- CSS -->
@@ -287,8 +287,8 @@
 
 				
 			$(function() {
-				var detection_categories = ["FROGS Taxonomy", "Picrust2 closest ID (JGI)", "Picrust2 closest reference name", "Picrust2 closest taxonomy", "Picrust2 closest distance from cluster (NSTI)", "Lowest same taxonomic rank between FROGS and Picrust2", "Comment"] ;
-				var detection_series = [{"name": "Cluster_2", "data": ["Bacteria;Proteobacteria;Gammaproteobacteria;Enterobacterales;Enterobacteriaceae;Escherichia-Shigella;Multi-affiliation", "<a href='https://img.jgi.doe.gov/cgi-bin/m/main.cgi?section=TaxonDetail&page=taxonDetail&taxon_oid=2609459821'>2609459821</a>", "Escherichia coli 6-175-07_S1_C2", "Bacteria;Proteobacteria;Gammaproteobacteria;Enterobacterales;Enterobacteriaceae;Escherichia;Escherichia coli", "7e-06", "Family", "identical sequence"]}, {"name": "Cluster_7", "data": ["Bacteria;Campylobacterota;Campylobacteria;Campylobacterales;Campylobacteraceae;Campylobacter;Multi-affiliation", "<a href='https://img.jgi.doe.gov/cgi-bin/m/main.cgi?section=TaxonDetail&page=taxonDetail&taxon_oid=2731957973'>2731957973</a>", "Campylobacter coli BIGS0003", "Bacteria;Proteobacteria;Epsilonproteobacteria;Campylobacterales;Campylobacteraceae;Campylobacter;Campylobacter coli", "0.013", "Species", "identical sequence"]}, {"name": "Cluster_12", "data": ["Bacteria;Firmicutes;Clostridia;Oscillospirales;Oscillospiraceae;Flavonifractor;Multi-affiliation", "<a href='https://img.jgi.doe.gov/cgi-bin/m/main.cgi?section=TaxonDetail&page=taxonDetail&taxon_oid=2728369350'>2728369350</a>", "Flavonifractor plautii YL31", "Bacteria;Firmicutes;Clostridia;Eubacteriales;Oscillospiraceae;Flavonifractor;Flavonifractor plautii", "1.6e-05", "Species", "identical sequence"]}, {"name": "Cluster_10", "data": ["Bacteria;Firmicutes;Clostridia;Oscillospirales;Oscillospiraceae;unknown genus;Clostridium sp.", "<a href='https://img.jgi.doe.gov/cgi-bin/m/main.cgi?section=TaxonDetail&page=taxonDetail&taxon_oid=2585427805'>2585427805</a>", "Clostridiales bacterium VE202-03", "Bacteria;Firmicutes;Clostridia;Eubacteriales;unclassified;unclassified;Clostridiales bacterium VE202-03", "0.11", "Class", "/"]}, {"name": "Cluster_1", "data": ["Bacteria;Firmicutes;Clostridia;Oscillospirales;Oscillospiraceae;Oscillibacter;unknown species", "<a href='https://img.jgi.doe.gov/cgi-bin/m/main.cgi?section=TaxonDetail&page=taxonDetail&taxon_oid=2602041616'>2602041616</a>", "Oscillospiraceae bacterium VE202-24", "Bacteria;Firmicutes;Clostridia;Eubacteriales;Oscillospiraceae;unclassified;Oscillospiraceae bacterium VE202-24", "0.03", "Family", "/"]}, {"name": "Cluster_5", "data": ["Bacteria;Firmicutes;Clostridia;Clostridia vadinBB60 group;unknown family;unknown genus;gut metagenome", "<a href='https://img.jgi.doe.gov/cgi-bin/m/main.cgi?section=TaxonDetail&page=taxonDetail&taxon_oid=2751185640'>2751185640</a>", "Clostridiales bacterium Firm_08", "Bacteria;Firmicutes;Clostridia;Eubacteriales;unclassified;unclassified;Clostridiales bacterium Firm_08", "0.9", "Class", "/"]}, {"name": "Cluster_4", "data": ["Bacteria;Firmicutes;Clostridia;Clostridia vadinBB60 group;unknown family;unknown genus;unknown species", "<a href='https://img.jgi.doe.gov/cgi-bin/m/main.cgi?section=TaxonDetail&page=taxonDetail&taxon_oid=646564521'>646564521</a>", "Mageeibacillus indolicus UPII9-5", "Bacteria;Firmicutes;Clostridia;Eubacteriales;Oscillospiraceae;Mageeibacillus;Mageeibacillus indolicus", "0.83", "Class", "/"]}, {"name": "Cluster_6", "data": ["Bacteria;Firmicutes;Clostridia;Lachnospirales;Lachnospiraceae;[Ruminococcus] torques group;unknown species", "<a href='https://img.jgi.doe.gov/cgi-bin/m/main.cgi?section=TaxonDetail&page=taxonDetail&taxon_oid=649989958'>649989958</a>", "Lachnospiraceae bacterium sp. 8_1_57FAA", "Bacteria;Firmicutes;Clostridia;Eubacteriales;Lachnospiraceae;unclassified;Lachnospiraceae bacterium 8_1_57FAA", "0.064", "Family", "/"]}, {"name": "Cluster_11", "data": ["Bacteria;Firmicutes;Clostridia;Lachnospirales;Lachnospiraceae;[Ruminococcus] torques group;unknown species", "<a href='https://img.jgi.doe.gov/cgi-bin/m/main.cgi?section=TaxonDetail&page=taxonDetail&taxon_oid=649989958'>649989958</a>", "Lachnospiraceae bacterium sp. 8_1_57FAA", "Bacteria;Firmicutes;Clostridia;Eubacteriales;Lachnospiraceae;unclassified;Lachnospiraceae bacterium 8_1_57FAA", "0.045", "Family", "/"]}, {"name": "Cluster_3", "data": ["Bacteria;Firmicutes;Clostridia;Lachnospirales;Lachnospiraceae;Eisenbergiella;unknown species", "<a href='https://img.jgi.doe.gov/cgi-bin/m/main.cgi?section=TaxonDetail&page=taxonDetail&taxon_oid=2600255157'>2600255157</a>", "Lachnospiraceae bacterium A4", "Bacteria;Firmicutes;Clostridia;Eubacteriales;Lachnospiraceae;unclassified;Lachnospiraceae bacterium A4", "0.2", "Family", "/"]}] ;
+				var detection_categories = ["FROGS Taxonomy", "PICRUSt2 closest ID (JGI)", "PICRUSt2 closest reference name", "PICRUSt2 closest taxonomy", "PICRUSt2 closest distance from cluster (NSTI)", "NSTI Confidence", "Lowest same taxonomic rank between FROGS and PICRUSt2", "Comment"] ;
+				var detection_series = [{"name": "Cluster_2", "data": ["Bacteria;Proteobacteria;Gammaproteobacteria;Enterobacterales;Enterobacteriaceae;Escherichia-Shigella;Multi-affiliation", "<a href='https://img.jgi.doe.gov/cgi-bin/m/main.cgi?section=TaxonDetail&page=taxonDetail&taxon_oid=2609459821'target=\"_blank\">2609459821</a>", "Escherichia coli 6-175-07_S1_C2", "Bacteria;Proteobacteria;Gammaproteobacteria;Enterobacterales;Enterobacteriaceae;Escherichia;Escherichia coli", "7e-06", "Good", "Family", "identical sequence"]}, {"name": "Cluster_7", "data": ["Bacteria;Campylobacterota;Campylobacteria;Campylobacterales;Campylobacteraceae;Campylobacter;Multi-affiliation", "<a href='https://img.jgi.doe.gov/cgi-bin/m/main.cgi?section=TaxonDetail&page=taxonDetail&taxon_oid=2731957973'target=\"_blank\">2731957973</a>", "Campylobacter coli BIGS0003", "Bacteria;Proteobacteria;Epsilonproteobacteria;Campylobacterales;Campylobacteraceae;Campylobacter;Campylobacter coli", "0.013", "Good", "Species", "identical sequence"]}, {"name": "Cluster_12", "data": ["Bacteria;Firmicutes;Clostridia;Oscillospirales;Oscillospiraceae;Flavonifractor;Multi-affiliation", "<a href='https://img.jgi.doe.gov/cgi-bin/m/main.cgi?section=TaxonDetail&page=taxonDetail&taxon_oid=2728369350'target=\"_blank\">2728369350</a>", "Flavonifractor plautii YL31", "Bacteria;Firmicutes;Clostridia;Eubacteriales;Oscillospiraceae;Flavonifractor;Flavonifractor plautii", "1.6e-05", "Good", "Species", "identical sequence"]}, {"name": "Cluster_10", "data": ["Bacteria;Firmicutes;Clostridia;Oscillospirales;Oscillospiraceae;unknown genus;Clostridium sp.", "<a href='https://img.jgi.doe.gov/cgi-bin/m/main.cgi?section=TaxonDetail&page=taxonDetail&taxon_oid=2585427805'target=\"_blank\">2585427805</a>", "Clostridiales bacterium VE202-03", "Bacteria;Firmicutes;Clostridia;Eubacteriales;unclassified;unclassified;Clostridiales bacterium VE202-03", "0.11", "Good", "Class", "/"]}, {"name": "Cluster_1", "data": ["Bacteria;Firmicutes;Clostridia;Oscillospirales;Oscillospiraceae;Oscillibacter;unknown species", "<a href='https://img.jgi.doe.gov/cgi-bin/m/main.cgi?section=TaxonDetail&page=taxonDetail&taxon_oid=2602041616'target=\"_blank\">2602041616</a>", "Oscillospiraceae bacterium VE202-24", "Bacteria;Firmicutes;Clostridia;Eubacteriales;Oscillospiraceae;unclassified;Oscillospiraceae bacterium VE202-24", "0.03", "Good", "Family", "/"]}, {"name": "Cluster_5", "data": ["Bacteria;Firmicutes;Clostridia;Clostridia vadinBB60 group;unknown family;unknown genus;gut metagenome", "<a href='https://img.jgi.doe.gov/cgi-bin/m/main.cgi?section=TaxonDetail&page=taxonDetail&taxon_oid=2751185640'target=\"_blank\">2751185640</a>", "Clostridiales bacterium Firm_08", "Bacteria;Firmicutes;Clostridia;Eubacteriales;unclassified;unclassified;Clostridiales bacterium Firm_08", "0.9", "Medium", "Class", "/"]}, {"name": "Cluster_4", "data": ["Bacteria;Firmicutes;Clostridia;Clostridia vadinBB60 group;unknown family;unknown genus;unknown species", "<a href='https://img.jgi.doe.gov/cgi-bin/m/main.cgi?section=TaxonDetail&page=taxonDetail&taxon_oid=646564521'target=\"_blank\">646564521</a>", "Mageeibacillus indolicus UPII9-5", "Bacteria;Firmicutes;Clostridia;Eubacteriales;Oscillospiraceae;Mageeibacillus;Mageeibacillus indolicus", "0.83", "Medium", "Class", "/"]}, {"name": "Cluster_6", "data": ["Bacteria;Firmicutes;Clostridia;Lachnospirales;Lachnospiraceae;[Ruminococcus] torques group;unknown species", "<a href='https://img.jgi.doe.gov/cgi-bin/m/main.cgi?section=TaxonDetail&page=taxonDetail&taxon_oid=649989958'target=\"_blank\">649989958</a>", "Lachnospiraceae bacterium sp. 8_1_57FAA", "Bacteria;Firmicutes;Clostridia;Eubacteriales;Lachnospiraceae;unclassified;Lachnospiraceae bacterium 8_1_57FAA", "0.064", "Good", "Family", "/"]}, {"name": "Cluster_11", "data": ["Bacteria;Firmicutes;Clostridia;Lachnospirales;Lachnospiraceae;[Ruminococcus] torques group;unknown species", "<a href='https://img.jgi.doe.gov/cgi-bin/m/main.cgi?section=TaxonDetail&page=taxonDetail&taxon_oid=649989958'target=\"_blank\">649989958</a>", "Lachnospiraceae bacterium sp. 8_1_57FAA", "Bacteria;Firmicutes;Clostridia;Eubacteriales;Lachnospiraceae;unclassified;Lachnospiraceae bacterium 8_1_57FAA", "0.045", "Good", "Family", "/"]}, {"name": "Cluster_3", "data": ["Bacteria;Firmicutes;Clostridia;Lachnospirales;Lachnospiraceae;Eisenbergiella;unknown species", "<a href='https://img.jgi.doe.gov/cgi-bin/m/main.cgi?section=TaxonDetail&page=taxonDetail&taxon_oid=2600255157'target=\"_blank\">2600255157</a>", "Lachnospiraceae bacterium A4", "Bacteria;Firmicutes;Clostridia;Eubacteriales;Lachnospiraceae;unclassified;Lachnospiraceae bacterium A4", "0.2", "Good", "Family", "/"]}] ;
 				var remove_info = {"nb_kept": 10, "nb_removed": 0, "abundance_kept": 1221250, "abundance_removed": 0} ;
 
 				// Remove alert
@@ -351,44 +351,12 @@
 				};
 				$('#filter-log').append( table("Chimera detection by sample", table_categories, table_series) );
 				$('#filter-log table').prop( 'id', 'details-table' );
-				var dt = $('#filter-log table').DataTable({
-					searchPanes: {
-						viewTotal: true,
-						columns: [5]
-					},
-					columnDefs: [
-						{
-							orderable: true,
-							searchPanes: {
-								show: true,
-								dtOpts:{
-							order:[[1,'asc']]
-						  },
-								options: [
-									{
-										label: 'To exclude (>2)',
-										value: function(rowData,rowIdx) {
-											return rowData[5] > 2;
-										}
-									}
-								]
-							},
-							targets: [5]
-						}],
+				$('#filter-log table').DataTable({
 					dom:  	"<'#details-csv-export'><'row'<'col-sm-5'l><'col-sm-7'f>>" +
 							"<'row'<'col-sm-12'tr>>" +
-							"<'row'<'col-sm-5'i><'col-sm-7'p>>P",
+							"<'row'<'col-sm-5'i><'col-sm-7'p>>",
 					'lengthMenu': [[10, 25, 50, 100, -1], [10, 25, 50, 100, "All"]],
 				});
-
-				dt.on('select.dt', () => {          
-					dt.searchPanes.rebuildPane(0, true);
-				});
-			 
-				dt.on('deselect.dt', () => {
-					dt.searchPanes.rebuildPane(0, true);
-				});
-				
 				$('#details-csv-export').html( '<button class="btn"><span class="fa fa-download" aria-hidden="true"> CSV</span></button>' );
 				$('#details-csv-export').addClass( 'dataTables_filter' );
 				$('#details-csv-export').datatableExport({
