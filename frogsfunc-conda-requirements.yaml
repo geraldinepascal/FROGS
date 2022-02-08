@@ -1,0 +1,20 @@
+channels:
+  - conda-forge
+  - bioconda
+  - mariabernard
+dependencies:
+# bioconda
+  - frogs_test
+
+## packages included in previous package (possibly in multiple previous package)
+#   r-essentials includes:
+    # pandoc
+    # r-rmarkdown
+    # r-dplyr
+    # r-codetools
+#   bioconductor-phyloseq includes:
+    # r-ggplot2 
+    # r-vegan
+    # r-ape
+    # r-scales
+    # r-reshape2
