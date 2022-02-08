@@ -97,6 +97,7 @@ def find_lowest_same_taxo_rank(taxo_frogs, taxo_picrust, hierarchy = ["Kingdom",
 	taxo_picrust = [taxo_picrust.split(';')[i].lower() for i in range(len(taxo_picrust.split(';')))]
 	for i in range(len(hierarchy)-1, -1, -1):
 		if taxo_frogs[i] == taxo_picrust[i]:
+			print(taxo_frogs[i], hierarchy[i])
 			return hierarchy[i]
 	return "/"
 
@@ -162,11 +163,10 @@ def find_closest_ref_sequences(tree, biom, biom_path, cluster_to_multiaffi, ID_t
 	@param output: [str] path to tmp output file in order to write frogs and picrust2 taxonomic comparaisons.
 	"""
 	FH_out = open(output,'wt')
-	header = "\t".join(["Cluster","Nb sequences", "FROGS Taxonomy","Picrust2 closest ID","Picrust2 closest reference name","Picrust2 closest taxonomy","Picrust2 closest distance from cluster (NSTI)", "NSTI Confidence" ,"FROGS and Picrust2 lowest same taxonomic rank", "Comment", "Cluster sequence", "Picrust2 closest reference sequence"])
+	header = "\t".join(["Cluster","Nb sequences", "FROGS Taxonomy","PICRUSt2 closest ID","PICRUSt2 closest reference name","PICRUSt2 closest taxonomy","NSTI", "NSTI Confidence" ,"FROGS and PICRUSt2 lowest same taxonomic rank", "Comment", "Cluster sequence", "PICRUSt2 closest reference sequence"])
 	FH_out.write(header+"\n")
 	find_frogs_taxo = True
 	for cluster in clusters:
-		print(biom.get_observation_count(cluster))
 		try:
 			frogs_taxo = ";".join(biom.get_observation_metadata(cluster)["blast_taxonomy"])
 			count = str(biom.get_observation_count(cluster))
