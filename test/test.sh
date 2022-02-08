@@ -14,9 +14,9 @@ fi
 # Set ENV
 export PATH=$frogs_dir/libexec:$frogs_dir/app:$PATH
 export PYTHONPATH=$frogs_dir/lib:$PYTHONPATH
-export GENE_HIERARCHY_FILE=$FROGS_DIR/frogsfunc_suppdata/gene_family_hierarchy.tsv
-export DESCRIPTION_FILE=$FROGS_DIR/frogsfunc_suppdata/pathways_description_file.txt.gz
-export PATHWAYS_HIERARCHY_FILE=$FROGS_DIR/frogsfunc_suppdata/pathways_hierarchy.tsv
+export GENE_HIERARCHY_FILE=$frogs_dir/frogsfunc_suppdata/gene_family_hierarchy.tsv
+export DESCRIPTION_FILE=$frogs_dir/frogsfunc_suppdata/pathways_description_file.txt.gz
+export PATHWAYS_HIERARCHY_FILE=$frogs_dir/frogsfunc_suppdata/pathways_hierarchy.tsv
 
 # Create output folder
 if [ ! -d "$out_dir" ]
@@ -520,6 +520,7 @@ frogsfunc_placeseqs.py \
  --insert-fasta $out_dir/25-frogsfunc_placeseqs.fasta \
  --insert-biom $out_dir/25-frogsfunc_placeseqs.biom \
  --closests-ref $out_dir/25-frogsfunc_placeseqs_closests_ref_sequences.txt \
+ --log-file $out_dir/25-frogsfunc_placeseqs.log \
  --html $out_dir/25-frogsfunc_placeseqs_summary.html 
 
 if [ $? -ne 0 ]
@@ -535,6 +536,7 @@ frogsfunc_copynumbers.py \
  --tree $out_dir/25-frogsfunc_placeseqs_tree.nwk \
  --output-marker $out_dir/26-frogsfunc_copynumbers_marker.tsv \
  --output-function $out_dir/26-frogsfunc_copynumbers_predicted_functions.tsv \
+ --log-file $out_dir/26-frogsfunc_copynumbers.log \
  --html $out_dir/26-frogsfunc_copynumbers_summary.html
 
 if [ $? -ne 0 ]
@@ -553,6 +555,7 @@ frogsfunc_functions.py \
  --seqtab $out_dir/27-frogsfunc_functions_marker_norm.tsv \
  --weighted $out_dir/27-frogsfunc_functions_weighted_nsti.tsv \
  --excluded $out_dir/27-frogsfunc_functions_excluded.txt \
+ --log-file $out_dir/27-frogsfunc_functions.log \
  --html $out_dir/27-frogsfunc_functions_summary.html
 
 if [ $? -ne 0 ]
@@ -566,6 +569,7 @@ echo "Step frogsfunc_pathways `date`"
 frogsfunc_pathways.py \
  --input-file $out_dir/27-frogsfunc_functions_unstrat.tsv \
  --pathways-abund $out_dir/28-frogsfunc_pathways_unstrat.tsv \
+ --log-file $out_dir/28-frogsfunc_pathways.log \
  --html $out_dir/28-frogsfunc_pathways_summary.html
 
 if [ $? -ne 0 ]
