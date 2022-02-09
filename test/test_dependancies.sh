@@ -2,9 +2,9 @@
 
 nb_cpu=2
 java_mem=1
-out_dir=res_3.2.3_ter
+out_dir=res_3.2.3_test
 expected_dir=res_3.2.3
-run_programs=true	## if true lance les python sinon, fait uniquement les comparatifs de résultats
+run_programs=false	## if true lance les python sinon, fait uniquement les comparatifs de résultats
 
 ## Set ENV
 ## export PATH=../app:$PATH
@@ -32,10 +32,10 @@ diff_size() {
 }
 
 echo "Step demultiplexe `date`"
-demultiplex.py \
-  --input-R1 data/demultiplex.fastq.gz --input-barcode data/demultiplex.barcode.txt \
-  --mismatches 1 --end both \
-  --output-demultiplexed $out_dir/demultiplexed.tar.gz --output-excluded $out_dir/undemultiplexed.tar.gz --log-file $out_dir/demultiplex.log --summary $out_dir/demultiplex_summary.txt 
+demultiplex.py --input-R1 data/demultiplex_test2_R1.fq.gz --input-R2 data/demultiplex_test2_R2.fq.gz --input-barcode data/demultiplex_barcode.txt \
+    --mismatches 1 --end both \
+    --output-demultiplexed $out_dir/demultiplexed.tar.gz --output-excluded $out_dir/undemultiplexed.tar.gz \
+    --log-file $out_dir/demultiplex.log --summary $out_dir/demultiplex_summary.txt
 
 if diff_line $out_dir/demultiplex_summary.txt $expected_dir/demultiplex_summary.txt  0
 then
@@ -234,7 +234,7 @@ then
 	itsx.py \
 	 --input-fasta $expected_dir/04-filters.fasta \
 	 --input-biom $expected_dir/04-filters.biom \
-	 --region ITS1 --check-its-only --nb-cpus $nb_cpu \
+	 --region ITS1 --nb-cpus $nb_cpu \
 	 --out-abundance $out_dir/05-itsx.biom \
 	 --summary $out_dir/05-itsx.html \
 	 --log-file $out_dir/05-itsx.log \
@@ -458,7 +458,7 @@ fi
 
 
 ##difficile à tester à cause du tirage aléatoire
-if diff_line $out_dir/09-normalisation.fasta $expected_dir/09-normalisation.fasta 0
+if diff_line $out_dir/09-normalisation.fasta $expected_dir/09-normalisation.fasta 5
 then
 	echo "Difference in normalisation : 09-normalisation.fasta" >&2
 fi
@@ -473,6 +473,10 @@ then
 	echo "Difference in normalisation : 09-normalisation.html" >&2
 fi
 
+if diff_size $out_dir/09-normalisation.html $expected_dir/09-normalisation.html 0
+then
+	echo "Difference in normalisation : 09-normalisation.html" >&2
+fi
 
 echo "Step clusters_stat `date`"
 
@@ -878,6 +882,7 @@ fi
 
 # récupérer les tableau CSV via la page HTML
 # et faire sdiff
+# dans les XML on teste les valeurs de otu_01582 avec des valeurs avec 3 décimales (des mises à jours de DESeq provoque des ajustements des valeurs ...)
 
 grep otu_01582 $out_dir/24-deseq2_visualisation.nb.html | sed 's/],/],\n/g' > /tmp/tmp
 grep otu_01582 $expected_dir/24-deseq2_visualisation.nb.html | sed 's/],/],\n/g'  > /tmp/tmp1
