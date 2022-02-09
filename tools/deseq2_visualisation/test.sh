@@ -12,13 +12,7 @@ else
 fi
 
 # test on quantitative variables
-python deseq2_visualisation.py --phyloseqData data/phyloseq.Rdata --dds data/EnvType_DESeq_dds.Rdata \
-                            --var EnvType --mod1 SaumonFume --mod2 BoeufHache \
+python deseq2_visualisation.py --phyloseqData data.Rdata --dds dds_EnvType.rdata \
+                            --var EnvType --mod1 SaumonFume --mod2 DesLardons \
                             --log-file test/deseq2_preprocess_EnvType.log \
-                            --html test/EnvType_BoeufHache_SaumonFume.nb.html
-
-# variables with 2 modes only
-python deseq2_visualisation.py --phyloseqData data/phyloseq.Rdata --dds data/FoodType_DESeq_dds.Rdata \
-                            --var FoodType \
-                            --log-file test/deseq2_preprocess_FoodType.log \
-                            --html test/FoodType.nb.html
+                            --html test/EnvType_DesLardons_SaumonFume.nb.html 
