@@ -58,13 +58,9 @@ class BIOM_sampling(Cmd):
         @param nb_read : [int] Number of reads per sample.
         @param sampling_by_min : [boolean] Sampling by the number of the smallest sample.
         """
-<<<<<<< HEAD
-        argument = " --nb-sampled " + str(nb_read)
-=======
         argument = ''
         if nb_read is not None:
             argument = " --nb-sampled " + str(nb_read)
->>>>>>> 1cea38a0acfc7b19b1f22d49d7ebc45b6d2d9157
         if sampling_by_min :
             argument = " --sampling-by-min "
         if delete_samples:
