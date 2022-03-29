@@ -109,7 +109,7 @@ def check_ref_files(tree_file, biom_file, biom_path, multi_affi_file, fasta_file
 	@ref_file: [str] path to reference map file in order to have taxonomies informations.
 	'''
 	biom=BiomIO.from_json(biom_file)
-	ref_file = os.path.abspath(os.path.join(os.path.dirname(CURRENT_DIR), "default_files/JGI_ID_to_taxonomy.txt.gz"))
+	ref_file = os.path.abspath(os.path.join(os.path.dirname(CURRENT_DIR), "frogsfunc_suppdata/JGI_ID_to_taxonomy.txt.gz"))
 	picrust_aln = ref_aln
 	
 	ref = gzip.open(ref_file,'rt').readlines()
@@ -162,15 +162,16 @@ def find_closest_ref_sequences(tree, biom, biom_path, cluster_to_multiaffi, ID_t
 	@param output: [str] path to tmp output file in order to write frogs and picrust2 taxonomic comparaisons.
 	"""
 	FH_out = open(output,'wt')
-	header = "\t".join(["Cluster","FROGS Taxonomy","Picrust2 closest ID","Picrust2 closest reference name","Picrust2 closest taxonomy","Picrust2 closest distance from cluster (NSTI)", "FROGS and Picrust2 lowest same taxonomic rank", "Comment", "Cluster sequence", "Picrust2 closest reference sequence"])
+	header = "\t".join(["Cluster","Nb sequences", "FROGS Taxonomy","PICRUSt2 closest ID","PICRUSt2 closest reference name","PICRUSt2 closest taxonomy","NSTI", "NSTI Confidence" ,"FROGS and PICRUSt2 lowest same taxonomic rank", "Comment", "Cluster sequence", "PICRUSt2 closest reference sequence"])
 	FH_out.write(header+"\n")
 	find_frogs_taxo = True
 	for cluster in clusters:
 		try:
-			FH_out.write(cluster+'\t'+";".join(biom.get_observation_metadata(cluster)["blast_taxonomy"])+'\t')
+			frogs_taxo = ";".join(biom.get_observation_metadata(cluster)["blast_taxonomy"])
+			count = str(biom.get_observation_count(cluster))
 		except:
 			find_frogs_taxo = False
-			FH_out.write(cluster+'\t'+'unknown\t')
+			frogs_taxo = 'unknown'
 
 		node = tree.search_nodes(name=cluster)[0]
 		#find distances from cluster to every reference sequences is sister group.
@@ -216,9 +217,17 @@ def find_closest_ref_sequences(tree, biom, biom_path, cluster_to_multiaffi, ID_t
 						comment = "identical sequence"
 					else:
 						comment+=";identical sequence"
-				FH_out.write(best_leaf+'\t'+ID_to_taxo[best_leaf][0]+'\t'+ID_to_taxo[best_leaf][1]+'\t'+str(rounding(leaf_to_dist[best_leaf]))+'\t'+str(lowest_same_rank)+'\t'+str(comment)+'\t'+cluster_to_seq[cluster]+'\t'+ref_seqs[best_leaf]+'\n')
-			else:
-				FH_out.write(' \t \t \t \t \t \t \t \n')
+
+				confidence = "To exclude"
+				if rounding(leaf_to_dist[best_leaf]) >= 1 and rounding(leaf_to_dist[best_leaf]) < 2:
+					confidence = "Bad"
+				elif rounding(leaf_to_dist[best_leaf]) >= 0.5 and rounding(leaf_to_dist[best_leaf]) < 1:
+					confidence = "Medium"
+				elif rounding(leaf_to_dist[best_leaf]) < 0.5:
+					confidence = "Good"
+
+				FH_out.write("\t".join([cluster, count, frogs_taxo, best_leaf, ID_to_taxo[best_leaf][0], ID_to_taxo[best_leaf][1],str(rounding(leaf_to_dist[best_leaf])), confidence, str(lowest_same_rank), str(comment), cluster_to_seq[cluster], ref_seqs[best_leaf]])+'\n')
+
 	BiomIO.write(biom_path, biom)
 
 ##################################################################################################################################################
@@ -237,7 +246,7 @@ if __name__ == "__main__":
 	group_input.add_argument('-f', '--fasta-file', required=True, help='Input fasta file.')
 	group_input.add_argument('-b', '--biom-file', required=True, help='Input biom file.')
 	group_input.add_argument('-m', '--multi-affi', required=True, help='Multi-affiliations from biom input file. Run multiAffiFromBiom.py to generate this input.')
-	group_input.add_argument('-r', '--ref-aln', required=True, help='Alignment of reference sequences used in FPStep1 in order to execute place_seqs.py (ie $PICRUST_PATH/default_files/fungi/fungi_ITS/')
+	group_input.add_argument('-r', '--ref-aln', required=True, help='Alignment of reference sequences used in FPStep1 in order to execute place_seqs.py (ie $PICRUST_PATH/frogsfunc_suppdata/fungi/fungi_ITS/')
 	# Outputs
 	group_output = parser.add_argument_group('Outputs')
 	group_output = parser.add_argument('-o', '--output', default='FPStep1_closests_ref_sequences.txt', help='Informations about clusters and picrust2 closest reference from cluster sequences (identifiants, taxonomies, phylogenetic distance from reference, nucleotidics sequences')

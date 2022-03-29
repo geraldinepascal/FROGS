@@ -4,36 +4,36 @@ channels:
 dependencies:
 # bioconda
   - frogs =3.2.3
-  - emboss =6.6
-  - flash =1.2
+  - emboss =6.6.0
+  - flash =1.2.11
   # need to be >=2.8
-  - cutadapt =2.10
+  - cutadapt =2.10    
   # need to be >=2.1
   - swarm =3.0.0
-  # need to be >= 2.17
   - vsearch =2.17.0
   - itsx =1.1.2
   - blast =2.10
   # - rdptool=2.0.3 # is already included in the frogs dependency
   - mafft =7.407
   - fasttree =2.1.9
-  - bioconductor-phyloseq =1.34
-  - bioconductor-deseq2 =1.30.1
+  - bioconductor-phyloseq =1.38
+  - bioconductor-deseq2 =1.34.0
 # conda-forge
-  - r-base =4.0.5
-  - r-essentials
+  - r-base =4.1.2
+  - r-essentials =4.1
   - r-phangorn =2.7.0
-  - r-optparse
+  - r-optparse =1.6.6
   - r-formattable
-  - r-dt
-  - r-plotly
-  - r-gridextra
+  - r-dt =0.18
+  - r-plotly =4.9.3
+  - r-gridextra =2.3
 
 ## packages included in previous package (possibly in multiple previous package)
 #   r-essentials includes:
     # pandoc
     # r-rmarkdown
     # r-dplyr
+    # r-codetools
 #   bioconductor-phyloseq includes:
     # r-ggplot2 
     # r-vegan

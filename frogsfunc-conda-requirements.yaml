@@ -1,0 +1,9 @@
+channels:
+  - conda-forge
+  - bioconda
+  - mariabernard
+dependencies:
+# bioconda
+  - frogs_test =3.2.3
+  - picrust2 =2.4.1
+  - ete3 =3.1.1
