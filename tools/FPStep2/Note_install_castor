@@ -1,3 +1,0 @@
--Lancer dans la console R
-install.packages("Rcpp") 
-install.packages("castor") 

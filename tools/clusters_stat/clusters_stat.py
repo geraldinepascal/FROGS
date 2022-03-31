@@ -19,7 +19,7 @@
 __author__ = 'Frederic Escudie - Plateforme bioinformatique Toulouse'
 __copyright__ = 'Copyright (C) 2015 INRA'
 __license__ = 'GNU General Public License'
-__version__ = '3.2.3'
+__version__ = '3.3.0'
 __email__ = 'frogs-support@inrae.fr'
 __status__ = 'prod'
 
@@ -132,7 +132,6 @@ def write_summary( summary_file, input_biom, depth_file, classif_file ):
     counts = list()
     FH_depth = open( depth_file )
     for line in FH_depth:
-        print(line)
         if not line.startswith('#'):
             fields = line.strip().split()
             if fields[1] != "0":

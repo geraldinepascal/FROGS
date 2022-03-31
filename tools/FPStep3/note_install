@@ -1,5 +1,0 @@
-ajout de dépendance dans libexec:
-/usr/local/bioinfo/src/Miniconda/Miniconda3-4.4.10/envs/picrust2-2.0.3-b_env/bin/metagenome_pipeline.py
-version des dépendances à préciser pour la documentation de l'installation
-
-Attention utiliser la version v2.3.0-b de picrust!

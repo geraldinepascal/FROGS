@@ -19,7 +19,7 @@
 __author__ = 'Maria Bernard INRA - SIGENAE '
 __copyright__ = 'Copyright (C) 2015 INRA'
 __license__ = 'GNU General Public License'
-__version__ = '3.2.3'
+__version__ = '3.3.0'
 __email__ = 'frogs-support@inrae.fr'
 __status__ = 'prod'
 
@@ -265,6 +265,7 @@ if __name__ == "__main__":
         
         Logger.static_write(args.log_file,'\n#Normalisation calculation\n\tstart: ' + time.strftime("%d %b %Y %H:%M:%S", time.localtime()) + '\n' )
         tmp_subsampling = tmp_files.add( 'tmp_biom_subsample.log' )
+
         if args.num_reads is None and not args.sampling_by_min:
             raise_exception( Exception('\n\n#ERROR : --sampling-by-min or --num-reads must be provided.\n\n'))
 

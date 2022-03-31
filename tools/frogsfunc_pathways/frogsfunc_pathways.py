@@ -322,7 +322,7 @@ if __name__ == "__main__":
 	# Inputs
 	group_input = parser.add_argument_group( 'Inputs' )
 	group_input.add_argument('-i', '--input-file', required=True, type=str, help='Input TSV function abundances table from FROGSFUNC_step3_function (unstratified table : frogsfunc_functions_unstrat.tsv).')
-	group_input.add_argument('-m', '--map', type=str, help='if marker studied is not 16S : Path to mapping file of pathways to reactions (metacyc_path2rxn_struc_filt_pro.txt used by default). For ITS analysis, required file is here: $PICRUSt2_PATH/default_files/pathway_mapfiles/metacyc_path2rxn_struc_filt_fungi.txt).')
+	group_input.add_argument('-m', '--map', type=str, help='if marker studied is not 16S : Path to mapping file of pathways to reactions (metacyc_path2rxn_struc_filt_pro.txt used by default). For ITS analysis, required file is here: $PICRUSt2_PATH/fdefault_files/pathway_mapfiles/metacyc_path2rxn_struc_filt_fungi.txt).')
 	group_input.add_argument('--per-sequence-abun', default=None, help='Path to table of sequence abundances across samples normalized by marker copy number (typically the normalized sequence abundance table output at the metagenome pipeline step: frogsfunc_genefamilies_seqtab_norm.tsv by default). This input is required when the --per-sequence-contrib option is set. (default: None).')
 	group_input.add_argument('--per-sequence-function', default=None, help='Path to table of function abundances per sequence, which was outputted at the hidden-state prediction step (frogsfunc_copynumbers_predicted_functions.tsv by default). This input is required when the --per-sequence-contrib option is set. Note that this file should be the same input table as used for the metagenome pipeline step (default: None).')
 	group_input.add_argument('--hierarchy-ranks', nargs='*', default=["Level1", "Level2", "Level3", "Pathway"], help='The ordered ranks levels used in the metadata hierarchy pathways. [Default: %(default)s]' )
@@ -339,7 +339,7 @@ if __name__ == "__main__":
 	args = parser.parse_args()
 	prevent_shell_injections(args)
 
-	tmp_files=TmpFiles(os.path.split(args.input_file)[0])
+	tmp_files=TmpFiles(os.path.split(args.html)[0])
 	HIERARCHY_RANKS = ['Level1','Level2','Level3','Pathway']
 	try:	 
 		Logger.static_write(args.log_file, "## Application\nSoftware :" + sys.argv[0] + " (version : " + str(__version__) + ")\nCommand : " + " ".join(sys.argv) + "\n\n")

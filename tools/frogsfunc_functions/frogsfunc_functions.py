@@ -19,7 +19,7 @@
 __author__ = ' Moussa Samb & Maria Bernard & Vincent Darbot & Geraldine Pascal INRAE - SIGENAE '
 __copyright__ = 'Copyright (C) 2022 INRAE'
 __license__ = 'GNU General Public License'
-__version__ = '3.3.0'
+__version__ = '1.0'
 __email__ = 'frogs@inrae.fr'
 __status__ = 'dev'
 
@@ -403,7 +403,7 @@ if __name__ == "__main__":
 	if not args.strat_out and args.contrib is not None:
 		parser.error('--contrib FILENAME must be include with --strat_out flag')
 	HIERARCHY_RANKS = ["Level1", "Level2", "Level3", "Gene"]
-	tmp_files=TmpFiles(os.path.split(args.marker)[0])
+	tmp_files=TmpFiles(os.path.split(args.html)[0])
 	try:	 
 		Logger.static_write(args.log_file, "## Application\nSoftware :" + sys.argv[0] + " (version : " + str(__version__) + ")\nCommand : " + " ".join(sys.argv) + "\n\n")
 		#temp tsv file necessary for metagenome_pipeline.py
