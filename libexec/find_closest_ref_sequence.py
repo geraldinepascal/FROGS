@@ -185,6 +185,7 @@ def find_closest_ref_sequences(tree, biom, biom_path, cluster_to_multiaffi, ID_t
 			best_leaf = sorted(leaf_to_dist, key=leaf_to_dist.get)[0]
 
 			if best_leaf in ID_to_taxo:
+				print('aa')
 				#cleaning leaf name
 				best_leaf = best_leaf.split('-')[0]
 				comment = "/"
