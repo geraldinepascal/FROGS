@@ -37,19 +37,19 @@ from tempfile import gettempdir
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
 # PATH: executable
 BIN_DIR = os.path.abspath(os.path.join(os.path.dirname(CURRENT_DIR), "libexec"))
-os.environ['PATH'] = BIN_DIR + os.pathsep + os.environ['PATH'] 
+os.environ['PATH'] = BIN_DIR + os.pathsep + os.environ['PATH']
 # PYTHONPATH
 LIB_DIR = os.path.abspath(os.path.join(os.path.dirname(CURRENT_DIR), "lib"))
-sys.path.append(LIB_DIR) 
-if os.getenv('PYTHONPATH') is None: os.environ['PYTHONPATH'] = LIB_DIR 
+sys.path.append(LIB_DIR)
+if os.getenv('PYTHONPATH') is None: os.environ['PYTHONPATH'] = LIB_DIR
 else: os.environ['PYTHONPATH'] = os.environ['PYTHONPATH'] + os.pathsep + LIB_DIR
 if os.getenv('GENE_HIERARCHY_FILE'):
-   GENE_HIERARCHY_FILE=os.environ['GENE_HIERARCHY_FILE']  
+   GENE_HIERARCHY_FILE=os.environ['GENE_HIERARCHY_FILE']
 else:
    GENE_HIERARCHY_FILE=os.path.abspath(os.path.join(os.path.dirname(CURRENT_DIR), "frogsfunc_suppdata/gene_family_hierarchy.tsv"))
 
 from frogsUtils import *
-from frogsSequenceIO import * 
+from frogsSequenceIO import *
 from frogsBiom import BiomIO
 
 ##################################################################################################################################################
@@ -80,7 +80,7 @@ class MetagenomePipeline(Cmd):
 
 		Cmd.__init__(self,
 				 'metagenome_pipeline.py ',
-				 'Per-sample functional profiles prediction.', 
+				 'Per-sample functional profiles prediction.',
 				 " --input " +  in_biom + " --marker " + marker + " --function " + function + " --out_dir ./ --max_nsti " + str(max_nsti) + " --min_reads " + str(min_reads) + " --min_samples " + str(min_samples) + opt + ' 2> ' + log,
 				"--version")
 
@@ -91,7 +91,7 @@ class MetagenomePipeline(Cmd):
 		self.contrib = contrib
 
 	def get_version(self):
-		 return Cmd.get_version(self, 'stdout').split()[1].strip() 
+		 return Cmd.get_version(self, 'stdout').split()[1].strip()
 
 	def parser(self, log_file):
 		START_GENBANK_LINK = "https://www.genome.jp/dbget-bin/www_bget?"
@@ -184,9 +184,9 @@ class TaxonomyTree(Cmd):
 					  'Produces a taxonomy tree with counts by sample.',
 					  'treeCount --input-file ' + in_biom + ' --taxonomy-key "' + taxonomy_tag + '" --output-enewick ' + out_tree + ' --output-samples ' + out_ids,
 					  '--version' )
-					  
-	def get_version(self):   
-		return Cmd.get_version(self, 'stdout').strip()  
+
+	def get_version(self):
+		return Cmd.get_version(self, 'stdout').strip()
 
 ##################################################################################################################################################
 #
@@ -282,7 +282,7 @@ def write_summary(in_biom, function_file, nsti_file, excluded, tree_count_file, 
 	   'nb_kept' : 0,
 	   'nb_removed' : 0,
 	   'abundance_kept' : 0,
-	   'abundance_removed' : 0	   
+	   'abundance_removed' : 0
 	}
 	number_otu_all = 0
 	number_abundance_all = 0
@@ -320,7 +320,7 @@ def write_summary(in_biom, function_file, nsti_file, excluded, tree_count_file, 
 		ordered_samples_names.append( sample_name )
 	FH_tree_ids.close()
 
-	# function abundances table			   
+	# function abundances table
 	infos_otus = list()
 	details_categorys =["Function", "Description" ,"Observation_sum"]
 
@@ -393,7 +393,7 @@ if __name__ == "__main__":
 	group_output.add_argument('--contrib', default=None, help=' Stratified output that reports contributions to community-wide abundances (ex pred_metagenome_contrib.tsv)')
 	group_output.add_argument('-e', '--excluded', default='frogsfunc_functions_excluded.txt', help='List of sequences with NSTI values above NSTI threshold ( --max_NSTI NSTI ).')
 	group_output.add_argument('-l', '--log-file', default=sys.stdout, help='List of commands executed.')
-	group_output.add_argument('-t', '--html', default='frogsfunc_functions_summary.html', help="Path to store resulting html file. [Default: %(default)s]" )	
+	group_output.add_argument('-t', '--html', default='frogsfunc_functions_summary.html', help="Path to store resulting html file. [Default: %(default)s]" )
 	args = parser.parse_args()
 	prevent_shell_injections(args)
 
@@ -404,15 +404,15 @@ if __name__ == "__main__":
 		parser.error('--contrib FILENAME must be include with --strat_out flag')
 	HIERARCHY_RANKS = ["Level1", "Level2", "Level3", "Gene"]
 	tmp_files=TmpFiles(os.path.split(args.html)[0])
-	try:	 
+	try:
 		Logger.static_write(args.log_file, "## Application\nSoftware :" + sys.argv[0] + " (version : " + str(__version__) + ")\nCommand : " + " ".join(sys.argv) + "\n\n")
 		#temp tsv file necessary for metagenome_pipeline.py
 		tmp_biom_to_tsv = tmp_files.add( 'tmp_biom_to_tsv' )
 		Biom2tsv(args.input_biom, tmp_biom_to_tsv).submit( args.log_file )
 
-		tmp_metag_pipeline = tmp_files.add( 'tmp_metagenome_pipeline.log' )	
+		tmp_metag_pipeline = tmp_files.add( 'tmp_metagenome_pipeline.log' )
 		MetagenomePipeline(tmp_biom_to_tsv, args.marker, args.function, args.max_nsti, args.min_reads, args.min_samples, args.strat_out, args.function_abund, args.seqtab, args.weighted, args.contrib, tmp_metag_pipeline).submit( args.log_file )
-		
+
 		excluded_sequence(args.input_biom, args.marker, args.seqtab, args.excluded)
 		hierarchy_tag = formate_abundances_file(args.function_abund, GENE_HIERARCHY_FILE)
 		tmp_biom = tmp_files.add( 'gene_abundances.biom' )
