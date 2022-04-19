@@ -376,15 +376,15 @@ if __name__ == "__main__":
 	parser = argparse.ArgumentParser( description='Per-sample functional profiles prediction.' )
 	parser.add_argument('-v', '--version', action='version', version=__version__)
 	parser.add_argument('--debug', default=False, action='store_true', help="Keep temporary files to debug program." )
-	parser.add_argument('--strat-out', default=False, action='store_true', help='Output table stratified by sequences as well. By default this will be in \"contributional\" format ''(i.e. long-format) unless the \"--wide_table\" option is set. The startified outfile is named ''\"metagenome_contrib.tsv.gz\" when in long-format.')
+	parser.add_argument('--strat-out', default=False, action='store_true', help='If activated, a new table is built. It will contain the abundances of each function of each OTU in each sample.')
 	# Inputs
 	group_input = parser.add_argument_group( 'Inputs' )
 	group_input.add_argument('-b', '--input-biom', required=True, type=str, help='frogsfunc_placeseqs Biom output file (frogsfunc_placeseqs.biom).')
 	group_input.add_argument('-f', '--function', required=True, type=str, help='Table of predicted gene family copy numbers (frogsfunc_copynumbers output, frogsfunc_copynumbers_predicted_functions.tsv).')
 	group_input.add_argument('-m', '--marker', required=True, type=str, help='Table of predicted marker gene copy numbers (frogsfunc_copynumbers output, ex frogsfunc_copynumbers_marker.tsv).')
 	group_input.add_argument('--max-nsti', type=float, default=2.0, help='Sequences with NSTI values above this value will be excluded (default: %(default)d).')
-	group_input.add_argument('--min-reads', metavar='INT', type=int, default=1, help='Minimum number of reads across all samples for each input OTU. OTUs below this cut-off will be counted as part of the \"RARE\" category in the stratified output (default: %(default)d).')
-	group_input.add_argument('--min-samples', metavar='INT', type=int, default=1, help='Minimum number of samples that an OTU needs to be identfied within. OTUs below this cut-off will be counted as part of the \"RARE\" category in the stratified output (default: %(default)d).')
+	group_input.add_argument('--min-reads', metavar='INT', type=int, default=1, help='Minimum number of reads across all samples for each input OTU. OTUs below this cut-off will be counted as part of the \"RARE\" category in the stratified output. If you choose 1, none OTU will be grouped in “RARE” category.(default: %(default)d).')
+	group_input.add_argument('--min-samples', metavar='INT', type=int, default=1, help='Minimum number of samples that an OTU needs to be identfied within. OTUs below this cut-off will be counted as part of the \"RARE\" category in the stratified output.  If you choose 1, none OTU will be grouped in “RARE” category. (default: %(default)d).')
 	#Outputs
 	group_output = parser.add_argument_group( 'Outputs')
 	group_output.add_argument('--function-abund', default='frogsfunc_functions_unstrat.tsv', help='Output file for metagenome predictions abundance. (default: %(default)s).')
@@ -403,7 +403,7 @@ if __name__ == "__main__":
 	if not args.strat_out and args.contrib is not None:
 		parser.error('--contrib FILENAME must be include with --strat_out flag')
 	HIERARCHY_RANKS = ["Level1", "Level2", "Level3", "Gene"]
-	tmp_files=TmpFiles(os.path.split(args.marker)[0])
+	tmp_files=TmpFiles(os.path.split(args.html)[0])
 	try:	 
 		Logger.static_write(args.log_file, "## Application\nSoftware :" + sys.argv[0] + " (version : " + str(__version__) + ")\nCommand : " + " ".join(sys.argv) + "\n\n")
 		#temp tsv file necessary for metagenome_pipeline.py

@@ -19,7 +19,7 @@
 __author__ = ' Moussa Samb & Maria Bernard & Vincent Darbot & Geraldine Pascal INRAE - SIGENAE '
 __copyright__ = 'Copyright (C) 2022 INRAE'
 __license__ = 'GNU General Public License'
-__version__ = '1.0'
+__version__ = '3.3.0'
 __email__ = 'frogs@inrae.fr'
 __status__ = 'dev'
 

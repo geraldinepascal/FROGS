@@ -19,7 +19,7 @@
 __author__ = ' Moussa Samb & Maria Bernard & Vincent Darbot & Geraldine Pascal INRAE - SIGENAE '
 __copyright__ = 'Copyright (C) 2022 INRAE'
 __license__ = 'GNU General Public License'
-__version__ = '1.0'
+__version__ = '3.3.0'
 __email__ = 'frogs@inrae.fr'
 __status__ = 'dev'
 
@@ -317,7 +317,7 @@ if __name__ == "__main__":
 	# Manage parameters
 	parser = argparse.ArgumentParser( description='Infer the presence and abundances of pathways based on gene family abundances in a sample.' )
 	parser.add_argument('--debug', default=False, action='store_true', help="Keep temporary files to debug program." )
-	parser.add_argument('--per-sequence-contrib', default=False, action='store_true', help='Flag to specify that MinPath is run on the genes contributed by each sequence individualy. (in contrast to the default stratified output, which is the contribution to the community-wide pathway abundances.) Options --per-sequence-abun and --per-sequence-function need to be set when this option is used (default: False) ')
+	parser.add_argument('--per-sequence-contrib', default=False, action='store_true', help='If stratified option is activated, a new table is built. It will contain the abundances of each function of each OTU in each sample. (in contrast to the default stratified output, which is the contribution to the community-wide pathway abundances.) Options --per-sequence-abun and --per-sequence-function need to be set when this option is used (default: False) ')
 	parser.add_argument('--no-regroup', default=False, action='store_true', help='Do not regroup input gene families to reactions as specified in the regrouping mapfile. ')
 	# Inputs
 	group_input = parser.add_argument_group( 'Inputs' )
@@ -339,7 +339,7 @@ if __name__ == "__main__":
 	args = parser.parse_args()
 	prevent_shell_injections(args)
 
-	tmp_files=TmpFiles(os.path.split(args.input_file)[0])
+	tmp_files=TmpFiles(os.path.split(args.html)[0])
 	HIERARCHY_RANKS = ['Level1','Level2','Level3','Pathway']
 	try:	 
 		Logger.static_write(args.log_file, "## Application\nSoftware :" + sys.argv[0] + " (version : " + str(__version__) + ")\nCommand : " + " ".join(sys.argv) + "\n\n")
