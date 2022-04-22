@@ -156,12 +156,13 @@ def excluded_obs_on_replicatePresence(input_biom, replicate_file, min_replicate_
     FH_log = Logger(log_file)
     FH_log.write('#Replicate groups:\n')
     biom = BiomIO.from_json( input_biom )
-    FH_replicate_file = open(replicate_file)
+    FH_replicate_file = open(replicate_file).readlines()
+    lines = [line for line in FH_replicate_file if line.strip()]
     FH_excluded_file = open( excluded_file, "wt" )
     # Indentify replicates
     groups_to_replicates = collections.defaultdict(list)
     samples_to_search = list()
-    for l in FH_replicate_file.readlines():
+    for l in lines:
         l = l.strip().split()
         if l[0] not in biom.get_samples_names():
             raise_exception( Exception( "\n\n#ERROR : "+l[0]+" sample not in biom file.\n\n" ))
