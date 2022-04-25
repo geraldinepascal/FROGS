@@ -113,6 +113,8 @@ FROGS relies on different specific tools for each of the analysis steps.
 | Tree                          |     [Fasttree](http://www.microbesonline.org/fasttree/)      |               2.1.10 |
 | Tree / FROGSSTAT              | [plotly](https://plotly.com/r/), [phangorn](https://cran.r-project.org/web/packages/phangorn/index.html), [rmarkdown](https://cran.r-project.org/web/packages/rmarkdown/index.html), [phyloseq](https://joey711.github.io/phyloseq/), [DESeq2](https://bioconductor.org/packages/release/bioc/html/DESeq2.html), [optparse](https://cran.r-project.org/web/packages/optparse/index.html), [calibrate](https://cran.r-project.org/web/packages/calibrate/index.html), [formattable](https://cran.r-project.org/web/packages/formattable/), [DT](https://cran.r-project.org/web/packages/DT/index.html) |              R 3.6.3 |
 | FROGSSTAT | [pandoc](https://pandoc.org/) | 2.11.3|
+| FROGSFUNC | [PICRUSt2](https://github.com/picrust/picrust2/wiki) | 2.4.1|
+| FROGSFUNC | [ete3](http://etetoolkit.org/) | 3.1.1|
 
 ### **Use PEAR as read pairs merging software in preprocess**
 
@@ -158,32 +160,37 @@ Example:
 
 ```
 [user@computer:/home/frogs/FROGS/test/]$ sh test.sh ../ 1 2 res
-Step preprocess : Flash mardi 10 novembre 2020, 10:56:56 (UTC+0100)
-Step preprocess : Vsearch mardi 10 novembre 2020, 10:59:57 (UTC+0100)
-Step clustering mardi 10 novembre 2020, 11:02:51 (UTC+0100)
-Step remove_chimera mardi 10 novembre 2020, 11:08:31 (UTC+0100)
-Step otu filters mardi 10 novembre 2020, 11:13:43 (UTC+0100)
-Step ITSx mardi 10 novembre 2020, 11:14:00 (UTC+0100)
-Step affiliation_OTU mardi 10 novembre 2020, 11:14:01 (UTC+0100)
-Step affiliation_filter: masking mode mardi 10 novembre 2020, 11:14:53 (UTC+0100)
-Step affiliation_filter: deleted mode mardi 10 novembre 2020, 11:14:54 (UTC+0100)
-Step affiliation_postprocess mardi 10 novembre 2020, 11:14:54 (UTC+0100)
-Step normalisation mardi 10 novembre 2020, 11:14:55 (UTC+0100)
-Step clusters_stat mardi 10 novembre 2020, 11:14:55 (UTC+0100)
-Step affiliations_stat mardi 10 novembre 2020, 11:14:58 (UTC+0100)
-Step biom_to_tsv mardi 10 novembre 2020, 11:15:05 (UTC+0100)
-Step biom_to_stdBiom mardi 10 novembre 2020, 11:15:06 (UTC+0100)
-Step tsv_to_biom mardi 10 novembre 2020, 11:15:06 (UTC+0100)
-Step tree mardi 10 novembre 2020, 11:15:06 (UTC+0100)
-Step phyloseq_import_data mardi 10 novembre 2020, 11:16:36 (UTC+0100)
-Step phyloseq_composition mardi 10 novembre 2020, 11:18:00 (UTC+0100)
-Step phyloseq_alpha_diversity mardi 10 novembre 2020, 11:19:31 (UTC+0100)
-Step phyloseq_beta_diversity mardi 10 novembre 2020, 11:20:19 (UTC+0100)
-Step phyloseq_structure mardi 10 novembre 2020, 11:20:45 (UTC+0100)
-Step phyloseq_clustering mardi 10 novembre 2020, 11:21:59 (UTC+0100)
-Step phyloseq_manova mardi 10 novembre 2020, 11:22:20 (UTC+0100)
-Step deseq2_preprocess mardi 10 novembre 2020, 11:22:42 (UTC+0100)
-Step deseq2_visualisation mardi 10 novembre 2020, 11:23:29 (UTC+0100)
+Step demultiplexe lun. 25 avril 2022 16:01:36 CEST
+Step preprocess : Flash lun. 25 avril 2022 16:01:36 CEST
+Step preprocess : Vsearch lun. 25 avril 2022 16:02:34 CEST
+Step clustering lun. 25 avril 2022 16:03:30 CEST
+Step remove_chimera lun. 25 avril 2022 16:05:21 CEST
+Step otu filters lun. 25 avril 2022 16:06:25 CEST
+Step ITSx lun. 25 avril 2022 16:06:43 CEST
+Step affiliation_OTU lun. 25 avril 2022 16:06:51 CEST
+Step affiliation_filter: masking mode lun. 25 avril 2022 16:06:54 CEST
+Step affiliation_filter: deleted mode lun. 25 avril 2022 16:06:55 CEST
+Step affiliation_postprocess lun. 25 avril 2022 16:06:56 CEST
+Step normalisation lun. 25 avril 2022 16:06:57 CEST
+Step clusters_stat lun. 25 avril 2022 16:06:58 CEST
+Step affiliations_stat lun. 25 avril 2022 16:06:59 CEST
+Step biom_to_tsv lun. 25 avril 2022 16:06:59 CEST
+Step biom_to_stdBiom lun. 25 avril 2022 16:07:00 CEST
+Step tsv_to_biom lun. 25 avril 2022 16:07:00 CEST
+Step tree lun. 25 avril 2022 16:07:00 CEST
+Step phyloseq_import_data lun. 25 avril 2022 16:07:59 CEST
+Step phyloseq_composition lun. 25 avril 2022 16:08:11 CEST
+Step phyloseq_alpha_diversity lun. 25 avril 2022 16:08:29 CEST
+Step phyloseq_beta_diversity lun. 25 avril 2022 16:08:49 CEST
+Step phyloseq_structure lun. 25 avril 2022 16:09:01 CEST
+Step phyloseq_clustering lun. 25 avril 2022 16:09:15 CEST
+Step phyloseq_manova lun. 25 avril 2022 16:09:26 CEST
+Step deseq2_preprocess lun. 25 avril 2022 16:09:37 CEST
+Step deseq2_visualisation lun. 25 avril 2022 16:10:03 CEST
+Step frogsfunc_placeseqs lun. 25 avril 2022 16:10:21 CEST
+Step frogsfunc_copynumbers lun. 25 avril 2022 16:10:57 CEST
+Step frogsfunc_functions lun. 25 avril 2022 16:17:00 CEST
+Step frogsfunc_pathways lun. 25 avril 2022 16:17:07 CEST
 Completed with success
 ```
 
@@ -252,7 +259,7 @@ GNU GPL v3
 
 
 # Copyright
-2020 INRAE
+2022 INRAE
 
 
 # Citation

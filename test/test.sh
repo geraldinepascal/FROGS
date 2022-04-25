@@ -4,7 +4,7 @@ nb_cpu=$2
 java_mem=$3
 out_dir=$4
 
-# Check parameters
+Check parameters
 if [ "$#" -ne 4 ]; then
     echo "ERROR: Illegal number of parameters." ;
     echo 'Command usage: test.sh <FROGS_FOLDER> <NB_CPU> <JAVA_MEM> <OUT_FOLDER>' ;
