@@ -49,7 +49,7 @@ h4 {
 
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = TRUE, error = TRUE)
 ```
 Phyloseq `r packageVersion("phyloseq")`
 
