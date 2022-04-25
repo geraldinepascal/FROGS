@@ -21,6 +21,8 @@ This workflow is focused on:
 - User-friendliness with lots of rich graphic outputs and the integration in Galaxy thanks to FROGS-wrappers.
 - Accuracy with a clustering without global similarity threshold, the management of separated PCRs in the chimera removal step, and the management of multi-affiliations.
 - Dealing of non overlapping pair of sequences from long amplicon like ITS, or RPB2.
+- Access to general statistics on microbial communities.
+- Prediction of metabolic pathways abundances in samples.
 - Speed with fast algorithms parallelisation and easy to use.
 - Scalability with algorithms designed to support the data growth.
 
@@ -236,7 +238,7 @@ Please take time to read individual README.txt and LICENCE.txt files.
 
   http://genoweb.toulouse.inrae.fr/frogs_databanks/HVL
 
-
+In addition, several default databases are used in FROGSFUNC steps by PICRUSt2.
 
 
 # Troubleshooting
