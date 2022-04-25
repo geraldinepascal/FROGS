@@ -136,10 +136,20 @@ FROGS is now available on bioconda (https://anaconda.org/bioconda/frogs).
   * to create a specific environment for a specific FROGS version
 
 ```
-conda env create --name frogs@3.2.3 --file frogs-conda-requirements.yaml
+conda env create --name frogs@3.3.0 --file frogs-conda-requirements.yaml
 # to use FROGS, first you need to activate your environment
-conda activate frogs@3.2.3
+conda activate frogs@3.3.0
 ```
+
+**WARNING** In order to use the FROGSFUNC tools, it is necessary to create a dedicated conda environment as follows:
+
+```
+conda env create --name frogsfunc --file frogsfunc-conda-requirements.yaml
+# and then activate the environment
+conda activate frogsfunc
+```
+
+After that, you just have to switch from one environment to another (with ``` conda activate frogs@3.3.0/frogsfunc ``` depending on whether you want to use FROGSFUNC or all the other tools.
 
 ### From source
 
@@ -150,7 +160,7 @@ see [INSTALL_from_source.md](INSTALL_from_source.md)
 To check your installation you can type:
 ```
 cd <FROGS_PATH>/test
-# when using conda FROGS_PATH=<conda_env_dir>/frogs@3.2.3/share/FROGS_3.2.3
+# when using conda FROGS_PATH=<conda_env_dir>/frogs@3.3.0/share/FROGS_3.3.0
 
 sh test.sh <FROGS_PATH> <NB_CPU> <JAVA_MEM> <OUT_FOLDER>
 ```
