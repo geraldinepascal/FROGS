@@ -141,7 +141,7 @@ conda env create --name frogs@3.3.0 --file frogs-conda-requirements.yaml
 conda activate frogs@3.3.0
 ```
 
-**WARNING** In order to use the FROGSFUNC tools, it is necessary to create a dedicated conda environment as follows:
+**WARNING** : In order to use the FROGSFUNC tools, it is necessary to create a dedicated conda environment as follows:
 
 ```
 conda env create --name frogsfunc --file frogsfunc-conda-requirements.yaml
@@ -158,11 +158,14 @@ see [INSTALL_from_source.md](INSTALL_from_source.md)
 ## Check intallation
 
 To check your installation you can type:
+
 ```
 cd <FROGS_PATH>/test
 # when using conda FROGS_PATH=<conda_env_dir>/frogs@3.3.0/share/FROGS_3.3.0
 
-sh test.sh <FROGS_PATH> <NB_CPU> <JAVA_MEM> <OUT_FOLDER>
+conda activate frogs@3.3.0
+
+sh test_frogs.sh <FROGS_PATH> <NB_CPU> <JAVA_MEM> <OUT_FOLDER>
 ```
 "Bioinformatic" tools are performed on a small simulated dataset of one sample replicated three times.
 "Statistical" tools are performed on an extract of the published results of [Chaillou et al, ISME 2014](https://doi.org/10.1038/ismej.2014.202)
@@ -199,11 +202,18 @@ Step phyloseq_clustering lun. 25 avril 2022 16:09:15 CEST
 Step phyloseq_manova lun. 25 avril 2022 16:09:26 CEST
 Step deseq2_preprocess lun. 25 avril 2022 16:09:37 CEST
 Step deseq2_visualisation lun. 25 avril 2022 16:10:03 CEST
-Step frogsfunc_placeseqs lun. 25 avril 2022 16:10:21 CEST
-Step frogsfunc_copynumbers lun. 25 avril 2022 16:10:57 CEST
-Step frogsfunc_functions lun. 25 avril 2022 16:17:00 CEST
-Step frogsfunc_pathways lun. 25 avril 2022 16:17:07 CEST
 Completed with success
+```
+
+Finally, to check the FROGSFUNC tools installation you can type:
+
+```
+cd <FROGS_PATH>/test
+# when using conda FROGS_PATH=<conda_env_dir>/frogsfunc/share/FROGS_3.3.0
+
+conda activate frogsfunc
+
+sh test_frogsfunc.sh <FROGS_PATH> <NB_CPU> <JAVA_MEM> <OUT_FOLDER>
 ```
 
 

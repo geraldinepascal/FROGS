@@ -7,16 +7,13 @@ out_dir=$4
 Check parameters
 if [ "$#" -ne 4 ]; then
     echo "ERROR: Illegal number of parameters." ;
-    echo 'Command usage: test.sh <FROGS_FOLDER> <NB_CPU> <JAVA_MEM> <OUT_FOLDER>' ;
+    echo 'Command usage: test_frogs.sh <FROGS_FOLDER> <NB_CPU> <JAVA_MEM> <OUT_FOLDER>' ;
     exit 1 ;
 fi
 
 # Set ENV
 export PATH=$frogs_dir/libexec:$frogs_dir/app:$PATH
 export PYTHONPATH=$frogs_dir/lib:$PYTHONPATH
-export GENE_HIERARCHY_FILE=$frogs_dir/frogsfunc_suppdata/gene_family_hierarchy.tsv
-export DESCRIPTION_FILE=$frogs_dir/frogsfunc_suppdata/pathways_description_file.txt.gz
-export PATHWAYS_HIERARCHY_FILE=$frogs_dir/frogsfunc_suppdata/pathways_hierarchy.tsv
 
 # Create output folder
 if [ ! -d "$out_dir" ]
