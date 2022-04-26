@@ -21,6 +21,9 @@ As PICRUSt2 currently relies on a different R version, please install `frogsfunc
   * Affiliation_stat : add OTU rarefaction curves in HTML, in addition to the previously existing taxonomic ranks.
   * Remove_chimera : add "% Clusters kept" and "% Cluster abundance kept" in HTML chimera detection by sample table.
 
+### Bug corrected:
+
+* Affiliation_OTU : do not perform Needlall alignment if reduced reference database constructing by blasting R1 and R2 part of FROGS_combined OTU sequences is empty
 
 # v3.2.3 [2021-05]
 
