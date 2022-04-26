@@ -1,23 +1,23 @@
 # v3.3.0 [2022-05]
 
-### Installation note:
-
-As PICRUSt2 currently relies on a different R version, please install `frogsfunc-conda-requirements.yaml` and activate this environment before using FROGSFUNC tools.
-
 ### Tools added:
 
-PICRUSt2 is a software for predicting functional abundances based only on marker gene sequences. This tool is integrated inside FROGS suite as FROGSFunc tools. They are split into 4 steps :
- * Frogsfunc_placeseqs : places the OTUs into a reference phylogenetic tree.
- * Frogsfunc_copynumbers : predicts number of marker and function copy number in each OTU.
- * Frogsfunc_functions : calculates functions abundances in each sample.
- * Frogsfunc_pathways :  calculates pathway abundances in each sample.
- 
+PICRUSt2 is a software for predicting functional abundances based only on marker gene sequences. This tool is integrated in S suite as FROGSFunc tools. They are splittedto 4 steps :
+ * frogsfunc_placeseqs : places the OTUs into a reference phylogenetic tree.
+ * frogsfunc_copynumbers : predicts number of marker and function copy number in each OTU.
+ * frogsfunc_functions : calculates functions abundances in each sample.
+ * frogsfunc_pathways :  calculates pathway abundances in each sample.
+
+### Installation note:
+
+As PICRUSt2 currently relies on a different R version, please install `frogsfunc-conda-requirements.yaml` and activate this environment before using FROGSFUNC tools. 
+
 ### Function added
 
   * Normalisation : 
-    * add "Sampling by the number of sequences of the smallest sample" sampling method. This method automatically detects the sample with the smallest number of sequences, and samples all other samples with that number. "Select a number of reads" is the old classic method.  
-    * If you chose "Select a number of reads" sampling method, you may or not activate "Remove samples" option. If it's activated, samples whose total number of sequences is lower than the specified number will be removed inside the abundance table. If the option is disabled, the samples will be kept in the analysis but with a number of sequences lower than the specified number (the total number of the sample). 
-  * Otu_filter : add "Replicate identification" Minimum prevalence method. It allow to Keep OTUs present in at least a proportion of replicates in at least one group (must be a proportion between 0 and 1). 
+    * add "Sampling by the number of sequences of the smallest sample" sampling method. This method automatically detects the sample with the smallest number of sequences, and samples all other samples with that number.  
+    * If you chose "Select a number of reads" sampling method, you may or not activate "Remove samples" option. If it's activated, samples whose total number of sequences is lower than the specified number, will be removed from the abundance table. If the option is disabled, the samples will be kept in the analysis but with a number of sequences lower than the specified number (the total number of the sample). 
+  * Otu_filter : add "Replicate identification" Minimum prevalence method. It allows to keep OTUs present in miniam replication proportions in at least one group (must be a proportion between 0 and 1). 
   * Affiliation_stat : add OTU rarefaction curves in HTML, in addition to the previously existing taxonomic ranks.
   * Remove_chimera : add "% Clusters kept" and "% Cluster abundance kept" in HTML chimera detection by sample table.
 
