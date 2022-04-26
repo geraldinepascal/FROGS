@@ -149,7 +149,7 @@ conda env create --name frogsfunc@3.3.0 --file frogsfunc-conda-requirements.yaml
 conda activate frogsfunc@3.3.0
 ```
 
-After that, you just have to switch from one environment to another (with ``` conda activate frogs@3.3.0/frogsfunc ``` depending on whether you want to use FROGSFUNC or all the other tools.
+After that, you just have to switch from one environment to another (with ``` conda activate frogs@3.3.0 or conda activate frogsfunc ``` depending on whether you want to use FROGSFUNC or all the other tools.
 
 ## Check intallation
 
@@ -217,10 +217,10 @@ Example:
 
 ```
 [user@computer:/home/frogs/FROGS/test/]$ sh test_frogsfunc.sh ../ 1 2 res
-Step frogsfunc_placeseqs mar. 26 avril 2022 16:17:33 CEST
-Step frogsfunc_copynumbers mar. 26 avril 2022 16:17:05 CEST
-Step frogsfunc_functions mar. 26 avril 2022 16:17:50 CEST
-Step frogsfunc_pathways mar. 26 avril 2022 16:17:56 CEST
+Step frogsfunc_placeseqs lun. 25 avril 2022 16:17:33 CEST
+Step frogsfunc_copynumbers lun. 25 avril 2022 16:17:05 CEST
+Step frogsfunc_functions lun. 25 avril 2022 16:17:50 CEST
+Step frogsfunc_pathways lun. 25 avril 2022 16:17:56 CEST
 Completed with success
 ```
 

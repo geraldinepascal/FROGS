@@ -202,9 +202,6 @@ if __name__ == "__main__":
     # Inputs
     group_input = parser.add_argument_group( 'Inputs' )
     group_input.add_argument( '-f', '--input-fasta', required=True, help='The cluster sequences (format: FASTA).' )
-    # group_exclusion_filter = group_input.add_mutually_exclusive_group()
-    # group_exclusion_filter.add_argument( '--lenient-filter', default=True, action='store_true', help="Removes one sequence in all samples only if it is detected as chimera in all samples where it is present (default paramater). To use less lenient filter, --prop-filter PROPORTION allows you to chose a minimal proportion of samples for which a sequence should be detected as chimera to be removed." )
-    # group_exclusion_filter.add_argument( '--prop-filter', type=float, help="Minimal proportion of samples for which a sequence should be detected as chimera to be removed. " )
     group_exclusion_abundance = group_input.add_mutually_exclusive_group()
     group_exclusion_abundance.add_argument( '-b', '--input-biom', help='The abundance file for clusters by sample (format: BIOM).' )
     group_exclusion_abundance.add_argument( '-c', '--input-count', help='The counts file for clusters by sample (format: TSV).' )
