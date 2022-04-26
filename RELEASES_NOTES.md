@@ -4,7 +4,7 @@
 
 PICRUSt2 is a software for predicting functional abundances based only on marker gene sequences. This tool is integrated in S suite as FROGSFunc tools. They are splittedto 4 steps :
  * frogsfunc_placeseqs : places the OTUs into a reference phylogenetic tree.
- * frogsfunc_copynumbers : predicts number of marker and function copy number in each OTU.
+ * frogsfunc_copynumbers : predicts marker and function copy number of each OTU.
  * frogsfunc_functions : calculates functions abundances in each sample.
  * frogsfunc_pathways :  calculates pathway abundances in each sample.
 
