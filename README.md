@@ -21,8 +21,8 @@ This workflow is focused on:
 - User-friendliness with lots of rich graphic outputs and the integration in Galaxy thanks to FROGS-wrappers.
 - Accuracy with a clustering without global similarity threshold, the management of separated PCRs in the chimera removal step, and the management of multi-affiliations.
 - Dealing of non overlapping pair of sequences from long amplicon like ITS, or RPB2.
-- Access to general statistics on microbial communities.
-- Prediction of metabolic pathways abundances in samples.
+- Access to general statistics on microbial communities and differential abundance analysis.
+- Prediction of functionnal annotation and metabolic pathways.
 - Speed with fast algorithms parallelisation and easy to use.
 - Scalability with algorithms designed to support the data growth.
 
@@ -141,19 +141,15 @@ conda env create --name frogs@3.3.0 --file frogs-conda-requirements.yaml
 conda activate frogs@3.3.0
 ```
 
-**WARNING** : In order to use the FROGSFUNC tools, it is necessary to create a dedicated conda environment as follows:
+**WARNING** : As PICRUSt2 currently relies on a different R version, in order to use the FROGSFUNC tools, it is necessary to create a dedicated conda environment as follows:
 
 ```
-conda env create --name frogsfunc --file frogsfunc-conda-requirements.yaml
+conda env create --name frogsfunc@3.3.0 --file frogsfunc-conda-requirements.yaml
 # and then activate the environment
-conda activate frogsfunc
+conda activate frogsfunc@3.3.0
 ```
 
 After that, you just have to switch from one environment to another (with ``` conda activate frogs@3.3.0/frogsfunc ``` depending on whether you want to use FROGSFUNC or all the other tools.
-
-### From source
-
-see [INSTALL_from_source.md](INSTALL_from_source.md)
 
 ## Check intallation
 
@@ -211,7 +207,7 @@ Finally, to check the FROGSFUNC tools installation you can type:
 cd <FROGS_PATH>/test
 # when using conda FROGS_PATH=<conda_env_dir>/frogsfunc/share/FROGS_3.3.0
 
-conda activate frogsfunc
+conda activate frogsfunc@3.3.0
 
 sh test_frogsfunc.sh <FROGS_PATH> <NB_CPU> <JAVA_MEM> <OUT_FOLDER>
 ```
@@ -221,7 +217,6 @@ Example:
 
 ```
 [user@computer:/home/frogs/FROGS/test/]$ sh test_frogsfunc.sh ../ 1 2 res
-# when using conda FROGS_PATH=<conda_env_dir>/frogsfunc/share/FROGS_3.3.0
 Step frogsfunc_placeseqs mar. 26 avril 2022 16:17:33 CEST
 Step frogsfunc_copynumbers mar. 26 avril 2022 16:17:05 CEST
 Step frogsfunc_functions mar. 26 avril 2022 16:17:50 CEST
