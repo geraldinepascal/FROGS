@@ -174,7 +174,7 @@ This test executes the FROGS tools in command line mode.
 Example:
 
 ```
-[user@computer:/home/frogs/FROGS/test/]$ sh test.sh ../ 1 2 res
+[user@computer:/home/frogs/FROGS/test/]$ sh test_frogs.sh ../ 1 2 res
 Step demultiplexe lun. 25 avril 2022 16:01:36 CEST
 Step preprocess : Flash lun. 25 avril 2022 16:01:36 CEST
 Step preprocess : Vsearch lun. 25 avril 2022 16:02:34 CEST
@@ -216,6 +216,18 @@ conda activate frogsfunc
 sh test_frogsfunc.sh <FROGS_PATH> <NB_CPU> <JAVA_MEM> <OUT_FOLDER>
 ```
 
+This test executes the FROGSFUNC tools in command line mode.
+Example:
+
+```
+[user@computer:/home/frogs/FROGS/test/]$ sh test_frogsfunc.sh ../ 1 2 res
+# when using conda FROGS_PATH=<conda_env_dir>/frogsfunc/share/FROGS_3.3.0
+Step frogsfunc_placeseqs mar. 26 avril 2022 16:17:33 CEST
+Step frogsfunc_copynumbers mar. 26 avril 2022 16:17:05 CEST
+Step frogsfunc_functions mar. 26 avril 2022 16:17:50 CEST
+Step frogsfunc_pathways mar. 26 avril 2022 16:17:56 CEST
+Completed with success
+```
 
 
 # Memory and parallelisation advices
