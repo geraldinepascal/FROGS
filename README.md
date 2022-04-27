@@ -149,7 +149,7 @@ conda env create --name frogsfunc@3.3.0 --file frogsfunc-conda-requirements.yaml
 conda activate frogsfunc@3.3.0
 ```
 
-After that, you just have to switch from one environment to another (with ``` conda activate frogs@3.3.0 or conda activate frogsfunc ``` depending on whether you want to use FROGSFUNC or all the other tools.
+After that, you just have to switch from one environment to another (with `conda activate frogs@3.3.0` or `conda activate frogsfunc@3.3.0` depending on whether you want to use FROGSFUNC or all the other tools.
 
 ## Check intallation
 
@@ -209,14 +209,14 @@ cd <FROGS_PATH>/test
 
 conda activate frogsfunc@3.3.0
 
-sh test_frogsfunc.sh <FROGS_PATH> <NB_CPU> <JAVA_MEM> <OUT_FOLDER>
+sh test_frogsfunc.sh <FROGS_PATH> <OUT_FOLDER>
 ```
 
 This test executes the FROGSFUNC tools in command line mode.
 Example:
 
 ```
-[user@computer:/home/frogs/FROGS/test/]$ sh test_frogsfunc.sh ../ 1 2 res
+[user@computer:/home/frogs/FROGS/test/]$ sh test_frogsfunc.sh ../ res
 Step frogsfunc_placeseqs lun. 25 avril 2022 16:17:33 CEST
 Step frogsfunc_copynumbers lun. 25 avril 2022 16:17:05 CEST
 Step frogsfunc_functions lun. 25 avril 2022 16:17:50 CEST
