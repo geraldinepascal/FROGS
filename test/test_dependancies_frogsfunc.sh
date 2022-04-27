@@ -1,7 +1,7 @@
 #!/bin/bash
 
-out_dir=res_3.2.3_test
-expected_dir=res_3.2.3
+out_dir=res_3.2.3_to_check
+expected_dir=res_3.2.3_expected
 run_programs=false	## if true lance les python sinon, fait uniquement les comparatifs de résultats
 
 ## Create output folder
