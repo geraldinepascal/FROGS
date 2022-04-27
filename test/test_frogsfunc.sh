@@ -1,6 +1,6 @@
 #!/bin/bash
 frogs_dir=$1
-out_dir=$4
+out_dir=$2
 
 Check parameters
 if [ "$#" -ne 2 ]; then
