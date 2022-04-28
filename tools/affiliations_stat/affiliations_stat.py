@@ -269,6 +269,7 @@ def write_summary( summary_file, input_biom, tree_count_file, tree_ids_file, rar
     biom = BiomIO.from_json( input_biom )
     args.rarefaction_ranks.append('OTUs')
     for rank_idx, current_file in enumerate(rarefaction_files):
+        print(current_file)
         rank = args.rarefaction_ranks[rank_idx]
         FH_rarefaction = open( current_file )
         for line in FH_rarefaction:
