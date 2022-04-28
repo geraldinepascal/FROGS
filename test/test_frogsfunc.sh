@@ -2,7 +2,7 @@
 frogs_dir=$1
 out_dir=$2
 
-Check parameters
+# Check parameters
 if [ "$#" -ne 2 ]; then
     echo "ERROR: Illegal number of parameters." ;
     echo 'Command usage: test_frogsfunc.sh <FROGS_FOLDER> <OUT_FOLDER>' ;
@@ -10,11 +10,7 @@ if [ "$#" -ne 2 ]; then
 fi
 
 # Set ENV
-export PATH=$frogs_dir/libexec:$frogs_dir/app:$PATH
-export PYTHONPATH=$frogs_dir/lib:$PYTHONPATH
-export GENE_HIERARCHY_FILE=$frogs_dir/frogsfunc_suppdata/gene_family_hierarchy.tsv
-export DESCRIPTION_FILE=$frogs_dir/frogsfunc_suppdata/pathways_description_file.txt.gz
-export PATHWAYS_HIERARCHY_FILE=$frogs_dir/frogsfunc_suppdata/pathways_hierarchy.tsv
+export PATH=$frogs_dir/app:$PATH
 
 # Create output folder
 if [ ! -d "$out_dir" ]
@@ -34,7 +30,7 @@ frogsfunc_placeseqs.py \
  --insert-biom $out_dir/25-frogsfunc_placeseqs.biom \
  --closests-ref $out_dir/25-frogsfunc_placeseqs_closests_ref_sequences.txt \
  --log-file $out_dir/25-frogsfunc_placeseqs.log \
- --html $out_dir/25-frogsfunc_placeseqs_summary.html 
+ --html $out_dir/25-frogsfunc_placeseqs_summary.html
 
 if [ $? -ne 0 ]
 then
@@ -83,7 +79,7 @@ frogsfunc_pathways.py \
  --input-file $out_dir/27-frogsfunc_functions_unstrat.tsv \
  --pathways-abund $out_dir/28-frogsfunc_pathways_unstrat.tsv \
  --log-file $out_dir/28-frogsfunc_pathways.log \
- --html $out_dir/28-frogsfunc_pathways_summary.html
+ --html $out_dir/28-frogsfunc_pathways_summary.html --debug
 
 if [ $? -ne 0 ]
 then

@@ -12,8 +12,7 @@ if [ "$#" -ne 4 ]; then
 fi
 
 # Set ENV
-export PATH=$frogs_dir/libexec:$frogs_dir/app:$PATH
-export PYTHONPATH=$frogs_dir/lib:$PYTHONPATH
+export PATH=$frogs_dir/app:$PATH
 
 # Create output folder
 if [ ! -d "$out_dir" ]
@@ -256,6 +255,38 @@ fi
 
 echo "Step normalisation `date`"
 normalisation.py \
+ -n 25000 \
+ --delete-samples \
+ --input-biom $out_dir/08-affiliation_postprocessed.biom \
+ --input-fasta $out_dir/08-affiliation_postprocessed.fasta \
+ --output-biom $out_dir/09-normalisation_25K_delS.biom \
+ --output-fasta $out_dir/09-normalisation_25K_delS.fasta \
+ --summary $out_dir/09-normalisation_25K_delS.html \
+ --log-file $out_dir/09-normalisation_25K_delS.log
+ 
+if [ $? -ne 0 ]
+then
+	echo "Error in normalisation 25K_delS" >&2
+	exit 1;
+fi
+
+normalisation.py \
+ --sampling-by-min \
+ --input-biom $out_dir/08-affiliation_postprocessed.biom \
+ --input-fasta $out_dir/08-affiliation_postprocessed.fasta \
+ --output-biom $out_dir/09-normalisation_by_min.biom \
+ --output-fasta $out_dir/09-normalisation_by_min.fasta \
+ --summary $out_dir/09-normalisation_by_min.html \
+ --log-file $out_dir/09-normalisation_by_min.log
+ 
+if [ $? -ne 0 ]
+then
+    echo "Error in normalisation by min" >&2
+    exit 1;
+fi
+
+# to reduce computing time for the others step
+normalisation.py \
  -n 100 \
  --input-biom $out_dir/08-affiliation_postprocessed.biom \
  --input-fasta $out_dir/08-affiliation_postprocessed.fasta \
@@ -266,8 +297,8 @@ normalisation.py \
  
 if [ $? -ne 0 ]
 then
-	echo "Error in normalisation" >&2
-	exit 1;
+    echo "Error in normalisation by min" >&2
+    exit 1;
 fi
 
 echo "Step clusters_stat `date`"
