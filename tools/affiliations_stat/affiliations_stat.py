@@ -267,7 +267,7 @@ def write_summary( summary_file, input_biom, tree_count_file, tree_ids_file, rar
     rarefaction_step_size = None
     rarefaction = None
     biom = BiomIO.from_json( input_biom )
-    args.rarefaction_ranks.insert(0,'OTUs')
+    args.rarefaction_ranks.append('OTUs')
     for rank_idx, current_file in enumerate(rarefaction_files):
         rank = args.rarefaction_ranks[rank_idx]
         FH_rarefaction = open( current_file )
