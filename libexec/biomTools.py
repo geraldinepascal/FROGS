@@ -87,7 +87,7 @@ def update_tree_for_sample( biom, tree, sample_name, taxonomy_key, sample_id=Non
     sample_key = sample_name if sample_id is None else str(sample_id)
     for observation in biom.get_observations_by_sample( sample_name ):
         current_node = tree
-        if taxonomy_key in observation["metadata"] and observation["metadata"][taxonomy_key] is not None:
+        if taxonomy_key in observation["metadata"] and observation["metadata"][taxonomy_key] is not None and observation["metadata"][taxonomy_key] != 'unknown':
             # Get taxonomy
             taxonomy = biom.get_observation_taxonomy( observation["id"], taxonomy_key )
             # Add taxon in tree
@@ -108,18 +108,20 @@ def update_tree_for_sample( biom, tree, sample_name, taxonomy_key, sample_id=Non
 #
 ####################################################################################################################
 def task_sampling( args ):
-    if args.nb_sampled is None and args.sampled_ratio is None:
-        raise_exception( Exception('\n\n#ERROR :--nb-sampled or --sampled-ratio must be provided.\n\n'))
-    sampling_by_sample( args.input_file, args.output_file, args.nb_sampled, args.sampled_ratio )
+    if args.nb_sampled is None and args.sampled_ratio is None and not args.sampling_by_min:
+        raise_exception( Exception('\n\n#ERROR : --sampling-by-min, --nb-sampled or --sampled-ratio must be provided.\n\n'))
+    sampling_by_sample( args.input_file, args.output_file, args.sampling_by_min, args.delete_samples, args.nb_sampled, args.sampled_ratio )
 
 
-def sampling_by_sample( input_biom, output_biom, nb_sampled=None, sampled_ratio=None ):
+def sampling_by_sample( input_biom, output_biom, sampling_by_min, delete_samples, nb_sampled=None, sampled_ratio=None ):
     """
     @summary: Writes a BIOM after a random sampling in each sample.
     @param input_biom: [str] Path to the processed BIOM.
     @param output_biom: [str] Path to outputed BIOM.
     @param nb_sampled: [int] Number of sampled sequences by sample.
     @param sampled_ratio: [float] Ratio of sampled sequences by sample.
+    @param sampling_by_min : [boolean] Sampling by the number of the smallest sample.
+    @param delete_samples : [boolean] Delete samples that have a number of sequences below the selected filter.
     @note: nb_sampled and sampled_ratio are mutually exclusive.
     """
     initial_biom = BiomIO.from_json( input_biom )
@@ -128,25 +130,33 @@ def sampling_by_sample( input_biom, output_biom, nb_sampled=None, sampled_ratio=
                     generated_by="Sampling " + (str(nb_sampled) if nb_sampled is not None else str(sampled_ratio) + "%" ) + " elements by sample from " + input_biom
     )
     observations_already_added = dict()
+    if sampling_by_min:
+        nb_sampled = min([initial_biom.get_sample_count(sample_name) for sample_name in initial_biom.get_samples_names()])
+
     for sample_name in initial_biom.get_samples_names():
         new_biom.add_sample( sample_name, initial_biom.get_sample_metadata(sample_name) )
         sample_seq = initial_biom.get_sample_count(sample_name)
         sample_nb_sampled = nb_sampled
         if nb_sampled is None:
             sample_nb_sampled = int(sample_seq * sampled_ratio)
-        if sample_seq < nb_sampled:
-            raise_exception( Exception( "\n\n#ERROR : " + str(sample_nb_sampled) + " sequences cannot be sampled in sample '" + str(sample_name) + "'. It only contains " + str(sample_seq) + " sequences.\n\n" ))
         else:
-            for current_nb_iter in range(sample_nb_sampled):
-                # Take an observation in initial BIOM
-                selected_observation = initial_biom.random_obs_by_sample(sample_name)
-                selected_observation_id = selected_observation['id']
-                initial_biom.subtract_count( selected_observation_id, sample_name, 1 )
-                # Put in new BIOM
-                if selected_observation_id not in observations_already_added:
-                    new_biom.add_observation( selected_observation_id, initial_biom.get_observation_metadata(selected_observation_id) )
-                    observations_already_added[selected_observation_id] = True
-                new_biom.add_count( selected_observation_id, sample_name, 1 )
+            nb_sampled = int(nb_sampled)
+            if sample_seq < nb_sampled and not delete_samples:
+                sample_nb_sampled = sample_seq
+                # raise_exception( Exception( "\n\n#ERROR : " + str(sample_nb_sampled) + " sequences cannot be sampled in sample '" + str(sample_name) + "'. It only contains " + str(sample_seq) + " sequences.\n\n" ))
+            if sample_seq < nb_sampled and delete_samples:
+                    new_biom.remove_samples([str(sample_name)])
+            else:
+                for current_nb_iter in range(sample_nb_sampled):
+                    # Take an observation in initial BIOM
+                    selected_observation = initial_biom.random_obs_by_sample(sample_name)
+                    selected_observation_id = selected_observation['id']
+                    initial_biom.subtract_count( selected_observation_id, sample_name, 1 )
+                    # Put in new BIOM
+                    if selected_observation_id not in observations_already_added:
+                        new_biom.add_observation( selected_observation_id, initial_biom.get_observation_metadata(selected_observation_id) )
+                        observations_already_added[selected_observation_id] = True
+                    new_biom.add_count( selected_observation_id, sample_name, 1 )
     BiomIO.write( output_biom, new_biom )
 
 
@@ -156,7 +166,11 @@ def sampling_by_sample( input_biom, output_biom, nb_sampled=None, sampled_ratio=
 #
 ####################################################################################################################
 def task_rarefaction( args ):
-    rarefaction_data = rarefaction( args.input_file, args.step_size, args.ranks, args.taxonomy_key )
+    rarefaction_data = rarefaction( args.input_file, args.step_size, args.ranks, args.taxonomy_key)
+    otu_rank = args.ranks[-1]+1
+    rarefaction_data = rarefaction_otu(args.input_file, otu_rank, rarefaction_data, args.step_size)
+    output_file = args.output_file_pattern.replace('##RANK##', 'otu')
+    write_output( output_file, rarefaction_data[otu_rank], args.step_size )
     for current_rank in args.ranks:
         output_file = args.output_file_pattern.replace('##RANK##', str(current_rank))
         write_output( output_file, rarefaction_data[current_rank], args.step_size )
@@ -202,6 +216,7 @@ def rarefaction( input_biom, interval=10000, ranks=None, taxonomy_key="taxonomy"
         expected_nb_iter = int(sample_count/interval)
         for current_nb_iter in range(expected_nb_iter):
             selected_observations = biom.random_obs_extract_by_sample(sample, interval)
+            print(len(selected_observations))
             for current_selected in selected_observations:
                 taxonomy = list()
                 if taxonomy_key in current_selected['observation']["metadata"] and current_selected['observation']["metadata"][taxonomy_key] is not None:
@@ -218,6 +233,29 @@ def rarefaction( input_biom, interval=10000, ranks=None, taxonomy_key="taxonomy"
                 sample_rarefaction[current_rank][sample].append( str(len(taxa[current_rank])) )
     return sample_rarefaction
 
+def rarefaction_otu( input_biom, otu_rank, sample_rarefaction, interval=10000 ):
+    """
+    @summary: Add rarefaction by OTUs by samples to rarefactions data.
+    @param input_biom: [str] Path to the biom file processed.
+    @param sample_rarefaction: [dict] Rarefaction data obtained with rarefaction() function.
+    @param interval: [int] Size of first sampling.
+    """
+    biom = BiomIO.from_json( input_biom )
+    sample_rarefaction[otu_rank] = dict()
+    for sample in biom.get_samples_names():
+        taxa = dict()
+        taxa[otu_rank] = dict()
+        sample_rarefaction[otu_rank][sample] = list()
+        sample_count = biom.get_sample_count( sample )
+        expected_nb_iter = int(sample_count/interval)
+
+        for current_nb_iter in range(expected_nb_iter):
+            selected_observations = biom.random_obs_extract_by_sample(sample, interval)
+            for current_selected in selected_observations:
+                cluster = current_selected['observation']["id"]
+                taxa[otu_rank][cluster] = True
+            sample_rarefaction[otu_rank][sample].append(str(len(taxa[otu_rank])))
+    return sample_rarefaction
 
 def write_output( output_path, rarefaction_data, interval, joiner="\t" ):
     """
@@ -466,8 +504,10 @@ if __name__ == "__main__":
                              -n NB_SAMPLED | -r SAMPLED_RATIO''')
     parser_sampling.add_argument( '-i', '--input-file', required=True, type=str, help='BIOM file processed.' )
     parser_sampling.add_argument( '-o', '--output-file', required=True, type=str, help='Sampling results in BIOM format.' )
+    parser_sampling.add_argument( '--delete-samples', default=False, action='store_true', help='Delete samples that have a number of sequences below the selected filter.')
     group_exclusion_sampling = parser_sampling.add_mutually_exclusive_group()
     group_exclusion_sampling.add_argument( '-n', '--nb-sampled', type=int, help='Number of sampled sequences by sample.' )
+    group_exclusion_sampling.add_argument( '--sampling-by-min', default=False, action='store_true', help='Sampling by the number of the smallest sample.' )
     group_exclusion_sampling.add_argument( '-r', '--sampled-ratio', type=float, help='Ratio of sampled sequences by sample.' )
     parser_sampling.set_defaults(func=task_sampling)
 

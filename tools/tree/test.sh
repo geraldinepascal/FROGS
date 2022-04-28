@@ -15,7 +15,7 @@ fi
 # FROGS_tree #
 ##############
 
-# # arbre mafft
+# # arbre mafft
 mkdir -p test/mafft
 ./tree.py -i data/sequences.fasta \
     -b data/sequences.biom \

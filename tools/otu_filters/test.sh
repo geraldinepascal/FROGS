@@ -41,4 +41,3 @@ mkdir -p $OUT
 --min-abundance 0.00005 \
 --min-sample-presence 2 \
 --contaminant data/multi_conta.fa
-

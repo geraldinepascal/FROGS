@@ -6,7 +6,7 @@
 
 Visit our web site : http://frogs.toulouse.inrae.fr/
 
-[![Release](https://img.shields.io/badge/release-3.2.3-blue.svg)![Date](https://img.shields.io/badge/date-May%202021-red.svg)](https://github.com/geraldinepascal/FROGS-wrappers/releases) [<img src="https://www.podcastscience.fm/wp-content/uploads/2017/12/deezer.png" width="5%" style="display: block; margin: auto;"/>](https://www.deezer.com/fr/playlist/5233843102?utm_source=deezer&utm_content=playlist-5233843102&utm_term=18632989_1545296531&utm_medium=web)
+[![Release](https://img.shields.io/badge/release-3.3.0-blue.svg)![Date](https://img.shields.io/badge/date-May%202022-red.svg)](https://github.com/geraldinepascal/FROGS-wrappers/releases) [<img src="https://www.podcastscience.fm/wp-content/uploads/2017/12/deezer.png" width="5%" style="display: block; margin: auto;"/>](https://www.deezer.com/fr/playlist/5233843102?utm_source=deezer&utm_content=playlist-5233843102&utm_term=18632989_1545296531&utm_medium=web)
 
 
 
@@ -21,6 +21,8 @@ This workflow is focused on:
 - User-friendliness with lots of rich graphic outputs and the integration in Galaxy thanks to FROGS-wrappers.
 - Accuracy with a clustering without global similarity threshold, the management of separated PCRs in the chimera removal step, and the management of multi-affiliations.
 - Dealing of non overlapping pair of sequences from long amplicon like ITS, or RPB2.
+- Access to general statistics on microbial communities and differential abundance analysis.
+- Prediction of functionnal annotation and metabolic pathways.
 - Speed with fast algorithms parallelisation and easy to use.
 - Scalability with algorithms designed to support the data growth.
 
@@ -113,6 +115,8 @@ FROGS relies on different specific tools for each of the analysis steps.
 | Tree                          |     [Fasttree](http://www.microbesonline.org/fasttree/)      |               2.1.10 |
 | Tree / FROGSSTAT              | [plotly](https://plotly.com/r/), [phangorn](https://cran.r-project.org/web/packages/phangorn/index.html), [rmarkdown](https://cran.r-project.org/web/packages/rmarkdown/index.html), [phyloseq](https://joey711.github.io/phyloseq/), [DESeq2](https://bioconductor.org/packages/release/bioc/html/DESeq2.html), [optparse](https://cran.r-project.org/web/packages/optparse/index.html), [calibrate](https://cran.r-project.org/web/packages/calibrate/index.html), [formattable](https://cran.r-project.org/web/packages/formattable/), [DT](https://cran.r-project.org/web/packages/DT/index.html) |              R 3.6.3 |
 | FROGSSTAT | [pandoc](https://pandoc.org/) | 2.11.3|
+| FROGSFUNC | [PICRUSt2](https://github.com/picrust/picrust2/wiki) | 2.4.1|
+| FROGSFUNC | [ete3](http://etetoolkit.org/) | 3.1.1|
 
 ### **Use PEAR as read pairs merging software in preprocess**
 
@@ -132,23 +136,32 @@ FROGS is now available on bioconda (https://anaconda.org/bioconda/frogs).
   * to create a specific environment for a specific FROGS version
 
 ```
-conda env create --name frogs@3.2.3 --file frogs-conda-requirements.yaml
+conda env create --name frogs@3.3.0 --file frogs-conda-requirements.yaml
 # to use FROGS, first you need to activate your environment
-conda activate frogs@3.2.3
+conda activate frogs@3.3.0
 ```
 
-### From source
+**WARNING** : As PICRUSt2 currently relies on a different R version, in order to use the FROGSFUNC tools, it is necessary to create a dedicated conda environment as follows:
 
-see [INSTALL_from_source.md](INSTALL_from_source.md)
+```
+conda env create --name frogsfunc@3.3.0 --file frogsfunc-conda-requirements.yaml
+# and then activate the environment
+conda activate frogsfunc@3.3.0
+```
+
+After that, you just have to switch from one environment to another (with `conda activate frogs@3.3.0` or `conda activate frogsfunc@3.3.0` depending on whether you want to use FROGSFUNC or all the other tools.
 
 ## Check intallation
 
 To check your installation you can type:
+
 ```
 cd <FROGS_PATH>/test
-# when using conda FROGS_PATH=<conda_env_dir>/frogs@3.2.3/share/FROGS_3.2.3
+# when using conda FROGS_PATH=<conda_env_dir>/frogs@3.3.0/share/FROGS_3.3.0
 
-sh test.sh <FROGS_PATH> <NB_CPU> <JAVA_MEM> <OUT_FOLDER>
+conda activate frogs@3.3.0
+
+sh test_frogs.sh <FROGS_PATH> <NB_CPU> <JAVA_MEM> <OUT_FOLDER>
 ```
 "Bioinformatic" tools are performed on a small simulated dataset of one sample replicated three times.
 "Statistical" tools are performed on an extract of the published results of [Chaillou et al, ISME 2014](https://doi.org/10.1038/ismej.2014.202)
@@ -157,36 +170,59 @@ This test executes the FROGS tools in command line mode.
 Example:
 
 ```
-[user@computer:/home/frogs/FROGS/test/]$ sh test.sh ../ 1 2 res
-Step preprocess : Flash mardi 10 novembre 2020, 10:56:56 (UTC+0100)
-Step preprocess : Vsearch mardi 10 novembre 2020, 10:59:57 (UTC+0100)
-Step clustering mardi 10 novembre 2020, 11:02:51 (UTC+0100)
-Step remove_chimera mardi 10 novembre 2020, 11:08:31 (UTC+0100)
-Step otu filters mardi 10 novembre 2020, 11:13:43 (UTC+0100)
-Step ITSx mardi 10 novembre 2020, 11:14:00 (UTC+0100)
-Step affiliation_OTU mardi 10 novembre 2020, 11:14:01 (UTC+0100)
-Step affiliation_filter: masking mode mardi 10 novembre 2020, 11:14:53 (UTC+0100)
-Step affiliation_filter: deleted mode mardi 10 novembre 2020, 11:14:54 (UTC+0100)
-Step affiliation_postprocess mardi 10 novembre 2020, 11:14:54 (UTC+0100)
-Step normalisation mardi 10 novembre 2020, 11:14:55 (UTC+0100)
-Step clusters_stat mardi 10 novembre 2020, 11:14:55 (UTC+0100)
-Step affiliations_stat mardi 10 novembre 2020, 11:14:58 (UTC+0100)
-Step biom_to_tsv mardi 10 novembre 2020, 11:15:05 (UTC+0100)
-Step biom_to_stdBiom mardi 10 novembre 2020, 11:15:06 (UTC+0100)
-Step tsv_to_biom mardi 10 novembre 2020, 11:15:06 (UTC+0100)
-Step tree mardi 10 novembre 2020, 11:15:06 (UTC+0100)
-Step phyloseq_import_data mardi 10 novembre 2020, 11:16:36 (UTC+0100)
-Step phyloseq_composition mardi 10 novembre 2020, 11:18:00 (UTC+0100)
-Step phyloseq_alpha_diversity mardi 10 novembre 2020, 11:19:31 (UTC+0100)
-Step phyloseq_beta_diversity mardi 10 novembre 2020, 11:20:19 (UTC+0100)
-Step phyloseq_structure mardi 10 novembre 2020, 11:20:45 (UTC+0100)
-Step phyloseq_clustering mardi 10 novembre 2020, 11:21:59 (UTC+0100)
-Step phyloseq_manova mardi 10 novembre 2020, 11:22:20 (UTC+0100)
-Step deseq2_preprocess mardi 10 novembre 2020, 11:22:42 (UTC+0100)
-Step deseq2_visualisation mardi 10 novembre 2020, 11:23:29 (UTC+0100)
+[user@computer:/home/frogs/FROGS/test/]$ sh test_frogs.sh ../ 1 2 res
+Step demultiplexe lun. 25 avril 2022 16:01:36 CEST
+Step preprocess : Flash lun. 25 avril 2022 16:01:36 CEST
+Step preprocess : Vsearch lun. 25 avril 2022 16:02:34 CEST
+Step clustering lun. 25 avril 2022 16:03:30 CEST
+Step remove_chimera lun. 25 avril 2022 16:05:21 CEST
+Step otu filters lun. 25 avril 2022 16:06:25 CEST
+Step ITSx lun. 25 avril 2022 16:06:43 CEST
+Step affiliation_OTU lun. 25 avril 2022 16:06:51 CEST
+Step affiliation_filter: masking mode lun. 25 avril 2022 16:06:54 CEST
+Step affiliation_filter: deleted mode lun. 25 avril 2022 16:06:55 CEST
+Step affiliation_postprocess lun. 25 avril 2022 16:06:56 CEST
+Step normalisation lun. 25 avril 2022 16:06:57 CEST
+Step clusters_stat lun. 25 avril 2022 16:06:58 CEST
+Step affiliations_stat lun. 25 avril 2022 16:06:59 CEST
+Step biom_to_tsv lun. 25 avril 2022 16:06:59 CEST
+Step biom_to_stdBiom lun. 25 avril 2022 16:07:00 CEST
+Step tsv_to_biom lun. 25 avril 2022 16:07:00 CEST
+Step tree lun. 25 avril 2022 16:07:00 CEST
+Step phyloseq_import_data lun. 25 avril 2022 16:07:59 CEST
+Step phyloseq_composition lun. 25 avril 2022 16:08:11 CEST
+Step phyloseq_alpha_diversity lun. 25 avril 2022 16:08:29 CEST
+Step phyloseq_beta_diversity lun. 25 avril 2022 16:08:49 CEST
+Step phyloseq_structure lun. 25 avril 2022 16:09:01 CEST
+Step phyloseq_clustering lun. 25 avril 2022 16:09:15 CEST
+Step phyloseq_manova lun. 25 avril 2022 16:09:26 CEST
+Step deseq2_preprocess lun. 25 avril 2022 16:09:37 CEST
+Step deseq2_visualisation lun. 25 avril 2022 16:10:03 CEST
 Completed with success
 ```
 
+Finally, to check the FROGSFUNC tools installation you can type:
+
+```
+cd <FROGS_PATH>/test
+# when using conda FROGS_PATH=<conda_env_dir>/frogsfunc/share/FROGS_3.3.0
+
+conda activate frogsfunc@3.3.0
+
+sh test_frogsfunc.sh <FROGS_PATH> <OUT_FOLDER>
+```
+
+This test executes the FROGSFUNC tools in command line mode.
+Example:
+
+```
+[user@computer:/home/frogs/FROGS/test/]$ sh test_frogsfunc.sh ../ res
+Step frogsfunc_placeseqs lun. 25 avril 2022 16:17:33 CEST
+Step frogsfunc_copynumbers lun. 25 avril 2022 16:17:05 CEST
+Step frogsfunc_functions lun. 25 avril 2022 16:17:50 CEST
+Step frogsfunc_pathways lun. 25 avril 2022 16:17:56 CEST
+Completed with success
+```
 
 
 # Memory and parallelisation advices
@@ -229,7 +265,7 @@ Please take time to read individual README.txt and LICENCE.txt files.
 
   http://genoweb.toulouse.inrae.fr/frogs_databanks/HVL
 
-
+In addition, several default databases are used in FROGSFUNC steps by PICRUSt2.
 
 
 # Troubleshooting
@@ -252,7 +288,7 @@ GNU GPL v3
 
 
 # Copyright
-2020 INRAE
+2022 INRAE
 
 
 # Citation

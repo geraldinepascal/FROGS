@@ -105,4 +105,3 @@ echo $OUT "masking mode"
 --min-blast-coverage 1.0 \
 --max-blast-evalue 0 \
 --ignore-blast-taxa "Methylovulum miyakonense" "subsp." "unknown species"
-

@@ -18,7 +18,7 @@
 __author__ = ' Ta Thi Ngan SIGENAE / Mahendra Mariadassou plateforme MIGALE'
 __copyright__ = 'Copyright (C) 2017 INRA'
 __license__ = 'GNU General Public License'
-__version__ = '3.2.3'
+__version__ = '3.3.0'
 __email__ = 'frogs@toulouse.inrae.fr'
 __status__ = 'prod'
 

@@ -22,4 +22,3 @@ fi
         --identity 65 --coverage 65 --taxon-ignore "s__Cortinarius_papaver" \
         --output-biom test/affiliations_postprocessed_taxIgnore.biom --output-compo test/affiliations_postprocessed_taxIgnore.compo \
         --output-fasta test/affiliations_postprocessed_taxIgnore.fasta --log-file test/affiliations_postprocessed_taxIgnore.log
-
