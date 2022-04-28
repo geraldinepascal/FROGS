@@ -16,7 +16,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-__author__ = ' Moussa Samb & Maria Bernard & Vincent Darbot & Geraldine Pascal INRAE - SIGENAE '
+__author__ = ' Moussa Samb & Vincent Darbot & Geraldine Pascal GENPHYSE '
 __copyright__ = 'Copyright (C) 2022 INRAE'
 __license__ = 'GNU General Public License'
 __version__ = '3.3.0'
