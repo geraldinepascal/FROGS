@@ -267,7 +267,7 @@ def write_summary( summary_file, input_biom, tree_count_file, tree_ids_file, rar
     rarefaction_step_size = None
     rarefaction = None
     biom = BiomIO.from_json( input_biom )
-    args.rarefaction_ranks.insert(0,'OTUs')
+    args.rarefaction_ranks.append('OTUs')
     for rank_idx, current_file in enumerate(rarefaction_files):
         rank = args.rarefaction_ranks[rank_idx]
         FH_rarefaction = open( current_file )
@@ -343,6 +343,8 @@ def process( args ):
         rarefaction_cmd = Rarefaction(tmp_biom, tmp_files, used_taxonomy_tag, tax_depth)
         rarefaction_cmd.submit( args.log_file )
         rarefaction_files = rarefaction_cmd.output_files
+        # Put OTUs rarefaction file at the end , after species 
+        rarefaction_files.append(rarefaction_files.pop(0))
         # Taxonomy tree
         tree_count_file = tmp_files.add( "taxCount.enewick" )
         tree_ids_file = tmp_files.add( "taxCount_ids.tsv" )

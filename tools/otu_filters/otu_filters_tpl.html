@@ -638,6 +638,9 @@
 				// Load active tab
 				global_filters_load();
 				intersections_filters_load();
+				if( $.isEmptyObject(replicate_groups) ){
+					$('#view-by-replicates-nav').remove();
+				}
 				
 				// Add tab listener
 				$('.nav-item a').click(function (e) {
@@ -668,7 +671,7 @@
         	<ul class="nav nav-tabs">
 				<li class="nav-item active"><a class="nav-link active" href="#view-by-filters">Filters by OTUs</a></li>
 				<li class="nav-item"><a class="nav-link" href="#view-by-samples">Filters by samples</a></li>
-				<li class="nav-item"><a class="nav-link" href="#view-by-replicates">Replicate Groups</a></li>
+				<li class="nav-item" id="view-by-replicates-nav"><a class="nav-link" href="#view-by-replicates">Replicate Groups</a></li>
 			</ul>
 
 			<div id="tab-content" class="tab-content">

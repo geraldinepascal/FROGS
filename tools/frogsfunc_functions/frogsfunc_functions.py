@@ -32,7 +32,6 @@ import json
 import shutil
 import argparse
 import pandas as pd
-from tempfile import gettempdir
 
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
 # PATH: executable
