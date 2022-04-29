@@ -782,7 +782,6 @@ if __name__ == '__main__':
 
     Logger.static_write(args.log_file, "## Application\nSoftware: " + os.path.basename(sys.argv[0]) + " (version: " + str(__version__) + ")\nCommand: " + " ".join(cmd) + "\n\n")
 
-
     if args.min_rdp_bootstrap is None and args.min_blast_length is None and args.max_blast_evalue is None and args.min_blast_identity is None and args.min_blast_coverage is None and args.ignore_blast_taxa is None:
         raise_exception(Exception("\n\n#ERROR : You need to specify at least on filtering criteria\n\n"))
 
@@ -819,6 +818,16 @@ if __name__ == '__main__':
         if args.ignore_blast_taxa is not None:
             raise_exception( argparse.ArgumentTypeError( "\n\n#ERROR : The BIOM input does not contain the metadata 'blast_affiliations'. You cannot use the parameter '--ignore-blast-taxa' on this file.\n\n" ))
      
+    # Control non empty ignore-blast-taxa:
+    if args.ignore_blast_taxa is not None:
+        temp = [ i.strip() for i in args.ignore_blast_taxa if i.strip() != '']
+        if len(temp) == 0:
+            raise_exception( argparse.ArgumentTypeError( "\n\n#ERROR : ignore-blast-taxa list need to be non empty strings.\n\n" ))
+        else:
+            if len(temp) != len(args.ignore_blast_taxa):
+                args.ignore_blast_taxa = temp
+                Logger.static_write(args.log_file, "WARNING : empty string in ignore-blast-taxa option have been removed, here is the updated list that will be take into account: \"" + '\" \"'.join(args.ignore_blast_taxa) + "\n\n")
+
      # Control blast taxonomy rank number
     for observation in in_biom.get_observations():
         taxonomy = observation['metadata']['blast_taxonomy']
