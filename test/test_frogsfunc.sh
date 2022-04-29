@@ -79,7 +79,7 @@ frogsfunc_pathways.py \
  --input-file $out_dir/27-frogsfunc_functions_unstrat.tsv \
  --pathways-abund $out_dir/28-frogsfunc_pathways_unstrat.tsv \
  --log-file $out_dir/28-frogsfunc_pathways.log \
- --html $out_dir/28-frogsfunc_pathways_summary.html --debug
+ --html $out_dir/28-frogsfunc_pathways_summary.html
 
 if [ $? -ne 0 ]
 then
