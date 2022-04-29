@@ -19,7 +19,7 @@
 __author__ = 'Katia Vidal - Team NED Toulouse AND Frederic Escudie - Plateforme bioinformatique Toulouse AND Maria Bernard - Sigenae Jouy en Josas'
 __copyright__ = 'Copyright (C) 2020 INRAE'
 __license__ = 'GNU General Public License'
-__version__ = '3.2.3'
+__version__ = '3.3.0'
 __email__ = 'frogs-support@inrae.fr'
 __status__ = 'prod'
 
@@ -29,6 +29,7 @@ import sys
 import json
 import operator
 import argparse
+import collections
 
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
 # PATH
@@ -147,6 +148,45 @@ def excluded_obs_on_samplePresence(input_biom, min_sample_presence, excluded_fil
             FH_excluded_file.write( observation_name + "\n" )
     FH_excluded_file.close()
 
+def excluded_obs_on_replicatePresence(input_biom, replicate_file, min_replicate_presence, log_file, excluded_file):
+    """
+    @summary:
+    """
+    # Files handling
+    FH_log = Logger(log_file)
+    FH_log.write('#Replicate groups:\n')
+    biom = BiomIO.from_json( input_biom )
+    FH_replicate_file = open(replicate_file).readlines()
+    lines = [line for line in FH_replicate_file if line.strip()]
+    FH_excluded_file = open( excluded_file, "wt" )
+    # Indentify replicates
+    groups_to_replicates = collections.defaultdict(list)
+    samples_to_search = list()
+    for l in lines:
+        l = l.strip().split()
+        if l[0] not in biom.get_samples_names():
+            raise_exception( Exception( "\n\n#ERROR : "+l[0]+" sample not in biom file.\n\n" ))
+        groups_to_replicates["".join(l[1:]).strip()].append(l[0])
+        samples_to_search.append(l[0])
+    # Writes replicate groups into log file
+    for group, replicates in groups_to_replicates.items():
+        FH_log.write(group+"\t"+", ".join(replicates)+"\n")
+    # Search the excluded clusters
+    for observation_name in biom.get_observations_names():
+        groups_to_counts = collections.defaultdict(int)
+        for sample in biom.get_samples_by_observation(observation_name):
+            if sample['id'] in samples_to_search:
+                group = [group for group, replicates in groups_to_replicates.items() if sample['id'] in replicates][0]
+                groups_to_counts[group] += 1
+        to_exclude = True
+        for group, count in groups_to_counts.items():
+            if min_replicate_presence * len(groups_to_replicates[group]) <= count:
+                to_exclude = False
+        if to_exclude:  
+            FH_excluded_file.write( observation_name + "\n" )
+    FH_log.close()
+    FH_excluded_file.close()
+
 def excluded_obs_on_abundance(input_biom, min_abundance, excluded_file):
     """
     @summary: Writes the list of the observations with an insufficient abundance.
@@ -239,7 +279,7 @@ def write_exclusion( discards, excluded_file ):
             FH_excluded.write( "\t".join(discards_line_fields)  + "\n" )
     FH_excluded.close()
 
-def write_summary( summary_file, input_biom, output_biom, discards ):
+def write_summary( summary_file, input_biom, output_biom, replicate_log, discards ):
     """
     @summary: Writes the process summary.
     @param summary_file: [str] The path to the output file.
@@ -296,6 +336,16 @@ def write_summary( summary_file, input_biom, output_biom, discards ):
                 samples_results[sample['id']]['filtered'][filter] += 1
     del in_biom
 
+    # Write replicate groups informations
+    replicate_groups = dict()
+    FH_replicate_log = open(replicate_log)
+    for line in FH_replicate_log:
+        if not line.startswith('#'):
+            line = line.strip().split('\t')
+            replicate_groups[line[0]] = { 
+            'Replicates' : line[1]
+            }
+
     # Global after filters
     out_biom = BiomIO.from_json( output_biom )
     for observation_name in out_biom.get_observations_names():
@@ -315,6 +365,8 @@ def write_summary( summary_file, input_biom, output_biom, discards ):
             line = line.replace( "###GLOBAL_RESULTS###", json.dumps(global_results) )
         elif "###SAMPLES_RESULTS###" in line:
             line = line.replace( "###SAMPLES_RESULTS###", json.dumps(samples_results) )
+        elif "###REPLICATE_GROUPS###" in line:
+            line = line.replace( "###REPLICATE_GROUPS###", json.dumps(replicate_groups) )
         elif "###FILTERS_RESULTS###" in line:
             line = line.replace( "###FILTERS_RESULTS###", json.dumps(list(filters_results.values())) )
         FH_summary_out.write( line )
@@ -356,6 +408,15 @@ def process( args ):
             discards[label] = tmpFiles.add( "min_sample_presence" )
             excluded_obs_on_samplePresence( args.input_biom, args.min_sample_presence, discards[label] )
 
+        replicate_groups_log = tmpFiles.add( "replicate_groups.txt" )
+        if args.min_replicate_presence is None:
+            FH_log = Logger(replicate_groups_log)
+            FH_log.write('No replicate groups defined\n')
+        elif args.min_replicate_presence is not None and args.replicate_file is not None:
+            label = "Present in less than " + str(args.min_replicate_presence*100) + "%  of replicates of all replicate groups."
+            discards[label] = tmpFiles.add( "min_replicate_presence")
+            excluded_obs_on_replicatePresence( args.input_biom, args.replicate_file, args.min_replicate_presence, replicate_groups_log, discards[label])
+
         if args.min_abundance is not None:
             
             if type(args.min_abundance) == float:
@@ -394,7 +455,7 @@ def process( args ):
         update_fasta_log = tmpFiles.add( "update_fasta_log.txt" )
         UpdateFasta( args.output_biom, args.input_fasta, args.output_fasta, update_fasta_log ).submit( args.log_file )
         write_exclusion( discards, args.excluded )
-        write_summary( args.summary, args.input_biom, args.output_biom, discards )
+        write_summary( args.summary, args.input_biom, args.output_biom, replicate_groups_log, discards )
 
     finally:
         if not args.debug : 
@@ -416,6 +477,8 @@ if __name__ == '__main__':
     group_filter = parser.add_argument_group( 'Filters' )
     group_filter.add_argument( '--nb-biggest-otu', type=int, default=None, required=False, help="Number of most abundant OTUs you want to keep.") 
     group_filter.add_argument( '-s', '--min-sample-presence', type=int, help="Keep OTU present in at least this number of samples.") 
+    group_filter.add_argument( '-r', '--min-replicate-presence', type=minAbundParameter, default=None, help="Keep OTU present in at least this proportion of replicates in at least one group (please indicate a proportion between 0 and 1). Replicates must be defined with --replicate_file REPLICATE FILE")
+    group_filter.add_argument( '--replicate_file', help='Replicate file must be specified if --min-replicate-presence is set. First column of the file must indicate the sample name, and the second column the group name of this replicate. Exemple: TEM1_L0001_R   Temoin.')
     group_filter.add_argument( '-a', '--min-abundance', type=minAbundParameter, default=None, required=False, help="Minimum percentage/number of sequences, comparing to the total number of sequences, of an OTU (between 0 and 1 if percentage desired)." )
     # group_filter.add_argument( '--abundance-by-sample', type=bool, default=False, action='store_true', help="Abundance threshold is applied by default on the total abundance of OTU. Activate this option if you want to applied the threshold on sample abundances (if float, each OTU must be present in a " )
     #     Inputs
@@ -435,10 +498,13 @@ if __name__ == '__main__':
 
     Logger.static_write(args.log_file, "## Application\nSoftware: " + os.path.basename(sys.argv[0]) + " (version: " + str(__version__) + ")\nCommand: " + " ".join(sys.argv) + "\n\n")
 
-    if args.nb_biggest_otu is None and args.min_sample_presence is None and args.min_abundance is None and args.contaminant is None:
+    if args.nb_biggest_otu is None and args.min_sample_presence is None and args.min_replicate_presence is None and args.min_abundance is None and args.contaminant is None:
         raise_exception( argparse.ArgumentTypeError( "\n\n#ERROR : At least one filter must be set to run " + os.path.basename(sys.argv[0]) + "\n\n"))
     if not args.min_abundance is None and (args.min_abundance <= 0 or (type(args.min_abundance) == float and args.min_abundance >= 1.0 ) ):
         raise_exception( argparse.ArgumentTypeError( "\n\n#ERROR : If filtering on abundance, you must indicate a positive threshold and if percentage abundance threshold must be smaller than 1.0. \n\n" ))
-
+    if not args.min_replicate_presence is None and args.replicate_file is None or not args.replicate_file is None and args.min_replicate_presence is None:
+        raise_exception( argparse.ArgumentTypeError( "\n\n#ERROR : --min-replicate-presence and --replicate_file must be both specified.\n\n" ))
+    elif not args.min_replicate_presence is None and (args.min_replicate_presence < 0 or args.min_replicate_presence > 1):
+        raise_exception( argparse.ArgumentTypeError( "\n\n#ERROR : --min_replicate_presence must be a proportion (between 0 and 1).\n\n "))
     # Process
     process( args )

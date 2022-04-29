@@ -19,7 +19,7 @@
 	<head>
 		<title>FROGS Affiliations stat</title>
 		<meta charset="UTF-8">
-		<meta name="version" content="3.2.3">
+		<meta name="version" content="3.3.0">
 		<!-- CSS -->
 		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.1.1/css/bootstrap.css"></link>
 		<link rel="stylesheet" href="https://cdn.datatables.net/1.10.19/css/dataTables.bootstrap4.min.css"></link>
@@ -310,7 +310,7 @@
 		    }
 			// Radializes colors
 				Highcharts.setOptions({
-					 colors : ['#8EADAC', '#DE9F73', '#428bca', '#993399'], 
+					 colors : ['#8EADAC', '#DE9F73', '#428bca', '#993399', '#DBD75E', '#DB5E8A', '#B6DB5E', "#7EC0D9", "#a64d12", '#e4d354','#2b908f','#434348'], 
 					});
 					Highcharts.SVGRenderer.prototype.symbols.download = function (x, y, w, h) {
 					var path = [
@@ -868,6 +868,7 @@
 				for( var rank = 0 ; rank < taxonomic_ranks.length ; rank++ ){
 					titles.push( "Nb " + taxonomic_ranks[rank].toLowerCase() );
 				}
+				titles.push( "Nb otus" );
 				titles.push( "Nb sequences" );
 				$('#taxBySample-table thead').append( '<tr><th>' + titles.join("</th><th>") + '</th></tr>' );
 				$('#taxBySample-table .title').attr( "colspan", titles.length );
@@ -885,6 +886,7 @@
 					for( var rank = 0 ; rank < taxonomic_ranks.length ; rank++ ){
 						sample_data.push( numberDisplay(tree.getNodeByDepth(rank+1).length) );
 					}
+					sample_data.push( numberDisplay(rarefaction[sample_name]['nb_otus']) );
 					sample_data.push( numberDisplay(rarefaction[sample_name]['nb_seq']) );
 					// Add row data
 					$('#taxBySample-table tbody').append( '<tr><td>' + sample_data.join("</td><td>") + '</td></tr>' );

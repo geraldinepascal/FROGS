@@ -19,7 +19,7 @@
 __author__ = 'Frederic Escudie - Plateforme bioinformatique Toulouse'
 __copyright__ = 'Copyright (C) 2015 INRA'
 __license__ = 'GNU General Public License'
-__version__ = '3.2.3'
+__version__ = '3.3.0'
 __email__ = 'frogs-support@inrae.fr'
 __status__ = 'prod'
 
@@ -65,6 +65,8 @@ class Rarefaction(Cmd):
         # Out files management
         out_basename_pattern = "rarefaction_rank_##RANK##.tsv"
         out_files = list()
+        out_files.append( tmp_files_manager.add(out_basename_pattern.replace('##RANK##', 'otu')) )
+
         for rank in rarefaction_levels:
             out_files.append( tmp_files_manager.add(out_basename_pattern.replace('##RANK##', str(rank))) )
         out_path_pattern = os.path.join( tmp_files_manager.tmp_dir, tmp_files_manager.prefix + "_" + out_basename_pattern )
@@ -257,16 +259,15 @@ def write_summary( summary_file, input_biom, tree_count_file, tree_ids_file, rar
     bootstrap_results = None
     if args.bootstrap_tag is not None:
         bootstrap_results = get_bootstrap_distrib( input_biom, args.bootstrap_tag, args.multiple_tag )
-
     # Get alignment metrics
     aln_results = None
     if args.identity_tag is not None and args.coverage_tag is not None:
         aln_results = get_alignment_distrib( input_biom, args.identity_tag, args.coverage_tag, args.multiple_tag )
-
     # Get rarefaction data
     rarefaction_step_size = None
     rarefaction = None
     biom = BiomIO.from_json( input_biom )
+    args.rarefaction_ranks.append('OTUs')
     for rank_idx, current_file in enumerate(rarefaction_files):
         rank = args.rarefaction_ranks[rank_idx]
         FH_rarefaction = open( current_file )
@@ -278,6 +279,7 @@ def write_summary( summary_file, input_biom, tree_count_file, tree_ids_file, rar
                     rarefaction = dict()
                     for sample in samples:
                         rarefaction[sample] = dict()
+                        rarefaction[sample]['nb_otus'] = len([ i for i in biom.get_sample_obs(sample) if i >0 ])
                         rarefaction[sample]['nb_seq'] = biom.get_sample_count( sample )
                 for sample in samples:
                     rarefaction[sample][rank] = list()
@@ -341,7 +343,8 @@ def process( args ):
         rarefaction_cmd = Rarefaction(tmp_biom, tmp_files, used_taxonomy_tag, tax_depth)
         rarefaction_cmd.submit( args.log_file )
         rarefaction_files = rarefaction_cmd.output_files
-
+        # Put OTUs rarefaction file at the end , after species 
+        rarefaction_files.append(rarefaction_files.pop(0))
         # Taxonomy tree
         tree_count_file = tmp_files.add( "taxCount.enewick" )
         tree_ids_file = tmp_files.add( "taxCount_ids.tsv" )

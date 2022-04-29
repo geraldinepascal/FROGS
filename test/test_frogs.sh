@@ -7,14 +7,12 @@ out_dir=$4
 # Check parameters
 if [ "$#" -ne 4 ]; then
     echo "ERROR: Illegal number of parameters." ;
-    echo 'Command usage: test.sh <FROGS_FOLDER> <NB_CPU> <JAVA_MEM> <OUT_FOLDER>' ;
+    echo 'Command usage: test_frogs.sh <FROGS_FOLDER> <NB_CPU> <JAVA_MEM> <OUT_FOLDER>' ;
     exit 1 ;
 fi
 
 # Set ENV
-export PATH=$frogs_dir/libexec:$frogs_dir/app:$PATH
-export PYTHONPATH=$frogs_dir/lib:$PYTHONPATH
-
+export PATH=$frogs_dir/app:$PATH
 
 # Create output folder
 if [ ! -d "$out_dir" ]
@@ -23,10 +21,11 @@ then
 fi
 
 echo "Step demultiplexe `date`"
-demultiplex.py \
-  --input-R1 data/demultiplex.fastq.gz --input-barcode data/demultiplex.barcode.txt \
-  --mismatches 1 --end both \
-  --output-demultiplexed $out_dir/demultiplexed.tar.gz --output-excluded $out_dir/undemultiplexed.tar.gz --log-file $out_dir/demultiplex.log --summary $out_dir/demultiplex_summary.txt 
+demultiplex.py --input-R1 data/demultiplex_test2_R1.fq.gz --input-R2 data/demultiplex_test2_R2.fq.gz --input-barcode data/demultiplex_barcode.txt \
+    --mismatches 1 --end both \
+    --output-demultiplexed $out_dir/demultiplexed.tar.gz --output-excluded $out_dir/undemultiplexed.tar.gz \
+    --log-file $out_dir/demultiplex.log --summary $out_dir/demultiplex_summary.txt
+
 
 if [ $? -ne 0 ]
 then
@@ -82,15 +81,31 @@ clustering.py \
  --output-biom $out_dir/02-clustering_fastidious.biom \
  --output-fasta $out_dir/02-clustering_fastidious.fasta \
  --output-compo $out_dir/02-clustering_fastidious_compo.tsv \
- --log-file $out_dir/02-clustering.log \
+ --log-file $out_dir/02-clustering_fastidious.log \
  --nb-cpus $nb_cpu
 
 if [ $? -ne 0 ]
 then
-	echo "Error in clustering" >&2
+	echo "Error in clustering fastidious" >&2
 	exit 1;
 fi
 
+clustering.py \
+ --distance 3 \
+ --denoising \
+ --input-fasta $out_dir/01-prepro-vsearch.fasta \
+ --input-count $out_dir/01-prepro-vsearch.tsv \
+ --output-biom $out_dir/02-clustering_denoising.biom \
+ --output-fasta $out_dir/02-clustering_denoising.fasta \
+ --output-compo $out_dir/02-clustering_denoising_compo.tsv \
+ --log-file $out_dir/02-clustering_denoising.log \
+ --nb-cpus $nb_cpu
+
+if [ $? -ne 0 ]
+then
+    echo "Error in clustering denoising" >&2
+    exit 1;
+fi
 
 echo "Step remove_chimera `date`"
 
@@ -119,6 +134,8 @@ otu_filters.py \
  --nb-cpus $nb_cpu \
  --input-biom $out_dir/03-chimera.biom \
  --input-fasta $out_dir/03-chimera.fasta \
+ --replicate_file data/replicates_file.tsv \
+ --min-replicate-presence 0.5 \
  --output-fasta $out_dir/04-filters.fasta \
  --output-biom $out_dir/04-filters.biom \
  --excluded $out_dir/04-filters.excluded \
@@ -240,6 +257,38 @@ fi
 
 echo "Step normalisation `date`"
 normalisation.py \
+ -n 25000 \
+ --delete-samples \
+ --input-biom $out_dir/08-affiliation_postprocessed.biom \
+ --input-fasta $out_dir/08-affiliation_postprocessed.fasta \
+ --output-biom $out_dir/09-normalisation_25K_delS.biom \
+ --output-fasta $out_dir/09-normalisation_25K_delS.fasta \
+ --summary $out_dir/09-normalisation_25K_delS.html \
+ --log-file $out_dir/09-normalisation_25K_delS.log
+ 
+if [ $? -ne 0 ]
+then
+	echo "Error in normalisation 25K_delS" >&2
+	exit 1;
+fi
+
+normalisation.py \
+ --sampling-by-min \
+ --input-biom $out_dir/08-affiliation_postprocessed.biom \
+ --input-fasta $out_dir/08-affiliation_postprocessed.fasta \
+ --output-biom $out_dir/09-normalisation_by_min.biom \
+ --output-fasta $out_dir/09-normalisation_by_min.fasta \
+ --summary $out_dir/09-normalisation_by_min.html \
+ --log-file $out_dir/09-normalisation_by_min.log
+ 
+if [ $? -ne 0 ]
+then
+    echo "Error in normalisation by min" >&2
+    exit 1;
+fi
+
+# to reduce computing time for the others step
+normalisation.py \
  -n 100 \
  --input-biom $out_dir/08-affiliation_postprocessed.biom \
  --input-fasta $out_dir/08-affiliation_postprocessed.fasta \
@@ -250,8 +299,8 @@ normalisation.py \
  
 if [ $? -ne 0 ]
 then
-	echo "Error in normalisation" >&2
-	exit 1;
+    echo "Error in normalisation by min" >&2
+    exit 1;
 fi
 
 echo "Step clusters_stat `date`"

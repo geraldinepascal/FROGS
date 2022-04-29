@@ -1,5 +1,5 @@
 ---
-title: "FROGSSTAT DESeq2: Visualisation (version 3.2.3)"
+title: "FROGSSTAT DESeq2: Visualisation (version 3.3.0)"
 output: 
   html_notebook:
     code_folding: hide
@@ -51,14 +51,27 @@ if not, we will use the other syntax with contrast=c()
 phyloseq_input <- get(load(params$phyloseq_data))
 dds_input     <- get(load(params$dds))
 result_names <- DESeq2::resultsNames(dds_input)
+
+# doc <- ""
+# if(length(result_names) == 2 || params$mod1 == "None"){
+#      results <- DESeq2::results(dds, name = result_names[1])
+# } else if(length(result_names)>=3){
+#      results <- DESeq2::results(dds_input, contrast = c(params$var, params$mod1, params$mod2) )
+#      doc <- paste0("You chose to compare ", params$mod1, " to the reference modality ", params$mod2, ". This implies that a positive log2FoldChange means more abundant in ", params$mod1, " than in ", params$mod2, ".")
+#      cat(doc)
+# }
 doc <- ""
-if(length(result_names) == 2 || params$mod1 == "None"){
+# quantitative variable
+if(params$mod1 == "None"){
      results <- DESeq2::results(dds, name = result_names[1])
-} else if(length(result_names)>=3){
+# qualitative variable
+} else {
      results <- DESeq2::results(dds_input, contrast = c(params$var, params$mod1, params$mod2) )
      doc <- paste0("You chose to compare ", params$mod1, " to the reference modality ", params$mod2, ". This implies that a positive log2FoldChange means more abundant in ", params$mod1, " than in ", params$mod2, ".")
      cat(doc)
 }
+
+#This implies that a positive log2FoldChange means more abundant in low than in high.")
 ```
 
 Then we extract significant OTUs at the p-value adjusted threshold level (after correction) and enrich results with taxonomic informations and sort taxa by pvalue.

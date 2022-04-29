@@ -2,14 +2,14 @@
 
 nb_cpu=2
 java_mem=1
-out_dir=res_3.2.3_ter
-expected_dir=res_3.2.3
+out_dir=res_3.3.0_test
+expected_dir=res_3.2.3_galaxy3
 run_programs=true	## if true lance les python sinon, fait uniquement les comparatifs de résultats
 
 ## Set ENV
 ## export PATH=../app:$PATH
 ## or
-## conda activate __frogs@3.2.0
+## conda activate frogs
 ##		# après installation de l'env, check de la présence des librairies perl
 
 ## Create output folder
@@ -32,10 +32,18 @@ diff_size() {
 }
 
 echo "Step demultiplexe `date`"
-demultiplex.py \
-  --input-R1 data/demultiplex.fastq.gz --input-barcode data/demultiplex.barcode.txt \
-  --mismatches 1 --end both \
-  --output-demultiplexed $out_dir/demultiplexed.tar.gz --output-excluded $out_dir/undemultiplexed.tar.gz --log-file $out_dir/demultiplex.log --summary $out_dir/demultiplex_summary.txt 
+if $run_programs
+then
+	demultiplex.py --input-R1 data/demultiplex_test2_R1.fq.gz --input-R2 data/demultiplex_test2_R2.fq.gz --input-barcode data/demultiplex_barcode.txt \
+	    --mismatches 1 --end both \
+	    --output-demultiplexed $out_dir/demultiplexed.tar.gz --output-excluded $out_dir/undemultiplexed.tar.gz \
+	    --log-file $out_dir/demultiplex.log --summary $out_dir/demultiplex_summary.txt
+	if [ $? -ne 0 ]
+	then
+		echo "Error in preprocess : Flash" >&2
+		exit 1;
+	fi
+fi
 
 if diff_line $out_dir/demultiplex_summary.txt $expected_dir/demultiplex_summary.txt  0
 then
@@ -99,17 +107,17 @@ fi
  
 if diff_line $out_dir/01-prepro-vsearch.fasta $expected_dir/01-prepro-vsearch.fasta 0
 then
-	echo "difference in preprocess, Flash: 01-prepro-vsearch.fasta" >&2
+	echo "difference in preprocess, Vsearch: 01-prepro-vsearch.fasta" >&2
 fi
 
 if diff_line $out_dir/01-prepro-vsearch.tsv $expected_dir/01-prepro-vsearch.tsv 0
 then
-	echo "difference in preprocess, Flash: 01-prepro-vsearch.tsv " >&2
+	echo "difference in preprocess, Vsearch: 01-prepro-vsearch.tsv " >&2
 fi
 
 if diff_line $out_dir/01-prepro-vsearch.html $expected_dir/01-prepro-vsearch.html 0
 then
-	echo "difference in preprocess, Flash: 01-prepro-vsearch.html " >&2
+	echo "difference in preprocess, Vsearch: 01-prepro-vsearch.html " >&2
 fi
 
 echo "Step clustering fastidious `date`"
@@ -234,7 +242,7 @@ then
 	itsx.py \
 	 --input-fasta $expected_dir/04-filters.fasta \
 	 --input-biom $expected_dir/04-filters.biom \
-	 --region ITS1 --check-its-only --nb-cpus $nb_cpu \
+	 --region ITS1 --nb-cpus $nb_cpu \
 	 --out-abundance $out_dir/05-itsx.biom \
 	 --summary $out_dir/05-itsx.html \
 	 --log-file $out_dir/05-itsx.log \
@@ -440,6 +448,39 @@ echo "Step normalisation `date`"
 
 if $run_programs
 then
+
+	normalisation.py \
+	 -n 25000 \
+	 --delete-samples \
+	 --input-biom $out_dir/08-affiliation_postprocessed.biom \
+	 --input-fasta $out_dir/08-affiliation_postprocessed.fasta \
+	 --output-biom $out_dir/09-normalisation_25K_delS.biom \
+	 --output-fasta $out_dir/09-normalisation_25K_delS.fasta \
+	 --summary $out_dir/09-normalisation_25K_delS.html \
+	 --log-file $out_dir/09-normalisation_25K_delS.log
+	 
+	if [ $? -ne 0 ]
+	then
+		echo "Error in normalisation 25K_delS" >&2
+		exit 1;
+	fi
+
+	normalisation.py \
+	 --sampling-by-min \
+	 --input-biom $out_dir/08-affiliation_postprocessed.biom \
+	 --input-fasta $out_dir/08-affiliation_postprocessed.fasta \
+	 --output-biom $out_dir/09-normalisation_by_min.biom \
+	 --output-fasta $out_dir/09-normalisation_by_min.fasta \
+	 --summary $out_dir/09-normalisation_by_min.html \
+	 --log-file $out_dir/09-normalisation_by_min.log
+	 
+	if [ $? -ne 0 ]
+	then
+	    echo "Error in normalisation by min" >&2
+	    exit 1;
+	fi
+
+	# to reduce computing time for the others step
 	normalisation.py \
 	 -n 100 \
 	 --input-biom $expected_dir/08-affiliation_postprocessed.biom \
@@ -458,7 +499,51 @@ fi
 
 
 ##difficile à tester à cause du tirage aléatoire
-if diff_line $out_dir/09-normalisation.fasta $expected_dir/09-normalisation.fasta 0
+
+# normalisation with deleting too small sample
+if diff_line $out_dir/09-normalisation_25K_delS.fasta $expected_dir/09-normalisation_25K_delS.fasta 5
+then
+	echo "Difference in normalisation : 09-normalisation_25K_delS.fasta" >&2
+fi
+
+if diff_size $out_dir/09-normalisation_25K_delS.biom $expected_dir/09-normalisation_25K_delS.biom 0
+then
+	echo "Difference in normalisation : 09-normalisation_25K_delS.biom" >&2
+fi
+
+if diff_line $out_dir/09-normalisation_25K_delS.html $expected_dir/09-normalisation_25K_delS.html 0
+then
+	echo "Difference in normalisation : 09-normalisation_25K_delS.html" >&2
+fi
+
+if diff_size $out_dir/09-normalisation_25K_delS.html $expected_dir/09-normalisation_25K_delS.html 0
+then
+	echo "Difference in normalisation : 09-normalisation_25K_delS.html" >&2
+fi
+
+# normalisation on the smallest sample
+if diff_line $out_dir/09-normalisation_by_min.fasta $expected_dir/09-normalisation_by_min.fasta 5
+then
+	echo "Difference in normalisation : 09-normalisation_by_min.fasta" >&2
+fi
+
+if diff_size $out_dir/09-normalisation_by_min.biom $expected_dir/09-normalisation_by_min.biom 0
+then
+	echo "Difference in normalisation : 09-normalisation_by_min.biom" >&2
+fi
+
+if diff_line $out_dir/09-normalisation_by_min.html $expected_dir/09-normalisation_by_min.html 0
+then
+	echo "Difference in normalisation : 09-normalisation_by_min.html" >&2
+fi
+
+if diff_size $out_dir/09-normalisation_by_min.html $expected_dir/09-normalisation_by_min.html 0
+then
+	echo "Difference in normalisation : 09-normalisation_by_min.html" >&2
+fi
+
+# hard normalisation (100 sequences) to optimize next steps
+if diff_line $out_dir/09-normalisation.fasta $expected_dir/09-normalisation.fasta 5
 then
 	echo "Difference in normalisation : 09-normalisation.fasta" >&2
 fi
@@ -473,6 +558,10 @@ then
 	echo "Difference in normalisation : 09-normalisation.html" >&2
 fi
 
+if diff_size $out_dir/09-normalisation.html $expected_dir/09-normalisation.html 0
+then
+	echo "Difference in normalisation : 09-normalisation.html" >&2
+fi
 
 echo "Step clusters_stat `date`"
 
@@ -878,6 +967,7 @@ fi
 
 # récupérer les tableau CSV via la page HTML
 # et faire sdiff
+# dans les XML on teste les valeurs de otu_01582 avec des valeurs avec 3 décimales (des mises à jours de DESeq provoque des ajustements des valeurs ...)
 
 grep otu_01582 $out_dir/24-deseq2_visualisation.nb.html | sed 's/],/],\n/g' > /tmp/tmp
 grep otu_01582 $expected_dir/24-deseq2_visualisation.nb.html | sed 's/],/],\n/g'  > /tmp/tmp1
