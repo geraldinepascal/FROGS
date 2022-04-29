@@ -82,5 +82,6 @@ dist     <- as.dist(A)
 ## Multivariate ANOVA performed with adonis
 adonis <- paste('adonis(dist ~ ', params$varExp, ', data = metadata, perm = 9999)')
 adonis_res <- eval(parse(text = adonis))
+print(adonis_res$call)
 print(adonis_res$aov.tab)
 ```
