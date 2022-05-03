@@ -2,8 +2,8 @@
 
 nb_cpu=2
 java_mem=1
-out_dir=res_4.0.0
-expected_dir=res_3.2.3
+out_dir=res_4.0.0_to_check
+expected_dir=res_4.0.0_expected
 run_programs=true	## if true lance les python sinon, fait uniquement les comparatifs de résultats
 
 ## Set ENV
