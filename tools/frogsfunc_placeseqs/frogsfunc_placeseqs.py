@@ -30,7 +30,6 @@ import gzip
 import json
 import inspect
 import argparse
-import ete3 as ete
 
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
 # PATH
