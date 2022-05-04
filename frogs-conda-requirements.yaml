@@ -3,7 +3,7 @@ channels:
   - bioconda
 dependencies:
 # bioconda
-  - frogs =3.3.0
+  - frogs =4.0.0
   - emboss =6.6.0
   - flash =1.2.11
   # need to be >=2.8
