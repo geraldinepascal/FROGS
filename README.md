@@ -97,7 +97,7 @@ This FROGS repository is for command line user. If you want to install FROGS on 
 
 ## Tools dependancies
 
-FROGS is written in Python 3.7 (with external numpy and Scipy libraries) , uses also home-made scripts written in PERL5 and R 3.6.
+FROGS is written in Python 3 (with external numpy and Scipy libraries) , uses also home-made scripts written in PERL5 and R 4.
 
 FROGS relies on different specific tools for each of the analysis steps.
 
