@@ -1,4 +1,11 @@
-# v4.4.0 [2022-05]
+# v4.0.1 [2022-06]
+
+### Bug corrected:
+
+* Affiliation_filter : correctly find the number of taxonomical rank (in cas of empty affiliation in the first cluster)
+
+
+# v4.0.0 [2022-05]
 
 ### Tools added:
 
