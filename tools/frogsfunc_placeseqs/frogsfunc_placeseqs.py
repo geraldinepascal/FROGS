@@ -288,8 +288,8 @@ if __name__ == "__main__":
 	group_input.add_argument('-i', '--input-fasta', required=True, help="Input fasta file of unaligned studies sequences.")
 	group_input.add_argument('-b', '--input-biom', required=True, help='Input biom file of unaligned studies sequences.')
 	group_input.add_argument('-r', '--ref-dir', help='If marker studied is not 16S, this is the directory containing reference sequence files (for ITS, see: $PICRUST2_PATH/default_files/fungi/fungi_ITS')
-	group_input.add_argument('-p', '--placement-tool', default='epa-ng', help='Placement tool to use when placing sequences into reference tree. One of "epa-ng" or "sepp" must be input')
-	group_input.add_argument('--min-align', type=restricted_float, default=0.8, help='Proportion of the total length of an input query sequence that must align with reference sequences. Any sequences with lengths below this value after making an alignment with reference sequences will be excluded from the placement and all subsequent steps. (default: %(default)d).')
+	group_input.add_argument('-p', '--placement-tool', default='epa-ng', choices=["epa-ng", "sepp"], help='Tool to place sequences into reference tree. Note that epa-ng is more sensitiv but very memory and computing power intensive [Default: %(default)s]')
+	group_input.add_argument('--min-align', type=restricted_float, default=0.8, help='Proportion of the total length of an input query sequence that must align with reference sequences. Any sequences with lengths below this value after making an alignment with reference sequences will be excluded from the placement and all subsequent steps. (default: %(default)s).')
 	# Outputs
 	group_output = parser.add_argument_group('Outputs')
 	group_output.add_argument('-o', '--out-tree', default='frogsfunc_placeseqs_tree.nwk', help='Reference tree output with insert sequences (format: newick).')
