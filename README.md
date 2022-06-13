@@ -292,8 +292,10 @@ GNU GPL v3
 
 
 # Citation
-Please cite the [**FROGS article**: *Escudie F., et al. Bioinformatics, 2018. FROGS: Find, Rapidly, OTUs with Galaxy Solution.*](https://doi.org/10.1093/bioinformatics/btx791)
 
+Depending on which type of amplicon you are working on (mergeable or unmergeable), please cite  one of the two FROGS publications:
+* [*Escudie F., et al. Bioinformatics, 2018. FROGS: Find, Rapidly, OTUs with Galaxy Solution.*](https://doi.org/10.1093/bioinformatics/btx791)
+* [*Bernard M., et al. Briefings in Bioinformatics, 2021. FROGS: a powerful tool to analyse the diversity of fungi with special management of internal transcribed spacers.*](https://doi.org/10.1093/bib/bbab318)
 
 # Contact
 frogs-support@inrae.fr
