@@ -1,3 +1,11 @@
+# v4.0.1 [2022-06]
+
+### Bug fixed
+* frogsfunc_placeseqs : 
+  * repare html link in PICRUSt2 closest ID (JGI) column
+  * add missing genomes in JGI_ID_to_taxonomy.txt file
+* affiliation_filter : correction of an exception about the number of taxonomic ranks defined for OTUs that are actually not affiliated
+
 # v4.0.0 [2022-05]
 
 ### Tools added:
