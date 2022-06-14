@@ -2,14 +2,14 @@
 
 nb_cpu=2
 java_mem=1
-out_dir=res_4.0.0_to_check
+out_dir=res_4.0.1_to_check
 expected_dir=res_4.0.0_expected
 run_programs=true	## if true lance les python sinon, fait uniquement les comparatifs de résultats
 
 ## Set ENV
 ## export PATH=../app:$PATH
 ## or
-## conda activate frogs
+## conda activate frogs@XXX
 ##		# après installation de l'env, check de la présence des librairies perl
 
 ## Create output folder
