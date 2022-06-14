@@ -19,7 +19,7 @@
 __author__ = ' Moussa Samb & Vincent Darbot & Geraldine Pascal GENPHYSE '
 __copyright__ = 'Copyright (C) 2022 INRAE'
 __license__ = 'GNU General Public License'
-__version__ = '4.0.0'
+__version__ = '4.0.1'
 __email__ = 'frogs@toulouse.inrae.fr'
 __status__ = 'dev'
 
@@ -240,8 +240,8 @@ def write_summary(in_fasta, align_out, biomfile, closest_ref_file, category, sum
 		li = li.strip().split('\t')
 		if category in ['16S','ITS']:
 			try:
-				id_cur = li[2]
-				li[2] = START_IMG_LINK + id_cur + "'target=\"_blank\">" + id_cur + '</a>'
+				id_cur = li[3]
+				li[3] = START_IMG_LINK + id_cur + "'target=\"_blank\">" + id_cur + '</a>'
 				infos_otus.append({
 					'name': li[0],
 					'data': list(li[1:-2])
@@ -288,15 +288,15 @@ if __name__ == "__main__":
 	group_input.add_argument('-i', '--input-fasta', required=True, help="Input fasta file of unaligned studies sequences.")
 	group_input.add_argument('-b', '--input-biom', required=True, help='Input biom file of unaligned studies sequences.')
 	group_input.add_argument('-r', '--ref-dir', help='If marker studied is not 16S, this is the directory containing reference sequence files (for ITS, see: $PICRUST2_PATH/default_files/fungi/fungi_ITS')
-	group_input.add_argument('-p', '--placement-tool', default='epa-ng', help='Placement tool to use when placing sequences into reference tree. One of "epa-ng" or "sepp" must be input')
-	group_input.add_argument('--min-align', type=restricted_float, default=0.8, help='Proportion of the total length of an input query sequence that must align with reference sequences. Any sequences with lengths below this value after making an alignment with reference sequences will be excluded from the placement and all subsequent steps. (default: %(default)d).')
+	group_input.add_argument('-p', '--placement-tool', default='epa-ng', choices=["epa-ng", "sepp"], help='Tool to place sequences into reference tree. Note that epa-ng is more sensitiv but very memory and computing power intensive [Default: %(default)s]')
+	group_input.add_argument('--min-align', type=restricted_float, default=0.8, help='Proportion of the total length of an input query sequence that must align with reference sequences. Any sequences with lengths below this value after making an alignment with reference sequences will be excluded from the placement and all subsequent steps. (default: %(default)s).')
 	# Outputs
 	group_output = parser.add_argument_group('Outputs')
-	group_output.add_argument('-o', '--out-tree', default='frogsfunc_placeseqs_tree.nwk', help='Reference tree output with insert sequences (format: newick).')
-	group_output.add_argument('-e', '--excluded', default='frogsfunc_placeseqs_excluded.txt', help='List of sequences not inserted in the tree.')
+	group_output.add_argument('-o', '--out-tree', default='frogsfunc_placeseqs_tree.nwk', help='Reference tree output with insert sequences (format: newick). [Default: %(default)s]')
+	group_output.add_argument('-e', '--excluded', default='frogsfunc_placeseqs_excluded.txt', help='List of sequences not inserted in the tree. [Default: %(default)s]')
 	group_output.add_argument('-s', '--insert-fasta', default='frogsfunc_placeseqs.fasta', help='Fasta file without non insert sequences. (format: FASTA). [Default: %(default)s]')
 	group_output.add_argument('-m', '--insert-biom', default='frogsfunc_placeseqs.biom', help='Biom file without non insert sequences. (format: BIOM) [Default: %(default)s]')
-	group_output.add_argument('-c', '--closests-ref', default='frogsfunc_placeseqs_closests_ref_sequences.txt', help='Informations about Clusters (i.e OTUs) and PICRUSt2 closest reference from cluster sequences (identifiants, taxonomies, phylogenetic distance from reference, nucleotidics sequences).')
+	group_output.add_argument('-c', '--closests-ref', default='frogsfunc_placeseqs_closests_ref_sequences.txt', help='Informations about Clusters (i.e OTUs) and PICRUSt2 closest reference from cluster sequences (identifiants, taxonomies, phylogenetic distance from reference, nucleotidics sequences). [Default: %(default)s]')
 	group_output.add_argument('-l', '--log-file', default=sys.stdout, help='List of commands executed.')
 	group_output.add_argument('-t', '--html', default='frogsfunc_placeseqs_summary.html', help="Path to store resulting html file. [Default: %(default)s]" )
 	args = parser.parse_args()

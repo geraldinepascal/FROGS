@@ -19,7 +19,7 @@
 __author__ = 'Olivier Rue - Migale MaIAGE Jouy-en-Josas - Maria Bernard - Sigenae Jouy en Josas'
 __copyright__ = 'Copyright (C) 2015 INRA'
 __license__ = 'GNU General Public License'
-__version__ = '4.0.0'
+__version__ = '4.0.1'
 __email__ = 'frogs-support@inrae.fr'
 __status__ = 'prod'
 
@@ -230,7 +230,7 @@ if __name__ == "__main__":
     # Inputs
     group_input = parser.add_argument_group( 'Inputs' )
     group_input.add_argument( '--region', type=str, required=True,  choices=['ITS1','ITS2'], help='Which fungal ITS region is targeted: either ITS1 or ITS2' )
-    group_input.add_argument( '--organism-groups', type=str, nargs="*", default=['F'], help='Reduce ITSx scan to specified organim groups. [Default: %(default)s , which means Fungi only]')
+    group_input.add_argument( '--organism-groups', type=str, nargs="+", default=['F'], help='Reduce ITSx scan to specified organim groups. [Default: %(default)s , which means Fungi only]')
     group_input.add_argument( '--check-its-only', action='store_true', default=False, help='Check only if sequences seem to be an ITS' )
     group_input.add_argument( '-f', '--input-fasta', required=True, help='The cluster sequences (format: FASTA).' )
     group_exclusion_abundance = group_input.add_mutually_exclusive_group()

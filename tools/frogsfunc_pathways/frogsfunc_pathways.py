@@ -19,7 +19,7 @@
 __author__ = ' Moussa Samb & Vincent Darbot & Geraldine Pascal - GENPHYSE '
 __copyright__ = 'Copyright (C) 2022 INRAE'
 __license__ = 'GNU General Public License'
-__version__ = '4.0.0'
+__version__ = '4.0.1'
 __email__ = 'frogs@toulouse.inrae.fr'
 __status__ = 'dev'
 
@@ -323,13 +323,13 @@ if __name__ == "__main__":
 	group_input = parser.add_argument_group( 'Inputs' )
 	group_input.add_argument('-i', '--input-file', required=True, type=str, help='Input TSV function abundances table from FROGSFUNC_step3_function (unstratified table : frogsfunc_functions_unstrat.tsv).')
 	group_input.add_argument('-m', '--map', type=str, help='if marker studied is not 16S : Path to mapping file of pathways to reactions (metacyc_path2rxn_struc_filt_pro.txt used by default). For ITS analysis, required file is here: $PICRUSt2_PATH/fdefault_files/pathway_mapfiles/metacyc_path2rxn_struc_filt_fungi.txt).')
-	group_input.add_argument('--per-sequence-abun', default=None, help='Path to table of sequence abundances across samples normalized by marker copy number (typically the normalized sequence abundance table output at the metagenome pipeline step: frogsfunc_genefamilies_seqtab_norm.tsv by default). This input is required when the --per-sequence-contrib option is set. (default: None).')
+	group_input.add_argument('--per-sequence-abun', default=None, help='Path to table of sequence abundances across samples normalized by marker copy number (typically the normalized sequence abundance table output at the metagenome pipeline step: frogsfunc_functions_marker_norm.tsv by default). This input is required when the --per-sequence-contrib option is set. (default: None).')
 	group_input.add_argument('--per-sequence-function', default=None, help='Path to table of function abundances per sequence, which was outputted at the hidden-state prediction step (frogsfunc_copynumbers_predicted_functions.tsv by default). This input is required when the --per-sequence-contrib option is set. Note that this file should be the same input table as used for the metagenome pipeline step (default: None).')
 	group_input.add_argument('--hierarchy-ranks', nargs='*', default=["Level1", "Level2", "Level3", "Pathway"], help='The ordered ranks levels used in the metadata hierarchy pathways. [Default: %(default)s]' )
 	group_input.add_argument( '--normalisation', default=False, action='store_true', help='To normalise data after analysis. Values are divided by sum of columns , then multiplied by 10^6 (CPM values). [Default: %(default)s]')
 	#Outputs
 	group_output = parser.add_argument_group( 'Outputs')
-	group_output.add_argument('-o', '--pathways-abund', default='frogsfunc_pathways_unstrat.tsv', help='Pathway abundance file output.')
+	group_output.add_argument('-o', '--pathways-abund', default='frogsfunc_pathways_unstrat.tsv', help='Pathway abundance file output. Default: %(default)s]')
 	group_output.add_argument('--pathways-contrib', default=None, help='Stratified output corresponding to contribution of predicted gene family abundances within each predicted genome.')
 	group_output.add_argument('--pathways-predictions', default=None, help='Stratified output corresponding to contribution of predicted gene family abundances within each predicted genome.')
 	group_output.add_argument('--pathways-abund-per-seq', default=None, help='Pathway abundance file output per sequences (if --per-sequence-contrib set)')

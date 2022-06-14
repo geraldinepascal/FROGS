@@ -19,7 +19,7 @@
 __author__ = 'Katia Vidal - Team NED Toulouse AND Frederic Escudie - Plateforme bioinformatique Toulouse AND Maria Bernard - Sigenae Jouy en Josas'
 __copyright__ = 'Copyright (C) 2020 INRAE'
 __license__ = 'GNU General Public License'
-__version__ = '4.0.0'
+__version__ = '4.0.1'
 __email__ = 'frogs-support@inrae.fr'
 __status__ = 'prod'
 
@@ -831,7 +831,7 @@ if __name__ == '__main__':
      # Control blast taxonomy rank number
     for observation in in_biom.get_observations():
         taxonomy = observation['metadata']['blast_taxonomy']
-        if taxonomy != None:
+        if taxonomy != None and len(taxonomy) != 0:
             break
     if len(taxonomy) != len(args.taxonomic_ranks):
         raise_exception(Exception('\n\n#ERROR : you declare that taxonomies are defined on ' + str(len(args.taxonomic_ranks)) + ' ranks but your biom file contains taxonomy defined on ' + str(len(taxonomy)) + ', at least for ' + observation['id'] + '\n\n'))

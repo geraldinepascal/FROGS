@@ -6,7 +6,7 @@
 
 Visit our web site : http://frogs.toulouse.inrae.fr/
 
-[![Release](https://img.shields.io/badge/release-4.0.0-blue.svg)![Date](https://img.shields.io/badge/date-May%202022-red.svg)](https://github.com/geraldinepascal/FROGS-wrappers/releases) [<img src="https://www.podcastscience.fm/wp-content/uploads/2017/12/deezer.png" width="5%" style="display: block; margin: auto;"/>](https://www.deezer.com/fr/playlist/5233843102?utm_source=deezer&utm_content=playlist-5233843102&utm_term=18632989_1545296531&utm_medium=web)
+[![Release](https://img.shields.io/badge/release-4.0.1-blue.svg)![Date](https://img.shields.io/badge/date-June%202022-red.svg)](https://github.com/geraldinepascal/FROGS-wrappers/releases) [<img src="https://www.podcastscience.fm/wp-content/uploads/2017/12/deezer.png" width="5%" style="display: block; margin: auto;"/>](https://www.deezer.com/fr/playlist/5233843102?utm_source=deezer&utm_content=playlist-5233843102&utm_term=18632989_1545296531&utm_medium=web)
 
 
 
@@ -136,20 +136,20 @@ FROGS is now available on bioconda (https://anaconda.org/bioconda/frogs).
   * to create a specific environment for a specific FROGS version
 
 ```
-conda env create --name frogs@4.0.0 --file frogs-conda-requirements.yaml
+conda env create --name frogs@4.0.1 --file frogs-conda-requirements.yaml
 # to use FROGS, first you need to activate your environment
-conda activate frogs@4.0.0
+conda activate frogs@4.0.1
 ```
 
 **WARNING** : As PICRUSt2 currently relies on a different R version, in order to use the FROGSFUNC tools, it is necessary to create a dedicated conda environment as follows:
 
 ```
-conda env create --name frogsfunc@4.0.0 --file frogsfunc-conda-requirements.yaml
+conda env create --name frogsfunc@4.0.1 --file frogsfunc-conda-requirements.yaml
 # and then activate the environment
-conda activate frogsfunc@4.0.0
+conda activate frogsfunc@4.0.1
 ```
 
-After that, you just have to switch from one environment to another (with `conda activate frogs@4.0.0` or `conda activate frogsfunc@4.0.0` depending on whether you want to use FROGSFUNC or all the other tools.
+After that, you just have to switch from one environment to another (with `conda activate frogs@4.0.1` or `conda activate frogsfunc@4.0.1` depending on whether you want to use FROGSFUNC or all the other tools.
 
 ## Check intallation
 
@@ -157,9 +157,9 @@ To check your installation you can type:
 
 ```
 cd <FROGS_PATH>/test
-# when using conda FROGS_PATH=<conda_env_dir>/frogs@4.0.0/share/FROGS_4.0.0
+# when using conda FROGS_PATH=<conda_env_dir>/frogs@4.0.1/share/FROGS_4.0.1
 
-conda activate frogs@4.0.0
+conda activate frogs@4.0.1
 
 sh test_frogs.sh <FROGS_PATH> <NB_CPU> <JAVA_MEM> <OUT_FOLDER>
 ```
@@ -205,9 +205,9 @@ Finally, to check the FROGSFUNC tools installation you can type:
 
 ```
 cd <FROGS_PATH>/test
-# when using conda FROGS_PATH=<conda_env_dir>/frogsfunc/share/FROGS_4.0.0
+# when using conda FROGS_PATH=<conda_env_dir>/frogsfunc/share/FROGS_4.0.1
 
-conda activate frogsfunc@4.0.0
+conda activate frogsfunc@4.0.1
 
 sh test_frogsfunc.sh <FROGS_PATH> <OUT_FOLDER>
 ```
@@ -296,7 +296,6 @@ GNU GPL v3
 Depending on which type of amplicon you are working on (mergeable or unmergeable), please cite  one of the two FROGS publications:
 * [*Escudie F., et al. Bioinformatics, 2018. FROGS: Find, Rapidly, OTUs with Galaxy Solution.*](https://doi.org/10.1093/bioinformatics/btx791)
 * [*Bernard M., et al. Briefings in Bioinformatics, 2021. FROGS: a powerful tool to analyse the diversity of fungi with special management of internal transcribed spacers.*](https://doi.org/10.1093/bib/bbab318)
-
 
 # Contact
 frogs-support@inrae.fr
