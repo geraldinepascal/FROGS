@@ -19,7 +19,7 @@
 __author__ = ' Moussa Samb & Vincent Darbot & Geraldine Pascal - GENPHYSE '
 __copyright__ = 'Copyright (C) 2022 INRAE'
 __license__ = 'GNU General Public License'
-__version__ = '4.0.0'
+__version__ = '4.0.1'
 __email__ = 'frogs@toulouse.inrae.fr'
 __status__ = 'dev'
 
