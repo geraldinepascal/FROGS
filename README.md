@@ -156,12 +156,11 @@ After that, you just have to switch from one environment to another (with `conda
 To check your installation you can type:
 
 ```
-cd <FROGS_PATH>/test
-# when using conda FROGS_PATH=<conda_env_dir>/frogs@4.0.1/share/FROGS_4.0.1
+cd <conda_env_dir>/frogs@4.0.1/share/FROGS-4.0.1/test
 
 conda activate frogs@4.0.1
 
-sh test_frogs.sh <FROGS_PATH> <NB_CPU> <JAVA_MEM> <OUT_FOLDER>
+sh test_frogs.sh <NB_CPU> <JAVA_MEM> <OUT_FOLDER>
 ```
 "Bioinformatic" tools are performed on a small simulated dataset of one sample replicated three times.
 "Statistical" tools are performed on an extract of the published results of [Chaillou et al, ISME 2014](https://doi.org/10.1038/ismej.2014.202)
@@ -204,12 +203,11 @@ Completed with success
 Finally, to check the FROGSFUNC tools installation you can type:
 
 ```
-cd <FROGS_PATH>/test
-# when using conda FROGS_PATH=<conda_env_dir>/frogsfunc/share/FROGS_4.0.1
+cd <conda_env_dir>/frogsfunc@4.0.1/share/FROGS-4.0.1/test
 
 conda activate frogsfunc@4.0.1
 
-sh test_frogsfunc.sh <FROGS_PATH> <OUT_FOLDER>
+sh test_frogsfunc.sh <OUT_FOLDER>
 ```
 
 This test executes the FROGSFUNC tools in command line mode.
