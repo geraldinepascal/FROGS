@@ -9,7 +9,7 @@ run_programs=true	## if true lance les python sinon, fait uniquement les compara
 ## Set ENV
 ## export PATH=../app:$PATH
 ## or
-## conda activate frogs@4.0.1
+## conda activate frogs@XXX
 ##		# après installation de l'env, check de la présence des librairies perl
 
 ## Create output folder
