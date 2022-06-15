@@ -19,7 +19,7 @@
 __author__ = ' Moussa Samb & Vincent Darbot & Geraldine Pascal - GENPHYSE '
 __copyright__ = 'Copyright (C) 2022 INRAE'
 __license__ = 'GNU General Public License'
-__version__ = '4.0.0'
+__version__ = '4.0.1'
 __email__ = 'frogs@toulouse.inrae.fr'
 __status__ = 'dev'
 
@@ -256,8 +256,8 @@ if __name__ == "__main__":
 	group_input.add_argument('-s', '--hsp-method', default='mp', choices=['mp', 'emp_prob', 'pic', 'scp', 'subtree_average'], help='HSP method to use.' +'"mp": predict discrete traits using max parsimony. ''"emp_prob": predict discrete traits based on empirical ''state probabilities across tips. "subtree_average": ''predict continuous traits using subtree averaging. ' '"pic": predict continuous traits with phylogentic ' 'independent contrast. "scp": reconstruct continuous ''traits using squared-change parsimony (default: ''%(default)s).')
 	# Output
 	group_output = parser.add_argument_group( 'Outputs' )
-	group_output.add_argument('-m', '--output-marker', default="frogsfunc_copynumbers_marker.tsv", type=str, help='Output table of predicted marker gene copy numbers per study sequence in input tree. If the extension \".gz\" is added the table will automatically be gzipped.')
-	group_output.add_argument('-o', '--output-function', default="frogsfunc_copynumbers_predicted_functions.tsv", type=str, help='Output table with predicted abundances per study sequence in input tree. If the extension \".gz\" is added the table will automatically be gzipped.')
+	group_output.add_argument('-m', '--output-marker', default="frogsfunc_copynumbers_marker.tsv", type=str, help='Output table of predicted marker gene copy numbers per study sequence in input tree. If the extension \".gz\" is added the table will automatically be gzipped.[Default: %(default)s]')
+	group_output.add_argument('-o', '--output-function', default="frogsfunc_copynumbers_predicted_functions.tsv", type=str, help='Output table with predicted abundances per study sequence in input tree. If the extension \".gz\" is added the table will automatically be gzipped.[Default: %(default)s]')
 	group_output.add_argument('-l', '--log-file', default=sys.stdout, help='List of commands executed.')
 	group_output.add_argument('--html', default='frogsfunc_copynumbers_summary.html', help="Path to store resulting html file. [Default: %(default)s]" )
 	args = parser.parse_args()

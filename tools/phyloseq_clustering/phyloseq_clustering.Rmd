@@ -1,5 +1,5 @@
 ---
-title: "FROGS Phyloseq: Sample clustering using different linkage method (version 4.0.0)"
+title: "FROGS Phyloseq: Sample clustering using different linkage method (version 4.0.1)"
 output: 
   html_notebook:
     code_folding: hide

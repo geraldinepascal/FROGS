@@ -1,16 +1,12 @@
 #!/bin/bash
-frogs_dir=$1
-out_dir=$2
+out_dir=$1
 
 # Check parameters
-if [ "$#" -ne 2 ]; then
+if [ "$#" -ne 1 ]; then
     echo "ERROR: Illegal number of parameters." ;
-    echo 'Command usage: test_frogsfunc.sh <FROGS_FOLDER> <OUT_FOLDER>' ;
+    echo 'Command usage: test_frogsfunc.sh <OUT_FOLDER>' ;
     exit 1 ;
 fi
-
-# Set ENV
-export PATH=$frogs_dir/app:$PATH
 
 # Create output folder
 if [ ! -d "$out_dir" ]
@@ -21,8 +17,8 @@ fi
 echo "Step frogsfunc_placeseqs `date`"
 
 frogsfunc_placeseqs.py \
- --input-fasta $frogs_dir/test/data/frogsfunc.fasta \
- --input-biom $frogs_dir/test/data/frogsfunc.biom \
+ --input-fasta data/frogsfunc.fasta \
+ --input-biom data/frogsfunc.biom \
  --placement-tool sepp \
  --out-tree $out_dir/25-frogsfunc_placeseqs_tree.nwk \
  --excluded $out_dir/25-frogsfunc_placeseqs_excluded.txt \

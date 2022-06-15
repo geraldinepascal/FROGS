@@ -1,18 +1,14 @@
 #!/bin/bash
-frogs_dir=$1
-nb_cpu=$2
-java_mem=$3
-out_dir=$4
+nb_cpu=$1
+java_mem=$2
+out_dir=$3
 
 # Check parameters
-if [ "$#" -ne 4 ]; then
+if [ "$#" -ne 3 ]; then
     echo "ERROR: Illegal number of parameters." ;
-    echo 'Command usage: test_frogs.sh <FROGS_FOLDER> <NB_CPU> <JAVA_MEM> <OUT_FOLDER>' ;
+    echo 'Command usage: test_frogs.sh <NB_CPU> <JAVA_MEM> <OUT_FOLDER>' ;
     exit 1 ;
 fi
-
-# Set ENV
-export PATH=$frogs_dir/app:$PATH
 
 # Create output folder
 if [ ! -d "$out_dir" ]
@@ -40,7 +36,7 @@ preprocess.py illumina \
  --five-prim-primer GGCGVACGGGTGAGTAA --three-prim-primer GTGCCAGCNGCNGCGG \
  --R1-size 267 --R2-size 266 --expected-amplicon-size 420 --merge-software flash \
  --nb-cpus $nb_cpu --mismatch-rate 0.15 --keep-unmerged \
- --input-archive $frogs_dir/test/data/test_dataset.tar.gz \
+ --input-archive data/test_dataset.tar.gz \
  --output-dereplicated $out_dir/01-prepro-flash.fasta \
  --output-count $out_dir/01-prepro-flash.tsv \
  --summary $out_dir/01-prepro-flash.html \
@@ -59,7 +55,7 @@ preprocess.py illumina \
  --five-prim-primer GGCGVACGGGTGAGTAA --three-prim-primer GTGCCAGCNGCNGCGG \
  --R1-size 267 --R2-size 266 --merge-software vsearch \
  --nb-cpus $nb_cpu --mismatch-rate 0.15 --keep-unmerged \
- --input-archive $frogs_dir/test/data/test_dataset.tar.gz \
+ --input-archive data/test_dataset.tar.gz \
  --output-dereplicated $out_dir/01-prepro-vsearch.fasta \
  --output-count $out_dir/01-prepro-vsearch.tsv \
  --summary $out_dir/01-prepro-vsearch.html \
@@ -169,7 +165,7 @@ fi
 echo "Step affiliation_OTU `date`"
 
 affiliation_OTU.py \
- --reference $frogs_dir/test/data/ITS1.rdp.fasta \
+ --reference data/ITS1.rdp.fasta \
  --input-fasta $out_dir/04-filters.fasta \
  --input-biom $out_dir/04-filters.biom \
  --output-biom $out_dir/06-affiliation.biom \
@@ -243,7 +239,7 @@ echo "Step affiliation_postprocess `date`"
 affiliation_postprocess.py \
  --input-biom $out_dir/06-affiliation.biom \
  --input-fasta $out_dir/04-filters.fasta \
- --reference $frogs_dir/test/data/Unite_extract_ITS1.fasta \
+ --reference data/Unite_extract_ITS1.fasta \
  --output-biom $out_dir/08-affiliation_postprocessed.biom \
  --output-compo $out_dir/08-affiliation_postprocessed.compo.tsv \
  --output-fasta $out_dir/08-affiliation_postprocessed.fasta \
@@ -402,9 +398,9 @@ fi
 echo "Step phyloseq_import_data `date`"
 
 phyloseq_import_data.py  \
- --biomfile $frogs_dir/test/data/chaillou.biom \
- --samplefile $frogs_dir/test/data/sample_metadata.tsv \
- --treefile $frogs_dir/test/data/tree.nwk \
+ --biomfile data/chaillou.biom \
+ --samplefile data/sample_metadata.tsv \
+ --treefile data/tree.nwk \
  --rdata $out_dir/16-phylo_import.Rdata \
  --html $out_dir/16-phylo_import.nb.html \
  --log-file $out_dir/16-phylo_import.log
