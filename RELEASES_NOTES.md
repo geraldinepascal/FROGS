@@ -4,6 +4,8 @@
 * frogsfunc_placeseqs : 
   * repare html link in PICRUSt2 closest ID (JGI) column
   * add missing genomes in JGI_ID_to_taxonomy.txt file
+* frogsfunc_function:
+  * deal with function that are not associated with database link (picrust trait PHENO)
 * Affiliation_filter : correctly find the number of taxonomical rank (in cas of empty affiliation in the first cluster)
 
 # v4.0.0 [2022-05]

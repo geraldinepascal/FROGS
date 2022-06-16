@@ -107,12 +107,14 @@ class MetagenomePipeline(Cmd):
 			function = li[0]
 			if "COG" in function:
 				li.insert(0,START_COG_LINK + function )
-			if "PF" in function:
+			elif "PF" in function:
 				li.insert(0,START_PFAM_LINK + function )
-			if "TIGR" in function:
+			elif "TIGR" in function:
 				li.insert(0,START_TIGR_LINK + function )
 			elif re.search('K[0-9]{5}',function) or "EC:" in function:
 				li.insert(0,START_GENBANK_LINK + function )
+			else:
+				li.insert(0,"" )
 			f_out.write("\t".join(li)+"\n")
 		os.remove('pred_metagenome_unstrat.tsv.gz')
 		with gzip.open('seqtab_norm.tsv.gz', 'rb') as f_in:
