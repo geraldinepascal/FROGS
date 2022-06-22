@@ -103,7 +103,7 @@ class MetagenomePipeline(Cmd):
 		header.insert(0,'db_link')
 		f_out.write("\t".join(header)+"\n")
 		for li in f_in[1:]:
-			li = li.strip().split('\t')
+			li = li.split('\t')
 			function = li[0]
 			if "COG" in function:
 				li.insert(0,START_COG_LINK + function )
@@ -114,8 +114,8 @@ class MetagenomePipeline(Cmd):
 			elif re.search('K[0-9]{5}',function) or "EC:" in function:
 				li.insert(0,START_GENBANK_LINK + function )
 			else:
-				li.insert(0,"" )
-			f_out.write("\t".join(li)+"\n")
+				li.insert(0,"no link" )
+			f_out.write("\t".join(li))
 		os.remove('pred_metagenome_unstrat.tsv.gz')
 		with gzip.open('seqtab_norm.tsv.gz', 'rb') as f_in:
 			with open(self.seqtab, 'wb') as f_out:
