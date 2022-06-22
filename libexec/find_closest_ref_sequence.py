@@ -166,12 +166,14 @@ def find_closest_ref_sequences(tree, biom, biom_path, cluster_to_multiaffi, ID_t
 	FH_out.write(header+"\n")
 	find_frogs_taxo = True
 	for cluster in clusters:
-		try:
-			frogs_taxo = ";".join(biom.get_observation_metadata(cluster)["blast_taxonomy"])
-			count = str(biom.get_observation_count(cluster))
-		except:
+
+		if biom.get_observation_metadata(cluster)["blast_taxonomy"] is None or len(biom.get_observation_metadata(cluster)["blast_taxonomy"]) == 0:
 			find_frogs_taxo = False
 			frogs_taxo = 'unknown'
+		else:
+			frogs_taxo = ";".join(biom.get_observation_metadata(cluster)["blast_taxonomy"])
+
+		count = str(biom.get_observation_count(cluster))
 
 		node = tree.search_nodes(name=cluster)[0]
 		#find distances from cluster to every reference sequences is sister group.
