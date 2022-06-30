@@ -114,7 +114,7 @@ def check_ref_files(tree_file, biom_file, biom_path, multi_affi_file, fasta_file
 	
 	ref = gzip.open(ref_file,'rt').readlines()
 	ID_to_taxo = {}
-	for li in ref[1:]:
+	for li in ref:
 		li = li.strip().split('\t')
 		#ID of reference sequence to [sequence name, taxonomy]
 		ID_to_taxo[li[0]] = [li[1],li[2]]
@@ -229,7 +229,6 @@ def find_closest_ref_sequences(tree, biom, biom_path, cluster_to_multiaffi, ID_t
 					confidence = "Good"
 
 				FH_out.write("\t".join([cluster, count, frogs_taxo, best_leaf, ID_to_taxo[best_leaf][0], ID_to_taxo[best_leaf][1],str(rounding(leaf_to_dist[best_leaf])), confidence, str(lowest_same_rank), str(comment), cluster_to_seq[cluster], ref_seqs[best_leaf]])+'\n')
-
 	BiomIO.write(biom_path, biom)
 
 ##################################################################################################################################################
