@@ -22,27 +22,49 @@ __version__ = '1.0.0'
 __email__ = 'frogs-support@inrae.fr'
 __status__ = 'dev'
 
+from unicodedata import name
+import mechanize
 import argparse
-import sys
-import re
-import os
 import requests
+import gzip
 from bs4 import BeautifulSoup
 
+### URL PATTERN DATABASES
 JGI_URL = 'https://img.jgi.doe.gov/cgi-bin/m/main.cgi?section=TaxonDetail&page=taxonDetail&taxon_oid='
+ITS_URL = 'https://mycocosm.jgi.doe.gov/###ID/###ID.home.html'
+TAXO_BROWSER = "https://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi"
+###
 
+### Classes 
+class NoLineageException(Exception):
+    """No GTDB-Tk taxonomy found. Searching for classic taxonomy."""
+    pass
+###
+
+### Functions
+# tools
+def make_a_soup(url):
+    html_text = requests.get(url).text
+    soup = BeautifulSoup(html_text, 'html.parser')
+    return soup
+
+def is_gzipped(path):
+    return path.endswith(".gz")
+
+# parsing input files
 def read_alignment_file(alignment_fi):
-    with open(alignment_fi) as fi:
+    opener = gzip.open if is_gzipped(alignment_fi) else open
+    with opener(alignment_fi, "rt") as fi:
         for li in fi:
             li = li.strip()
             if li.startswith('>'):
                 yield li.split('>')[-1].split('-cluster')[0]
 
+# Parsing html pages
 def parse_jgi_html(id, jgi_url, output_file):
     ###
     url = jgi_url + id
-    html_text = requests.get(url).text
-    soup = BeautifulSoup(html_text, 'html.parser')
+    soup = make_a_soup(url)
     # Species name parser
     try:
         name = soup.find(class_="subhead", text="Organism Name")\
@@ -61,7 +83,26 @@ def parse_jgi_html(id, jgi_url, output_file):
     except:
         lineage = ";;;;;;"
     ###
+
     output_file.write(f'{id}\t{name}\t{lineage}\n')
+
+def parse_its_html(id, jgi_url, to_search, output_file):
+    ###
+    url = jgi_url.replace('###ID',id)
+    soup = make_a_soup(url)
+    # Species name parser
+    try:
+        name = soup.find(class_="organismName").text.replace("Home • ","")
+    except:
+        name = "unknown"
+    to_search.open(TAXO_BROWSER)
+    to_search.select_form(nr=0)
+    to_search.form['srchmode'] = ['1']
+    to_search['name'] = name
+    print(name)
+    req = to_search.submit()
+    # for li in req:
+    #     print(li)
 
 def parse_arguments():
     # Manage parameters.
@@ -70,6 +111,9 @@ def parse_arguments():
     parser.add_argument("-i", "--ref_alignment", required = True, \
      help = "PICRUSt2 reference alignment file")
 
+    parser.add_argument("-c", "--category", required = True, \
+     help = "Category of database to be searched. 16S : JGI databbase, ITS : JGI Mycocosm database" , choices=["16S", "ITS"])
+
     parser.add_argument('-o', '--output_file', \
     default="JGI_ID_to_taxonomy.txt", help = 'Output file with JGI metadata.')
 
@@ -77,16 +121,20 @@ def parse_arguments():
     return args
 
 def main():
-
     args = parse_arguments()
 
     ids = read_alignment_file(args.ref_alignment)
-    
+
+    if args.category == "ITS":
+            to_search = mechanize.Browser()
+
     output_fi = open(args.output_file,'w')
     for id in ids:
-        parse_jgi_html(id, JGI_URL, output_fi)
+        if args.category == "16S":
+            parse_jgi_html(id, JGI_URL, output_fi)
+        elif args.category == "ITS":
+            parse_its_html(id, ITS_URL, to_search, output_fi)
     output_fi.close()
-
 
 if __name__ == '__main__':
     main()
