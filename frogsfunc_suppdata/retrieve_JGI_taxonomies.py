@@ -77,8 +77,6 @@ def parse_jgi_html(id, jgi_url, output_file):
     ###
     url = jgi_url + id
     soup = make_a_soup(url)
-    for li in soup:
-        print(li)
     # Species name parser
     try:
         name = soup.find(class_="subhead", text="Organism Name")\
