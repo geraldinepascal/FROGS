@@ -27,6 +27,7 @@ import mechanize
 import argparse
 import requests
 import gzip
+import re
 from bs4 import BeautifulSoup
 
 ### URL PATTERN DATABASES
@@ -36,9 +37,7 @@ TAXO_BROWSER = "https://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi"
 ###
 
 ### Classes 
-class NoLineageException(Exception):
-    """No GTDB-Tk taxonomy found. Searching for classic taxonomy."""
-    pass
+
 ###
 
 ### Functions
@@ -47,6 +46,19 @@ def make_a_soup(url):
     html_text = requests.get(url).text
     soup = BeautifulSoup(html_text, 'html.parser')
     return soup
+
+def run_form(to_search, name):
+    to_search.open(TAXO_BROWSER)
+    to_search.select_form(nr=0)
+    to_search.form['srchmode'] = ['1']
+    to_search['name'] = name
+    req = to_search.submit()
+    for li in req:
+        li = str(li)
+        if "Did you mean" in li:
+            name = li.split('alt="score=0">')[1].split('</a>')[0]
+            return run_form(to_search, name)
+    return name
 
 def is_gzipped(path):
     return path.endswith(".gz")
@@ -65,45 +77,39 @@ def parse_jgi_html(id, jgi_url, output_file):
     ###
     url = jgi_url + id
     soup = make_a_soup(url)
+    for li in soup:
+        print(li)
     # Species name parser
     try:
         name = soup.find(class_="subhead", text="Organism Name")\
             .find_next_sibling('td').text
     except:
-        name = "unknown"
+        removed = soup.find(id="content_other")
+        id = str(removed.b).split('taxon_oid=')[1].split('">')[0]
+        return parse_jgi_html(id, jgi_url, output_file)
+
     # lineage parser
     try:
         # gtdb-tk clasification
         lineage = ";".join([cur_rank.split('__')[-1] for cur_rank in \
             soup.find(class_="subhead", text="GTDB-tk Lineage").find_next_sibling('td').text.split(';')])
-    except NoLineageException:
+    except:
         # else, retrieve default classification
         lineage = ";".join([cur_rank.get_text() for cur_rank in  \
             soup.find(class_="subhead", text="Lineage").find_next_sibling('td').find_all('a')])
-    except:
-        lineage = ";;;;;;"
-    ###
-
+            
     output_file.write(f'{id}\t{name}\t{lineage}\n')
 
 def parse_its_html(id, jgi_url, to_search, output_file):
     ###
     url = jgi_url.replace('###ID',id)
     soup = make_a_soup(url)
+    REGEX_VERSION = "v[0-9]{1,2}(\.[0-9]{1,2})?"
     # Species name parser
-    try:
-        name = soup.find(class_="organismName").text.replace("Home • ","")
-    except:
-        name = "unknown"
-    to_search.open(TAXO_BROWSER)
-    to_search.select_form(nr=0)
-    to_search.form['srchmode'] = ['1']
-    to_search['name'] = name
-    print(name)
-    req = to_search.submit()
-    # for li in req:
-    #     print(li)
-
+    name = soup.find(class_="organismName").text.replace("Home • ","")
+    if re.search(REGEX_VERSION, name):
+        name = " ".join(name.split()[:-1])
+                
 def parse_arguments():
     # Manage parameters.
     parser = argparse.ArgumentParser()
