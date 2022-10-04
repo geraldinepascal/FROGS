@@ -75,6 +75,7 @@ def read_alignment_file(alignment_fi):
 # Parsing html pages
 def parse_jgi_html(id, jgi_url, output_file):
     ###
+    print(id)
     url = jgi_url + id
     soup = make_a_soup(url)
     # Species name parser
@@ -82,9 +83,12 @@ def parse_jgi_html(id, jgi_url, output_file):
         name = soup.find(class_="subhead", text="Organism Name")\
             .find_next_sibling('td').text
     except:
-        removed = soup.find(id="content_other")
-        id = str(removed.b).split('taxon_oid=')[1].split('">')[0]
-        return parse_jgi_html(id, jgi_url, output_file)
+        try:
+            removed = soup.find(id="content_other")
+            id = str(removed.b).split('taxon_oid=')[1].split('">')[0]
+            return parse_jgi_html(id, jgi_url, output_file)
+        except:
+            name = "unknown"
 
     # lineage parser
     try:
@@ -93,8 +97,11 @@ def parse_jgi_html(id, jgi_url, output_file):
             soup.find(class_="subhead", text="GTDB-tk Lineage").find_next_sibling('td').text.split(';')])
     except:
         # else, retrieve default classification
-        lineage = ";".join([cur_rank.get_text() for cur_rank in  \
-            soup.find(class_="subhead", text="Lineage").find_next_sibling('td').find_all('a')])
+        try:
+            lineage = ";".join([cur_rank.get_text() for cur_rank in  \
+                soup.find(class_="subhead", text="Lineage").find_next_sibling('td').find_all('a')])
+        except:
+            lineage = ",,,,,,"
             
     output_file.write(f'{id}\t{name}\t{lineage}\n')
 
