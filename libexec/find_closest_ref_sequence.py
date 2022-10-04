@@ -22,11 +22,13 @@ __version__ = '1.0.0'
 __email__ = 'frogs-support@inrae.fr'
 __status__ = 'dev'
 
-import gzip
-import os, sys
-import argparse
-import re
+from Bio import Align
 import ete3 as ete
+import argparse
+import os, sys
+import random
+import gzip
+import re
 
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
 # PATH
@@ -100,6 +102,67 @@ def find_lowest_same_taxo_rank(taxo_frogs, taxo_picrust, hierarchy = ["Kingdom",
 			return hierarchy[i]
 	return "/"
 
+def iter_sample_fast(iterator, samplesize):
+    results = []
+    
+    # Fill in the first samplesize elements:
+    for _ in range(samplesize):
+        results.append(iterator.__next__())
+    random.shuffle(results)  # Randomize their positions
+    
+    return results[:samplesize]
+
+def run_megablast(query, subject):
+	'''
+	@summary: Run megablast to calculate %identity between frogs sequence \
+	and picrust2 closest ref.
+	'''
+	## default paramaters
+	aligner = Align.PairwiseAligner()
+	aligner.match_score = 1.0
+	aligner.mismatch_score = -2.0
+	aligner.gap_score = -2.5
+	aligner.mode = 'local'
+	######
+	alignments = aligner.align(query, subject)
+	n = str(len(alignments)) if len(alignments) <=500 else ">500"
+	scores = list()
+	covs = list()
+	identities = list()
+	# check up to the first 500 first alignment
+	if len(alignments) > 500:
+		alignments =  iter_sample_fast(alignments, 500)
+	for aln in alignments:
+		if not aln.score in scores:
+			scores.append(aln.score)
+		coded_aln = aln.format().split('\n')[1].strip()
+		n_match = coded_aln.count('|')
+		n_gap = coded_aln.count('-')
+		n_mismatch = coded_aln.count('.')
+
+		qstart = aln.path[0][0]
+		qend = aln.path[-1][0]
+
+		cov = round(abs(qend-qstart)*100.0/len(query),2)
+		if not cov in covs:
+			covs.append(cov)
+		identity = round(n_match * 100.0 / abs(qend-qstart),2)
+		if not identity in identities:
+			identities.append(identity)
+
+	id = str(min(identities)) + " - " + str(max(identities)) if len(identities) > 1 else str(identities[0])
+	cov = str(min(covs)) + " - " + str(max(covs)) if len(covs) > 1 else str(covs[0])
+	score = str(min(scores)) + " - " + str(max(scores)) if len(scores) > 1 else str(scores[0])
+
+	res = {
+		"n_aln" : n,
+		"id" : id,
+		"cov" : cov,
+		"score" : score
+	}
+
+	return res
+
 def check_ref_files(tree_file, biom_file, biom_path, multi_affi_file, fasta_file, ref_aln, output ):
 	'''
 	@param tree: [str] Path to tree output from place_seqs.py.
@@ -162,7 +225,11 @@ def find_closest_ref_sequences(tree, biom, biom_path, cluster_to_multiaffi, ID_t
 	@param output: [str] path to tmp output file in order to write frogs and picrust2 taxonomic comparaisons.
 	"""
 	FH_out = open(output,'wt')
-	header = "\t".join(["Cluster","Nb sequences", "FROGS Taxonomy","PICRUSt2 closest ID","PICRUSt2 closest reference name","PICRUSt2 closest taxonomy","NSTI", "NSTI Confidence" ,"FROGS and PICRUSt2 lowest same taxonomic rank", "Comment", "Cluster sequence", "PICRUSt2 closest reference sequence"])
+	header = "\t".join(["Cluster","Nb sequences", "FROGS Taxonomy",\
+		"PICRUSt2 closest ID","PICRUSt2 closest reference name","PICRUSt2 closest taxonomy",\
+		"NSTI", "NSTI Confidence" ,"FROGS and PICRUSt2 lowest same taxonomic rank",\
+		 "Comment", "Cluster sequence", "PICRUSt2 closest reference sequence",\
+		"n_aln", "%id", "%cov", "score"])
 	FH_out.write(header+"\n")
 	find_frogs_taxo = True
 	for cluster in clusters:
@@ -214,6 +281,9 @@ def find_closest_ref_sequences(tree, biom, biom_path, cluster_to_multiaffi, ID_t
 					lowest_same_rank = find_lowest_same_taxo_rank(affis_frogs, affis_picrust)
 					if is_same_taxonomies(affis_frogs, affis_picrust):
 						comment = "identical taxonomy"
+
+				blast = run_megablast(cluster_to_seq[cluster], ref_seqs[best_leaf])
+
 				if cluster_to_seq[cluster] in ref_seqs[best_leaf]:
 					if comment == "/":
 						comment = "identical sequence"
@@ -228,7 +298,10 @@ def find_closest_ref_sequences(tree, biom, biom_path, cluster_to_multiaffi, ID_t
 				elif rounding(leaf_to_dist[best_leaf]) < 0.5:
 					confidence = "Good"
 
-				FH_out.write("\t".join([cluster, count, frogs_taxo, best_leaf, ID_to_taxo[best_leaf][0], ID_to_taxo[best_leaf][1],str(rounding(leaf_to_dist[best_leaf])), confidence, str(lowest_same_rank), str(comment), cluster_to_seq[cluster], ref_seqs[best_leaf]])+'\n')
+				FH_out.write("\t".join([cluster, count, frogs_taxo, best_leaf,\
+				ID_to_taxo[best_leaf][0], ID_to_taxo[best_leaf][1],str(rounding(leaf_to_dist[best_leaf])),\
+				confidence, str(lowest_same_rank), str(comment), cluster_to_seq[cluster], ref_seqs[best_leaf],\
+				blast["n_aln"], blast["id"], blast["cov"], blast["score"]])+'\n')
 	BiomIO.write(biom_path, biom)
 
 ##################################################################################################################################################
