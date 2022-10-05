@@ -40,12 +40,13 @@ def find_excluded(excluded_file):
 	...
 	"""
 	excluded = []
-	excluded_file = open(excluded_file,'r').readlines()
+	FH_in = open(excluded_file,'rt')
 
-	if excluded_file is not None:
-		for li in excluded_file:
-			if re.match("(Cluster_[0-9]+)",li):
-				excluded.append(li.strip())
+	for line in FH_in.readline():
+		if line != "#No excluded":
+			excluded.append(line.strip())
+	FH_in.close()
+	
 	return excluded
 
 def remove_excluded_fasta( in_fasta, out_fasta, excluded_seqs):
