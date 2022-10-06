@@ -101,7 +101,7 @@ class PathwayPipeline(Cmd):
 		self.pathways_abund_per_seq = pathways_abund_per_seq
 		
 	def get_version(self):
-		 return Cmd.get_version(self, 'stdout').split()[1].strip()
+		 return "PICRUSt2 " + Cmd.get_version(self, 'stdout').split()[1].strip()
 
 	def parser(self, log_file):
 		START_METAYC_PATHWAY_LINK = "https://biocyc.org/META/NEW-IMAGE?type=PATHWAY&object="

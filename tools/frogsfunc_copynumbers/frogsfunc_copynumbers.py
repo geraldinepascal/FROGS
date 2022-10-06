@@ -79,7 +79,7 @@ class HspMarker(Cmd):
 		self.result_file = result_file
 
 	def get_version(self):
-		return Cmd.get_version(self, 'stdout').split()[1].strip()
+		return "PICRUSt2 " + Cmd.get_version(self, 'stdout').split()[1].strip()
 
 	def parser(self, log_file):
 		"""
@@ -126,7 +126,7 @@ class HspFunction(Cmd):
 		self.result_file = result_file
 
 	def get_version(self):
-		return Cmd.get_version(self, 'stdout').split()[1].strip()
+		return "PICRUSt2 " + Cmd.get_version(self, 'stdout').split()[1].strip()
 
 	def parser(self, log_file):
 		"""

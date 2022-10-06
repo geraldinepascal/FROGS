@@ -90,7 +90,7 @@ class MetagenomePipeline(Cmd):
 		self.contrib = contrib
 
 	def get_version(self):
-		 return Cmd.get_version(self, 'stdout').split()[1].strip()
+		 return "PICRUSt2 " + Cmd.get_version(self, 'stdout').split()[1].strip()
 
 	def parser(self, log_file):
 		START_GENBANK_LINK = "https://www.genome.jp/dbget-bin/www_bget?"
