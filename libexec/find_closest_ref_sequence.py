@@ -49,15 +49,16 @@ from frogsSequenceIO import *
 #
 ##################################################################################################################################################
 
-def find_clusters(tree):
+def find_clusters(tree, reference_sequences):
 	"""
 	@summary: Returns the list of clusters insert into reference tree.
 	@param tree: [str] Path to tree output from place_seqs.py.
 	"""
-	fi = open(tree,'r').readline()
-	list_cluster = re.findall("(Cluster_[0-9]+)", fi)
-	print(len(list_cluster))
-	return list_cluster
+	clusters = list()
+	for leaf in tree:
+		if leaf.name.split('-cluster')[0] not in reference_sequences.keys():
+			clusters.append(leaf.name)
+	return clusters
 
 def rounding(nb):
 	'''
@@ -322,9 +323,11 @@ if __name__ == "__main__":
 	args = parser.parse_args()
 	prevent_shell_injections(args)
 
-	clusters = find_clusters(args.input_tree)
-
 	inputs = check_ref_files(args.input_tree, args.input_biom, args.output_biom, args.input_fasta, args.ref_aln, args.output_tsv )
+	tree_formatted = inputs[0]
+	reference_sequences = inputs[3]
+
+	clusters = find_clusters(tree_formatted, reference_sequences)
 
 	find_closest_ref_sequences(*inputs)
 	
