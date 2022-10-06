@@ -75,35 +75,16 @@ class PlaceSeqs(Cmd):
 		'--version')
 
 	def get_version(self):
-		return Cmd.get_version(self, 'stdout').split()[1].strip()
-
-class multiAffiFromBiom(Cmd):
-	'''
-	@summary: Extracts multi-affiliations data from a FROGS BIOM file, in order to detect identical sequences in FindClosestRefSequences step.
-	'''
-	def __init__(self, in_biom, out_tsv, log):
-		"""
-		@param in_biom: [Biom] The BIOM object.
-		@param output_tsv: [str] Path to the output file (format : TSV).
-		"""
-		Cmd.__init__(self,
-			'multiAffiFromBiom.py',
-			'Extracts multi-affiliations data from a FROGS BIOM file.',
-			'--input-file ' + in_biom + ' --output-file ' + out_tsv + " 2> " + log,
-			'--version')
-
-	def get_version(self):
-		return Cmd.get_version(self, 'stdout').strip()
+		return "PICRUSt2 " + Cmd.get_version(self, 'stdout').split()[1].strip()
 
 class FindClosestsRefSequences(Cmd):
 	'''
 	@summary: find OTUs closest reference sequences into a reference tree. 
 	'''
-	def __init__(self, in_tree, in_biom, multi_affiliations, in_fasta, ref_aln, out_biom, out_summary):
+	def __init__(self, in_tree, in_biom, in_fasta, ref_aln, out_biom, out_summary):
 		'''
 		@param in_tree: [str] Path to resulting tree file with insert clusters sequences.(place_seqs.py output).
 		@param in_biom: [str] Path to BIOM input file.
-		@param multi_affiliations: [str] Path to multiAffiFromBiom.py output file.
 		@param in_fasta: [str] 	Path to input fasta file of unaligned cluster sequences.
 		@param ref_aln [str]: Path to the alignment file of reference sequences.
 		@param out_biom [str]: Path to output Biom file with PICRUSt2 taxonomic affiliations informations.
@@ -115,7 +96,7 @@ class FindClosestsRefSequences(Cmd):
 		Cmd.__init__(self,
 			'find_closest_ref_sequence.py',
 			'find OTUs closests reference sequences into a reference tree.',
-			'--tree-file ' + in_tree + ' --biom-file ' + in_biom + ' --multi-affi ' + multi_affiliations + ' --fasta-file ' + in_fasta + ' --ref-aln ' + ref_aln + ' --out-biom ' + out_biom + ' --output ' + out_summary ,
+			'--input-tree ' + in_tree + ' --input-biom ' + in_biom + ' --input-fasta ' + in_fasta + ' --ref-aln ' + ref_aln + ' --output-biom ' + out_biom + ' --output-tsv ' + out_summary ,
 			'--version')
 
 	def get_version(self):
@@ -155,7 +136,7 @@ def convert_fasta(in_fasta, out_fasta):
 	@param out_fasta [str]: Path to fasta output file.
 	"""
 	FH_input = FastaIO(in_fasta)
-	FH_output = FastaIO(out_fasta,"wt" )
+	FH_output = FastaIO(out_fasta, "wt")
 	for record in FH_input:
 		record.id = record.id
 		record.description = None
@@ -169,7 +150,7 @@ def excluded_sequence(tree_file, in_fasta, excluded):
 	@param tree_file: [str] Path to the tree file to process.
 	@output: The file of no aligned sequence names.
 	"""
-	file = open(tree_file, "r")
+	file = open(tree_file, "rt")
 	line = file.readline()
 	list_cluster = re.findall("(Cluster_[0-9]+)", line)
 	file.close()
@@ -292,18 +273,17 @@ if __name__ == "__main__":
 	group_input.add_argument('--min-align', type=restricted_float, default=0.8, help='Proportion of the total length of an input query sequence that must align with reference sequences. Any sequences with lengths below this value after making an alignment with reference sequences will be excluded from the placement and all subsequent steps. (default: %(default)s).')
 	# Outputs
 	group_output = parser.add_argument_group('Outputs')
-	group_output.add_argument('-o', '--out-tree', default='frogsfunc_placeseqs_tree.nwk', help='Reference tree output with insert sequences (format: newick). [Default: %(default)s]')
+	group_output.add_argument('-o', '--output-tree', default='frogsfunc_placeseqs_tree.nwk', help='Reference tree output with insert sequences (format: newick). [Default: %(default)s]')
 	group_output.add_argument('-e', '--excluded', default='frogsfunc_placeseqs_excluded.txt', help='List of sequences not inserted in the tree. [Default: %(default)s]')
-	group_output.add_argument('-s', '--insert-fasta', default='frogsfunc_placeseqs.fasta', help='Fasta file without non insert sequences. (format: FASTA). [Default: %(default)s]')
-	group_output.add_argument('-m', '--insert-biom', default='frogsfunc_placeseqs.biom', help='Biom file without non insert sequences. (format: BIOM) [Default: %(default)s]')
+	group_output.add_argument('-s', '--output-fasta', default='frogsfunc_placeseqs.fasta', help='Fasta file without non insert sequences. (format: FASTA). [Default: %(default)s]')
+	group_output.add_argument('-m', '--output-biom', default='frogsfunc_placeseqs.biom', help='Biom file without non insert sequences. (format: BIOM) [Default: %(default)s]')
 	group_output.add_argument('-c', '--closests-ref', default='frogsfunc_placeseqs_closests_ref_sequences.txt', help='Informations about Clusters (i.e OTUs) and PICRUSt2 closest reference from cluster sequences (identifiants, taxonomies, phylogenetic distance from reference, nucleotidics sequences). [Default: %(default)s]')
 	group_output.add_argument('-l', '--log-file', default=sys.stdout, help='List of commands executed.')
-	group_output.add_argument('-t', '--html', default='frogsfunc_placeseqs_summary.html', help="Path to store resulting html file. [Default: %(default)s]" )
+	group_output.add_argument('-t', '--summary', default='frogsfunc_placeseqs_summary.html', help="Path to store resulting html file. [Default: %(default)s]" )
 	args = parser.parse_args()
 	prevent_shell_injections(args)
 
-
-	tmp_files=TmpFiles(os.path.split(args.out_tree)[0])
+	tmp_files=TmpFiles(os.path.split(args.output_tree)[0])
 
 	try:
 		Logger.static_write(args.log_file, "## Application\nSoftware :" + sys.argv[0] + " (version : " + str(__version__) + ")\nCommand : " + " ".join(sys.argv) + "\n\n")
@@ -316,28 +296,22 @@ if __name__ == "__main__":
 		if args.placement_tool == "sepp" and category == "ITS":
 			raise_exception( Exception ("\n\n#ERROR : You can't use sepp for ITS and 18S analysis.\n\n" ))
 
-
 		Logger.static_write(args.log_file,'\n# Cleaning fasta headers\n\tstart: ' + time.strftime("%d %b %Y %H:%M:%S", time.localtime()) + '\n\n' )
 		tmp_fasta = tmp_files.add('cleaned.fasta')
 		convert_fasta(args.input_fasta,tmp_fasta)
 
 		tmp_place_seqs = tmp_files.add( 'tmp_place_seqs.log' )
-		PlaceSeqs(tmp_fasta, args.out_tree, args.placement_tool, args.ref_dir, args.min_align, tmp_place_seqs).submit(args.log_file)
+		PlaceSeqs(tmp_fasta, args.output_tree, args.placement_tool, args.ref_dir, args.min_align, tmp_place_seqs).submit(args.log_file)
 		# parse place_seqs.py output in order to retrieve references sequences alignment, necessary for find_closest_ref_sequences step.
 		ref_aln = open(tmp_place_seqs).readlines()[0].strip().split()[4]
 
+		excluded_sequence(args.output_tree,args.input_fasta,args.excluded)
 
-		tmp_multi_affiliations = tmp_files.add( 'multi_affiliations.tsv' )
-		tmp_multi_affi_log = tmp_files.add( 'multi_affiliations.log' )
-		multiAffiFromBiom(args.input_biom, tmp_multi_affiliations, tmp_multi_affi_log).submit(args.log_file)
-
-		excluded_sequence(args.out_tree,args.input_fasta,args.excluded)
-
-		RemoveSeqsBiomFasta(tmp_fasta, args.input_biom, args.insert_fasta, args.insert_biom, args.excluded).submit(args.log_file)
+		RemoveSeqsBiomFasta(tmp_fasta, args.input_biom, args.output_fasta, args.output_biom, args.excluded).submit(args.log_file)
 
 		tmp_find_closest_ref = tmp_files.add( 'tmp_find_closest_ref.log' )
-		FindClosestsRefSequences(args.out_tree, args.input_biom, tmp_multi_affiliations, tmp_fasta, ref_aln, args.insert_biom, args.closests_ref).submit(args.log_file)
-		write_summary(tmp_fasta, args.excluded, args.input_biom, args.closests_ref, category, args.html)
+		FindClosestsRefSequences(args.output_tree, args.output_biom, args.output_fasta, ref_aln, args.output_biom, args.closests_ref).submit(args.log_file)
+		write_summary(tmp_fasta, args.excluded, args.input_biom, args.closests_ref, category, args.summary)
 
 	finally:
 		if not args.debug:

@@ -39,11 +39,11 @@ def find_excluded(excluded_file):
 	Cluster_4
 	...
 	"""
-	excluded = []
+	excluded = list()
 	FH_in = open(excluded_file,'rt')
 
-	for line in FH_in.readline():
-		if line != "#No excluded":
+	for line in FH_in.readlines():
+		if not line.startswith('#No excluded OTUs'):
 			excluded.append(line.strip())
 	FH_in.close()
 	
@@ -68,6 +68,7 @@ def remove_excluded_biom(input_biom, output_biom, excluded_seqs):
 	@summary: Removes the specified list of observations.
 	@param excluded_seqs: [list] The names of the observations to remove.
 	"""
+	print(excluded_seqs)
 	biom = BiomIO.from_json( input_biom )
 	biom.remove_observations( excluded_seqs )
 	BiomIO.write( output_biom, biom )
