@@ -26,10 +26,9 @@ __status__ = 'dev'
 import os
 import re
 import sys
-import gzip
 import json
-import inspect
 import argparse
+import ete3 as ete
 
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
 # PATH
@@ -150,22 +149,25 @@ def excluded_sequence(tree_file, in_fasta, excluded):
 	@param tree_file: [str] Path to the tree file to process.
 	@output: The file of no aligned sequence names.
 	"""
-	file = open(tree_file, "rt")
-	line = file.readline()
-	list_cluster = re.findall("(Cluster_[0-9]+)", line)
-	file.close()
+	tree=ete.Tree(tree_file)
+	all_leaves = list()
+	for leaf in tree:
+		all_leaves.append(leaf.name)
+
 	FH_input = FastaIO(in_fasta)
 	excluded = open(excluded, "wt")
-
+	list_excluded = list()
 	no_excluded = True 
 	for record in FH_input:
-		if record.id not in list_cluster:
+		if record.id not in all_leaves:
 			excluded.write(record.id+"\n")
+			list_excluded.append(record.id)
 			no_excluded = False
 	FH_input.close()
 	if no_excluded:
 		excluded.write('#No excluded OTUs.\n')
 	excluded.close()
+	return list_excluded
 
 def restricted_float(in_arg):
 	"""
@@ -181,7 +183,7 @@ def restricted_float(in_arg):
 		raise argparse.ArgumentTypeError(in_arg + "is not in range 0.0 - 1.0")
 	return in_arg
 
-def write_summary(in_fasta, align_out, biomfile, closest_ref_file, category, summary_file):
+def write_summary(in_fasta, list_excluded, align_out, biomfile, closest_ref_file, category, summary_file):
 	"""
 	@param in_fasta: [str] path to the input fasta file.
 	@param align_out: [str] path to the fasta file of unaligned OTU
@@ -230,11 +232,9 @@ def write_summary(in_fasta, align_out, biomfile, closest_ref_file, category, sum
 			except:
 				continue
 	# record details about removed OTU
-	if align_out is not None:
-		for li in open(align_out).readlines():
-			if re.match("(Cluster_[0-9]+)",li):
-				summary_info['nb_removed'] +=1
-				summary_info['abundance_removed'] += biom.get_observation_count(li.strip())
+	for cluster in list_excluded:
+		summary_info['nb_removed'] +=1
+		summary_info['abundance_removed'] += biom.get_observation_count(cluster)
 	
 	summary_info['nb_kept'] = number_otu_all - summary_info['nb_removed']
 	summary_info['abundance_kept'] = number_abundance_all - summary_info['abundance_removed']
@@ -305,13 +305,13 @@ if __name__ == "__main__":
 		# parse place_seqs.py output in order to retrieve references sequences alignment, necessary for find_closest_ref_sequences step.
 		ref_aln = open(tmp_place_seqs).readlines()[0].strip().split()[4]
 
-		excluded_sequence(args.output_tree,args.input_fasta,args.excluded)
+		list_excluded = excluded_sequence(args.output_tree,args.input_fasta,args.excluded)
 
 		RemoveSeqsBiomFasta(tmp_fasta, args.input_biom, args.output_fasta, args.output_biom, args.excluded).submit(args.log_file)
 
 		tmp_find_closest_ref = tmp_files.add( 'tmp_find_closest_ref.log' )
 		FindClosestsRefSequences(args.output_tree, args.output_biom, args.output_fasta, ref_aln, args.output_biom, args.closests_ref).submit(args.log_file)
-		write_summary(tmp_fasta, args.excluded, args.input_biom, args.closests_ref, category, args.summary)
+		write_summary(tmp_fasta, list_excluded, args.excluded, args.input_biom, args.closests_ref, category, args.summary)
 
 	finally:
 		if not args.debug:
