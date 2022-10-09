@@ -49,17 +49,6 @@ from frogsSequenceIO import *
 #
 ##################################################################################################################################################
 
-def find_clusters(tree, reference_sequences):
-	"""
-	@summary: Returns the list of clusters insert into reference tree.
-	@param tree: [str] Path to tree output from place_seqs.py.
-	"""
-	clusters = list()
-	for leaf in tree:
-		if leaf.name.split('-cluster')[0] not in reference_sequences.keys():
-			clusters.append(leaf.name)
-	return clusters
-
 def rounding(nb):
 	'''
 	@summary: Rounding numbers decimal 
@@ -204,9 +193,13 @@ def check_ref_files(tree_file, biom_file, biom_path, fasta_file, ref_aln, output
 	# ete3 input tree file
 	tree=ete.Tree(tree_file)
 
-	return [tree, biom, biom_path, ID_to_taxo, ref_seqs, cluster_to_seq, output]
+	clusters = list()
+	for leaf in tree:
+		if leaf.name.split('-cluster')[0] not in ID_to_taxo.keys():
+			clusters.append(leaf.name)
+	return [tree, biom, biom_path, ID_to_taxo, ref_seqs, cluster_to_seq, output, clusters]
 
-def find_closest_ref_sequences(tree, biom, biom_path, ID_to_taxo, ref_seqs, cluster_to_seq, output):
+def find_closest_ref_sequences(tree, biom, biom_path, ID_to_taxo, ref_seqs, cluster_to_seq, output, clusters):
 	"""
 	@summary: find each closest picrust ref sequence from FROGS cluster, from FPStep1 tree output file.
 	@param tree: [str]  Tree as input for ete3.
@@ -327,7 +320,7 @@ if __name__ == "__main__":
 	tree_formatted = inputs[0]
 	reference_sequences = inputs[3]
 
-	clusters = find_clusters(tree_formatted, reference_sequences)
+	clusters = inputs[-1]
 
 	find_closest_ref_sequences(*inputs)
 	
