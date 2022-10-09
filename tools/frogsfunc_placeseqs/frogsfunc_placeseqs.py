@@ -79,7 +79,7 @@ class FindClosestsRefSequences(Cmd):
 	'''
 	@summary: find OTUs closest reference sequences into a reference tree. 
 	'''
-	def __init__(self, in_tree, in_biom, in_fasta, ref_aln, out_biom, out_summary):
+	def __init__(self, in_tree, in_biom, in_fasta, ref_aln, out_biom, out_summary, log):
 		'''
 		@param in_tree: [str] Path to resulting tree file with insert clusters sequences.(place_seqs.py output).
 		@param in_biom: [str] Path to BIOM input file.
@@ -94,7 +94,7 @@ class FindClosestsRefSequences(Cmd):
 		Cmd.__init__(self,
 			'find_closest_ref_sequence.py',
 			'find OTUs closests reference sequences into a reference tree.',
-			'--input-tree ' + in_tree + ' --input-biom ' + in_biom + ' --input-fasta ' + in_fasta + ' --ref-aln ' + ref_aln + ' --output-biom ' + out_biom + ' --output-tsv ' + out_summary ,
+			'--input-tree ' + in_tree + ' --input-biom ' + in_biom + ' --input-fasta ' + in_fasta + ' --ref-aln ' + ref_aln + ' --output-biom ' + out_biom + ' --output-tsv ' + out_summary + " 2>> " + log,
 			'--version')
 
 	def get_version(self):
@@ -232,7 +232,7 @@ def write_summary(in_fasta, excluded_file, biomfile, closest_ref_file, category,
 		cluster = li .strip()
 		summary_info['nb_removed'] +=1
 		summary_info['abundance_removed'] += biom.get_observation_count(cluster)
-		
+
 	summary_info['nb_kept'] = number_otu_all - summary_info['nb_removed']
 	summary_info['abundance_kept'] = number_abundance_all - summary_info['abundance_removed']
 
@@ -309,7 +309,7 @@ if __name__ == "__main__":
 		RemoveSeqsBiomFasta(tmp_fasta, args.input_biom, args.output_fasta, args.output_biom, args.excluded).submit(args.log_file)
 
 		tmp_find_closest_ref = tmp_files.add( 'tmp_find_closest_ref.log' )
-		FindClosestsRefSequences(args.output_tree, args.output_biom, args.output_fasta, ref_aln, args.output_biom, args.closests_ref).submit(args.log_file)
+		FindClosestsRefSequences(args.output_tree, args.output_biom, args.output_fasta, ref_aln, args.output_biom, args.closests_ref, tmp_find_closest_ref).submit(args.log_file)
 		write_summary(tmp_fasta, args.excluded, args.input_biom, args.closests_ref, category, args.summary)
 
 	finally:
