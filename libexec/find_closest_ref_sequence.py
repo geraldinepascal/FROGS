@@ -314,6 +314,7 @@ if __name__ == "__main__":
 	group_output = parser.add_argument('-l', '--log-file', default=sys.stdout, help='The list of commands executed.')
 
 	args = parser.parse_args()
+	Logger.static_write(args.log_file, "## Application\nSoftware: " + os.path.basename(sys.argv[0]) + " (version: " + str(__version__) + ")\nCommand: " + " ".join(sys.argv) + "\n\n")
 	prevent_shell_injections(args)
 
 	inputs = check_ref_files(args.input_tree, args.input_biom, args.output_biom, args.input_fasta, args.ref_aln, args.output_tsv )
