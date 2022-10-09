@@ -28,7 +28,6 @@ import re
 import sys
 import json
 import argparse
-import ete3 as ete
 
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
 # PATH
@@ -122,52 +121,48 @@ class RemoveSeqsBiomFasta(Cmd):
 	def get_version(self):
 		return Cmd.get_version(self, 'stdout').strip()
 
+class ConvertFasta(Cmd):
+	'''
+	@summary: Change fasta headers to be compatible with PICRUSt2.
+	'''
+	def __init__(self, in_fasta, out_fasta, log):
+		'''
+		@param input_fasta: [str] Path to fasta input file.
+		@param output_fasta: [str] Path to fasta output file.
+		'''
+		Cmd.__init__(self,
+			'frogsFuncUtils.py',
+			'Change fasta headers to be compatible with PICRUSt2.',
+			'convert-fasta --input-fasta ' + in_fasta + ' --output-fasta ' + out_fasta + ' 2>> ' + log,
+			'--version')
+
+	def get_version(self):
+		return Cmd.get_version(self, 'stdout').strip()
+
+class ExcludedSequences(Cmd):
+	'''
+	@summary: Returns the excluded sequence, not insert into reference tree.
+	'''
+	def __init__(self, in_tree, in_fasta, out_excluded, log):
+		'''
+		@param in_tree: [str] 'PICRUSt2 output tree with inserts sequences.
+		@param in_fasta: [str] Path to input fasta file.
+		@param out_excluded: [str] Path to excluded file with clusters not inserts in the reference tree.
+		'''
+		Cmd.__init__(self,
+			'frogsFuncUtils.py',
+			'Change fasta headers to be compatible with PICRUSt2.',
+			'excluded-sequences --input-fasta ' + in_fasta + ' --input-tree ' + in_tree + ' --output-excluded ' + out_excluded + ' 2>> ' + log,
+			'--version')
+
+	def get_version(self):
+		return Cmd.get_version(self, 'stdout').strip()
+
 ##################################################################################################################################################
 #
 # FUNCTIONS
 #
 ##################################################################################################################################################
-
-def convert_fasta(in_fasta, out_fasta):
-	"""
-	@summary: Change fasta headers to be compatible with PICRUSt2.
-	@param in_fasta [str]: Path to fasta input file.
-	@param out_fasta [str]: Path to fasta output file.
-	"""
-	FH_input = FastaIO(in_fasta)
-	FH_output = FastaIO(out_fasta, "wt")
-	for record in FH_input:
-		record.id = record.id
-		record.description = None
-		FH_output.write(record)
-	FH_output.close()
-
-def excluded_sequence(tree_file, in_fasta, excluded):
-	"""
-	@summary: Returns the excluded sequence, not insert into reference tree.
-	@param fasta_file: [str] Path to the fasta file to process.
-	@param tree_file: [str] Path to the tree file to process.
-	@output: The file of no aligned sequence names.
-	"""
-	tree=ete.Tree(tree_file)
-	all_leaves = list()
-	for leaf in tree:
-		all_leaves.append(leaf.name)
-
-	FH_input = FastaIO(in_fasta)
-	excluded = open(excluded, "wt")
-	list_excluded = list()
-	no_excluded = True 
-	for record in FH_input:
-		if record.id not in all_leaves:
-			excluded.write(record.id+"\n")
-			list_excluded.append(record.id)
-			no_excluded = False
-	FH_input.close()
-	if no_excluded:
-		excluded.write('#No excluded OTUs.\n')
-	excluded.close()
-	return list_excluded
 
 def restricted_float(in_arg):
 	"""
@@ -183,7 +178,7 @@ def restricted_float(in_arg):
 		raise argparse.ArgumentTypeError(in_arg + "is not in range 0.0 - 1.0")
 	return in_arg
 
-def write_summary(in_fasta, list_excluded, align_out, biomfile, closest_ref_file, category, summary_file):
+def write_summary(in_fasta, excluded_file, biomfile, closest_ref_file, category, summary_file):
 	"""
 	@param in_fasta: [str] path to the input fasta file.
 	@param align_out: [str] path to the fasta file of unaligned OTU
@@ -232,10 +227,12 @@ def write_summary(in_fasta, list_excluded, align_out, biomfile, closest_ref_file
 			except:
 				continue
 	# record details about removed OTU
-	for cluster in list_excluded:
+	FH_excluded = open(excluded_file, 'rt').readlines()
+	for li in FH_excluded:
+		cluster = li .strip()
 		summary_info['nb_removed'] +=1
 		summary_info['abundance_removed'] += biom.get_observation_count(cluster)
-	
+		
 	summary_info['nb_kept'] = number_otu_all - summary_info['nb_removed']
 	summary_info['abundance_kept'] = number_abundance_all - summary_info['abundance_removed']
 
@@ -298,20 +295,22 @@ if __name__ == "__main__":
 
 		Logger.static_write(args.log_file,'\n# Cleaning fasta headers\n\tstart: ' + time.strftime("%d %b %Y %H:%M:%S", time.localtime()) + '\n\n' )
 		tmp_fasta = tmp_files.add('cleaned.fasta')
-		convert_fasta(args.input_fasta,tmp_fasta)
+		tmp_convert_fasta = tmp_files.add( 'tmp_convert_fasta.log' )
+		ConvertFasta(args.input_fasta, tmp_fasta, tmp_convert_fasta).submit(args.log_file)
 
 		tmp_place_seqs = tmp_files.add( 'tmp_place_seqs.log' )
 		PlaceSeqs(tmp_fasta, args.output_tree, args.placement_tool, args.ref_dir, args.min_align, tmp_place_seqs).submit(args.log_file)
 		# parse place_seqs.py output in order to retrieve references sequences alignment, necessary for find_closest_ref_sequences step.
 		ref_aln = open(tmp_place_seqs).readlines()[0].strip().split()[4]
 
-		list_excluded = excluded_sequence(args.output_tree,args.input_fasta,args.excluded)
+		tmp_excluded = tmp_files.add( 'tmp_excluded.log' )
+		ExcludedSequences(args.output_tree, args.input_fasta, args.excluded, tmp_excluded).submit(args.log_file)
 
 		RemoveSeqsBiomFasta(tmp_fasta, args.input_biom, args.output_fasta, args.output_biom, args.excluded).submit(args.log_file)
 
 		tmp_find_closest_ref = tmp_files.add( 'tmp_find_closest_ref.log' )
 		FindClosestsRefSequences(args.output_tree, args.output_biom, args.output_fasta, ref_aln, args.output_biom, args.closests_ref).submit(args.log_file)
-		write_summary(tmp_fasta, list_excluded, args.excluded, args.input_biom, args.closests_ref, category, args.summary)
+		write_summary(tmp_fasta, args.excluded, args.input_biom, args.closests_ref, category, args.summary)
 
 	finally:
 		if not args.debug:
