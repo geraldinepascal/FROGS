@@ -40,7 +40,7 @@ from frogsSequenceIO import *
 
 ####################################################################################################################
 #
-# Tree count
+# Functions
 #
 ####################################################################################################################
 
@@ -53,7 +53,7 @@ def task_convert_fasta( args ):
 		FH_output.write(record)
 	FH_output.close()
 
-def task_excluded_sequences( args ):
+def task_excluded_sequences_tree( args ):
 	"""
 	@summary: Returns the excluded sequence, not insert into reference tree.
 	@param fasta_file: [str] Path to the fasta file to process.
@@ -100,7 +100,7 @@ if __name__ == "__main__":
     parser_observationDepth.add_argument( '-i', '--input-fasta', required=True, type=str, help='Input fasta file processed.' )
     parser_observationDepth.add_argument( '-t', '--input-tree', required=True, type=str, help='PICRUSt2 output tree with inserts sequences.' )
     parser_observationDepth.add_argument( '-e', '--output-excluded', required=True, type=str, help='Output file with sequences not inserts into reference tree.' )
-    parser_observationDepth.set_defaults(func=task_excluded_sequences)
+    parser_observationDepth.set_defaults(func=task_excluded_sequences_tree)
     # Parse parameters and call process
     args = parser.parse_args()
     args.func(args)

@@ -170,21 +170,6 @@ def is_gzip( file ):
 		FH_input.close()
 	return is_gzip
 
-def check_functions( functions ):
-	"""
-	@summary: check if --in_trait parameter is valid.
-	"""
-	VALID_FUNCTIONS = ['EC','COG','KO','PFAM','TIGRFAM','PHENO']
-	# if the user add mulitple functions prediction
-	if "," in functions:
-		functions = functions.split(',')
-	else:
-		functions = [functions]
-	for function in functions:
-		if function not in VALID_FUNCTIONS:
-			raise_exception( argparse.ArgumentTypeError( "\n\n#ERROR : With '--function' parameter: " + function + " not a valid function.\n\n" ))
-	return functions
-
 def write_summary(biom_file, output_marker, depth_nsti_file, summary_file ):
 	"""
 	@summary: Writes the informations to generate graph of the number of OTUs and sequences removed according NCTI score.
@@ -248,28 +233,28 @@ if __name__ == "__main__":
 	group_input.add_argument('-b', '--input-biom', required=True, help='frogsfunc_placeseqs output Biom file (frogsfunc_placeseqs.biom).')
 	
 	group_16S = group_input.add_mutually_exclusive_group()
-	group_16S.add_argument('-i', '--in-trait', default="EC", nargs='+', choices=['EC', 'KO', 'COG', 'PFAM', 'TIGRFAM','PHENO'],help="For 16S marker input: Specifies which default function database should be used ('EC', 'KO', 'COG', PFAM', 'TIGRFAM' or 'PHENO'). EC is used by default because necessary for frogsfunc_pathways. To run the command with several functions, separate the functions with spaces (ex: KO PFAM). (for ITS or 18S : only EC available)")
-	group_16S.add_argument('--observed-trait-table',help="If you don't work on 16S marker:  The path to input functions table describing directly observed functions,in tab-delimited format.(ex $PICRUSt2_PATH/frogsfunc_suppdata/fungi/ec_ITS_counts.txt.gz). This input is required when the --observed-marker-table option is set. ")
+	group_16S.add_argument('-i', '--input-functions', default="EC", nargs='+', choices=['EC', 'KO', 'COG', 'PFAM', 'TIGRFAM','PHENO'], help="For 16S marker input: Specifies which default function database should be used ('EC', 'KO', 'COG', PFAM', 'TIGRFAM' or 'PHENO'). EC is used by default because necessary for frogsfunc_pathways. To run the command with several functions, separate the functions with spaces (ex: KO PFAM). (for ITS or 18S : only EC available)")
+	group_16S.add_argument('--input-function-table',help="If you don't work on 16S marker:  The path to input functions table describing directly observed functions,in tab-delimited format.(ex $PICRUSt2_PATH/frogsfunc_suppdata/fungi/ec_ITS_counts.txt.gz). This input is required when the --input-marker-table option is set. ")
 
-	group_input.add_argument('--observed-marker-table',help="The input marker table describing directly observed traits (e.g. sequenced genomes) in tab-delimited format. Necessary if you don't work on 16S marker. (ex $PICRUSt2_PATH/frogsfunc_suppdata/fungi/ITS_counts.txt.gz). This input is required when the --observed-trait-table option is set. ")
-	group_input.add_argument('-t', '--tree', required=True, type=str, help='frogsfunc_placeseqs output tree in newick format containing both study sequences (i.e. ASVs or OTUs) and reference sequences.')
+	group_input.add_argument('--input-marker-table',help="The input marker table describing directly observed traits (e.g. sequenced genomes) in tab-delimited format. Necessary if you don't work on 16S marker. (ex $PICRUSt2_PATH/frogsfunc_suppdata/fungi/ITS_counts.txt.gz). This input is required when the --input-function-table option is set. ")
+	group_input.add_argument('-t', '--input-tree', required=True, type=str, help='frogsfunc_placeseqs output tree in newick format containing both study sequences (i.e. ASVs or OTUs) and reference sequences.')
 	group_input.add_argument('-s', '--hsp-method', default='mp', choices=['mp', 'emp_prob', 'pic', 'scp', 'subtree_average'], help='HSP method to use.' +'"mp": predict discrete traits using max parsimony. ''"emp_prob": predict discrete traits based on empirical ''state probabilities across tips. "subtree_average": ''predict continuous traits using subtree averaging. ' '"pic": predict continuous traits with phylogentic ' 'independent contrast. "scp": reconstruct continuous ''traits using squared-change parsimony (default: ''%(default)s).')
 	# Output
 	group_output = parser.add_argument_group( 'Outputs' )
 	group_output.add_argument('-m', '--output-marker', default="frogsfunc_copynumbers_marker.tsv", type=str, help='Output table of predicted marker gene copy numbers per study sequence in input tree. If the extension \".gz\" is added the table will automatically be gzipped.[Default: %(default)s]')
 	group_output.add_argument('-o', '--output-function', default="frogsfunc_copynumbers_predicted_functions.tsv", type=str, help='Output table with predicted abundances per study sequence in input tree. If the extension \".gz\" is added the table will automatically be gzipped.[Default: %(default)s]')
 	group_output.add_argument('-l', '--log-file', default=sys.stdout, help='List of commands executed.')
-	group_output.add_argument('--html', default='frogsfunc_copynumbers_summary.html', help="Path to store resulting html file. [Default: %(default)s]" )
+	group_output.add_argument('--summary', default='frogsfunc_copynumbers_summary.html', help="Path to store resulting html file. [Default: %(default)s]" )
 	args = parser.parse_args()
 	prevent_shell_injections(args)
 
-	if args.in_trait is not None:
-		if not 'EC' in args.in_trait and not 'KO' in args.in_trait:
-			parser.error("\n\n#ERROR : --in-trait : 'EC' and/or 'KO' must be at least indicated (others functions are optionnal)")
-	if (args.observed_trait_table is not None and args.observed_marker_table is None) or (args.observed_trait_table is None and args.observed_marker_table is not None):
-		parser.error("\n\n#ERROR : --observed-trait-table and --observed-marker-table both required when studied marker is not 16S!\n\n")
-	elif args.observed_trait_table is not None and args.observed_marker_table is not None:
-		args.in_trait = None
+	if args.input_functions is not None:
+		if not 'EC' in args.input_functions and not 'KO' in args.input_functions:
+			parser.error("\n\n#ERROR : --input-functions : 'EC' and/or 'KO' must be at least indicated (others functions are optionnal)")
+	if (args.input_function_table is not None and args.input_marker_table is None) or (args.input_function_table is None and args.input_marker_table is not None):
+		parser.error("\n\n#ERROR : --input-function-table and --input-marker-table both required when studied marker is not 16S!\n\n")
+	elif args.input_function_table is not None and args.input_marker_table is not None:
+		args.input_functions = None
 
 	# default output marker file name
 	if args.output_marker is None:
@@ -281,23 +266,22 @@ if __name__ == "__main__":
 		Logger.static_write(args.log_file, "## Application\nSoftware :" + sys.argv[0] + " (version : " + str(__version__) + ")\nCommand : " + " ".join(sys.argv) + "\n\n")
 
 		tmp_hsp_marker = tmp_files.add( 'tmp_hsp_marker.log' )
-		HspMarker(args.observed_marker_table, args.tree, args.hsp_method, args.output_marker, args.output_function, tmp_hsp_marker).submit(args.log_file)
+		HspMarker(args.input_marker_table, args.input_tree, args.hsp_method, args.output_marker, args.output_function, tmp_hsp_marker).submit(args.log_file)
 
 		tmp_depth_nsti = tmp_files.add( 'depth_nsti.txt' )
-		write_summary(args.input_biom, args.output_marker, tmp_depth_nsti, args.html)
+		write_summary(args.input_biom, args.output_marker, tmp_depth_nsti, args.summary)
 
 		tmp_hsp_function = tmp_files.add( 'tmp_hsp_function.log' )
-		if args.in_trait is not None:
-			in_traits = check_functions(args.in_trait)
+		if args.input_functions is not None:
 
 			suffix_name = "_predicted.tsv"
-			for trait in in_traits:
+			for trait in args.input_functions:
 				cur_output_function = trait + suffix_name
 				Logger.static_write(args.log_file, '\n\nRunning ' + trait + ' functions prediction.\n')
-				HspFunction(trait, args.observed_trait_table, args.tree, args.hsp_method, cur_output_function, args.output_function, tmp_hsp_function).submit(args.log_file)
+				HspFunction(trait, args.input_function_table, args.input_tree, args.hsp_method, cur_output_function, args.output_function, tmp_hsp_function).submit(args.log_file)
 		else:
 			cur_output_function = "function_predicted.tsv"
-			HspFunction(args.in_trait, args.observed_trait_table, args.tree, args.hsp_method, cur_output_function, args.output_function, tmp_hsp_function).submit(args.log_file)
+			HspFunction(args.input_functions, args.input_function_table, args.input_tree, args.hsp_method, cur_output_function, args.output_function, tmp_hsp_function).submit(args.log_file)
 	
 	finally:
 		if not args.debug:
