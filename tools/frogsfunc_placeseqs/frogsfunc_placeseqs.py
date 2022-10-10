@@ -228,6 +228,7 @@ def write_summary(in_fasta, excluded_file, biomfile, closest_ref_file, category,
 				continue
 
 	FH_log = Logger( depth_nsti_file )
+	max_nsti = 0
 	for li in closest_ref[1:]:
 		li = li.strip().split('\t')
 		if float(li[6]) > max_nsti:
