@@ -26,6 +26,7 @@ __status__ = 'dev'
 import os
 import sys
 import json
+import math
 import argparse
 
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -227,7 +228,12 @@ def write_summary(in_fasta, excluded_file, biomfile, closest_ref_file, category,
 				continue
 
 	FH_log = Logger( depth_nsti_file )
-	step_nsti = [i/50 for i in range(0,101)] 
+	for li in closest_ref[1:]:
+		li = li.strip().split('\t')
+		if float(li[6]) > max_nsti:
+			max_nsti = float(li[6])
+	max_nsti = math.ceil( max_nsti * 50 + 1) 
+	step_nsti = [i/50 for i in range(0, max_nsti)] 
 	cluster_kept = dict()
 	for cur_nsti in step_nsti:
 		cluster_kept[cur_nsti] = { 'Nb' : 0, 'Abundances' : 0 }

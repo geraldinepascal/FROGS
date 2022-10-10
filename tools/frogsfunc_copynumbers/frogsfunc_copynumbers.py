@@ -27,6 +27,7 @@ import os
 import sys
 import json
 import gzip
+import math
 import argparse
 
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -176,10 +177,16 @@ def write_summary(biom_file, output_marker, depth_nsti_file, summary_file ):
 	@param depth_nsti_file: [str] Writes log of nb OTUs and nb sequences kept according to NSTI score.
 	"""
 	depth_nsti = open(output_marker).readlines()
+	max_nsti = 0
+	for li in depth_nsti[1:]:
+		li = li.strip().split('\t')
+		if float(li[2]) > max_nsti:
+			max_nsti = float(li[2])
+	max_nsti = math.ceil( max_nsti * 50 + 1) 
 	biom=BiomIO.from_json(biom_file)
 	FH_log = Logger( depth_nsti_file )
 	FH_log.write("#nsti\tnb_clust_kept\tnb_abundances_kept\n")
-	step_nsti = [i/50 for i in range(0,101)] 
+	step_nsti = [i/50 for i in range(0,max_nsti)] 
 	cluster_kept = dict()
 	for cur_nsti in step_nsti:
 		cluster_kept[cur_nsti] = { 'Nb' : [], 'Abundances' : 0 }
