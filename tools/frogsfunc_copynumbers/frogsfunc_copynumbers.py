@@ -248,7 +248,7 @@ if __name__ == "__main__":
 	group_input.add_argument('-b', '--input-biom', required=True, help='frogsfunc_placeseqs output Biom file (frogsfunc_placeseqs.biom).')
 	
 	group_16S = group_input.add_mutually_exclusive_group()
-	group_16S.add_argument('-i', '--in-trait', default="EC",help="For 16S marker input: Specifies which default function database should be used ('EC', 'KO', 'COG', PFAM', 'TIGRFAM' or 'PHENO'). EC is used by default because necessary for frogsfunc_pathways. To run the command with several functions, separate the functions with commas (ex: KO,PFAM). (for ITS or 18S : only EC available)")
+	group_16S.add_argument('-i', '--in-trait', default="EC", nargs='+', choices=['EC', 'KO', 'COG', 'PFAM', 'TIGRFAM','PHENO'],help="For 16S marker input: Specifies which default function database should be used ('EC', 'KO', 'COG', PFAM', 'TIGRFAM' or 'PHENO'). EC is used by default because necessary for frogsfunc_pathways. To run the command with several functions, separate the functions with spaces (ex: KO PFAM). (for ITS or 18S : only EC available)")
 	group_16S.add_argument('--observed-trait-table',help="If you don't work on 16S marker:  The path to input functions table describing directly observed functions,in tab-delimited format.(ex $PICRUSt2_PATH/frogsfunc_suppdata/fungi/ec_ITS_counts.txt.gz). This input is required when the --observed-marker-table option is set. ")
 
 	group_input.add_argument('--observed-marker-table',help="The input marker table describing directly observed traits (e.g. sequenced genomes) in tab-delimited format. Necessary if you don't work on 16S marker. (ex $PICRUSt2_PATH/frogsfunc_suppdata/fungi/ITS_counts.txt.gz). This input is required when the --observed-trait-table option is set. ")

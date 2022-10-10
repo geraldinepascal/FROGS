@@ -178,7 +178,7 @@ def restricted_float(in_arg):
 		raise argparse.ArgumentTypeError(in_arg + "is not in range 0.0 - 1.0")
 	return in_arg
 
-def write_summary(in_fasta, excluded_file, biomfile, closest_ref_file, category, summary_file):
+def write_summary(in_fasta, excluded_file, biomfile, closest_ref_file, category, depth_nsti_file, summary_file):
 	"""
 	@param in_fasta: [str] path to the input fasta file.
 	@param align_out: [str] path to the fasta file of unaligned OTU
@@ -200,7 +200,7 @@ def write_summary(in_fasta, excluded_file, biomfile, closest_ref_file, category,
 	details_categorys =["Nb sequences","FROGS Taxonomy","PICRUSt2 closest ID (JGI)","PICRUSt2 closest reference name","PICRUSt2 closest taxonomy","NSTI", "NSTI Confidence" ,"Lowest same taxonomic rank between FROGS and PICRUSt2","Comment"]
 	infos_otus = list()
 	biom=BiomIO.from_json(biomfile)
-	list_otu_all = []
+	list_otu_all = list()
 	# record nb OTU and abundance
 	for otu in FastaIO(in_fasta):
 		list_otu_all.append(otu.id)
@@ -226,6 +226,30 @@ def write_summary(in_fasta, excluded_file, biomfile, closest_ref_file, category,
 					})
 			except:
 				continue
+
+	FH_log = Logger( depth_nsti_file )
+	step_nsti = [i/50 for i in range(0,101)] 
+	cluster_kept = dict()
+	for cur_nsti in step_nsti:
+		cluster_kept[cur_nsti] = { 'Nb' : 0, 'Abundances' : 0 }
+		for li in closest_ref[1:]:
+			li = li.strip().split('\t')
+			if float(li[6]) <= cur_nsti:
+				cluster_kept[cur_nsti]['Nb']+=1
+				cluster_kept[cur_nsti]['Abundances']+=int(li[1])
+				
+	clusters_size = list()
+	abundances_size = list()
+	nstis = list()
+	for nsti,clusters in cluster_kept.items():
+		clusters_size.append(clusters['Nb'])
+		abundances_size.append(clusters['Abundances'])
+		nstis.append(float(nsti))
+		FH_log.write("\t".join([str(nsti), str(clusters['Nb']), str(clusters['Abundances']) ])+"\n")
+
+	nstis = sorted(nstis)
+	clusters_size = sorted(clusters_size)
+	abundances_size = sorted(abundances_size)
 	# record details about removed OTU
 	FH_excluded = open(excluded_file, 'rt').readlines()
 	for li in FH_excluded:
@@ -236,7 +260,7 @@ def write_summary(in_fasta, excluded_file, biomfile, closest_ref_file, category,
 	summary_info['nb_kept'] = number_otu_all - summary_info['nb_removed']
 	summary_info['abundance_kept'] = number_abundance_all - summary_info['abundance_removed']
 
-	FH_summary_tpl = open( os.path.join(CURRENT_DIR, "frogsfunc_placeseqs_tpl.html") )
+	FH_summary_tpl = open( os.path.join(CURRENT_DIR, "frogsfunc_placeseqs_tpl_test.html") )
 	FH_summary_out = open( summary_file, "wt" )
 
 	for line in FH_summary_tpl:
@@ -246,6 +270,12 @@ def write_summary(in_fasta, excluded_file, biomfile, closest_ref_file, category,
 			line = line.replace( "###DETECTION_DATA###", json.dumps(infos_otus) )
 		elif "###REMOVE_DATA###" in line:
 			line = line.replace( "###REMOVE_DATA###", json.dumps(summary_info) )
+		elif "###CLUSTERS_SIZES###" in line:
+			line = line.replace( "###CLUSTERS_SIZES###", json.dumps(clusters_size) )
+		elif "###ABUNDANCES_SIZES###" in line:
+			line = line.replace( "###ABUNDANCES_SIZES###", json.dumps( abundances_size) )
+		elif "###NSTI_THRESH###" in line:
+			line = line.replace( "###NSTI_THRESH###", json.dumps(nstis) )
 		FH_summary_out.write( line )
 
 	FH_summary_out.close()
@@ -310,7 +340,8 @@ if __name__ == "__main__":
 
 		tmp_find_closest_ref = tmp_files.add( 'tmp_find_closest_ref.log' )
 		FindClosestsRefSequences(args.output_tree, args.output_biom, args.output_fasta, ref_aln, args.output_biom, args.closests_ref, tmp_find_closest_ref).submit(args.log_file)
-		write_summary(tmp_fasta, args.excluded, args.input_biom, args.closests_ref, category, args.summary)
+		tmp_depth_nsti = tmp_files.add( 'depth_nsti.txt' )
+		write_summary(tmp_fasta, args.excluded, args.input_biom, args.closests_ref, category, tmp_depth_nsti, args.summary)
 
 	finally:
 		if not args.debug:
