@@ -23,13 +23,11 @@ __version__ = '4.0.1'
 __email__ = 'frogs@toulouse.inrae.fr'
 __status__ = 'dev'
 
-import re
 import os
 import sys
 import json
 import gzip
 import argparse
-from collections import OrderedDict
 
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
 # PATH
@@ -274,14 +272,16 @@ if __name__ == "__main__":
 		tmp_hsp_function = tmp_files.add( 'tmp_hsp_function.log' )
 		if args.input_functions is not None:
 
-			suffix_name = "_predicted.tsv"
+			suffix_name = "_copynumbers_predicted.tsv"
 			for trait in args.input_functions:
 				cur_output_function = trait + suffix_name
+				tmp_output_function = tmp_files.add( cur_output_function )
 				Logger.static_write(args.log_file, '\n\nRunning ' + trait + ' functions prediction.\n')
-				HspFunction(trait, args.input_function_table, args.input_tree, args.hsp_method, cur_output_function, args.output_function, tmp_hsp_function).submit(args.log_file)
+				HspFunction(trait, args.input_function_table, args.input_tree, args.hsp_method, tmp_output_function, args.output_function, tmp_hsp_function).submit(args.log_file)
 		else:
-			cur_output_function = "function_predicted.tsv"
-			HspFunction(args.input_functions, args.input_function_table, args.input_tree, args.hsp_method, cur_output_function, args.output_function, tmp_hsp_function).submit(args.log_file)
+			cur_output_function = "copynumbers_predicted.tsv"
+			tmp_output_function = tmp_files.add( cur_output_function )
+			HspFunction(args.input_functions, args.input_function_table, args.input_tree, args.hsp_method, tmp_output_function, args.output_function, tmp_hsp_function).submit(args.log_file)
 	
 	finally:
 		if not args.debug:

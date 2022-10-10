@@ -24,7 +24,6 @@ __email__ = 'frogs@toulouse.inrae.fr'
 __status__ = 'dev'
 
 import os
-import re
 import sys
 import json
 import argparse
@@ -253,14 +252,15 @@ def write_summary(in_fasta, excluded_file, biomfile, closest_ref_file, category,
 	# record details about removed OTU
 	FH_excluded = open(excluded_file, 'rt').readlines()
 	for li in FH_excluded:
-		cluster = li .strip()
-		summary_info['nb_removed'] +=1
-		summary_info['abundance_removed'] += biom.get_observation_count(cluster)
+		if not li.startswith('#No excluded OTUs.'):
+			cluster = li.strip()
+			summary_info['nb_removed'] +=1
+			summary_info['abundance_removed'] += biom.get_observation_count(cluster)
 
 	summary_info['nb_kept'] = number_otu_all - summary_info['nb_removed']
 	summary_info['abundance_kept'] = number_abundance_all - summary_info['abundance_removed']
 
-	FH_summary_tpl = open( os.path.join(CURRENT_DIR, "frogsfunc_placeseqs_tpl_test.html") )
+	FH_summary_tpl = open( os.path.join(CURRENT_DIR, "frogsfunc_placeseqs_tpl.html") )
 	FH_summary_out = open( summary_file, "wt" )
 
 	for line in FH_summary_tpl:
