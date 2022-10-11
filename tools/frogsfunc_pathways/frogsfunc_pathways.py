@@ -207,7 +207,7 @@ def formate_input_file(input_file, tmp_tsv):
 	FH_in = open(input_file).readlines()
 	FH_out = open(tmp_tsv, 'wt')
 	header = FH_in[0].strip().split('\t')
-	formatted_col = ['classification', 'db_link']
+	formatted_col = ['classification', 'observation_sum', 'db_link']
 	to_keep = list()
 	to_write = list()
 	for col_n in range(len(header)):
@@ -225,7 +225,7 @@ def formate_input_file(input_file, tmp_tsv):
 				to_write.append(li[i])
 		FH_out.write('\t'.join(to_write)+'\n')
 
-def formate_abundances_file(strat_file, pathways_hierarchy_file, hierarchy_tag = "classification"):
+def formate_abundances_file(strat_file, tmp_strat_file, pathways_hierarchy_file, hierarchy_tag = "classification"):
 	"""
 	@summary: Formate frogsfunc_pathways output in order to create a biom file of pathway abundances.
 	@param strat_file: frogsfunc_pathways output of pathway abundances prediction (frogsfunc_pathways_unstrat.tsv)
@@ -240,13 +240,9 @@ def formate_abundances_file(strat_file, pathways_hierarchy_file, hierarchy_tag =
 	df = pd.read_csv(strat_file,sep='\t')
 	df.insert(2,'observation_sum',df.sum(axis=1, numeric_only=True))
 	df.rename(columns = {'pathway':'observation_name'}, inplace = True)
-	headers = ['observation_name', 'db_link']
-	for column in df:
-		if column not in headers:
-			df[column] = df[column].round(0).astype(int)
 
 	df.to_csv(strat_file ,sep='\t', index=False)
-	tmp = open(strat_file +'.tmp', 'wt')
+	tmp = open(tmp_strat_file, 'wt')
 	FH_in = open(strat_file).readlines()
 	header = FH_in[0].strip().split('\t')
 	header.insert(0, hierarchy_tag)
@@ -257,7 +253,15 @@ def formate_abundances_file(strat_file, pathways_hierarchy_file, hierarchy_tag =
 			li.insert(0,id_to_hierarchy[li[1]])
 			tmp.write("\t".join(li)+"\n")
 	tmp.close()
-	os.rename(strat_file+'.tmp', strat_file)
+	tmp = pd.read_csv(tmp_strat_file, sep="\t")
+	pathway = tmp.copy()
+	pathway.to_csv(strat_file, sep="\t", index=False)
+
+	headers = ['observation_name', 'db_link', hierarchy_tag]
+	for column in tmp:
+		if column not in headers:
+			tmp[column] = tmp[column].round(0).astype(int)
+	tmp.to_csv(tmp_strat_file, sep="\t", index=False)
 	return hierarchy_tag
 
 def normalized_abundances_file( strat_file ):
@@ -362,12 +366,13 @@ if __name__ == "__main__":
 		formate_input_file(args.input_file, tmp_tsv)
 
 		PathwayPipeline(tmp_tsv, args.map, args.per_sequence_contrib, args.per_sequence_abun, args.per_sequence_function, args.no_regroup,  args.pathways_abund, args.pathways_contrib, args.pathways_predictions, args.pathways_abund_per_seq, tmp_pathway).submit(args.log_file)
-
-		hierarchy_tag = formate_abundances_file( args.pathways_abund, PATHWAYS_HIERARCHY_FILE )
+		
+		tmp_pathways_abund = tmp_files.add( args.pathways_abund + ".tmp")
+		hierarchy_tag = formate_abundances_file( args.pathways_abund, tmp_pathways_abund, PATHWAYS_HIERARCHY_FILE )
 		if args.normalisation:
 			normalized_abundances_file( args.pathways_abund)
 		tmp_biom = tmp_files.add( 'pathway_abundances.biom' )
-		Tsv2biom( args.pathways_abund, tmp_biom ).submit( args.log_file)
+		Tsv2biom( tmp_pathways_abund, tmp_biom ).submit( args.log_file)
 		tree_count_file = tmp_files.add( "pathwayCount.enewick" )
 		tree_ids_file = tmp_files.add( "pathwayCount_ids.tsv" )
 		TaxonomyTree( tmp_biom, hierarchy_tag, tree_count_file, tree_ids_file ).submit( args.log_file )

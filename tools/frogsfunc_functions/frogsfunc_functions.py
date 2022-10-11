@@ -230,7 +230,7 @@ def excluded_sequence(in_biom, in_marker, out_seqtab, excluded):
 	excluded.close()
 	seqtab_file.close()
 
-def formate_abundances_file(function_file, gene_hierarchy_file, hierarchy_tag = "classification"):
+def formate_abundances_file(function_file, tmp_function_abund, gene_hierarchy_file, hierarchy_tag = "classification"):
 	"""
 	@summary: Formate frogsfunc_functions output in order to create a biom file of pathways abundances.
 	@param function_file: frogsfunc_functions output of gene abundances prediction (frogsfunc_functions_unstrat.tsv)
@@ -245,13 +245,9 @@ def formate_abundances_file(function_file, gene_hierarchy_file, hierarchy_tag = 
 	df = pd.read_csv(function_file,sep='\t')
 	df.insert(2,'observation_sum',df.sum(axis=1, numeric_only=True))
 	df.rename(columns = {'function':'observation_name'}, inplace = True)
-	headers = ['observation_name', 'db_link']
-	for column in df:
-		if column not in headers:
-			df[column] = df[column].round(0).astype(int)
 
 	df.to_csv(function_file ,sep='\t' ,index=False)
-	tmp = open(function_file + ".tmp", 'wt')
+	tmp = open(tmp_function_abund, 'wt')
 	FH_in = open(function_file).readlines()
 	header = FH_in[0].strip().split('\t')
 	header.insert(0, hierarchy_tag)
@@ -264,7 +260,15 @@ def formate_abundances_file(function_file, gene_hierarchy_file, hierarchy_tag = 
 			li.insert(0,'unknown')
 		tmp.write("\t".join(li)+"\n")
 	tmp.close()
-	os.rename(function_file +'.tmp', function_file)
+	tmp = pd.read_csv(tmp_function_abund, sep="\t")
+	function = tmp.copy()
+	function.to_csv(function_file, sep="\t", index=False)
+
+	headers = ['observation_name', 'db_link', hierarchy_tag]
+	for column in tmp:
+		if column not in headers:
+			tmp[column] = tmp[column].round(0).astype(int)
+	tmp.to_csv(tmp_function_abund, sep="\t", index=False)
 	return hierarchy_tag
 
 def write_summary(in_biom, function_file, nsti_file, excluded, tree_count_file, tree_ids_file, summary_file):
@@ -414,9 +418,11 @@ if __name__ == "__main__":
 		MetagenomePipeline(tmp_biom_to_tsv, args.marker, args.function, args.max_nsti, args.min_reads, args.min_samples, args.strat_out, args.function_abund, args.seqtab, args.weighted, args.contrib, tmp_metag_pipeline).submit( args.log_file )
 
 		excluded_sequence(args.input_biom, args.marker, args.seqtab, args.excluded)
-		hierarchy_tag = formate_abundances_file(args.function_abund, GENE_HIERARCHY_FILE)
+		# Make a temporary functions abundances file to display sunbursts graphs.
+		tmp_function_abund = tmp_files.add( args.function_abund + ".tmp")
+		hierarchy_tag = formate_abundances_file(args.function_abund, tmp_function_abund, GENE_HIERARCHY_FILE)
 		tmp_biom = tmp_files.add( 'gene_abundances.biom' )
-		Tsv2biom(args.function_abund, tmp_biom).submit( args.log_file)
+		Tsv2biom(tmp_function_abund, tmp_biom).submit( args.log_file)
 		tree_count_file = tmp_files.add( "geneCount.enewick" )
 		tree_ids_file = tmp_files.add( "geneCount_ids.tsv" )
 		TaxonomyTree(tmp_biom, hierarchy_tag, tree_count_file, tree_ids_file).submit( args.log_file )
