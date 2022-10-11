@@ -163,6 +163,7 @@
 		<script type="text/javascript" src="https://code.jquery.com/jquery-2.1.3.min.js"></script>
 		<script type="text/javascript" src="https://code.highcharts.com/8.2.0/highcharts.js"></script>
 		<script type="text/javascript" src="https://code.highcharts.com/8.2.0/modules/exporting.js"></script>
+		<script type="text/javascript" src="https://code.highcharts.com/modules/export-data.js"></script>
 		<!--<script type="text/javascript" src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
 		<script type="text/javascript" src="https://cdn.datatables.net/1.10.19/js/dataTables.bootstrap4.min.js"></script>
 		<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js" integrity="sha384-smHYKdLADwkXOn1EmN1qk/HfnUcbVRZyYmZ4qpPea6sjB/pTJ0euyQp0Mk8ck+5T" crossorigin="anonymous"></script>-->
@@ -522,15 +523,12 @@
 					zoomType: 'xy'
 				},
 				title: {
-					text: 'Height Versus Weight of 507 Individuals by Gender'
-				},
-				subtitle: {
-					text: 'Source: Heinz  2003'
+					text: ''
 				},
 				xAxis: {
 					title: {
 						enabled: true,
-						text: 'Height (cm)'
+						text: 'NSTI value'
 					},
 					startOnTick: true,
 					endOnTick: true,
@@ -538,7 +536,7 @@
 				},
 				yAxis: {
 					title: {
-						text: 'Weight (kg)'
+						text: 'BLAST % alignment'
 					}
 				},
 				legend: {
@@ -570,14 +568,19 @@
 							}
 						},
 						tooltip: {
-							headerFormat: '<b>{series.name}</b><br>',
-							pointFormat: '{point.x} cm, {point.y} kg'
+							headerFormat: '<b>{point.key}</b><br>',
+							pointFormat: '{point.x}, {point.y}%'
 						}
-					}
+					}, 
+						dataLabels: {
+                    		format: "{point.key}",
+                    		enabled: true
+                	},
+					enableMouseTracking: false
 				},
 				series: [{
-					name: 'Clusters',
-					color: 'rgba(223, 83, 83, .5)',
+					name: '',
+					color: 'rgba(134, 165, 164, .5)',
 					data: ###SCATTER###
 					}]
 				})
@@ -608,7 +611,7 @@
 				<div id="sequence-distrib" role="tabpanel" class="tab-pane active">
 				</div>
 			</div>
-			<h2 class="pb-2 mt-4 mb-2 border-bottom">%alignment in function of NSTI</h2>
+			<h2 class="pb-2 mt-4 mb-2 border-bottom">BLAST % alignment versus NSTI value between every cluster kept and its closest PICRUSt2 reference sequence</h2>
 			<div id="container_scatter"></div>
 		</div>
 	</body>

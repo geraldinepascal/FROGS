@@ -247,15 +247,23 @@ def write_summary(in_fasta, excluded_file, biomfile, closest_ref_file, category,
 				continue
 
 	FH_log = Logger( depth_nsti_file )
-	align_and_nsti = list()
+	d_align_and_nsti = dict()
 	max_nsti = 0
+
 	for li in closest_ref[1:]:
 		li = li.strip().split('\t')
-		align_and_nsti.append([float(li[6]), float(li[13].split()[0])])
+		d_align_and_nsti[li[0]] = dict()
+		d_align_and_nsti[li[0]]['name'] = li[0]
+		d_align_and_nsti[li[0]]['x'] = float(li[6])
+		d_align_and_nsti[li[0]]['y'] = float(li[13].split()[0])
+
 		if float(li[6]) > max_nsti:
 			max_nsti = float(li[6])
+
+	align_and_nsti = list(d_align_and_nsti.values())
 	max_nsti = math.ceil( max_nsti * 50 + 1) 
 	step_nsti = [i/50 for i in range(0, max_nsti)] 
+	
 	cluster_kept = dict()
 	for cur_nsti in step_nsti:
 		cluster_kept[cur_nsti] = { 'Nb' : 0, 'Abundances' : 0 }
