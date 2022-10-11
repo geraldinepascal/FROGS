@@ -27,6 +27,7 @@ import os
 import sys
 import argparse
 import ete3 as ete
+import pandas as pd
 
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
 LIB_DIR = os.path.abspath(os.path.join(os.path.dirname(CURRENT_DIR), "lib"))
@@ -79,6 +80,47 @@ def task_excluded_sequences_tree( args ):
 		excluded.write('#No excluded OTUs.\n')
 	excluded.close()
 
+def task_formate_abundances_file( args, hierarchy_tag = "classification"):
+	"""
+	@summary: Formate an abundances file (functions or pathways) in order to create a biom file of pathway abundances, and display sunbursts graphs.
+	@param strat_file: frogsfunc_pathways or frogsfunc_functions outputs of abundances predictions (frogsfunc_pathways_unstrat.tsv)
+	@param pathways_hierarchy_file: reference file that links every pathways or function ID to its hierarchy levels.
+	"""
+	id_to_hierarchy = {}
+	path_fi = open(args.hierarchy_file).readlines()
+	for li in path_fi:
+		li = li.strip().split('\t')
+		id_to_hierarchy[li[-1]] = ";".join(li)
+
+	df = pd.read_csv(args.input_abundances, sep='\t')
+	df.insert(2,'observation_sum',df.sum(axis=1, numeric_only=True))
+	df.rename(columns = {'pathway':'observation_name'}, inplace = True)
+	df.rename(columns = {'function':'observation_name'}, inplace = True)
+	df.to_csv(args.input_abundances ,sep='\t', index=False)
+
+	tmp = open(args.input_tmp_abundances, 'wt')
+	FH_in = open(args.input_abundances).readlines()
+
+	header = FH_in[0].strip().split('\t')
+	header.insert(0, hierarchy_tag)
+	
+	tmp.write("\t".join(header)+"\n")
+	for li in FH_in[1:]:
+		li = li.strip().split('\t')
+		if li[1] in id_to_hierarchy:
+			li.insert(0,id_to_hierarchy[li[1]])
+			tmp.write("\t".join(li)+"\n")
+	tmp.close()
+	tmp = pd.read_csv(args.input_tmp_abundances, sep="\t")
+	pathway = tmp.copy()
+	pathway.to_csv(args.input_abundances, sep="\t", index=False)
+
+	headers = ['observation_name', 'db_link', hierarchy_tag]
+	for column in tmp:
+		if column not in headers:
+			tmp[column] = tmp[column].round(0).astype(int)
+	tmp.to_csv(args.input_tmp_abundances, sep="\t", index=False)
+
 ####################################################################################################################
 #
 # Main
@@ -96,11 +138,18 @@ if __name__ == "__main__":
     parser_sampling.set_defaults(func=task_convert_fasta)
 
     # Excluded sequences 
-    parser_observationDepth = subparsers.add_parser('excluded-sequences', help='Returns the excluded sequence, not insert into reference tree.', usage='frogsFuncUtils.py convert-fasta [-h] -i INPUT_FILE -o OUTPUT_FILE')
+    parser_observationDepth = subparsers.add_parser('excluded-sequences', help='Returns the excluded sequence, not insert into reference tree.', usage='frogsFuncUtils.py excluded-sequences [-h] -i INPUT_FASTA -t INPUT_TREE -e EXCLUDED_FILE')
     parser_observationDepth.add_argument( '-i', '--input-fasta', required=True, type=str, help='Input fasta file processed.' )
     parser_observationDepth.add_argument( '-t', '--input-tree', required=True, type=str, help='PICRUSt2 output tree with inserts sequences.' )
     parser_observationDepth.add_argument( '-e', '--output-excluded', required=True, type=str, help='Output file with sequences not inserts into reference tree.' )
     parser_observationDepth.set_defaults(func=task_excluded_sequences_tree)
+
+    # Formate abundances files
+    parser_observationDepth = subparsers.add_parser('formate-abundances', help='Add classifications columns and create temporary abundance file to display sunburst graphs.', usage='frogsFuncUtils.py formate-abundances [-h] -i INPUT_FILE -o OUTPUT_FILE')
+    parser_observationDepth.add_argument( '-i', '--input-abundances', required=True, type=str, help='Input function or pathway abundances file.' )
+    parser_observationDepth.add_argument( '-t', '--input-tmp-abundances', required=True, type=str, help='Tmp path of abundances to display sunburst graphs.' )
+    parser_observationDepth.add_argument( '-f', '--hierarchy-file', required=True, type=str, help='Reference file that links every pathways or function ID to its hierarchy levels..' )
+    parser_observationDepth.set_defaults(func=task_formate_abundances_file)
     # Parse parameters and call process
     args = parser.parse_args()
     args.func(args)

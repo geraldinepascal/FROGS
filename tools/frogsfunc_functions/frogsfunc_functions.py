@@ -168,6 +168,21 @@ class Tsv2biom(Cmd):
 		sum_col = f_in.pop("observation_sum")
 		f_in.to_csv(self.in_tsv ,sep='\t' ,index=False)
 
+class FormateAbundances(Cmd):
+	"""
+	@summary: Formate function abundances file in order to add function classifications and display sunbursts graphs.
+	"""
+	def __init__(self, in_abund, tmp_abund, hierarchy_file, log):
+
+		Cmd.__init__(self,
+			'frogsFuncUtils.py',
+			'Formate function abundances file.',
+			'formate-abundances --input-abundances ' + in_abund + ' --input-tmp-abundances ' + tmp_abund + ' --hierarchy-file ' + hierarchy_file + ' 2>> ' + log,
+			'--version')
+
+	def get_version(self):
+		return Cmd.get_version(self, 'stdout').strip()
+
 class TaxonomyTree(Cmd):
 	"""
 	@summary: Produces a tree with gene abundances by sample in extended newick format.
@@ -229,47 +244,6 @@ def excluded_sequence(in_biom, in_marker, out_seqtab, excluded):
 		excluded.write('#No excluded OTUs.\n')
 	excluded.close()
 	seqtab_file.close()
-
-def formate_abundances_file(function_file, tmp_function_abund, gene_hierarchy_file, hierarchy_tag = "classification"):
-	"""
-	@summary: Formate frogsfunc_functions output in order to create a biom file of pathways abundances.
-	@param function_file: frogsfunc_functions output of gene abundances prediction (frogsfunc_functions_unstrat.tsv)
-	@param gene_hierarchy_file: reference file that links every gene ID to its hierarchy levels.
-	"""
-	id_to_hierarchy = {}
-	path_fi = open(gene_hierarchy_file).readlines()
-	for li in path_fi:
-		li = li.strip().split('\t')
-		id_to_hierarchy[li[-1]] = ";".join(li)
-
-	df = pd.read_csv(function_file,sep='\t')
-	df.insert(2,'observation_sum',df.sum(axis=1, numeric_only=True))
-	df.rename(columns = {'function':'observation_name'}, inplace = True)
-
-	df.to_csv(function_file ,sep='\t' ,index=False)
-	tmp = open(tmp_function_abund, 'wt')
-	FH_in = open(function_file).readlines()
-	header = FH_in[0].strip().split('\t')
-	header.insert(0, hierarchy_tag)
-	tmp.write("\t".join(header)+"\n")
-	for li in FH_in[1:]:
-		li = li.strip().split('\t')
-		if li[1] in id_to_hierarchy:
-			li.insert(0,id_to_hierarchy[li[1]])
-		else:
-			li.insert(0,'unknown')
-		tmp.write("\t".join(li)+"\n")
-	tmp.close()
-	tmp = pd.read_csv(tmp_function_abund, sep="\t")
-	function = tmp.copy()
-	function.to_csv(function_file, sep="\t", index=False)
-
-	headers = ['observation_name', 'db_link', hierarchy_tag]
-	for column in tmp:
-		if column not in headers:
-			tmp[column] = tmp[column].round(0).astype(int)
-	tmp.to_csv(tmp_function_abund, sep="\t", index=False)
-	return hierarchy_tag
 
 def write_summary(in_biom, function_file, nsti_file, excluded, tree_count_file, tree_ids_file, summary_file):
 	"""
@@ -420,11 +394,13 @@ if __name__ == "__main__":
 		excluded_sequence(args.input_biom, args.marker, args.seqtab, args.excluded)
 		# Make a temporary functions abundances file to display sunbursts graphs.
 		tmp_function_abund = tmp_files.add( args.function_abund + ".tmp")
-		hierarchy_tag = formate_abundances_file(args.function_abund, tmp_function_abund, GENE_HIERARCHY_FILE)
+		tmp_formate_abundances = tmp_files.add( 'tmp_formate_abundances.log' )
+		FormateAbundances(args.function_abund, tmp_function_abund, GENE_HIERARCHY_FILE, tmp_formate_abundances).submit( args.log_file)
 		tmp_biom = tmp_files.add( 'gene_abundances.biom' )
 		Tsv2biom(tmp_function_abund, tmp_biom).submit( args.log_file)
 		tree_count_file = tmp_files.add( "geneCount.enewick" )
 		tree_ids_file = tmp_files.add( "geneCount_ids.tsv" )
+		hierarchy_tag = "classification"
 		TaxonomyTree(tmp_biom, hierarchy_tag, tree_count_file, tree_ids_file).submit( args.log_file )
 
 		write_summary(args.input_biom, args.function_abund, args.weighted, args.excluded, tree_count_file, tree_ids_file, args.html)
