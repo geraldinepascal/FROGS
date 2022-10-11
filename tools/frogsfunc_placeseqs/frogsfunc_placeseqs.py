@@ -24,6 +24,7 @@ __email__ = 'frogs@toulouse.inrae.fr'
 __status__ = 'dev'
 
 import os
+import re
 import sys
 import json
 import math
@@ -178,6 +179,25 @@ def restricted_float(in_arg):
 		raise argparse.ArgumentTypeError(in_arg + "is not in range 0.0 - 1.0")
 	return in_arg
 
+def rounding(nb):
+	'''
+	@summary: Rounding numbers decimal 
+	'''
+	if re.search("^[0-9]{1}[.][0-9]+e",str(nb)):
+		start = re.compile("[0-9][.][0-9]{1,2}")
+		end = re.compile("e-[0-9]+")
+		return float("".join(start.findall(str(nb))+end.findall(str(nb))))
+
+	elif re.search("[0][.][0-9]+",str(nb)):
+		return(round(nb,2))
+
+	elif re.search("[0][.][0]+",str(nb)):
+		motif = re.compile("[0][.][0]+[0-9]{2}")
+		return float("".join(motif.findall(str(nb))))
+
+	else:
+		return(round(nb,2))
+
 def write_summary(in_fasta, excluded_file, biomfile, closest_ref_file, category, depth_nsti_file, summary_file):
 	"""
 	@param in_fasta: [str] path to the input fasta file.
@@ -212,7 +232,6 @@ def write_summary(in_fasta, excluded_file, biomfile, closest_ref_file, category,
 	elif category == "ITS":
 		START_IMG_LINK = "<a href='https://mycocosm.jgi.doe.gov/"
 
-
 	closest_ref = open(closest_ref_file).readlines()
 	for li in closest_ref[1:]:
 		li = li.strip().split('\t')
@@ -228,9 +247,11 @@ def write_summary(in_fasta, excluded_file, biomfile, closest_ref_file, category,
 				continue
 
 	FH_log = Logger( depth_nsti_file )
+	align_and_nsti = list()
 	max_nsti = 0
 	for li in closest_ref[1:]:
 		li = li.strip().split('\t')
+		align_and_nsti.append([float(li[6]), float(li[13].split()[0])])
 		if float(li[6]) > max_nsti:
 			max_nsti = float(li[6])
 	max_nsti = math.ceil( max_nsti * 50 + 1) 
@@ -256,6 +277,8 @@ def write_summary(in_fasta, excluded_file, biomfile, closest_ref_file, category,
 	nstis = sorted(nstis)
 	clusters_size = sorted(clusters_size)
 	abundances_size = sorted(abundances_size)
+	total_abundances = abundances_size[-1]
+	proportions = [ rounding( i / total_abundances * 100 ) for i in abundances_size]
 	# record details about removed OTU
 	FH_excluded = open(excluded_file, 'rt').readlines()
 	for li in FH_excluded:
@@ -283,6 +306,8 @@ def write_summary(in_fasta, excluded_file, biomfile, closest_ref_file, category,
 			line = line.replace( "###ABUNDANCES_SIZES###", json.dumps( abundances_size) )
 		elif "###NSTI_THRESH###" in line:
 			line = line.replace( "###NSTI_THRESH###", json.dumps(nstis) )
+		elif "###SCATTER###" in line:
+			line = line.replace( "###SCATTER###", json.dumps(align_and_nsti))
 		FH_summary_out.write( line )
 
 	FH_summary_out.close()

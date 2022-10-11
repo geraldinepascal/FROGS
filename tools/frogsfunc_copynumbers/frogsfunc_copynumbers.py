@@ -24,6 +24,7 @@ __email__ = 'frogs@toulouse.inrae.fr'
 __status__ = 'dev'
 
 import os
+import re
 import sys
 import json
 import gzip
@@ -169,6 +170,25 @@ def is_gzip( file ):
 		FH_input.close()
 	return is_gzip
 
+def rounding(nb):
+	'''
+	@summary: Rounding numbers decimal 
+	'''
+	if re.search("^[0-9]{1}[.][0-9]+e",str(nb)):
+		start = re.compile("[0-9][.][0-9]{1,2}")
+		end = re.compile("e-[0-9]+")
+		return float("".join(start.findall(str(nb))+end.findall(str(nb))))
+
+	elif re.search("[0][.][0-9]+",str(nb)):
+		return(round(nb,2))
+
+	elif re.search("[0][.][0]+",str(nb)):
+		motif = re.compile("[0][.][0]+[0-9]{2}")
+		return float("".join(motif.findall(str(nb))))
+
+	else:
+		return(round(nb,2))
+
 def write_summary(biom_file, output_marker, depth_nsti_file, summary_file ):
 	"""
 	@summary: Writes the informations to generate graph of the number of OTUs and sequences removed according NCTI score.
@@ -207,6 +227,8 @@ def write_summary(biom_file, output_marker, depth_nsti_file, summary_file ):
 	nstis = sorted(nstis)
 	clusters_size = sorted(clusters_size)
 	abundances_size = sorted(abundances_size)
+	total_abundances = abundances_size[-1]
+	proportions = [ rounding( i / total_abundances * 100 ) for i in abundances_size]
 
 	FH_summary_tpl = open( os.path.join(CURRENT_DIR, "frogsfunc_copynumbers_tpl.html") )
 	FH_summary_out = open( summary_file, "wt" )
