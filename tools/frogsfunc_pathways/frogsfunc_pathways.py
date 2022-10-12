@@ -309,17 +309,17 @@ if __name__ == "__main__":
 	group_input.add_argument( '--normalisation', default=False, action='store_true', help='To normalise data after analysis. Values are divided by sum of columns , then multiplied by 10^6 (CPM values). [Default: %(default)s]')
 	#Outputs
 	group_output = parser.add_argument_group( 'Outputs')
-	group_output.add_argument('-o', '--pathways-abund', default='frogsfunc_pathways_unstrat.tsv', help='Pathway abundance file output. Default: %(default)s]')
+	group_output.add_argument('-o', '--output-pathways-abund', default='frogsfunc_pathways_unstrat.tsv', help='Pathway abundance file output. Default: %(default)s]')
 	group_output.add_argument('--pathways-contrib', default=None, help='Stratified output corresponding to contribution of predicted gene family abundances within each predicted genome.')
 	group_output.add_argument('--pathways-predictions', default=None, help='Stratified output corresponding to contribution of predicted gene family abundances within each predicted genome.')
 	group_output.add_argument('--pathways-abund-per-seq', default=None, help='Pathway abundance file output per sequences (if --per-sequence-contrib set)')
 	group_output.add_argument('-v', '--version', default=False, action='version', version="%(prog)s " + __version__)
 	group_output.add_argument('-l', '--log-file', default=sys.stdout, help='This output file will contain several information on executed commands.')
-	group_output.add_argument('-t', '--html', default='frogsfunc_pathways_summary.html', help="Path to store resulting html file. [Default: %(default)s]" )	
+	group_output.add_argument('-t', '--summary', default='frogsfunc_pathways_summary.html', help="Path to store resulting html file. [Default: %(default)s]" )	
 	args = parser.parse_args()
 	prevent_shell_injections(args)
 
-	tmp_files=TmpFiles(os.path.split(args.html)[0])
+	tmp_files=TmpFiles(os.path.split(args.summary)[0])
 	HIERARCHY_RANKS = ['Level1','Level2','Level3','Pathway']
 	try:	 
 		Logger.static_write(args.log_file, "## Application\nSoftware :" + sys.argv[0] + " (version : " + str(__version__) + ")\nCommand : " + " ".join(sys.argv) + "\n\n")
@@ -341,13 +341,13 @@ if __name__ == "__main__":
 		tmp_tsv = tmp_files.add( 'genes_abundances_formatted.tsv')
 		formate_input_file(args.input_file, tmp_tsv)
 
-		PathwayPipeline(tmp_tsv, args.map, args.per_sequence_contrib, args.per_sequence_abun, args.per_sequence_function, args.no_regroup,  args.pathways_abund, args.pathways_contrib, args.pathways_predictions, args.pathways_abund_per_seq, tmp_pathway).submit(args.log_file)
+		PathwayPipeline(tmp_tsv, args.map, args.per_sequence_contrib, args.per_sequence_abun, args.per_sequence_function, args.no_regroup,  args.output_pathways_abund, args.pathways_contrib, args.pathways_predictions, args.pathways_abund_per_seq, tmp_pathway).submit(args.log_file)
 		
-		tmp_pathways_abund = tmp_files.add( args.pathways_abund + ".tmp")
+		tmp_pathways_abund = tmp_files.add( args.output_pathways_abund + ".tmp")
 		tmp_formate_abundances = tmp_files.add( 'tmp_formate_abundances.log' )
-		FormateAbundances(args.pathways_abund, tmp_pathways_abund, PATHWAYS_HIERARCHY_FILE, tmp_formate_abundances).submit( args.log_file)
+		FormateAbundances(args.output_pathways_abund, tmp_pathways_abund, PATHWAYS_HIERARCHY_FILE, tmp_formate_abundances).submit( args.log_file)
 		if args.normalisation:
-			normalized_abundances_file( args.pathways_abund)
+			normalized_abundances_file( args.output_pathways_abund)
 		tmp_biom = tmp_files.add( 'pathway_abundances.biom' )
 		Tsv2biom( tmp_pathways_abund, tmp_biom ).submit( args.log_file)
 		tree_count_file = tmp_files.add( "pathwayCount.enewick" )
@@ -355,7 +355,7 @@ if __name__ == "__main__":
 		hierarchy_tag = "classification"
 		TaxonomyTree( tmp_biom, hierarchy_tag, tree_count_file, tree_ids_file ).submit( args.log_file )
 
-		write_summary( args.pathways_abund, tree_count_file, tree_ids_file, args.html )
+		write_summary( args.output_pathways_abund, tree_count_file, tree_ids_file, args.summary )
 
 	finally:
 		if not args.debug:

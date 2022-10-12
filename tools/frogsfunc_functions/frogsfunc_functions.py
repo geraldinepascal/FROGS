@@ -358,30 +358,30 @@ if __name__ == "__main__":
 	# Inputs
 	group_input = parser.add_argument_group( 'Inputs' )
 	group_input.add_argument('-b', '--input-biom', required=True, type=str, help='frogsfunc_placeseqs Biom output file (frogsfunc_placeseqs.biom).')
-	group_input.add_argument('-f', '--function', required=True, type=str, help='Table of predicted gene family copy numbers (frogsfunc_copynumbers output, frogsfunc_copynumbers_predicted_functions.tsv).')
-	group_input.add_argument('-m', '--marker', required=True, type=str, help='Table of predicted marker gene copy numbers (frogsfunc_copynumbers output, ex frogsfunc_copynumbers_marker.tsv).')
+	group_input.add_argument('-f', '--input-function', required=True, type=str, help='Table of predicted gene family copy numbers (frogsfunc_copynumbers output, frogsfunc_copynumbers_predicted_functions.tsv).')
+	group_input.add_argument('-m', '--input-marker', required=True, type=str, help='Table of predicted marker gene copy numbers (frogsfunc_copynumbers output, ex frogsfunc_copynumbers_marker.tsv).')
 	group_input.add_argument('--max-nsti', type=float, default=2.0, help='Sequences with NSTI values above this value will be excluded (default: %(default)d).')
 	group_input.add_argument('--min-reads', metavar='INT', type=int, default=1, help='Minimum number of reads across all samples for each input OTU. OTUs below this cut-off will be counted as part of the \"RARE\" category in the stratified output. If you choose 1, none OTU will be grouped in “RARE” category.(default: %(default)d).')
 	group_input.add_argument('--min-samples', metavar='INT', type=int, default=1, help='Minimum number of samples that an OTU needs to be identfied within. OTUs below this cut-off will be counted as part of the \"RARE\" category in the stratified output.  If you choose 1, none OTU will be grouped in “RARE” category. (default: %(default)d).')
 	#Outputs
 	group_output = parser.add_argument_group( 'Outputs')
-	group_output.add_argument('--function-abund', default='frogsfunc_functions_unstrat.tsv', help='Output file for metagenome predictions abundance. (default: %(default)s).')
-	group_output.add_argument('--seqtab', default='frogsfunc_functions_marker_norm.tsv', help='Output file with abundance normalized per marker copies number. (default: %(default)s).')
-	group_output.add_argument('--weighted', default='frogsfunc_functions_weighted_nsti.tsv', help='Output file with the mean of nsti value per sample (format: TSV). [Default: %(default)s]' )
-	group_output.add_argument('--contrib', default=None, help=' Stratified output that reports contributions to community-wide abundances (ex pred_metagenome_contrib.tsv)')
+	group_output.add_argument('--output-function-abund', default='frogsfunc_functions_unstrat.tsv', help='Output file for metagenome predictions abundance. (default: %(default)s).')
+	group_output.add_argument('--output-seqtab', default='frogsfunc_functions_marker_norm.tsv', help='Output file with abundance normalized per marker copies number. (default: %(default)s).')
+	group_output.add_argument('--output-weighted', default='frogsfunc_functions_weighted_nsti.tsv', help='Output file with the mean of nsti value per sample (format: TSV). [Default: %(default)s]' )
+	group_output.add_argument('--output-contrib', default=None, help=' Stratified output that reports contributions to community-wide abundances (ex pred_metagenome_contrib.tsv)')
 	group_output.add_argument('-e', '--excluded', default='frogsfunc_functions_excluded.txt', help='List of sequences with NSTI values above NSTI threshold ( --max_NSTI NSTI ).[Default: %(default)s]')
 	group_output.add_argument('-l', '--log-file', default=sys.stdout, help='List of commands executed.')
-	group_output.add_argument('-t', '--html', default='frogsfunc_functions_summary.html', help="Path to store resulting html file. [Default: %(default)s]" )
+	group_output.add_argument('-t', '--summary', default='frogsfunc_functions_summary.html', help="Path to store resulting html file. [Default: %(default)s]" )
 	args = parser.parse_args()
 	prevent_shell_injections(args)
 
-	if args.strat_out and args.contrib is None:
-		args.contrib = 'frogsfunc_functions_strat.tsv'
+	if args.strat_out and args.output_contrib is None:
+		args.output_contrib = 'frogsfunc_functions_strat.tsv'
 
-	if not args.strat_out and args.contrib is not None:
+	if not args.strat_out and args.output_contrib is not None:
 		parser.error('--contrib FILENAME must be include with --strat_out flag')
 	HIERARCHY_RANKS = ["Level1", "Level2", "Level3", "Gene"]
-	tmp_files=TmpFiles(os.path.split(args.html)[0])
+	tmp_files=TmpFiles(os.path.split(args.summary)[0])
 	try:
 		Logger.static_write(args.log_file, "## Application\nSoftware :" + sys.argv[0] + " (version : " + str(__version__) + ")\nCommand : " + " ".join(sys.argv) + "\n\n")
 		#temp tsv file necessary for metagenome_pipeline.py
@@ -389,13 +389,13 @@ if __name__ == "__main__":
 		Biom2tsv(args.input_biom, tmp_biom_to_tsv).submit( args.log_file )
 
 		tmp_metag_pipeline = tmp_files.add( 'tmp_metagenome_pipeline.log' )
-		MetagenomePipeline(tmp_biom_to_tsv, args.marker, args.function, args.max_nsti, args.min_reads, args.min_samples, args.strat_out, args.function_abund, args.seqtab, args.weighted, args.contrib, tmp_metag_pipeline).submit( args.log_file )
+		MetagenomePipeline(tmp_biom_to_tsv, args.input_marker, args.input_function, args.max_nsti, args.min_reads, args.min_samples, args.strat_out, args.output_function_abund, args.output_seqtab, args.outut_weighted, args.output_contrib, tmp_metag_pipeline).submit( args.log_file )
 
-		excluded_sequence(args.input_biom, args.marker, args.seqtab, args.excluded)
+		excluded_sequence(args.input_biom, args.input_marker, args.output_seqtab, args.excluded)
 		# Make a temporary functions abundances file to display sunbursts graphs.
-		tmp_function_abund = tmp_files.add( args.function_abund + ".tmp")
+		tmp_function_abund = tmp_files.add( args.output_function_abund + ".tmp")
 		tmp_formate_abundances = tmp_files.add( 'tmp_formate_abundances.log' )
-		FormateAbundances(args.function_abund, tmp_function_abund, GENE_HIERARCHY_FILE, tmp_formate_abundances).submit( args.log_file)
+		FormateAbundances(args.output_function_abund, tmp_function_abund, GENE_HIERARCHY_FILE, tmp_formate_abundances).submit( args.log_file)
 		tmp_biom = tmp_files.add( 'gene_abundances.biom' )
 		Tsv2biom(tmp_function_abund, tmp_biom).submit( args.log_file)
 		tree_count_file = tmp_files.add( "geneCount.enewick" )
@@ -403,7 +403,7 @@ if __name__ == "__main__":
 		hierarchy_tag = "classification"
 		TaxonomyTree(tmp_biom, hierarchy_tag, tree_count_file, tree_ids_file).submit( args.log_file )
 
-		write_summary(args.input_biom, args.function_abund, args.weighted, args.excluded, tree_count_file, tree_ids_file, args.html)
+		write_summary(args.input_biom, args.output_function_abund, args.output_weighted, args.excluded, tree_count_file, tree_ids_file, args.summary)
 	finally:
 		if not args.debug:
 			tmp_files.deleteAll()
