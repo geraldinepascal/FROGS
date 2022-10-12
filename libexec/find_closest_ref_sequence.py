@@ -80,7 +80,7 @@ def is_same_taxonomies(taxo_frogs, taxo_picrust):
 			return False
 	return True
 
-def find_lowest_same_taxo_rank(taxo_frogs, taxo_picrust, hierarchy = ["Kingdom","Phylum","Class","Order","Family","Genus","Species"]):
+def find_lowest_same_taxo_rank(taxo_frogs, taxo_picrust, hierarchy = ["Up to Kingdom","Up to Phylum","Up to Class","Up to Order","Up to Family","Up to Genus","Up to Species"]):
 	'''
 	@summary: find lowest identical taxonomic rank between frogs and picrust2 taxonomies
 	return rank_level and rank_name
