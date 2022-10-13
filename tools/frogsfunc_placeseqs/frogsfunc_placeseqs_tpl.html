@@ -442,6 +442,23 @@
 				var detection_series = ###DETECTION_DATA### ;
 				var remove_info = ###REMOVE_DATA### ;
 
+
+				var alignment_series = [];
+				var coverage_series = [];
+
+				for(var cluster in detection_series) {
+					dict_a = {};
+					dict_c = {};
+					dict_a.name = detection_series[cluster].name;
+					dict_c.name = detection_series[cluster].name;
+					dict_a.x = parseFloat(detection_series[cluster].data[5]);
+					dict_c.x = parseFloat(detection_series[cluster].data[5]);
+					dict_a.y = parseFloat(detection_series[cluster].data[12].split(" ")[0]);
+					dict_c.y = parseFloat(detection_series[cluster].data[13].split(" ")[0]);
+					alignment_series.push(dict_a);
+					coverage_series.push(dict_c);
+				}
+				// alert(JSON.stringify(scatter_series, null, 4));
 				// Remove alert
 				$('#js-alert').remove();
 				$('#content').removeClass("hidden");
@@ -544,7 +561,7 @@
 					align: 'left',
 					verticalAlign: 'top',
 					x: 100,
-					y: 70,
+					y: 10,
 					floating: true,
 					backgroundColor: Highcharts.defaultOptions.chart.backgroundColor,
 					borderWidth: 1
@@ -579,9 +596,13 @@
 					enableMouseTracking: false
 				},
 				series: [{
-					name: '',
+					name: '% alignment',
 					color: 'rgba(134, 165, 164, .5)',
-					data: ###SCATTER###
+					data: alignment_series
+					}, {
+					name: '% coverage',
+					color: 'rgba(211, 148, 104, .5)',
+					data: coverage_series				
 					}]
 				})
 			})

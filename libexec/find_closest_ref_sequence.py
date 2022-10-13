@@ -209,8 +209,9 @@ def find_closest_ref_sequences(tree, biom, biom_path, ID_to_taxo, ref_seqs, clus
 	@param clusters_to_seq: [list] clusters insert in tree and sequences associated(find_clusters output).
 	@param output: [str] path to tmp output file in order to write frogs and picrust2 taxonomic comparaisons.
 	"""
+	max_nsti = 0
 	FH_out = open(output,'wt')
-	header = "\t".join(["Cluster","Nb sequences", "FROGS Taxonomy",\
+	header = "\t".join(["#Cluster","Nb sequences", "FROGS Taxonomy",\
 		"PICRUSt2 closest ID","PICRUSt2 closest reference name","PICRUSt2 closest taxonomy",\
 		"NSTI", "NSTI Confidence" ,"FROGS and PICRUSt2 lowest same taxonomic rank",\
 		 "Comment", "Cluster sequence", "PICRUSt2 closest reference sequence",\
@@ -220,10 +221,11 @@ def find_closest_ref_sequences(tree, biom, biom_path, ID_to_taxo, ref_seqs, clus
 	for observation_name in biom.get_observations_names():
 		count = str(biom.get_observation_count(observation_name))
 		node = tree.search_nodes(name=observation_name)[0]
+		frogs_taxo = 'NA'
 		affis_picrust = 'NA'
 		ref_leaf_id = ''
 		ref_leaf_taxo = ''
-		lowest_same_rank = ''
+		lowest_same_rank = '/'
 		comment = '/'
 		blast_n_aln = ''
 		blast_id = ''
@@ -239,17 +241,14 @@ def find_closest_ref_sequences(tree, biom, biom_path, ID_to_taxo, ref_seqs, clus
 					leaf_to_dist[leaf.name] = tree.get_distance(leaf, observation_name)
 		best_leaf = sorted(leaf_to_dist, key=leaf_to_dist.get)[0]
 
-		if biom.get_observation_metadata(observation_name)["blast_taxonomy"] is None or len(biom.get_observation_metadata(observation_name)["blast_taxonomy"]) == 0:
-					frogs_taxo = 'NA'
-
-		elif best_leaf in ID_to_taxo:
+		if best_leaf in ID_to_taxo:
 			ref_leaf_id = ID_to_taxo[best_leaf][0]
 			ref_leaf_taxo = ID_to_taxo[best_leaf][1]
 			affis_picrust = ID_to_taxo[best_leaf][1].replace(' ','_')
 			rank_level = 7
 			found_same_taxo = False
 
-			if not found_same_taxo:
+			if ( not biom.get_observation_metadata(observation_name)["blast_taxonomy"] is None or not len(biom.get_observation_metadata(observation_name)["blast_taxonomy"]) == 0 ) and not found_same_taxo:
 				for affi in biom.get_observation_metadata(observation_name)["blast_affiliations"]:
 					cur_frogs_taxo = ";".join(affi["taxonomy"])
 					if '__' in cur_frogs_taxo:
@@ -285,11 +284,15 @@ def find_closest_ref_sequences(tree, biom, biom_path, ID_to_taxo, ref_seqs, clus
 		elif rounding(leaf_to_dist[best_leaf]) < 0.5:
 			confidence = "Good"
 
+		if rounding(leaf_to_dist[best_leaf]) > max_nsti:
+			max_nsti = rounding(leaf_to_dist[best_leaf])
+
 		FH_out.write("\t".join([observation_name, count, frogs_taxo, best_leaf,\
 		ref_leaf_id, ref_leaf_taxo, str(rounding(leaf_to_dist[best_leaf])),\
 		confidence, lowest_same_rank, comment, cluster_to_seq[observation_name], ref_seqs[best_leaf],\
 		blast_n_aln, blast_id, blast_cov, blast_score])+'\n')
 	BiomIO.write(biom_path, biom)
+	return max_nsti
 
 ##################################################################################################################################################
 #
@@ -323,5 +326,6 @@ if __name__ == "__main__":
 
 	clusters = inputs[-1]
 
-	find_closest_ref_sequences(*inputs)
+	max_nsti = find_closest_ref_sequences(*inputs)
+	Logger.static_write(args.log_file, "#Max NSTI: "+str(max_nsti))
 	

@@ -95,8 +95,9 @@ class FindClosestsRefSequences(Cmd):
 		Cmd.__init__(self,
 			'find_closest_ref_sequence.py',
 			'find OTUs closests reference sequences into a reference tree.',
-			'--input-tree ' + in_tree + ' --input-biom ' + in_biom + ' --input-fasta ' + in_fasta + ' --ref-aln ' + ref_aln + ' --output-biom ' + out_biom + ' --output-tsv ' + out_summary + " 2>> " + log,
+			'--input-tree ' + in_tree + ' --input-biom ' + in_biom + ' --input-fasta ' + in_fasta + ' --ref-aln ' + ref_aln + ' --output-biom ' + out_biom + ' --output-tsv ' + out_summary + " --log-file " + log,
 			'--version')
+		self.log_file = log
 
 	def get_version(self):
 		return Cmd.get_version(self, 'stdout').strip()
@@ -198,10 +199,10 @@ def rounding(nb):
 	else:
 		return(round(nb,2))
 
-def write_summary(in_fasta, excluded_file, biomfile, closest_ref_file, category, depth_nsti_file, summary_file):
+def write_summary(in_fasta, excluded_file, biomfile, closest_ref_file, category, log_find_closest_ref, depth_nsti_file, summary_file):
 	"""
 	@param in_fasta: [str] path to the input fasta file.
-	@param align_out: [str] path to the fasta file of unaligned OTU
+	@param excluded_file: [str] List of excluded sequences from the reference tree.
 	@param biomfile: [str] path to the input BIOM file.
 	@param closest_ref_files: [str] Path to closests reference information file (find_closest_ref_sequence.py output).
 	@param category: ITS or 16S
@@ -216,7 +217,7 @@ def write_summary(in_fasta, excluded_file, biomfile, closest_ref_file, category,
 	}
 	number_otu_all = 0
 	number_abundance_all = 0
-	# to detail removed OTU
+
 	details_categorys =["Nb sequences","FROGS Taxonomy","PICRUSt2 closest ID (JGI)","PICRUSt2 closest reference name","PICRUSt2 closest taxonomy","NSTI", "NSTI Confidence" ,"Lowest same taxonomic rank between FROGS and PICRUSt2","Comment"]
 	infos_otus = list()
 	biom=BiomIO.from_json(biomfile)
@@ -231,47 +232,38 @@ def write_summary(in_fasta, excluded_file, biomfile, closest_ref_file, category,
 		START_IMG_LINK = "<a href='https://img.jgi.doe.gov/cgi-bin/m/main.cgi?section=TaxonDetail&page=taxonDetail&taxon_oid="
 	elif category == "ITS":
 		START_IMG_LINK = "<a href='https://mycocosm.jgi.doe.gov/"
-
-	closest_ref = open(closest_ref_file).readlines()
-	for li in closest_ref[1:]:
-		li = li.strip().split('\t')
-		if category in ['16S','ITS']:
-			try:
-				id_cur = li[3]
-				li[3] = START_IMG_LINK + id_cur + "'target=\"_blank\">" + id_cur + '</a>'
-				infos_otus.append({
-					'name': li[0],
-					'data': list(li[1:-2])
-					})
-			except:
-				continue
-
-	FH_log = Logger( depth_nsti_file )
-	d_align_and_nsti = dict()
-	max_nsti = 0
-
-	for li in closest_ref[1:]:
-		li = li.strip().split('\t')
-		d_align_and_nsti[li[0]] = dict()
-		d_align_and_nsti[li[0]]['name'] = li[0]
-		d_align_and_nsti[li[0]]['x'] = float(li[6])
-		d_align_and_nsti[li[0]]['y'] = float(li[13].split()[0])
-
-		if float(li[6]) > max_nsti:
-			max_nsti = float(li[6])
-
-	align_and_nsti = list(d_align_and_nsti.values())
-	max_nsti = math.ceil( max_nsti * 50 + 1) 
-	step_nsti = [i/50 for i in range(0, max_nsti)] 
 	
+	FH_in = open(log_find_closest_ref)
+	for li in FH_in:
+		if li.startswith('#Max NSTI'):
+			max_nsti = float(li.strip().split()[-1])
+	max_nsti = math.ceil( max_nsti * 50 + 1) 
+
+	closest_ref = open(closest_ref_file)
+	FH_log = Logger( depth_nsti_file )
+	step_nsti = [i/50 for i in range(0, max_nsti)]
 	cluster_kept = dict()
+
 	for cur_nsti in step_nsti:
 		cluster_kept[cur_nsti] = { 'Nb' : 0, 'Abundances' : 0 }
-		for li in closest_ref[1:]:
-			li = li.strip().split('\t')
+	for li in closest_ref:
+		if li.startswith('#Cluster'):
+			continue
+		li = li.strip().split('\t')
+		for cur_nsti in step_nsti[::-1]:
 			if float(li[6]) <= cur_nsti:
 				cluster_kept[cur_nsti]['Nb']+=1
 				cluster_kept[cur_nsti]['Abundances']+=int(li[1])
+			else:
+				break
+
+		id_cur = li[3]
+		li[3] = START_IMG_LINK + id_cur + "'target=\"_blank\">" + id_cur + '</a>'
+		infos_otus.append({
+			'name': li[0],
+			'data': list(li[1:-1])
+			})
+	closest_ref.close()
 				
 	clusters_size = list()
 	abundances_size = list()
@@ -314,8 +306,6 @@ def write_summary(in_fasta, excluded_file, biomfile, closest_ref_file, category,
 			line = line.replace( "###ABUNDANCES_SIZES###", json.dumps( abundances_size) )
 		elif "###NSTI_THRESH###" in line:
 			line = line.replace( "###NSTI_THRESH###", json.dumps(nstis) )
-		elif "###SCATTER###" in line:
-			line = line.replace( "###SCATTER###", json.dumps(align_and_nsti))
 		FH_summary_out.write( line )
 
 	FH_summary_out.close()
@@ -381,7 +371,7 @@ if __name__ == "__main__":
 		tmp_find_closest_ref = tmp_files.add( 'tmp_find_closest_ref.log' )
 		FindClosestsRefSequences(args.output_tree, args.output_biom, args.output_fasta, ref_aln, args.output_biom, args.closests_ref, tmp_find_closest_ref).submit(args.log_file)
 		tmp_depth_nsti = tmp_files.add( 'depth_nsti.txt' )
-		write_summary(tmp_fasta, args.excluded, args.input_biom, args.closests_ref, category, tmp_depth_nsti, args.summary)
+		write_summary(tmp_fasta, args.excluded, args.input_biom, args.closests_ref, category, tmp_find_closest_ref, tmp_depth_nsti, args.summary)
 
 	finally:
 		if not args.debug:

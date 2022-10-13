@@ -60,7 +60,7 @@ class MetagenomePipeline(Cmd):
 	"""
 	@summary: Per-sample metagenome functional profiles are generated based on the predicted functions for each study sequence.
 	"""
-	def __init__(self, in_biom, marker, function, max_nsti, min_reads, min_samples, strat_out, function_abund, seqtab, weighted, contrib, log):
+	def __init__(self, in_biom, marker, function, max_nsti, min_reads, min_samples, strat_out, output_dir, function_abund, seqtab, weighted, contrib, log):
 		"""
 		@param in_biom: [str] Path to BIOM input file used in frogsfunc_placeseqs.
 		@param marker: [str] Table of predicted marker gene copy numbers (frogsfunc_copynumbers output : frogsfunc_copynumbers_marker_nsti_predicted.tsv).
@@ -79,9 +79,10 @@ class MetagenomePipeline(Cmd):
 		Cmd.__init__(self,
 				 'metagenome_pipeline.py ',
 				 'Per-sample functional profiles prediction.',
-				 " --input " +  in_biom + " --marker " + marker + " --function " + function + " --out_dir ./ --max_nsti " + str(max_nsti) + " --min_reads " + str(min_reads) + " --min_samples " + str(min_samples) + opt + ' 2> ' + log,
+				 " --input " +  in_biom + " --marker " + marker + " --function " + function + " --out_dir " + output_dir + " --max_nsti " + str(max_nsti) + " --min_reads " + str(min_reads) + " --min_samples " + str(min_samples) + opt + ' 2> ' + log,
 				"--version")
 
+		self.output_dir = output_dir
 		self.abund = function_abund
 		self.seqtab = seqtab
 		self.weighted = weighted
@@ -96,8 +97,8 @@ class MetagenomePipeline(Cmd):
 		START_COG_LINK = "https://www.ncbi.nlm.nih.gov/research/cog/cog/"
 		START_PFAM_LINK = "https://pfam.xfam.org/family/"
 		START_TIGR_LINK = "https://0-www-ncbi-nlm-nih-gov.linyanti.ub.bw/genome/annotation_prok/evidence/"
-		f_in = gzip.open('pred_metagenome_unstrat.tsv.gz', 'rt').readlines()
-		f_out = open(self.abund, 'wt')
+		f_in = gzip.open(self.output_dir + '/pred_metagenome_unstrat.tsv.gz', 'rt').readlines()
+		f_out = open(self.output_dir + "/" + self.abund, 'wt')
 		header = f_in[0].strip().split('\t')
 		header.insert(0,'db_link')
 		f_out.write("\t".join(header)+"\n")
@@ -115,20 +116,20 @@ class MetagenomePipeline(Cmd):
 			else:
 				li.insert(0,"no link" )
 			f_out.write("\t".join(li))
-		os.remove('pred_metagenome_unstrat.tsv.gz')
-		with gzip.open('seqtab_norm.tsv.gz', 'rb') as f_in:
-			with open(self.seqtab, 'wb') as f_out:
+		os.remove(self.output_dir + '/pred_metagenome_unstrat.tsv.gz')
+		with gzip.open(self.output_dir + '/seqtab_norm.tsv.gz', 'rb') as f_in:
+			with open(self.output_dir + "/" + self.seqtab, 'wb') as f_out:
 				shutil.copyfileobj(f_in, f_out)
-			os.remove('seqtab_norm.tsv.gz')
-		with gzip.open('weighted_nsti.tsv.gz', 'rb') as f_in:
-			with open(self.weighted, 'wb') as f_out:
+			os.remove(self.output_dir + '/seqtab_norm.tsv.gz')
+		with gzip.open(self.output_dir + '/weighted_nsti.tsv.gz', 'rb') as f_in:
+			with open(self.output_dir + "/" + self.weighted, 'wb') as f_out:
 				shutil.copyfileobj(f_in, f_out)
-			os.remove('weighted_nsti.tsv.gz')
+			os.remove(self.output_dir + '/weighted_nsti.tsv.gz')
 		if self.strat:
-			with gzip.open('pred_metagenome_contrib.tsv.gz', 'rb') as f_in:
-				with open(self.contrib, 'wb') as f_out:
+			with gzip.open(self.output_dir + '/pred_metagenome_contrib.tsv.gz', 'rb') as f_in:
+				with open(self.output_dir + "/" + self.contrib, 'wb') as f_out:
 					shutil.copyfileobj(f_in, f_out)
-				os.remove('pred_metagenome_contrib.tsv.gz')
+				os.remove(self.output_dir + '/pred_metagenome_contrib.tsv.gz')
 
 class Biom2tsv(Cmd):
 	"""
@@ -365,6 +366,7 @@ if __name__ == "__main__":
 	group_input.add_argument('--min-samples', metavar='INT', type=int, default=1, help='Minimum number of samples that an OTU needs to be identfied within. OTUs below this cut-off will be counted as part of the \"RARE\" category in the stratified output.  If you choose 1, none OTU will be grouped in “RARE” category. (default: %(default)d).')
 	#Outputs
 	group_output = parser.add_argument_group( 'Outputs')
+	group_output.add_argument('-o', '--output-dir', default='frogsfunc_functions_results', help='Output directory for functions predictions.')
 	group_output.add_argument('--output-function-abund', default='frogsfunc_functions_unstrat.tsv', help='Output file for metagenome predictions abundance. (default: %(default)s).')
 	group_output.add_argument('--output-seqtab', default='frogsfunc_functions_marker_norm.tsv', help='Output file with abundance normalized per marker copies number. (default: %(default)s).')
 	group_output.add_argument('--output-weighted', default='frogsfunc_functions_weighted_nsti.tsv', help='Output file with the mean of nsti value per sample (format: TSV). [Default: %(default)s]' )
@@ -376,7 +378,7 @@ if __name__ == "__main__":
 	prevent_shell_injections(args)
 
 	if args.strat_out and args.output_contrib is None:
-		args.output_contrib = 'frogsfunc_functions_strat.tsv'
+		args.output_contrib = args.output_dir + '/frogsfunc_functions_strat.tsv'
 
 	if not args.strat_out and args.output_contrib is not None:
 		parser.error('--contrib FILENAME must be include with --strat_out flag')
@@ -389,13 +391,13 @@ if __name__ == "__main__":
 		Biom2tsv(args.input_biom, tmp_biom_to_tsv).submit( args.log_file )
 
 		tmp_metag_pipeline = tmp_files.add( 'tmp_metagenome_pipeline.log' )
-		MetagenomePipeline(tmp_biom_to_tsv, args.input_marker, args.input_function, args.max_nsti, args.min_reads, args.min_samples, args.strat_out, args.output_function_abund, args.output_seqtab, args.outut_weighted, args.output_contrib, tmp_metag_pipeline).submit( args.log_file )
+		MetagenomePipeline(tmp_biom_to_tsv, args.input_marker, args.input_function, args.max_nsti, args.min_reads, args.min_samples, args.strat_out, args.output_dir, args.output_function_abund, args.output_seqtab, args.output_weighted, args.output_contrib, tmp_metag_pipeline).submit( args.log_file )
 
-		excluded_sequence(args.input_biom, args.input_marker, args.output_seqtab, args.excluded)
+		excluded_sequence(args.input_biom, args.input_marker, args.output_dir + "/" + args.output_seqtab, args.output_dir + "/" + args.excluded)
 		# Make a temporary functions abundances file to display sunbursts graphs.
 		tmp_function_abund = tmp_files.add( args.output_function_abund + ".tmp")
 		tmp_formate_abundances = tmp_files.add( 'tmp_formate_abundances.log' )
-		FormateAbundances(args.output_function_abund, tmp_function_abund, GENE_HIERARCHY_FILE, tmp_formate_abundances).submit( args.log_file)
+		FormateAbundances(args.output_dir + "/" + args.output_function_abund, tmp_function_abund, GENE_HIERARCHY_FILE, tmp_formate_abundances).submit( args.log_file)
 		tmp_biom = tmp_files.add( 'gene_abundances.biom' )
 		Tsv2biom(tmp_function_abund, tmp_biom).submit( args.log_file)
 		tree_count_file = tmp_files.add( "geneCount.enewick" )
@@ -403,7 +405,7 @@ if __name__ == "__main__":
 		hierarchy_tag = "classification"
 		TaxonomyTree(tmp_biom, hierarchy_tag, tree_count_file, tree_ids_file).submit( args.log_file )
 
-		write_summary(args.input_biom, args.output_function_abund, args.output_weighted, args.excluded, tree_count_file, tree_ids_file, args.summary)
+		write_summary(args.input_biom, args.output_dir + "/" + args.output_function_abund, args.output_dir + "/" + args.output_weighted, args.output_dir + "/" + args.excluded, tree_count_file, tree_ids_file, args.output_dir + "/" + args.summary)
 	finally:
 		if not args.debug:
 			tmp_files.deleteAll()
