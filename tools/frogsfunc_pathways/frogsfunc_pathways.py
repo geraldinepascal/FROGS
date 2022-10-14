@@ -24,13 +24,8 @@ __email__ = 'frogs@toulouse.inrae.fr'
 __status__ = 'dev'
 
 import os
-import re
 import sys
 import json
-import glob
-import gzip
-import shutil
-import inspect
 import argparse
 import pandas as pd
 
@@ -67,7 +62,7 @@ class PathwayPipeline(Cmd):
 	"""
 	@summary: pathway_pipeline.py : Infer the presence and abundances of pathways based on gene family abundances in a sample.
 	"""
-	def __init__(self, input_file, map_file, per_sequence_contrib, per_sequence_abun, per_sequence_function, no_regroup, pathways_abund, pathways_contrib, pathways_predictions, pathways_abund_per_seq, log):
+	def __init__(self, input_file, map_file, per_sequence_contrib, per_sequence_abun, per_sequence_function, no_regroup, output_dir, pathways_abund, pathways_contrib, pathways_predictions, pathways_abund_per_seq, log):
 		"""
 		@param input_file: [str] Input TSV table of gene family abundances (frogsfunc_genefamilies_pred_metagenome_unstrat.tsv from frogsfunc_genefamilies.py.
 		@param map_file: [str] Mapping file of pathways to reactions, necessary if marker studied is not 16S.
@@ -91,48 +86,30 @@ class PathwayPipeline(Cmd):
 		Cmd.__init__(self,
 				 'pathway_pipeline.py ',
 				 'predict abundance pathway', 
-				  " --input " + input_file + " --out_dir ./ " + opt + ' 2> ' + log,
+				  " --input " + input_file + " --out_dir " + output_dir + opt + ' 2> ' + log,
 				"--version")
-
-		self.pathways_abund = pathways_abund
-		self.per_sequence_contrib = per_sequence_contrib
-		self.pathways_contrib = pathways_contrib
-		self.pathways_predictions = pathways_predictions
-		self.pathways_abund_per_seq = pathways_abund_per_seq
 		
 	def get_version(self):
 		 return "PICRUSt2 " + Cmd.get_version(self, 'stdout').split()[1].strip()
 
-	def parser(self, log_file):
-		START_METAYC_PATHWAY_LINK = "https://biocyc.org/META/NEW-IMAGE?type=PATHWAY&object="
-		START_KEGG_PATHWAY_LINK = "https://www.genome.jp/entry/"
-		f_in = gzip.open('path_abun_unstrat.tsv.gz', 'rt').readlines()
-		f_out = open(self.pathways_abund, 'wt')
-		header = f_in[0].strip().split('\t')
-		header.insert(0,'db_link')
-		f_out.write("\t".join(header)+"\n")
-		for li in f_in[1:]:
-			li = li.strip().split('\t')
-			function = li[0]
-			if function.startswith('ko'):
-				li.insert(0,START_KEGG_PATHWAY_LINK + function )
-			else:
-				li.insert(0,START_METAYC_PATHWAY_LINK + function )
-			f_out.write("\t".join(li)+"\n")
-		os.remove('path_abun_unstrat.tsv.gz')
-		if self.per_sequence_contrib:
-			with gzip.open('path_abun_contrib.tsv.gz', 'rb') as f_in:
-				with open(self.pathways_contrib, 'wb') as f_out:
-					shutil.copyfileobj(f_in, f_out)
-				os.remove('path_abun_contrib.tsv.gz')
-			with gzip.open('path_abun_predictions.tsv.gz', 'rb') as f_in:
-				with open(self.pathways_predictions, 'wb') as f_out:
-					shutil.copyfileobj(f_in, f_out)
-				os.remove('path_abun_predictions.tsv.gz')
-			with gzip.open('path_abun_unstrat_per_seq.tsv.gz', 'rb') as f_in:
-				with open(self.pathways_abund_per_seq, 'wb') as f_out:
-					shutil.copyfileobj(f_in, f_out)
-				os.remove('path_abun_unstrat_per_seq.tsv.gz')
+class ParsePathwayPipeline(Cmd):
+	"""
+	@summary: Parse results of PICRUSt2 pathway_pipeline.py software to rerieve additional informations (i.g. databases functions links)
+	"""
+	def __init__(self, out_dir, out_abund, per_sequence_contrib, contrib, predictions, abund_per_seq, log):
+
+		if per_sequence_contrib:
+			opt = " --per-sequence-contrib --input-contrib " + contrib + " --input-predictions " + predictions + " --input-abund-per-seq " + abund_per_seq 
+		else:
+			opt = ''
+		Cmd.__init__( self,
+					  'frogsFuncUtils.py',
+					  'Parse pathway_pipeline.py outputs.',
+					  "parse-pathway --input-dir " + out_dir + " --input-abund " + out_abund + opt + " 2>> " + log,
+					  '--version' )
+
+	def get_version(self):
+		 return Cmd.get_version(self, 'stdout').strip()
 
 class Biom2tsv(Cmd):
 	"""
@@ -309,6 +286,7 @@ if __name__ == "__main__":
 	group_input.add_argument( '--normalisation', default=False, action='store_true', help='To normalise data after analysis. Values are divided by sum of columns , then multiplied by 10^6 (CPM values). [Default: %(default)s]')
 	#Outputs
 	group_output = parser.add_argument_group( 'Outputs')
+	group_output.add_argument('-d', '--output-dir', default='frogsfunc_pathway_results', help='Output directory for pathway predictions.')
 	group_output.add_argument('-o', '--output-pathways-abund', default='frogsfunc_pathways_unstrat.tsv', help='Pathway abundance file output. Default: %(default)s]')
 	group_output.add_argument('--pathways-contrib', default=None, help='Stratified output corresponding to contribution of predicted gene family abundances within each predicted genome.')
 	group_output.add_argument('--pathways-predictions', default=None, help='Stratified output corresponding to contribution of predicted gene family abundances within each predicted genome.')
@@ -328,11 +306,11 @@ if __name__ == "__main__":
 			if args.per_sequence_abun == None or args.per_sequence_function == None:
 				parser.error("\n\n#ERROR : --per-sequence-abun and --per-sequence-function required when --per-sequence-contrib option is set!\n\n")
 			if args.pathways_contrib is None:
-				args.pathways_contrib = 'frogsfunc_pathways_strat.tsv'
+				args.pathways_contrib = args.output_dir + '/frogsfunc_pathways_strat.tsv'
 			if args.pathways_predictions is None:
-				args.pathways_predictions = 'frogsfunc_pathways_predictions.tsv'
+				args.pathways_predictions = args.output_dir + '/frogsfunc_pathways_predictions.tsv'
 			if args.pathways_abund_per_seq is None:
-				args.pathways_abund_per_seq = "frogsfunc_pathways_unstrat_per_seq.tsv"
+				args.pathways_abund_per_seq = args.output_dir + '/frogsfunc_pathways_unstrat_per_seq.tsv'
 
 		if (args.per_sequence_abun is not None or args.per_sequence_function is not None) and not args.per_sequence_contrib:
 			parser.error("\n\n#ERROR : --per-sequence-contrib required when --per-sequence-contrib and --per-sequence-function option is set!\n\n")
@@ -341,13 +319,15 @@ if __name__ == "__main__":
 		tmp_tsv = tmp_files.add( 'genes_abundances_formatted.tsv')
 		formate_input_file(args.input_file, tmp_tsv)
 
-		PathwayPipeline(tmp_tsv, args.map, args.per_sequence_contrib, args.per_sequence_abun, args.per_sequence_function, args.no_regroup,  args.output_pathways_abund, args.pathways_contrib, args.pathways_predictions, args.pathways_abund_per_seq, tmp_pathway).submit(args.log_file)
-		
+		PathwayPipeline(tmp_tsv, args.map, args.per_sequence_contrib, args.per_sequence_abun, args.per_sequence_function, args.no_regroup, args.output_dir,  args.output_pathways_abund, args.pathways_contrib, args.pathways_predictions, args.pathways_abund_per_seq, tmp_pathway).submit(args.log_file)
+		tmp_parse_pathway = tmp_files.add( 'parse_pathway.log' )
+
+		ParsePathwayPipeline(args.output_dir, args.output_pathways_abund, args.per_sequence_contrib, args.pathways_contrib, args.pathways_predictions, args.pathways_abund_per_seq, tmp_parse_pathway).submit( args.log_file)
 		tmp_pathways_abund = tmp_files.add( args.output_pathways_abund + ".tmp")
 		tmp_formate_abundances = tmp_files.add( 'tmp_formate_abundances.log' )
-		FormateAbundances(args.output_pathways_abund, tmp_pathways_abund, PATHWAYS_HIERARCHY_FILE, tmp_formate_abundances).submit( args.log_file)
+		FormateAbundances(args.output_dir + "/" + args.output_pathways_abund, tmp_pathways_abund, PATHWAYS_HIERARCHY_FILE, tmp_formate_abundances).submit( args.log_file)
 		if args.normalisation:
-			normalized_abundances_file( args.output_pathways_abund)
+			normalized_abundances_file( args.output_dir + "/" + args.output_pathways_abund)
 		tmp_biom = tmp_files.add( 'pathway_abundances.biom' )
 		Tsv2biom( tmp_pathways_abund, tmp_biom ).submit( args.log_file)
 		tree_count_file = tmp_files.add( "pathwayCount.enewick" )
@@ -355,7 +335,7 @@ if __name__ == "__main__":
 		hierarchy_tag = "classification"
 		TaxonomyTree( tmp_biom, hierarchy_tag, tree_count_file, tree_ids_file ).submit( args.log_file )
 
-		write_summary( args.output_pathways_abund, tree_count_file, tree_ids_file, args.summary )
+		write_summary( args.output_dir + "/" + args.output_pathways_abund, tree_count_file, tree_ids_file, args.output_dir + "/" + args.summary )
 
 	finally:
 		if not args.debug:
