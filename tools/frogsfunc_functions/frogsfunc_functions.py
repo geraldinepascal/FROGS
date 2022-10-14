@@ -24,11 +24,8 @@ __email__ = 'frogs@toulouse.inrae.fr'
 __status__ = 'dev'
 
 import os
-import re
 import sys
-import gzip
 import json
-import shutil
 import argparse
 import pandas as pd
 
@@ -41,6 +38,7 @@ LIB_DIR = os.path.abspath(os.path.join(os.path.dirname(CURRENT_DIR), "lib"))
 sys.path.append(LIB_DIR)
 if os.getenv('PYTHONPATH') is None: os.environ['PYTHONPATH'] = LIB_DIR
 else: os.environ['PYTHONPATH'] = os.environ['PYTHONPATH'] + os.pathsep + LIB_DIR
+
 if os.getenv('GENE_HIERARCHY_FILE'):
    GENE_HIERARCHY_FILE=os.environ['GENE_HIERARCHY_FILE']
 else:
@@ -82,61 +80,32 @@ class MetagenomePipeline(Cmd):
 				 " --input " +  in_biom + " --marker " + marker + " --function " + function + " --out_dir " + output_dir + " --max_nsti " + str(max_nsti) + " --min_reads " + str(min_reads) + " --min_samples " + str(min_samples) + opt + ' 2> ' + log,
 				"--version")
 
-		self.output_dir = output_dir
-		self.abund = function_abund
-		self.seqtab = seqtab
-		self.weighted = weighted
-		self.strat = strat_out
-		self.contrib = contrib
-
 	def get_version(self):
 		 return "PICRUSt2 " + Cmd.get_version(self, 'stdout').split()[1].strip()
 
-	def parser(self, log_file):
-		START_GENBANK_LINK = "https://www.genome.jp/dbget-bin/www_bget?"
-		START_COG_LINK = "https://www.ncbi.nlm.nih.gov/research/cog/cog/"
-		START_PFAM_LINK = "https://pfam.xfam.org/family/"
-		START_TIGR_LINK = "https://0-www-ncbi-nlm-nih-gov.linyanti.ub.bw/genome/annotation_prok/evidence/"
-		f_in = gzip.open(self.output_dir + '/pred_metagenome_unstrat.tsv.gz', 'rt').readlines()
-		f_out = open(self.output_dir + "/" + self.abund, 'wt')
-		header = f_in[0].strip().split('\t')
-		header.insert(0,'db_link')
-		f_out.write("\t".join(header)+"\n")
-		for li in f_in[1:]:
-			li = li.split('\t')
-			function = li[0]
-			if "COG" in function:
-				li.insert(0,START_COG_LINK + function )
-			elif "PF" in function:
-				li.insert(0,START_PFAM_LINK + function )
-			elif "TIGR" in function:
-				li.insert(0,START_TIGR_LINK + function )
-			elif re.search('K[0-9]{5}',function) or "EC:" in function:
-				li.insert(0,START_GENBANK_LINK + function )
-			else:
-				li.insert(0,"no link" )
-			f_out.write("\t".join(li))
-		os.remove(self.output_dir + '/pred_metagenome_unstrat.tsv.gz')
-		with gzip.open(self.output_dir + '/seqtab_norm.tsv.gz', 'rb') as f_in:
-			with open(self.output_dir + "/" + self.seqtab, 'wb') as f_out:
-				shutil.copyfileobj(f_in, f_out)
-			os.remove(self.output_dir + '/seqtab_norm.tsv.gz')
-		with gzip.open(self.output_dir + '/weighted_nsti.tsv.gz', 'rb') as f_in:
-			with open(self.output_dir + "/" + self.weighted, 'wb') as f_out:
-				shutil.copyfileobj(f_in, f_out)
-			os.remove(self.output_dir + '/weighted_nsti.tsv.gz')
-		if self.strat:
-			with gzip.open(self.output_dir + '/pred_metagenome_contrib.tsv.gz', 'rb') as f_in:
-				with open(self.output_dir + "/" + self.contrib, 'wb') as f_out:
-					shutil.copyfileobj(f_in, f_out)
-				os.remove(self.output_dir + '/pred_metagenome_contrib.tsv.gz')
+class ParseMetagenomePipeline(Cmd):
+	"""
+	@summary: Parse results of PICRUSt2 metageome_pipeline.py software to rerieve additional informations (i.g. databases functions links)
+	"""
+	def __init__(self, out_dir, out_abund, out_seqtab, out_weighted, strat_out, out_contrib, log):
+		if strat_out:
+			opt = " --input-contrib " + out_contrib 
+		else:
+			opt = ''
+		Cmd.__init__( self,
+					  'frogsFuncUtils.py',
+					  'Parse metagenome_pipeline.py outputs.',
+					  "parse-metagenome --input-dir " + out_dir + " --input-abund " + out_abund + " --input-seqtab " + out_seqtab + " --input-weighted " + out_weighted + opt + " 2>> " + log,
+					  '--version' )
+
+	def get_version(self):
+		 return Cmd.get_version(self, 'stdout').strip()
 
 class Biom2tsv(Cmd):
 	"""
 	@summary: Converts BIOM file to TSV file.
 	"""
 	def __init__(self, in_biom, out_tsv):
-
 		Cmd.__init__( self,
 					  'biom2tsv.py',
 					  'Converts a BIOM file in TSV file.',
@@ -370,7 +339,7 @@ if __name__ == "__main__":
 	group_output.add_argument('--output-function-abund', default='frogsfunc_functions_unstrat.tsv', help='Output file for metagenome predictions abundance. (default: %(default)s).')
 	group_output.add_argument('--output-seqtab', default='frogsfunc_functions_marker_norm.tsv', help='Output file with abundance normalized per marker copies number. (default: %(default)s).')
 	group_output.add_argument('--output-weighted', default='frogsfunc_functions_weighted_nsti.tsv', help='Output file with the mean of nsti value per sample (format: TSV). [Default: %(default)s]' )
-	group_output.add_argument('--output-contrib', default=None, help=' Stratified output that reports contributions to community-wide abundances (ex pred_metagenome_contrib.tsv)')
+	group_output.add_argument('--output-contrib', default=None, help=' Stratified output that reports contributions to community-wide abundances (ex pred_metagenome_contrib.tsv).')
 	group_output.add_argument('-e', '--excluded', default='frogsfunc_functions_excluded.txt', help='List of sequences with NSTI values above NSTI threshold ( --max_NSTI NSTI ).[Default: %(default)s]')
 	group_output.add_argument('-l', '--log-file', default=sys.stdout, help='List of commands executed.')
 	group_output.add_argument('-t', '--summary', default='frogsfunc_functions_summary.html', help="Path to store resulting html file. [Default: %(default)s]" )
@@ -392,12 +361,16 @@ if __name__ == "__main__":
 
 		tmp_metag_pipeline = tmp_files.add( 'tmp_metagenome_pipeline.log' )
 		MetagenomePipeline(tmp_biom_to_tsv, args.input_marker, args.input_function, args.max_nsti, args.min_reads, args.min_samples, args.strat_out, args.output_dir, args.output_function_abund, args.output_seqtab, args.output_weighted, args.output_contrib, tmp_metag_pipeline).submit( args.log_file )
-
+		
+		tmp_parse = tmp_files.add( 'tmp_parse_metagenome.log' )
+		ParseMetagenomePipeline(args.output_dir, args.output_function_abund, args.output_seqtab, args.output_weighted, args.strat_out, args.output_contrib, tmp_parse).submit( args.log_file)
 		excluded_sequence(args.input_biom, args.input_marker, args.output_dir + "/" + args.output_seqtab, args.output_dir + "/" + args.excluded)
 		# Make a temporary functions abundances file to display sunbursts graphs.
 		tmp_function_abund = tmp_files.add( args.output_function_abund + ".tmp")
 		tmp_formate_abundances = tmp_files.add( 'tmp_formate_abundances.log' )
 		FormateAbundances(args.output_dir + "/" + args.output_function_abund, tmp_function_abund, GENE_HIERARCHY_FILE, tmp_formate_abundances).submit( args.log_file)
+		
+
 		tmp_biom = tmp_files.add( 'gene_abundances.biom' )
 		Tsv2biom(tmp_function_abund, tmp_biom).submit( args.log_file)
 		tree_count_file = tmp_files.add( "geneCount.enewick" )

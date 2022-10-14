@@ -23,8 +23,11 @@ __version__ = '1.0'
 __email__ = 'frogs-support@inrae.fr'
 __status__ = 'prod'
 
+import re
 import os
 import sys
+import gzip
+import shutil
 import argparse
 import ete3 as ete
 import pandas as pd
@@ -121,6 +124,47 @@ def task_formate_abundances_file( args, hierarchy_tag = "classification"):
 			tmp[column] = tmp[column].round(0).astype(int)
 	tmp.to_csv(args.input_tmp_abundances, sep="\t", index=False)
 
+def task_parse_metagenome_pipeline( args ):
+		START_GENBANK_LINK = "https://www.genome.jp/dbget-bin/www_bget?"
+		START_COG_LINK = "https://www.ncbi.nlm.nih.gov/research/cog/cog/"
+		START_PFAM_LINK = "https://pfam.xfam.org/family/"
+		START_TIGR_LINK = "https://0-www-ncbi-nlm-nih-gov.linyanti.ub.bw/genome/annotation_prok/evidence/"
+		f_in = gzip.open(args.input_dir + '/pred_metagenome_unstrat.tsv.gz', 'rt')
+		f_out = open(args.input_dir + "/" + args.input_abund, 'wt')
+		for li in f_in:
+			if li.startswith('function'):
+				header = li.strip().split('\t')
+				header.insert(0,'db_link')
+				f_out.write("\t".join(header)+"\n")
+				continue
+			li = li.split('\t')
+			function = li[0]
+			if "COG" in function:
+				li.insert(0,START_COG_LINK + function )
+			elif "PF" in function:
+				li.insert(0,START_PFAM_LINK + function )
+			elif "TIGR" in function:
+				li.insert(0,START_TIGR_LINK + function )
+			elif re.search('K[0-9]{5}',function) or "EC:" in function:
+				li.insert(0,START_GENBANK_LINK + function )
+			else:
+				li.insert(0,"no link" )
+			f_out.write("\t".join(li))
+		os.remove(args.input_dir + '/pred_metagenome_unstrat.tsv.gz')
+		with gzip.open(args.input_dir + '/seqtab_norm.tsv.gz', 'rb') as f_in:
+			with open(args.input_dir + "/" + args.input_seqtab, 'wb') as f_out:
+				shutil.copyfileobj(f_in, f_out)
+			os.remove(args.input_dir + '/seqtab_norm.tsv.gz')
+		with gzip.open(args.input_dir + '/weighted_nsti.tsv.gz', 'rb') as f_in:
+			with open(args.input_dir + "/" + args.input_weighted, 'wb') as f_out:
+				shutil.copyfileobj(f_in, f_out)
+			os.remove(args.input_dir + '/weighted_nsti.tsv.gz')
+		if args.input_contrib is not None:
+			with gzip.open(args.input_dir + '/pred_metagenome_contrib.tsv.gz', 'rb') as f_in:
+				with open(args.input_dir + "/" + args.input_contrib, 'wb') as f_out:
+					shutil.copyfileobj(f_in, f_out)
+				os.remove(args.input_dir + '/pred_metagenome_contrib.tsv.gz')
+
 ####################################################################################################################
 #
 # Main
@@ -132,24 +176,34 @@ if __name__ == "__main__":
     subparsers = parser.add_subparsers()
 
     # Convert fasta files
-    parser_sampling = subparsers.add_parser('convert-fasta', help='Change fasta headers to be compatible with PICRUSt2.', usage='frogsFuncUtils.py convert-fasta [-h] -i INPUT_FILE -o OUTPUT_FILE')
-    parser_sampling.add_argument( '-i', '--input-fasta', required=True, type=str, help='Fasta file processed.' )
-    parser_sampling.add_argument( '-o', '--output-fasta', required=True, type=str, help='Output fasta file.' )   
-    parser_sampling.set_defaults(func=task_convert_fasta)
+    parser_convert = subparsers.add_parser('convert-fasta', help='Change fasta headers to be compatible with PICRUSt2.', usage='frogsFuncUtils.py convert-fasta [-h] -i INPUT_FILE -o OUTPUT_FILE')
+    parser_convert.add_argument( '-i', '--input-fasta', required=True, type=str, help='Fasta file processed.' )
+    parser_convert.add_argument( '-o', '--output-fasta', required=True, type=str, help='Output fasta file.' )   
+    parser_convert.set_defaults(func=task_convert_fasta)
 
     # Excluded sequences 
-    parser_observationDepth = subparsers.add_parser('excluded-sequences', help='Returns the excluded sequence, not insert into reference tree.', usage='frogsFuncUtils.py excluded-sequences [-h] -i INPUT_FASTA -t INPUT_TREE -e EXCLUDED_FILE')
-    parser_observationDepth.add_argument( '-i', '--input-fasta', required=True, type=str, help='Input fasta file processed.' )
-    parser_observationDepth.add_argument( '-t', '--input-tree', required=True, type=str, help='PICRUSt2 output tree with inserts sequences.' )
-    parser_observationDepth.add_argument( '-e', '--output-excluded', required=True, type=str, help='Output file with sequences not inserts into reference tree.' )
-    parser_observationDepth.set_defaults(func=task_excluded_sequences_tree)
+    parser_excluded = subparsers.add_parser('excluded-sequences', help='Returns the excluded sequence, not insert into reference tree.', usage='frogsFuncUtils.py excluded-sequences [-h] -i INPUT_FASTA -t INPUT_TREE -e EXCLUDED_FILE')
+    parser_excluded.add_argument( '-i', '--input-fasta', required=True, type=str, help='Input fasta file processed.' )
+    parser_excluded.add_argument( '-t', '--input-tree', required=True, type=str, help='PICRUSt2 output tree with inserts sequences.' )
+    parser_excluded.add_argument( '-e', '--output-excluded', required=True, type=str, help='Output file with sequences not inserts into reference tree.' )
+    parser_excluded.set_defaults(func=task_excluded_sequences_tree)
 
     # Formate abundances files
-    parser_observationDepth = subparsers.add_parser('formate-abundances', help='Add classifications columns and create temporary abundance file to display sunburst graphs.', usage='frogsFuncUtils.py formate-abundances [-h] -i INPUT_FILE -o OUTPUT_FILE')
-    parser_observationDepth.add_argument( '-i', '--input-abundances', required=True, type=str, help='Input function or pathway abundances file.' )
-    parser_observationDepth.add_argument( '-t', '--input-tmp-abundances', required=True, type=str, help='Tmp path of abundances to display sunburst graphs.' )
-    parser_observationDepth.add_argument( '-f', '--hierarchy-file', required=True, type=str, help='Reference file that links every pathways or function ID to its hierarchy levels..' )
-    parser_observationDepth.set_defaults(func=task_formate_abundances_file)
+    parser_formate = subparsers.add_parser('formate-abundances', help='Add classifications columns and create temporary abundance file to display sunburst graphs.', usage='frogsFuncUtils.py formate-abundances [-h] -i INPUT_FILE -o OUTPUT_FILE')
+    parser_formate.add_argument( '-i', '--input-abundances', required=True, type=str, help='Input function or pathway abundances file.' )
+    parser_formate.add_argument( '-t', '--input-tmp-abundances', required=True, type=str, help='Tmp path of abundances to display sunburst graphs.' )
+    parser_formate.add_argument( '-f', '--hierarchy-file', required=True, type=str, help='Reference file that links every pathways or function ID to its hierarchy levels..' )
+    parser_formate.set_defaults(func=task_formate_abundances_file)
+
+	# Parse MetagenomePipeline outputs
+    parser_functions = subparsers.add_parser('parse-metagenome', help='Parse results of PICRUSt2 metageome_pipeline.py software to rerieve additional informations (i.g. databases functions links).')
+    parser_functions.add_argument( '-i', '--input-dir', required=True, type=str, help='Output directory for PICRSUt2 metagenome_pipeline.py functions predictions.' )
+    parser_functions.add_argument( '-a', '--input-abund', required=True, type=str, help='PICRSUt2 metagenome_pipeline.py output file for metagenome prediction abundances.' )
+    parser_functions.add_argument( '-s', '--input-seqtab', required=True, type=str, help='PICRSUt2 metagenome_pipeline.py output file with abundance normalized per marker copies number.' )
+    parser_functions.add_argument( '-w', '--input-weighted', required=True, type=str, help='PICRSUt2 metagenome_pipeline.py output file with the mean of nsti value per sample (format: TSV).' )
+    parser_functions.add_argument( '-c', '--input-contrib', default = None, type=str, help='PICRSUt2 metagenome_pipeline.py output file that reports contributions to community-wide abundances (ex pred_metagenome_contrib.tsv)' )
+    parser_functions.set_defaults(func=task_parse_metagenome_pipeline)
+
     # Parse parameters and call process
     args = parser.parse_args()
     args.func(args)

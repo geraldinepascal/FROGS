@@ -202,12 +202,14 @@ def write_summary(biom_file, output_marker, depth_nsti_file, summary_file ):
 		li = li.strip().split('\t')
 		if float(li[2]) > max_nsti:
 			max_nsti = float(li[2])
-	max_nsti = math.ceil( max_nsti * 50 + 1) 
+	max_nsti = math.ceil( max_nsti * 50 + 1)
+
 	biom=BiomIO.from_json(biom_file)
 	FH_log = Logger( depth_nsti_file )
 	FH_log.write("#nsti\tnb_clust_kept\tnb_abundances_kept\n")
 	step_nsti = [i/50 for i in range(0,max_nsti)] 
 	cluster_kept = dict()
+
 	for cur_nsti in step_nsti:
 		cluster_kept[cur_nsti] = { 'Nb' : [], 'Abundances' : 0 }
 		for li in depth_nsti[1:]:
@@ -219,11 +221,13 @@ def write_summary(biom_file, output_marker, depth_nsti_file, summary_file ):
 	clusters_size = list()
 	abundances_size = list()
 	nstis = list()
+
 	for nsti,clusters in cluster_kept.items():
 		clusters_size.append(len(clusters['Nb']))
 		abundances_size.append(clusters['Abundances'])
 		nstis.append(float(nsti))
 		FH_log.write("\t".join([str(nsti), str(len(clusters['Nb'])), str(clusters['Abundances']) ])+"\n")
+		
 	nstis = sorted(nstis)
 	clusters_size = sorted(clusters_size)
 	abundances_size = sorted(abundances_size)
