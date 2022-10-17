@@ -266,7 +266,8 @@ def find_closest_ref_sequences(tree, biom, biom_path, ID_to_taxo, ref_seqs, clus
 							comment = "identical taxonomy"
 
 		biom.add_metadata(observation_name, "picrust2_affiliations", affis_picrust, "observation", erase_warning = False)
-		
+		biom.add_metadata(observation_name, "NSTI", str(rounding(leaf_to_dist[best_leaf])), "observation", erase_warning = False)
+
 		if cluster_to_seq[observation_name] in ref_seqs[best_leaf]:
 			if comment == "/":
 				comment = "identical sequence"
@@ -275,6 +276,9 @@ def find_closest_ref_sequences(tree, biom, biom_path, ID_to_taxo, ref_seqs, clus
 
 		blast = run_megablast(cluster_to_seq[observation_name], ref_seqs[best_leaf])
 		blast_n_aln, blast_id, blast_cov, blast_score = blast['n_aln'], blast['id'], blast['cov'], blast['score']
+
+		biom.add_metadata(observation_name, "blast_picrust_ref_perc_identity", blast_id, "observation", erase_warning = False)
+		biom.add_metadata(observation_name, "blast_picrust_ref_perc_query_coverage", blast_cov, "observation", erase_warning = False)
 
 		confidence = "To exclude"
 		if rounding(leaf_to_dist[best_leaf]) >= 1 and rounding(leaf_to_dist[best_leaf]) < 2:
