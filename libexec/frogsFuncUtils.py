@@ -96,7 +96,6 @@ def task_formate_abundances_file( args, hierarchy_tag = "classification"):
 		id_to_hierarchy[li[-1]] = ";".join(li)
 
 	df = pd.read_csv(args.input_abundances, sep='\t')
-	print(df)
 	df.insert(2,'observation_sum',df.sum(axis=1, numeric_only=True))
 	df.rename(columns = {'pathway':'observation_name'}, inplace = True)
 	df.rename(columns = {'function':'observation_name'}, inplace = True)

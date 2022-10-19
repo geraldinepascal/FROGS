@@ -44,7 +44,7 @@ def find_excluded(excluded_file):
 
 	for line in FH_in.readlines():
 		if not line.startswith('#No excluded OTUs'):
-			excluded.append(line.strip())
+			excluded.append(line.strip().split()[0])
 	FH_in.close()
 	
 	return excluded

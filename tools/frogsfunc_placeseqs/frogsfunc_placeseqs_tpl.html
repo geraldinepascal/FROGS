@@ -418,7 +418,7 @@
 			 }
 
 			/////////// Line plot
-			var nsti_threshold = ###NSTI_THRESH### ;
+			var step_nsti = "###STEP_NSTI### ;
 			var series = [{
 				'name': "Nb clusters",
 				'data': ###CLUSTERS_SIZES###,
@@ -431,7 +431,7 @@
 
 			var clusters_ditrib_load = function( container_id ) {
 
-			var cluster_by_nsti = lineplot_param("", "NSTI value", "Nb kept sequences", "Nb kept clusters", nsti_threshold, series);
+			var cluster_by_nsti = lineplot_param("", "NSTI value", "Nb kept sequences", "Nb kept clusters", step_nsti, series);
 			$('#' + container_id).append('<div></div>');
 			$('#' + container_id).highcharts( cluster_by_nsti );
 			$('#' + container_id).append('<p class="graph-nb">N.B.: Select area to zoom in.</p>');

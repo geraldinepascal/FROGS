@@ -190,6 +190,7 @@ def blast_threshold(in_biom, min_blast_identity, min_blast_coverage, out_biom):
 	biom = BiomIO.from_json(in_biom)
 	discards = list()
 	excluded_infos = dict()
+
 	for observation in biom.get_observations():
 		if min_blast_identity:
 			ident = float(observation['metadata']['blast_picrust_ref_perc_identity'].split()[0]) / 100
@@ -401,6 +402,7 @@ if __name__ == "__main__":
 	if args.strat_out and args.output_contrib is None:
 		args.output_contrib = args.output_dir + '/frogsfunc_functions_strat.tsv'
 
+
 	if not args.strat_out and args.output_contrib is not None:
 		parser.error('--contrib FILENAME must be include with --strat_out flag')
 	
@@ -410,6 +412,8 @@ if __name__ == "__main__":
 	if args.min_blast_cov:
 		if args.min_blast_cov < 0.0 or args.min_blast_cov > 1.0:
 			parser.error('--min-blast-cov must be between 0.0 and 1.0.')
+	
+	args.output_function_abund = args.output_dir + "/" + args.output_function_abund 
 
 	HIERARCHY_RANKS = ["Level1", "Level2", "Level3", "Gene"]
 	tmp_files=TmpFiles(os.path.split(args.summary)[0])

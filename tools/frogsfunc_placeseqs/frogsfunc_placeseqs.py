@@ -257,8 +257,8 @@ def write_summary(in_fasta, excluded_file, biomfile, closest_ref_file, category,
 			else:
 				break
 
-		id_cur = li[3]
-		li[3] = START_IMG_LINK + id_cur + "'target=\"_blank\">" + id_cur + '</a>'
+		picrust_id_cur = li[3]
+		li[3] = START_IMG_LINK + picrust_id_cur + "'target=\"_blank\">" + picrust_id_cur + '</a>'
 		infos_otus.append({
 			'name': li[0],
 			'data': list(li[1:-1])
@@ -267,14 +267,11 @@ def write_summary(in_fasta, excluded_file, biomfile, closest_ref_file, category,
 				
 	clusters_size = list()
 	abundances_size = list()
-	nstis = list()
 	for nsti,clusters in cluster_kept.items():
 		clusters_size.append(clusters['Nb'])
 		abundances_size.append(clusters['Abundances'])
-		nstis.append(float(nsti))
 		FH_log.write("\t".join([str(nsti), str(clusters['Nb']), str(clusters['Abundances']) ])+"\n")
 
-	nstis = sorted(nstis)
 	clusters_size = sorted(clusters_size)
 	abundances_size = sorted(abundances_size)
 	total_abundances = abundances_size[-1]
@@ -305,7 +302,7 @@ def write_summary(in_fasta, excluded_file, biomfile, closest_ref_file, category,
 		elif "###ABUNDANCES_SIZES###" in line:
 			line = line.replace( "###ABUNDANCES_SIZES###", json.dumps( abundances_size) )
 		elif "###NSTI_THRESH###" in line:
-			line = line.replace( "###NSTI_THRESH###", json.dumps(nstis) )
+			line = line.replace( "###STEP_NSTI###", json.dumps(step_nsti) )
 		FH_summary_out.write( line )
 
 	FH_summary_out.close()
