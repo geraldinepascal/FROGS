@@ -319,7 +319,11 @@ if __name__ == "__main__":
 		tmp_tsv = tmp_files.add( 'genes_abundances_formatted.tsv')
 		formate_input_file(args.input_file, tmp_tsv)
 
-		PathwayPipeline(tmp_tsv, args.map, args.per_sequence_contrib, args.per_sequence_abun, args.per_sequence_function, args.output_dir, tmp_pathway).submit(args.log_file)
+		try:
+			PathwayPipeline(tmp_tsv, args.map, args.per_sequence_contrib, args.per_sequence_abun, args.per_sequence_function, args.output_dir, tmp_pathway).submit(args.log_file)
+		except:
+			raise_exception( Exception("\n\n#Note that the default pathway and regroup mapfiles are meant for EC numbers with 16S sequences. KEGG pathways are not supported since KEGG is a closed-source database, but you can input custom pathway mapfiles with the flag --map, associated with the file available here: $PICRUSt2_PATH/default_files/pathway_mapfiles/KEGG_pathways_to_KO.tsv. For ITS or 18S please use --map with the file available here: $PICRUSt2_PATH/default_files/pathway_mapfiles/metacyc_path2rxn_struc_filt_fungi.txt. \n\n"))
+			
 		tmp_parse_pathway = tmp_files.add( 'parse_pathway.log' )
 
 		ParsePathwayPipeline(args.output_dir, args.output_pathways_abund, args.per_sequence_contrib, args.pathways_contrib, args.pathways_predictions, args.pathways_abund_per_seq, tmp_parse_pathway).submit( args.log_file)
