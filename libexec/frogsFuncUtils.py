@@ -130,7 +130,7 @@ def task_parse_metagenome_pipeline( args ):
 		START_PFAM_LINK = "https://pfam.xfam.org/family/"
 		START_TIGR_LINK = "https://0-www-ncbi-nlm-nih-gov.linyanti.ub.bw/genome/annotation_prok/evidence/"
 		f_in = gzip.open(args.input_dir + '/pred_metagenome_unstrat.tsv.gz', 'rt')
-		f_out = open(args.input_dir + "/" + args.input_abund, 'wt')
+		f_out = open(args.input_abund, 'wt')
 		for li in f_in:
 			if li.startswith('function'):
 				header = li.strip().split('\t')
@@ -152,11 +152,11 @@ def task_parse_metagenome_pipeline( args ):
 			f_out.write("\t".join(li))
 		os.remove(args.input_dir + '/pred_metagenome_unstrat.tsv.gz')
 		with gzip.open(args.input_dir + '/seqtab_norm.tsv.gz', 'rb') as f_in:
-			with open(args.input_dir + "/" + args.input_seqtab, 'wb') as f_out:
+			with open(args.input_seqtab, 'wb') as f_out:
 				shutil.copyfileobj(f_in, f_out)
 			os.remove(args.input_dir + '/seqtab_norm.tsv.gz')
 		with gzip.open(args.input_dir + '/weighted_nsti.tsv.gz', 'rb') as f_in:
-			with open(args.input_dir + "/" + args.input_weighted, 'wb') as f_out:
+			with open(args.input_weighted, 'wb') as f_out:
 				shutil.copyfileobj(f_in, f_out)
 			os.remove(args.input_dir + '/weighted_nsti.tsv.gz')
 		if args.input_contrib is not None:
@@ -169,7 +169,7 @@ def task_parse_pathway_pipeline( args ):
 	START_METAYC_PATHWAY_LINK = "https://biocyc.org/META/NEW-IMAGE?type=PATHWAY&object="
 	START_KEGG_PATHWAY_LINK = "https://www.genome.jp/entry/"
 	f_in = gzip.open(args.input_dir + '/path_abun_unstrat.tsv.gz', 'rt')
-	f_out = open(args.input_dir + '/' + args.input_abund, 'wt')
+	f_out = open(args.input_abund, 'wt')
 
 	for li in f_in:
 		if li.startswith('pathway'):

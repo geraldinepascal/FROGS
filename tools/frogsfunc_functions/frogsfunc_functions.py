@@ -398,6 +398,7 @@ if __name__ == "__main__":
 	group_output.add_argument('-t', '--summary', default='frogsfunc_functions_summary.html', help="Path to store resulting html file. [Default: %(default)s]" )
 	args = parser.parse_args()
 	prevent_shell_injections(args)
+	tmp_files=TmpFiles(os.path.split(args.summary)[0])
 
 	if args.strat_out and args.output_contrib is None:
 		args.output_contrib = args.output_dir + '/frogsfunc_functions_strat.tsv'
@@ -413,10 +414,13 @@ if __name__ == "__main__":
 		if args.min_blast_cov < 0.0 or args.min_blast_cov > 1.0:
 			parser.error('--min-blast-cov must be between 0.0 and 1.0.')
 	
-	args.output_function_abund = args.output_dir + "/" + args.output_function_abund 
+	args.output_function_abund = args.output_dir + "/" + args.output_function_abund
+	args.output_seqtab = args.output_dir + "/" + args.output_seqtab
+	args.output_weighted = args.output_dir + "/" + args.output_weighted
+	args.excluded = args.output_dir + "/" + args.excluded
+	args.summary = args.output_dir + "/" + args.summary
 
 	HIERARCHY_RANKS = ["Level1", "Level2", "Level3", "Gene"]
-	tmp_files=TmpFiles(os.path.split(args.summary)[0])
 	try:
 		Logger.static_write(args.log_file, "## Application\nSoftware :" + sys.argv[0] + " (version : " + str(__version__) + ")\nCommand : " + " ".join(sys.argv) + "\n\n")
 		excluded_infos = dict()
@@ -439,11 +443,12 @@ if __name__ == "__main__":
 		
 		tmp_parse = tmp_files.add( 'tmp_parse_metagenome.log' )
 		ParseMetagenomePipeline(args.output_dir, args.output_function_abund, args.output_seqtab, args.output_weighted, args.strat_out, args.output_contrib, tmp_parse).submit( args.log_file)
-		excluded_sequence(biom_file, args.input_marker, args.output_dir + "/" + args.output_seqtab, excluded_infos, args.output_dir + "/" + args.excluded)
+		excluded_sequence(biom_file, args.input_marker, args.output_seqtab, excluded_infos, args.excluded)
 		# Make a temporary functions abundances file to display sunbursts graphs.
-		tmp_function_abund = tmp_files.add( args.output_function_abund + ".tmp")
+		tmp_function_abund = tmp_files.add( "functions_unstrat.tmp")
+		print(tmp_function_abund)
 		tmp_formate_abundances = tmp_files.add( 'tmp_formate_abundances.log' )
-		FormateAbundances(args.output_dir + "/" + args.output_function_abund, tmp_function_abund, GENE_HIERARCHY_FILE, tmp_formate_abundances).submit( args.log_file)
+		FormateAbundances(args.output_function_abund, tmp_function_abund, GENE_HIERARCHY_FILE, tmp_formate_abundances).submit( args.log_file)
 		
 
 		tmp_biom = tmp_files.add( 'gene_abundances.biom' )
@@ -453,7 +458,7 @@ if __name__ == "__main__":
 		hierarchy_tag = "classification"
 		TaxonomyTree(tmp_biom, hierarchy_tag, tree_count_file, tree_ids_file).submit( args.log_file )
 
-		write_summary(args.input_biom, args.output_dir + "/" + args.output_function_abund, args.output_dir + "/" + args.output_weighted, args.output_dir + "/" + args.excluded, tree_count_file, tree_ids_file, args.output_dir + "/" + args.summary)
+		write_summary(args.input_biom, args.output_function_abund, args.output_weighted, args.excluded, tree_count_file, tree_ids_file, args.summary)
 	finally:
 		if not args.debug:
 			tmp_files.deleteAll()
