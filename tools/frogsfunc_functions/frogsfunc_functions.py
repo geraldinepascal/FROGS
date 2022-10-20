@@ -294,7 +294,6 @@ def write_summary(in_biom, function_file, nsti_file, excluded, tree_count_file, 
 	if not excluded_clusters[0].startswith('#No excluded OTU'):
 		#[1:] for skip header
 		for otu in excluded_clusters[1:]:
-			print(otu)
 			summary_info['nb_removed'] +=1
 			summary_info['abundance_removed'] += biom.get_observation_count(otu.strip().split('\t')[0])
 
