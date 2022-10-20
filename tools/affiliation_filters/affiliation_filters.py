@@ -358,71 +358,78 @@ def filter_biom(in_biom_file, impacted_file, output_file, params):
                 if not tax in tax_in:
                     tax_in.append(tax)
 
-        # add blast length criteria
-        if params.min_blast_length and observation['metadata']['blast_affiliations'] :
-            label = "Blast length < " + str(params.min_blast_length)
-            out_blast_affiliations['filter_on_len'] = impacted_blast_affi_on_blastMetrics(observation, "aln_length", ">=", params.min_blast_length)
-            uniq_tax = get_uniq_tax(out_blast_affiliations['filter_on_len'])
-            if len(uniq_tax) != len(tax_in):
-                observation['metadata']['comment'].append("blast_len_lt_" + str(params.min_blast_length))
-                if not label in impacted_dict:
-                    impacted_dict[label] = list()
-                impacted_dict[label].append(observation['id'])
-            elif len(uniq_tax) == len(tax_in):
-                out_blast_affiliations.pop('filter_on_len')  
+            # add blast length criteria
+            if params.min_blast_length:
+                label = "Blast length < " + str(params.min_blast_length)
+                out_blast_affiliations['filter_on_len'] = impacted_blast_affi_on_blastMetrics(observation, "aln_length", ">=", params.min_blast_length)
+                uniq_tax = get_uniq_tax(out_blast_affiliations['filter_on_len'])
+                if len(uniq_tax) != len(tax_in):
+                    observation['metadata']['comment'].append("blast_len_lt_" + str(params.min_blast_length))
+                    if not label in impacted_dict:
+                        impacted_dict[label] = list()
+                    impacted_dict[label].append(observation['id'])
+                elif len(uniq_tax) == len(tax_in):
+                    out_blast_affiliations.pop('filter_on_len')  
 
-        # add blast evalue criteria
-        if params.max_blast_evalue is not None and observation['metadata']['blast_affiliations'] :
-            label = "Blast evalue > " + str(args.max_blast_evalue)
-            out_blast_affiliations['filter_on_evalue'] = impacted_blast_affi_on_blastMetrics(observation, "evalue", "<=", params.max_blast_evalue)
-            uniq_tax = get_uniq_tax(out_blast_affiliations['filter_on_evalue'])
-            if len(uniq_tax) != len(tax_in):
-                observation['metadata']['comment'].append("blast_eval_gt_" + str(params.max_blast_evalue))
-                if not label in impacted_dict:
-                    impacted_dict[label] = list()
-                impacted_dict[label].append(observation['id'])
-            elif len(uniq_tax) == len(tax_in):
-                out_blast_affiliations.pop('filter_on_evalue')  
+            # add blast evalue criteria
+            if params.max_blast_evalue:
+                label = "Blast evalue > " + str(args.max_blast_evalue)
+                out_blast_affiliations['filter_on_evalue'] = impacted_blast_affi_on_blastMetrics(observation, "evalue", "<=", params.max_blast_evalue)
+                uniq_tax = get_uniq_tax(out_blast_affiliations['filter_on_evalue'])
+                if len(uniq_tax) != len(tax_in):
+                    observation['metadata']['comment'].append("blast_eval_gt_" + str(params.max_blast_evalue))
+                    if not label in impacted_dict:
+                        impacted_dict[label] = list()
+                    impacted_dict[label].append(observation['id'])
+                elif len(uniq_tax) == len(tax_in):
+                    out_blast_affiliations.pop('filter_on_evalue')  
 
-        # add blast identity criteria
-        if params.min_blast_identity and observation['metadata']['blast_affiliations'] :
-            label = "Blast identity < " + str(args.min_blast_identity)
-            out_blast_affiliations['filter_on_identity'] = impacted_blast_affi_on_blastMetrics(observation, "perc_identity", ">=", 100*params.min_blast_identity)
-            uniq_tax = get_uniq_tax(out_blast_affiliations['filter_on_identity'])
-            if len(uniq_tax) != len(tax_in):
-                observation['metadata']['comment'].append("blast_identity_lt_" + str(params.min_blast_identity))
-                if not label in impacted_dict:
-                    impacted_dict[label] = list()
-                impacted_dict[label].append(observation['id'])
-            elif len(uniq_tax) == len(tax_in):
-                out_blast_affiliations.pop('filter_on_identity')            
+            # add blast identity criteria
+            if params.min_blast_identity:
+                label = "Blast identity < " + str(args.min_blast_identity)
+                out_blast_affiliations['filter_on_identity'] = impacted_blast_affi_on_blastMetrics(observation, "perc_identity", ">=", 100*params.min_blast_identity)
+                uniq_tax = get_uniq_tax(out_blast_affiliations['filter_on_identity'])
+                if len(uniq_tax) != len(tax_in):
+                    observation['metadata']['comment'].append("blast_identity_lt_" + str(params.min_blast_identity))
+                    if not label in impacted_dict:
+                        impacted_dict[label] = list()
+                    impacted_dict[label].append(observation['id'])
+                elif len(uniq_tax) == len(tax_in):
+                    out_blast_affiliations.pop('filter_on_identity')         
 
-        # add blast coverage criteria
-        if params.min_blast_coverage and observation['metadata']['blast_affiliations'] :
-            label = "Blast coverage < " + str(args.min_blast_coverage)
-            out_blast_affiliations['filter_on_coverage'] = impacted_blast_affi_on_blastMetrics(observation, "perc_query_coverage", ">=", 100*params.min_blast_coverage)
-            uniq_tax = get_uniq_tax(out_blast_affiliations['filter_on_coverage'])
-            if len(uniq_tax) != len(tax_in):
-                observation['metadata']['comment'].append("blast_coverage_lt_" + str(params.min_blast_coverage))
-                if not label in impacted_dict:
-                    impacted_dict[label] = list()
-                impacted_dict[label].append(observation['id'])
-            elif len(uniq_tax) == len(tax_in):
-                out_blast_affiliations.pop('filter_on_coverage')
+            # add blast coverage criteria
+            if params.min_blast_coverage:
+                label = "Blast coverage < " + str(args.min_blast_coverage)
+                out_blast_affiliations['filter_on_coverage'] = impacted_blast_affi_on_blastMetrics(observation, "perc_query_coverage", ">=", 100*params.min_blast_coverage)
+                uniq_tax = get_uniq_tax(out_blast_affiliations['filter_on_coverage'])
+                if len(uniq_tax) != len(tax_in):
+                    observation['metadata']['comment'].append("blast_coverage_lt_" + str(params.min_blast_coverage))
+                    if not label in impacted_dict:
+                        impacted_dict[label] = list()
+                    impacted_dict[label].append(observation['id'])
+                elif len(uniq_tax) == len(tax_in):
+                    out_blast_affiliations.pop('filter_on_coverage')
 
-        # add blast taxon to ignore criteria
-        if params.ignore_blast_taxa and observation['metadata']['blast_affiliations'] :
-            label = "Blast taxonomies belong to undesired taxon: " + " / ".join(args.ignore_blast_taxa)
-            out_blast_affiliations['filter_on_taxonIgnored'] = impacted_blast_affi_on_blastTaxonomy(observation, params.ignore_blast_taxa)
-            uniq_tax = get_uniq_tax(out_blast_affiliations['filter_on_taxonIgnored'])
-            if len(uniq_tax) != len(tax_in):
-                observation['metadata']['comment'].append("undesired_tax_in_blast")
-                if not label in impacted_dict:
-                    impacted_dict[label] = list()
-                impacted_dict[label].append(observation['id'])
-            elif len(uniq_tax) == len(tax_in):
-                out_blast_affiliations.pop('filter_on_taxonIgnored')
+            # add blast taxon to ignore criteria
+            if params.ignore_blast_taxa:
+                label = "Blast taxonomies belong to undesired taxon: " + " / ".join(args.ignore_blast_taxa)
+                out_blast_affiliations['filter_on_taxonIgnored'] = impacted_blast_affi_on_blastTaxonomy(observation, params.ignore_blast_taxa)
+                uniq_tax = get_uniq_tax(out_blast_affiliations['filter_on_taxonIgnored'])
+                if len(uniq_tax) != len(tax_in):
+                    observation['metadata']['comment'].append("undesired_tax_in_blast")
+                    if not label in impacted_dict:
+                        impacted_dict[label] = list()
+                    impacted_dict[label].append(observation['id'])
+                elif len(uniq_tax) == len(tax_in):
+                    out_blast_affiliations.pop('filter_on_taxonIgnored')
 
+        elif params.min_blast_length or params.max_blast_evalue or params.min_blast_identity or params.min_blast_coverage or params.ignore_blast_taxa and not observation['metadata']['blast_affiliations']:
+            label = "Blast missing affiliations"
+            if not label in impacted_dict:
+                impacted_dict[label] = list()
+            impacted_dict[label].append(observation['id'])
+            filter_on_blastCriteria = True
+            
         # update blast_affiliation dictionnary and compute blast filtering status : True if all affiliations are removed else False
         metadata_out = copy.deepcopy(observation['metadata'])
         if len(out_blast_affiliations) > 0:
@@ -828,14 +835,12 @@ if __name__ == '__main__':
                 args.ignore_blast_taxa = temp
                 Logger.static_write(args.log_file, "WARNING : empty string in ignore-blast-taxa option have been removed, here is the updated list that will be take into account: \"" + '\" \"'.join(args.ignore_blast_taxa) + "\n\n")
 
-     # Control blast taxonomy rank number
     for observation in in_biom.get_observations():
         taxonomy = observation['metadata']['blast_taxonomy']
-        if taxonomy != None and len(taxonomy) != 0:
-            break
-    if len(taxonomy) != len(args.taxonomic_ranks):
-        raise_exception(Exception('\n\n#ERROR : you declare that taxonomies are defined on ' + str(len(args.taxonomic_ranks)) + ' ranks but your biom file contains taxonomy defined on ' + str(len(taxonomy)) + ', at least for ' + observation['id'] + '\n\n'))
-
+        if taxonomy == None or len(taxonomy) == 0:
+                print('\n\n#WARNING: you declare that taxonomies are defined on ' + str(len(args.taxonomic_ranks)) + ' ranks but your biom file contains taxonomy defined on ' + str(len(taxonomy)) + ', at least for ' + observation['id'] + '\n')
+                print('Those clusters will be delete if --delete mode activated\n')
+                break
     del in_biom
 
     if args.delete and (not args.input_fasta or not args.output_fasta):
