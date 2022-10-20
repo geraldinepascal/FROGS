@@ -287,7 +287,32 @@ def excluded_sequence(in_biom, in_marker, out_seqtab, already_excluded, out_excl
 	excluded.close()
 	seqtab_file.close()
 
-def write_summary(in_biom, function_file, nsti_file, excluded, tree_count_file, tree_ids_file, summary_file):
+def count_nb_obs_per_ranks(in_biom):
+	'''
+	rank_to_obs associates each taxonomic level rank to its observations.
+	@Output: List with number of different observations per taxonomic rank.
+	'''
+	rank_to_obs = {
+		"0" : [],
+		"1" : [],
+		"2" : [],
+		"3" : [],
+		"4" : [],
+		"5" : [],
+		"6" : [],
+	}
+	no_info_obs = ["Multi-affiliation", "unknown species"]
+	biom = BiomIO.from_json(in_biom)
+
+	for observation in biom.get_observations():
+		if biom.has_metadata("blast_taxonomy"):
+			taxo_hiera = biom.get_observation_metadata(observation['id'])["blast_taxonomy"]
+			for i in range(len(taxo_hiera)):
+				if taxo_hiera[i] not in rank_to_obs[str(i)] and taxo_hiera[i] not in no_info_obs:
+					rank_to_obs[str(i)].append(taxo_hiera[i])
+	return [ len(rank_to_obs[str(i)]) for i in rank_to_obs ]
+
+def write_summary(in_biom, function_file, nsti_file, excluded, tree_count_file, tree_ids_file, out_biom, summary_file):
 	"""
 	@summary: Writes the process summary in one html file.
 	@param in_biom: [str] path to the input BIOM file.
@@ -361,8 +386,13 @@ def write_summary(in_biom, function_file, nsti_file, excluded, tree_count_file, 
 			'name': li[2],
 			'data': list(map(str,li[3:]))
 			})
+	# Construct star_plot about number of different taxonomics ranks retrieved before and after different thresholds.
+	in_taxo_ranks, out_taxo_ranks = count_nb_obs_per_ranks(args.input_biom), count_nb_obs_per_ranks(args.output_biom)
+	starplot_series = {
+		'before_series' : in_taxo_ranks,
+		'after_series' : out_taxo_ranks
+	}
 
-	# record details about removed OTU
 	FH_summary_tpl = open( os.path.join(CURRENT_DIR, "frogsfunc_functions_tpl.html") )
 	FH_summary_out = open( summary_file, "wt" )
 
@@ -381,6 +411,8 @@ def write_summary(in_biom, function_file, nsti_file, excluded, tree_count_file, 
 			line = line.replace( "###DATA_SAMPLE###", json.dumps(samples_distrib) )
 		elif "###TREE_DISTRIBUTION###" in line:
 			line = line.replace( "###TREE_DISTRIBUTION###", json.dumps(newick_tree) )
+		elif "###STARPLOT_SERIES###" in line:
+			line = line.replace( "###STARPLOT_SERIES###", json.dumps(starplot_series) )
 		FH_summary_out.write( line )
 
 	FH_summary_out.close()
@@ -472,6 +504,7 @@ if __name__ == "__main__":
 		excluded_sequence(biom_file, args.input_marker, args.output_seqtab, excluded_infos, args.excluded)
 
 		RemoveSeqsBiomFasta(args.input_fasta, args.input_biom, args.output_fasta, args.output_biom, args.excluded).submit(args.log_file)
+
 		# Make a temporary functions abundances file to display sunbursts graphs.
 		tmp_function_abund = tmp_files.add( "functions_unstrat.tmp")
 		tmp_formate_abundances = tmp_files.add( 'tmp_formate_abundances.log' )
@@ -485,7 +518,7 @@ if __name__ == "__main__":
 		hierarchy_tag = "classification"
 		TaxonomyTree(tmp_biom, hierarchy_tag, tree_count_file, tree_ids_file).submit( args.log_file )
 
-		write_summary(args.input_biom, args.output_function_abund, args.output_weighted, args.excluded, tree_count_file, tree_ids_file, args.summary)
+		write_summary(args.input_biom, args.output_function_abund, args.output_weighted, args.excluded, tree_count_file, tree_ids_file, args.output_biom, args.summary)
 	finally:
 		if not args.debug:
 			tmp_files.deleteAll()
