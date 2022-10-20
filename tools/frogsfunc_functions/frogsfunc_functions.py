@@ -101,6 +101,27 @@ class ParseMetagenomePipeline(Cmd):
 	def get_version(self):
 		 return Cmd.get_version(self, 'stdout').strip()
 
+class RemoveSeqsBiomFasta(Cmd):
+	'''
+	@summary: Create new biom and fasta file without not insert sequences in tree.
+	'''
+	def __init__(self, in_fasta, in_biom, out_fasta, out_biom, excluded_file):
+		'''
+		@param in_fasta: [str] Path to fasta input file.
+		@param in_biom: [str] Path to BIOM input file.
+		@param out_fasta: [str] Path to fasta output file.
+		@param out_biom: [str] Path to BIOM output file.
+		@param excluded_file: [str] Path to not insert sequences file (Cluster ID in the first column).
+		'''
+		Cmd.__init__(self,
+			'remove_seqs_biom_fasta.py',
+			'remove not insert sequences in tree from fasta and biom file.',
+			'--input-biom ' + in_biom + ' --input-fasta ' + in_fasta + ' --excluded-sequences ' + excluded_file + ' --output-biom ' + out_biom + " --output-fasta " + out_fasta,
+			'--version')
+
+	def get_version(self):
+		return Cmd.get_version(self, 'stdout').strip()
+
 class Biom2tsv(Cmd):
 	"""
 	@summary: Converts BIOM file to TSV file.
@@ -379,6 +400,7 @@ if __name__ == "__main__":
 	# Inputs
 	group_input = parser.add_argument_group( 'Inputs' )
 	group_input.add_argument('-b', '--input-biom', required=True, type=str, help='frogsfunc_placeseqs Biom output file (frogsfunc_placeseqs.biom).')
+	group_input.add_argument('-i', '--input-fasta', required=True, help='frogsfunc_placeseqs Fasta output file (frogsfunc_placeseqs.fasta).')
 	group_input.add_argument('-f', '--input-function', required=True, type=str, help='Table of predicted gene family copy numbers (frogsfunc_copynumbers output, frogsfunc_copynumbers_predicted_functions.tsv).')
 	group_input.add_argument('-m', '--input-marker', required=True, type=str, help='Table of predicted marker gene copy numbers (frogsfunc_copynumbers output, ex frogsfunc_copynumbers_marker.tsv).')
 	group_input.add_argument('--max-nsti', type=float, default=2.0, help='Sequences with NSTI values above this value will be excluded (default: %(default)d).')
@@ -393,6 +415,8 @@ if __name__ == "__main__":
 	group_output.add_argument('--output-seqtab', default='frogsfunc_functions_marker_norm.tsv', help='Output file with abundance normalized per marker copies number. (default: %(default)s).')
 	group_output.add_argument('--output-weighted', default='frogsfunc_functions_weighted_nsti.tsv', help='Output file with the mean of nsti value per sample (format: TSV). [Default: %(default)s]' )
 	group_output.add_argument('--output-contrib', default=None, help=' Stratified output that reports contributions to community-wide abundances (ex pred_metagenome_contrib.tsv).')
+	group_output.add_argument('--output-biom', default='frogsfunc_function.biom', help='Biom file without excluded sequences (NSTI, blast perc identity or blast perc coverage thresholds). (format: BIOM) [Default: %(default)s]')
+	group_output.add_argument('--output-fasta', default='frogsfunc_function.fasta', help='Fasta file without excluded sequences (NSTI, blast perc identity or blast perc coverage thresholds). (format: FASTA). [Default: %(default)s]')
 	group_output.add_argument('-e', '--excluded', default='frogsfunc_functions_excluded.txt', help='List of sequences with NSTI values above NSTI threshold ( --max_NSTI NSTI ).[Default: %(default)s]')
 	group_output.add_argument('-l', '--log-file', default=sys.stdout, help='List of commands executed.')
 	group_output.add_argument('-t', '--summary', default='frogsfunc_functions_summary.html', help="Path to store resulting html file. [Default: %(default)s]" )
@@ -413,7 +437,9 @@ if __name__ == "__main__":
 	if args.min_blast_cov:
 		if args.min_blast_cov < 0.0 or args.min_blast_cov > 1.0:
 			parser.error('--min-blast-cov must be between 0.0 and 1.0.')
-	
+
+	args.output_fasta = args.output_dir + "/" + args.output_fasta
+	args.output_biom = args.output_dir + "/" + args.output_biom
 	args.output_function_abund = args.output_dir + "/" + args.output_function_abund
 	args.output_seqtab = args.output_dir + "/" + args.output_seqtab
 	args.output_weighted = args.output_dir + "/" + args.output_weighted
@@ -444,6 +470,8 @@ if __name__ == "__main__":
 		tmp_parse = tmp_files.add( 'tmp_parse_metagenome.log' )
 		ParseMetagenomePipeline(args.output_dir, args.output_function_abund, args.output_seqtab, args.output_weighted, args.strat_out, args.output_contrib, tmp_parse).submit( args.log_file)
 		excluded_sequence(biom_file, args.input_marker, args.output_seqtab, excluded_infos, args.excluded)
+
+		RemoveSeqsBiomFasta(args.input_fasta, args.input_biom, args.output_fasta, args.output_biom, args.excluded).submit(args.log_file)
 		# Make a temporary functions abundances file to display sunbursts graphs.
 		tmp_function_abund = tmp_files.add( "functions_unstrat.tmp")
 		tmp_formate_abundances = tmp_files.add( 'tmp_formate_abundances.log' )

@@ -32,9 +32,9 @@ from frogsSequenceIO import *
 
 def find_excluded(excluded_file):
 	"""
-	@summary: Returns the list of clusters not insert into reference tree from excluded.txt file.
+	@summary: Returns the list of clusters excluded from excluded file.
 	@param excluded_file: [str] Path to the excluded clusters file. 
-	@note : Excluded clusters file must be one cluster ID per line:
+	@note : Excluded clusters file must be one cluster ID in the first column:
 	Cluster_1
 	Cluster_4
 	...
@@ -43,7 +43,7 @@ def find_excluded(excluded_file):
 	FH_in = open(excluded_file,'rt')
 
 	for line in FH_in.readlines():
-		if not line.startswith('#No excluded OTUs'):
+		if not line.startswith('#'):
 			excluded.append(line.strip().split()[0])
 	FH_in.close()
 	
