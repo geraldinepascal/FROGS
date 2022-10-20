@@ -62,14 +62,13 @@ class PathwayPipeline(Cmd):
 	"""
 	@summary: pathway_pipeline.py : Infer the presence and abundances of pathways based on gene family abundances in a sample.
 	"""
-	def __init__(self, input_file, map_file, per_sequence_contrib, per_sequence_abun, per_sequence_function, no_regroup, output_dir, pathways_abund, pathways_contrib, pathways_predictions, pathways_abund_per_seq, log):
+	def __init__(self, input_file, map_file, per_sequence_contrib, per_sequence_abun, per_sequence_function, output_dir, log):
 		"""
 		@param input_file: [str] Input TSV table of gene family abundances (frogsfunc_genefamilies_pred_metagenome_unstrat.tsv from frogsfunc_genefamilies.py.
 		@param map_file: [str] Mapping file of pathways to reactions, necessary if marker studied is not 16S.
 		@param per_sequence_contrib: [boolean] Flag to specify that MinPath is run on the genes contributed by each sequence individualy.
 		@param per_sequence_abun: [str] Path to table of sequence abundances across samples normalized by marker copy number (if per_sequence_contrib).
 		@param per_sequence_function: [str] Path to table of function abundances per sequence, which was outputted at the hidden-state prediction step (if per_sequence_contrib).
-		@param no_regroup [boolean] if KEGG database used, this flag neccesary.
 		@param pathways_abund: [str] Pathway abundance file output..
 		@param pathways_contrib: [str] Stratified output corresponding to contribution of predicted gene family abundances within each predicted genome (if per_sequence_contrib).
 		@param pathways_predictions: [str] Stratified output corresponding to contribution of predicted gene family abundances within each predicted genome.
@@ -80,8 +79,8 @@ class PathwayPipeline(Cmd):
 			opt = ' --per_sequence_contrib --per_sequence_abun ' +  per_sequence_abun + ' --per_sequence_function ' + per_sequence_function 
 		if map_file is not None:
 			opt += " --map " + map_file
-		if no_regroup:
-			opt += " --no_regroup "
+			if os.path.basename(map_file) == "KEGG_pathways_to_KO.tsv" :
+				opt += " --no_regroup "
 
 		Cmd.__init__(self,
 				 'pathway_pipeline.py ',
@@ -278,7 +277,7 @@ if __name__ == "__main__":
 	# Inputs
 	group_input = parser.add_argument_group( 'Inputs' )
 	group_input.add_argument('-i', '--input-file', required=True, type=str, help='Input TSV function abundances table from FROGSFUNC_step3_function (unstratified table : frogsfunc_functions_unstrat.tsv).')
-	group_input.add_argument('-m', '--map', type=str, help='if marker studied is not 16S : Path to mapping file of pathways to reactions (metacyc_path2rxn_struc_filt_pro.txt used by default). For ITS analysis, required file is here: $PICRUSt2_PATH/default_files/pathway_mapfiles/metacyc_path2rxn_struc_filt_fungi.txt).')
+	group_input.add_argument('-m', '--map', type=str, help='File required if you are not analyzing 16S sequences with the Metacyc ("EC" function in the previous step) database. IF MARKER STUDYED STILL 16S: it must indicate the path to the PICRUSt2 KEGG pathways mapfile, if you chose "KO" in the previous step (the mapfile is available here : $PICRUSt2_PATH/default_files/pathway_mapfiles/KEGG_pathways_to_KO.tsv) IF MARKER STUDYED IS ITS OR 18S: Path to mapping file of pathways to fungi reactions (the mapfile is available here : $PICRUSt2_PATH/default_files/pathway_mapfiles/metacyc_path2rxn_struc_filt_fungi.txt ).')
 	group_input.add_argument('--per-sequence-abun', default=None, help='Path to table of sequence abundances across samples normalized by marker copy number (typically the normalized sequence abundance table output at the metagenome pipeline step: frogsfunc_functions_marker_norm.tsv by default). This input is required when the --per-sequence-contrib option is set. (default: None).')
 	group_input.add_argument('--per-sequence-function', default=None, help='Path to table of function abundances per sequence, which was outputted at the hidden-state prediction step (frogsfunc_copynumbers_predicted_functions.tsv by default). This input is required when the --per-sequence-contrib option is set. Note that this file should be the same input table as used for the metagenome pipeline step (default: None).')
 	group_input.add_argument('--hierarchy-ranks', nargs='*', default=["Level1", "Level2", "Level3", "Pathway"], help='The ordered ranks levels used in the metadata hierarchy pathways. [Default: %(default)s]' )
@@ -320,7 +319,7 @@ if __name__ == "__main__":
 		tmp_tsv = tmp_files.add( 'genes_abundances_formatted.tsv')
 		formate_input_file(args.input_file, tmp_tsv)
 
-		PathwayPipeline(tmp_tsv, args.map, args.per_sequence_contrib, args.per_sequence_abun, args.per_sequence_function, args.no_regroup, args.output_dir,  args.output_pathways_abund, args.pathways_contrib, args.pathways_predictions, args.pathways_abund_per_seq, tmp_pathway).submit(args.log_file)
+		PathwayPipeline(tmp_tsv, args.map, args.per_sequence_contrib, args.per_sequence_abun, args.per_sequence_function, args.output_dir, tmp_pathway).submit(args.log_file)
 		tmp_parse_pathway = tmp_files.add( 'parse_pathway.log' )
 
 		ParsePathwayPipeline(args.output_dir, args.output_pathways_abund, args.per_sequence_contrib, args.pathways_contrib, args.pathways_predictions, args.pathways_abund_per_seq, tmp_parse_pathway).submit( args.log_file)

@@ -291,9 +291,10 @@ def write_summary(in_biom, function_file, nsti_file, excluded, tree_count_file, 
 		number_otu_all +=1
 		number_abundance_all += biom.get_observation_count(otu)
 	excluded_clusters = open( excluded ).readlines()
-	if not excluded_clusters[0].startswith('#'):
+	if not excluded_clusters[0].startswith('#No excluded OTU'):
 		#[1:] for skip header
 		for otu in excluded_clusters[1:]:
+			print(otu)
 			summary_info['nb_removed'] +=1
 			summary_info['abundance_removed'] += biom.get_observation_count(otu.strip().split('\t')[0])
 
@@ -446,7 +447,6 @@ if __name__ == "__main__":
 		excluded_sequence(biom_file, args.input_marker, args.output_seqtab, excluded_infos, args.excluded)
 		# Make a temporary functions abundances file to display sunbursts graphs.
 		tmp_function_abund = tmp_files.add( "functions_unstrat.tmp")
-		print(tmp_function_abund)
 		tmp_formate_abundances = tmp_files.add( 'tmp_formate_abundances.log' )
 		FormateAbundances(args.output_function_abund, tmp_function_abund, GENE_HIERARCHY_FILE, tmp_formate_abundances).submit( args.log_file)
 		
