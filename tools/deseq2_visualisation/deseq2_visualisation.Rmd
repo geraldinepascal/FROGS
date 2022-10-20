@@ -195,7 +195,12 @@ DESeq2::plotMA(results, ylim = c(-10,10),
 ```
 
 ## Heatmap plot
-```{r heatmap, fig.width=10, fig.height=8}
+
+```{r echo = FALSE, eval = (nrow(da.otus_table) == 0)}
+cat("There are no differentially abundant OTUs. Please use a higher threshold for the adjusted p-value or consider a different comparison.")
+```
+
+```{r heatmap, fig.width=10, fig.height=8, eval = (nrow(da.otus_table) > 0)}
 
 da.otus_table <- da.otus_table %>% arrange(log2FoldChange)
 
