@@ -75,7 +75,6 @@ def read_alignment_file(alignment_fi):
 # Parsing html pages
 def parse_jgi_html(id, jgi_url, output_file):
     ###
-    print(id)
     url = jgi_url + id
     soup = make_a_soup(url)
     # Species name parser
