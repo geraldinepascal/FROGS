@@ -287,6 +287,17 @@ def excluded_sequence(in_biom, in_marker, out_seqtab, already_excluded, out_excl
 	excluded.close()
 	seqtab_file.close()
 
+def check_nsti_threshold(max_nsti, in_biom):
+	biom = BiomIO.from_json(in_biom)
+	min_sti = 10
+	for observation in biom.get_observations():
+		if biom.get_observation_metadata(observation['id'])['NSTI']:
+			cur_nsti = float(biom.get_observation_metadata(observation['id'])['NSTI'])
+			if cur_nsti < min_sti:
+				min_sti = cur_nsti
+	if args.max_nsti < min_sti:
+		return raise_exception( Exception( "\n\n#ERROR : --max-nsti " + str(max_nsti) + " threshold will remove all clusters.\n\n" ))
+
 def count_nb_obs_per_ranks(in_biom):
 	'''
 	rank_to_obs associates each taxonomic level rank to its observations.
@@ -481,6 +492,7 @@ if __name__ == "__main__":
 	HIERARCHY_RANKS = ["Level1", "Level2", "Level3", "Gene"]
 	try:
 		Logger.static_write(args.log_file, "## Application\nSoftware :" + sys.argv[0] + " (version : " + str(__version__) + ")\nCommand : " + " ".join(sys.argv) + "\n\n")
+
 		excluded_infos = dict()
 		if args.min_blast_ident or args.min_blast_cov:
 			tmp_biom_blast_thresh = tmp_files.add( 'tmp_biom_blast_thresh' )
@@ -495,6 +507,8 @@ if __name__ == "__main__":
 			tmp_biom_to_tsv = tmp_files.add( 'tmp_biom_to_tsv' )
 			Biom2tsv(args.input_biom, tmp_biom_to_tsv).submit( args.log_file )
 			biom_file = args.input_biom
+
+		check_nsti_threshold(args.max_nsti, biom_file)
 
 		tmp_metag_pipeline = tmp_files.add( 'tmp_metagenome_pipeline.log' )
 		MetagenomePipeline(tmp_biom_to_tsv, args.input_marker, args.input_function, args.max_nsti, args.min_reads, args.min_samples, args.strat_out, args.output_dir, tmp_metag_pipeline).submit( args.log_file )
