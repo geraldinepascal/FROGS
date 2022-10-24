@@ -301,7 +301,7 @@ def write_summary(in_fasta, excluded_file, biomfile, closest_ref_file, category,
 			line = line.replace( "###CLUSTERS_SIZES###", json.dumps(clusters_size) )
 		elif "###ABUNDANCES_SIZES###" in line:
 			line = line.replace( "###ABUNDANCES_SIZES###", json.dumps( abundances_size) )
-		elif "###NSTI_THRESH###" in line:
+		elif "###STEP_NSTI###" in line:
 			line = line.replace( "###STEP_NSTI###", json.dumps(step_nsti) )
 		FH_summary_out.write( line )
 

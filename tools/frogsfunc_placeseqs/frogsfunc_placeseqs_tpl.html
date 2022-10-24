@@ -418,7 +418,7 @@
 			 }
 
 			/////////// Line plot
-			var step_nsti = "###STEP_NSTI###" ;
+			var step_nsti = ###STEP_NSTI### ;
 			var series = [{
 				'name': "Nb clusters",
 				'data': ###CLUSTERS_SIZES###,
@@ -432,6 +432,23 @@
 			var clusters_ditrib_load = function( container_id ) {
 
 			var cluster_by_nsti = lineplot_param("", "NSTI value", "Nb kept sequences", "Nb kept clusters", step_nsti, series);
+			cluster_by_nsti['tooltip'] = {
+				formatter:function() {
+							max = this.points[1].series.data[this.points[1].series.data.length - 1].y ;
+							tooltip_body = '' ;
+							for( var i=0 ; i<this.points.length ; i++) {
+								var pcnt = (this.points[1].point.y / max) * 100;
+								tooltip_head = '<b> ' + Highcharts.numberFormat(pcnt, 2) + '% of the total number of sequences kept </b>';
+								tooltip_body += '<tr>' +
+									'<td style="color:' + this.points[i].series.color +'">' + this.points[i].series.name + ' : </td>' +
+									'<td> ' + Highcharts.numberFormat(this.points[i].point.y, 0) + '</td>'
+								   '</tr>' ;
+							}
+							return tooltip_head + '<table>' + tooltip_body + '</table>' ;
+						},
+						shared: true,
+						useHTML: true
+					},
 			$('#' + container_id).append('<div></div>');
 			$('#' + container_id).highcharts( cluster_by_nsti );
 			$('#' + container_id).append('<p class="graph-nb">N.B.: Select area to zoom in.</p>');
