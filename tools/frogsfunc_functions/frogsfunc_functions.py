@@ -298,6 +298,16 @@ def check_nsti_threshold(max_nsti, in_biom):
 	if args.max_nsti < min_sti:
 		return raise_exception( Exception( "\n\n#ERROR : --max-nsti " + str(max_nsti) + " threshold will remove all clusters.\n\n" ))
 
+def formate_abundances_file( in_tsv, out_tsv):
+	df = pd.read_csv(in_tsv, sep='\t')
+	df = df.drop('db_link', axis=1)
+	df = df.rename(columns={'classification': '#taxonomy'})
+	headers = ['#taxonomy', 'observation_name', 'observation_sum']
+	for column in df:
+		if column not in headers:
+			df[column] = df[column].round(0).astype(int)
+	df.to_csv(out_tsv, sep="\t", index=False)
+
 def count_nb_obs_per_ranks(in_biom):
 	'''
 	rank_to_obs associates each taxonomic level rank to its observations.
@@ -455,6 +465,7 @@ if __name__ == "__main__":
 	group_output = parser.add_argument_group( 'Outputs')
 	group_output.add_argument('-d', '--output-dir', default='frogsfunc_function_results', help='Output directory for functions predictions.')
 	group_output.add_argument('--output-function-abund', default='frogsfunc_functions_unstrat.tsv', help='Output file for metagenome predictions abundance. (default: %(default)s).')
+	group_output.add_argument('--output-function-biom', default='frogsfunc_function_for_phyloseq.biom', help='Output biom file of functions abundances to be use for FROGS STATS. (format: Biom). [Default: %(default)s]')
 	group_output.add_argument('--output-seqtab', default='frogsfunc_functions_marker_norm.tsv', help='Output file with abundance normalized per marker copies number. (default: %(default)s).')
 	group_output.add_argument('--output-weighted', default='frogsfunc_functions_weighted_nsti.tsv', help='Output file with the mean of nsti value per sample (format: TSV). [Default: %(default)s]' )
 	group_output.add_argument('--output-contrib', default=None, help=' Stratified output that reports contributions to community-wide abundances (ex pred_metagenome_contrib.tsv).')
@@ -484,6 +495,7 @@ if __name__ == "__main__":
 	args.output_fasta = args.output_dir + "/" + args.output_fasta
 	args.output_biom = args.output_dir + "/" + args.output_biom
 	args.output_function_abund = args.output_dir + "/" + args.output_function_abund
+	args.output_function_biom = args.output_dir + "/" + args.output_function_biom
 	args.output_seqtab = args.output_dir + "/" + args.output_seqtab
 	args.output_weighted = args.output_dir + "/" + args.output_weighted
 	args.excluded = args.output_dir + "/" + args.excluded
@@ -531,6 +543,11 @@ if __name__ == "__main__":
 		tree_ids_file = tmp_files.add( "geneCount_ids.tsv" )
 		hierarchy_tag = "classification"
 		TaxonomyTree(tmp_biom, hierarchy_tag, tree_count_file, tree_ids_file).submit( args.log_file )
+
+		tmp_function_abund_tostd = tmp_files.add( "functions_unstrat_toStdbiom.tsv")
+		formate_abundances_file(args.output_function_abund, tmp_function_abund_tostd)
+
+		Tsv2biom(tmp_function_abund_tostd, args.output_function_biom).submit( args.log_file)
 
 		write_summary(args.input_biom, args.output_function_abund, args.output_weighted, args.excluded, tree_count_file, tree_ids_file, args.output_biom, args.summary)
 	finally:
