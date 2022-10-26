@@ -124,7 +124,6 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser( description='Launch Rmardown script to import data from 3 files: biomfile, samplefile, treefile into a phyloseq object')
     parser.add_argument( '--debug', default=False, action='store_true', help="Keep temporary files to debug program." )   
     parser.add_argument( '--version', action='version', version=__version__ )
-    parser.add_argument( '-f','--frogsfunc', default=False, action='store_true', help='The input biom file comes from FROGSFUNC analysis. [Default: %(default)s]')
     parser.add_argument( '-n','--normalisation', default=False, action='store_true', help='To normalise data before analysis. Use this option if you didnt do it in FROGS Abundance normalisation. [Default: %(default)s]')
     parser.add_argument( '-r','--ranks', type=str, nargs='*', default=['Kingdom', 'Phylum', 'Class', 'Order','Family','Genus', 'Species'], help='The ordered taxonomic ranks levels stored in BIOM. Each rank is separated by one space. [Default: %(default)s]')      
     # Inputs
@@ -189,15 +188,13 @@ if __name__ == "__main__":
 
         # Control taxon rank number
         biom = BiomIO.from_json(biomfile)
-        if not args.frogsfunc:
-            for observation in biom.get_observations():
-                taxonomy = observation['metadata']['taxonomy']
-                if taxonomy != None:
-                    break
-            if len(taxonomy) != len(args.ranks):
-                raise_exception(Exception('\n\n#ERROR : you declare that taxonomies are defined on ' + str(len(args.ranks)) + ' ranks but your biom file contains taxonomy defined on ' + str(len(taxonomy)) + ', at least for ' + observation['id'] + '\n\n'))
-        else:
-            ranks = " ".join(['Level_4', 'Level_3', 'Level_2', 'Level_1'])
+        for observation in biom.get_observations():
+            taxonomy = observation['metadata']['taxonomy']
+            if taxonomy != None:
+                break
+        if len(taxonomy) != len(args.ranks):
+            raise_exception(Exception('\n\n#ERROR : you declare that taxonomies are defined on ' + str(len(args.ranks)) + ' ranks but your biom file contains taxonomy defined on ' + str(len(taxonomy)) + ', at least for ' + observation['id'] + '\n\n'))
+
         Rscript(biomfile, samplefile, treefile, html, str(args.normalisation).upper(), phyloseq, ranks, rmd_stderr).submit(args.log_file)
     finally :
         if not args.debug:

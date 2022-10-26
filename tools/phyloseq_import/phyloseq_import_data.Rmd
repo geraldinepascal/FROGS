@@ -91,6 +91,7 @@ library(ape)
 biomfile <- params$biomfile
 data     <- import_biom(biomfile)
 sampledata <- read.csv(params$samplefile, sep = "\t", row.names = 1)
+
 # if taxonomy starts with k__ it means that its Greengenes like format
 # import need to be done using parse_taxonomy_greengenes function
 # in this case user taxonomic rank names are ignored
