@@ -262,30 +262,35 @@ if __name__ == "__main__":
 	# Inputs
 	group_input = parser.add_argument_group( 'Inputs' )
 	group_input.add_argument('-b', '--input-biom', required=True, help='frogsfunc_placeseqs output Biom file (frogsfunc_placeseqs.biom).')
-	
-	group_marker = group_input.add_mutually_exclusive_group()
-	group_marker.add_argument('-i', '--input-functions', default=["EC"], nargs='+', choices=['EC', 'KO', 'COG', 'PFAM', 'TIGRFAM','PHENO'], help="For 16S marker input: Specifies which default function database should be used (%(default)s). EC is used by default because necessary for frogsfunc_pathways. To run the command with several functions, separate the functions with spaces (ex: -i EC PFAM). (for ITS or 18S : only EC available)")
-	group_marker.add_argument('--input-function-table',help="If you don't work on 16S marker:  The path to input functions table describing directly observed functions,in tab-delimited format.(ex $PICRUSt2_PATH/default_files/fungi/ec_ITS_counts.txt.gz). This input is required when the --input-marker-table option is set. ")
+	group_input.add_argument('-t', '--input-tree', required=True, type=str, help='frogsfunc_placeseqs output tree in newick format containing both studied sequences (i.e. ASVs or OTUs) and reference sequences.')
+	group_input.add_argument('-m', '--hsp-method', default='mp', choices=['mp', 'emp_prob', 'pic', 'scp', 'subtree_average'], help='HSP method to use. mp: predict discrete traits using max parsimony. emp_prob: predict discrete traits based on empirical state probabilities across tips. subtree_average: predict continuous traits using subtree averaging. pic: predict continuous traits with phylogentic independent contrast. scp: reconstruct continuous traits using squared-change parsimony (default: %(default)s).')
 
-	group_input.add_argument('--input-marker-table',help="The input marker table describing directly observed traits (e.g. sequenced genomes) in tab-delimited format. Necessary if you don't work on 16S marker. (ex $PICRUSt2_PATH/default_files/fungi/ITS_counts.txt.gz). This input is required when the --input-function-table option is set. ")
-	group_input.add_argument('-t', '--input-tree', required=True, type=str, help='frogsfunc_placeseqs output tree in newick format containing both study sequences (i.e. ASVs or OTUs) and reference sequences.')
-	group_input.add_argument('-s', '--hsp-method', default='mp', choices=['mp', 'emp_prob', 'pic', 'scp', 'subtree_average'], help='HSP method to use.' +'"mp": predict discrete traits using max parsimony. ''"emp_prob": predict discrete traits based on empirical ''state probabilities across tips. "subtree_average": ''predict continuous traits using subtree averaging. ' '"pic": predict continuous traits with phylogentic ' 'independent contrast. "scp": reconstruct continuous ''traits using squared-change parsimony (default: ''%(default)s).')
+	group_input.add_argument('--marker-type', required=True, choices=['16S','ITS','18S'], help='')
+	group_input_16S = parser.add_argument_group( '16S ' )
+	group_input_16S.add_argument('-i', '--input-functions', default=["EC"], nargs='+', choices=['EC', 'KO', 'COG', 'PFAM', 'TIGRFAM','PHENO'], help="Specifies which function databases should be used (%(default)s). EC is used by default because necessary for frogsfunc_pathways. At least EC or KO is required. To run the command with several functions, separate the functions with spaces (ex: -i EC PFAM).")
+
+	group_input_other = parser.add_argument_group( 'ITS and 18S ' )
+	group_input_other.add_argument('--input-function-table',help="The path to input functions table describing directly observed functions, in tab-delimited format.(ex $PICRUSt2_PATH/default_files/fungi/ec_ITS_counts.txt.gz). Required.")
+	group_input_other.add_argument('--input-marker-table',help="The input marker table describing directly observed traits (e.g. sequenced genomes) in tab-delimited format. (ex $PICRUSt2_PATH/default_files/fungi/ITS_counts.txt.gz). Required.")
+
 	# Output
 	group_output = parser.add_argument_group( 'Outputs' )
-	group_output.add_argument('-m', '--output-marker', default="frogsfunc_copynumbers_marker.tsv", type=str, help='Output table of predicted marker gene copy numbers per study sequence in input tree. If the extension \".gz\" is added the table will automatically be gzipped.[Default: %(default)s]')
-	group_output.add_argument('-o', '--output-function', default="frogsfunc_copynumbers_predicted_functions.tsv", type=str, help='Output table with predicted abundances per study sequence in input tree. If the extension \".gz\" is added the table will automatically be gzipped.[Default: %(default)s]')
+	group_output.add_argument('-o', '--output-marker', default="frogsfunc_copynumbers_marker.tsv", type=str, help='Output table of predicted marker gene copy numbers per studied sequence in input tree. If the extension \".gz\" is added the table will automatically be gzipped.[Default: %(default)s]')
+	group_output.add_argument('-f', '--output-function', default="frogsfunc_copynumbers_predicted_functions.tsv", type=str, help='Output table with predicted function abundances per studied sequence in input tree. If the extension \".gz\" is added the table will automatically be gzipped.[Default: %(default)s]')
 	group_output.add_argument('-l', '--log-file', default=sys.stdout, help='List of commands executed.')
-	group_output.add_argument('--summary', default='frogsfunc_copynumbers_summary.html', help="Path to store resulting html file. [Default: %(default)s]" )
+	group_output.add_argument('-s', '--summary', default='frogsfunc_copynumbers_summary.html', help="Path to store resulting html file. [Default: %(default)s]" )
 	args = parser.parse_args()
 	prevent_shell_injections(args)
 
-	if args.input_functions is not None:
-		if not 'EC' in args.input_functions and not 'KO' in args.input_functions:
+	# Check for 16S input
+	if args.marker_type == "16S" and (not 'EC' in args.input_functions and not 'KO' in args.input_functions):
 			parser.error("\n\n#ERROR : --input-functions : 'EC' and/or 'KO' must be at least indicated (others functions are optionnal)")
-	if (args.input_function_table is not None and args.input_marker_table is None) or (args.input_function_table is None and args.input_marker_table is not None):
-		parser.error("\n\n#ERROR : --input-function-table and --input-marker-table both required when studied marker is not 16S!\n\n")
-	elif args.input_function_table is not None and args.input_marker_table is not None:
-		args.input_functions = None
+	# Check for ITS or 18S input
+	if args.marker_type in ["ITS", "18S"]:
+		if (args.input_function_table is not None and args.input_marker_table is None) or (args.input_function_table is None and args.input_marker_table is not None):
+			parser.error("\n\n#ERROR : --input-function-table and --input-marker-table both required when studied marker is not 16S!\n\n")
+		elif args.input_function_table is not None and args.input_marker_table is not None:
+			args.input_functions = None
 
 	# default output marker file name
 	if args.output_marker is None:
