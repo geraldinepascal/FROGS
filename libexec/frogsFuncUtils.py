@@ -90,10 +90,12 @@ def task_formate_abundances_file( args, hierarchy_tag = "classification"):
 	@param pathways_hierarchy_file: reference file that links every pathways or function ID to its hierarchy levels.
 	"""
 	id_to_hierarchy = {}
-	path_fi = open(args.hierarchy_file).readlines()
+	path_fi = open(args.hierarchy_file)
 	for li in path_fi:
+		if li.startswith('#'):
+			continue
 		li = li.strip().split('\t')
-		id_to_hierarchy[li[-1]] = ";".join(li)
+		id_to_hierarchy[li[-1]] = ";".join(li[:-1])
 
 	df = pd.read_csv(args.input_abundances, sep='\t')
 	df.insert(2,'observation_sum',df.sum(axis=1, numeric_only=True))
