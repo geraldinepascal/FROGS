@@ -153,12 +153,12 @@ class FormateAbundances(Cmd):
 	"""
 	@summary: Formate pathway abundances file in order to add function classifications and display sunbursts graphs.
 	"""
-	def __init__(self, in_abund, tmp_abund, hierarchy_file, log):
+	def __init__(self, in_abund, tmp_sunburst, tmp_unstrat, hierarchy_file, log):
 
 		Cmd.__init__(self,
 			'frogsFuncUtils.py',
 			'Formate pathway abundances file.',
-			'formate-abundances --input-abundances ' + in_abund + ' --input-tmp-abundances ' + tmp_abund + ' --hierarchy-file ' + hierarchy_file + ' 2>> ' + log,
+			'formate-abundances --input-abundances ' + in_abund + ' --input-tmp-sunburst ' + tmp_sunburst + ' --input-tmp-unstrat ' + tmp_unstrat + ' --hierarchy-file ' + hierarchy_file + ' 2>> ' + log,
 			'--version')
 
 	def get_version(self):
@@ -327,13 +327,15 @@ if __name__ == "__main__":
 		tmp_parse_pathway = tmp_files.add( 'parse_pathway.log' )
 
 		ParsePathwayPipeline(args.output_dir, args.output_pathways_abund, args.per_sequence_contrib, args.pathways_contrib, args.pathways_predictions, args.pathways_abund_per_seq, tmp_parse_pathway).submit( args.log_file)
-		tmp_pathways_abund = tmp_files.add( "pathways_unstrat.tmp")
+
 		tmp_formate_abundances = tmp_files.add( 'tmp_formate_abundances.log' )
-		FormateAbundances(args.output_pathways_abund, tmp_pathways_abund, PATHWAYS_HIERARCHY_FILE, tmp_formate_abundances).submit( args.log_file)
+		tmp_pathway_sunburst = tmp_files.add( "functions_unstrat_sunburst.tmp")
+		tmp_pathway_unstrat = tmp_files.add( "functions_unstrat.tmp")
+		FormateAbundances(args.output_pathways_abund, tmp_pathway_sunburst, tmp_pathway_unstrat, PATHWAYS_HIERARCHY_FILE, tmp_formate_abundances).submit( args.log_file)
 		if args.normalisation:
 			normalized_abundances_file( args.output_pathways_abund)
 		tmp_biom = tmp_files.add( 'pathway_abundances.biom' )
-		Tsv2biom( tmp_pathways_abund, tmp_biom ).submit( args.log_file)
+		Tsv2biom( tmp_pathway_sunburst, tmp_biom ).submit( args.log_file)
 		tree_count_file = tmp_files.add( "pathwayCount.enewick" )
 		tree_ids_file = tmp_files.add( "pathwayCount_ids.tsv" )
 		hierarchy_tag = "classification"
