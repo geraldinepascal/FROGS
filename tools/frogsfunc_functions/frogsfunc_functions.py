@@ -163,12 +163,12 @@ class FormateAbundances(Cmd):
 	"""
 	@summary: Formate function abundances file in order to add function classifications and display sunbursts graphs.
 	"""
-	def __init__(self, in_abund, tmp_abund, hierarchy_file, log):
+	def __init__(self, in_abund, tmp_sunburst, tmp_unstrat, hierarchy_file, log):
 
 		Cmd.__init__(self,
 			'frogsFuncUtils.py',
 			'Formate function abundances file.',
-			'formate-abundances --input-abundances ' + in_abund + ' --input-tmp-abundances ' + tmp_abund + ' --hierarchy-file ' + hierarchy_file + ' 2>> ' + log,
+			'formate-abundances --input-abundances ' + in_abund + ' --input-tmp-sunburst ' + tmp_sunburst + ' --input-tmp-unstrat ' + tmp_unstrat + ' --hierarchy-file ' + hierarchy_file + ' 2>> ' + log,
 			'--version')
 
 	def get_version(self):
@@ -520,13 +520,14 @@ if __name__ == "__main__":
 		RemoveSeqsBiomFasta(args.input_fasta, args.input_biom, args.output_fasta, args.output_biom, args.excluded).submit(args.log_file)
 
 		# Make a temporary functions abundances file to display sunbursts graphs.
-		tmp_function_abund = tmp_files.add( "functions_unstrat.tmp")
+		tmp_function_sunburst = tmp_files.add( "functions_unstrat_sunburst.tmp")
+		tmp_function_unstrat = tmp_files.add( "functions_unstrat.tmp")
 		tmp_formate_abundances = tmp_files.add( 'tmp_formate_abundances.log' )
-		FormateAbundances(args.output_function_abund, tmp_function_abund, GENE_HIERARCHY_FILE, tmp_formate_abundances).submit( args.log_file)
+		FormateAbundances(args.output_function_abund, tmp_function_sunburst, tmp_function_unstrat, GENE_HIERARCHY_FILE, tmp_formate_abundances).submit( args.log_file)
 		
 
 		tmp_biom = tmp_files.add( 'gene_abundances.biom' )
-		Tsv2biom(tmp_function_abund, tmp_biom).submit( args.log_file)
+		Tsv2biom(tmp_function_sunburst, tmp_biom).submit( args.log_file)
 		tree_count_file = tmp_files.add( "geneCount.enewick" )
 		tree_ids_file = tmp_files.add( "geneCount_ids.tsv" )
 		hierarchy_tag = "classification"
