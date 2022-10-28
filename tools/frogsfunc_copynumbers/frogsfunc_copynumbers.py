@@ -59,7 +59,7 @@ class HspMarker(Cmd):
 	def __init__(self, observed_marker_table, in_tree, hsp_method, output, result_file, log):
 		"""
 		@param observed_marker_table: [str] Path to marker table file if marker studied is not 16S.
-		@param in_tree: [str] Path to resulting tree file with insert clusters sequences from frogsfunc_placeseqs.
+		@param in_tree: [str] Path to resulting tree file with inserted clusters sequences from frogsfunc_placeseqs.
 		@param hsp_method: [str] HSP method to use.
 		@param output: [str] PICRUSt2 marker output file.
 		@param result_file: [str] frogsfunc_copynumbers formatted output file.
@@ -71,7 +71,7 @@ class HspMarker(Cmd):
 
 		Cmd.__init__(self,
 				 'hsp.py',
-				 'predict gene copy numer per sequence.', 
+				 'predict gene copy number per sequence.', 
 				 input_marker + " -t " + in_tree + " --hsp_method " + hsp_method + " -o " + output + " -n  2> " + log,
 				"--version")
 
@@ -86,10 +86,10 @@ class HspMarker(Cmd):
 		@summary: Write first column (Clusters names) and last column (nsti score) into final functions results file.
 		"""
 		if is_gzip(self.output):
-			FH_in = gzip.open(self.output,'rt').readlines()
+			FH_in = gzip.open(self.output,'rt')
 			FH_results = gzip.open(self.result_file,'wt')
 		else:
-			FH_in = open(self.output,'rt').readlines()
+			FH_in = open(self.output,'rt')
 			FH_results = open(self.result_file,'wt')
 	
 		for line in FH_in:
@@ -263,9 +263,9 @@ if __name__ == "__main__":
 	group_input = parser.add_argument_group( 'Inputs' )
 	group_input.add_argument('-b', '--input-biom', required=True, help='frogsfunc_placeseqs output Biom file (frogsfunc_placeseqs.biom).')
 	group_input.add_argument('-t', '--input-tree', required=True, type=str, help='frogsfunc_placeseqs output tree in newick format containing both studied sequences (i.e. ASVs or OTUs) and reference sequences.')
-	group_input.add_argument('-m', '--hsp-method', default='mp', choices=['mp', 'emp_prob', 'pic', 'scp', 'subtree_average'], help='HSP method to use. mp: predict discrete traits using max parsimony. emp_prob: predict discrete traits based on empirical state probabilities across tips. subtree_average: predict continuous traits using subtree averaging. pic: predict continuous traits with phylogentic independent contrast. scp: reconstruct continuous traits using squared-change parsimony (default: %(default)s).')
+	group_input.add_argument('--hsp-method', default='mp', choices=['mp', 'emp_prob', 'pic', 'scp', 'subtree_average'], help='HSP method to use. mp: predict discrete traits using max parsimony. emp_prob: predict discrete traits based on empirical state probabilities across tips. subtree_average: predict continuous traits using subtree averaging. pic: predict continuous traits with phylogentic independent contrast. scp: reconstruct continuous traits using squared-change parsimony (default: %(default)s).')
 
-	group_input.add_argument('--marker-type', required=True, choices=['16S','ITS','18S'], help='')
+	group_input.add_argument('-m', '--marker-type', required=True, choices=['16S','ITS','18S'], help='Marker gene to be analyzed.')
 	group_input_16S = parser.add_argument_group( '16S ' )
 	group_input_16S.add_argument('-i', '--input-functions', default=["EC"], nargs='+', choices=['EC', 'KO', 'COG', 'PFAM', 'TIGRFAM','PHENO'], help="Specifies which function databases should be used (%(default)s). EC is used by default because necessary for frogsfunc_pathways. At least EC or KO is required. To run the command with several functions, separate the functions with spaces (ex: -i EC PFAM).")
 
@@ -291,10 +291,6 @@ if __name__ == "__main__":
 			parser.error("\n\n#ERROR : --input-function-table and --input-marker-table both required when studied marker is not 16S!\n\n")
 		elif args.input_function_table is not None and args.input_marker_table is not None:
 			args.input_functions = None
-
-	# default output marker file name
-	if args.output_marker is None:
-		args.output_marker = "frogsfunc_copynumbers_marker.tsv"
 
 	tmp_files=TmpFiles(os.path.split(args.output_marker)[0])
 
