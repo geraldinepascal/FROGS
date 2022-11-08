@@ -197,6 +197,7 @@ def impacted_blast_affi_on_blastTaxonomy(observation, taxon_ignored, init_keep):
     @summary: return blast affiliations whithout undesired taxon
     @param observation [obj] : observation object with list of blast affiliations
     @param taxon_ignored [list] : list of taxon to ignored (it may be partial terms)
+    @param init_keep [boolean] : True if --ignore-blast-taxa, False if --keep-blast-taxa
     @return blast affiliations filtered list
     """
     blast_affiliations_out = dict()
