@@ -189,9 +189,9 @@ def rounding(nb):
 	else:
 		return(round(nb,2))
 
-def write_summary(biom_file, output_marker, depth_nsti_file, summary_file ):
+def write_summary(biom_file, output_marker, summary_file ):
 	"""
-	@summary: Writes the informations to generate graph of the number of OTUs and sequences removed according NCTI score.
+	@summary: Writes the informations to generate graph of the number of OTUs and sequences removed according NSTI score.
 	@param biom_file: [str] Biom file (output of frogsfunc_placeseqs).
 	@param output_marker: [str] HspMarker step output file, used to find NSTI score per Cluster.
 	@param depth_nsti_file: [str] Writes log of nb OTUs and nb sequences kept according to NSTI score.
@@ -205,8 +205,8 @@ def write_summary(biom_file, output_marker, depth_nsti_file, summary_file ):
 	max_nsti = math.ceil( max_nsti * 50 + 1)
 
 	biom=BiomIO.from_json(biom_file)
-	FH_log = Logger( depth_nsti_file )
-	FH_log.write("#nsti\tnb_clust_kept\tnb_abundances_kept\n")
+	# FH_log = Logger( depth_nsti_file )
+	# FH_log.write("#nsti\tnb_clust_kept\tnb_abundances_kept\n")
 	step_nsti = [i/50 for i in range(0,max_nsti)] 
 	cluster_kept = dict()
 
@@ -226,7 +226,7 @@ def write_summary(biom_file, output_marker, depth_nsti_file, summary_file ):
 		clusters_size.append(len(clusters['Nb']))
 		abundances_size.append(clusters['Abundances'])
 		nstis.append(float(nsti))
-		FH_log.write("\t".join([str(nsti), str(len(clusters['Nb'])), str(clusters['Abundances']) ])+"\n")
+		# FH_log.write("\t".join([str(nsti), str(len(clusters['Nb'])), str(clusters['Abundances']) ])+"\n")
 		
 	nstis = sorted(nstis)
 	clusters_size = sorted(clusters_size)
@@ -244,7 +244,7 @@ def write_summary(biom_file, output_marker, depth_nsti_file, summary_file ):
 		elif "###NSTI_THRESH###" in line:
 			line = line.replace( "###NSTI_THRESH###", json.dumps(nstis) )
 		FH_summary_out.write( line )
-	FH_log.close()
+	# FH_log.close()
 	FH_summary_out.close()
 	FH_summary_tpl.close()
 
@@ -300,8 +300,8 @@ if __name__ == "__main__":
 		tmp_hsp_marker = tmp_files.add( 'tmp_hsp_marker.log' )
 		HspMarker(args.input_marker_table, args.input_tree, args.hsp_method, args.output_marker, args.output_function, tmp_hsp_marker).submit(args.log_file)
 
-		tmp_depth_nsti = tmp_files.add( 'depth_nsti.txt' )
-		write_summary(args.input_biom, args.output_marker, tmp_depth_nsti, args.summary)
+		# tmp_depth_nsti = tmp_files.add( 'depth_nsti.txt' )
+		write_summary(args.input_biom, args.output_marker, args.summary)
 
 		tmp_hsp_function = tmp_files.add( 'tmp_hsp_function.log' )
 		if args.input_functions is not None:
