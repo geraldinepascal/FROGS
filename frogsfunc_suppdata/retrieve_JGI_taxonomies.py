@@ -48,6 +48,15 @@ def make_a_soup(url):
     return soup
 
 def run_form(to_search, name):
+    ###
+    _k = str()
+    _p = str()
+    _c = str()
+    _o = str()
+    _f = str()
+    _g = str()
+    _s = str()
+    ###
     to_search.open(TAXO_BROWSER)
     to_search.select_form(nr=0)
     to_search.form['srchmode'] = ['1']
@@ -58,7 +67,26 @@ def run_form(to_search, name):
         if "Did you mean" in li:
             name = li.split('alt="score=0">')[1].split('</a>')[0]
             return run_form(to_search, name)
-    return name
+        
+        elif "<dd><a ALT" in li:
+            taxos = [i.strip() for i in li.split('<a ALT')]
+            for taxo in taxos:
+                if taxo.startswith('="kingdom'):
+                    _k = taxo.split('">')[-1].split('</a>')[0]
+                if taxo.startswith('="phylum'):
+                    _p = taxo.split('">')[-1].split('</a>')[0]
+                if taxo.startswith('="clade"'):
+                    _c = taxo.split('">')[-1].split('</a>')[0]
+                if taxo.startswith('="order'):
+                    _o = taxo.split('">')[-1].split('</a>')[0]
+                if taxo.startswith('="family'):
+                    _f = taxo.split('">')[-1].split('</a>')[0]
+                if taxo.startswith('="genus'):
+                    _g = taxo.split('">')[-1].split('</a>')[0]
+                if taxo.startswith('="species'):
+                    _s = taxo.split('">')[-1].split('</a>')[0]
+    taxo = [_k, _p, _c, _o, _f, _g, _s]
+    return taxo
 
 def is_gzipped(path):
     return path.endswith(".gz")
@@ -71,6 +99,13 @@ def read_alignment_file(alignment_fi):
             li = li.strip()
             if li.startswith('>'):
                 yield li.split('>')[-1].split('-cluster')[0]
+
+def read_list_file(list_fi):
+    opener = gzip.open if is_gzipped(list_fi) else open
+    with opener(list_fi, "rt") as fi:
+        for li in fi:
+            li = li.strip()
+            yield li 
 
 # Parsing html pages
 def parse_jgi_html(id, jgi_url, output_file):
@@ -113,13 +148,20 @@ def parse_its_html(id, jgi_url, to_search, output_file):
     name = soup.find(class_="organismName").text.replace("Home • ","")
     if re.search(REGEX_VERSION, name):
         name = " ".join(name.split()[:-1])
+    taxo = run_form(to_search, name)
+    
+    print(id + "\t" + ";".join(taxo))
+    
                 
 def parse_arguments():
     # Manage parameters.
     parser = argparse.ArgumentParser()
 
-    parser.add_argument("-i", "--ref_alignment", required = True, \
+    parser.add_argument("-i", "--ref_alignment", \
      help = "PICRUSt2 reference alignment file")
+
+    parser.add_argument("-l", "--ref_list", \
+     help = "ids of PICRSUt2 reference genomes")
 
     parser.add_argument("-c", "--category", required = True, \
      help = "Category of database to be searched. 16S : JGI databbase, ITS : JGI Mycocosm database" , choices=["16S", "ITS"])
@@ -133,7 +175,10 @@ def parse_arguments():
 def main():
     args = parse_arguments()
 
-    ids = read_alignment_file(args.ref_alignment)
+    if args.ref_alignment is not None:
+        ids = read_alignment_file(args.ref_alignment)
+    elif args.ref_list is not None:
+        ids = read_list_file(args.ref_list)
 
     if args.category == "ITS":
             to_search = mechanize.Browser()
