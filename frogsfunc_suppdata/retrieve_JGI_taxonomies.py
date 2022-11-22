@@ -49,13 +49,13 @@ def make_a_soup(url):
 
 def run_form(to_search, name):
     ###
-    _k = str()
-    _p = str()
-    _c = str()
-    _o = str()
-    _f = str()
-    _g = str()
-    _s = str()
+    _k = "Unknown"
+    _p = "Unknown"
+    _c = "Unknown"
+    _o = "Unknown"
+    _f = "Unknown"
+    _g = "Unknown"
+    _s = "Unknown"
     ###
     to_search.open(TAXO_BROWSER)
     to_search.select_form(nr=0)
@@ -149,7 +149,7 @@ def parse_its_html(id, jgi_url, to_search, output_file):
     if re.search(REGEX_VERSION, name):
         name = " ".join(name.split()[:-1])
     taxo = run_form(to_search, name)
-    
+
     print(id + "\t" + ";".join(taxo))
     
                 
