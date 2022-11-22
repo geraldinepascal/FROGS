@@ -232,7 +232,6 @@ def write_summary(biom_file, output_marker, summary_file ):
 	clusters_size = sorted(clusters_size)
 	abundances_size = sorted(abundances_size)
 	total_abundances = abundances_size[-1]
-	proportions = [ rounding( i / total_abundances * 100 ) for i in abundances_size]
 
 	FH_summary_tpl = open( os.path.join(CURRENT_DIR, "frogsfunc_copynumbers_tpl.html") )
 	FH_summary_out = open( summary_file, "wt" )
