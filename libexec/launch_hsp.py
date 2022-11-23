@@ -16,7 +16,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-__author__ = ' Moussa Samb & Vincent Darbot & Geraldine Pascal - GENPHYSE '
+__author__ = ' Vincent Darbot - GENPHYSE '
 __copyright__ = 'Copyright (C) 2022 INRAE'
 __license__ = 'GNU General Public License'
 __version__ = '4.0.1'
@@ -24,12 +24,13 @@ __email__ = 'frogs@toulouse.inrae.fr'
 __status__ = 'dev'
 
 import os
-import re
 import sys
-import json
-import gzip
-import math
+import pandas as pd
 import argparse
+from subprocess import Popen, PIPE
+import threading
+import multiprocessing
+from multiprocessing import Queue
 
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
 # PATH
@@ -71,63 +72,13 @@ class HspMarker(Cmd):
         Cmd.__init__(self,
                  'hsp.py',
                  'predict gene copy number per sequence.', 
-                 input_marker + " -t " + in_tree + " --hsp_method " + hsp_method + " -o " + output + " -n  2> " + log,
+                 input_marker + " -t " + in_tree + " --hsp_method " + hsp_method + " -o " + output + "  2> " + log,
                 "--version")
 
         self.output = output
 
     def get_version(self):
         return "PICRUSt2 " + Cmd.get_version(self, 'stdout').split()[1].strip()
-
-class HspFunction(Cmd):
-    """
-    @summary: Predict number of genes family for each cluster sequence (i.e OTU).
-    """
-    def __init__(self, in_trait, observed_trait_table, in_tree, hsp_method, output, result_file, log):
-        """
-        @param in_trait: [str] Database ID if marker studied is 16S.
-        @param observed_trait_table: [str] Path to database trait table if marker studied is not 16S.
-        @param in_tree: [str] Path to resulting tree file with insert clusters sequences from frogsfunc_placeseqs.
-        @param hsp_method: [str] HSP method to use.
-        @param output: [str] PICRUSt2 marker output file.
-        @param result_file: [str] frogsfunc_copynumbers formatted output file.
-        """
-        if observed_trait_table is None:
-            input_function = " --in_trait " + in_trait
-        else:
-            input_function = " --observed_trait_table " + observed_trait_table
-
-        Cmd.__init__(self,
-                 'hsp.py',
-                 'predict function abundance per sequence.', 
-                  input_function + " -t " + in_tree + " --hsp_method " + hsp_method +  " -o " + output + " -n 2>> " + log,
-                "--version")
-
-        self.output = output
-        self.result_file = result_file
-
-    def get_version(self):
-        return "PICRUSt2 " + Cmd.get_version(self, 'stdout').split()[1].strip()
-
-    def parser(self, log_file):
-        """
-        @summary: Concatane function tables of predicted abundances into one global.
-        """
-        if is_gzip(self.output):
-            FH_in = gzip.open(self.output,'rt').readlines()
-            tmp = gzip.open(self.result_file+'.tmp', 'wt')
-            FH_results = gzip.open(self.result_file,'rt').readlines()
-        else:
-            FH_in = open(self.output,'rt').readlines()
-            tmp = open(self.result_file+'.tmp', 'wt')
-            FH_results = open(self.result_file,'rt').readlines()
-
-        for cur_line in range(len(FH_in)):
-            line = FH_in[cur_line].split('\t')[1:-1]
-            result = FH_results[cur_line].split('\t')
-            tmp.write("\t".join(result[0:-1])+"\t"+"\t".join(line)+"\t"+result[-1])
-        tmp.close()
-        os.rename(self.result_file+'.tmp', self.result_file)
 
 ##################################################################################################################################################
 #
@@ -151,24 +102,135 @@ def is_gzip( file ):
         FH_input.close()
     return is_gzip
 
-def rounding(nb):
-    '''
-    @summary: Rounding numbers decimal 
-    '''
-    if re.search("^[0-9]{1}[.][0-9]+e",str(nb)):
-        start = re.compile("[0-9][.][0-9]{1,2}")
-        end = re.compile("e-[0-9]+")
-        return float("".join(start.findall(str(nb))+end.findall(str(nb))))
+def submit_cmd( cmd, stdout_path, stderr_path):
+    """
+    @summary: Submits a command on system.
+    @param cmd: [list] The command.
+    @param stdout_path: The path to the file where the standard outputs will be written.
+    @param stderr_path: The path to the file where the error outputs will be written.
+    """
+    p = Popen(cmd, stdout=PIPE, stderr=PIPE)
+    stdout, stderr = p.communicate()
 
-    elif re.search("[0][.][0-9]+",str(nb)):
-        return(round(nb,2))
+    # write down the stdout
+    stdoh = open(stdout_path, "wt")
+    stdoh.write(stdout.decode('utf-8'))
+    stdoh.close()
 
-    elif re.search("[0][.][0]+",str(nb)):
-        motif = re.compile("[0][.][0]+[0-9]{2}")
-        return float("".join(motif.findall(str(nb))))
+    # write down the stderr
+    stdeh = open(stderr_path, "wt")
+    stdeh.write(stderr.decode('utf-8'))
+    stdeh.close()
 
+    # check error status
+    if p.returncode != 0:
+        stdeh = open(stderr_path,'rt')
+        error_msg = "".join( map(str, stdeh.readlines()) )
+        stdeh.close()
+        raise_exception( Exception( "\n\n#ERROR : " + error_msg + "\n\n" ))
+
+
+def process_hsp_function(in_trait, observed_trait_table, in_tree, hsp_method, output, log):
+
+    if observed_trait_table is None:
+        input_function = " --in_trait " + in_trait
+        message = "## Process function : " + in_trait + "\n"
     else:
-        return(round(nb,2))
+        input_function = " --observed_trait_table " + observed_trait_table
+        message = "## Process function table : " + observed_trait_table + "\n"
+
+    # run hsp.py
+    FH_log = Logger( log )
+    FH_log.write(message) 
+    cmd = ["hsp.py", input_function.split()[0], input_function.split()[1] ,"-t", in_tree, "--hsp_method", hsp_method, "-o", output]
+    FH_log.write("## hsp.py command: " + " ".join(cmd) + "\n")
+    tmp_out = "out.txt"
+    tmp_err = "err.txt"
+    submit_cmd( cmd, tmp_out, tmp_err )
+    # FH_log.write("".join(open(tmp_out).readlines()) + "\n" )
+    # FH_log.write("".join(open(tmp_err).readlines()) + "\n" )
+    FH_log.close()
+
+
+def parallel_submission( function, inputs, tree, hsp_method, outputs, logs, cpu_used):
+    processes = [{'process':None, 'inputs':None, 'tree':tree, 'hsp_method':hsp_method, 'outputs':None, 'log_files':None} for trait in range(cpu_used)]
+    # Launch processes
+    for trait in range(len(inputs)):
+        process_idx = trait % cpu_used
+        processes[process_idx]['inputs'] = inputs[trait]
+        processes[process_idx]['outputs'] = outputs[trait]
+        processes[process_idx]['log_files'] = logs[trait]
+
+    for current_process in processes:
+        if trait == 0:  # First process is threaded with parent job
+            current_process['process'] = threading.Thread(target=function,
+                                                          args=(current_process['inputs'], None, tree, hsp_method, current_process['outputs'], current_process['log_files']))
+        else:  # Others processes are processed on diffrerent CPU
+            current_process['process'] = multiprocessing.Process(target=function,
+                                                          args=(current_process['inputs'], None, tree, hsp_method, current_process['outputs'], current_process['log_files']))
+        current_process['process'].start()
+    # Wait processes end
+    for current_process in processes:
+        current_process['process'].join()
+    # Check processes status
+    for current_process in processes:
+        if issubclass(current_process['process'].__class__, multiprocessing.Process) and current_process['process'].exitcode != 0:
+            raise_exception( Exception("\n\n#ERROR : Error in sub-process execution.\n\n"))
+
+def append_results(functions_outputs, marker_file, logs_hsp, final_output, log_file):
+    """
+    """
+    otu_to_nsti = dict()
+    otu_to_results = dict()
+    with open(marker_file) as FH_marker:
+        FH_marker.readline()
+        for li in FH_marker:
+            li = li.strip().split('\t')
+            otu_to_nsti[li[0]] = li[2]
+            otu_to_results[li[0]] = list()
+
+    for current_file in functions_outputs:
+        with open(current_file) as FH_input:
+            i_functions = dict()
+            header = FH_input.readline().strip().split('\t')[1:]
+            for i in range(len(header)):
+                i_functions[i] = header[i]
+            
+            for li in FH_input:
+                otu = li.strip().split('\t')[0]
+                abundances = li.strip().split('\t')[1:]
+                for cur_abund in range(len(abundances)):
+                    otu_to_results[otu].append({ i_functions[cur_abund] : str(abundances[cur_abund])})
+    
+    FH_out = open(final_output , "wt")
+    for otu, functions in otu_to_results.items():
+        FH_out.write("sequence\t" + "\t".join(list(function.keys())[0] for function in functions) + "\n")
+        break
+    for otu, functions in otu_to_results.items():
+        FH_out.write(otu + "\t" + "\t".join(list(function.values())[0] for function in functions) + "\n")
+    FH_out.close()
+
+
+        # for column in FH_input:
+        #     print(column)
+    #         FH_fasta.write(record)
+    #     FH_input.close()
+    # FH_fasta.close()
+
+    # # Append log
+    # FH_log = Logger(log_file)
+    # FH_log.write("\n")
+    # for current_file in appended_log:
+    #     FH_input = open(current_file)
+    #     for line in FH_input:
+    #         FH_log.write(line)
+    #     FH_input.close()
+    #     FH_log.write("\n")
+    # FH_log.write("\n")
+    # FH_log.close()
+
+
+
 
 def task_marker(args):
     # Check for ITS or 18S input
@@ -178,16 +240,17 @@ def task_marker(args):
     args.to_launch = "marker"
     return args
 
+
 def task_function(args):
     # Check for 16S input
-    if args.marker_type == "16S" and (not 'EC' in args.input_functions and not 'KO' in args.input_functions):
-            parser.error("\n\n#ERROR : --input-functions : 'EC' and/or 'KO' must be at least indicated (others functions are optionnal)")
+    if args.marker_type == "16S" and (not 'EC' in args.functions and not 'KO' in args.functions):
+            parser.error("\n\n#ERROR : --functions : 'EC' and/or 'KO' must be at least indicated (others functions are optionnal)")
     # Check for ITS or 18S input
     if args.marker_type in ["ITS", "18S"]:
         if args.input_function_table is None:
             parser.error("\n\n#ERROR : --input-function-table required when studied marker is not 16S!\n\n")
         else:
-            args.input_functions = None
+            args.functions = None
     args.to_launch = "function"
     return args
 
@@ -212,20 +275,20 @@ if __name__ == "__main__":
     group_input_marker_other.add_argument('--input-marker-table',help="The input marker table describing directly observed traits (e.g. sequenced genomes) in tab-delimited format. (ex $PICRUSt2_PATH/default_files/fungi/ITS_counts.txt.gz). Required.")
     group_output_marker = parser_marker.add_argument_group( 'Outputs' )
     group_output_marker.add_argument('-o', '--output-marker', default="frogsfunc_copynumbers_marker.tsv", type=str, help='Output table of predicted marker gene copy numbers per studied sequence in input tree. If the extension \".gz\" is added the table will automatically be gzipped.[Default: %(default)s]')
-
     parser_marker.set_defaults(func=task_marker)
 
     parser_function = subparsers.add_parser('function', help='Process data for rarefaction curve by sample.')
+    parser_function.add_argument('-p', '--nb-cpus', type=int, default=1, help="The maximum number of CPUs used. [Default: %(default)s]" )
     parser_function.add_argument('-m', '--marker-type', required=True, choices=['16S','ITS','18S'], help='Marker gene to be analyzed.')
+    parser_function.add_argument('-i', '--marker-file', required=True, type=str, help='Table of predicted marker gene copy numbers (frogsfunc_placeseqs output : frogsfunc_marker.tsv).')
     parser_function.add_argument('-t', '--input-tree', required=True, type=str, help='frogsfunc_placeseqs output tree in newick format containing both studied sequences (i.e. ASVs or OTUs) and reference sequences.')
     parser_function.add_argument('--hsp-method', default='mp', choices=['mp', 'emp_prob', 'pic', 'scp', 'subtree_average'], help='HSP method to use. mp: predict discrete traits using max parsimony. emp_prob: predict discrete traits based on empirical state probabilities across tips. subtree_average: predict continuous traits using subtree averaging. pic: predict continuous traits with phylogentic independent contrast. scp: reconstruct continuous traits using squared-change parsimony (default: %(default)s).')
     group_input_16S = parser_function.add_argument_group( '16S' )
-    group_input_16S.add_argument('-i', '--input-functions', default=["EC"], nargs='+', choices=['EC', 'KO', 'COG', 'PFAM', 'TIGRFAM','PHENO'], help="Specifies which function databases should be used (%(default)s). EC is used by default because necessary for frogsfunc_pathways. At least EC or KO is required. To run the command with several functions, separate the functions with spaces (ex: -i EC PFAM).")
+    group_input_16S.add_argument('-f', '--functions', default=["EC"], nargs='+', choices=['EC', 'KO', 'COG', 'PFAM', 'TIGRFAM','PHENO'], help="Specifies which function databases should be used (%(default)s). EC is used by default because necessary for frogsfunc_pathways. At least EC or KO is required. To run the command with several functions, separate the functions with spaces (ex: -i EC PFAM).")
     group_input_other = parser_function.add_argument_group( 'ITS and 18S ' )
     group_input_other.add_argument('--input-function-table',help="The path to input functions table describing directly observed functions, in tab-delimited format.(ex $PICRUSt2_PATH/default_files/fungi/ec_ITS_counts.txt.gz). Required.")
-    group_input_other.add_argument('--input-marker-table',help="The input marker table describing directly observed traits (e.g. sequenced genomes) in tab-delimited format. (ex $PICRUSt2_PATH/default_files/fungi/ITS_counts.txt.gz). Required.")
     group_output_function = parser_function.add_argument_group( 'Outputs' )
-    group_output_function.add_argument('-f', '--output-function', default="frogsfunc_copynumbers_predicted_functions.tsv", type=str, help='Output table with predicted function abundances per studied sequence in input tree. If the extension \".gz\" is added the table will automatically be gzipped.[Default: %(default)s]')
+    group_output_function.add_argument('-o', '--output-function', default="frogsfunc_copynumbers_predicted_functions.tsv", type=str, help='Output table with predicted function abundances per studied sequence in input tree. If the extension \".gz\" is added the table will automatically be gzipped.[Default: %(default)s]')
     parser_function.set_defaults(func=task_function)
 
     # Output
@@ -246,18 +309,30 @@ if __name__ == "__main__":
 
         if args.to_launch == "function":
             tmp_hsp_function = tmp_files.add( 'tmp_hsp_function.log' )
-            if args.input_functions is not None:
 
+            if args.functions is not None:
                 suffix_name = "_copynumbers_predicted.tsv"
-                for trait in args.input_functions:
-                    cur_output_function = trait + suffix_name
-                    tmp_output_function = tmp_files.add( cur_output_function )
-                    Logger.static_write(args.log_file, '\n\nRunning ' + trait + ' functions prediction.\n')
-                    HspFunction(trait, args.input_function_table, args.input_tree, args.hsp_method, tmp_output_function, args.output_function, tmp_hsp_function).submit(args.log_file)
+
+                if len(args.functions) == 1 or args.nb_cpus == 1:
+                    for trait in args.functions:
+                        cur_output_function = trait + suffix_name
+                        tmp_output_function = tmp_files.add( cur_output_function )
+                        Logger.static_write(args.log_file, '\n\nRunning ' + trait + ' functions prediction.\n')
+                        process_hsp_function(trait, args.input_function_table, args.input_tree, args.hsp_method, args.output_function, tmp_hsp_function)
+                else:
+                    functions_list = [trait for trait in args.functions]
+                    functions_outputs = list()
+                    logs_hsp = list()
+
+                    functions_outputs = [tmp_files.add( trait + "_copynumbers_predicted.tsv") for trait in functions_list]
+                    logs_hsp = [tmp_files.add( trait + "_tmp_hsp_function.log") for trait in functions_list]
+                    
+                    parallel_submission( process_hsp_function, functions_list, args.input_tree, args.hsp_method, functions_outputs, logs_hsp, len(functions_list) )
+                    
+                    append_results(functions_outputs, args.marker_file, logs_hsp, args.output_function, args.log_file)           
             else:
-                cur_output_function = "copynumbers_predicted.tsv"
-                tmp_output_function = tmp_files.add( cur_output_function )
-                HspFunction(args.input_functions, args.input_function_table, args.input_tree, args.hsp_method, tmp_output_function, args.output_function, tmp_hsp_function).submit(args.log_file)
+                tmp_output_function = tmp_files.add( "copynumbers_predicted.tsv")
+                process_hsp_function(args.functions, args.input_function_table, args.input_tree, args.hsp_method, args.output_function, tmp_hsp_function)
     
     finally:
         if not args.debug:

@@ -54,6 +54,34 @@ from frogsBiom import BiomIO
 #
 ##################################################################################################################################################
 
+class HspFunction(Cmd):
+	"""
+	@summary: Predict number of marker copies (16S, 18S or ITS) for each cluster sequence (i.e OTU).
+	"""
+	def __init__(self, tree, marker_type, function_table, functions, hsp_method, output, nb_cpus, log):
+		"""
+		@param observed_marker_table: [str] Path to marker table file if marker studied is not 16S.
+		@param in_tree: [str] Path to resulting tree file with inserted clusters sequences from frogsfunc_placeseqs.
+		@param hsp_method: [str] HSP method to use.
+		@param output: [str] PICRUSt2 marker output file.
+		"""
+		if marker_type != "16S":
+			opt = ' --input-function-table ' + function_table
+		elif function_table is None:
+			opt = ' --functions ' + functions
+
+		Cmd.__init__(self,
+				 'launch_hsp.py',
+				 'predict gene copy number per sequence.', 
+				 ' function --input-tree ' + tree + ' --marker-type ' + marker_type + opt + ' --hsp-method ' + hsp_method + ' -o ' + output + ' --nb-cpus ' + str(nb_cpus) + '  2> ' + log,
+				"--version")
+
+		self.output = output
+
+	def get_version(self):
+		return Cmd.get_version(self, 'stdout').strip()
+
+
 class MetagenomePipeline(Cmd):
 	"""
 	@summary: Per-sample metagenome functional profiles are generated based on the predicted functions for each study sequence.
@@ -83,6 +111,7 @@ class MetagenomePipeline(Cmd):
 	def get_version(self):
 		 return "PICRUSt2 " + Cmd.get_version(self, 'stdout').split()[1].strip()
 
+
 class ParseMetagenomePipeline(Cmd):
 	"""
 	@summary: Parse results of PICRUSt2 metageome_pipeline.py software to rerieve additional informations (i.g. databases functions links)
@@ -100,6 +129,7 @@ class ParseMetagenomePipeline(Cmd):
 
 	def get_version(self):
 		 return Cmd.get_version(self, 'stdout').strip()
+
 
 class RemoveSeqsBiomFasta(Cmd):
 	'''
@@ -122,6 +152,7 @@ class RemoveSeqsBiomFasta(Cmd):
 	def get_version(self):
 		return Cmd.get_version(self, 'stdout').strip()
 
+
 class Biom2tsv(Cmd):
 	"""
 	@summary: Converts BIOM file to TSV file.
@@ -135,6 +166,7 @@ class Biom2tsv(Cmd):
 
 	def get_version(self):
 		 return Cmd.get_version(self, 'stdout').strip()
+
 
 class Tsv2biom(Cmd):
 	"""
@@ -159,6 +191,7 @@ class Tsv2biom(Cmd):
 		sum_col = f_in.pop("observation_sum")
 		f_in.to_csv(self.in_tsv ,sep='\t' ,index=False)
 
+
 class FormateAbundances(Cmd):
 	"""
 	@summary: Formate function abundances file in order to add function classifications and display sunbursts graphs.
@@ -173,6 +206,7 @@ class FormateAbundances(Cmd):
 
 	def get_version(self):
 		return Cmd.get_version(self, 'stdout').strip()
+
 
 class TaxonomyTree(Cmd):
 	"""
@@ -410,13 +444,22 @@ if __name__ == "__main__":
 	parser = argparse.ArgumentParser( description='Per-sample functional profiles prediction.' )
 	parser.add_argument('-v', '--version', action='version', version=__version__)
 	parser.add_argument('--debug', default=False, action='store_true', help="Keep temporary files to debug program." )
+	parser.add_argument( '-p', '--nb-cpus', type=int, default=1, help="The maximum number of CPUs used. [Default: %(default)s]" )
 	parser.add_argument('--strat-out', default=False, action='store_true', help='If activated, a new table is built. It will contain the abundances of each function of each OTU in each sample.')
 	# Inputs
 	group_input = parser.add_argument_group( 'Inputs' )
 	group_input.add_argument('-b', '--input-biom', required=True, type=str, help='frogsfunc_placeseqs Biom output file (frogsfunc_placeseqs.biom).')
 	group_input.add_argument('-i', '--input-fasta', required=True, help='frogsfunc_placeseqs Fasta output file (frogsfunc_placeseqs.fasta).')
-	group_input.add_argument('-f', '--input-function', required=True, type=str, help='Table of predicted function copy numbers (frogsfunc_copynumbers output, frogsfunc_copynumbers_predicted_functions.tsv).')
-	group_input.add_argument('-m', '--input-marker', required=True, type=str, help='Table of predicted marker gene copy numbers (frogsfunc_copynumbers output, ex frogsfunc_copynumbers_marker.tsv).')
+	group_input.add_argument('-t', '--input-tree', required=True, type=str, help='frogsfunc_placeseqs output tree in newick format containing both studied sequences (i.e. ASVs or OTUs) and reference sequences.')
+	group_input.add_argument('-m', '--input-marker', required=True, type=str, help='Table of predicted marker gene copy numbers (frogsfunc_placeseqs output : frogsfunc_marker.tsv).')
+	group_input.add_argument('--marker-type', required=True, choices=['16S','ITS','18S'], help='Marker gene to be analyzed.')
+	
+	group_input_16S = parser.add_argument_group( '16S ' )
+	group_input_16S.add_argument('-f', '--functions', default=["EC"], nargs='+', choices=['EC', 'KO', 'COG', 'PFAM', 'TIGRFAM','PHENO'], help="Specifies which function databases should be used (%(default)s). EC is used by default because necessary for frogsfunc_pathways. At least EC or KO is required. To run the command with several functions, separate the functions with spaces (ex: -i EC PFAM).")
+	group_input_other = parser.add_argument_group( 'ITS and 18S ' )
+	group_input_other.add_argument('--input-function-table',help="The path to input functions table describing directly observed functions, in tab-delimited format.(ex $PICRUSt2_PATH/default_files/fungi/ec_ITS_counts.txt.gz). Required.")
+    
+	group_input.add_argument('--hsp-method', default='mp', choices=['mp', 'emp_prob', 'pic', 'scp', 'subtree_average'], help='HSP method to use. mp: predict discrete traits using max parsimony. emp_prob: predict discrete traits based on empirical state probabilities across tips. subtree_average: predict continuous traits using subtree averaging. pic: predict continuous traits with phylogentic independent contrast. scp: reconstruct continuous traits using squared-change parsimony (default: %(default)s).')
 	group_input.add_argument('--max-nsti', type=float, default=2.0, help='Sequences with NSTI values above this value will be excluded (default: %(default)d).')
 	group_input.add_argument('--min-blast-ident', type=float, default=None, help='Sequences with blast percentage identity against the PICRUSt2 closest ref above this value will be excluded (between 0 and 1)')
 	group_input.add_argument('--min-blast-cov', type=float, default=None, help='Sequences with blast percentage coverage against the PICRUSt2 closest ref above this value will be excluded (between 0 and 1)')
@@ -424,6 +467,7 @@ if __name__ == "__main__":
 	group_input.add_argument('--min-samples', metavar='INT', type=int, default=1, help='Minimum number of samples that an OTU needs to be identfied within. OTUs below this cut-off will be counted as part of the \"RARE\" category in the stratified output.  If you choose 1, none OTU will be grouped in “RARE” category. (default: %(default)d).')
 	#Outputs
 	group_output = parser.add_argument_group( 'Outputs')
+	group_output.add_argument('--output-function', default="frogsfunc_copynumbers_predicted_functions.tsv", type=str, help='Output table with predicted function abundances per studied sequence in input tree. If the extension \".gz\" is added the table will automatically be gzipped.[Default: %(default)s]')
 	group_output.add_argument('--output-function-abund', default='frogsfunc_functions_unstrat.tsv', help='Output file for function prediction abundances. (default: %(default)s).')
 	group_output.add_argument('--output-otu-norm', default='frogsfunc_functions_marker_norm.tsv', help='Output file with otu abundances normalized by marker copies number. (default: %(default)s).')
 	group_output.add_argument('--output-weighted', default='frogsfunc_functions_weighted_nsti.tsv', help='Output file with the mean of nsti value per sample (format: TSV). [Default: %(default)s]' )
@@ -432,11 +476,20 @@ if __name__ == "__main__":
 	group_output.add_argument('--output-fasta', default='frogsfunc_function.fasta', help='Fasta file without excluded OTUs (NSTI, blast perc identity or blast perc coverage thresholds). (format: FASTA). [Default: %(default)s]')
 	group_output.add_argument('-e', '--excluded', default='frogsfunc_functions_excluded.txt', help='List of OTUs with NSTI values above NSTI threshold ( --max_NSTI NSTI ).[Default: %(default)s]')
 	group_output.add_argument('-l', '--log-file', default=sys.stdout, help='List of commands executed.')
-	group_output.add_argument('-t', '--summary', default='frogsfunc_functions_summary.html', help="Path to store resulting html file. [Default: %(default)s]" )
+	group_output.add_argument('-s', '--summary', default='frogsfunc_functions_summary.html', help="Path to store resulting html file. [Default: %(default)s]" )
 	args = parser.parse_args()
 	prevent_shell_injections(args)
 	tmp_files=TmpFiles(os.path.split(args.summary)[0])
 	output_dir = os.path.abspath(tmp_files.tmp_dir)
+
+	### Check inputs
+	# Check for 16S input
+	if args.marker_type == "16S" and (not 'EC' in args.functions and not 'KO' in args.functions):
+			parser.error("\n\n#ERROR : --input-functions : 'EC' and/or 'KO' must be at least indicated (others functions are optionnal)")
+	# Check for ITS or 18S input
+	if args.marker_type in ["ITS", "18S"]:
+		if args.input_function_table is None:
+			parser.error("\n\n#ERROR : --input-function-table required when studied marker is not 16S!\n\n")
 
 	if not args.strat_out and args.output_contrib is not None:
 		parser.error('--strat_out flag must be include with --output-contrib')
@@ -449,6 +502,7 @@ if __name__ == "__main__":
 	if args.min_blast_cov:
 		if args.min_blast_cov < 0.0 or args.min_blast_cov > 1.0:
 			parser.error('--min-blast-cov must be between 0.0 and 1.0.')
+	#####################
 
 	HIERARCHY_RANKS = ["Level1", "Level2", "Level3", "Function_id"]
 	try:
@@ -460,7 +514,7 @@ if __name__ == "__main__":
 			tmp_biom_blast_thresh = tmp_files.add( 'tmp_biom_blast_thresh' )
 			tmp_excluded = tmp_files.add( 'tmp_excluded' )
 			excluded_infos = otus_filter(args.input_biom, args.input_marker, args.min_blast_ident, args.min_blast_cov, args.max_nsti, args.excluded)
-			print(excluded_infos)
+
 			RemoveSeqsBiomFasta(args.input_fasta, args.input_biom, args.output_fasta, args.output_biom, args.excluded).submit(args.log_file)
 			tmp_biom_to_tsv = tmp_files.add( 'tmp_biom_to_tsv' )
 			Biom2tsv(args.output_biom, tmp_biom_to_tsv).submit( args.log_file )
@@ -470,8 +524,12 @@ if __name__ == "__main__":
 			tmp_biom_to_tsv = tmp_files.add( 'tmp_biom_to_tsv' )
 			Biom2tsv(args.input_biom, tmp_biom_to_tsv).submit( args.log_file )
 
+		functions = " ".join(args.functions)
+		tmp_hsp_function = tmp_files.add( 'tmp_hsp_function.log' )
+		HspFunction(args.input_tree, args.marker_type, args.marker_file, args.input_function_table, functions, args.hsp_method, args.output_function, args.nb_cpus, tmp_hsp_function).submit(args.log_file)
+
 		tmp_metag_pipeline = tmp_files.add( 'tmp_metagenome_pipeline.log' )
-		MetagenomePipeline(tmp_biom_to_tsv, args.input_marker, args.input_function, args.max_nsti, args.min_reads, args.min_samples, args.strat_out, output_dir, tmp_metag_pipeline).submit( args.log_file )
+		MetagenomePipeline(tmp_biom_to_tsv, args.input_marker, args.output_function, args.max_nsti, args.min_reads, args.min_samples, args.strat_out, output_dir, tmp_metag_pipeline).submit( args.log_file )
 		
 		tmp_parse = tmp_files.add( 'tmp_parse_metagenome.log' )
 		ParseMetagenomePipeline(output_dir, args.output_function_abund, args.output_otu_norm, args.output_weighted, args.strat_out, args.output_contrib, tmp_parse).submit( args.log_file)
