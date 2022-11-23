@@ -86,22 +86,6 @@ class HspMarker(Cmd):
 #
 ##################################################################################################################################################
 
-def is_gzip( file ):
-    """
-    @return: [bool] True if the file is gziped.
-    @param file: [str] Path to processed file.
-    """
-    is_gzip = None
-    FH_input = gzip.open( file )
-    try:
-        FH_input.readline()
-        is_gzip = True
-    except:
-        is_gzip = False
-    finally:
-        FH_input.close()
-    return is_gzip
-
 def submit_cmd( cmd, stdout_path, stderr_path):
     """
     @summary: Submits a command on system.
@@ -209,27 +193,17 @@ def append_results(functions_outputs, marker_file, logs_hsp, final_output, log_f
     for otu, functions in otu_to_results.items():
         FH_out.write(otu + "\t" + "\t".join(list(function.values())[0] for function in functions) + "\n")
     FH_out.close()
-
-
-        # for column in FH_input:
-        #     print(column)
-    #         FH_fasta.write(record)
-    #     FH_input.close()
-    # FH_fasta.close()
-
-    # # Append log
-    # FH_log = Logger(log_file)
-    # FH_log.write("\n")
-    # for current_file in appended_log:
-    #     FH_input = open(current_file)
-    #     for line in FH_input:
-    #         FH_log.write(line)
-    #     FH_input.close()
-    #     FH_log.write("\n")
-    # FH_log.write("\n")
-    # FH_log.close()
-
-
+    # Append log
+    FH_log = Logger(log_file)
+    FH_log.write("\n")
+    for current_file in logs_hsp:
+        FH_input = open(current_file)
+        for line in FH_input:
+            FH_log.write(line)
+        FH_input.close()
+        FH_log.write("\n")
+    FH_log.write("\n")
+    FH_log.close()
 
 
 def task_marker(args):
@@ -288,7 +262,7 @@ if __name__ == "__main__":
     group_input_other = parser_function.add_argument_group( 'ITS and 18S ' )
     group_input_other.add_argument('--input-function-table',help="The path to input functions table describing directly observed functions, in tab-delimited format.(ex $PICRUSt2_PATH/default_files/fungi/ec_ITS_counts.txt.gz). Required.")
     group_output_function = parser_function.add_argument_group( 'Outputs' )
-    group_output_function.add_argument('-o', '--output-function', default="frogsfunc_copynumbers_predicted_functions.tsv", type=str, help='Output table with predicted function abundances per studied sequence in input tree. If the extension \".gz\" is added the table will automatically be gzipped.[Default: %(default)s]')
+    group_output_function.add_argument('-o', '--output-function', default="frogsfunc_copynumbers_functions.tsv", type=str, help='Output table with predicted function abundances per studied sequence in input tree. If the extension \".gz\" is added the table will automatically be gzipped.[Default: %(default)s]')
     parser_function.set_defaults(func=task_function)
 
     # Output
