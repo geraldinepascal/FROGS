@@ -128,9 +128,7 @@ def process_hsp_function(in_trait, observed_trait_table, in_tree, hsp_method, ou
     FH_log.write(message) 
     cmd = ["hsp.py", input_function.split()[0], input_function.split()[1] ,"-t", in_tree, "--hsp_method", hsp_method, "-o", output]
     FH_log.write("## hsp.py command: " + " ".join(cmd) + "\n")
-    tmp_out = "out.txt"
-    tmp_err = "err.txt"
-    submit_cmd( cmd, tmp_out, tmp_err )
+    submit_cmd( cmd, log, log )
     # FH_log.write("".join(open(tmp_out).readlines()) + "\n" )
     # FH_log.write("".join(open(tmp_err).readlines()) + "\n" )
     FH_log.close()

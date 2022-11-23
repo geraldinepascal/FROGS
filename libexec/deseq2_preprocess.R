@@ -56,7 +56,6 @@ if (opt$analysis == "OTU"){
 	countData <- countData[!(rowSums(countData) == 0), !(colSums(countData) == 0)]
 	sampleMetadata <- read.csv(file=opt$samplefile, sep = '\t', header = TRUE, row.names = 1)
 	sampleMetadata <- sampleMetadata[ colnames(countData),  ]
-	print(countData)
 
 	cds <- DESeq2::DESeqDataSetFromMatrix(countData, sampleMetadata, as.formula(paste("~",opt$var)))
 	dds <- DESeq2::DESeq(cds, sfType = "poscounts")

@@ -25,6 +25,7 @@ __status__ = 'prod'
 import os
 import sys
 import argparse
+import pandas as pd
 
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
 FROGS_DIR=""
@@ -88,6 +89,65 @@ class Rscript(Cmd):
         """
         return Cmd.get_version(self, 'stdout')
 
+class Tsv2biom(Cmd):
+    """
+    @summary: Create a temporary biom file for FUNC phyloseq data object.
+    """
+    def __init__(self, in_tsv, out_biom):
+
+        Cmd.__init__( self,
+                      'tsv_to_biom.py',
+                      'Converts a BIOM file in TSV file.',
+                      "--input-tsv " + in_tsv + " --output-biom " + out_biom,
+                      '--version' )
+
+        self.in_tsv = in_tsv
+
+    def get_version(self):
+         return Cmd.get_version(self, 'stdout').strip()
+
+    # def parser(self, log_file):
+    #     f_in = pd.read_csv(self.in_tsv, sep='\t')
+    #     sum_col = f_in.pop("observation_sum")
+    #     f_in.to_csv(self.in_tsv ,sep='\t' ,index=False)
+
+class PhyloseqImport(Cmd):
+    """
+    @summary: import data from two files: biomfile and samplefile into a phyloseq object for FUNC analysis.
+    """
+    def __init__(self, biom_file, sample_file, ranks, out_rdata, log):
+        """
+        @param biom_file: [str] Path to biom file of function abundances from frogsfunc_functions.py step.
+        @param sample_file: [str] Path to samplefile of metadata.
+        @param out_rdata: [str] Phyloseq rdata output object.
+        @param log: [str] log file.
+        """
+
+        Cmd.__init__(self,
+                 'phyloseq_import_data.py',
+                 'predict gene copy number per sequence.', 
+                 ' -b ' + biom_file + ' -s ' + sample_file + ' --ranks ' + ranks + ' --rdata ' + out_rdata + '  2>> ' + log,
+                "--version")
+
+    def get_version(self):
+        return Cmd.get_version(self, 'stdout').strip()
+
+##################################################################################################################################################
+#
+# FUNCTIONS
+#
+##################################################################################################################################################
+
+def formate_abundances_file( in_tsv, out_tsv):
+    df = pd.read_csv(in_tsv, sep='\t')
+    df = df.drop('db_link', axis=1)
+    df = df.rename(columns={'classification': '#taxonomy'})
+    headers = ['#taxonomy', 'observation_name', 'observation_sum']
+    for column in df:
+        if column not in headers:
+            df[column] = df[column].round(0).astype(int)
+    df.to_csv(out_tsv, sep="\t", index=False)
+
 ##################################################################################################################################################
 #
 # MAIN
@@ -101,17 +161,18 @@ if __name__ == "__main__":
     parser.add_argument( '--debug', default=False, action='store_true', help="Keep temporary files to debug program." )   
     parser.add_argument( '--version', action='version', version=__version__ )
     parser.add_argument('-v', '--var', type=str, required=True, help='Experimental variable suspected to have an impact on abundances. \
-    	You may precise complexe string such as variables with confounding effect (ex: Treatment+Gender or Treatmet*Gender)' )   
+        You may precise complexe string such as variables with confounding effect (ex: Treatment+Gender or Treatmet*Gender)' )   
     # Inputs
     group_input = parser.add_argument_group( 'Inputs' )
     group_input.add_argument('-a', '--analysis', required=True, choices=['OTU', 'FUNC'], help='Type of data to perform the differential analysis. OTU: DESeq2 is run on the OTUs abundances table. FUNC: DESeq2 is run on FROGSFUNC function abundances table (frogsfunc_functions_unstrat.tsv from FROGSFUNC function step).')
 
     group_input_otu_table = parser.add_argument_group( ' OTU ' )
     group_input_otu_table.add_argument('-d','--data', default=None, help="The path of RData file containing a phyloseq object, result of FROGS Phyloseq Import Data. Required.")
-	
+
     group_input_function_table = parser.add_argument_group( ' FUNC ' )
-    group_input_function_table.add_argument('-f', '--input-function', default=None, help='Input file of metagenome function prediction abundances (frogsfunc_functions_unstrat.tsv from FROGSFUNC function step). Required. (default: %(default)s).')
+    group_input_function_table.add_argument('-f', '--input-functions', default=None, help='Input file of metagenome function prediction abundances (frogsfunc_functions_unstrat.tsv from FROGSFUNC function step). Required. (default: %(default)s).')
     group_input_function_table.add_argument('-s', '--samplefile', default=None, help='path to sample file (format: TSV). Required.' )
+    group_input_function_table.add_argument('--out-Phyloseq', default='phyloseq_data.Rdata', help="path to store phyloseq-class object in Rdata file. [Default: %(default)s]" )
     # output
     group_output = parser.add_argument_group( 'Outputs' )
     group_output.add_argument('-o','--out-Rdata', default='DESeq2_preprocess.Rdata', help="The path to store resulting dataframe of DESeq2. [Default: %(default)s]" )
@@ -119,26 +180,37 @@ if __name__ == "__main__":
     args = parser.parse_args()
     prevent_shell_injections(args)
 
-	# Check for OTU input
+    out_Rdata=os.path.abspath(args.out_Rdata)
+    tmpFiles = TmpFiles(os.path.dirname(out_Rdata))
+
+    # Check for OTU input
     data = args.data
     if args.analysis == "OTU" and data is None:
         parser.error("\n\n#ERROR : --data is required for OTUs analysis. ")
     elif args.analysis == "OTU":
         data=os.path.abspath(args.data)
 
-	# Check for ITS or 18S input
-    elif args.analysis == "FUNC" and (args.input_function is None or args.samplefile is None):
-        parser.error("\n\n#ERROR : --input-function-table and --samplefile both required for FROGSFUNC analysis.\n\n")
-   
+    # Check for ITS or 18S input
+    elif args.analysis == "FUNC":
+        if args.input_functions is None or args.samplefile is None:
+            parser.error("\n\n#ERROR : --input-functions and --samplefile both required for FROGSFUNC analysis.\n\n")
+
+        tmp_function_abund_tostd = tmpFiles.add( "functions_unstrat_toStdbiom.tsv")
+        formate_abundances_file(args.input_functions, tmp_function_abund_tostd)
+
+        tmp_function_abundances_biom = tmpFiles.add( "function_abundances.biom")
+        Tsv2biom(tmp_function_abund_tostd, tmp_function_abundances_biom).submit( args.log_file)
+
+        ranks = " ".join(['Level_4', 'Level_3', 'Level_2', 'Level_1'])
+        phyloseq_log = tmpFiles.add( "phyloseq_import.log")
+        PhyloseqImport(tmp_function_abundances_biom, args.samplefile, ranks, args.out_Phyloseq, phyloseq_log).submit( args.log_file)
+
     # Process  
     Logger.static_write(args.log_file, "## Application\nSoftware :" + sys.argv[0] + " (version : " + str(__version__) + ")\nCommand : " + " ".join(sys.argv) + "\n\n")
-    out_Rdata=os.path.abspath(args.out_Rdata)
-
-    tmpFiles = TmpFiles(os.path.dirname(out_Rdata))
 
     try:
         R_stderr = tmpFiles.add("R.stderr")
-        Rscript(args.analysis, data, args.var, args.input_function, args.samplefile, out_Rdata,R_stderr).submit(args.log_file)
+        Rscript(args.analysis, data, args.var, args.input_functions, args.samplefile, out_Rdata,R_stderr).submit(args.log_file)
     finally :
         if not args.debug:
             tmpFiles.deleteAll()

@@ -266,7 +266,6 @@ def find_closest_ref_sequences(tree, biom, biom_path, ID_to_taxo, ref_seqs, clus
 							comment = "identical taxonomy"
 
 		biom.add_metadata(observation_name, "picrust2_affiliations", affis_picrust, "observation", erase_warning = False)
-		biom.add_metadata(observation_name, "NSTI", str(rounding(leaf_to_dist[best_leaf])), "observation", erase_warning = False)
 
 		if cluster_to_seq[observation_name] in ref_seqs[best_leaf]:
 			if comment == "/":
@@ -274,6 +273,7 @@ def find_closest_ref_sequences(tree, biom, biom_path, ID_to_taxo, ref_seqs, clus
 			else:
 				comment+=";identical sequence"
 
+		nsti = float(biom.get_observation_metadata(observation_name)["NSTI"])
 		blast = run_megablast(cluster_to_seq[observation_name], ref_seqs[best_leaf])
 		blast_n_aln, blast_id, blast_cov, blast_score = blast['n_aln'], blast['id'], blast['cov'], blast['score']
 
@@ -281,18 +281,18 @@ def find_closest_ref_sequences(tree, biom, biom_path, ID_to_taxo, ref_seqs, clus
 		biom.add_metadata(observation_name, "blast_picrust_ref_perc_query_coverage", blast_cov, "observation", erase_warning = False)
 
 		confidence = "To exclude"
-		if rounding(leaf_to_dist[best_leaf]) >= 1 and rounding(leaf_to_dist[best_leaf]) < 2:
+		if rounding(nsti) >= 1 and rounding(nsti) < 2:
 			confidence = "Bad"
-		elif rounding(leaf_to_dist[best_leaf]) >= 0.5 and rounding(leaf_to_dist[best_leaf]) < 1:
+		elif rounding(nsti) >= 0.5 and rounding(nsti) < 1:
 			confidence = "Medium"
-		elif rounding(leaf_to_dist[best_leaf]) < 0.5:
+		elif rounding(nsti) < 0.5:
 			confidence = "Good"
 
-		if rounding(leaf_to_dist[best_leaf]) > max_nsti:
-			max_nsti = rounding(leaf_to_dist[best_leaf])
+		if rounding(nsti) > max_nsti:
+			max_nsti = rounding(nsti)
 
 		FH_out.write("\t".join([observation_name, count, frogs_taxo, best_leaf,\
-		ref_leaf_id, ref_leaf_taxo, str(rounding(leaf_to_dist[best_leaf])),\
+		ref_leaf_id, ref_leaf_taxo, str(rounding(nsti)),\
 		confidence, lowest_same_rank, comment, cluster_to_seq[observation_name], ref_seqs[best_leaf],\
 		blast_n_aln, blast_id, blast_cov, blast_score])+'\n')
 	BiomIO.write(biom_path, biom)
