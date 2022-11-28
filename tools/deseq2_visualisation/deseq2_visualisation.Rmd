@@ -105,6 +105,25 @@ DT_foldchange <- da.otus_table %>% datatable(filter = "top",                # ==
 DT_foldchange
 ```
 
+```{r prepare_ipath3}
+over_otu <- da.otus_table %>% 
+  filter(log2FoldChange > 0 ) %>%
+  select(OTU, log2FoldChange, padj)
+  
+under_otu <- da.otus_table %>% 
+  filter(log2FoldChange < 0 ) %>%
+  select(OTU, log2FoldChange, padj)
+
+write.table(over_otu, file="over.tsv", sep="\t", quote=FALSE, row.names = FALSE)
+write.table(under_otu, file="under.tsv", sep="\t", quote=FALSE, row.names = FALSE)
+
+```
+
+## iPath3
+```{python ipath3, code=readLines("../../libexec/functions_to_iPath3.py"), eval=TRUE}
+```
+![alt text](map.svg, toolTipMode=1) 
+
 ## Pie chart
 ```{r pie, fig.width=8, fig.height=6}
 
