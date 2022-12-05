@@ -5,7 +5,7 @@ copyright = 'Copyright (C) 2022 INRAE'
 license = 'GNU General Public License'
 version = '1.0'
 email = 'frogs-support@inrae.fr'
-status = 'prod'
+status = 'dev'
 
 ############## IMPORT
 
@@ -164,13 +164,13 @@ if(file.exists("dadaFs.rds") && file.exists("dadaRs.rds") && file.exists("derepF
 library(dada2)
 
 # store R1 files
-fnFs <- sort(list.files(opt$inputDir, pattern = "filterN_R1.fastq", full.names = TRUE)) 
+fnFs <- sort(list.files(opt$inputDir, pattern = "_R1.fastq.gz", full.names = TRUE)) 
 # store R2 files
 #saveRDS(fnFs,"fnFs.rds")
-fnRs <- sort(list.files(opt$inputDir, pattern = "filterN_R2.fastq", full.names = TRUE)) 
+fnRs <- sort(list.files(opt$inputDir, pattern = "_R2.fastq.gz", full.names = TRUE)) 
 #saveRDS(fnRs,"fnRs.rds")
 # function to get samples from file names
-get.sample.name <- function(fname) paste(strsplit(basename(fname), "_")[[1]][3],collapse="_")
+get.sample.name <- function(fname) paste(strsplit(basename(fname), "_R1.fastq.gz")[[1]][1],collapse="_")
 # get sample names
 sample.names <- unname(sapply(fnFs, get.sample.name))
 #saveRDS(sample.names,"samples.rds")
@@ -188,10 +188,10 @@ names(derepRs) <- sample.names
 ### Sample Inference
 dadaFs <- dada(derepFs, err=errF, multithread=opt$threads)
 dadaRs <- dada(derepRs, err=errF, multithread=opt$threads)
-saveRDS(derepFs,"derepFs.rds")
-saveRDS(derepRs,"derepRs.rds")
-saveRDS(dadaFs,"dadaFs.rds")
-saveRDS(dadaRs,"dadaRs.rds")
+#saveRDS(derepFs,"derepFs.rds")
+#saveRDS(derepRs,"derepRs.rds")
+#saveRDS(dadaFs,"dadaFs.rds")
+#saveRDS(dadaRs,"dadaRs.rds")
 }
 
 writeFastqFromDada(dadaFs, derepFs, dadaRs, derepRs, path=opt$outputDir)
