@@ -71,8 +71,8 @@ class HspMarker(Cmd):
 
         Cmd.__init__(self,
                  'hsp.py',
-                 'predict gene copy number per sequence.', 
-                 input_marker + " -t " + in_tree + " --hsp_method " + hsp_method + " -o " + output + "  2> " + log,
+                 'predict marker copy number per ASV sequence.', 
+                 input_marker + " -t " + in_tree + " --hsp_method " + hsp_method + " -o " + output + " --calculate_NSTI  2> " + log,
                 "--version")
 
         self.output = output
@@ -114,24 +114,26 @@ def submit_cmd( cmd, stdout_path, stderr_path):
         raise_exception( Exception( "\n\n#ERROR : " + error_msg + "\n\n" ))
 
 
-def process_hsp_function(in_trait, observed_trait_table, in_tree, hsp_method, output, log):
-
-    if observed_trait_table is None:
-        input_function = " --in_trait " + in_trait
-        message = "## Process function : " + in_trait + "\n"
-    else:
-        input_function = " --observed_trait_table " + observed_trait_table
-        message = "## Process function table : " + observed_trait_table + "\n"
-
+def process_hsp_function(in_traits, observed_trait_table, in_tree, hsp_method, outputs, logs):
+    if type(in_traits) != list:
+        in_traits = [in_traits]
     # run hsp.py
-    FH_log = Logger( log )
-    FH_log.write(message) 
-    cmd = ["hsp.py", input_function.split()[0], input_function.split()[1] ,"-t", in_tree, "--hsp_method", hsp_method, "-o", output]
-    FH_log.write("## hsp.py command: " + " ".join(cmd) + "\n")
-    submit_cmd( cmd, log, log )
-    # FH_log.write("".join(open(tmp_out).readlines()) + "\n" )
-    # FH_log.write("".join(open(tmp_err).readlines()) + "\n" )
-    FH_log.close()
+    for idx, in_trait in enumerate(in_traits):
+        if observed_trait_table is None:
+            input_function = " --in_trait " + in_trait
+            message = "## Process function : " + in_trait + "\n"
+        else:
+            input_function = " --observed_trait_table " + observed_trait_table
+            message = "## Process function table : " + observed_trait_table + "\n"
+
+        FH_log = Logger( logs[idx] )
+        FH_log.write(message) 
+        cmd = ["hsp.py", input_function.split()[0], input_function.split()[1] ,"-t", in_tree, "--hsp_method", hsp_method, "-o", outputs[idx]]
+        FH_log.write("## hsp.py command: " + " ".join(cmd) + "\n")
+        submit_cmd( cmd, logs[idx], logs[idx] )
+        # FH_log.write("".join(open(tmp_out).readlines()) + "\n" )
+        # FH_log.write("".join(open(tmp_err).readlines()) + "\n" )
+        FH_log.close()
 
 
 def parallel_submission( function, inputs, tree, hsp_method, outputs, logs, cpu_used):
@@ -234,12 +236,12 @@ def task_function(args):
 
 if __name__ == "__main__":
     # Manage parameters
-    parser = argparse.ArgumentParser( description='predict gene family for OTU' )
+    parser = argparse.ArgumentParser( description='predict marker of gene copy number' )
     parser.add_argument('-v', '--version', action='version', version=__version__)
     parser.add_argument( '--debug', default=False, action='store_true', help="Keep temporary files to debug program." )
     subparsers = parser.add_subparsers()
     # Inputs
-    parser_marker = subparsers.add_parser('marker', help='Process data for rarefaction curve by sample.')
+    parser_marker = subparsers.add_parser('marker', help='Predict marker copy number per ASV sequence.')
     parser_marker.add_argument('-m', '--marker-type', required=True, choices=['16S','ITS','18S'], help='Marker gene to be analyzed.')
     parser_marker.add_argument('-t', '--input-tree', required=True, type=str, help='frogsfunc_placeseqs output tree in newick format containing both studied sequences (i.e. ASVs or OTUs) and reference sequences.')
     parser_marker.add_argument('--hsp-method', default='mp', choices=['mp', 'emp_prob', 'pic', 'scp', 'subtree_average'], help='HSP method to use. mp: predict discrete traits using max parsimony. emp_prob: predict discrete traits based on empirical state probabilities across tips. subtree_average: predict continuous traits using subtree averaging. pic: predict continuous traits with phylogentic independent contrast. scp: reconstruct continuous traits using squared-change parsimony (default: %(default)s).')
@@ -249,7 +251,7 @@ if __name__ == "__main__":
     group_output_marker.add_argument('-o', '--output-marker', default="frogsfunc_copynumbers_marker.tsv", type=str, help='Output table of predicted marker gene copy numbers per studied sequence in input tree. If the extension \".gz\" is added the table will automatically be gzipped.[Default: %(default)s]')
     parser_marker.set_defaults(func=task_marker)
 
-    parser_function = subparsers.add_parser('function', help='Process data for rarefaction curve by sample.')
+    parser_function = subparsers.add_parser('function', help='Predict gene copy number per ASV sequence.')
     parser_function.add_argument('-p', '--nb-cpus', type=int, default=1, help="The maximum number of CPUs used. [Default: %(default)s]" )
     parser_function.add_argument('-m', '--marker-type', required=True, choices=['16S','ITS','18S'], help='Marker gene to be analyzed.')
     parser_function.add_argument('-i', '--marker-file', required=True, type=str, help='Table of predicted marker gene copy numbers (frogsfunc_placeseqs output : frogsfunc_marker.tsv).')
@@ -282,29 +284,21 @@ if __name__ == "__main__":
         if args.to_launch == "function":
             tmp_hsp_function = tmp_files.add( 'tmp_hsp_function.log' )
 
-            if args.functions is not None:
-                suffix_name = "_copynumbers_predicted.tsv"
+            # if args.functions is not None:
+            suffix_name = "_copynumbers_predicted.tsv"
+            functions_outputs = [tmp_files.add( trait + "_copynumbers_predicted.tsv") for trait in args.functions]
+            logs_hsp = [tmp_files.add( trait + "_tmp_hsp_function.log") for trait in args.functions]
+            if len(args.functions) == 1 or args.nb_cpus == 1:
+                Logger.static_write(args.log_file, '\n\nRunning ' + " ".join(args.functions) + ' functions prediction.\n')
+                process_hsp_function(args.functions, args.input_function_table, args.input_tree, args.hsp_method, functions_outputs, logs_hsp)
 
-                if len(args.functions) == 1 or args.nb_cpus == 1:
-                    for trait in args.functions:
-                        cur_output_function = trait + suffix_name
-                        tmp_output_function = tmp_files.add( cur_output_function )
-                        Logger.static_write(args.log_file, '\n\nRunning ' + trait + ' functions prediction.\n')
-                        process_hsp_function(trait, args.input_function_table, args.input_tree, args.hsp_method, args.output_function, tmp_hsp_function)
-                else:
-                    functions_list = [trait for trait in args.functions]
-                    functions_outputs = list()
-                    logs_hsp = list()
-
-                    functions_outputs = [tmp_files.add( trait + "_copynumbers_predicted.tsv") for trait in functions_list]
-                    logs_hsp = [tmp_files.add( trait + "_tmp_hsp_function.log") for trait in functions_list]
-                    
-                    parallel_submission( process_hsp_function, functions_list, args.input_tree, args.hsp_method, functions_outputs, logs_hsp, len(functions_list) )
-                    
-                    append_results(functions_outputs, args.marker_file, logs_hsp, args.output_function, args.log_file)           
             else:
-                tmp_output_function = tmp_files.add( "copynumbers_predicted.tsv")
-                process_hsp_function(args.functions, args.input_function_table, args.input_tree, args.hsp_method, args.output_function, tmp_hsp_function)
+                parallel_submission( process_hsp_function, args.functions, args.input_tree, args.hsp_method, functions_outputs, logs_hsp, len(args.functions) )
+            
+            append_results(functions_outputs, args.marker_file, logs_hsp, args.output_function, args.log_file)           
+            # else:
+            #     tmp_output_function = tmp_files.add( "copynumbers_predicted.tsv")
+            #     process_hsp_function(args.functions, args.input_function_table, args.input_tree, args.hsp_method, args.output_function, tmp_hsp_function)
     
     finally:
         if not args.debug:
