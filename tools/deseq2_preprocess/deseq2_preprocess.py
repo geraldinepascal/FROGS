@@ -106,11 +106,6 @@ class Tsv2biom(Cmd):
     def get_version(self):
          return Cmd.get_version(self, 'stdout').strip()
 
-    # def parser(self, log_file):
-    #     f_in = pd.read_csv(self.in_tsv, sep='\t')
-    #     sum_col = f_in.pop("observation_sum")
-    #     f_in.to_csv(self.in_tsv ,sep='\t' ,index=False)
-
 class PhyloseqImport(Cmd):
     """
     @summary: import data from two files: biomfile and samplefile into a phyloseq object for FUNC analysis.
@@ -214,4 +209,3 @@ if __name__ == "__main__":
     finally :
         if not args.debug:
             tmpFiles.deleteAll()
-

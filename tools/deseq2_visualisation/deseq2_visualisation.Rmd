@@ -106,23 +106,50 @@ DT_foldchange
 ```
 
 ```{r prepare_ipath3}
-over_otu <- da.otus_table %>% 
+func_sign_over <- da.otus_table %>% 
   filter(log2FoldChange > 0 ) %>%
   select(OTU, log2FoldChange, padj)
-  
-under_otu <- da.otus_table %>% 
+
+func_sign_under <- da.otus_table %>% 
   filter(log2FoldChange < 0 ) %>%
   select(OTU, log2FoldChange, padj)
 
-write.table(over_otu, file="over.tsv", sep="\t", quote=FALSE, row.names = FALSE)
-write.table(under_otu, file="under.tsv", sep="\t", quote=FALSE, row.names = FALSE)
+func_sign_over <- func_sign_over %>% 
+  mutate(Color = if_else(log2FoldChange < 3, "#d8fcd8",
+   if_else(log2FoldChange < 6, "#a0f9a0",
+   if_else(log2FoldChange < 9, "#62f163",
+   if_else(log2FoldChange < 12, "#2aed2d", "#03df04"))))) %>%
+  mutate(Width = if_else(padj < 0.00001, "W10", 
+   if_else(padj < 0.0001, "W8",
+   if_else(padj < 0.001, "W6",
+   if_else(padj < 0.01, "W4", "W2")))))
+
+func_sign_under <- func_sign_under %>% 
+  mutate(Color = if_else(log2FoldChange > -3, "#F8D1CD",
+   if_else(log2FoldChange > -6, "#F0A8AB",
+   if_else(log2FoldChange > -9, "#E97E88",
+   if_else(log2FoldChange > -12, "#E15566", "#DA2C43"))))) %>%
+  mutate(Width = if_else(padj < 0.00001, "W10", 
+   if_else(padj < 0.0001, "W8",
+   if_else(padj < 0.001, "W6",
+   if_else(padj < 0.01, "W4", "W2")))))
+
+func_sign_over <- func_sign_over %>% select(OTU, Color, Width)
+func_sign_under <- func_sign_under %>% select(OTU, Color, Width)
+write.table(func_sign_over, file="over.tsv", sep="\t", quote=FALSE, row.names = FALSE)
+write.table(func_sign_under, file="under.tsv", sep="\t", quote=FALSE, row.names = FALSE)
 
 ```
 
 ## iPath3
-```{python ipath3, code=readLines("../../libexec/functions_to_iPath3.py"), eval=TRUE}
+```{python ipath3, code=readLines("../../libexec/functions_to_iPath3.py"), eval=FALSE}
 ```
-![alt text](map.svg, toolTipMode=1) 
+
+### Up-regulated pathways
+![alt text](../../over.svg)
+
+### Down-regulated pathways
+![alt text](../../under.svg) 
 
 ## Pie chart
 ```{r pie, fig.width=8, fig.height=6}

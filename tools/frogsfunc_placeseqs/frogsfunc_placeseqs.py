@@ -178,7 +178,7 @@ class HspMarker(Cmd):
 
 		Cmd.__init__(self,
 				 'launch_hsp.py',
-				 'predict gene copy number per sequence.', 
+				 'predict marker copy number per sequence.', 
 				 ' marker --input-tree ' + tree + ' --marker-type ' + marker_type + opt + ' --hsp-method ' + hsp_method + ' -o ' + output + '  2> ' + log,
 				"--version")
 

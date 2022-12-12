@@ -28,6 +28,7 @@ dependencies:
   - r-dt =0.18
   - r-plotly =4.9.3
   - r-gridextra =2.3
+  - r-reticulate
 
 ## packages included in previous package (possibly in multiple previous package)
 #   r-essentials includes:
