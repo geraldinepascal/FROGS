@@ -117,6 +117,10 @@ def submit_cmd( cmd, stdout_path, stderr_path):
 def process_hsp_function(in_traits, observed_trait_table, in_tree, hsp_method, outputs, logs):
     if type(in_traits) != list:
         in_traits = [in_traits]
+    if type(outputs) != list:
+        outputs = [outputs]
+    if type(logs) != list:
+        logs = [logs]
     # run hsp.py
     for idx, in_trait in enumerate(in_traits):
         if observed_trait_table is None:
@@ -125,9 +129,8 @@ def process_hsp_function(in_traits, observed_trait_table, in_tree, hsp_method, o
         else:
             input_function = " --observed_trait_table " + observed_trait_table
             message = "## Process function table : " + observed_trait_table + "\n"
-
         FH_log = Logger( logs[idx] )
-        FH_log.write(message) 
+        FH_log.write(message)
         cmd = ["hsp.py", input_function.split()[0], input_function.split()[1] ,"-t", in_tree, "--hsp_method", hsp_method, "-o", outputs[idx]]
         FH_log.write("## hsp.py command: " + " ".join(cmd) + "\n")
         submit_cmd( cmd, logs[idx], logs[idx] )
@@ -144,9 +147,10 @@ def parallel_submission( function, inputs, tree, hsp_method, outputs, logs, cpu_
         processes[process_idx]['inputs'] = inputs[trait]
         processes[process_idx]['outputs'] = outputs[trait]
         processes[process_idx]['log_files'] = logs[trait]
-
+    
     for current_process in processes:
         if trait == 0:  # First process is threaded with parent job
+            
             current_process['process'] = threading.Thread(target=function,
                                                           args=(current_process['inputs'], None, tree, hsp_method, current_process['outputs'], current_process['log_files']))
         else:  # Others processes are processed on diffrerent CPU
