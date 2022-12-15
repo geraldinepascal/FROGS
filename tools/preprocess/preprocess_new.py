@@ -1510,6 +1510,7 @@ def cutadapt_process_sample_denoising(R1_file, R2_file, sample_name, out_file, a
 
 def process( args ):
     tmp_files = TmpFiles( os.path.split(args.output_fasta)[0] )
+    output_dir = os.path.abspath(tmp_files.tmp_dir)
 
     # Process
     try:
@@ -1694,7 +1695,7 @@ def process( args ):
             
             R_stderr = tmp_files.add("dada2.stderr")
             Logger.static_write(args.log_file, '##Sample\nAll\n##Commands\n')
-            dada2(os.getcwd(), os.getcwd(), args.nb_cpus, R_stderr).submit(args.log_file)
+            dada2(output_dir, output_dir, args.nb_cpus, R_stderr).submit(args.log_file)
             
             
             # Assembling denoised FASTQ files
