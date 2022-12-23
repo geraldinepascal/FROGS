@@ -67,7 +67,6 @@ class dada2(Cmd):
         @param out  : [str] Path to Rdata file storing DESeq2 prepreocessing step.
         @param stderr  : [str] Path to stderr output file
         """ 
-        rcode = os.path.join(BIN_DIR, "dada_process.R")
         Cmd.__init__( self,
                       'dada2_process.R',
                       'Write denoised FASTQ files from cutadapted and cleaned FASTQ files',
@@ -81,49 +80,28 @@ class dada2(Cmd):
         """
         return Cmd.get_version(self, 'stdout')
 
-class SortFasta(Cmd):
-    """
-    @summary: Sort dereplicated sequences by decreasing abundance.
-    """
-    def __init__(self, in_fasta, out_fasta, debug, size_separator=';size='):
-        """
-        @param in_fasta: [str] Path to unsorted file.
-        @param out_fasta: [str] Path to file after sort.
-        @param size_separator: [str] Each sequence in in_fasta is see as a pre-cluster. The number of sequences represented by the pre-cluster is stored in sequence ID.
-               Sequence ID format : '<REAL_ID><size_separator><NB_SEQ>'. If this size separator is missing in ID, the number of sequences represented is 1.
-        """
-        opt = ' --debug ' if debug else ''
-        Cmd.__init__( self,
-                      'sortAbundancies.py',
-                      'Sort pre-clusters by abundancies.',
-                      "--size-separator '" + size_separator + "' --input-file " + in_fasta + ' --output-file ' + out_fasta + opt,
-                      '--version' )
 
-    def get_version(self):
-        """
-        @summary: Returns the program version number.
-        @return: [str] Version number if this is possible, otherwise this method return 'unknown'.
-        """
-        return Cmd.get_version(self, 'stdout').strip()
-
-class Swarm(Cmd):
+class Clustering(Cmd):
     """
     @summary: Sequences clustering.
     @see: https://github.com/torognes/swarm
     """
-    def __init__(self, in_fasta, out_swarms, out_log, distance, fastidious_opt, nb_cpus):
+    def __init__(self, in_fasta, input_count, distance, fastidious, output_compo, output_fasta, output_biom, log, nb_cpus):
         """
         @param in_fasta: [str] Path to fasta file to process.
-        @param out_swarms: [str] Path to swarm output file. It describes which reads compose each swarm.
-        @param out_log: [str] Path to swarm log file.
-        @param distance: [int] The 'param.distance'
+        @param input_count: [str] Path to the count file associated to fasta file.
+        @param distance: [int] Maximum distance between sequences in each aggregation step. RECOMMENDED : d=1 in combination with --fastidious option.
+        @param fastidious: [bool] Use the fastidious option of swarm to refine OTU.
         @param nb_cpus : [int] 'param.nb_cpus'.
+        @param output_compo : [str] This output file will contain the composition of each cluster.
+        @param output_fasta : [str] This output file will contain the seed sequence for each cluster.
+        @param output_biom : [str] This output file will contain the abundance per sample for each cluster.
         """
-        opt = ' --fastidious ' if fastidious_opt else ''
+        opt = ' --fastidious ' if fastidious else ''
         Cmd.__init__( self,
-                      'swarm',
+                      'clustering.py',
                       'Clustering sequences.',
-                      "--differences " + str(distance) + opt + " --threads " + str(nb_cpus) + " --log " + out_log + " --output-file " + out_swarms + " " + in_fasta,
+                      "--input-fasta " + in_fasta + " --input-count " + input_count + " --distance " + str(distance) + opt + " --nb-cpus " + str(nb_cpus) + " --log-file " + log + " --output-compo " + output_compo + " --output-fasta " + output_fasta + " --output-biom " + output_biom, 
                       '--version' )
 
     def get_version(self):
@@ -131,54 +109,8 @@ class Swarm(Cmd):
         @summary: Returns the program version number.
         @return: [str] Version number if this is possible, otherwise this method return 'unknown'.
         """
-        return Cmd.get_version(self, 'stderr').split()[1]
+        return Cmd.get_version(self, 'stderr')
 
-
-class Swarm2Biom(Cmd):
-    """
-    @summary: Converts swarm results in BIOM file.
-    """
-    def __init__(self, in_swarms, in_count, out_biom):
-        """
-        @param in_swarms: [str] Path to swarm output file. It describes which reads compose each swarm.
-        @param in_count: [str] Path to the count file. It contains the count by sample for each representative sequence.
-        @param out_biom: [str] Path to the output BIOM.
-        """
-        Cmd.__init__( self,
-                      'swarm2biom.py',
-                      'Converts swarm output to abundance file (format BIOM).',
-                      "--clusters-file " + in_swarms + " --count-file " + in_count + " --output-file " + out_biom,
-                      '--version' )
-    
-    def get_version(self):
-        """
-        @summary: Returns the program version number.
-        @return: [str] Version number if this is possible, otherwise this method return 'unknown'.
-        """
-        return Cmd.get_version(self, 'stdout').strip()
-
-class ExtractSwarmsFasta(Cmd):
-    """
-    @summary: Extracts seeds sequences to produce the seeds fasta.
-    """
-    def __init__(self, in_fasta, in_swarms, out_seeds_file):
-        """
-        @param in_fasta: [str] Path to the input fasta file.
-        @param in_swarms: [str] Path to swarm output file. It describes which reads compose each swarm.
-        @param out_seeds_file: [str] Path to the output fasta file.
-        """
-        Cmd.__init__( self,
-                      'extractSwarmsFasta.py',
-                      'Extracts seeds sequences to produce the seeds fasta.',
-                      '--input-fasta ' + in_fasta + ' --input-swarms ' + in_swarms + ' --output-fasta ' + out_seeds_file,
-                      '--version' )
-
-    def get_version(self):
-        """
-        @summary: Returns the program version number.
-        @return: [str] Version number if this is possible, otherwise this method return 'unknown'.
-        """
-        return Cmd.get_version(self, 'stdout').strip()
         
 class Pear(Cmd):
     """
@@ -688,6 +620,7 @@ class DerepGlobalMultiFasta(Cmd):
         @param out_count: [str] Path to the count file. It contains the count by sample for each representative sequence.
         @param param: [str] The 'param.nb_cpus'.
         """
+        print(all_fasta)
         # Write sample description
         FH_ref = open(out_samples_ref, "wt")
         FH_ref.write( "#Sequence_file\tSample_name\n" )
@@ -732,81 +665,8 @@ class DerepGlobalFastaCount(Cmd):
 # FUNCTIONS
 #
 ##################################################################################################################################################
-def resizeSeed(seed_in, seed_in_compo, seed_out):
-    """
-    @summary: add read abundance to seed sequence name
-    @param seed_in : [str] Path to seed input fasta file
-    @param seed_in_compo : [str] Path to seed input composition swarm file
-    @param seed_out : [str] Path to seed output fasta file with abundance in name and sorted
-    """
-    dict_cluster_abond=dict()
-    with open(seed_in_compo,"rt") as f:
-        for idx,line in enumerate(f.readlines()):
-            if not line.startswith("#"):
-                cluster_name = "Cluster_" + str(idx+1) if not "FROGS_combined" in line.split()[0] else "Cluster_" + str(idx+1) + "_FROGS_combined"
-                dict_cluster_abond[cluster_name]=sum([ int(n.split("_")[-1]) for n in line.strip().split()])
-    f.close()
-
-    FH_input = FastaIO( seed_in )
-    FH_out=FastaIO(seed_out , "wt" )
-    for record in FH_input:
-        record.id += "_" + str(dict_cluster_abond[record.id])
-        FH_out.write( record )
-    FH_input.close()
-    FH_out.close()
 
 ###
-def agregate_composition(step1_compo , step2_compo, out_compo):
-    """
-    @summary: convert cluster composition in cluster in cluster composition in read (in case of two steps clustering)
-    @param step1_compo : [str] Path to cluster1 composition in read (clustering step1)
-    @param step2_compo : [str] Path to cluster2 composition in cluster1 (clustering step2) 
-    @param out_composition : [str] Path to cluster2 composition in read
-    """
-    dict_cluster1_compo=dict()
-    with open(step1_compo,"rt") as f:
-        for idx,line in enumerate(f.readlines()):
-            if "FROGS_combined" in line.split()[0]:
-                dict_cluster1_compo["Cluster_"+str(idx+1)+"_FROGS_combined"]=line.strip()
-            else:
-                dict_cluster1_compo["Cluster_"+str(idx+1)]=line.strip()
-    f.close()
-
-    FH_out=open(out_compo,"wt")
-    with open(step2_compo,"rt") as f:
-        for line in f.readlines():
-            compo=" ".join([dict_cluster1_compo["_".join(n.split('_')[0:-1])] for n in line.strip().split(" ")])
-            FH_out.write(compo+"\n")
-
-
-def replaceNtags(in_fasta, out_fasta):
-    """
-    @summary : for FROGS_combined sequence, replace N tags by A and record start and stop positions in description
-    @param : [str] Path to input fasta file
-    @param : [str] Path to output fasta file
-    """
-
-    FH_in = FastaIO(in_fasta)
-    FH_out = FastaIO(out_fasta, "wt")
-    for record in FH_in:
-        if "FROGS_combined" in record.id :
-            if not 100*"N" in record.string:
-                raise_exception(Exception("\n\n#ERROR : record " + record.id + " is a FROGS_combined sequence but it does not contain de 100N tags\n"))
-
-            N_idx1 = record.string.find("N")
-            N_idx2 = record.string.rfind("N")
-            replace_tag = 50*"A" + 50 * "C"
-            record.string = record.string.replace(100*"N",replace_tag)
-
-            if record.description :
-                record.description += "50A50C:" + str(N_idx1) + ":" + str(N_idx2)
-            else:
-                record.description = "50A50C:" + str(N_idx1) + ":" + str(N_idx2)
-        FH_out.write(record)
-
-    FH_in.close()
-    FH_out.close()
-
 def addNtags(in_fasta, output_fasta):
     """
     @summary : replace sequence indicated in seed description by N : ex A:10:110 replace 100A from 10 to 110 by N
@@ -1505,8 +1365,38 @@ def cutadapt_process_sample_denoising(R1_file, R2_file, sample_name, out_file, a
         Vsearch_filterN( R1_tmp_cutadapt, R2_tmp_cutadapt, R1_tmp_filterN, R2_tmp_filterN, log_vsearchNfilter, args).submit(log_file)
     else: # Custom sequencing primers. The amplicons is full length (Illumina) except PCR primers (it is use as sequencing primers). [Protocol Kozich et al. 2013]
         Vsearch_filterN( R1_file, R2_file, R1_tmp_filterN, R2_tmp_filterN, log_vsearchNfilter, args).submit(log_file)
-    
-    
+
+
+def parallel_submission( function, R1_files, R2_files, samples_names, filtered_files, art_filtered_files, length_files, log_files, nb_processses_used, args):
+    processes = [{'process':None, 'R1_files':[], 'R2_files':[], 'samples_names':[], 'filtered_files':[], 'art_filtered_files':[], 'lengths_files':[], 'log_files':[]} for idx in range(nb_processses_used)]
+    # Set processes
+    for idx in range(len(R1_files)):
+        process_idx = idx % nb_processses_used
+        processes[process_idx]['R1_files'].append(R1_files[idx])
+        if not args.already_contiged:
+            processes[process_idx]['R2_files'].append(R2_files[idx])
+        processes[process_idx]['samples_names'].append(samples_names[idx])
+        processes[process_idx]['filtered_files'].append(filtered_files[idx])
+        processes[process_idx]['art_filtered_files'].append(art_filtered_files[idx])
+        processes[process_idx]['lengths_files'].append(length_files[idx])
+        processes[process_idx]['log_files'].append(log_files[idx])
+    # Launch processes
+    for current_process in processes:
+        if idx == 0: # First process is threaded with parent job
+            current_process['process'] = threading.Thread( target=function, 
+                                                            args=(current_process['R1_files'], current_process['R2_files'], current_process['samples_names'], current_process['filtered_files'], current_process['art_filtered_files'], current_process['lengths_files'], current_process['log_files'], args) )
+        else: # Others processes are processed on different CPU
+            current_process['process'] = multiprocessing.Process( target=function, 
+                                                            args=(current_process['R1_files'], current_process['R2_files'], current_process['samples_names'], current_process['filtered_files'], current_process['art_filtered_files'], current_process['lengths_files'], current_process['log_files'], args) )
+        current_process['process'].start()
+    # Wait processes end
+    for current_process in processes:
+        current_process['process'].join()
+    # Check processes status
+    for current_process in processes:
+        if issubclass(current_process['process'].__class__, multiprocessing.Process) and current_process['process'].exitcode != 0:
+            raise_exception( Exception( "\n\n#ERROR : Error in sub-process execution.\n\n" ))
+
 
 def process( args ):
     tmp_files = TmpFiles( os.path.split(args.output_fasta)[0] )
@@ -1550,34 +1440,7 @@ def process( args ):
             if nb_processses_used == 1:
                 filter_process_multiples_files( R1_files, R2_files, samples_names, filtered_files, art_filtered_files, lengths_files, log_files, args )
             else:
-                processes = [{'process':None, 'R1_files':[], 'R2_files':[], 'samples_names':[], 'filtered_files':[], 'art_filtered_files':[], 'lengths_files':[], 'log_files':[]} for idx in range(nb_processses_used)]
-                # Set processes
-                for idx in range(len(R1_files)):
-                    process_idx = idx % nb_processses_used
-                    processes[process_idx]['R1_files'].append(R1_files[idx])
-                    if not args.already_contiged:
-                        processes[process_idx]['R2_files'].append(R2_files[idx])
-                    processes[process_idx]['samples_names'].append(samples_names[idx])
-                    processes[process_idx]['filtered_files'].append(filtered_files[idx])
-                    processes[process_idx]['art_filtered_files'].append(art_filtered_files[idx])
-                    processes[process_idx]['lengths_files'].append(lengths_files[idx])
-                    processes[process_idx]['log_files'].append(log_files[idx])
-                # Launch processes
-                for current_process in processes:
-                    if idx == 0: # First process is threaded with parent job
-                        current_process['process'] = threading.Thread( target=filter_process_multiples_files, 
-                                                                       args=(current_process['R1_files'], current_process['R2_files'], current_process['samples_names'], current_process['filtered_files'], current_process['art_filtered_files'], current_process['lengths_files'], current_process['log_files'], args) )
-                    else: # Others processes are processed on different CPU
-                        current_process['process'] = multiprocessing.Process( target=filter_process_multiples_files, 
-                                                                       args=(current_process['R1_files'], current_process['R2_files'], current_process['samples_names'], current_process['filtered_files'], current_process['art_filtered_files'], current_process['lengths_files'], current_process['log_files'], args) )
-                    current_process['process'].start()
-                # Wait processes end
-                for current_process in processes:
-                    current_process['process'].join()
-                # Check processes status
-                for current_process in processes:
-                    if issubclass(current_process['process'].__class__, multiprocessing.Process) and current_process['process'].exitcode != 0:
-                        raise_exception( Exception( "\n\n#ERROR : Error in sub-process execution.\n\n" ))
+                parallel_submission( filter_process_multiples_files, R1_files, R2_files, samples_names, filtered_files, art_filtered_files, lengths_files, log_files, nb_processses_used, args)
 
             # Write summary
             log_append_files( args.log_file, log_files )
@@ -1601,56 +1464,11 @@ def process( args ):
 
             # Temporary files
             filename_woext = os.path.split(args.output_fasta)[1].split('.')[0]
-            swarm_log = tmp_files.add( filename_woext + '_swarm_log.txt' )
-            sorted_fasta = tmp_files.add( filename_woext + '_sorted.fasta' )
-            replaceN_fasta = tmp_files.add( filename_woext + '_sorted_NtoA.fasta' )
-            final_sorted_fasta = replaceN_fasta
-            swarms_file = args.output_compo
-            swarms_seeds = tmp_files.add( filename_woext + '_final_seeds.fasta' )
-            denoising_compo = None
-            
-            if args.distance == 1 and args.denoising:
-                Logger.static_write(args.log_file, "Warning: using the denoising option with a distance of 1 is useless. The denoising option is cancelled\n\n")
-                args.denoising = False
+            clustering_log = tmp_files.add( filename_woext + '_clustering_log.txt' )
 
-            SortFasta( args.output_dereplicated, sorted_fasta, args.debug ).submit( args.log_file )
-            Logger.static_write(args.log_file, "repalce 100 N tags by 50A-50C in: " + sorted_fasta + " out : "+ replaceN_fasta +"\n")
-            replaceNtags(sorted_fasta, replaceN_fasta)
-
-            if args.denoising and args.distance > 1:
-                # Denoising
-                denoising_log = tmpFiles.add( filename_woext + '_denoising_log.txt' )
-                denoising_compo = tmpFiles.add( filename_woext + '_denoising_composition.txt' )
-                denoising_seeds = tmpFiles.add( filename_woext + '_denoising_seeds.fasta' )
-                denoising_resized_seeds = tmpFiles.add( filename_woext + '_denoising_resizedSeeds.fasta' )
-                swarms_file = tmpFiles.add( filename_woext + '_swarmD' + str(args.distance) + '_composition.txt' )
-                final_sorted_fasta = tmpFiles.add( filename_woext + '_denoising_sortedSeeds.fasta' )
-
-                Swarm( replaceN_fasta, denoising_compo, denoising_log, 1 , args.fastidious, args.nb_cpus ).submit( args.log_file )
-                ExtractSwarmsFasta( replaceN_fasta, denoising_compo, denoising_seeds ).submit( args.log_file )
-                resizeSeed( denoising_seeds, denoising_compo, denoising_resized_seeds ) # add size to seeds name
-                SortFasta( denoising_resized_seeds, final_sorted_fasta, args.debug, "_" ).submit( args.log_file )
-
-            Swarm( final_sorted_fasta, swarms_file, swarm_log, args.distance, args.fastidious, args.nb_cpus ).submit( args.log_file )
-
-            if args.denoising and args.distance > 1:
-                # convert cluster composition in read composition ==> final swarm composition
-                agregate_composition(denoising_compo, swarms_file, args.output_compo)
-
-            Swarm2Biom( args.output_compo, args.output_count, args.output_biom ).submit( args.log_file )
-            ExtractSwarmsFasta( final_sorted_fasta, swarms_file, swarms_seeds ).submit( args.log_file )
-            Logger.static_write(args.log_file, "replace 50A-50C  tags by N. in: " + swarms_seeds + " out : "+ args.output_fasta +"\n")
-            addNtags(swarms_seeds, args.output_fasta)
+            Clustering(args.output_dereplicated, args.output_count, args.distance, args.fastidious, args.output_compo, args.output_fasta, args.output_biom, clustering_log, args.nb_cpus).submit( args.log_file)
         
         elif args.asv == True:
-            # Dada2
-            
-            # Tmp files
-            # Tmp files
-            #filtered_files = [tmp_files.add(current_sample + '_filtered.fasta') for current_sample in samples_names]
-            #art_filtered_files = [tmp_files.add(current_sample + '_artComb_filtered.fasta') for current_sample in samples_names]
-            #lengths_files = [tmp_files.add(current_sample + '_lengths.json') for current_sample in samples_names]
-            #log_files = [tmp_files.add(current_sample + '_log.txt') for current_sample in samples_names]
             
             R1_cutadapted_files = [tmp_files.add(current_sample + '_cutadapt_R1.fastq.gz') for current_sample in samples_names]
             R2_cutadapted_files = [tmp_files.add(current_sample + '_cutadapt_R2.fastq.gz') for current_sample in samples_names]
@@ -1664,43 +1482,17 @@ def process( args ):
             if nb_processses_used == 1:
                 cutadapt_process_multiples_files_denoising( R1_files, R2_files, samples_names, filtered_files, art_filtered_files, lengths_files, log_files, args )
             else:
-                processes = [{'process':None, 'R1_files':[], 'R2_files':[], 'samples_names':[], 'filtered_files':[], 'art_filtered_files':[], 'lengths_files':[], 'log_files':[]} for idx in range(nb_processses_used)]
-                # Set processes
-                for idx in range(len(R1_files)):
-                    process_idx = idx % nb_processses_used
-                    processes[process_idx]['R1_files'].append(R1_files[idx])
-                    if not args.already_contiged:
-                        processes[process_idx]['R2_files'].append(R2_files[idx])
-                    processes[process_idx]['samples_names'].append(samples_names[idx])
-                    processes[process_idx]['filtered_files'].append(filtered_files[idx])
-                    processes[process_idx]['art_filtered_files'].append(art_filtered_files[idx])
-                    processes[process_idx]['lengths_files'].append(lengths_files[idx])
-                    processes[process_idx]['log_files'].append(log_files[idx])
-                # Launch cutadapt
-                for current_process in processes:
-                    if idx == 0: # First process is threaded with parent job
-                        current_process['process'] = threading.Thread( target=cutadapt_process_multiples_files_denoising, 
-                                                                       args=(current_process['R1_files'], current_process['R2_files'], current_process['samples_names'], current_process['filtered_files'], current_process['art_filtered_files'], current_process['lengths_files'], current_process['log_files'], args) )
-                    else: # Others processes are processed on different CPU
-                        current_process['process'] = multiprocessing.Process( target=cutadapt_process_multiples_files_denoising, 
-                                                                       args=(current_process['R1_files'], current_process['R2_files'], current_process['samples_names'], current_process['filtered_files'], current_process['art_filtered_files'], current_process['lengths_files'], current_process['log_files'], args) )
-                    current_process['process'].start()
-                # Wait processes end
-                for current_process in processes:
-                    current_process['process'].join()
-                # Check processes status
-                for current_process in processes:
-                    if issubclass(current_process['process'].__class__, multiprocessing.Process) and current_process['process'].exitcode != 0:
-                        raise_exception( Exception( "\n\n#ERROR : Error in sub-process execution.\n\n" ))
+                parallel_submission( cutadapt_process_multiples_files_denoising, R1_files, R2_files, samples_names, filtered_files, art_filtered_files, lengths_files, log_files, nb_processses_used, args)
+
             
             R_stderr = tmp_files.add("dada2.stderr")
             Logger.static_write(args.log_file, '##Sample\nAll\n##Commands\n')
             dada2(output_dir, output_dir, args.nb_cpus, R_stderr).submit(args.log_file)
             
-            
             # Assembling denoised FASTQ files
             R1_files = sorted(glob.glob('*_cutadapt_denoised_R1.fastq'))
             R2_files = sorted(glob.glob('*_cutadapt_denoised_R2.fastq'))
+
             print(R1_files)
             print(filtered_files)
             print(samples_names)
@@ -1716,39 +1508,10 @@ def process( args ):
             if nb_processses_used == 1:
                 process_sample_after_denoising_multiple_files( R1_files, R2_files, samples_names, filtered_files, art_filtered_files, lengths_files, log_files, args )
             else:
-                processes = [{'process':None, 'R1_files':[], 'R2_files':[], 'samples_names':[], 'filtered_files':[], 'art_filtered_files':[], 'lengths_files':[], 'log_files':[]} for idx in range(nb_processses_used)]
-                # Set processes
-                for idx in range(len(R1_files)):
-                    process_idx = idx % nb_processses_used
-                    processes[process_idx]['R1_files'].append(R1_files[idx])
-                    if not args.already_contiged:
-                        processes[process_idx]['R2_files'].append(R2_files[idx])
-                    processes[process_idx]['samples_names'].append(samples_names[idx])
-                    processes[process_idx]['filtered_files'].append(filtered_files[idx])
-                    processes[process_idx]['art_filtered_files'].append(art_filtered_files[idx])
-                    processes[process_idx]['lengths_files'].append(lengths_files[idx])
-                    processes[process_idx]['log_files'].append(log_files[idx])
-                # Launch processes
-                for current_process in processes:
-                    if idx == 0: # First process is threaded with parent job
-                        current_process['process'] = threading.Thread( target=process_sample_after_denoising_multiple_files, 
-                                                                       args=(current_process['R1_files'], current_process['R2_files'], current_process['samples_names'], current_process['filtered_files'], current_process['art_filtered_files'], current_process['lengths_files'], current_process['log_files'], args) )
-                    else: # Others processes are processed on different CPU
-                        current_process['process'] = multiprocessing.Process( target=process_sample_after_denoising_multiple_files, 
-                                                                       args=(current_process['R1_files'], current_process['R2_files'], current_process['samples_names'], current_process['filtered_files'], current_process['art_filtered_files'], current_process['lengths_files'], current_process['log_files'], args) )
-                    current_process['process'].start()
-                # Wait processes end
-                for current_process in processes:
-                    current_process['process'].join()
-                # Check processes status
-                for current_process in processes:
-                    if issubclass(current_process['process'].__class__, multiprocessing.Process) and current_process['process'].exitcode != 0:
-                        raise_exception( Exception( "\n\n#ERROR : Error in sub-process execution.\n\n" ))
+                parallel_submission( process_sample_after_denoising_multiple_files, R1_files, R2_files, samples_names, filtered_files, art_filtered_files, lengths_files, log_files, nb_processses_used, args)
 
             # Write summary
             log_append_files( args.log_file, log_files )
-            
-            
             
             # Dereplicate global on combined filtered cutadapted multifiltered derep
             filtered_files = glob.glob('*_N_and_length_filter.fasta')
@@ -1797,34 +1560,7 @@ def process( args ):
             if nb_processses_used == 1:
                 filter_process_multiples_files( R1_files, R2_files, samples_names, filtered_files, art_filtered_files, lengths_files, log_files, args )
             else:
-                processes = [{'process':None, 'R1_files':[], 'R2_files':[], 'samples_names':[], 'filtered_files':[], 'art_filtered_files':[], 'lengths_files':[], 'log_files':[]} for idx in range(nb_processses_used)]
-                # Set processes
-                for idx in range(len(R1_files)):
-                    process_idx = idx % nb_processses_used
-                    processes[process_idx]['R1_files'].append(R1_files[idx])
-                    if not args.already_contiged:
-                        processes[process_idx]['R2_files'].append(R2_files[idx])
-                    processes[process_idx]['samples_names'].append(samples_names[idx])
-                    processes[process_idx]['filtered_files'].append(filtered_files[idx])
-                    processes[process_idx]['art_filtered_files'].append(art_filtered_files[idx])
-                    processes[process_idx]['lengths_files'].append(lengths_files[idx])
-                    processes[process_idx]['log_files'].append(log_files[idx])
-                # Launch processes
-                for current_process in processes:
-                    if idx == 0: # First process is threaded with parent job
-                        current_process['process'] = threading.Thread( target=filter_process_multiples_files, 
-                                                                       args=(current_process['R1_files'], current_process['R2_files'], current_process['samples_names'], current_process['filtered_files'], current_process['art_filtered_files'], current_process['lengths_files'], current_process['log_files'], args) )
-                    else: # Others processes are processed on different CPU
-                        current_process['process'] = multiprocessing.Process( target=filter_process_multiples_files, 
-                                                                       args=(current_process['R1_files'], current_process['R2_files'], current_process['samples_names'], current_process['filtered_files'], current_process['art_filtered_files'], current_process['lengths_files'], current_process['log_files'], args) )
-                    current_process['process'].start()
-                # Wait processes end
-                for current_process in processes:
-                    current_process['process'].join()
-                # Check processes status
-                for current_process in processes:
-                    if issubclass(current_process['process'].__class__, multiprocessing.Process) and current_process['process'].exitcode != 0:
-                        raise_exception( Exception( "\n\n#ERROR : Error in sub-process execution.\n\n" ))
+                parallel_submission( filter_process_multiples_files, R1_files, R2_files, samples_names, filtered_files, art_filtered_files, lengths_files, log_files, nb_processses_used, args)
 
             # Write summary
             log_append_files( args.log_file, log_files )
