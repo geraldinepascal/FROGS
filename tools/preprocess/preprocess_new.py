@@ -60,7 +60,7 @@ class dada2(Cmd):
     @see: http://rmarkdown.rstudio.com/
           https://joey711.github.io/phyloseq/
     """
-    def __init__(self, input_dir, output_dir, cpus, stderr ):
+    def __init__(self, r1_files, r2_files, output_dir, cpus, output_filenames, stderr ):
         """
         @param data : [str] The path of one phyloseq-class object in Rdata file.
         @param model: [str] Experimental variable suspected to have an impact on OTUs abundances.
@@ -70,7 +70,7 @@ class dada2(Cmd):
         Cmd.__init__( self,
                       'dada2_process.R',
                       'Write denoised FASTQ files from cutadapted and cleaned FASTQ files',
-                      ' --inputDir ' + input_dir + ' --outputDir ' + output_dir + ' --threads ' + str(cpus) + ' 2> ' + stderr,
+                      ' --R1Files ' + ",".join(r1_files) + ' --R2Files ' + ",".join(r2_files) + ' --outputDir ' + output_dir + ' --fileNames ' + output_filenames + ' --threads ' + str(cpus) + ' 2> ' + stderr,
                       '--version')       
                        
     def get_version(self):
@@ -1488,7 +1488,7 @@ def process( args ):
             art_filtered_files = [tmp_files.add(current_sample + '_artComb_filter.fasta') for current_sample in samples_names]
             lengths_files = [tmp_files.add(current_sample + '_lengths.json') for current_sample in samples_names]
             log_files = [tmp_files.add(current_sample + '_log.txt') for current_sample in samples_names]
-            
+
             nb_processses_used = min( len(R1_files), args.nb_cpus )
             if nb_processses_used == 1:
                 cutadapt_process_multiples_files_denoising( R1_files, R2_files, samples_names, filtered_files, art_filtered_files, lengths_files, log_files, args )
@@ -1496,18 +1496,21 @@ def process( args ):
                 parallel_submission( cutadapt_process_multiples_files_denoising, R1_files, R2_files, samples_names, filtered_files, art_filtered_files, lengths_files, log_files, nb_processses_used, args)
 
             R_stderr = tmp_files.add("dada2.stderr")
+            tmp_output_filenames = tmp_files.add("tmp_output_filenames")
             Logger.static_write(args.log_file, '##Sample\nAll\n##Commands\n')
-            dada2(output_dir, output_dir, args.nb_cpus, R_stderr).submit(args.log_file)
-            
-            # Assembling denoised FASTQ files
-            R1_files = sorted(glob.glob('*_cutadapt_denoised_R1.fastq'))
-            R2_files = sorted(glob.glob('*_cutadapt_denoised_R2.fastq'))
+            R1_files = [os.path.abspath(file) for file in R1_files]
+            R2_files = [os.path.abspath(file) for file in R2_files]
 
-            print(R1_files)
-            print(filtered_files)
-            print(samples_names)
-            #sys.exit()
+            dada2(R1_files, R2_files, output_dir, args.nb_cpus, tmp_output_filenames, R_stderr).submit(args.log_file)
             
+            R1_files = list()
+            R2_files = list()
+            with open(tmp_output_filenames) as FH_input:
+                for li in FH_input:
+                    li = li.strip().split(',')
+                    R1_files.append(li[0])
+                    R2_files.append(li[1])
+
             filtered_files = [tmp_files.add(current_sample + '_filter.fasta') for current_sample in samples_names]
             
             art_filtered_files = [tmp_files.add(current_sample + '_artComb_filter.fasta') for current_sample in samples_names]

@@ -13,8 +13,10 @@ library(optparse)
 
 ############## OPTPARSE
 option_list = list(
-  make_option(c("-i", "--inputDir"), type="character", default=NULL, help="The directory path containing FASTQ input files to be denoised (required)"),
+  make_option(c("--R1Files"), type="list", default=NULL, help="List of R1 files to be process"),
+  make_option(c("--R2Files"), type="list", default=NULL, help="List of R2 files to be process"),
   make_option(c("-o", "--outputDir"), type="character", default=".", help="The directory path to write denoised FASTQ files. [default= %default]"),
+  make_option(c("-f", "--fileNames"), type="character", default=".", help="Linked R1 and R2 files in the current analysis."),
   make_option(c("-t", "--threads"), type="integer", default=1, help="Number of CPUs to use. [default= %default]"),
   make_option(c("--version"), action="store_true", default=FALSE, help="return version")
 ); 
@@ -36,9 +38,9 @@ if (opt$version){
 }
 
 ########## check options
-if (is.null(opt$inputDir)){
+if (is.null(opt$R1Files)){
   print_help(opt_parser)
-  stop("You need to provide the path to the directory containing FASTQ files to be denoised with the --inputDir parameter\n", call.=FALSE)
+  stop("You need to provide the list of R1 FASTQ files to be denoised with the --R1Files parameter\n", call.=FALSE)
 }
 
 ########## Functions
@@ -142,8 +144,14 @@ writeFastqFromDada <- function(dadaF, derepF, dadaR, derepR, path)
       ups$forwardQual <- Funqqual
       ups$reverseQual <- Runqqual
       sample_name <- names(dadaF)[i]
-      writeFASTQsingle(ups, file=file.path(path,paste0(sample_name,"_denoised_R1.fastq")), direction="forward")
-      writeFASTQsingle(ups, file=file.path(path,paste0(sample_name,"_denoised_R2.fastq")), direction="reverse")
+      R1_path <- file.path(path,paste0(sample_name,"_denoised_R1.fastq"))
+      R2_path <- file.path(path,paste0(sample_name,"_denoised_R2.fastq"))
+      writeFASTQsingle(ups, file=R1_path, direction="forward")
+      writeFASTQsingle(ups, file=R2_path, direction="reverse")
+      #set up writing
+      cat(R1_path, R2_path, file=opt$fileNames, append=TRUE, sep = ",")
+      cat("", file=opt$fileNames, append=TRUE, sep = "\n")
+
       return(ups)
     }
   })
@@ -164,10 +172,12 @@ if(file.exists("dadaFs.rds") && file.exists("dadaRs.rds") && file.exists("derepF
 library(dada2)
 
 # store R1 files
-fnFs <- sort(list.files(opt$inputDir, pattern = "_R1.fastq.gz", full.names = TRUE)) 
+fnFs <- sort(strsplit(opt$R1Files, ",")[[1]])
+
 # store R2 files
 #saveRDS(fnFs,"fnFs.rds")
-fnRs <- sort(list.files(opt$inputDir, pattern = "_R2.fastq.gz", full.names = TRUE)) 
+fnRs <- sort(strsplit(opt$R2Files, ",")[[1]])
+
 #saveRDS(fnRs,"fnRs.rds")
 # function to get samples from file names
 get.sample.name <- function(fname) paste(strsplit(basename(fname), "_R1.fastq.gz")[[1]][1],collapse="_")
