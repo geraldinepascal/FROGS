@@ -165,17 +165,22 @@ def filter_seq( input_file, output_file, log_file, min_length=None, max_length=N
     filter_on_quality = 0
     filter_on_tag = 0
     for seq_record in fh_in:
-        nb_seq += 1
+        if ";size=" in seq_record.id :
+            cur_nb_seq = int(seq_record.id.split(';size=')[1])
+        else:
+            cur_nb_seq = 1
+        nb_seq += cur_nb_seq
+        
         if not tag_seq_is_ok(seq_record.string):
-            filter_on_tag += 1
+            filter_on_tag += cur_nb_seq
         elif not length_is_ok( len(seq_record.string) ):
-            filter_on_length += 1
+            filter_on_length += cur_nb_seq
         elif not N_number_is_ok( seq_record.string ):
-            filter_on_N += 1
+            filter_on_N += cur_nb_seq
         elif not homopolymer_is_ok( seq_record.string ):
-            filter_on_homopoly += 1
+            filter_on_homopoly += cur_nb_seq
         elif not quality_is_ok( seq_record.quality ):
-            filter_on_quality += 1
+            filter_on_quality += cur_nb_seq
         else:
             fh_out.write( seq_record )
 

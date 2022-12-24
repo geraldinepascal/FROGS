@@ -741,7 +741,6 @@ def link_inputFiles(file_list, tmpFiles, log):
     return out_list
 
 
-
 def revcomp(seq):
     """
     @summary : return reverse complement iupac sequence
@@ -1005,13 +1004,27 @@ def get_nb_seq( reads_file ):
         FH_input = open( reads_file )
     else:
         FH_input = gzip.open( reads_file )
-    nb_line = 0
-    for line in FH_input:
-        nb_line += 1
-    FH_input.close()
 
     format = "fastq" if FastqIO.is_valid(reads_file) else "fasta"
-    nb_seq = nb_line/4 if format == "fastq" else nb_line/2
+    nb_seq= 0
+
+    first_line = FH_input.readline().strip()
+    if ";size=" in str(first_line):
+        nb_seq += int(first_line.split()[0].split(';size=')[1])
+        for li in FH_input:
+            if ";size=" in li:
+                li = li.strip()
+                nb_seq += int(li.split()[0].split(';size=')[1])
+    else:
+        nb_seq += 1
+        for li in FH_input:
+            nb_seq += 1
+        if format == "fastq":
+            nb_seq = nb_seq / 4
+        elif format == "fasta":
+            nb_seq = nb_seq /2
+
+    FH_input.close()
     return int(nb_seq)
 
 
@@ -1033,6 +1046,7 @@ def filter_process_multiples_files(R1_files, R2_files, samples_names, out_files,
         else:
             process_sample( R1_files[idx], R2_files[idx], samples_names[idx], out_files[idx], out_art_files[idx], lengths_files[idx], log_files[idx], args )
 
+
 def cutadapt_process_multiples_files_denoising(R1_files, R2_files, samples_names, out_files, out_art_files, lengths_files, log_files, args):
     """
     @summary: filters sequences of samples.
@@ -1051,6 +1065,7 @@ def cutadapt_process_multiples_files_denoising(R1_files, R2_files, samples_names
         else:
             cutadapt_process_sample_denoising( R1_files[idx], R2_files[idx], samples_names[idx], out_files[idx], out_art_files[idx], lengths_files[idx], log_files[idx], args )
 
+
 def process_sample_after_denoising_multiple_files(R1_files, R2_files, samples_names, out_files, out_art_files, lengths_files, log_files, args):
     
     for idx in range(len(out_files)):
@@ -1058,6 +1073,7 @@ def process_sample_after_denoising_multiple_files(R1_files, R2_files, samples_na
             process_sample_after_denoising( R1_files[idx], None, samples_names[idx], out_files[idx], None, lengths_files[idx], log_files[idx], args )
         else:
             process_sample_after_denoising( R1_files[idx], R2_files[idx], samples_names[idx], out_files[idx], out_art_files[idx], lengths_files[idx], log_files[idx], args )
+
 
 def process_sample_after_denoising(R1_file, R2_file, sample_name, out_file, art_out_file, lengths_file, log_file, args):
     
@@ -1078,7 +1094,6 @@ def process_sample_after_denoising(R1_file, R2_file, sample_name, out_file, art_
             tmp_files.add(sample_name + '_flash.histogram.outie')
             tmp_files.add(sample_name + '_flash.histogram.innie')
 
-
         # PEAR
         elif args.merge_software == "pear":
             out_contig = tmp_files.add( sample_name + '_pear.assembled.fastq' )
@@ -1094,7 +1109,6 @@ def process_sample_after_denoising(R1_file, R2_file, sample_name, out_file, art_
             out_notcombined_R2 = tmp_files.add( sample_name + '_vsearch.unassembled_R2.fastq' )
             out_contig_log = tmp_files.add(sample_name + '_vsearch.log')
 
-    
     # MULTIFILTER ON COMBINED FILTERED CUTADAPTED
     out_NAndLengthfilter = tmp_files.add( sample_name + '_N_and_length_filter.fasta' )
     log_NAndLengthfilter = tmp_files.add( sample_name + '_N_and_length_filter_log.txt' )
@@ -1176,8 +1190,7 @@ def process_sample_after_denoising(R1_file, R2_file, sample_name, out_file, art_
         
     finally:
         if not args.debug:
-            pass
-            #tmp_files.deleteAll()
+            tmp_files.deleteAll()
     
 
 def process_sample(R1_file, R2_file, sample_name, out_file, art_out_file, lengths_file, log_file, args):
@@ -1349,7 +1362,6 @@ def cutadapt_process_sample_denoising(R1_file, R2_file, sample_name, out_file, a
     @param log_file: [str] Path to the outputted log. It contains a trace of all the operations and results.
     @param args: [Namespace] Global parameters.
     """
-
     tmp_files = TmpFiles( os.path.split(out_file)[0] )
     
     R1_tmp_cutadapt = tmp_files.add( sample_name + '_cutadapt_R1.fastq.gz' )
@@ -1428,7 +1440,6 @@ def process( args ):
             raise_exception( Exception( '\n\n#ERROR : Impossible to retrieve unique samples names from files. The sample name must be before the first dot.\n\n' ))
         
         if args.otu == True:
-
             # Tmp files
             filtered_files = [tmp_files.add(current_sample + '_filtered.fasta') for current_sample in samples_names]
             art_filtered_files = [tmp_files.add(current_sample + '_artComb_filtered.fasta') for current_sample in samples_names]
@@ -1484,7 +1495,6 @@ def process( args ):
             else:
                 parallel_submission( cutadapt_process_multiples_files_denoising, R1_files, R2_files, samples_names, filtered_files, art_filtered_files, lengths_files, log_files, nb_processses_used, args)
 
-            
             R_stderr = tmp_files.add("dada2.stderr")
             Logger.static_write(args.log_file, '##Sample\nAll\n##Commands\n')
             dada2(output_dir, output_dir, args.nb_cpus, R_stderr).submit(args.log_file)
@@ -1501,8 +1511,6 @@ def process( args ):
             filtered_files = [tmp_files.add(current_sample + '_filter.fasta') for current_sample in samples_names]
             
             art_filtered_files = [tmp_files.add(current_sample + '_artComb_filter.fasta') for current_sample in samples_names]
-            
-            
             
             nb_processses_used = min( len(R1_files), args.nb_cpus )
             if nb_processses_used == 1:
@@ -1541,7 +1549,6 @@ def process( args ):
                     if args.R2_size is not None:
                         R2_files = link_inputFiles(args.input_R2, tmp_files, args.log_file)
                 
-
                 samples_names = [os.path.basename(current_R1).split('.')[0] for current_R1 in args.input_R1]
                 if args.samples_names is not None:
                     samples_names = args.samples_names
@@ -1572,11 +1579,7 @@ def process( args ):
 
             # Check the number of sequences after filtering
             nb_seq = get_nb_seq(args.output_dereplicated)
-            if  nb_seq == 0:
-                raise_exception( Exception( "\n\n#ERROR : The filters have eliminated all sequences (see summary for more details).\n\n" ))
-            
-    # Remove temporary files
-    finally:
+    finally:    
         if not args.debug:
             tmp_files.deleteAll()
 
@@ -1609,8 +1612,6 @@ def to_biom_and_fasta( count_file, fasta_file, output_biom, output_fasta):
     in_fasta_fh.close()
     out_fasta_fh.close()
     
-
-
     # Preclusters count by sample
     preclusters_count = dict()
     count_fh = open( count_file )
