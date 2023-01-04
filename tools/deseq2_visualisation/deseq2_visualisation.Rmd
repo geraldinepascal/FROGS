@@ -142,7 +142,7 @@ write.table(func_sign_under, file="under.tsv", sep="\t", quote=FALSE, row.names 
 ```
 
 ## iPath3
-```{python ipath3, code=readLines("../../libexec/functions_to_iPath3.py"), eval=FALSE}
+```{python ipath3, code=readLines("../../libexec/functions_to_iPath3.py"), eval=TRUE}
 ```
 
 ### Up-regulated pathways

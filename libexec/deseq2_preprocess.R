@@ -58,7 +58,7 @@ if (opt$analysis == "OTU"){
 	sampleMetadata <- sampleMetadata[ colnames(countData),  ]
 
 	cds <- DESeq2::DESeqDataSetFromMatrix(countData, sampleMetadata, as.formula(paste("~",opt$var)))
-	dds <- DESeq2::DESeq(cds, sfType = "poscounts")
+	dds <- DESeq2::DESeq(cds)
 
 }
 

@@ -114,15 +114,15 @@ def write_output(sign_results, output):
 
 up_file = "tools/deseq2_visualisation/over.tsv"
 down_file = "tools/deseq2_visualisation/under.tsv"
-p_thresh = 0.05
+# p_thresh = 0.05
 
-path_to_count, func_to_paths = dict_init_path_func(PATHWAY_FILE)
+# path_to_count, func_to_paths = dict_init_path_func(PATHWAY_FILE)
 
-results_path_to_count = retrieve_diff_functions( up_file, path_to_count, func_to_paths )
+# results_path_to_count = retrieve_diff_functions( up_file, path_to_count, func_to_paths )
 
-sign_results = process_stats(results_path_to_count, p_thresh)
+# sign_results = process_stats(results_path_to_count, p_thresh)
 
-write_output( sign_results, "sign_path.tsv")
+# write_output( sign_results, "sign_path.tsv")
 
 for file in [up_file, down_file]:
     str_out = str()
