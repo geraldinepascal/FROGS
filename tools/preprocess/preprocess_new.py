@@ -1406,7 +1406,7 @@ def process( args ):
         if len(samples_names) != len(set(samples_names)):
             raise_exception( Exception( '\n\n#ERROR : Impossible to retrieve unique samples names from files. The sample name must be before the first dot.\n\n' ))
         
-        if args.otu == True:
+        if args.swarm == True:
             # Tmp files
             filtered_files = [tmp_files.add(current_sample + '_filtered.fasta') for current_sample in samples_names]
             art_filtered_files = [tmp_files.add(current_sample + '_artComb_filtered.fasta') for current_sample in samples_names]
@@ -1446,7 +1446,7 @@ def process( args ):
 
             Clustering(args.output_dereplicated, args.output_count, args.distance, args.fastidious, args.output_compo, args.output_fasta, args.output_biom, clustering_log, args.nb_cpus).submit( args.log_file)
         
-        elif args.asv == True:
+        elif args.dada2 == True:
             
             R1_cutadapted_files = [tmp_files.add(current_sample + '_cutadapt_R1.fastq.gz') for current_sample in samples_names]
             R2_cutadapted_files = [tmp_files.add(current_sample + '_cutadapt_R2.fastq.gz') for current_sample in samples_names]
@@ -1643,7 +1643,7 @@ if __name__ == "__main__":
     parser_illumina = subparsers.add_parser( 'illumina', help='Illumina sequencers.', usage='''
   For samples files:
     preprocess.py illumina
-      --otu [--denoising] [--distance DISTANCE] [--fastidious] | --asv
+      --swarm [--denoising] [--distance DISTANCE] [--fastidious] | --dada2
       --input-R1 R1_FILE [R1_FILE ...]
       --already-contiged | --input-R2 R2_FILE [R2_FILE ...] --R1-size R1_SIZE --R2-size R2_SIZE [--mismatch-rate RATE ] [--quality-scale SCALE ] [--merge-software {vsearch,flash,pear} [--expected-amplicon-size]] [--keep-unmerged]
       --min-amplicon-size MIN_AMPLICON_SIZE
@@ -1658,7 +1658,7 @@ if __name__ == "__main__":
 
   For samples archive:
     preprocess.py illumina
-      --otu [--denoising] [--distance DISTANCE] [--fastidious] | --asv
+      --swarm [--denoising] [--distance DISTANCE] [--fastidious] | --dada2
       --input-archive ARCHIVE_FILE
       --already-contiged | --R1-size R1_SIZE --R2-size R2_SIZE [--mismatch-rate RATE ] [--quality-scale SCALE ] [--merge-software {vsearch,flash,pear} [--expected-amplicon-size] ] [--keep-unmerged]
       --min-amplicon-size MIN_AMPLICON_SIZE
@@ -1683,8 +1683,8 @@ if __name__ == "__main__":
     parser_illumina.add_argument( '--mismatch-rate', type=float, default=0.1, help='Maximum mismatch rate in overlap region. [Default: %(default)s; must be expressed as decimal, between 0 and 1]' )
     parser_illumina.add_argument( '--quality-scale', type=str, default="33", choices=["33", "64"], help='The phred base quality scale, either 33 or 64 if using Vsearch as read pair merge software [Default: %(default)s]' )
     parser_illumina.add_argument( '--already-contiged', action='store_true', default=False, help='The archive contains 1 file by sample : Reads 1 and Reads 2 are already contiged by pair.' )
-    parser_illumina.add_argument( '--asv', action='store_true', default=False, help='Build ASVs from reads.' )
-    parser_illumina.add_argument( '--otu', action='store_true', default=False, help='Build OTUs from reads.' )   
+    parser_illumina.add_argument( '--dada2', action='store_true', default=False, help='Build ASVs from reads.' )
+    parser_illumina.add_argument( '--swarm', action='store_true', default=False, help='Build OTUs from reads.' )   
     group_clustering = parser_illumina.add_argument_group( 'Clustering options' )
     group_clustering.add_argument( '-n', '--denoising', default=False, action='store_true',  help="denoise data by clustering read with distance=1 before perform real clustering. It is mutually exclusive with --fastidious." )
     group_clustering.add_argument( '-d', '--distance', type=int, default=1, help="Maximum distance between sequences in each aggregation step. RECOMMENDED : d=1 in combination with --fastidious option [Default: %(default)s]" )
@@ -1784,9 +1784,8 @@ if __name__ == "__main__":
 
         if args.mismatch_rate and args.mismatch_rate < 0 or args.mismatch_rate > 1:
             raise_exception( argparse.ArgumentTypeError( "\n\n#ERROR : mismatch-rate option need to be included between 0 and 1.\n\n" ))
-        if args.asv and args.already_contiged:
-            raise_exception( argparse.ArgumentTypeError( "\n\n#ERROR : Denoising needs to deal with both R1 and R2 FASTQ files. --already-contiged option is incompatible with --asv option.\n\n" ))
-    #if args.asv and args.fastidious or args.denoising
+        if args.dada2 and args.already_contiged:
+            raise_exception( argparse.ArgumentTypeError( "\n\n#ERROR : Denoising needs to deal with both R1 and R2 FASTQ files. --already-contiged option is incompatible with --dada2 option.\n\n" ))
 
     # Process
     process( args )
