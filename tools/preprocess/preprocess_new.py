@@ -54,7 +54,7 @@ from frogsBiom import Biom, BiomIO
 # COMMAND LINES
 #
 ##################################################################################################################################################
-class dada2(Cmd):
+class Dada2Core(Cmd):
     """
     @summary: Launch Rscript to calcul data frame of DESEq2 from a phyloseq object in RData file, the result of FROGS Phyloseq Import Data.
     @see: http://rmarkdown.rstudio.com/
@@ -1468,7 +1468,7 @@ def process( args ):
             R1_files = [os.path.abspath(file) for file in R1_files]
             R2_files = [os.path.abspath(file) for file in R2_files]
 
-            dada2(R1_files, R2_files, output_dir, args.nb_cpus, tmp_output_filenames, R_stderr).submit(args.log_file)
+            Dada2Core(R1_files, R2_files, output_dir, args.nb_cpus, tmp_output_filenames, R_stderr).submit(args.log_file)
             
             R1_files = list()
             R2_files = list()
