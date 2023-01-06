@@ -245,47 +245,6 @@ class Vsearch(Cmd):
         FH_log.write( '\tnb seq paired-end assembled: ' + str(nb_seq_merged) + '\n' )
         FH_log.close()
 
-class Vsearch_filterN(Cmd):
-    """
-    @summary: Overlapping and merging mate pairs from fragments shorter than twice the length of reads.
-    """
-    def __init__(self, in_R1, in_R2, out_R1, out_R2, log, param):
-        """
-        @param in_R1: [str] Path to the R1 fastq file.
-        @param in_R2: [str] Path to the R2 fastq file.
-        @param out_prefix: [str] Prefix of path to the output fastq files.
-        @param pear_log: [str] Path to log file
-        @param param: [Namespace] The 'param.min_amplicon_size', 'param.max_amplicon_size', 'param.R1_size', 'param.R2_size'
-        """
-
-        Cmd.__init__(self,
-            'vsearch',
-            'remove N reads',
-             ' --threads 1 --fastq_filter ' + in_R1 + ' --reverse ' + in_R2 \
-             + ' --fastqout ' + out_R1 + ' --fastqout_rev ' + out_R2 + ' --fastq_maxns 0' + ' --fastq_minlen 10'  \
-             + ' 2> ' + log,
-             '--version')
-        self.out_R1 = out_R1
-
-    def get_version(self):
-        """
-        @summary: Returns the program version number.
-        @return: version number if this is possible, otherwise this method return 'unknown'.
-        """
-        return Cmd.get_version(self, 'stderr').split(",")[0].split()[1] # vsearch v1.1.3_linux_x86_64, 126.0GB RAM, 32 cores           
-
-    def parser(self, log_file):
-        """
-        @summary: Parse the command results to add information in log_file.
-        @log_file: [str] Path to the sample process log file.
-        """
-        nb_seq_out = get_nb_seq(self.out_R1)
-        # Write result
-        FH_log = Logger( log_file )
-        FH_log.write( 'Results:\n' )
-        FH_log.write( '\tnb seq without N: ' + str(nb_seq_out) + '\n' )
-        FH_log.close()
-
 class Remove454prim(Cmd):
     """
     @summary: Removes reads without the 3' and 5' primer and removes primers sequences.
@@ -1382,10 +1341,8 @@ def cutadapt_process_sample_denoising(R1_file, R2_file, sample_name, out_file, a
     
     if args.five_prim_primer and args.three_prim_primer: # Illumina standard sequencing protocol
         CutadaptPaired(R1_file, R2_file, R1_tmp_cutadapt, R2_tmp_cutadapt, log_cutadapt, err_cutadapt, args).submit(log_file)
-        #Vsearch_filterN( R1_tmp_cutadapt, R2_tmp_cutadapt, R1_tmp_filterN, R2_tmp_filterN, log_vsearchNfilter, args).submit(log_file)
         MultiFilter(R1_tmp_cutadapt, R2_tmp_cutadapt, 0, 1000, None, R1_tmp_filterN, R1_tmp_filterN, log_Nfilter, args).submit(log_file)
     else: # Custom sequencing primers. The amplicons is full length (Illumina) except PCR primers (it is use as sequencing primers). [Protocol Kozich et al. 2013]
-        #Vsearch_filterN( R1_file, R2_file, R1_tmp_filterN, R2_tmp_filterN, log_vsearchNfilter, args).submit(log_file)
         MultiFilter(R1_file, R2_file, 0, 1000, None, R1_tmp_filterN, R2_tmp_filterN, log_Nfilter, args).submit(log_file)
 
 
