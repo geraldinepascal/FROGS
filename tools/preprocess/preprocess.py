@@ -366,12 +366,12 @@ class MultiFilter(Cmd):
     """
     @summary : Filters sequences.
     """
-    def __init__(self, in_fastq, min_len, max_len, tag, out_fasta, log_file, param):
+    def __init__(self, in_r1, in_r2, min_len, max_len, tag, out_r1, out_r2, log_file, param):
         """
         @param in_fastq: [str] Path to the processed fastq.
         @param min_len, max_len [int] : minimum and maximum length filter criteria
         @param tag [str] : check the presence of tag in sequence.
-        @param out_fasta: [str] Path to the fasta with valid sequences.
+        @param out_fasta: [str] Path to the fasta/fastq with valid sequences.
         @param log_file: [str] Path to the log file.
         @param param: [Namespace] The 'param.sequencer'
         """
@@ -386,12 +386,20 @@ class MultiFilter(Cmd):
             add_options += ' --max-length ' + str(max_len)
         if not tag is None:
             add_options += ' --tag ' + tag
+            
+        if in_r2 is None:
+            Cmd.__init__( self,
+              'filterSeq.py',
+              'Filters amplicons without primers by length and N count.',
+              '--force-fasta --max-N 0' + add_options + ' --input-file1 ' + in_r1 + ' --output-file1 ' + out_r1 + ' --log-file ' + log_file,
+              '--version' )
+        else:
 
-        Cmd.__init__( self,
-                      'filterSeq.py',
-                      'Filters amplicons without primers by length and N count.',
-                      '--force-fasta --max-N 0' + add_options + ' --input-file ' + in_fastq + ' --output-file ' + out_fasta + ' --log-file ' + log_file,
-                      '--version' )
+            Cmd.__init__( self,
+                          'filterSeq.py',
+                          'Filters amplicons without primers by length and N count.',
+                          '--force-fasta --max-N 0' + add_options + ' --input-r1 ' + in_r1 + ' --input-r2 ' + in_r2 + ' --output-r1 ' + out_r1 + ' --output-r2 ' + out_r2 + ' --log-file ' + log_file,
+                          '--version' )
         self.program_log = log_file
 
     def parser(self, log_file):
@@ -1026,7 +1034,7 @@ def process_sample(R1_file, R2_file, sample_name, out_file, art_out_file, length
         min_len = args.min_amplicon_size - primers_size
         max_len = args.max_amplicon_size - primers_size
         # filter on length, N 
-        MultiFilter(out_cutadapt, min_len, max_len, None, out_NAndLengthfilter, log_NAndLengthfilter, args).submit(log_file)
+        MultiFilter(out_cutadapt, None, min_len, max_len, None, out_NAndLengthfilter, None, log_NAndLengthfilter, args).submit(log_file)
         
         # Get length before and after process
         length_dict = dict()
@@ -1048,7 +1056,7 @@ def process_sample(R1_file, R2_file, sample_name, out_file, art_out_file, length
             else: # Custom sequencing primers. The amplicons is full length (Illumina) except PCR primers (it is use as sequencing primers). [Protocol Kozich et al. 2013]
                 Combined(out_notcombined_R1, out_notcombined_R2, "X"*100, art_out_cutadapt ).submit(log_file)
             # filter on length, N 
-            MultiFilter(art_out_cutadapt, args.R1_size, -1, None, art_out_Nfilter, art_log_Nfilter, args).submit(log_file)
+            MultiFilter(art_out_cutadapt, None, args.R1_size, -1, None, art_out_Nfilter, None, art_log_Nfilter, args).submit(log_file)
             ReplaceJoinTag(art_out_Nfilter, "X"*100, "N"*100, art_out_XtoN ).submit(log_file)
             DerepBySample(out_NAndLengthfilter + " " + art_out_XtoN, out_file, out_count).submit(log_file)
         else:
