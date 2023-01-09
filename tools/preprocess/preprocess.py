@@ -398,7 +398,7 @@ class MultiFilter(Cmd):
             Cmd.__init__( self,
                           'filterSeq.py',
                           'Filters amplicons without primers by length and N count.',
-                          '--force-fasta --max-N 0' + add_options + ' --input-r1 ' + in_r1 + ' --input-r2 ' + in_r2 + ' --output-r1 ' + out_r1 + ' --output-r2 ' + out_r2 + ' --log-file ' + log_file,
+                          ' --max-N 0' + add_options + ' --input-r1 ' + in_r1 + ' --input-r2 ' + in_r2 + ' --output-r1 ' + out_r1 + ' --output-r2 ' + out_r2 + ' --log-file ' + log_file,
                           '--version' )
         self.program_log = log_file
 
