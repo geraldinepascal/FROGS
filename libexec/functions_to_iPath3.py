@@ -20,7 +20,7 @@ def generate_ipath_input( file ):
             if li.startswith("OTU"):
                 continue
             else:
-                li = li.strip().split('\t')
+                li = li.strip().split(' ')
                 out_str += ' '.join([ li[0], li[1], li[2] ]) + '\n'
 
     return out_str
@@ -112,8 +112,8 @@ def write_output(sign_results, output):
 	for id, signs in sign_results.items():
 		FH_out.write("\t".join(map(str,signs))+"\n")
 
-up_file = "tools/deseq2_visualisation/over.tsv"
-down_file = "tools/deseq2_visualisation/under.tsv"
+up_file = "over.tsv"
+down_file = "under.tsv"
 # p_thresh = 0.05
 
 # path_to_count, func_to_paths = dict_init_path_func(PATHWAY_FILE)
