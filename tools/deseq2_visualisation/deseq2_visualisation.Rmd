@@ -106,53 +106,52 @@ DT_foldchange
 ```
 
 ```{r prepare_ipath3}
-print(da.otus_table)
-da.functions_table <- rename(da.otus_table, FUNC = OTU)
-func_sign_over <- da.functions_table  %>% 
+da_func_table <- rename(da.otus_table, FUNC = OTU)
+func_sign_over <- da_func_table %>% 
   filter(log2FoldChange > 0 ) %>%
   select(FUNC, log2FoldChange, padj)
 
-func_sign_under <- da.functions_table  %>% 
+func_sign_under <- da_func_table %>% 
   filter(log2FoldChange < 0 ) %>%
   select(FUNC, log2FoldChange, padj)
 
 func_sign_over <- func_sign_over %>% 
-  mutate(Color = if_else(log2FoldChange < 3, 1,
-   if_else(log2FoldChange < 6, 2,
-   if_else(log2FoldChange < 9, 3,
-   if_else(log2FoldChange < 12, 4, 5))))) %>%
-  mutate(Width = if_else(padj < 0.00001, "10", 
-   if_else(padj < 0.0001, "8",
-   if_else(padj < 0.001, "6",
-   if_else(padj < 0.01, "4", "2")))))
+  mutate(Color = if_else(log2FoldChange < 3, "#d8fcd8",
+   if_else(log2FoldChange < 6, "#a0f9a0",
+   if_else(log2FoldChange < 9, "#62f163",
+   if_else(log2FoldChange < 12, "#2aed2d", "#03df04"))))) %>%
+  mutate(Width = if_else(padj < 0.00001, "W10", 
+   if_else(padj < 0.0001, "W8",
+   if_else(padj < 0.001, "W6",
+   if_else(padj < 0.01, "W4", "W2")))))
 
 func_sign_under <- func_sign_under %>% 
-  mutate(Color = if_else(log2FoldChange > -3, 1,
-   if_else(log2FoldChange > -6, 2,
-   if_else(log2FoldChange > -9, 3,
-   if_else(log2FoldChange > -12, 4, 5))))) %>%
-  mutate(Width = if_else(padj < 0.00001, "10", 
-   if_else(padj < 0.0001, "8",
-   if_else(padj < 0.001, "6",
-   if_else(padj < 0.01, "4", "2")))))
+  mutate(Color = if_else(log2FoldChange > -3, "#F8D1CD",
+   if_else(log2FoldChange > -6, "#F0A8AB",
+   if_else(log2FoldChange > -9, "#E97E88",
+   if_else(log2FoldChange > -12, "#E15566", "#DA2C43"))))) %>%
+  mutate(Width = if_else(padj < 0.00001, "W10", 
+   if_else(padj < 0.0001, "W8",
+   if_else(padj < 0.001, "W6",
+   if_else(padj < 0.01, "W4", "W2")))))
 
 func_sign_over <- func_sign_over %>% select(FUNC, Color, Width)
 func_sign_under <- func_sign_under %>% select(FUNC, Color, Width)
-write.table(func_sign_over, file="over.tsv", sep="\t", quote=FALSE, row.names = FALSE)
-write.table(func_sign_under, file="under.tsv", sep="\t", quote=FALSE, row.names = FALSE)
+write.table(func_sign_over, file="over.tsv", sep=" ", quote=FALSE, row.names = FALSE)
+write.table(func_sign_under, file="under.tsv", sep=" ", quote=FALSE, row.names = FALSE)
 
 ```
 
 ## iPath3
-# ```{python ipath3, code=readLines("../../libexec/functions_to_iPath3.py"), eval=TRUE}
-# ```
+ ```{python ipath3, code=readLines("../../libexec/functions_to_iPath3.py"), eval=FALSE}
+ ```
 
 
-<!-- ### Up-regulated pathways
+### Up-regulated pathways
 ![alt text](../../over.svg)
 
 ### Down-regulated pathways
-![alt text](../../under.svg) -->
+![alt text](../../under.svg)
 
 ## Pie chart
 ```{r pie, fig.width=8, fig.height=6}
