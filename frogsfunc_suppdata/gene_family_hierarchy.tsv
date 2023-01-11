@@ -8706,7 +8706,7 @@ Transferases	Transferring phosphorus-containing groups	Phosphotransferases with 
 Transferases	Transferring phosphorus-containing groups	Phosphotransferases with an alcohol group as acceptor	unknown	EC:2.7.1.86
 Transferases	Transferring phosphorus-containing groups	Phosphotransferases with an alcohol group as acceptor	unknown	K19386
 Transferases	Transferring phosphorus-containing groups	Phosphotransferases with an alcohol group as acceptor	Streptomycin 3''-kinase	EC:2.7.1.87
-Transferases	Transferring phosphorus-containing groups	Phosphotransferases with an alcohol group as acceptor	strA, streptomycin 3"-kinase [EC:2.7.1.87]	K10673
+Transferases	Transferring phosphorus-containing groups	Phosphotransferases with an alcohol group as acceptor	strA, streptomycin 3-kinase [EC:2.7.1.87]	K10673
 Transferases	Transferring phosphorus-containing groups	Phosphotransferases with an alcohol group as acceptor	unknown	EC:2.7.1.88
 Transferases	Transferring phosphorus-containing groups	Phosphotransferases with an alcohol group as acceptor	Thiamine kinase	EC:2.7.1.89
 Transferases	Transferring phosphorus-containing groups	Phosphotransferases with an alcohol group as acceptor	thiK, thiamine kinase [EC:2.7.1.89]	K07251
@@ -9176,14 +9176,14 @@ Transferases	Transferring phosphorus-containing groups	Nucleotidyltransferases	R
 Transferases	Transferring phosphorus-containing groups	Nucleotidyltransferases	RPC2, POLR3B, DNA-directed RNA polymerase III subunit RPC2 [EC:2.7.7.6]	K03021
 Transferases	Transferring phosphorus-containing groups	Nucleotidyltransferases	rpoA, DNA-directed RNA polymerase subunit alpha [EC:2.7.7.6]	K03040
 Transferases	Transferring phosphorus-containing groups	Nucleotidyltransferases	rpoA1, DNA-directed RNA polymerase subunit A' [EC:2.7.7.6]	K03041
-Transferases	Transferring phosphorus-containing groups	Nucleotidyltransferases	rpoA2, DNA-directed RNA polymerase subunit A" [EC:2.7.7.6]	K03042
+Transferases	Transferring phosphorus-containing groups	Nucleotidyltransferases	rpoA2, DNA-directed RNA polymerase subunit A' [EC:2.7.7.6]	K03042
 Transferases	Transferring phosphorus-containing groups	Nucleotidyltransferases	rpoB, DNA-directed RNA polymerase subunit beta [EC:2.7.7.6]	K03043
 Transferases	Transferring phosphorus-containing groups	Nucleotidyltransferases	rpoB1, DNA-directed RNA polymerase subunit B' [EC:2.7.7.6]	K03044
-Transferases	Transferring phosphorus-containing groups	Nucleotidyltransferases	rpoB2, DNA-directed RNA polymerase subunit B" [EC:2.7.7.6]	K03045
+Transferases	Transferring phosphorus-containing groups	Nucleotidyltransferases	rpoB2, DNA-directed RNA polymerase subunit B' [EC:2.7.7.6]	K03045
 Transferases	Transferring phosphorus-containing groups	Nucleotidyltransferases	rpoC, DNA-directed RNA polymerase subunit beta' [EC:2.7.7.6]	K03046
 Transferases	Transferring phosphorus-containing groups	Nucleotidyltransferases	rpoD, DNA-directed RNA polymerase subunit D [EC:2.7.7.6]	K03047
 Transferases	Transferring phosphorus-containing groups	Nucleotidyltransferases	rpoE1, DNA-directed RNA polymerase subunit E' [EC:2.7.7.6]	K03049
-Transferases	Transferring phosphorus-containing groups	Nucleotidyltransferases	rpoE2, DNA-directed RNA polymerase subunit E" [EC:2.7.7.6]	K03050
+Transferases	Transferring phosphorus-containing groups	Nucleotidyltransferases	rpoE2, DNA-directed RNA polymerase subunit E' [EC:2.7.7.6]	K03050
 Transferases	Transferring phosphorus-containing groups	Nucleotidyltransferases	rpoF, DNA-directed RNA polymerase subunit F [EC:2.7.7.6]	K03051
 Transferases	Transferring phosphorus-containing groups	Nucleotidyltransferases	rpoG, DNA-directed RNA polymerase subunit G [EC:2.7.7.6]	K03052
 Transferases	Transferring phosphorus-containing groups	Nucleotidyltransferases	rpoH, DNA-directed RNA polymerase subunit H [EC:2.7.7.6]	K03053
@@ -9338,7 +9338,7 @@ Transferases	Transferring phosphorus-containing groups	Nucleotidyltransferases	u
 Transferases	Transferring phosphorus-containing groups	Nucleotidyltransferases	Gentamicin 2''-nucleotidyltransferase	EC:2.7.7.46
 Transferases	Transferring phosphorus-containing groups	Nucleotidyltransferases	aadB, aminoglycoside 2''-adenylyltransferase [EC:2.7.7.46]	K17881
 Transferases	Transferring phosphorus-containing groups	Nucleotidyltransferases	Streptomycin 3''-adenylyltransferase	EC:2.7.7.47
-Transferases	Transferring phosphorus-containing groups	Nucleotidyltransferases	aadA, streptomycin 3"-adenylyltransferase [EC:2.7.7.47]	K00984
+Transferases	Transferring phosphorus-containing groups	Nucleotidyltransferases	aadA, streptomycin 3'-adenylyltransferase [EC:2.7.7.47]	K00984
 Transferases	Transferring phosphorus-containing groups	Nucleotidyltransferases	 ,  Q06996, L_SENDF	EC:2.7.7.48
 Transferases	Transferring phosphorus-containing groups	Nucleotidyltransferases	unknown	K00985
 Transferases	Transferring phosphorus-containing groups	Nucleotidyltransferases	RDR, RDRP, RNA-dependent RNA polymerase [EC:2.7.7.48]	K11699
