@@ -558,13 +558,20 @@ class DerepBySample(Cmd):
     """
     @summary: Dereplicates sample sequences.
     """
-    def __init__(self, in_fasta, out_fasta, out_count):
+    def __init__(self, in_fasta, out_fasta, out_count, size_separator=None):
         """
         @param in_fasta: [str] Path to the processed fasta.
         @param out_fasta: [str] Path to the dereplicated fasta.
         @param out_count: [str] Path to the count file.
         """
-        Cmd.__init__( self,
+        if size_separator is not None:
+            Cmd.__init__( self,
+                      'derepSamples.py',
+                      'Dereplicates sample sequences.',
+                      '--sequences-files ' + in_fasta + ' --dereplicated-file ' + out_fasta + ' --count-file ' + out_count + ' --size-separator ' + size_separator + ' ',
+                      '--version' )
+        else:
+            Cmd.__init__( self,
                       'derepSamples.py',
                       'Dereplicates sample sequences.',
                       '--sequences-files ' + in_fasta + ' --dereplicated-file ' + out_fasta + ' --count-file ' + out_count,
@@ -1148,7 +1155,7 @@ def process_sample_after_denoising(R1_file, R2_file, sample_name, out_file, art_
             # filter on length, N 
             MultiFilter(art_out_cutadapt, None, args.R1_size, -1, None, art_out_Nfilter, None, art_log_Nfilter, args).submit(log_file)
             ReplaceJoinTag(art_out_Nfilter, "X"*100, "N"*100, art_out_XtoN ).submit(log_file)
-            #DerepBySample(out_NAndLengthfilter + " " + art_out_XtoN, out_file, out_count).submit(log_file)
+            DerepBySample(out_NAndLengthfilter + " " + art_out_XtoN, out_file, out_count, size_separator="';size='").submit(log_file)
         else:
             pass
             #DerepBySample(out_NAndLengthfilter, out_file, out_count).submit(log_file)
@@ -1516,7 +1523,7 @@ def spl_name_type( arg_value ):
     if re.search("\s", arg_value): raise_exception( argparse.ArgumentTypeError( "\n\n#ERROR : A sample name must not contain white spaces.\n\n" ))
     return str(arg_value)
 
-def to_biom_and_fasta( count_file, fasta_file, output_biom, output_fasta):
+def to_biom_and_fasta(count_file, fasta_file, output_biom, output_fasta):
     """
     @summary : Write a biom file from swarm results.
     @param clusters_file : [str] path to the '.clstr' file.
@@ -1532,7 +1539,10 @@ def to_biom_and_fasta( count_file, fasta_file, output_biom, output_fasta):
     out_fasta_fh = FastaIO( output_fasta, "wt")
     cpt=1
     for record in in_fasta_fh:
-        record.id = "Cluster_"+str(cpt)
+        if "FROGS_combined" in record.id:
+            record.id = "Cluster_"+str(cpt)+"_FROGS_combined"
+        else:
+            record.id = "Cluster_"+str(cpt)
         out_fasta_fh.write(record)
         cpt+=1
     in_fasta_fh.close()
