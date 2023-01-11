@@ -23,7 +23,7 @@ __version__ = '1.0.0'
 __email__ = 'frogs-support@inrae.fr'
 __status__ = 'prod'
 
-import os,sys
+import os,sys,re
 import argparse
 
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -59,6 +59,14 @@ def get_nb_seq( reads_file ):
     format = "fastq" if FastqIO.is_valid(reads_file) else "fasta"
     nb_seq = nb_line/4 if format == "fastq" else nb_line/2
     return nb_seq
+
+def get_id_and_abundance( recid ):
+    print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>", recid)
+    seqid = re.split(";size=",recid)[0]
+    abundance = re.split(";size=",recid)[1]
+    print(seqid, abundance)
+    return(seqid, abundance)
+    
 
 def checkQualityEncode ( input ):
     """
@@ -204,19 +212,25 @@ def combineSeq(input1, input2, format, tag, revcomp, out):
         description = None
         if record1.desc != None and record2.desc != None :
             description = "R1_desc:"+record1.desc+";R2_desc="+record2.desc
+        if ";size=" in record1.id:
+            record1.id, abundance1 = get_id_and_abundance(record1.id)
+            record2.id, abundance2 = get_id_and_abundance(record2.id)
+            final_id = record1.id+"_FROGS_combined;size="+abundance1
+        else:
+            final_id = record1.id+"_FROGS_combined"
         if format == "fastq" : 
             if revcomp:
-                combined = Sequence(record1.id+"_FROGS_combined", \
+                combined = Sequence(final_id, \
                     record1.string+tag+reverse_complement(record2.string), \
                     description,\
                     record1.quality+badQualCode*len(tag)+record2.quality[::-1])
             else : 
-                combined = Sequence(record1.id+"_FROGS_combined", \
+                combined = Sequence(final_id, \
                     record1.string+tag+record2.string, \
                     description,\
                     record1.quality+badQualCode*len(tag)+record2.quality)
         else : 
-            combined = Sequence(record1.id+"_FROGS_combined", \
+            combined = Sequence(final_id, \
                 record1.string+tag+record2.string, \
                 description,\
                 None)
