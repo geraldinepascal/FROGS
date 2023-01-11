@@ -294,13 +294,13 @@ def otus_filter(in_biom, nsti_file, min_blast_identity, min_blast_coverage, max_
 
 def check_nsti_threshold(max_nsti, in_biom):
 	biom = BiomIO.from_json(in_biom)
-	min_sti = 10
+	min_nsti = None
 	for observation in biom.get_observations():
 		if biom.get_observation_metadata(observation['id'])['NSTI']:
 			cur_nsti = float(biom.get_observation_metadata(observation['id'])['NSTI'])
-			if cur_nsti < min_sti:
-				min_sti = cur_nsti
-	if args.max_nsti < min_sti:
+			if cur_nsti < min_nsti or min_nsti == None:
+				min_nsti = cur_nsti
+	if args.max_nsti < min_nsti:
 		return raise_exception( Exception( "\n\n#ERROR : --max-nsti " + str(max_nsti) + " threshold will remove all clusters.\n\n" ))
 
 def count_nb_obs_per_ranks(in_biom):
@@ -513,6 +513,7 @@ if __name__ == "__main__":
 		if args.min_blast_ident or args.min_blast_cov or args.max_nsti:
 			tmp_biom_blast_thresh = tmp_files.add( 'tmp_biom_blast_thresh' )
 			tmp_excluded = tmp_files.add( 'tmp_excluded' )
+## ecrire ligne loger.static write sur l'exclusion des parametres en question
 			excluded_infos = otus_filter(args.input_biom, args.input_marker, args.min_blast_ident, args.min_blast_cov, args.max_nsti, args.excluded)
 
 			RemoveSeqsBiomFasta(args.input_fasta, args.input_biom, args.output_fasta, args.output_biom, args.excluded).submit(args.log_file)
@@ -533,8 +534,6 @@ if __name__ == "__main__":
 		
 		tmp_parse = tmp_files.add( 'tmp_parse_metagenome.log' )
 		ParseMetagenomePipeline(output_dir, args.output_function_abund, args.output_otu_norm, args.output_weighted, args.strat_out, args.output_contrib, tmp_parse).submit( args.log_file)
-
-		### fin code review
 
 		# Make a temporary functions abundances file to display sunbursts graphs.
 		tmp_function_sunburst = tmp_files.add( "functions_unstrat_sunburst.tmp")
