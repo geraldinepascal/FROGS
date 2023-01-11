@@ -18,7 +18,8 @@ option_list = list(
   make_option(c("-o", "--outputDir"), type="character", default=".", help="The directory path to write denoised FASTQ files. [default= %default]"),
   make_option(c("-f", "--fileNames"), type="character", default=".", help="Linked R1 and R2 files in the current analysis."),
   make_option(c("-t", "--threads"), type="integer", default=1, help="Number of CPUs to use. [default= %default]"),
-  make_option(c("--version"), action="store_true", default=FALSE, help="return version")
+  make_option(c("--version"), action="store_true", default=FALSE, help="return version"),
+  make_option(c("--debug"), action="store_true", default=FALSE, help="debug mode")
 ); 
 
 opt_parser = OptionParser(option_list=option_list);
@@ -198,10 +199,12 @@ names(derepRs) <- sample.names
 ### Sample Inference
 dadaFs <- dada(derepFs, err=errF, multithread=opt$threads)
 dadaRs <- dada(derepRs, err=errF, multithread=opt$threads)
-#saveRDS(derepFs,"derepFs.rds")
-#saveRDS(derepRs,"derepRs.rds")
-#saveRDS(dadaFs,"dadaFs.rds")
-#saveRDS(dadaRs,"dadaRs.rds")
+if (opt$debug){
+    saveRDS(derepFs,"derepFs.rds")
+    saveRDS(derepRs,"derepRs.rds")
+    saveRDS(dadaFs,"dadaFs.rds")
+    saveRDS(dadaRs,"dadaRs.rds")
+    }
 }
 
 writeFastqFromDada(dadaFs, derepFs, dadaRs, derepRs, path=opt$outputDir)
