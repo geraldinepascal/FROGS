@@ -50,6 +50,7 @@ if not, we will use the other syntax with contrast=c()
 # Import input files
 phyloseq_input <- get(load(params$phyloseq_data))
 dds_input     <- get(load(params$dds))
+base_name <- dirname(params$dds)
 result_names <- DESeq2::resultsNames(dds_input)
 
 # doc <- ""
@@ -137,21 +138,28 @@ func_sign_under <- func_sign_under %>%
 
 func_sign_over <- func_sign_over %>% select(FUNC, Color, Width)
 func_sign_under <- func_sign_under %>% select(FUNC, Color, Width)
-write.table(func_sign_over, file="over.tsv", sep=" ", quote=FALSE, row.names = FALSE)
-write.table(func_sign_under, file="under.tsv", sep=" ", quote=FALSE, row.names = FALSE)
+input_over <- paste(base_name , "/over.tsv", sep="")
+input_under <- paste(base_name , "/under.tsv", sep="")
+
+write.table(func_sign_over, file= input_over , sep=" ", quote=FALSE, row.names = FALSE)
+write.table(func_sign_under, file= input_under, sep=" ", quote=FALSE, row.names = FALSE)
 
 ```
 
 ## iPath3
- ```{python ipath3, code=readLines("../../libexec/functions_to_iPath3.py"), eval=FALSE}
- ```
+```{r ipath3, code = readLines("../../libexec/process_ipath.R")}
+# over_path <- paste(base_name , "/over.svg", sep="")
+# under_path <- paste(base_name , "/under.svg", sep="")
+
+
+```
 
 
 ### Up-regulated pathways
-![alt text](../../over.svg)
+![alt text](over.svg)
 
 ### Down-regulated pathways
-![alt text](../../under.svg)
+![alt text](under.svg)
 
 ## Pie chart
 ```{r pie, fig.width=8, fig.height=6}
