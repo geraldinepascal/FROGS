@@ -148,18 +148,16 @@ write.table(func_sign_under, file= input_under, sep=" ", quote=FALSE, row.names 
 
 ## iPath3
 ```{r ipath3, code = readLines("../../libexec/process_ipath.R")}
-# over_path <- paste(base_name , "/over.svg", sep="")
-# under_path <- paste(base_name , "/under.svg", sep="")
-
-
+```
+### Up-regulated pathways
+```{r over_func, echo=FALSE, out.width = '100%'}
+knitr::include_graphics("over.svg")
 ```
 
-
-### Up-regulated pathways
-![alt text](over.svg)
-
 ### Down-regulated pathways
-![alt text](under.svg)
+```{r under_func, echo=FALSE, out.width = '100%'}
+knitr::include_graphics("under.svg")
+```
 
 ## Pie chart
 ```{r pie, fig.width=8, fig.height=6}
