@@ -1146,19 +1146,9 @@ def process_sample_after_denoising(R1_file, R2_file, sample_name, out_file, art_
         # dealing with uncontiged reads.
         if args.keep_unmerged:
             Combined(out_notcombined_R1, out_notcombined_R2, "X"*100, art_out_cutadapt ).submit(log_file)
-            # remove primers
-            #if args.five_prim_primer and args.three_prim_primer: # Illumina standard sequencing protocol
-            #    #CutadaptPaired(out_notcombined_R1, out_notcombined_R2, uncomb_R1_tmp_cutadapt, uncomb_R2_tmp_cutadapt, uncomb_log_cutadapt, uncomb_err_cutadapt, args).submit(log_file)
-            #    Combined(uncomb_R1_tmp_cutadapt, uncomb_R2_tmp_cutadapt, "X"*100, art_out_cutadapt ).submit(log_file)
-            #else: # Custom sequencing primers. The amplicons is full length (Illumina) except PCR primers (it is use as sequencing primers). [Protocol Kozich et al. 2013]
-            #    Combined(out_notcombined_R1, out_notcombined_R2, "X"*100, art_out_cutadapt ).submit(log_file)
-            # filter on length, N 
             MultiFilter(art_out_cutadapt, None, args.R1_size, -1, None, art_out_Nfilter, None, art_log_Nfilter, args).submit(log_file)
             ReplaceJoinTag(art_out_Nfilter, "X"*100, "N"*100, art_out_XtoN ).submit(log_file)
             DerepBySample(out_NAndLengthfilter + " " + art_out_XtoN, out_file, out_count, size_separator="';size='").submit(log_file)
-        else:
-            pass
-            #DerepBySample(out_NAndLengthfilter, out_file, out_count).submit(log_file)
         
     finally:
         if not args.debug:
@@ -1455,16 +1445,14 @@ def process( args ):
             
             R1_cutadapted_files = [tmp_files.add(current_sample + '_cutadapt_R1.fastq.gz') for current_sample in samples_names]
             R2_cutadapted_files = [tmp_files.add(current_sample + '_cutadapt_R2.fastq.gz') for current_sample in samples_names]
-            filtered_files = [tmp_files.add(current_sample + '_filter.fasta') for current_sample in samples_names]
-            art_filtered_files = [tmp_files.add(current_sample + '_artComb_filter.fasta') for current_sample in samples_names]
             lengths_files = [tmp_files.add(current_sample + '_lengths.json') for current_sample in samples_names]
             log_files = [tmp_files.add(current_sample + '_log.txt') for current_sample in samples_names]
 
             nb_processses_used = min( len(R1_files), args.nb_cpus )
             if nb_processses_used == 1:
-                cutadapt_process_multiples_files_denoising( R1_files, R2_files, samples_names, R1_cutadapted_files, art_filtered_files, lengths_files, log_files, args )
+                cutadapt_process_multiples_files_denoising( R1_files, R2_files, samples_names, R1_cutadapted_files, R2_cutadapted_files, lengths_files, log_files, args )
             else:
-                parallel_submission( cutadapt_process_multiples_files_denoising, R1_files, R2_files, samples_names, filtered_files, art_filtered_files, lengths_files, log_files, nb_processses_used, args)
+                parallel_submission( cutadapt_process_multiples_files_denoising, R1_files, R2_files, samples_names, R1_cutadapted_files, R2_cutadapted_files, lengths_files, log_files, nb_processses_used, args)
 
             R_stderr = tmp_files.add("dada2.stderr")
             tmp_output_filenames = tmp_files.add("tmp_output_filenames")
@@ -1472,7 +1460,7 @@ def process( args ):
             R1_files = [os.path.abspath(file) for file in R1_files]
             R2_files = [os.path.abspath(file) for file in R2_files]
 
-            Dada2Core(R1_files, R2_files, output_dir, args.nb_cpus, tmp_output_filenames, R_stderr).submit(args.log_file)
+            Dada2Core(R1_cutadapted_files, R2_cutadapted_files, output_dir, args.nb_cpus, tmp_output_filenames, R_stderr).submit(args.log_file)
             
             R1_files = list()
             R2_files = list()
