@@ -22,6 +22,15 @@ params:
   # adjusted pvalue threshold
   padj:
     value: x
+  # Type of analysis
+  analysis:
+    value: x
+  # Over represented functions svg file
+  over_svg:
+    value: x
+  # Under represented functions svg file
+  under_svg:
+    value: x
 ---
 
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
@@ -51,6 +60,7 @@ if not, we will use the other syntax with contrast=c()
 phyloseq_input <- get(load(params$phyloseq_data))
 dds_input     <- get(load(params$dds))
 base_name <- dirname(params$dds)
+run_ipath <- ifelse(params$analysis == "OTU", FALSE, TRUE)
 result_names <- DESeq2::resultsNames(dds_input)
 
 # doc <- ""
@@ -106,7 +116,7 @@ DT_foldchange <- da.otus_table %>% datatable(filter = "top",                # ==
 DT_foldchange
 ```
 
-```{r prepare_ipath3}
+```{r prepare_ipath3, eval = run_ipath}
 da_func_table <- rename(da.otus_table, FUNC = OTU)
 func_sign_over <- da_func_table %>% 
   filter(log2FoldChange > 0 ) %>%
@@ -146,17 +156,25 @@ write.table(func_sign_under, file= input_under, sep=" ", quote=FALSE, row.names 
 
 ```
 
+```{asis, echo=run_ipath}
 ## iPath3
-```{r ipath3, code = readLines("../../libexec/process_ipath.R")}
-```
-### Up-regulated pathways
-```{r over_func, echo=FALSE, out.width = '100%'}
-knitr::include_graphics("over.svg")
 ```
 
+```{r ipath3, code = readLines("../../libexec/process_ipath.R"), eval = run_ipath}
+```
+
+```{asis, echo=run_ipath}
+### Up-regulated pathways
+```
+```{r over_func, echo=FALSE, out.width = '100%', eval = run_ipath}
+knitr::include_graphics(params$over_svg)
+```
+
+```{asis, echo=run_ipath}
 ### Down-regulated pathways
-```{r under_func, echo=FALSE, out.width = '100%'}
-knitr::include_graphics("under.svg")
+```
+```{r under_func, echo=FALSE, out.width = '100%',eval = run_ipath}
+knitr::include_graphics(params$under_svg)
 ```
 
 ## Pie chart

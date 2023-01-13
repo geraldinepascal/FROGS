@@ -61,7 +61,7 @@ class Rscript(Cmd):
     @see:  http://rmarkdown.rstudio.com/
            https://joey711.github.io/phyloseq/
     """
-    def __init__(self, phyloseq_data, dds, var, mod1, mod2, padj, html, err ):
+    def __init__(self, phyloseq_data, dds, var, mod1, mod2, padj, html, analysis, err, over_svg, under_svg ):
         """
         @param data: [str] The path of one phyloseq-class object in Rdata file. 
         @param dds : [str] The path of rdata file containing the DESeqDataSet.
@@ -70,14 +70,22 @@ class Rscript(Cmd):
         @param mod2: [str] one other variance of variable that you want to test.
         @param padj: [str] the adjusted p-value.
         @param html: [str] path to store resulting html file.
-        @param err:  [str] path to store RScript stderr output 
+        @param analysis: [str] Either OTU or FUNC.
+        @param over_svg: [str] Path to temporary svg file (FUNC analysis)
+        @param under_svg: [str] Path to temporary svg file (FUNC analysis)
+        @param err:  [str] path to store RScript stderr output
 
         """ 
         rmd = os.path.join(CURRENT_DIR, "deseq2_visualisation.Rmd")
+        if  analysis == "FUNC":
+            opt = "', over_svg='" + over_svg +"', under_svg='" + under_svg
+        else:
+            opt = ""
+            
         Cmd.__init__( self,
                       'Rscript',
                       'Run deseq2_visualisation.Rmd',
-                       '-e "rmarkdown::render(' + "'" + rmd + "', output_file='" + html + "', params=list(phyloseq_data='" + phyloseq_data + "', dds='" + dds + "', var='" + var+"', mod1='" + mod1 + "', mod2='" + mod2 + "', padj=" + str(padj) + "), intermediates_dir='" + os.path.dirname(html) +"')" + '" 2> ' + err ,
+                       '-e "rmarkdown::render(' + "'" + rmd + "', output_file='" + html + "', params=list(phyloseq_data='" + phyloseq_data + "', analysis='" + analysis + "', dds='" + dds + "', var='" + var+"', mod1='" + mod1 + "', mod2='" + mod2 + "', padj='" + str(padj) + opt + "'), intermediates_dir='" + os.path.dirname(html) +"')" + '" 2> ' + err ,
                       "-e '(sessionInfo()[[1]][13])[[1]][1]; library(DESeq2); paste(\"DESeq2 version: \",packageVersion(\"DESeq2\"))'")
                       
     def get_version(self):
@@ -103,6 +111,7 @@ if __name__ == "__main__":
     parser.add_argument('-m1', '--mod1', type=str, default="None", help='one value of the tested variable you want to compare (if more than 2 value in your experiement variable analyzed.)' )
     parser.add_argument('-m2', '--mod2', type=str, default="None", help='second value of the tested variable you want to compare.(if more than 2 value in your experiement variable analyzed.)' )
     parser.add_argument('-pa', '--padj', type=float, default=0.05, help='the adjusted p-value threshold to defined OTU as differentially abundant. [Default: %(default)s]' )
+    parser.add_argument('-a', '--analysis', default="OTU", choices=['OTU', 'FUNC'], help='Type of data to perform the differential analysis. OTU: DESeq2 is run on the OTUs abundances table. FUNC: DESeq2 is run on FROGSFUNC function abundances table (frogsfunc_functions_unstrat.tsv from FROGSFUNC function step).')
 
     # Inputs
     group_input = parser.add_argument_group( 'Inputs' )
@@ -126,7 +135,12 @@ if __name__ == "__main__":
 
     try:
         R_stderr = tmpFiles.add("R.stderr")
-        Rscript(phyloseq_data, dds, args.var, args.mod1, args.mod2, args.padj, html, R_stderr).submit(args.log_file)
+        if args.analysis == "OTU":
+            Rscript(phyloseq_data, dds, args.var, args.mod1, args.mod2, args.padj, html, args.analysis, R_stderr, None, None ).submit(args.log_file)
+        elif args.analysis == "FUNC":
+            tmp_over_svg = tmpFiles.add("over.svg")
+            tmp_under_svg = tmpFiles.add("under.svg")
+            Rscript(phyloseq_data, dds, args.var, args.mod1, args.mod2, args.padj, html, args.analysis, R_stderr, tmp_over_svg, tmp_under_svg).submit(args.log_file)
     finally :
         if not args.debug:
             tmpFiles.deleteAll()
