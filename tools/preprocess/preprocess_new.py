@@ -60,17 +60,20 @@ class Dada2Core(Cmd):
     @see: http://rmarkdown.rstudio.com/
           https://joey711.github.io/phyloseq/
     """
-    def __init__(self, r1_files, r2_files, output_dir, cpus, output_filenames, stderr ):
+    def __init__(self, r1_files, r2_files, output_dir, cpus, output_filenames, stderr, pseudo_pooling ):
         """
         @param data : [str] The path of one phyloseq-class object in Rdata file.
         @param model: [str] Experimental variable suspected to have an impact on OTUs abundances.
         @param out  : [str] Path to Rdata file storing DESeq2 prepreocessing step.
         @param stderr  : [str] Path to stderr output file
         """ 
+        opts = ""
+        if pseudo_pooling:
+            opts = " --pseudopooling "
         Cmd.__init__( self,
                       'dada2_process.R',
                       'Write denoised FASTQ files from cutadapted and cleaned FASTQ files',
-                      ' --R1Files ' + ",".join(r1_files) + ' --R2Files ' + ",".join(r2_files) + ' --outputDir ' + output_dir + ' --fileNames ' + output_filenames + ' --threads ' + str(cpus) + ' 2> ' + stderr,
+                      ' --R1Files ' + ",".join(r1_files) + ' --R2Files ' + ",".join(r2_files) + opts + ' --outputDir ' + output_dir + ' --fileNames ' + output_filenames + ' --threads ' + str(cpus) + ' 2> ' + stderr,
                       '--version')       
                        
     def get_version(self):
@@ -1019,7 +1022,7 @@ def filter_process_multiples_files(R1_files, R2_files, samples_names, out_files,
             process_sample( R1_files[idx], R2_files[idx], samples_names[idx], out_files[idx], out_art_files[idx], lengths_files[idx], log_files[idx], args )
 
 
-def cutadapt_process_multiples_files_denoising(R1_files, R2_files, samples_names, R1_cutadapted_files, R2_cutadapted_files, lengths_files, log_files, args):
+def clean_before_denoising_process_multiples_files(R1_files, R2_files, samples_names, R1_cutadapted_files, R2_cutadapted_files, lengths_files, log_files, args):
     """
     @summary: filters sequences of samples.
     @param R1_files: [list] List of path to reads 1 fastq files or contiged files (one by sample).
@@ -1033,10 +1036,39 @@ def cutadapt_process_multiples_files_denoising(R1_files, R2_files, samples_names
     """
     for idx in range(len(R1_files)):
         if args.already_contiged:
-            cutadapt_process_sample_denoising( R1_files[idx], None, samples_names[idx], R1_cutadapted_files[idx], None, lengths_files[idx], log_files[idx], args )
+            clean_before_denoising_process( R1_files[idx], None, samples_names[idx], R1_cutadapted_files[idx], None, lengths_files[idx], log_files[idx], args )
         else:
-            cutadapt_process_sample_denoising( R1_files[idx], R2_files[idx], samples_names[idx], R1_cutadapted_files[idx], R2_cutadapted_files[idx], lengths_files[idx], log_files[idx], args )
+            clean_before_denoising_process( R1_files[idx], R2_files[idx], samples_names[idx], R1_cutadapted_files[idx], R2_cutadapted_files[idx], lengths_files[idx], log_files[idx], args )
 
+
+def clean_before_denoising_process(R1_file, R2_file, sample_name, R1_cutadapted_and_filtered_file, R2_cutadapted_and_filtered_file, lengths_file, log_file, args):
+    """
+    @summary: Merges, filters and dereplicates all sequences of one sample.
+    @param R1_file: [str] Path to reads 1 fastq file or contiged file of the sample.
+    @param R2_file: [str] Path to reads 2 fastq file of the sample.
+    @param sample_name: [str] The sample name.
+    @param out_file: [str] Path to the filtered file.
+    @param art_out_file: [str] Path to the artificial combined filtered file.
+    @param lengths_file: [str] Path to the outputted file containing the contiged sequences lengths.
+    @param log_file: [str] Path to the outputted log. It contains a trace of all the operations and results.
+    @param args: [Namespace] Global parameters.
+    """
+    tmp_files = TmpFiles( os.path.split(R1_file)[0] )
+    
+    R1_tmp_cutadapt = tmp_files.add( sample_name + '_cutadapt_R1.fastq.gz' )
+    R2_tmp_cutadapt = tmp_files.add( sample_name + '_cutadapt_R2.fastq.gz' )
+    log_cutadapt = tmp_files.add( sample_name + '_cutadapt.log' )
+    log_Nfilter = tmp_files.add( sample_name + '_Nfilter.log' )
+    err_cutadapt = tmp_files.add( sample_name + '_cutadapt.err' )
+    try:
+        if args.five_prim_primer and args.three_prim_primer: # Illumina standard sequencing protocol
+            CutadaptPaired(R1_file, R2_file, R1_tmp_cutadapt, R2_tmp_cutadapt, log_cutadapt, err_cutadapt, args).submit(log_file)
+            MultiFilter(R1_tmp_cutadapt, R2_tmp_cutadapt, 0, 1000, None, R1_cutadapted_and_filtered_file, R2_cutadapted_and_filtered_file, log_Nfilter, args).submit(log_file)
+        else: # Custom sequencing primers. The amplicons is full length (Illumina) except PCR primers (it is use as sequencing primers). [Protocol Kozich et al. 2013]
+            MultiFilter(R1_file, R2_file, 0, 1000, None, R1_cutadapted_and_filtered_file, R2_cutadapted_and_filtered_file, log_Nfilter, args).submit(log_file)
+    finally:
+        if not args.debug:
+            tmp_files.deleteAll()
 
 def process_sample_after_denoising_multiple_files(R1_files, R2_files, samples_names, out_files, out_art_files, lengths_files, log_files, args):
     
@@ -1312,34 +1344,6 @@ def process_sample(R1_file, R2_file, sample_name, out_file, art_out_file, length
         if not args.debug:
             tmp_files.deleteAll()
 
-def cutadapt_process_sample_denoising(R1_file, R2_file, sample_name, R1_cutadapted_and_filtered_file, R2_cutadapted_and_filtered_file, lengths_file, log_file, args):
-    """
-    @summary: Merges, filters and dereplicates all sequences of one sample.
-    @param R1_file: [str] Path to reads 1 fastq file or contiged file of the sample.
-    @param R2_file: [str] Path to reads 2 fastq file of the sample.
-    @param sample_name: [str] The sample name.
-    @param out_file: [str] Path to the filtered file.
-    @param art_out_file: [str] Path to the artificial combined filtered file.
-    @param lengths_file: [str] Path to the outputted file containing the contiged sequences lengths.
-    @param log_file: [str] Path to the outputted log. It contains a trace of all the operations and results.
-    @param args: [Namespace] Global parameters.
-    """
-    tmp_files = TmpFiles( os.path.split(R1_file)[0] )
-    
-    R1_tmp_cutadapt = tmp_files.add( sample_name + '_cutadapt_R1.fastq.gz' )
-    R2_tmp_cutadapt = tmp_files.add( sample_name + '_cutadapt_R2.fastq.gz' )
-    log_cutadapt = tmp_files.add( sample_name + '_cutadapt.log' )
-    log_Nfilter = tmp_files.add( sample_name + '_Nfilter.log' )
-    err_cutadapt = tmp_files.add( sample_name + '_cutadapt.err' )
-    try:
-        if args.five_prim_primer and args.three_prim_primer: # Illumina standard sequencing protocol
-            CutadaptPaired(R1_file, R2_file, R1_tmp_cutadapt, R2_tmp_cutadapt, log_cutadapt, err_cutadapt, args).submit(log_file)
-            MultiFilter(R1_tmp_cutadapt, R2_tmp_cutadapt, 0, 1000, None, R1_cutadapted_and_filtered_file, R2_cutadapted_and_filtered_file, log_Nfilter, args).submit(log_file)
-        else: # Custom sequencing primers. The amplicons is full length (Illumina) except PCR primers (it is use as sequencing primers). [Protocol Kozich et al. 2013]
-            MultiFilter(R1_file, R2_file, 0, 1000, None, R1_cutadapted_and_filtered_file, R2_cutadapted_and_filtered_file, log_Nfilter, args).submit(log_file)
-    finally:
-        if not args.debug:
-            tmp_files.deleteAll()
 
 def parallel_submission( function, R1_files, R2_files, samples_names, filtered_files, art_filtered_files, length_files, log_files, nb_processses_used, args):
     processes = [{'process':None, 'R1_files':[], 'R2_files':[], 'samples_names':[], 'filtered_files':[], 'art_filtered_files':[], 'lengths_files':[], 'log_files':[]} for idx in range(nb_processses_used)]
@@ -1450,9 +1454,9 @@ def process( args ):
 
             nb_processses_used = min( len(R1_files), args.nb_cpus )
             if nb_processses_used == 1:
-                cutadapt_process_multiples_files_denoising( R1_files, R2_files, samples_names, R1_cutadapted_files, R2_cutadapted_files, lengths_files, log_files, args )
+                clean_before_denoising_process_multiples_files( R1_files, R2_files, samples_names, R1_cutadapted_files, R2_cutadapted_files, lengths_files, log_files, args )
             else:
-                parallel_submission( cutadapt_process_multiples_files_denoising, R1_files, R2_files, samples_names, R1_cutadapted_files, R2_cutadapted_files, lengths_files, log_files, nb_processses_used, args)
+                parallel_submission( clean_before_denoising_process_multiples_files, R1_files, R2_files, samples_names, R1_cutadapted_files, R2_cutadapted_files, lengths_files, log_files, nb_processses_used, args)
 
             R_stderr = tmp_files.add("dada2.stderr")
             tmp_output_filenames = tmp_files.add("tmp_output_filenames")
@@ -1460,7 +1464,7 @@ def process( args ):
             R1_files = [os.path.abspath(file) for file in R1_files]
             R2_files = [os.path.abspath(file) for file in R2_files]
 
-            Dada2Core(R1_cutadapted_files, R2_cutadapted_files, output_dir, args.nb_cpus, tmp_output_filenames, R_stderr).submit(args.log_file)
+            Dada2Core(R1_cutadapted_files, R2_cutadapted_files, output_dir, args.nb_cpus, tmp_output_filenames, R_stderr, args.pseudo_pooling).submit(args.log_file)
             
             R1_files = list()
             R2_files = list()
@@ -1645,7 +1649,7 @@ if __name__ == "__main__":
     group_clustering.add_argument( '--fastidious', default=False, action='store_true',  help="use the fastidious option of swarm to refine OTU. RECOMMENDED in combination with a distance equal to 1 (-d). it is only usable with d=1 and mutually exclusive with --denoising." )
     group_clustering.add_argument( '--output-compo', default='clustering_swarms_composition.tsv', help='This output file will contain the composition of each cluster (format: TSV). One Line is a cluster ; each column is a sequence ID. [Default: %(default)s]')
     group_denoising = parser_illumina.add_argument_group( 'Denoising options' )
-    group_denoising.add_argument( '--toto', default=False, action='store_true',  help="" )
+    group_denoising.add_argument( '--pseudo-pooling', default=False, action='store_true',  help="Perform dada2 pseudo-pooling to reduce inconvenients of independent sample processing" )
     parser_illumina.add_argument( '-p', '--nb-cpus', type=int, default=1, help="The maximum number of CPUs used. [Default: %(default)s]" )
     parser_illumina.add_argument( '--debug', default=False, action='store_true', help="Keep temporary files to debug program." )
     #     Illumina inputs

@@ -1,4 +1,4 @@
-#!/usr/bin/env Rscript
+#!/usr/bin/env /usr/local/public/R/bin/Rscript
 
 author = 'Olivier Rué'
 copyright = 'Copyright (C) 2022 INRAE'
@@ -15,6 +15,7 @@ library(optparse)
 option_list = list(
   make_option(c("--R1Files"), type="list", default=NULL, help="List of R1 files to be process"),
   make_option(c("--R2Files"), type="list", default=NULL, help="List of R2 files to be process"),
+  make_option(c("--pseudopooling"), action="store_true", default=FALSE, help="Perform pseudo-pooling to reduce inconvenients of independent sample processing"),
   make_option(c("-o", "--outputDir"), type="character", default=".", help="The directory path to write denoised FASTQ files. [default= %default]"),
   make_option(c("-f", "--fileNames"), type="character", default=".", help="Linked R1 and R2 files in the current analysis."),
   make_option(c("-t", "--threads"), type="integer", default=1, help="Number of CPUs to use. [default= %default]"),
@@ -170,6 +171,7 @@ if(file.exists("dadaFs.rds") && file.exists("dadaRs.rds") && file.exists("derepF
 	derepFs <- readRDS("derepFs.rds")
 	derepRs <- readRDS("derepRs.rds")
 }else{
+
 library(dada2)
 
 # store R1 files
@@ -197,8 +199,14 @@ names(derepFs) <- sample.names
 names(derepRs) <- sample.names
 
 ### Sample Inference
-dadaFs <- dada(derepFs, err=errF, multithread=opt$threads)
-dadaRs <- dada(derepRs, err=errF, multithread=opt$threads)
+if(opt$pseudopooling){
+	dadaFs <- dada(derepFs, err=errF, multithread=opt$threads, pool=TRUE)
+	dadaRs <- dada(derepRs, err=errF, multithread=opt$threads, pool=TRUE)
+}else{
+	dadaFs <- dada(derepFs, err=errF, multithread=opt$threads)
+	dadaRs <- dada(derepRs, err=errF, multithread=opt$threads)
+}
+
 if (opt$debug){
     saveRDS(derepFs,"derepFs.rds")
     saveRDS(derepRs,"derepRs.rds")
