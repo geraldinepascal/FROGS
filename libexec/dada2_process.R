@@ -67,7 +67,7 @@ is.list.of <- function(x, ctype) {
   else return(all(sapply(x, is, ctype)))
 }
 
-writeFastqFromDada <- function(dadaF, derepF, dadaR, derepR, path)
+write2FastqFromDada <- function(dadaF, derepF, dadaR, derepR, path)
 {
   if (is(dadaF, "dada")) 
     dadaF <- list(dadaF)
@@ -164,6 +164,84 @@ writeFastqFromDada <- function(dadaF, derepF, dadaR, derepR, path)
   return(rval)
 }
 
+write1FastqFromDada <- function(dadaF, derepF, path)
+{
+  if (is(dadaF, "dada")) 
+    dadaF <- list(dadaF)
+  if (is(derepF, "derep")) 
+    derepF <- list(derepF)
+  else if (is(derepF, "character") && length(derepF) == 1 && 
+           dir.exists(derepF)) 
+    derepF <- parseFastqDirectory(derepF)
+  if (!(is.list.of(dadaF, "dada"))) {
+    stop("dadaF must be provided as dada-class objects or lists of dada-class objects.")
+  }
+  if (!((is.list.of(derepF, "derep") || is(derepF, "character")))) {
+    stop("derepF must be provided as derep-class objects or as character vectors of filenames.")
+  }
+  nrecs <- c(length(dadaF), length(derepF))
+  if (length(unique(nrecs)) > 1) 
+    stop("The dadaF/derepF arguments must be the same length.")
+  rval <- lapply(seq_along(dadaF), function(i) {
+    mapF <- getDerep(derepF[[i]])$map
+    if (!(is.integer(mapF))) 
+      stop("Incorrect format of $map in derep-class arguments.")
+    if (!(max(mapF, na.rm = TRUE) == 
+          length(dadaF[[i]]$map) )) {
+      stop("Non-corresponding derep-class and dada-class objects.")
+    }
+    rF <- dadaF[[i]]$map[mapF]
+    pairdf <- data.frame(id = "", abundance = 0, forward = rF)
+    ups <- unique(pairdf)
+    keep <- !is.na(ups$forward)
+    ups <- ups[keep, ]
+    if (nrow(ups) == 0) {
+      outnames <- c("abundance", "forward")
+      ups <- data.frame(matrix(ncol = length(outnames), 
+                               nrow = 0))
+      names(ups) <- outnames
+      if (verbose) {
+        message("No paired-reads (in ZERO unique pairings) successfully merged out of ", 
+                nrow(pairdf), " pairings) input.")
+      }
+      return(ups)
+    }
+    else {
+      int_to_quality <- function(qualities) {
+        qualities <- qualities[!is.na(qualities)]
+        intToUtf8(as.integer(floor(qualities)) + 33L)
+      }
+      Funqseq <- unname(as.character(dadaF[[i]]$clustering$sequence[ups$forward]))
+      Funqqual <- apply(dadaF[[i]]$quality[ups$forward, , drop = FALSE], MARGIN = 1, int_to_quality)
+      
+      
+      tab <- table(pairdf$forward)
+      ups$abundance <- tab[cbind(ups$forward)]
+      
+      ups <- ups[order(ups$abundance, decreasing = TRUE), 
+      ]
+      
+      rownames(ups) <- NULL
+      ups$id <- 1:nrow(ups)
+      ups$forward <- Funqseq
+      ups$forwardQual <- Funqqual
+      sample_name <- names(dadaF)[i]
+      R1_path <- file.path(path,paste0(sample_name,"_denoised_R1.fastq"))
+      writeFASTQsingle(ups, file=R1_path, direction="forward")
+      #set up writing
+      cat(R1_path, file=opt$fileNames, append=TRUE, sep = ",")
+      cat("", file=opt$fileNames, append=TRUE, sep = "\n")
+
+      return(ups)
+    }
+  })
+  if (!is.null(names(dadaF))) 
+    names(rval) <- names(dadaF)
+  if (length(rval) == 1) 
+    rval <- rval[[1]]
+  return(rval)
+}
+
 ########## MAIN
 if(file.exists("dadaFs.rds") && file.exists("dadaRs.rds") && file.exists("derepFs.rds") && file.exists("derepRs.rds")){
 	dadaFs <- readRDS("dadaFs.rds")
@@ -179,7 +257,9 @@ fnFs <- sort(strsplit(opt$R1Files, ",")[[1]])
 
 # store R2 files
 #saveRDS(fnFs,"fnFs.rds")
-fnRs <- sort(strsplit(opt$R2Files, ",")[[1]])
+if(!is.null(opt$R2Files)){
+	fnRs <- sort(strsplit(opt$R2Files, ",")[[1]])
+}
 
 #saveRDS(fnRs,"fnRs.rds")
 # function to get samples from file names
@@ -187,32 +267,47 @@ get.sample.name <- function(fname) paste(strsplit(basename(fname), "_R1.fastq.gz
 # get sample names
 sample.names <- unname(sapply(fnFs, get.sample.name))
 #saveRDS(sample.names,"samples.rds")
+
 ### Learn the Error Rates
 errF <- learnErrors(fnFs, multithread=opt$threads)
-errR <- learnErrors(fnRs, multithread=opt$threads)
+if(!is.null(opt$R2Files)){
+	errR <- learnErrors(fnRs, multithread=opt$threads)
+}
 ###
 
 ### Dereplicate 
 derepFs <- derepFastq(fnFs, verbose = opt$threads)
-derepRs <- derepFastq(fnRs, verbose = opt$threads)
 names(derepFs) <- sample.names
-names(derepRs) <- sample.names
+if(!is.null(opt$R2Files)){
+	derepRs <- derepFastq(fnRs, verbose = opt$threads)
+	names(derepRs) <- sample.names
+}
 
 ### Sample Inference
 if(opt$pseudopooling){
 	dadaFs <- dada(derepFs, err=errF, multithread=opt$threads, pool=TRUE)
-	dadaRs <- dada(derepRs, err=errF, multithread=opt$threads, pool=TRUE)
+	if(!is.null(opt$R2Files)){
+		dadaRs <- dada(derepRs, err=errF, multithread=opt$threads, pool=TRUE)
+	}
 }else{
 	dadaFs <- dada(derepFs, err=errF, multithread=opt$threads)
-	dadaRs <- dada(derepRs, err=errF, multithread=opt$threads)
+	if(!is.null(opt$R2Files)){
+		dadaRs <- dada(derepRs, err=errF, multithread=opt$threads)
+	}
 }
 
 if (opt$debug){
     saveRDS(derepFs,"derepFs.rds")
-    saveRDS(derepRs,"derepRs.rds")
     saveRDS(dadaFs,"dadaFs.rds")
-    saveRDS(dadaRs,"dadaRs.rds")
-    }
+    if(!is.null(opt$R2Files)){
+		saveRDS(derepRs,"derepRs.rds")
+		saveRDS(dadaRs,"dadaRs.rds")
+	}
 }
 
-writeFastqFromDada(dadaFs, derepFs, dadaRs, derepRs, path=opt$outputDir)
+if(!is.null(opt$R2Files)){
+	write2FastqFromDada(dadaFs, derepFs, dadaRs, derepRs, path=opt$outputDir)
+}else{
+	write1FastqFromDada(dadaFs, derepFs, path=opt$outputDir)
+}
+}
