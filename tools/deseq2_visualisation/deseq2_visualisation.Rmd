@@ -50,6 +50,7 @@ library(ggplot2)
 # dealing with table
 library(DT)
 library(dplyr)
+library(base64enc)
 ```
 
 Since we only have a binary factor we can use the following syntax to format the log2 fold change from the fitted model
@@ -153,7 +154,8 @@ input_under <- paste(base_name , "/under.tsv", sep="")
 
 write.table(func_sign_over, file= input_over , sep=" ", quote=FALSE, row.names = FALSE)
 write.table(func_sign_under, file= input_under, sep=" ", quote=FALSE, row.names = FALSE)
-
+over_svg <- params$over_svg
+under_svg <-  params$under_svg
 ```
 
 ```{asis, echo=run_ipath}
@@ -167,14 +169,19 @@ write.table(func_sign_under, file= input_under, sep=" ", quote=FALSE, row.names 
 ### Up-regulated pathways
 ```
 ```{r over_func, echo=FALSE, out.width = '100%', eval = run_ipath}
-knitr::include_graphics(params$over_svg)
+img_data <- readBin(over_svg, "raw", file.size(over_svg))
+img_base64 <- RCurl::base64(img_data)
+cat(paste0("<img src='data:image/jpg;base64,",img_base64,"'/>"))
 ```
 
 ```{asis, echo=run_ipath}
 ### Down-regulated pathways
 ```
+
 ```{r under_func, echo=FALSE, out.width = '100%',eval = run_ipath}
-knitr::include_graphics(params$under_svg)
+img_data <- readBin(under_svg, "raw", file.size(under_svg))
+img_base64 <- base64encode(img_data)
+cat(paste0("<img src='data:image/jpg;base64,",img_base64,"'/>"))
 ```
 
 ## Pie chart

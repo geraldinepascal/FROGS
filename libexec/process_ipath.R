@@ -8,16 +8,12 @@ version = '1.0.0'
 email = 'frogs-support@inrae.fr'
 status = 'prod'
 
-
 ############ IMPORT ###############
 library(optparse)
 library(dplyr)
 library(httr)
 library(stringr)
 ########### ARGS #############
-# args <- commandArgs(trailingOnly = TRUE)
-# over_file <- args[1]
-# under_file <- args[2]
 
 ########### FUNCTIONS #############
 
@@ -83,17 +79,18 @@ get_map <- function(selection, map_name = "map") {
     r <- POST(url, body = parameters)
     stop_for_status(r)
     text <- content(r, "text")
-    write(text, file = paste0(map_name, ".svg"))
+    write(text, file = paste0(map_name))
+}
+
+process_iPath <- function(input_file, output_file) {
+    func_str <- generate_ipath_input(input_file)
+    get_map(func_str, output_file)
 }
 ############# VERSION
 
 
 ########## MAIN
 
-for (file_func in list(input_over, input_under)){
-  func_str <- generate_ipath_input(file_func)
-
-  get_map(func_str, sub("\\..*", "", basename(file_func)))
-
-}
+process_iPath(input_over, over_svg)
+process_iPath(input_under, under_svg)
 

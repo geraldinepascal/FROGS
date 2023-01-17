@@ -205,7 +205,7 @@ if __name__ == "__main__":
 
     try:
         R_stderr = tmpFiles.add("R.stderr")
-        Rscript(args.analysis, data, args.var, args.input_functions, args.samplefile, out_Rdata,R_stderr).submit(args.log_file)
+        Rscript(args.analysis, data, args.var, args.input_functions, args.samplefile, out_Rdata, R_stderr).submit(args.log_file)
     finally :
         if not args.debug:
             tmpFiles.deleteAll()
