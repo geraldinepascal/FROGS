@@ -27,7 +27,6 @@ import re
 import os
 import sys
 import gzip
-import glob
 import json
 import shutil
 import tarfile
@@ -298,10 +297,13 @@ class Cutadapt5prim(Cmd):
         @param cutadapt_err: [str] Path to the error file.
         @param param: [Namespace] The primer sequence 'param.five_prim_primer'.
         """
+        opt = ''
+        if param.sequencer == "hifi":
+            opt = ' --revcomp '
         Cmd.__init__( self,
                       'cutadapt',
                       "Removes reads without the 5' primer and removes primer sequence.",
-                      '-g ' + param.five_prim_primer + ' --error-rate 0.1 --discard-untrimmed --match-read-wildcards --overlap ' + str(len(param.five_prim_primer) -1) + ' -o ' + out_fastq + ' ' + in_fastq + ' > ' + cutadapt_log + ' 2> ' + cutadapt_err,
+                      '-g ' + param.five_prim_primer + ' --error-rate 0.1 --discard-untrimmed --match-read-wildcards --overlap ' + str(len(param.five_prim_primer) -1) + opt + ' -o ' + out_fastq + ' ' + in_fastq + ' > ' + cutadapt_log + ' 2> ' + cutadapt_err,
                       '--version' )
         self.output_seq = out_fastq
 
@@ -342,10 +344,13 @@ class Cutadapt3prim(Cmd):
         @param cutadapt_err: [str] Path to the error file.
         @param param: [Namespace] The primer sequence 'param.three_prim_primer'.
         """
+        opt = ''
+        if param.sequencer == "hifi":
+            opt = ' --revcomp '
         Cmd.__init__( self,
                       'cutadapt',
                       "Removes reads without the 3' primer and removes primer sequence.",
-                      '-a ' + param.three_prim_primer + ' --error-rate 0.1 --discard-untrimmed --match-read-wildcards --overlap ' + str(len(param.three_prim_primer) -1) + ' -o ' + out_fastq + ' ' + in_fastq + ' > ' + cutadapt_log + ' 2> ' + cutadapt_err,
+                      '-a ' + param.three_prim_primer + ' --error-rate 0.1 --discard-untrimmed --match-read-wildcards --overlap ' + str(len(param.three_prim_primer) -1) + opt + ' -o ' + out_fastq + ' ' + in_fastq + ' > ' + cutadapt_log + ' 2> ' + cutadapt_err,
                       '--version' )
         self.output_seq = out_fastq
 
@@ -1006,6 +1011,7 @@ def get_nb_seq( reads_file ):
 def filter_process_multiples_files(R1_files, R2_files, samples_names, out_files, out_art_files, lengths_files, log_files, args):
     """
     @summary: filters sequences of samples.
+    @param sequencer: [str] Either illumina, hifi or 454.
     @param R1_files: [list] List of path to reads 1 fastq files or contiged files (one by sample).
     @param R2_files: [list] List of path to reads 2 fastq files (one by sample).
     @param samples_names: [list] The list of sample name for each R1/R2-files.
@@ -1017,9 +1023,9 @@ def filter_process_multiples_files(R1_files, R2_files, samples_names, out_files,
     """
     for idx in range(len(out_files)):
         if args.already_contiged:
-            process_sample( R1_files[idx], None, samples_names[idx], out_files[idx], None, lengths_files[idx], log_files[idx], args )
+            process_sample(R1_files[idx], None, samples_names[idx], out_files[idx], None, lengths_files[idx], log_files[idx], args )
         else:
-            process_sample( R1_files[idx], R2_files[idx], samples_names[idx], out_files[idx], out_art_files[idx], lengths_files[idx], log_files[idx], args )
+            process_sample(R1_files[idx], R2_files[idx], samples_names[idx], out_files[idx], out_art_files[idx], lengths_files[idx], log_files[idx], args )
 
 
 def clean_before_denoising_process_multiples_files(R1_files, R2_files, samples_names, R1_cutadapted_files, R2_cutadapted_files, lengths_files, log_files, args):
@@ -1299,7 +1305,7 @@ def process_sample(R1_file, R2_file, sample_name, out_file, art_out_file, length
                 renamed_out_contig = tmp_files.add( sample_name + '_454.fastq' ) # prevent cutadapt problem (type of file is checked by extension)
             shutil.copyfile( out_contig, renamed_out_contig ) # prevent symlink problem
             Remove454prim(renamed_out_contig, out_cutadapt, log_3prim_cutadapt, err_3prim_cutadapt, args).submit(log_file)
-        else: # Illumina
+        elif args.sequencer == "illumina" or args.sequencer == "hifi": # Illumina
             if args.five_prim_primer and args.three_prim_primer: # Illumina standard sequencing protocol
                 Cutadapt5prim(out_contig, tmp_cutadapt, log_5prim_cutadapt, err_5prim_cutadapt, args).submit(log_file)
                 Cutadapt3prim(tmp_cutadapt, out_cutadapt, log_3prim_cutadapt, err_3prim_cutadapt, args).submit(log_file)
@@ -1393,10 +1399,9 @@ def process( args ):
             samples_from_tar( args.input_archive, args.already_contiged, tmp_files, R1_files, R2_files, samples_names )
         else:  # inputs are files
             R1_files = link_inputFiles(args.input_R1, tmp_files, args.log_file)
-            if args.sequencer == "illumina":
+            if args.sequencer == "illumina" or args.sequencer == "hifi":
                 if args.R2_size is not None:
                     R2_files = link_inputFiles(args.input_R2, tmp_files, args.log_file)
-            
 
             samples_names = [os.path.basename(current_R1).split('.')[0] for current_R1 in args.input_R1]
             if args.samples_names is not None:
@@ -1668,6 +1673,44 @@ if __name__ == "__main__":
     group_illumina_output.add_argument( '-s', '--summary', default='preprocess.html', help='The HTML file containing the graphs. [Default: %(default)s]')
     group_illumina_output.add_argument( '-l', '--log-file', default=sys.stdout, help='This output file will contain several information on executed commands.')
 
+
+    parser_hifi = subparsers.add_parser( 'hifi', help='Hifi sequencers.', usage='''
+    preprocess.py hifi
+    --input-archive ARCHIVE_FILE | --input-R1 R1_FILE [R1_FILE ...]
+    --min-amplicon-size MIN_AMPLICON_SIZE
+    --max-amplicon-size MAX_AMPLICON_SIZE
+    --five-prim-primer FIVE_PRIM_PRIMER
+    --three-prim-primer THREE_PRIM_PRIMER
+    [-p NB_CPUS] [--debug] [-v]
+    [-d DEREPLICATED_FILE] [-c COUNT_FILE]
+    [-s SUMMARY_FILE] [-l LOG_FILE]
+''')
+    parser_hifi.add_argument( '--keep-unmerged', default=False, action='store_true', help='In case of uncontiged paired reads, keep unmerged, and artificially combined them with 100 Ns.' )
+    parser_hifi.add_argument( '--five-prim-primer', type=str, help="The 5' primer sequence (wildcards are accepted)." )
+    parser_hifi.add_argument( '--three-prim-primer', type=str, help="The 3' primer sequence (wildcards are accepted)." )
+    parser_hifi.add_argument( '--min-amplicon-size', type=int, required=True, help='The minimum size for the amplicons (with primers).' )
+    parser_hifi.add_argument( '--max-amplicon-size', type=int, required=True, help='The maximum size for the amplicons (with primers).' )
+    parser_hifi.add_argument( '--without-primers', action='store_true', default=False, help="Use this option when you use custom sequencing primers and these primers are the PCR primers. In this case the reads do not contain the PCR primers." )
+    parser_hifi.add_argument( '--R1-size', type=int, help='The read1 size.' )
+    parser_hifi.add_argument( '--R2-size', type=int, help='The read2 size.' )
+    parser_hifi.add_argument( '-p', '--nb-cpus', type=int, default=1, help="The maximum number of CPUs used. [Default: %(default)s]" )
+    parser_hifi.add_argument( '--debug', default=False, action='store_true', help="Keep temporary files to debug program." )
+    # parser_hifi.add_argument( '--already-contiged', action='store_true', default=False, help='The archive contains 1 file by sample : Reads 1 and Reads 2 are already contiged by pair.' )
+    group_hifi_input = parser_hifi.add_argument_group('Inputs')
+    group_hifi_input.add_argument('--samples-names', type=spl_name_type,
+                                  nargs='+', default=None, help='The sample name for each R1/R2-files.')
+    group_hifi_input.add_argument('--input-archive', default=None,
+                                  help='The tar file containing R1 file and R2 file for each sample (format: tar).')
+    group_hifi_input.add_argument( '--input-R1', required=None, nargs='+', help='The R1 sequence file for each sample (format: fastq). Required for single-ends OR paired-ends data.' )
+    group_hifi_input.add_argument( '--input-R2', required=None, nargs='+', help='The R2 sequence file for each sample (format: fastq). Required for paired-ends data.' )
+    group_hifi_output = parser_hifi.add_argument_group( 'Outputs' )
+    group_hifi_output.add_argument( '--output-dereplicated', default='preprocess.fasta', help='FASTA file with unique sequences. Each sequence has an ID ended with the number of initial sequences represented (example : ">a0101;size=10"). [Default: %(default)s]')
+    group_hifi_output.add_argument( '-c', '--output-count', default='preprocess_counts.tsv', help='TSV file with count by sample for each unique sequence (example with 3 samples : "a0101<TAB>5<TAB>8<TAB>0"). [Default: %(default)s]')
+    group_hifi_output.add_argument( '-b', '--output-biom', default='clustering_abundance.biom', help='This output file will contain the abundance by sample for each OTU or ASV (format: BIOM). [Default: %(default)s]')
+    group_hifi_output.add_argument( '--output-fasta', default='sequences.fasta', help='This output file will contain the sequence for each OTU or ASV (format: FASTA). [Default: %(default)s]')
+    group_hifi_output.add_argument( '-s', '--summary', default='preprocess.html', help='The HTML file containing the graphs. [Default: %(default)s]')
+    group_hifi_output.add_argument( '-l', '--log-file', default=sys.stdout, help='This output file will contain several information on executed commands.')
+    parser_hifi.set_defaults( sequencer='hifi' )
     # 454
     parser_454 = subparsers.add_parser('454', help='454 sequencers.', usage='''
   preprocess.py 454
@@ -1717,7 +1760,10 @@ if __name__ == "__main__":
         if args.samples_names is not None: raise_exception( argparse.ArgumentTypeError( "\n\n#ERROR : With '--archive-file' parameter you cannot set the parameter '--samples-names'.\n\n" ))
         if args.sequencer == "illumina":
             if args.input_R2 is not None: raise_exception( argparse.ArgumentTypeError( "\n\n#ERROR : With '--archive-file' parameter you cannot set the parameter '--R2-files'.\n\n" ))
-            
+        if args.sequencer == "hifi":
+            args.already_contiged = False
+            if args.input_R2 is None:
+                args.already_contiged = True
     else:  # inputs are files
         if args.input_R1 is None: raise_exception( argparse.ArgumentTypeError( "\n\n#ERROR : '--R1-files' is required.\n\n" ))
         if args.samples_names is not None:
@@ -1725,16 +1771,21 @@ if __name__ == "__main__":
             if len(args.samples_names) != len(set(args.samples_names)):
                 duplicated_samples = set([name for name in args.samples_names if args.samples_names.count(name) > 1])
                 raise_exception( argparse.ArgumentTypeError( '\n\n#ERROR : Samples names must be unique (duplicated: "' + '", "'.join(duplicated_samples) + '").\n\n' ))
-        if args.sequencer == "illumina":
+        if args.sequencer == "hifi":
+            args.already_contiged = False
+            if args.input_R2 is None:
+                args.already_contiged = True
+        if args.sequencer == "illumina" or args.sequencer == "hifi":
             if not args.already_contiged and args.input_R2 is None: raise_exception( argparse.ArgumentTypeError( "\n\n#ERROR : '--R2-files' is required.\n\n" ))
 
-    if args.sequencer == "illumina":
+    if args.sequencer == "illumina" or args.sequencer == "hifi":
         if (args.R1_size is None or args.R2_size is None ) and not args.already_contiged: raise_exception( Exception( "\n\n#ERROR : '--R1-size/--R2-size' or '--already-contiged' must be setted.\n\n" ))
         if args.without_primers:
             if args.five_prim_primer or args.three_prim_primer: raise_exception( argparse.ArgumentTypeError( "\n\n#ERROR : The option '--without-primers' cannot be used with '--five-prim-primer' and '--three-prim-primer'.\n\n" ))
-        else:
+        elif args.sequencer == "illumina" :
             if args.five_prim_primer is None or args.three_prim_primer is None: raise_exception( argparse.ArgumentTypeError( "\n\n#ERROR : '--five-prim-primer/--three-prim-primer' or 'without-primers'  must be setted.\n\n" ))
             if args.min_amplicon_size <= (len(args.five_prim_primer) + len(args.three_prim_primer)): raise_exception( argparse.ArgumentTypeError( "\n\n#ERROR : The minimum length of the amplicon (--min-length) must be superior to the size of the two primers, i.e "+str(len(args.five_prim_primer) + len(args.three_prim_primer)) + "\n\n"))
+    if args.sequencer == "illumina":
         if (args.already_contiged and args.keep_unmerged): raise_exception( Exception("\n\n#ERROR : --already-contiged and keep-unmerged options cannot be used together\n\n"))
         if (not args.already_contiged):
             if args.merge_software == "flash":
@@ -1744,6 +1795,9 @@ if __name__ == "__main__":
             raise_exception( argparse.ArgumentTypeError( "\n\n#ERROR : mismatch-rate option need to be included between 0 and 1.\n\n" ))
         if args.dada2 and args.already_contiged:
             raise_exception( argparse.ArgumentTypeError( "\n\n#ERROR : Denoising needs to deal with both R1 and R2 FASTQ files. --already-contiged option is incompatible with --dada2 option.\n\n" ))
+
+    if args.sequencer == "hifi":
+        args.swarm = True
 
     # Process
     process( args )
