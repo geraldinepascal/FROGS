@@ -120,14 +120,7 @@ DT_foldchange
 ```{r prepare_ipath3, eval = run_ipath}
 da_func_table <- rename(da.otus_table, FUNC = OTU)
 func_sign_over <- da_func_table %>% 
-  filter(log2FoldChange > 0 ) %>%
-  select(FUNC, log2FoldChange, padj)
-
-func_sign_under <- da_func_table %>% 
-  filter(log2FoldChange < 0 ) %>%
-  select(FUNC, log2FoldChange, padj)
-
-func_sign_over <- func_sign_over %>% 
+  filter(log2FoldChange > 0 ) %>% 
   mutate(Color = if_else(log2FoldChange < 3, "#d8fcd8",
    if_else(log2FoldChange < 6, "#a0f9a0",
    if_else(log2FoldChange < 9, "#62f163",
@@ -135,9 +128,11 @@ func_sign_over <- func_sign_over %>%
   mutate(Width = if_else(padj < 0.00001, "W10", 
    if_else(padj < 0.0001, "W8",
    if_else(padj < 0.001, "W6",
-   if_else(padj < 0.01, "W4", "W2")))))
+   if_else(padj < 0.01, "W4", "W2"))))) %>% 
+   select(FUNC, Color, Width)
 
-func_sign_under <- func_sign_under %>% 
+func_sign_under <- da_func_table %>% 
+  filter(log2FoldChange < 0 ) %>% 
   mutate(Color = if_else(log2FoldChange > -3, "#F8D1CD",
    if_else(log2FoldChange > -6, "#F0A8AB",
    if_else(log2FoldChange > -9, "#E97E88",
@@ -145,10 +140,9 @@ func_sign_under <- func_sign_under %>%
   mutate(Width = if_else(padj < 0.00001, "W10", 
    if_else(padj < 0.0001, "W8",
    if_else(padj < 0.001, "W6",
-   if_else(padj < 0.01, "W4", "W2")))))
+   if_else(padj < 0.01, "W4", "W2"))))) %>% 
+   select(FUNC, Color, Width)
 
-func_sign_over <- func_sign_over %>% select(FUNC, Color, Width)
-func_sign_under <- func_sign_under %>% select(FUNC, Color, Width)
 input_over <- paste(base_name , "/over.tsv", sep="")
 input_under <- paste(base_name , "/under.tsv", sep="")
 

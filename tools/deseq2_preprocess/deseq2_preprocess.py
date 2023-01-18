@@ -167,7 +167,7 @@ if __name__ == "__main__":
     group_input_function_table = parser.add_argument_group( ' FUNC ' )
     group_input_function_table.add_argument('-f', '--input-functions', default=None, help='Input file of metagenome function prediction abundances (frogsfunc_functions_unstrat.tsv from FROGSFUNC function step). Required. (default: %(default)s).')
     group_input_function_table.add_argument('-s', '--samplefile', default=None, help='path to sample file (format: TSV). Required.' )
-    group_input_function_table.add_argument('--out-Phyloseq', default='phyloseq_data.Rdata', help="path to store phyloseq-class object in Rdata file. [Default: %(default)s]" )
+    group_input_function_table.add_argument('--out-Phyloseq', default='phyloseq_functions.Rdata', help="path to store phyloseq-class object in Rdata file. [Default: %(default)s]" )
     # output
     group_output = parser.add_argument_group( 'Outputs' )
     group_output.add_argument('-o','--out-Rdata', default='DESeq2_preprocess.Rdata', help="The path to store resulting dataframe of DESeq2. [Default: %(default)s]" )

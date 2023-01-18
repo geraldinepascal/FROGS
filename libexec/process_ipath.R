@@ -21,7 +21,7 @@ generate_ipath_input <- function(file) {
   out_str = ""
   FH_in <- readLines(file)
   for (li in FH_in) {
-    if (startsWith(li, "OTU")) {
+    if (startsWith(li, "FUNC")) {
       next
     } else {
       li <- unlist(strsplit(li, " "))
@@ -44,12 +44,13 @@ to_parameters <- function(
     default_opacity=1,
     default_width=3,
     default_radius=7,
-    default_color='#666666',
+    default_color='#c7c5c5',
     query_reactions=FALSE,
     tax_filter='',
     export_dpi=1200) {
 
-      allowed_export_types= list('svg','png','pdf','eps')
+      # only svg working
+      # allowed_export_types= list('svg','png','pdf','eps')
 
       ipath_parameters =  list(selection=ipath_data,
         export_type=export_type,

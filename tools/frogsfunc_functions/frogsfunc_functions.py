@@ -124,7 +124,7 @@ class ParseMetagenomePipeline(Cmd):
 		Cmd.__init__( self,
 					  'frogsFuncUtils.py',
 					  'Parse metagenome_pipeline.py outputs.',
-					  "parse-metagenome --input-dir " + out_dir + " --input-abund " + out_abund + " --input-seqtab " + otu_norm_file  + " --input-weighted " + out_weighted + opt + " 2>> " + log,
+					  "parse-metagenome --input-dir " + out_dir + " --output-abund " + out_abund + " --output-seqtab " + otu_norm_file  + " --output-weighted " + out_weighted + opt + " 2>> " + log,
 					  '--version' )
 
 	def get_version(self):

@@ -134,12 +134,15 @@ def task_formate_abundances_file( args, hierarchy_tag = "classification"):
 	tmp_sunburst.to_csv(args.input_tmp_sunburst, sep="\t", index=False)
 
 def task_parse_metagenome_pipeline( args ):
+		'''
+		Parse and ungzipped files from frogsfunc_functions.py
+		'''
 		START_GENBANK_LINK = "https://www.genome.jp/dbget-bin/www_bget?"
 		START_COG_LINK = "https://www.ncbi.nlm.nih.gov/research/cog/cog/"
 		START_PFAM_LINK = "https://pfam.xfam.org/family/"
 		START_TIGR_LINK = "https://0-www-ncbi-nlm-nih-gov.linyanti.ub.bw/genome/annotation_prok/evidence/"
 		f_in = gzip.open(args.input_dir + '/pred_metagenome_unstrat.tsv.gz', 'rt')
-		f_out = open(args.input_abund, 'wt')
+		f_out = open(args.output_abund, 'wt')
 		for li in f_in:
 			if li.startswith('function'):
 				header = li.strip().split('\t')
@@ -159,26 +162,26 @@ def task_parse_metagenome_pipeline( args ):
 			else:
 				li.insert(0,"no link" )
 			f_out.write("\t".join(li))
-		os.remove(args.input_dir + '/pred_metagenome_unstrat.tsv.gz')
+		# os.remove(args.input_dir + '/pred_metagenome_unstrat.tsv.gz')
 		with gzip.open(args.input_dir + '/seqtab_norm.tsv.gz', 'rb') as f_in:
-			with open(args.input_seqtab, 'wb') as f_out:
+			with open(args.output_seqtab, 'wb') as f_out:
 				shutil.copyfileobj(f_in, f_out)
-			os.remove(args.input_dir + '/seqtab_norm.tsv.gz')
+			# os.remove(args.input_dir + '/seqtab_norm.tsv.gz')
 		with gzip.open(args.input_dir + '/weighted_nsti.tsv.gz', 'rb') as f_in:
-			with open(args.input_weighted, 'wb') as f_out:
+			with open(args.output_weighted, 'wb') as f_out:
 				shutil.copyfileobj(f_in, f_out)
-			os.remove(args.input_dir + '/weighted_nsti.tsv.gz')
-		if args.input_contrib is not None:
+			# os.remove(args.input_dir + '/weighted_nsti.tsv.gz')
+		if args.output_contrib is not None:
 			with gzip.open(args.input_dir + '/pred_metagenome_contrib.tsv.gz', 'rb') as f_in:
-				with open(args.input_contrib, 'wb') as f_out:
+				with open(args.output_contrib, 'wb') as f_out:
 					shutil.copyfileobj(f_in, f_out)
-				os.remove(args.input_dir + '/pred_metagenome_contrib.tsv.gz')
+				# os.remove(args.input_dir + '/pred_metagenome_contrib.tsv.gz')
 
 def task_parse_pathway_pipeline( args ):
 	START_METAYC_PATHWAY_LINK = "https://biocyc.org/META/NEW-IMAGE?type=PATHWAY&object="
 	START_KEGG_PATHWAY_LINK = "https://www.genome.jp/entry/"
 	f_in = gzip.open(args.input_dir + '/path_abun_unstrat.tsv.gz', 'rt')
-	f_out = open(args.input_abund, 'wt')
+	f_out = open(args.output_abund, 'wt')
 
 	for li in f_in:
 		if li.startswith('pathway'):
@@ -193,20 +196,20 @@ def task_parse_pathway_pipeline( args ):
 		else:
 			li.insert(0,START_METAYC_PATHWAY_LINK + function )
 		f_out.write("\t".join(li)+"\n")
-	os.remove(args.input_dir + '/path_abun_unstrat.tsv.gz')
+	# os.remove(args.input_dir + '/path_abun_unstrat.tsv.gz')
 	if args.per_sequence_contrib:
 		with gzip.open(args.input_dir + '/path_abun_contrib.tsv.gz', 'rb') as f_in:
-			with open(args.input_contrib, 'wb') as f_out:
+			with open(args.output_contrib, 'wb') as f_out:
 				shutil.copyfileobj(f_in, f_out)
-			os.remove(args.input_dir + '/path_abun_contrib.tsv.gz')
+			# os.remove(args.input_dir + '/path_abun_contrib.tsv.gz')
 		with gzip.open(args.input_dir + '/path_abun_predictions.tsv.gz', 'rb') as f_in:
-			with open(args.input_predictions, 'wb') as f_out:
+			with open(args.output_predictions, 'wb') as f_out:
 				shutil.copyfileobj(f_in, f_out)
-			os.remove(args.input_dir + '/path_abun_predictions.tsv.gz')
+			# os.remove(args.input_dir + '/path_abun_predictions.tsv.gz')
 		with gzip.open(args.input_dir + '/path_abun_unstrat_per_seq.tsv.gz', 'rb') as f_in:
-			with open(args.input_abund_per_seq, 'wb') as f_out:
+			with open(args.output_abund_per_seq, 'wb') as f_out:
 				shutil.copyfileobj(f_in, f_out)
-			os.remove(args.input_dir + '/path_abun_unstrat_per_seq.tsv.gz')
+			# os.remove(args.input_dir + '/path_abun_unstrat_per_seq.tsv.gz')
 
 ####################################################################################################################
 #
@@ -242,20 +245,20 @@ if __name__ == "__main__":
 	# Parse MetagenomePipeline outputs
     parser_function = subparsers.add_parser('parse-metagenome', help='Parse results of PICRUSt2 metageome_pipeline.py software to rerieve additional informations (i.g. databases functions links).')
     parser_function.add_argument( '-i', '--input-dir', required=True, type=str, help='Output directory for PICRSUt2 metagenome_pipeline.py functions predictions.' )
-    parser_function.add_argument( '-a', '--input-abund', required=True, type=str, help='PICRSUt2 metagenome_pipeline.py output file for metagenome prediction abundances.' )
-    parser_function.add_argument( '-s', '--input-seqtab', required=True, type=str, help='PICRSUt2 metagenome_pipeline.py output file with abundance normalized per marker copies number.' )
-    parser_function.add_argument( '-w', '--input-weighted', required=True, type=str, help='PICRSUt2 metagenome_pipeline.py output file with the mean of nsti value per sample (format: TSV).' )
-    parser_function.add_argument( '-c', '--input-contrib', default = None, type=str, help='PICRSUt2 metagenome_pipeline.py output file that reports contributions to community-wide abundances (ex pred_metagenome_contrib.tsv)' )
+    parser_function.add_argument( '-a', '--output-abund', required=True, type=str, help='PICRSUt2 metagenome_pipeline.py output file for metagenome prediction abundances.' )
+    parser_function.add_argument( '-s', '--output-seqtab', required=True, type=str, help='PICRSUt2 metagenome_pipeline.py output file with abundance normalized per marker copies number.' )
+    parser_function.add_argument( '-w', '--output-weighted', required=True, type=str, help='PICRSUt2 metagenome_pipeline.py output file with the mean of nsti value per sample (format: TSV).' )
+    parser_function.add_argument( '-c', '--output-contrib', default = None, type=str, help='PICRSUt2 metagenome_pipeline.py output file that reports contributions to community-wide abundances (ex pred_metagenome_contrib.tsv)' )
     parser_function.set_defaults(func=task_parse_metagenome_pipeline)
 
     # Parse PathwayPipeline outputs
     parser_pathway = subparsers.add_parser('parse-pathway', help='Parse results of PICRUSt2 metageome_pipeline.py software to rerieve additional informations (i.g. databases functions links).')
     parser_pathway.add_argument( '-i', '--input-dir', required=True, type=str, help='Output directory for PICRSUt2 pathway_pipeline.py pathway predictions.' )
-    parser_pathway.add_argument( '-a', '--input-abund', required=True, type=str, help='PICRSUt2 pathway_pipeline.py output file for pathway prediction abundances.' )
+    parser_pathway.add_argument( '-a', '--output-abund', required=True, type=str, help='PICRSUt2 pathway_pipeline.py output file for pathway prediction abundances.' )
     parser_pathway.add_argument( '--per-sequence-contrib', default=False, action='store_true', help='If stratified option is activated, a new table is built. It will contain the abundances of each function of each OTU in each sample. (in contrast to the default stratified output, which is the contribution to the community-wide pathway abundances.)')
-    parser_pathway.add_argument( '--input-contrib', default = None, type=str, help='Stratified output corresponding to contribution of predicted gene family abundances within each predicted genome.' )
-    parser_pathway.add_argument( '--input-predictions', default = None, type=str, help='Stratified output corresponding to contribution of predicted gene family abundances within each predicted genome.' )
-    parser_pathway.add_argument( '--input-abund-per-seq', default = None, type=str, help='Pathway abundance file output per sequences (if --per-sequence-contrib set)' )
+    parser_pathway.add_argument( '--output-contrib', default = None, type=str, help='Stratified output corresponding to contribution of predicted gene family abundances within each predicted genome.' )
+    parser_pathway.add_argument( '--output-predictions', default = None, type=str, help='Stratified output corresponding to contribution of predicted gene family abundances within each predicted genome.' )
+    parser_pathway.add_argument( '--output-abund-per-seq', default = None, type=str, help='Pathway abundance file output per sequences (if --per-sequence-contrib set)' )
     parser_pathway.set_defaults(func=task_parse_pathway_pipeline)
 
     # Parse parameters and call process
