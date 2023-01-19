@@ -1348,7 +1348,6 @@ if __name__ == "__main__":
             raise_exception( argparse.ArgumentTypeError( "\n\n#ERROR : mismatch-rate option need to be included between 0 and 1.\n\n" ))
 
     if args.sequencer == "hifi":
-        args.swarm = True
         args.keep_unmerged = False
 
     # Process
