@@ -1011,7 +1011,6 @@ def get_nb_seq( reads_file ):
 def filter_process_multiples_files(R1_files, R2_files, samples_names, out_files, out_art_files, lengths_files, log_files, args):
     """
     @summary: filters sequences of samples.
-    @param sequencer: [str] Either illumina, hifi or 454.
     @param R1_files: [list] List of path to reads 1 fastq files or contiged files (one by sample).
     @param R2_files: [list] List of path to reads 2 fastq files (one by sample).
     @param samples_names: [list] The list of sample name for each R1/R2-files.
@@ -1786,7 +1785,7 @@ if __name__ == "__main__":
         if (args.R1_size is None or args.R2_size is None ) and not args.already_contiged: raise_exception( Exception( "\n\n#ERROR : '--R1-size/--R2-size' or '--already-contiged' must be setted.\n\n" ))
         if args.without_primers:
             if args.five_prim_primer or args.three_prim_primer: raise_exception( argparse.ArgumentTypeError( "\n\n#ERROR : The option '--without-primers' cannot be used with '--five-prim-primer' and '--three-prim-primer'.\n\n" ))
-        elif args.sequencer == "illumina" :
+        else:
             if args.five_prim_primer is None or args.three_prim_primer is None: raise_exception( argparse.ArgumentTypeError( "\n\n#ERROR : '--five-prim-primer/--three-prim-primer' or 'without-primers'  must be setted.\n\n" ))
             if args.min_amplicon_size <= (len(args.five_prim_primer) + len(args.three_prim_primer)): raise_exception( argparse.ArgumentTypeError( "\n\n#ERROR : The minimum length of the amplicon (--min-length) must be superior to the size of the two primers, i.e "+str(len(args.five_prim_primer) + len(args.three_prim_primer)) + "\n\n"))
     if args.sequencer == "illumina":
