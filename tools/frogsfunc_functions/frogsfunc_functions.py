@@ -298,8 +298,11 @@ def check_nsti_threshold(max_nsti, in_biom):
 	for observation in biom.get_observations():
 		if biom.get_observation_metadata(observation['id'])['NSTI']:
 			cur_nsti = float(biom.get_observation_metadata(observation['id'])['NSTI'])
-			if cur_nsti < min_nsti or min_nsti == None:
+			if min_nsti == None:
 				min_nsti = cur_nsti
+			elif cur_nsti < min_nsti:
+				min_nsti = cur_nsti
+
 	if args.max_nsti < min_nsti:
 		return raise_exception( Exception( "\n\n#ERROR : --max-nsti " + str(max_nsti) + " threshold will remove all clusters.\n\n" ))
 
