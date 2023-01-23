@@ -290,7 +290,7 @@ if __name__ == "__main__":
 
             # if args.functions is not None:
             suffix_name = "_copynumbers_predicted.tsv"
-            functions_outputs = [tmp_files.add( trait + "_copynumbers_predicted.tsv") for trait in args.functions]
+            functions_outputs = [trait + "_copynumbers_predicted.tsv" for trait in args.functions]
             logs_hsp = [tmp_files.add( trait + "_tmp_hsp_function.log") for trait in args.functions]
             if len(args.functions) == 1 or args.nb_cpus == 1:
                 Logger.static_write(args.log_file, '\n\nRunning ' + " ".join(args.functions) + ' functions prediction.\n')
@@ -299,7 +299,6 @@ if __name__ == "__main__":
             else:
                 parallel_submission( process_hsp_function, args.functions, args.input_tree, args.hsp_method, functions_outputs, logs_hsp, len(args.functions) )
             
-            append_results(functions_outputs, args.marker_file, logs_hsp, args.output_function, args.log_file)           
             # else:
             #     tmp_output_function = tmp_files.add( "copynumbers_predicted.tsv")
             #     process_hsp_function(args.functions, args.input_function_table, args.input_tree, args.hsp_method, args.output_function, tmp_hsp_function)

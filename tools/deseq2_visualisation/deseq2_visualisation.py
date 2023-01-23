@@ -61,7 +61,7 @@ class Rscript(Cmd):
     @see:  http://rmarkdown.rstudio.com/
            https://joey711.github.io/phyloseq/
     """
-    def __init__(self, phyloseq_data, dds, var, mod1, mod2, padj, html, analysis, err, over_svg, under_svg ):
+    def __init__(self, phyloseq_data, dds, var, mod1, mod2, padj, html, analysis, err, svg_file ):
         """
         @param data: [str] The path of one phyloseq-class object in Rdata file. 
         @param dds : [str] The path of rdata file containing the DESeqDataSet.
@@ -78,7 +78,7 @@ class Rscript(Cmd):
         """ 
         rmd = os.path.join(CURRENT_DIR, "deseq2_visualisation.Rmd")
         if  analysis == "FUNC":
-            opt = ", over_svg='" + over_svg +"', under_svg='" + under_svg + "'"
+            opt = ", svg_file='" + svg_file + "'"
         else:
             opt = ""
             
@@ -111,13 +111,16 @@ if __name__ == "__main__":
     parser.add_argument('-m1', '--mod1', type=str, default="None", help='one value of the tested variable you want to compare (if more than 2 value in your experiement variable analyzed.)' )
     parser.add_argument('-m2', '--mod2', type=str, default="None", help='second value of the tested variable you want to compare.(if more than 2 value in your experiement variable analyzed.)' )
     parser.add_argument('-pa', '--padj', type=float, default=0.05, help='the adjusted p-value threshold to defined OTU as differentially abundant. [Default: %(default)s]' )
-    parser.add_argument('-a', '--analysis', default="OTU", choices=['OTU', 'FUNC'], help='Type of data to perform the differential analysis. OTU: DESeq2 is run on the OTUs abundances table. FUNC: DESeq2 is run on FROGSFUNC function abundances table (frogsfunc_functions_unstrat.tsv from FROGSFUNC function step).')
+    parser.add_argument('-a', '--analysis', default="OTU", required=True, choices=['OTU', 'FUNC'], help='Type of data to perform the differential analysis. OTU: DESeq2 is run on the OTUs abundances table. FUNC: DESeq2 is run on FROGSFUNC function abundances table (frogsfunc_functions_unstrat.tsv from FROGSFUNC function step).')
 
     # Inputs
     group_input = parser.add_argument_group( 'Inputs' )
     group_input.add_argument('-p','--phyloseqData', required=True, help="The path to the RData file containing a phyloseq object (result of FROGS Phyloseq Import Data)")
     group_input.add_argument('-d','--dds', required=True, help="The path to the Rdata file containing the DESeq dds object (result of FROGS DESeq2 Preprocess)")   
-
+    
+    group_input_function = parser.add_argument_group( ' FUNC ' )
+    group_input_function.add_argument('-od', '--output_dir', default=None, help='FUNC analysis output directory, containing svg images and ipath3 input files. [Default: deseq2_visualisation_func]')
+    
     # output
     group_output = parser.add_argument_group( 'Outputs' )
     group_output.add_argument('-o','--html', default='DESeq2_visualisation.html', help="The HTML file containing the graphs. [Default: %(default)s]" )
@@ -129,18 +132,27 @@ if __name__ == "__main__":
     Logger.static_write(args.log_file, "## Application\nSoftware :" + sys.argv[0] + " (version : " + str(__version__) + ")\nCommand : " + " ".join(sys.argv) + "\n\n")
     phyloseq_data=os.path.abspath(args.phyloseqData)
     dds=os.path.abspath(args.dds)
-    html=os.path.abspath(args.html)
-    
-    tmpFiles = TmpFiles(os.path.dirname(html))
+    tmpFiles = TmpFiles(os.path.dirname(dds))
 
     try:
         R_stderr = tmpFiles.add("R.stderr")
         if args.analysis == "OTU":
+            html=os.path.abspath(args.html)
+            if args.output_dir is not None:
+                raise_exception( argparse.ArgumentTypeError( "\n\n#ERROR : '--out_dir' only required for FUNC analysis.\n\n" ))
             Rscript(phyloseq_data, dds, args.var, args.mod1, args.mod2, args.padj, html, args.analysis, R_stderr, None, None ).submit(args.log_file)
         elif args.analysis == "FUNC":
-            tmp_over_svg = tmpFiles.add("over.svg")
-            tmp_under_svg = tmpFiles.add("under.svg")
-            Rscript(phyloseq_data, dds, args.var, args.mod1, args.mod2, args.padj, html, args.analysis, R_stderr, tmp_over_svg, tmp_under_svg).submit(args.log_file)
+            if args.output_dir is None:
+                args.output_dir = "deseq2_visualisation_func"
+            try:
+                # os.mkdir(args.output_dir)
+                pass
+            except:
+                raise_exception( argparse.ArgumentTypeError( "\n\n#ERROR : " + args.output_dir + "/ directory already exist. Please specify another directory with --output_dir flag.\n\n" ))
+            html = os.path.abspath(args.output_dir + "/" + args.html)
+            svg_ipath_file  = os.path.abspath(args.output_dir + "/" +  "ipath.svg")
+
+            Rscript(phyloseq_data, dds, args.var, args.mod1, args.mod2, args.padj, html, args.analysis, R_stderr, svg_ipath_file).submit(args.log_file)
     finally :
         if not args.debug:
             tmpFiles.deleteAll()

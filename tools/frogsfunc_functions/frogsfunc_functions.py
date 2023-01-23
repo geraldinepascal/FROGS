@@ -532,18 +532,24 @@ if __name__ == "__main__":
 		tmp_hsp_function = tmp_files.add( 'tmp_hsp_function.log' )
 		HspFunction(args.input_tree, args.marker_type, args.input_marker, args.input_function_table, functions, args.hsp_method, args.output_function, args.nb_cpus, tmp_hsp_function).submit(args.log_file)
 
-		tmp_metag_pipeline = tmp_files.add( 'tmp_metagenome_pipeline.log' )
-		MetagenomePipeline(tmp_biom_to_tsv, args.input_marker, args.output_function, args.max_nsti, args.min_reads, args.min_samples, args.strat_out, output_dir, tmp_metag_pipeline).submit( args.log_file )
+		function_outputs = [function + "_copynumbers_predicted.tsv" for function in args.functions]
+		for function_file in function_outputs:
+			database = file.split('_')[0]
+			tmp_metag_pipeline = tmp_files.add( 'tmp_metagenome_pipeline.log' )
+			MetagenomePipeline(tmp_biom_to_tsv, args.input_marker, function_file, args.max_nsti, args.min_reads, args.min_samples, args.strat_out, output_dir, tmp_metag_pipeline).submit( args.log_file )
 		
-		tmp_parse = tmp_files.add( 'tmp_parse_metagenome.log' )
-		ParseMetagenomePipeline(output_dir, args.output_function_abund, args.output_otu_norm, args.output_weighted, args.strat_out, args.output_contrib, tmp_parse).submit( args.log_file)
+			tmp_parse = tmp_files.add( 'tmp_parse_metagenome.log' )
+			ParseMetagenomePipeline(output_dir, database + "_" + args.output_function_abund, args.output_otu_norm, args.output_weighted, args.strat_out, args.output_contrib, tmp_parse).submit( args.log_file)
 
-		# Make a temporary functions abundances file to display sunbursts graphs.
-		tmp_function_sunburst = tmp_files.add( "functions_unstrat_sunburst.tmp")
-		tmp_function_unstrat = tmp_files.add( "functions_unstrat.tmp")
-		tmp_formate_abundances = tmp_files.add( 'tmp_formate_abundances.log' )
-		FormateAbundances(args.output_function_abund, tmp_function_sunburst, tmp_function_unstrat, GENE_HIERARCHY_FILE, tmp_formate_abundances).submit( args.log_file)
-		
+			to_run = True
+			if (database == "EC" or database == "KO") and to_run:
+				# Make a temporary functions abundances file to display sunbursts graphs.
+				tmp_function_sunburst = tmp_files.add( "functions_unstrat_sunburst.tmp")
+				tmp_function_unstrat = tmp_files.add( "functions_unstrat.tmp")
+				tmp_formate_abundances = tmp_files.add( 'tmp_formate_abundances.log' )
+				FormateAbundances(database + "_" + args.output_function_abund, tmp_function_sunburst, tmp_function_unstrat, GENE_HIERARCHY_FILE, tmp_formate_abundances).submit( args.log_file)
+				function_file_sunburst = database + "_" + args.output_function_abund
+				to_run = False
 
 		tmp_biom = tmp_files.add( 'gene_abundances.biom' )
 		Tsv2biom(tmp_function_sunburst, tmp_biom).submit( args.log_file)
@@ -552,7 +558,7 @@ if __name__ == "__main__":
 		hierarchy_tag = "classification"
 		TaxonomyTree(tmp_biom, hierarchy_tag, tree_count_file, tree_ids_file).submit( args.log_file )
 
-		write_summary(args.input_biom, args.output_function_abund, args.output_weighted, args.excluded, tree_count_file, tree_ids_file, args.output_biom, args.summary)
+		write_summary(args.input_biom, database + "_" + args.output_function_abund, args.output_weighted, args.excluded, tree_count_file, tree_ids_file, args.output_biom, args.summary)
 	finally:
 		if not args.debug:
 			tmp_files.deleteAll()
