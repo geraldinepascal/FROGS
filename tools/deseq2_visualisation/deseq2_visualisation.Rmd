@@ -47,7 +47,6 @@ library(ggplot2)
 # dealing with table
 library(DT)
 library(dplyr)
-library(base64enc)
 ```
 
 Since we only have a binary factor we can use the following syntax to format the log2 fold change from the fitted model
@@ -150,7 +149,8 @@ svg_file <- params$svg_file
 ```
 
 ```{r, echo=run_ipath}
-knitr::include_graphics("../deseq2_visualisation_func/ipath.svg")
+setwd(dir_name)
+knitr::include_graphics(basename(params$svg_file))
 ```
 
 ## Pie chart

@@ -144,11 +144,10 @@ if __name__ == "__main__":
         elif args.analysis == "FUNC":
             if args.output_dir is None:
                 args.output_dir = "deseq2_visualisation_func"
-            try:
-                # os.mkdir(args.output_dir)
-                pass
-            except:
-                raise_exception( argparse.ArgumentTypeError( "\n\n#ERROR : " + args.output_dir + "/ directory already exist. Please specify another directory with --output_dir flag.\n\n" ))
+            if os.path.exists(args.output_dir):
+                Logger.static_write(args.log_file, "[WARNING]: " + args.output_dir + " folder already exists, the results will be overwritten\n\n")
+            else:
+                os.mkdir(args.output_dir)
             html = os.path.abspath(args.output_dir + "/" + args.html)
             svg_ipath_file  = os.path.abspath(args.output_dir + "/" +  "ipath.svg")
 
