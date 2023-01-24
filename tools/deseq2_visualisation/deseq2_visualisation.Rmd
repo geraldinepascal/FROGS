@@ -26,7 +26,9 @@ params:
   analysis:
     value: x
   # iPath functions svg file
-  svg_file:
+  svg_file_over:
+    value: x
+  svg_file_under:
     value: x
 ---
 
@@ -56,7 +58,7 @@ if not, we will use the other syntax with contrast=c()
 # Import input files
 phyloseq_input <- get(load(params$phyloseq_data))
 dds_input     <- get(load(params$dds))
-base_name <-dirname(params$dds)
+base_name <- dirname(params$dds)
 run_ipath <- ifelse(params$analysis == "OTU", FALSE, TRUE)
 result_names <- DESeq2::resultsNames(dds_input)
 
@@ -114,43 +116,65 @@ DT_foldchange
 ```
 
 ```{r prepare_ipath3, eval = run_ipath}
+
 da_func_table <- rename(da.otus_table, FUNC = OTU)
-func_sign <- da_func_table %>% 
-  mutate(Color = if_else(log2FoldChange < 0 & log2FoldChange > -3, "#F8D1CD",
-   if_else(log2FoldChange < 0 & log2FoldChange > -6, "#F0A8AB",
-   if_else(log2FoldChange < 0 & log2FoldChange > -9, "#E97E88",
-   if_else(log2FoldChange < 0 & log2FoldChange > -12, "#E15566",
-   if_else(log2FoldChange < 0, "#DA2C43",
-   if_else(log2FoldChange > 0 & log2FoldChange < 3, "#d8fcd8",
-   if_else(log2FoldChange > 0 & log2FoldChange < 6, "#a0f9a0",
-   if_else(log2FoldChange > 0 & log2FoldChange < 9, "#62f163",
-   if_else(log2FoldChange > 0 & log2FoldChange < 12, "#2aed2d", "#03df04")))))))))) %>%
+func_sign_over <- da_func_table %>% 
+  filter(log2FoldChange > 0 ) %>%
+  select(FUNC, log2FoldChange, padj)
+
+func_sign_under <- da_func_table %>% 
+  filter(log2FoldChange < 0 ) %>%
+  select(FUNC, log2FoldChange, padj)
+
+func_sign_over <- func_sign_over %>% 
+  mutate(Color = if_else(log2FoldChange < 3, "#d8fcd8",
+   if_else(log2FoldChange < 6, "#a0f9a0",
+   if_else(log2FoldChange < 9, "#62f163",
+   if_else(log2FoldChange < 12, "#2aed2d", "#03df04"))))) %>%
   mutate(Width = if_else(padj < 0.00001, "W10", 
    if_else(padj < 0.0001, "W8",
    if_else(padj < 0.001, "W6",
-   if_else(padj < 0.01, "W4", "W2"))))) %>% 
-   select(FUNC, Color, Width)
+   if_else(padj < 0.01, "W4", "W2")))))
 
-dir_name <- dirname(params$svg_file)
-input_sign <- paste(dir_name, "/sign_functions.tsv", sep="")
+func_sign_under <- func_sign_under %>% 
+  mutate(Color = if_else(log2FoldChange > -3, "#F8D1CD",
+   if_else(log2FoldChange > -6, "#F0A8AB",
+   if_else(log2FoldChange > -9, "#E97E88",
+   if_else(log2FoldChange > -12, "#E15566", "#DA2C43"))))) %>%
+  mutate(Width = if_else(padj < 0.00001, "W10", 
+   if_else(padj < 0.0001, "W8",
+   if_else(padj < 0.001, "W6",
+   if_else(padj < 0.01, "W4", "W2")))))
 
-write.table(func_sign, file= input_sign , sep=" ", quote=FALSE, row.names = FALSE)
-svg_file <- params$svg_file
+func_sign_over <- func_sign_over %>% select(FUNC, Color, Width)
+func_sign_under <- func_sign_under %>% select(FUNC, Color, Width)
+
+dir_name <- dirname(params$svg_file_over)
+input_over <- paste(dir_name, "/over_functions.tsv", sep="")
+input_under <- paste(dir_name, "/under_functions.tsv", sep="")
+
+
+write.table(func_sign_over, file= input_over , sep=" ", quote=FALSE, row.names = FALSE)
+write.table(func_sign_under, file= input_under , sep=" ", quote=FALSE, row.names = FALSE)
+svg_file_over <- params$svg_file_over
+svg_file_under <- params$svg_file_under
 ```
 
 ```{asis, echo=run_ipath}
 ## iPath3
 
-### Differentially abundant functions colored in ipath3
+### Differentially abundant functions colored in ipath3. Over (greens) and under (reds) abundants.
 ```
 
 ```{r ipath3, code = readLines("../../libexec/process_ipath.R"), eval = run_ipath}
 
 ```
 
-```{r, echo=run_ipath}
+```{r, eval=run_ipath}
 setwd(dir_name)
-knitr::include_graphics(basename(params$svg_file))
+knitr::include_graphics(basename(params$svg_file_over))
+
+knitr::include_graphics(basename(params$svg_file_under))
 ```
 
 ## Pie chart

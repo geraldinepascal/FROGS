@@ -61,7 +61,7 @@ class Rscript(Cmd):
     @see:  http://rmarkdown.rstudio.com/
            https://joey711.github.io/phyloseq/
     """
-    def __init__(self, phyloseq_data, dds, var, mod1, mod2, padj, html, analysis, err, svg_file ):
+    def __init__(self, phyloseq_data, dds, var, mod1, mod2, padj, html, analysis, err, svg_file_over, svg_file_under ):
         """
         @param data: [str] The path of one phyloseq-class object in Rdata file. 
         @param dds : [str] The path of rdata file containing the DESeqDataSet.
@@ -78,7 +78,7 @@ class Rscript(Cmd):
         """ 
         rmd = os.path.join(CURRENT_DIR, "deseq2_visualisation.Rmd")
         if  analysis == "FUNC":
-            opt = ", svg_file='" + svg_file + "'"
+            opt = ", svg_file_over='" + svg_file_over + "', svg_file_under='" + svg_file_under + "'"
         else:
             opt = ""
             
@@ -149,9 +149,10 @@ if __name__ == "__main__":
             else:
                 os.mkdir(args.output_dir)
             html = os.path.abspath(args.output_dir + "/" + args.html)
-            svg_ipath_file  = os.path.abspath(args.output_dir + "/" +  "ipath.svg")
-
-            Rscript(phyloseq_data, dds, args.var, args.mod1, args.mod2, args.padj, html, args.analysis, R_stderr, svg_ipath_file).submit(args.log_file)
+            svg_ipath_file_over  = os.path.abspath(args.output_dir + "/" +  "ipath_over.svg")
+            svg_ipath_file_under  = os.path.abspath(args.output_dir + "/" +  "ipath_under.svg")
+            Rscript(phyloseq_data, dds, args.var, args.mod1, args.mod2, args.padj, html, args.analysis, R_stderr, svg_ipath_file_over, svg_ipath_file_under).submit(args.log_file)
+    
     finally :
         if not args.debug:
             tmpFiles.deleteAll()
