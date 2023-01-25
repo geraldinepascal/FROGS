@@ -138,49 +138,51 @@ def task_formate_abundances_file( args, hierarchy_tag = "classification"):
 	tmp_sunburst.to_csv(args.input_tmp_sunburst, sep="\t", index=False)
 
 def task_parse_metagenome_pipeline( args ):
-		'''
-		@summary: Parse and ungzipped files from frogsfunc_functions.py.
-		Add a ddb link column that leads to the involved function.
-		'''
-		START_GENBANK_LINK = "https://www.genome.jp/dbget-bin/www_bget?"
-		START_COG_LINK = "https://www.ncbi.nlm.nih.gov/research/cog/cog/"
-		START_PFAM_LINK = "https://pfam.xfam.org/family/"
-		START_TIGR_LINK = "https://0-www-ncbi-nlm-nih-gov.linyanti.ub.bw/genome/annotation_prok/evidence/"
-		f_in = gzip.open(args.input_dir + '/pred_metagenome_unstrat.tsv.gz', 'rt')
-		f_out = open(args.output_abund, 'wt')
-		for li in f_in:
-			if li.startswith('function'):
-				header = li.strip().split('\t')
-				header.insert(0,'db_link')
-				f_out.write("\t".join(header)+"\n")
-				continue
-			li = li.split('\t')
-			function = li[0]
-			if "COG" in function:
-				li.insert(0,START_COG_LINK + function )
-			elif "PF" in function:
-				li.insert(0,START_PFAM_LINK + function )
-			elif "TIGR" in function:
-				li.insert(0,START_TIGR_LINK + function )
-			elif re.search('K[0-9]{5}',function) or "EC:" in function:
-				li.insert(0,START_GENBANK_LINK + function )
-			else:
-				li.insert(0,"no link" )
-			f_out.write("\t".join(li))
-		# os.remove(args.input_dir + '/pred_metagenome_unstrat.tsv.gz')
-		with gzip.open(args.input_dir + '/seqtab_norm.tsv.gz', 'rb') as f_in:
-			with open(args.output_seqtab, 'wb') as f_out:
+	'''
+	@summary: Parse and ungzipped files from frogsfunc_functions.py.
+	Add a ddb link column that leads to the involved function.
+	'''
+	START_GENBANK_LINK = "https://www.genome.jp/dbget-bin/www_bget?"
+	START_COG_LINK = "https://www.ncbi.nlm.nih.gov/research/cog/cog/"
+	START_PFAM_LINK = "https://pfam.xfam.org/family/"
+	START_TIGR_LINK = "https://0-www-ncbi-nlm-nih-gov.linyanti.ub.bw/genome/annotation_prok/evidence/"
+	f_in = gzip.open(args.input_dir + '/pred_metagenome_unstrat.tsv.gz', 'rt')
+	f_out = open(args.output_abund, 'wt')
+	for li in f_in:
+		if li.startswith('function'):
+			header = li.strip().split('\t')
+			header.insert(0,'db_link')
+			f_out.write("\t".join(header)+"\n")
+			continue
+		li = li.split('\t')
+		function = li[0]
+		if "COG" in function:
+			li.insert(0,START_COG_LINK + function )
+		elif "PF" in function:
+			li.insert(0,START_PFAM_LINK + function )
+		elif "TIGR" in function:
+			li.insert(0,START_TIGR_LINK + function )
+		elif re.search('K[0-9]{5}',function) or "EC:" in function:
+			li.insert(0,START_GENBANK_LINK + function )
+		else:
+			li.insert(0,"no link" )
+		f_out.write("\t".join(li))
+	with gzip.open(args.input_dir + '/seqtab_norm.tsv.gz', 'rb') as f_in:
+		with open(args.output_seqtab, 'wb') as f_out:
+			shutil.copyfileobj(f_in, f_out)
+	with gzip.open(args.input_dir + '/weighted_nsti.tsv.gz', 'rb') as f_in:
+		with open(args.output_weighted, 'wb') as f_out:
+			shutil.copyfileobj(f_in, f_out)
+	if args.output_contrib is not None:
+		with gzip.open(args.input_dir + '/pred_metagenome_contrib.tsv.gz', 'rb') as f_in:
+			with open(args.output_contrib, 'wb') as f_out:
 				shutil.copyfileobj(f_in, f_out)
-			# os.remove(args.input_dir + '/seqtab_norm.tsv.gz')
-		with gzip.open(args.input_dir + '/weighted_nsti.tsv.gz', 'rb') as f_in:
-			with open(args.output_weighted, 'wb') as f_out:
-				shutil.copyfileobj(f_in, f_out)
-			# os.remove(args.input_dir + '/weighted_nsti.tsv.gz')
-		if args.output_contrib is not None:
-			with gzip.open(args.input_dir + '/pred_metagenome_contrib.tsv.gz', 'rb') as f_in:
-				with open(args.output_contrib, 'wb') as f_out:
-					shutil.copyfileobj(f_in, f_out)
-				# os.remove(args.input_dir + '/pred_metagenome_contrib.tsv.gz')
+		if not args.debug:
+				os.remove(args.input_dir + '/pred_metagenome_contrib.tsv.gz')
+	if not args.debug:
+		os.remove(args.input_dir + '/weighted_nsti.tsv.gz')
+		os.remove(args.input_dir + '/seqtab_norm.tsv.gz')
+		os.remove(args.input_dir + '/pred_metagenome_unstrat.tsv.gz')
 
 def task_parse_pathway_pipeline( args ):
 	'''
@@ -205,20 +207,22 @@ def task_parse_pathway_pipeline( args ):
 		else:
 			li.insert(0,START_METAYC_PATHWAY_LINK + function )
 		f_out.write("\t".join(li)+"\n")
-	# os.remove(args.input_dir + '/path_abun_unstrat.tsv.gz')
 	if args.per_sequence_contrib:
 		with gzip.open(args.input_dir + '/path_abun_contrib.tsv.gz', 'rb') as f_in:
 			with open(args.output_contrib, 'wb') as f_out:
 				shutil.copyfileobj(f_in, f_out)
-			# os.remove(args.input_dir + '/path_abun_contrib.tsv.gz')
 		with gzip.open(args.input_dir + '/path_abun_predictions.tsv.gz', 'rb') as f_in:
 			with open(args.output_predictions, 'wb') as f_out:
 				shutil.copyfileobj(f_in, f_out)
-			# os.remove(args.input_dir + '/path_abun_predictions.tsv.gz')
 		with gzip.open(args.input_dir + '/path_abun_unstrat_per_seq.tsv.gz', 'rb') as f_in:
 			with open(args.output_abund_per_seq, 'wb') as f_out:
 				shutil.copyfileobj(f_in, f_out)
-			# os.remove(args.input_dir + '/path_abun_unstrat_per_seq.tsv.gz')
+		if not args.debug:
+			os.remove(args.input_dir + '/path_abun_contrib.tsv.gz')
+			os.remove(args.input_dir + '/path_abun_predictions.tsv.gz')
+			os.remove(args.input_dir + '/path_abun_unstrat_per_seq.tsv.gz')
+	if not args.debug:
+		os.remove(args.input_dir + '/path_abun_unstrat.tsv.gz')
 
 ####################################################################################################################
 #
@@ -258,6 +262,7 @@ if __name__ == "__main__":
     parser_function.add_argument( '-s', '--output-seqtab', required=True, type=str, help='PICRSUt2 metagenome_pipeline.py output file with abundance normalized per marker copies number.' )
     parser_function.add_argument( '-w', '--output-weighted', required=True, type=str, help='PICRSUt2 metagenome_pipeline.py output file with the mean of nsti value per sample (format: TSV).' )
     parser_function.add_argument( '-c', '--output-contrib', default = None, type=str, help='PICRSUt2 metagenome_pipeline.py output file that reports contributions to community-wide abundances (ex pred_metagenome_contrib.tsv)' )
+    parser_function.add_argument('--debug', default=False, action='store_true', help="Keep temporary files to debug program." )
     parser_function.set_defaults(func=task_parse_metagenome_pipeline)
 
     # Parse PathwayPipeline outputs
@@ -268,6 +273,7 @@ if __name__ == "__main__":
     parser_pathway.add_argument( '--output-contrib', default = None, type=str, help='Stratified output corresponding to contribution of predicted gene family abundances within each predicted genome.' )
     parser_pathway.add_argument( '--output-predictions', default = None, type=str, help='Stratified output corresponding to contribution of predicted gene family abundances within each predicted genome.' )
     parser_pathway.add_argument( '--output-abund-per-seq', default = None, type=str, help='Pathway abundance file output per sequences (if --per-sequence-contrib set)' )
+    parser_pathway.add_argument('--debug', default=False, action='store_true', help="Keep temporary files to debug program." )
     parser_pathway.set_defaults(func=task_parse_pathway_pipeline)
 
     # Parse parameters and call process

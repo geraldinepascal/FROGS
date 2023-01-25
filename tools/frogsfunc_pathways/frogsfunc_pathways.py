@@ -95,12 +95,12 @@ class ParsePathwayPipeline(Cmd):
 	"""
 	@summary: Parse results of PICRUSt2 pathway_pipeline.py software to rerieve additional informations (i.g. databases functions links)
 	"""
-	def __init__(self, out_dir, out_abund, per_sequence_contrib, contrib, predictions, abund_per_seq, log):
-
+	def __init__(self, out_dir, out_abund, per_sequence_contrib, contrib, predictions, abund_per_seq, log, debug):
+		opt = ''
 		if per_sequence_contrib:
-			opt = " --per-sequence-contrib --output-contrib " + contrib + " --output-predictions " + predictions + " --output-abund-per-seq " + abund_per_seq 
-		else:
-			opt = ''
+			opt += " --per-sequence-contrib --output-contrib " + contrib + " --output-predictions " + predictions + " --output-abund-per-seq " + abund_per_seq 
+		if debug:
+			opt += " --debug "
 		Cmd.__init__( self,
 					  'frogsFuncUtils.py',
 					  'Parse pathway_pipeline.py outputs.',
@@ -326,7 +326,7 @@ if __name__ == "__main__":
 			
 		tmp_parse_pathway = tmp_files.add( 'parse_pathway.log' )
 
-		ParsePathwayPipeline(args.output_dir, args.output_pathways_abund, args.per_sequence_contrib, args.pathways_contrib, args.pathways_predictions, args.pathways_abund_per_seq, tmp_parse_pathway).submit( args.log_file)
+		ParsePathwayPipeline(args.output_dir, args.output_pathways_abund, args.per_sequence_contrib, args.pathways_contrib, args.pathways_predictions, args.pathways_abund_per_seq, tmp_parse_pathway, args.debug).submit( args.log_file)
 
 		tmp_formate_abundances = tmp_files.add( 'tmp_formate_abundances.log' )
 		tmp_pathway_sunburst = tmp_files.add( "functions_unstrat_sunburst.tmp")

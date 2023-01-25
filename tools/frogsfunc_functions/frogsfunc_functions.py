@@ -58,7 +58,7 @@ class HspFunction(Cmd):
 	"""
 	@summary: Predict number of marker copies (16S, 18S or ITS) for each cluster sequence (i.e OTU).
 	"""
-	def __init__(self, tree, marker_type, marker_file, function_table, functions, hsp_method, output, nb_cpus, log):
+	def __init__(self, tree, marker_type, marker_file, function_table, functions, hsp_method, output_dir, output_file, nb_cpus, log_file):
 		"""
 		@param observed_marker_table: [str] Path to marker table file if marker studied is not 16S.
 		@param in_tree: [str] Path to resulting tree file with inserted clusters sequences from frogsfunc_placeseqs.
@@ -73,10 +73,39 @@ class HspFunction(Cmd):
 		Cmd.__init__(self,
 				 'launch_hsp.py',
 				 'predict gene copy number per sequence.', 
-				 ' function --input-tree ' + tree + ' --marker-type ' + marker_type + opt + ' --marker-file ' + marker_file + ' --hsp-method ' + hsp_method + ' -o ' + output + ' --nb-cpus ' + str(nb_cpus) + '  2> ' + log,
+				 ' function --input-tree ' + tree + ' --marker-type ' + marker_type + opt + ' --marker-file ' + marker_file + ' --hsp-method ' + hsp_method + ' --output-dir ' + output_dir + ' -o ' + output_file + ' --nb-cpus ' + str(nb_cpus) + '  2> ' + log_file,
 				"--version")
 
-		self.output = output
+		self.output = output_file
+
+    # def parser(self, log_file):
+    #     """
+    #     @summary: Parse the command results to add information in log_file.
+    #     @log_file: [str] Path to the hsp log file.
+    #     """
+    #     # Parse output
+    #     FH_log_hsp = open( self.program_log )
+    #     count_hsp = dict()
+    #     kept = ""
+    #     for line in FH_log_ITSX:
+    #         if line.startswith('nb') :
+    #             [key,value]=line.strip().split(':')
+    #             if key in count_ITSx:
+    #                 count_ITSx[key]+= int(value)
+    #             else:
+    #                 count_ITSx[key]= int(value)
+    #             if "kept" in key:
+    #                 kept = key
+    #     FH_log_ITSX.close()
+    #     # Write result
+    #     FH_log = Logger( log_file )
+    #     FH_log.write( 'Results:\n' )
+    #     #FH_log.write( '\t' + kept + ' : ' + str(count_ITSx[kept]) + '\n')
+    #     #for key in count_ITSx :
+    #     #    if key != kept:
+    #     #        FH_log.write( '\t' + key + ' : ' + str(count_ITSx[key]) + '\n')
+
+    #     FH_log.close()
 
 	def get_version(self):
 		return Cmd.get_version(self, 'stdout').strip()
@@ -116,15 +145,16 @@ class ParseMetagenomePipeline(Cmd):
 	"""
 	@summary: Parse results of PICRUSt2 metageome_pipeline.py software to rerieve additional informations (i.g. databases functions links)
 	"""
-	def __init__(self, out_dir, out_abund, otu_norm_file , out_weighted, strat_out, out_contrib, log):
+	def __init__(self, in_dir, out_abund, otu_norm_file , out_weighted, strat_out, out_contrib, log, debug):
+		opt = ''
 		if strat_out:
-			opt = " --input-contrib " + out_contrib 
-		else:
-			opt = ''
+			opt += " --input-contrib " + out_contrib 
+		if debug:
+			opt += " --debug "
 		Cmd.__init__( self,
 					  'frogsFuncUtils.py',
 					  'Parse metagenome_pipeline.py outputs.',
-					  "parse-metagenome --input-dir " + out_dir + " --output-abund " + out_abund + " --output-seqtab " + otu_norm_file  + " --output-weighted " + out_weighted + opt + " 2>> " + log,
+					  "parse-metagenome --input-dir " + in_dir + " --output-abund " + out_abund + " --output-seqtab " + otu_norm_file  + " --output-weighted " + out_weighted + opt + " 2>> " + log,
 					  '--version' )
 
 	def get_version(self):
@@ -484,7 +514,6 @@ if __name__ == "__main__":
 	args = parser.parse_args()
 	prevent_shell_injections(args)
 	tmp_files=TmpFiles(os.path.split(args.summary)[0])
-	output_dir = os.path.abspath(tmp_files.tmp_dir)
 
 	### Check inputs
 	# Check for 16S input
@@ -506,7 +535,16 @@ if __name__ == "__main__":
 	if args.min_blast_cov:
 		if args.min_blast_cov < 0.0 or args.min_blast_cov > 1.0:
 			parser.error('--min-blast-cov must be between 0.0 and 1.0.')
-	#####################
+	###
+	### Output paths
+	args.output_otu_norm = args.output_dir + "/" + args.output_otu_norm
+	args.output_weighted = args.output_dir + "/" + args.output_weighted
+	args.summary = args.output_dir + "/" + args.summary
+	if args.strat_out:
+		if args.output_contrib is None:
+			args.output_contrib = "frogsfunc_functions_unstrat.tsv"
+		args.output_contrib = args.output_dir + "/" + args.output_contrib
+
 
 	HIERARCHY_RANKS = ["Level1", "Level2", "Level3", "Function_id"]
 	try:
@@ -531,16 +569,19 @@ if __name__ == "__main__":
 
 		functions = " ".join(args.functions)
 		tmp_hsp_function = tmp_files.add( 'tmp_hsp_function.log' )
-		HspFunction(args.input_tree, args.marker_type, args.input_marker, args.input_function_table, functions, args.hsp_method, args.output_function, args.nb_cpus, tmp_hsp_function).submit(args.log_file)
+		args.output_function = args.output_dir + "/" + args.output_function
+		
+		HspFunction(args.input_tree, args.marker_type, args.input_marker, args.input_function_table, functions, args.hsp_method, args.output_dir, args.output_function, args.nb_cpus, tmp_hsp_function).submit(args.log_file)
 
 		function_outputs = [function + "_copynumbers_predicted.tsv" for function in args.functions]
 		for function_file in function_outputs:
 			database = function_file.split('_')[0]
 			tmp_metag_pipeline = tmp_files.add( 'tmp_metagenome_pipeline.log' )
-			MetagenomePipeline(tmp_biom_to_tsv, args.input_marker, function_file, args.max_nsti, args.min_reads, args.min_samples, args.strat_out, output_dir, tmp_metag_pipeline).submit( args.log_file )
-		
+			function_file = args.output_dir + "/" + function_file
+			MetagenomePipeline(tmp_biom_to_tsv, args.input_marker, function_file, args.max_nsti, args.min_reads, args.min_samples, args.strat_out, args.output_dir, tmp_metag_pipeline).submit( args.log_file )
+			output_function_abund = args.output_dir + "/" + database + "_" + args.output_function_abund
 			tmp_parse = tmp_files.add( 'tmp_parse_metagenome.log' )
-			ParseMetagenomePipeline(output_dir, database + "_" + args.output_function_abund, args.output_otu_norm, args.output_weighted, args.strat_out, args.output_contrib, tmp_parse).submit( args.log_file)
+			ParseMetagenomePipeline(args.output_dir, output_function_abund, args.output_otu_norm, args.output_weighted, args.strat_out, args.output_contrib, tmp_parse, args.debug).submit( args.log_file)
 
 			to_run = True
 			if (database == "EC" or database == "KO") and to_run:
@@ -548,8 +589,8 @@ if __name__ == "__main__":
 				tmp_function_sunburst = tmp_files.add( "functions_unstrat_sunburst.tmp")
 				tmp_function_unstrat = tmp_files.add( "functions_unstrat.tmp")
 				tmp_formate_abundances = tmp_files.add( 'tmp_formate_abundances.log' )
-				FormateAbundances(database + "_" + args.output_function_abund, tmp_function_sunburst, tmp_function_unstrat, GENE_HIERARCHY_FILE, tmp_formate_abundances).submit( args.log_file)
-				function_file_sunburst = database + "_" + args.output_function_abund
+				FormateAbundances(output_function_abund, tmp_function_sunburst, tmp_function_unstrat, GENE_HIERARCHY_FILE, tmp_formate_abundances).submit( args.log_file)
+				function_file_sunburst = output_function_abund
 				to_run = False
 
 		tmp_biom = tmp_files.add( 'gene_abundances.biom' )
@@ -559,7 +600,7 @@ if __name__ == "__main__":
 		hierarchy_tag = "classification"
 		TaxonomyTree(tmp_biom, hierarchy_tag, tree_count_file, tree_ids_file).submit( args.log_file )
 
-		write_summary(args.input_biom, database + "_" + args.output_function_abund, args.output_weighted, args.excluded, tree_count_file, tree_ids_file, args.output_biom, args.summary)
+		write_summary(args.input_biom, function_file_sunburst, args.output_weighted, args.excluded, tree_count_file, tree_ids_file, args.output_biom, args.summary)
 	finally:
 		if not args.debug:
 			tmp_files.deleteAll()
