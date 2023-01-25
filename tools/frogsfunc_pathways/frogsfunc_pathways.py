@@ -98,13 +98,13 @@ class ParsePathwayPipeline(Cmd):
 	def __init__(self, out_dir, out_abund, per_sequence_contrib, contrib, predictions, abund_per_seq, log):
 
 		if per_sequence_contrib:
-			opt = " --per-sequence-contrib --input-contrib " + contrib + " --input-predictions " + predictions + " --input-abund-per-seq " + abund_per_seq 
+			opt = " --per-sequence-contrib --output-contrib " + contrib + " --output-predictions " + predictions + " --output-abund-per-seq " + abund_per_seq 
 		else:
 			opt = ''
 		Cmd.__init__( self,
 					  'frogsFuncUtils.py',
 					  'Parse pathway_pipeline.py outputs.',
-					  "parse-pathway --input-dir " + out_dir + " --input-abund " + out_abund + opt + " 2>> " + log,
+					  "parse-pathway --input-dir " + out_dir + " --output-abund " + out_abund + opt + " 2>> " + log,
 					  '--version' )
 
 	def get_version(self):
