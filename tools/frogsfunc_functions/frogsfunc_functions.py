@@ -73,39 +73,11 @@ class HspFunction(Cmd):
 		Cmd.__init__(self,
 				 'launch_hsp.py',
 				 'predict gene copy number per sequence.', 
-				 ' function --input-tree ' + tree + ' --marker-type ' + marker_type + opt + ' --marker-file ' + marker_file + ' --hsp-method ' + hsp_method + ' --output-dir ' + output_dir + ' -o ' + output_file + ' --nb-cpus ' + str(nb_cpus) + '  2> ' + log_file,
+				 ' function --input-tree ' + tree + ' --marker-type ' + marker_type + opt + ' --marker-file ' + marker_file + ' --hsp-method ' + hsp_method + ' --output-dir ' + output_dir + ' -o ' + output_file + ' --nb-cpus ' + str(nb_cpus) + '  --log-file ' + log_file,
 				"--version")
 
 		self.output = output_file
-
-    # def parser(self, log_file):
-    #     """
-    #     @summary: Parse the command results to add information in log_file.
-    #     @log_file: [str] Path to the hsp log file.
-    #     """
-    #     # Parse output
-    #     FH_log_hsp = open( self.program_log )
-    #     count_hsp = dict()
-    #     kept = ""
-    #     for line in FH_log_ITSX:
-    #         if line.startswith('nb') :
-    #             [key,value]=line.strip().split(':')
-    #             if key in count_ITSx:
-    #                 count_ITSx[key]+= int(value)
-    #             else:
-    #                 count_ITSx[key]= int(value)
-    #             if "kept" in key:
-    #                 kept = key
-    #     FH_log_ITSX.close()
-    #     # Write result
-    #     FH_log = Logger( log_file )
-    #     FH_log.write( 'Results:\n' )
-    #     #FH_log.write( '\t' + kept + ' : ' + str(count_ITSx[kept]) + '\n')
-    #     #for key in count_ITSx :
-    #     #    if key != kept:
-    #     #        FH_log.write( '\t' + key + ' : ' + str(count_ITSx[key]) + '\n')
-
-    #     FH_log.close()
+		self.log_file = log_file
 
 	def get_version(self):
 		return Cmd.get_version(self, 'stdout').strip()
@@ -214,7 +186,7 @@ class Tsv2biom(Cmd):
 		self.in_tsv = in_tsv
 
 	def get_version(self):
-		 return Cmd.get_version(self, 'stdout').strip()
+		return Cmd.get_version(self, 'stdout').strip()
 
 	def parser(self, log_file):
 		f_in = pd.read_csv(self.in_tsv, sep='\t')
@@ -572,6 +544,12 @@ if __name__ == "__main__":
 		args.output_function = args.output_dir + "/" + args.output_function
 		
 		HspFunction(args.input_tree, args.marker_type, args.input_marker, args.input_function_table, functions, args.hsp_method, args.output_dir, args.output_function, args.nb_cpus, tmp_hsp_function).submit(args.log_file)
+		FH_in = open(tmp_hsp_function)
+		for line in FH_in:
+			if line.startswith('## Software :'):
+				tool_version =  line.strip().replace("##Software :", "##Software : PICRUSt2 ")
+		FH_in.close()
+		Logger.static_write(args.log_file, tool_version + "\n\n")
 
 		function_outputs = [function + "_copynumbers_predicted.tsv" for function in args.functions]
 		for function_file in function_outputs:

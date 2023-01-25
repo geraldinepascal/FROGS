@@ -86,7 +86,7 @@ class HspMarker(Cmd):
 #
 ##################################################################################################################################################
 
-def submit_cmd( cmd, stdout_path, stderr_path):
+def submit_cmd( cmd, stdout_path, stderr_path, get_version = False):
     """
     @summary: Submits a command on system.
     @param cmd: [list] The command.
@@ -95,7 +95,8 @@ def submit_cmd( cmd, stdout_path, stderr_path):
     """
     p = Popen(cmd, stdout=PIPE, stderr=PIPE)
     stdout, stderr = p.communicate()
-
+    if get_version:
+        return stdout.decode('utf-8')
     # write down the stdout
     stdoh = open(stdout_path, "wt")
     stdoh.write(stdout.decode('utf-8'))
@@ -131,6 +132,10 @@ def process_hsp_function(in_traits, observed_trait_table, in_tree, hsp_method, o
             message = "## Process function table : " + observed_trait_table + "\n"
         FH_log = Logger( logs[idx] )
         FH_log.write(message)
+        # get version of hsp.py
+        version = submit_cmd(["hsp.py", "-v"],logs[idx], logs[idx], get_version = True )
+
+        FH_log.write("## Software : " + version )
         cmd = ["hsp.py", input_function.split()[0], input_function.split()[1] ,"-t", in_tree, "--hsp_method", hsp_method, "-o", outputs[idx]]
         FH_log.write("## hsp.py command: " + " ".join(cmd) + "\n")
         submit_cmd( cmd, logs[idx], logs[idx] )
@@ -165,38 +170,9 @@ def parallel_submission( function, inputs, tree, hsp_method, outputs, logs, cpu_
         if issubclass(current_process['process'].__class__, multiprocessing.Process) and current_process['process'].exitcode != 0:
             raise_exception( Exception("\n\n#ERROR : Error in sub-process execution.\n\n"))
 
-def append_results(functions_outputs, marker_file, logs_hsp, final_output, log_file):
+def append_results(logs_hsp, log_file):
     """
     """
-    otu_to_nsti = dict()
-    otu_to_results = dict()
-    with open(marker_file) as FH_marker:
-        FH_marker.readline()
-        for li in FH_marker:
-            li = li.strip().split('\t')
-            otu_to_nsti[li[0]] = li[2]
-            otu_to_results[li[0]] = list()
-
-    for current_file in functions_outputs:
-        with open(current_file) as FH_input:
-            i_functions = dict()
-            header = FH_input.readline().strip().split('\t')[1:]
-            for i in range(len(header)):
-                i_functions[i] = header[i]
-            
-            for li in FH_input:
-                otu = li.strip().split('\t')[0]
-                abundances = li.strip().split('\t')[1:]
-                for cur_abund in range(len(abundances)):
-                    otu_to_results[otu].append({ i_functions[cur_abund] : str(abundances[cur_abund])})
-    
-    FH_out = open(final_output , "wt")
-    for otu, functions in otu_to_results.items():
-        FH_out.write("sequence\t" + "\t".join(list(function.keys())[0] for function in functions) + "\n")
-        break
-    for otu, functions in otu_to_results.items():
-        FH_out.write(otu + "\t" + "\t".join(list(function.values())[0] for function in functions) + "\n")
-    FH_out.close()
     # Append log
     FH_log = Logger(log_file)
     FH_log.write("\n")
@@ -267,12 +243,12 @@ if __name__ == "__main__":
     group_input_other.add_argument('--input-function-table',help="The path to input functions table describing directly observed functions, in tab-delimited format.(ex $PICRUSt2_PATH/default_files/fungi/ec_ITS_counts.txt.gz). Required.")
     group_output_function = parser_function.add_argument_group( 'Outputs' )
     group_output_function.add_argument('--output-dir', default="frogsfunc_function_results", help='Output directory for function predictions.')
+    group_output_function.add_argument('-l', '--log-file', default=sys.stdout, help='List of commands executed.')
     group_output_function.add_argument('-o', '--output-function', default="frogsfunc_copynumbers_functions.tsv", type=str, help='Output table with predicted function abundances per studied sequence in input tree. If the extension \".gz\" is added the table will automatically be gzipped.[Default: %(default)s]')
     parser_function.set_defaults(func=task_function)
 
     # Output
     group_output = parser.add_argument_group( 'Outputs' )
-    group_output.add_argument('-l', '--log-file', default=sys.stdout, help='List of commands executed.')
     args = parser.parse_args()
     args.to_launch = str()
     args.func(args)
@@ -299,6 +275,7 @@ if __name__ == "__main__":
             else:
                 parallel_submission( process_hsp_function, args.functions, args.input_tree, args.hsp_method, functions_outputs, logs_hsp, len(args.functions) )
             
+            append_results(logs_hsp, args.log_file)
             # else:
             #     tmp_output_function = tmp_files.add( "copynumbers_predicted.tsv")
             #     process_hsp_function(args.functions, args.input_function_table, args.input_tree, args.hsp_method, args.output_function, tmp_hsp_function)
