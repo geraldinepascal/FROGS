@@ -49,6 +49,10 @@ from frogsSequenceIO import *
 ####################################################################################################################
 
 def task_convert_fasta( args ):
+	'''
+	@summary: Remove the possible descriptions of fasta headers in order to only 
+	keep the id. (Issue with PICRSUt2 place_seqs.py tool)
+	'''
 	FH_input = FastaIO(args.input_fasta)
 	FH_output = FastaIO(args.output_fasta, "wt")
 	for record in FH_input:
@@ -135,7 +139,8 @@ def task_formate_abundances_file( args, hierarchy_tag = "classification"):
 
 def task_parse_metagenome_pipeline( args ):
 		'''
-		Parse and ungzipped files from frogsfunc_functions.py
+		@summary: Parse and ungzipped files from frogsfunc_functions.py.
+		Add a ddb link column that leads to the involved function.
 		'''
 		START_GENBANK_LINK = "https://www.genome.jp/dbget-bin/www_bget?"
 		START_COG_LINK = "https://www.ncbi.nlm.nih.gov/research/cog/cog/"
@@ -178,6 +183,10 @@ def task_parse_metagenome_pipeline( args ):
 				# os.remove(args.input_dir + '/pred_metagenome_contrib.tsv.gz')
 
 def task_parse_pathway_pipeline( args ):
+	'''
+	@summary: Parse and ungzipped files from frogsfunc_pathways.py.
+	Add a ddb link column that leads to the involved pathway.
+	'''
 	START_METAYC_PATHWAY_LINK = "https://biocyc.org/META/NEW-IMAGE?type=PATHWAY&object="
 	START_KEGG_PATHWAY_LINK = "https://www.genome.jp/entry/"
 	f_in = gzip.open(args.input_dir + '/path_abun_unstrat.tsv.gz', 'rt')

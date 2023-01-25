@@ -534,7 +534,7 @@ if __name__ == "__main__":
 
 		function_outputs = [function + "_copynumbers_predicted.tsv" for function in args.functions]
 		for function_file in function_outputs:
-			database = file.split('_')[0]
+			database = function_file.split('_')[0]
 			tmp_metag_pipeline = tmp_files.add( 'tmp_metagenome_pipeline.log' )
 			MetagenomePipeline(tmp_biom_to_tsv, args.input_marker, function_file, args.max_nsti, args.min_reads, args.min_samples, args.strat_out, output_dir, tmp_metag_pipeline).submit( args.log_file )
 		
