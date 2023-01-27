@@ -255,7 +255,10 @@ class TmpFiles:
         if dir is None:
             dir = self.tmp_dir
         # Process
-        filepath = os.path.join(dir, prefix + "_" + filename)
+        if prefix == "":
+            filepath = os.path.join(dir, filename)
+        else:
+            filepath = os.path.join(dir, prefix + "_" + filename)
         self.files.append(filepath)
         return filepath
 
