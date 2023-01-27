@@ -118,6 +118,7 @@ DT_foldchange
 ```{r prepare_ipath3, eval = run_ipath}
 
 da_func_table <- rename(da.otus_table, FUNC = OTU)
+write.table(da_func_table, sep="\t", file= "TABLE.TSV" ,quote=FALSE, row.names = FALSE)
 func_sign_over <- da_func_table %>% 
   filter(log2FoldChange > 0 ) %>%
   select(FUNC, log2FoldChange, padj)
@@ -150,8 +151,8 @@ func_sign_over <- func_sign_over %>% select(FUNC, Color, Width)
 func_sign_under <- func_sign_under %>% select(FUNC, Color, Width)
 
 dir_name <- dirname(params$svg_file_over)
-input_over <- paste(dir_name, "/over_functions.tsv", sep="")
-input_under <- paste(dir_name, "/under_functions.tsv", sep="")
+input_over <- paste(dir_name, "/ipath_over.tsv", sep="")
+input_under <- paste(dir_name, "/ipath_under.tsv", sep="")
 
 
 write.table(func_sign_over, file= input_over , sep=" ", quote=FALSE, row.names = FALSE)
@@ -163,7 +164,15 @@ svg_file_under <- params$svg_file_under
 ```{asis, echo=run_ipath}
 ## iPath3
 
-### Differentially abundant functions colored in ipath3. Over (greens) and under (reds) abundants.
+### Differentially abundant functions visualized with iPath 3.
+
+The first image (green paths) represents the over-abundants involved pathways related to DESeq2 results. The second image (red paths) represents the under-abundant pathways.
+The darker the path, the higher the log2 fold change (>0, >3, >6, >9 or >12).
+
+If you want to interact with the metabolic pathways, please go to the [iPath 3 website](https://pathways.embl.de/), and use the two FROGS deseq2_visualisation \
+files ipath_under.tsv and ipath_over.tsv (located in the same folder as this html report) as inputs.
+
+[WARNING] : The images must remain in the same folder as this html report to continue to be displayed.
 ```
 
 ```{r ipath3, code = readLines("../../libexec/process_ipath.R"), eval = run_ipath}
