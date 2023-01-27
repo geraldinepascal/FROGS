@@ -170,6 +170,7 @@ def parallel_submission( function, inputs, tree, hsp_method, outputs, logs, cpu_
         if issubclass(current_process['process'].__class__, multiprocessing.Process) and current_process['process'].exitcode != 0:
             raise_exception( Exception("\n\n#ERROR : Error in sub-process execution.\n\n"))
 
+
 def append_results(logs_hsp, log_file):
     """
     """
@@ -276,9 +277,6 @@ if __name__ == "__main__":
                 parallel_submission( process_hsp_function, args.functions, args.input_tree, args.hsp_method, functions_outputs, logs_hsp, len(args.functions) )
             
             append_results(logs_hsp, args.log_file)
-            # else:
-            #     tmp_output_function = tmp_files.add( "copynumbers_predicted.tsv")
-            #     process_hsp_function(args.functions, args.input_function_table, args.input_tree, args.hsp_method, args.output_function, tmp_hsp_function)
     
     finally:
         if not args.debug:

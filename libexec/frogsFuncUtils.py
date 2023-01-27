@@ -50,7 +50,7 @@ from frogsSequenceIO import *
 
 def task_convert_fasta( args ):
 	'''
-	@summary: Remove the possible descriptions of fasta headers in order to only 
+	@summary: Removes the potential fasta headers descriptions to only 
 	keep the id. (Issue with PICRSUt2 place_seqs.py tool)
 	'''
 	FH_input = FastaIO(args.input_fasta)
@@ -63,7 +63,7 @@ def task_convert_fasta( args ):
 
 def task_excluded_sequences_tree( args ):
 	"""
-	@summary: Returns the excluded sequence, not insert into reference tree.
+	@summary: Returns the excluded sequences, not insert into reference tree.
 	@param fasta_file: [str] Path to the fasta file to process.
 	@param tree_file: [str] Path to the tree file to process.
 	@output: The file of no aligned sequence names.
@@ -89,7 +89,7 @@ def task_excluded_sequences_tree( args ):
 
 def task_formate_abundances_file( args, hierarchy_tag = "classification"):
 	"""
-	@summary: Formate an abundances file (functions or pathways) in order to create a biom file of pathway abundances, and display sunbursts graphs.
+	@summary: Formates an abundances file (functions or pathways) in order to create a biom file of pathway abundances, and display sunbursts graphs.
 	@param strat_file: frogsfunc_pathways or frogsfunc_functions outputs of abundances predictions (frogsfunc_pathways_unstrat.tsv)
 	@param pathways_hierarchy_file: reference file that links every pathways or function ID to its hierarchy levels.
 	"""
@@ -139,8 +139,13 @@ def task_formate_abundances_file( args, hierarchy_tag = "classification"):
 
 def task_parse_metagenome_pipeline( args ):
 	'''
-	@summary: Parse and ungzipped files from frogsfunc_functions.py.
-	Add a ddb link column that leads to the involved function.
+	@summary: Parses and ungzippes files from frogsfunc_functions.py and\
+	adds a ddb link column that leads to the involved function.
+	@param input_dir: folder of metagenome_pipeline.py default outputs.
+	These gzip files are then openned and parsed. If --debug mode is activated,
+	gzip files are finally deleted.
+	Final files are all the output related names files (output_abund, \
+	output_seqtab, output_weighted, output_contrib)
 	'''
 	START_GENBANK_LINK = "https://www.genome.jp/dbget-bin/www_bget?"
 	START_COG_LINK = "https://www.ncbi.nlm.nih.gov/research/cog/cog/"
@@ -177,12 +182,6 @@ def task_parse_metagenome_pipeline( args ):
 		with gzip.open(args.input_dir + '/pred_metagenome_contrib.tsv.gz', 'rb') as f_in:
 			with open(args.output_contrib, 'wb') as f_out:
 				shutil.copyfileobj(f_in, f_out)
-		if not args.debug:
-				os.remove(args.input_dir + '/pred_metagenome_contrib.tsv.gz')
-	if not args.debug:
-		os.remove(args.input_dir + '/weighted_nsti.tsv.gz')
-		os.remove(args.input_dir + '/seqtab_norm.tsv.gz')
-		os.remove(args.input_dir + '/pred_metagenome_unstrat.tsv.gz')
 
 def task_parse_pathway_pipeline( args ):
 	'''
@@ -217,12 +216,6 @@ def task_parse_pathway_pipeline( args ):
 		with gzip.open(args.input_dir + '/path_abun_unstrat_per_seq.tsv.gz', 'rb') as f_in:
 			with open(args.output_abund_per_seq, 'wb') as f_out:
 				shutil.copyfileobj(f_in, f_out)
-		if not args.debug:
-			os.remove(args.input_dir + '/path_abun_contrib.tsv.gz')
-			os.remove(args.input_dir + '/path_abun_predictions.tsv.gz')
-			os.remove(args.input_dir + '/path_abun_unstrat_per_seq.tsv.gz')
-	if not args.debug:
-		os.remove(args.input_dir + '/path_abun_unstrat.tsv.gz')
 
 ####################################################################################################################
 #
@@ -262,7 +255,6 @@ if __name__ == "__main__":
     parser_function.add_argument( '-s', '--output-seqtab', required=True, type=str, help='PICRSUt2 metagenome_pipeline.py output file with abundance normalized per marker copies number.' )
     parser_function.add_argument( '-w', '--output-weighted', required=True, type=str, help='PICRSUt2 metagenome_pipeline.py output file with the mean of nsti value per sample (format: TSV).' )
     parser_function.add_argument( '-c', '--output-contrib', default = None, type=str, help='PICRSUt2 metagenome_pipeline.py output file that reports contributions to community-wide abundances (ex pred_metagenome_contrib.tsv)' )
-    parser_function.add_argument('--debug', default=False, action='store_true', help="Keep temporary files to debug program." )
     parser_function.set_defaults(func=task_parse_metagenome_pipeline)
 
     # Parse PathwayPipeline outputs
@@ -273,7 +265,6 @@ if __name__ == "__main__":
     parser_pathway.add_argument( '--output-contrib', default = None, type=str, help='Stratified output corresponding to contribution of predicted gene family abundances within each predicted genome.' )
     parser_pathway.add_argument( '--output-predictions', default = None, type=str, help='Stratified output corresponding to contribution of predicted gene family abundances within each predicted genome.' )
     parser_pathway.add_argument( '--output-abund-per-seq', default = None, type=str, help='Pathway abundance file output per sequences (if --per-sequence-contrib set)' )
-    parser_pathway.add_argument('--debug', default=False, action='store_true', help="Keep temporary files to debug program." )
     parser_pathway.set_defaults(func=task_parse_pathway_pipeline)
 
     # Parse parameters and call process

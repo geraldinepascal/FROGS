@@ -117,12 +117,10 @@ class ParseMetagenomePipeline(Cmd):
 	"""
 	@summary: Parse results of PICRUSt2 metageome_pipeline.py software to rerieve additional informations (i.g. databases functions links)
 	"""
-	def __init__(self, in_dir, out_abund, otu_norm_file , out_weighted, strat_out, out_contrib, log, debug):
+	def __init__(self, in_dir, out_abund, otu_norm_file , out_weighted, strat_out, out_contrib, log):
 		opt = ''
 		if strat_out:
-			opt += " --input-contrib " + out_contrib 
-		if debug:
-			opt += " --debug "
+			opt += " --input-contrib " + out_contrib
 		Cmd.__init__( self,
 					  'frogsFuncUtils.py',
 					  'Parse metagenome_pipeline.py outputs.',
@@ -542,7 +540,6 @@ if __name__ == "__main__":
 		functions = " ".join(args.functions)
 		tmp_hsp_function = tmp_files.add( 'tmp_hsp_function.log' )
 		args.output_function = args.output_dir + "/" + args.output_function
-		
 		HspFunction(args.input_tree, args.marker_type, args.input_marker, args.input_function_table, functions, args.hsp_method, args.output_dir, args.output_function, args.nb_cpus, tmp_hsp_function).submit(args.log_file)
 		FH_in = open(tmp_hsp_function)
 		for line in FH_in:
@@ -556,11 +553,20 @@ if __name__ == "__main__":
 			database = function_file.split('_')[0]
 			tmp_metag_pipeline = tmp_files.add( 'tmp_metagenome_pipeline.log' )
 			function_file = args.output_dir + "/" + function_file
+			##
+			tmp_files_picrust =  TmpFiles(os.path.dirname(function_file), prefix="")
+			tmp_seqtab = tmp_files_picrust.add('seqtab_norm.tsv.gz')
+			tmp_weighted = tmp_files_picrust.add('weighted_nsti.tsv.gz')
+			tmp_unstrat = tmp_files_picrust.add('pred_metagenome_unstrat.tsv.gz')
+			if args.strat_out:
+				tmp_strat = tmp_files_picrust.add('pred_metagenome_contrib.tsv.gz')
+			##
 			MetagenomePipeline(tmp_biom_to_tsv, args.input_marker, function_file, args.max_nsti, args.min_reads, args.min_samples, args.strat_out, args.output_dir, tmp_metag_pipeline).submit( args.log_file )
 			output_function_abund = args.output_dir + "/" + database + "_" + args.output_function_abund
 			tmp_parse = tmp_files.add( 'tmp_parse_metagenome.log' )
-			ParseMetagenomePipeline(args.output_dir, output_function_abund, args.output_otu_norm, args.output_weighted, args.strat_out, args.output_contrib, tmp_parse, args.debug).submit( args.log_file)
-
+			ParseMetagenomePipeline(args.output_dir, output_function_abund, args.output_otu_norm, args.output_weighted, args.strat_out, args.output_contrib, tmp_parse).submit( args.log_file)
+			
+			# Launch one time for EC or KO.
 			to_run = True
 			if (database == "EC" or database == "KO") and to_run:
 				# Make a temporary functions abundances file to display sunbursts graphs.
@@ -582,3 +588,4 @@ if __name__ == "__main__":
 	finally:
 		if not args.debug:
 			tmp_files.deleteAll()
+			tmp_files_picrust.deleteAll()
