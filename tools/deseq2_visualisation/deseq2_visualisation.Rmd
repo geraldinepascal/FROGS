@@ -119,11 +119,14 @@ DT_foldchange
 
 func_sign_over <- da.abundances_table %>% 
   filter(log2FoldChange > 0 ) %>%
-  select(ID, log2FoldChange, padj)
+  select(ID, log2FoldChange, padj) %>%
+  mutate(ID = gsub("EC:", "EC", ID))
 
 func_sign_under <- da.abundances_table %>% 
   filter(log2FoldChange < 0 ) %>%
-  select(ID, log2FoldChange, padj)
+  select(ID, log2FoldChange, padj) %>%
+  mutate(ID = gsub("EC:", "EC", ID))
+# gsub for create valid EC numbers for iPath3.
 
 func_sign_over <- func_sign_over %>% 
   mutate(Color = if_else(log2FoldChange < 3, "#d8fcd8",

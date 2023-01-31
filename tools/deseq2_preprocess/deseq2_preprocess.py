@@ -78,7 +78,7 @@ class Rscript(Cmd):
 
         Cmd.__init__( self,
                       'deseq2_preprocess.R',
-                      'Construc DESeq2 object from a Phyloseq one.',
+                      'Construct DESeq2 object from a Phyloseq one.',
                       ' --analysis ' + analysis + ' --var ' + var + ' --outRdata ' + out + opt + ' 2> ' + stderr,
                       '--version')       
                        
