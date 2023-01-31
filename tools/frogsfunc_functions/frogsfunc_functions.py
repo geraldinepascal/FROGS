@@ -484,7 +484,7 @@ if __name__ == "__main__":
 	args = parser.parse_args()
 	prevent_shell_injections(args)
 	tmp_files=TmpFiles(os.path.split(args.summary)[0])
-
+	tmp_files_picrust =  TmpFiles(os.path.split(args.summary)[0])
 	### Check inputs
 	# Check for 16S input
 	if args.marker_type == "16S" and (not 'EC' in args.functions and not 'KO' in args.functions):

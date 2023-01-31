@@ -61,9 +61,9 @@ class Rscript(Cmd):
     @see:  http://rmarkdown.rstudio.com/
            https://joey711.github.io/phyloseq/
     """
-    def __init__(self, phyloseq_data, dds, var, mod1, mod2, padj, html, analysis, err, svg_file_over, svg_file_under ):
+    def __init__(self, abundance_data, dds, var, mod1, mod2, padj, html, analysis, err, svg_file_over, svg_file_under ):
         """
-        @param data: [str] The path of one phyloseq-class object in Rdata file. 
+        @param data: [str] The path of OTU or FUNC abundance table in Rdata file. 
         @param dds : [str] The path of rdata file containing the DESeqDataSet.
         @param var : [str] The experiment variable.
         @param mod1: [str] one variance of variable that you want to test.
@@ -85,7 +85,7 @@ class Rscript(Cmd):
         Cmd.__init__( self,
                       'Rscript',
                       'Run deseq2_visualisation.Rmd',
-                       '-e "rmarkdown::render(' + "'" + rmd + "', output_file='" + html + "', params=list(phyloseq_data='" + phyloseq_data + "', analysis='" + analysis + "', dds='" + dds + "', var='" + var+"', mod1='" + mod1 + "', mod2='" + mod2 + "', padj=" + str(padj) + opt + "), intermediates_dir='" + os.path.dirname(html) +"')" + '" 2> ' + err ,
+                       '-e "rmarkdown::render(' + "'" + rmd + "', output_file='" + html + "', params=list(abundance_data='" + abundance_data + "', analysis='" + analysis + "', dds='" + dds + "', var='" + var+"', mod1='" + mod1 + "', mod2='" + mod2 + "', padj=" + str(padj) + opt + "), intermediates_dir='" + os.path.dirname(html) +"')" + '" 2> ' + err ,
                       "-e '(sessionInfo()[[1]][13])[[1]][1]; library(DESeq2); paste(\"DESeq2 version: \",packageVersion(\"DESeq2\"))'")
                       
     def get_version(self):
@@ -115,7 +115,7 @@ if __name__ == "__main__":
 
     # Inputs
     group_input = parser.add_argument_group( 'Inputs' )
-    group_input.add_argument('-p','--phyloseqData', required=True, help="The path to the RData file containing a phyloseq object (result of FROGS Phyloseq Import Data)")
+    group_input.add_argument('-p','--abundanceData', required=True, help="The path to the RData file containing the OTU/FUNC abundances table. (result of FROGS Phyloseq Import Data)")
     group_input.add_argument('-d','--dds', required=True, help="The path to the Rdata file containing the DESeq dds object (result of FROGS DESeq2 Preprocess)")   
     
     group_input_function = parser.add_argument_group( ' FUNC ' )
@@ -124,13 +124,13 @@ if __name__ == "__main__":
     # output
     group_output = parser.add_argument_group( 'Outputs' )
     group_output.add_argument('-o','--html', default='DESeq2_visualisation.html', help="The HTML file containing the graphs. [Default: %(default)s]" )
-    group_output.add_argument( '-l', '--log-file', default=sys.stdout, help='This output file will contain several informations on executed commands.')
+    group_output.add_argument('-l', '--log-file', default=sys.stdout, help='This output file will contain several informations on executed commands.')
     args = parser.parse_args()
     prevent_shell_injections(args)
    
     # Process  
     Logger.static_write(args.log_file, "## Application\nSoftware :" + sys.argv[0] + " (version : " + str(__version__) + ")\nCommand : " + " ".join(sys.argv) + "\n\n")
-    phyloseq_data=os.path.abspath(args.phyloseqData)
+    abundance_data=os.path.abspath(args.abundanceData)
     dds=os.path.abspath(args.dds)
     tmpFiles = TmpFiles(os.path.dirname(dds))
 
@@ -140,7 +140,7 @@ if __name__ == "__main__":
             html=os.path.abspath(args.html)
             if args.output_dir is not None:
                 raise_exception( argparse.ArgumentTypeError( "\n\n#ERROR : '--out_dir' only required for FUNC analysis.\n\n" ))
-            Rscript(phyloseq_data, dds, args.var, args.mod1, args.mod2, args.padj, html, args.analysis, R_stderr, None, None ).submit(args.log_file)
+            Rscript(abundance_data, dds, args.var, args.mod1, args.mod2, args.padj, html, args.analysis, R_stderr, None, None ).submit(args.log_file)
         elif args.analysis == "FUNC":
             if args.output_dir is None:
                 args.output_dir = "deseq2_visualisation_func"
@@ -151,7 +151,7 @@ if __name__ == "__main__":
             html = os.path.abspath(args.output_dir + "/" + args.html)
             svg_ipath_file_over  = os.path.abspath(args.output_dir + "/" +  "ipath_over.svg")
             svg_ipath_file_under  = os.path.abspath(args.output_dir + "/" +  "ipath_under.svg")
-            Rscript(phyloseq_data, dds, args.var, args.mod1, args.mod2, args.padj, html, args.analysis, R_stderr, svg_ipath_file_over, svg_ipath_file_under).submit(args.log_file)
+            Rscript(abundance_data, dds, args.var, args.mod1, args.mod2, args.padj, html, args.analysis, R_stderr, svg_ipath_file_over, svg_ipath_file_under).submit(args.log_file)
     
     finally :
         if not args.debug:
