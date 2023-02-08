@@ -244,18 +244,19 @@ if __name__ == "__main__":
     group_input_other.add_argument('--input-function-table',help="The path to input functions table describing directly observed functions, in tab-delimited format.(ex $PICRUSt2_PATH/default_files/fungi/ec_ITS_counts.txt.gz). Required.")
     group_output_function = parser_function.add_argument_group( 'Outputs' )
     group_output_function.add_argument('--output-dir', default="frogsfunc_function_results", help='Output directory for function predictions.')
-    group_output_function.add_argument('-l', '--log-file', default=sys.stdout, help='List of commands executed.')
     group_output_function.add_argument('-o', '--output-function', default="frogsfunc_copynumbers_functions.tsv", type=str, help='Output table with predicted function abundances per studied sequence in input tree. If the extension \".gz\" is added the table will automatically be gzipped.[Default: %(default)s]')
     parser_function.set_defaults(func=task_function)
 
     # Output
     group_output = parser.add_argument_group( 'Outputs' )
+    group_output.add_argument('-l', '--log-file', default=sys.stdout, help='List of commands executed.')
+
     args = parser.parse_args()
     args.to_launch = str()
     args.func(args)
     prevent_shell_injections(args)
     tmp_files=TmpFiles(os.path.split(args.input_tree)[0])
-
+    print(args.log_file)
     try:
         Logger.static_write(args.log_file, "## Application\nSoftware :" + sys.argv[0] + " (version : " + str(__version__) + ")\nCommand : " + " ".join(sys.argv) + "\n\n")
         if args.to_launch == "marker":
