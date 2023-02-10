@@ -169,17 +169,20 @@ svg_file_under <- params$svg_file_under
 ```
 ```{r doc_path, echo=run_ipath}
 # Import input files
-doc <- paste0("The first image (green paths) represents the over-abundants involved pathways in ", params$mod1 ," condition. The second image (red paths) represents the under-abundant pathways in ", params$mod1, " condition.
-The darker the path, the higher the log2 fold change (>0, >3, >6, >9 or >12).
+if(params$mod1 != "None") {
+     doc <- paste0("You chose to compare ", params$mod1, " to the reference modality ", params$mod2, ". This implies that the over-abundants pathways (first image) and under-abundant pathways (second image) are involved in ", params$mod1, " condition.")
+     cat(doc)
+} else {
+     doc <- paste0("The first image (green paths) represents the over-abundants involved pathways. The second image (red paths) represents the under-abundant pathways.")
+     cat(doc)
+}
+doc <- paste0("The darker the path, the higher the log2 fold change (>0, >3, >6, >9 or >12).
 
 If you want to interact with the metabolic pathways, please go to the [iPath 3 website](https://pathways.embl.de/), and use the two FROGS deseq2_visualisation \
 files ipath_under.tsv and ipath_over.tsv (located in the same folder as this html report) as inputs.
 
 [WARNING] : The images must remain in the same folder as this html report to continue to be displayed.")
 cat(doc)
-
-
-#This implies that a positive log2FoldChange means more abundant in low than in high.")
 ```
 ```{r ipath3, code = readLines("../../libexec/process_ipath.R"), eval = run_ipath}
 
