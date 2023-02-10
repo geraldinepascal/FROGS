@@ -133,20 +133,20 @@ func_sign_over <- func_sign_over %>%
    if_else(log2FoldChange < 6, "#a0f9a0",
    if_else(log2FoldChange < 9, "#62f163",
    if_else(log2FoldChange < 12, "#2aed2d", "#03df04"))))) %>%
-  mutate(Width = if_else(padj < 0.00001, "W10", 
-   if_else(padj < 0.0001, "W8",
-   if_else(padj < 0.001, "W6",
-   if_else(padj < 0.01, "W4", "W2")))))
+  mutate(Width = if_else(padj < 0.00001, "W12", 
+   if_else(padj < 0.0001, "W10",
+   if_else(padj < 0.001, "W8",
+   if_else(padj < 0.01, "W6", "W4")))))
 
 func_sign_under <- func_sign_under %>% 
-  mutate(Color = if_else(log2FoldChange > -3, "#F8D1CD",
-   if_else(log2FoldChange > -6, "#F0A8AB",
+  mutate(Color = if_else(log2FoldChange > -3, "#d9a6a0",
+   if_else(log2FoldChange > -6, "#d17d81",
    if_else(log2FoldChange > -9, "#E97E88",
    if_else(log2FoldChange > -12, "#E15566", "#DA2C43"))))) %>%
-  mutate(Width = if_else(padj < 0.00001, "W10", 
-   if_else(padj < 0.0001, "W8",
-   if_else(padj < 0.001, "W6",
-   if_else(padj < 0.01, "W4", "W2")))))
+  mutate(Width = if_else(padj < 0.00001, "W12", 
+   if_else(padj < 0.0001, "W10",
+   if_else(padj < 0.001, "W8",
+   if_else(padj < 0.01, "W6", "W4")))))
 
 func_sign_over <- func_sign_over %>% select(ID, Color, Width)
 func_sign_under <- func_sign_under %>% select(ID, Color, Width)
@@ -166,16 +166,21 @@ svg_file_under <- params$svg_file_under
 ## iPath3
 
 ### Differentially abundant functions visualized with iPath 3.
-
-The first image (green paths) represents the over-abundants involved pathways related to DESeq2 results. The second image (red paths) represents the under-abundant pathways.
+```
+```{r doc_path, echo=run_ipath}
+# Import input files
+doc <- paste0("The first image (green paths) represents the over-abundants involved pathways in ", params$mod1 ," condition. The second image (red paths) represents the under-abundant pathways in ", params$mod1, " condition.
 The darker the path, the higher the log2 fold change (>0, >3, >6, >9 or >12).
 
 If you want to interact with the metabolic pathways, please go to the [iPath 3 website](https://pathways.embl.de/), and use the two FROGS deseq2_visualisation \
 files ipath_under.tsv and ipath_over.tsv (located in the same folder as this html report) as inputs.
 
-[WARNING] : The images must remain in the same folder as this html report to continue to be displayed.
-```
+[WARNING] : The images must remain in the same folder as this html report to continue to be displayed.")
+cat(doc)
 
+
+#This implies that a positive log2FoldChange means more abundant in low than in high.")
+```
 ```{r ipath3, code = readLines("../../libexec/process_ipath.R"), eval = run_ipath}
 
 ```
