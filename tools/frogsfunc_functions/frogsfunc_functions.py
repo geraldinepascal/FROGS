@@ -498,6 +498,7 @@ if __name__ == "__main__":
 	for arg_name, arg_value in args_dict.items():
 		if arg_name.startswith('output') and arg_name != "output_dir" and arg_value is not None:
 			check_basename_files(arg_name, arg_value)
+			
 	### Check inputs
 	# Check for 16S input
 	if args.marker_type == "16S" and (not 'EC' in args.functions and not 'KO' in args.functions):
