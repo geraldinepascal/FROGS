@@ -293,6 +293,9 @@ def otus_filter(in_biom, nsti_file, min_blast_identity, min_blast_coverage, max_
 	return excluded_infos
 
 def check_nsti_threshold(max_nsti, in_biom):
+	'''
+	Test if the NSTI threshold specified by the user is less than the minimum NSTI on the dataset.
+	'''
 	biom = BiomIO.from_json(in_biom)
 	min_nsti = None
 	for observation in biom.get_observations():
@@ -305,6 +308,14 @@ def check_nsti_threshold(max_nsti, in_biom):
 
 	if args.max_nsti < min_nsti:
 		return raise_exception( Exception( "\n\n#ERROR : --max-nsti " + str(max_nsti) + " threshold will remove all clusters.\n\n" ))
+
+def check_basename_files(arg_name, file_path):
+	'''
+	Test if output file name specified by the user only contains the file name, without directory.
+	'''
+	if not os.path.basename(file_path) == file_path:
+		return raise_exception( Exception( "\n\n#ERROR : --" + arg_name.replace('_','-') + \
+		" should only contain a filename, without directory (You specified " + arg_value +" ). Please use --output-dir to specify the output directory.\n\n"))
 
 def count_nb_obs_per_ranks(in_biom):
 	'''
@@ -478,13 +489,15 @@ if __name__ == "__main__":
 	group_output.add_argument('--output-contrib', default=None, help=' Stratified output that reports otu contributions to community-wide function abundances (ex pred_function_otu_contrib.tsv).')
 	group_output.add_argument('--output-biom', default='frogsfunc_function.biom', help='Biom file without excluded OTUs (NSTI, blast perc identity or blast perc coverage thresholds). (format: BIOM) [Default: %(default)s]')
 	group_output.add_argument('--output-fasta', default='frogsfunc_function.fasta', help='Fasta file without excluded OTUs (NSTI, blast perc identity or blast perc coverage thresholds). (format: FASTA). [Default: %(default)s]')
-	group_output.add_argument('-e', '--excluded', default='frogsfunc_functions_excluded.txt', help='List of OTUs with NSTI values above NSTI threshold ( --max_NSTI NSTI ).[Default: %(default)s]')
+	group_output.add_argument('-e', '--output-excluded', default='frogsfunc_functions_excluded.txt', help='List of OTUs with NSTI values above NSTI threshold ( --max_NSTI NSTI ).[Default: %(default)s]')
 	group_output.add_argument('-l', '--log-file', default=sys.stdout, help='List of commands executed.')
 	group_output.add_argument('-s', '--summary', default='frogsfunc_functions_summary.html', help="Path to store resulting html file. [Default: %(default)s]" )
 	args = parser.parse_args()
 	prevent_shell_injections(args)
-	tmp_files=TmpFiles(os.path.split(args.summary)[0])
-	tmp_files_picrust =  TmpFiles(os.path.split(args.summary)[0])
+	args_dict = vars(args)
+	for arg_name, arg_value in args_dict.items():
+		if arg_name.startswith('output') and arg_name != "output_dir" and arg_value is not None:
+			check_basename_files(arg_name, arg_value)
 	### Check inputs
 	# Check for 16S input
 	if args.marker_type == "16S" and (not 'EC' in args.functions and not 'KO' in args.functions):
@@ -509,12 +522,17 @@ if __name__ == "__main__":
 	### Output paths
 	args.output_otu_norm = args.output_dir + "/" + args.output_otu_norm
 	args.output_weighted = args.output_dir + "/" + args.output_weighted
+	args.output_biom = args.output_dir + "/" + args.output_biom
+	args.output_fasta = args.output_dir + "/" + args.output_fasta 
+	args.output_excluded = args.output_dir + "/" + args.output_excluded 
 	args.summary = args.output_dir + "/" + args.summary
 	if args.strat_out:
 		if args.output_contrib is None:
 			args.output_contrib = "frogsfunc_functions_unstrat.tsv"
 		args.output_contrib = args.output_dir + "/" + args.output_contrib
 
+	tmp_files=TmpFiles(os.path.split(args.output_otu_norm)[0])
+	tmp_files_picrust =  TmpFiles(os.path.split(args.output_otu_norm)[0])
 
 	HIERARCHY_RANKS = ["Level1", "Level2", "Level3", "Function_id"]
 	try:
@@ -526,9 +544,9 @@ if __name__ == "__main__":
 			tmp_biom_blast_thresh = tmp_files.add( 'tmp_biom_blast_thresh' )
 			tmp_excluded = tmp_files.add( 'tmp_excluded' )
 ## ecrire ligne loger.static write sur l'exclusion des parametres en question
-			excluded_infos = otus_filter(args.input_biom, args.input_marker, args.min_blast_ident, args.min_blast_cov, args.max_nsti, args.excluded)
+			excluded_infos = otus_filter(args.input_biom, args.input_marker, args.min_blast_ident, args.min_blast_cov, args.max_nsti, args.output_excluded)
 
-			RemoveSeqsBiomFasta(args.input_fasta, args.input_biom, args.output_fasta, args.output_biom, args.excluded).submit(args.log_file)
+			RemoveSeqsBiomFasta(args.input_fasta, args.input_biom, args.output_fasta, args.output_biom, args.output_excluded).submit(args.log_file)
 			tmp_biom_to_tsv = tmp_files.add( 'tmp_biom_to_tsv' )
 			Biom2tsv(args.output_biom, tmp_biom_to_tsv).submit( args.log_file )
 
@@ -562,7 +580,10 @@ if __name__ == "__main__":
 				tmp_strat = tmp_files_picrust.add('pred_metagenome_contrib.tsv.gz')
 			##
 			MetagenomePipeline(tmp_biom_to_tsv, args.input_marker, function_file, args.max_nsti, args.min_reads, args.min_samples, args.strat_out, args.output_dir, tmp_metag_pipeline).submit( args.log_file )
-			output_function_abund = args.output_dir + "/" + database + "_" + args.output_function_abund
+			function_basename_ext = os.path.basename(args.output_function_abund)
+			function_basename = os.path.splitext(function_basename_ext)[0]
+			ext = os.path.splitext(function_basename_ext)[1]
+			output_function_abund = args.output_dir + "/" + function_basename + "_" + database + ext
 			tmp_parse = tmp_files.add( 'tmp_parse_metagenome.log' )
 			ParseMetagenomePipeline(args.output_dir, output_function_abund, args.output_otu_norm, args.output_weighted, args.strat_out, args.output_contrib, tmp_parse).submit( args.log_file)
 			
@@ -584,7 +605,7 @@ if __name__ == "__main__":
 		hierarchy_tag = "classification"
 		TaxonomyTree(tmp_biom, hierarchy_tag, tree_count_file, tree_ids_file).submit( args.log_file )
 
-		write_summary(args.input_biom, function_file_sunburst, args.output_weighted, args.excluded, tree_count_file, tree_ids_file, args.output_biom, args.summary)
+		write_summary(args.input_biom, function_file_sunburst, args.output_weighted, args.output_excluded, tree_count_file, tree_ids_file, args.output_biom, args.summary)
 	finally:
 		if not args.debug:
 			tmp_files.deleteAll()
