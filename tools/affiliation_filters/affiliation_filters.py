@@ -148,11 +148,11 @@ def checkBlastTaxa( param ):
     if param is not None:
         temp = [ i.strip() for i in param if i.strip() != '']
         if len(temp) == 0:
-            raise_exception( argparse.ArgumentTypeError( "\n\n#ERROR : keep-ignore-blast-taxa or ignore-blast-taxa list need to be non empty strings.\n\n" ))
+            raise_exception( argparse.ArgumentTypeError( "\n\n#ERROR : keep-blast-taxa or ignore-blast-taxa list need to be non empty strings.\n\n" ))
         else:
             if len(temp) != len(param):
                 param = temp
-                Logger.static_write(args.log_file, "WARNING : empty string in keep-ignore-blast-taxa or ignore-blast-taxa option have been removed, here is the updated list that will be take into account: \"" + '\" \"'.join(args.ignore_blast_taxa) + "\n\n")
+                Logger.static_write(args.log_file, "WARNING : empty string in keep-blast-taxa or ignore-blast-taxa option have been removed, here is the updated list that will be take into account: \"" + '\" \"'.join(args.ignore_blast_taxa) + "\n\n")
 
 def impacted_obs_on_rdpBootstrap(observation, taxonomic_depth, min_bootstrap):
     """

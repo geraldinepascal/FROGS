@@ -63,10 +63,10 @@ class Rscript(Cmd):
     def __init__(self, analysis, data, var, function_table, samplefile, out, stderr ):
         """
         @param analysis: [str] OTU or FUNC: Type of analysis to be done.
-        @param data : [str] OTU: The path of one phyloseq-class object in Rdata file.
-        @param var: [str] Experimental variable suspected to have an impact on OTUs abundances.
-        @param function_table: [str] FUNC: Path to function prediction abundances table from FROGSFUNC function step.
-        @param samplefile: [str]: FUNC: Path to metadata samplefile.
+        @param data : [str] [OTU]: The path of one phyloseq-class object in Rdata file.
+        @param var: [str] Experimental variable suspected to have an impact on OTUs/FUNCs abundances.
+        @param function_table: [str] [FUNC]: Path to function prediction abundances table from FROGSFUNC function step.
+        @param samplefile: [str]: [FUNC]: Path to metadata samplefile.
         @param out  : [str] Path to Rdata file storing DESeq2 prepreocessing step.
         @param stderr  : [str] Path to stderr output file
         """ 
@@ -78,7 +78,7 @@ class Rscript(Cmd):
 
         Cmd.__init__( self,
                       'deseq2_preprocess.R',
-                      'Construc DESeq2 object from a Phyloseq one.',
+                      'Construct DESeq2 object from a Phyloseq one.',
                       ' --analysis ' + analysis + ' --var ' + var + ' --outRdata ' + out + opt + ' 2> ' + stderr,
                       '--version')       
                        

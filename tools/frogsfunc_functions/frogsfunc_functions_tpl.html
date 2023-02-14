@@ -470,6 +470,7 @@
 
 			var detection_categories = ###DETECTION_CATEGORIES### ;
 			var detection_series = ###DETECTION_DATA### ;
+			var starplot_series = ###STARPLOT_SERIES### ;
 			var remove_info = ###REMOVE_DATA### ;
 			var taxonomic_ranks = ###TAXONOMIC_RANKS### ;
 				/* Example:
@@ -482,7 +483,7 @@
 			var samples_distrib = ###DATA_SAMPLE### ;
 			var tree_distribution = ###TREE_DISTRIBUTION### ;
 				/* This string is in newick extended format. The metadata is the count by sample (each sample is referenced by is index position in "samples_names"). */
-			var starplot_series = ###STARPLOT_SERIES### ;
+
 
 			$(function() {
 
@@ -569,6 +570,9 @@
 					},
 
 					yAxis: {
+						labels: {
+							enabled: false
+						},
 						type: 'logarithmic',
 						gridLineInterpolation: 'polygon',
 						lineWidth: 0,
@@ -581,8 +585,8 @@
 					},
 
 					legend: {
-						align: 'right',
-						verticalAlign: 'middle',
+						align: 'center',
+						verticalAlign: 'bottom',
 						layout: 'vertical'
 					},
 
@@ -654,6 +658,8 @@
 		        		<div id="abundance-filtered" class="col-md-6"></div>
 	        		</div>
 				</div>
+				<h2 class="pb-2 mt-4 mb-2 border-bottom">Number of different taxonomic observations per rank before and after applying NSTI or Blast thresholds</h2>
+				<div id="starplot_container"></div>
 				<div id="tax-distrib" role="tabpanel" class="tab-pane active">
 					<h2 class="pb-2 mt-4 mb-2 border-bottom">Function abundances per sample 
 
@@ -696,8 +702,6 @@
 					</div>
 				</div>
 			</div>
-			<h2 class="pb-2 mt-4 mb-2 border-bottom">Number of different taxonomic observations per rank before and after applying NSTI or Blast thresholds</h2>
-			<div id="starplot_container"></div>
 		</div>
 	</body>
 </html>

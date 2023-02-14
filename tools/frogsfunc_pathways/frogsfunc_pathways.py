@@ -96,15 +96,13 @@ class ParsePathwayPipeline(Cmd):
 	@summary: Parse results of PICRUSt2 pathway_pipeline.py software to rerieve additional informations (i.g. databases functions links)
 	"""
 	def __init__(self, out_dir, out_abund, per_sequence_contrib, contrib, predictions, abund_per_seq, log):
-
+		opt = ''
 		if per_sequence_contrib:
-			opt = " --per-sequence-contrib --input-contrib " + contrib + " --input-predictions " + predictions + " --input-abund-per-seq " + abund_per_seq 
-		else:
-			opt = ''
+			opt += " --per-sequence-contrib --output-contrib " + contrib + " --output-predictions " + predictions + " --output-abund-per-seq " + abund_per_seq 	
 		Cmd.__init__( self,
 					  'frogsFuncUtils.py',
 					  'Parse pathway_pipeline.py outputs.',
-					  "parse-pathway --input-dir " + out_dir + " --input-abund " + out_abund + opt + " 2>> " + log,
+					  "parse-pathway --input-dir " + out_dir + " --output-abund " + out_abund + opt + " 2>> " + log,
 					  '--version' )
 
 	def get_version(self):
@@ -190,6 +188,15 @@ class TaxonomyTree(Cmd):
 # FUNCTIONS
 #
 ##################################################################################################################################################
+
+
+def check_basename_files(arg_name, file_path):
+	'''
+	Test if output file name specified by the user only contains the file name, without directory.
+	'''
+	if not os.path.basename(file_path) == file_path:
+		return raise_exception( Exception( "\n\n#ERROR : --" + arg_name.replace('_','-') + \
+		" should only contain a filename, without directory (You specified " + arg_value +" ). Please use --output-dir to specify the output directory.\n\n"))
 
 def formate_input_file(input_file, tmp_tsv):
 	"""
@@ -286,18 +293,24 @@ if __name__ == "__main__":
 	group_output = parser.add_argument_group( 'Outputs')
 	group_output.add_argument('-d', '--output-dir', default='frogsfunc_pathway_results', help='Output directory for pathway predictions.')
 	group_output.add_argument('-o', '--output-pathways-abund', default='frogsfunc_pathways_unstrat.tsv', help='Pathway abundance file output. Default: %(default)s]')
-	group_output.add_argument('--pathways-contrib', default=None, help='Stratified output corresponding to contribution of predicted gene family abundances within each predicted genome.')
-	group_output.add_argument('--pathways-predictions', default=None, help='Stratified output corresponding to contribution of predicted gene family abundances within each predicted genome.')
-	group_output.add_argument('--pathways-abund-per-seq', default=None, help='Pathway abundance file output per sequences (if --per-sequence-contrib set)')
+	group_output.add_argument('--output-pathways-contrib', default=None, help='Stratified output corresponding to contribution of predicted gene family abundances within each predicted genome.')
+	group_output.add_argument('--output-pathways-predictions', default=None, help='Stratified output corresponding to contribution of predicted gene family abundances within each predicted genome.')
+	group_output.add_argument('--output-pathways-abund-per-seq', default=None, help='Pathway abundance file output per sequences (if --per-sequence-contrib set)')
 	group_output.add_argument('-v', '--version', default=False, action='version', version="%(prog)s " + __version__)
 	group_output.add_argument('-l', '--log-file', default=sys.stdout, help='This output file will contain several information on executed commands.')
 	group_output.add_argument('-t', '--summary', default='frogsfunc_pathways_summary.html', help="Path to store resulting html file. [Default: %(default)s]" )	
 	args = parser.parse_args()
 	prevent_shell_injections(args)
-	tmp_files=TmpFiles(os.path.split(args.summary)[0])
+
+	args_dict = vars(args)
+	for arg_name, arg_value in args_dict.items():
+		if arg_name.startswith('output') and arg_name != "output_dir" and arg_value is not None:
+			check_basename_files(arg_name, arg_value)
 
 	args.output_pathways_abund = args.output_dir + "/" + args.output_pathways_abund
 	args.summary = args.output_dir + "/" + args.summary
+	tmp_files=TmpFiles(os.path.split(args.summary)[0])
+	
 	HIERARCHY_RANKS = ['Level1','Level2','Level3','Pathway']
 	try:	 
 		Logger.static_write(args.log_file, "## Application\nSoftware :" + sys.argv[0] + " (version : " + str(__version__) + ")\nCommand : " + " ".join(sys.argv) + "\n\n")
@@ -305,12 +318,12 @@ if __name__ == "__main__":
 		if args.per_sequence_contrib:
 			if args.per_sequence_abun == None or args.per_sequence_function == None:
 				parser.error("\n\n#ERROR : --per-sequence-abun and --per-sequence-function required when --per-sequence-contrib option is set!\n\n")
-			if args.pathways_contrib is None:
-				args.pathways_contrib = args.output_dir + '/frogsfunc_pathways_strat.tsv'
-			if args.pathways_predictions is None:
-				args.pathways_predictions = args.output_dir + '/frogsfunc_pathways_predictions.tsv'
-			if args.pathways_abund_per_seq is None:
-				args.pathways_abund_per_seq = args.output_dir + '/frogsfunc_pathways_unstrat_per_seq.tsv'
+			if args.output_pathways_contrib is None:
+				args.output_pathways_contrib = args.output_dir + '/frogsfunc_pathways_strat.tsv'
+			if args.output_pathways_predictions is None:
+				args.output_pathways_predictions = args.output_dir + '/frogsfunc_pathways_predictions.tsv'
+			if args.output_pathways_abund_per_seq is None:
+				args.output_pathways_abund_per_seq = args.output_dir + '/frogsfunc_pathways_unstrat_per_seq.tsv'
 
 		if (args.per_sequence_abun is not None or args.per_sequence_function is not None) and not args.per_sequence_contrib:
 			parser.error("\n\n#ERROR : --per-sequence-contrib required when --per-sequence-contrib and --per-sequence-function option is set!\n\n")
@@ -318,7 +331,14 @@ if __name__ == "__main__":
 		tmp_pathway = tmp_files.add( 'pathway_pipeline.log' )
 		tmp_tsv = tmp_files.add( 'genes_abundances_formatted.tsv')
 		formate_input_file(args.input_file, tmp_tsv)
-
+		##
+		tmp_files_picrust =  TmpFiles(os.path.dirname(args.output_pathways_abund), prefix="")
+		tmp_seqtab = tmp_files_picrust.add('path_abun_unstrat.tsv.gz')
+		if args.per_sequence_contrib:
+			tmp_contrib = tmp_files_picrust.add('path_abun_contrib.tsv.gz')
+			tmp_predictions = tmp_files_picrust.add('path_abun_predictions.tsv.gz')
+			tmp_unstrat_per_seq = tmp_files_picrust.add('path_abun_unstrat_per_seq.tsv.gz')
+		##
 		try:
 			PathwayPipeline(tmp_tsv, args.map, args.per_sequence_contrib, args.per_sequence_abun, args.per_sequence_function, args.output_dir, tmp_pathway).submit(args.log_file)
 		except:
@@ -326,7 +346,7 @@ if __name__ == "__main__":
 			
 		tmp_parse_pathway = tmp_files.add( 'parse_pathway.log' )
 
-		ParsePathwayPipeline(args.output_dir, args.output_pathways_abund, args.per_sequence_contrib, args.pathways_contrib, args.pathways_predictions, args.pathways_abund_per_seq, tmp_parse_pathway).submit( args.log_file)
+		ParsePathwayPipeline(args.output_dir, args.output_pathways_abund, args.per_sequence_contrib, args.output_pathways_contrib, args.output_pathways_predictions, args.output_pathways_abund_per_seq, tmp_parse_pathway).submit( args.log_file)
 
 		tmp_formate_abundances = tmp_files.add( 'tmp_formate_abundances.log' )
 		tmp_pathway_sunburst = tmp_files.add( "functions_unstrat_sunburst.tmp")
@@ -346,4 +366,5 @@ if __name__ == "__main__":
 	finally:
 		if not args.debug:
 			tmp_files.deleteAll()
+			tmp_files_picrust.deleteAll()
 

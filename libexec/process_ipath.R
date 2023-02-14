@@ -92,6 +92,5 @@ process_iPath <- function(input_file, output_file) {
 
 ########## MAIN
 
-process_iPath(input_over, over_svg)
-process_iPath(input_under, under_svg)
-
+process_iPath(input_over, svg_file_over)
+process_iPath(input_under, svg_file_under)
