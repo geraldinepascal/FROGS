@@ -15,5 +15,4 @@ fi
  -i data/26-frogsfunc_functions_unstrat_EC.tsv \
  --output-dir test \
  --output-pathways-abund 27-frogsfunc_pathways_unstrat.tsv \
- --summary 27-frogsfunc_pathways_summary.html \
- --debug
+ --summary 27-frogsfunc_pathways_summary.html 
