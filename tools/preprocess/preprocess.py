@@ -1080,7 +1080,7 @@ def process( args ):
             samples_from_tar( args.input_archive, args.already_contiged, tmp_files, R1_files, R2_files, samples_names )
         else:  # inputs are files
             R1_files = link_inputFiles(args.input_R1, tmp_files, args.log_file)
-            if args.sequencer == "illumina" or args.sequencer == "longreads":
+            if args.sequencer == "illumina":
                 if args.R2_size is not None:
                     R2_files = link_inputFiles(args.input_R2, tmp_files, args.log_file)
             
