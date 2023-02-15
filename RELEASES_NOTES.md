@@ -23,7 +23,7 @@
 * Affiliation_filter : 
   * correctly find number of taxonomical rank
   * remove OTU without affiliation when using blast metrics filters
- 
+
 # v4.0.1 [2022-06]
 
 ### Bug fixed
