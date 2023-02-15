@@ -1194,25 +1194,25 @@ if __name__ == "__main__":
       [-s SUMMARY_FILE] [-l LOG_FILE]
 ''')
     #     Illumina parameters
+    parser_illumina.add_argument( '--already-contiged', action='store_true', default=False, help='The archive contains 1 file by sample : Reads 1 and Reads 2 are already contiged by pair.' )
+    parser_illumina.add_argument( '--R1-size', type=int, help='The read1 size.' )
+    parser_illumina.add_argument( '--R2-size', type=int, help='The read2 size.' )
     parser_illumina.add_argument( '--merge-software', default="vsearch", choices=["vsearch","flash","pear"], help='Software used to merge paired reads' )
+    parser_illumina.add_argument( '--mismatch-rate', type=float, default=0.1, help='Maximum mismatch rate in overlap region. [Default: %(default)s; must be expressed as decimal, between 0 and 1]' )
+    parser_illumina.add_argument( '--quality-scale', type=str, default="33", choices=["33", "64"], help='The phred base quality scale, either 33 or 64 if using Vsearch as read pair merge software [Default: %(default)s]' )
     parser_illumina.add_argument( '--keep-unmerged', default=False, action='store_true', help='In case of uncontiged paired reads, keep unmerged, and artificially combined them with 100 Ns.' )
+    parser_illumina.add_argument( '--expected-amplicon-size', type=int, help='The expected size for the majority of the amplicons (with primers), if using Flash as read pair merge software.' )    
     parser_illumina.add_argument( '--min-amplicon-size', type=int, required=True, help='The minimum size for the amplicons (with primers).' )
     parser_illumina.add_argument( '--max-amplicon-size', type=int, required=True, help='The maximum size for the amplicons (with primers).' )
-    parser_illumina.add_argument( '--expected-amplicon-size', type=int, help='The expected size for the majority of the amplicons (with primers), if using Flash as read pair merge software.' )
     parser_illumina.add_argument( '--five-prim-primer', type=str, help="The 5' primer sequence (wildcards are accepted)." )
     parser_illumina.add_argument( '--three-prim-primer', type=str, help="The 3' primer sequence (wildcards are accepted)." )
     parser_illumina.add_argument( '--without-primers', action='store_true', default=False, help="Use this option when you use custom sequencing primers and these primers are the PCR primers. In this case the reads do not contain the PCR primers." )
-    parser_illumina.add_argument( '--R1-size', type=int, help='The read1 size.' )
-    parser_illumina.add_argument( '--R2-size', type=int, help='The read2 size.' )
-    parser_illumina.add_argument( '--mismatch-rate', type=float, default=0.1, help='Maximum mismatch rate in overlap region. [Default: %(default)s; must be expressed as decimal, between 0 and 1]' )
-    parser_illumina.add_argument( '--quality-scale', type=str, default="33", choices=["33", "64"], help='The phred base quality scale, either 33 or 64 if using Vsearch as read pair merge software [Default: %(default)s]' )
-    parser_illumina.add_argument( '--already-contiged', action='store_true', default=False, help='The archive contains 1 file by sample : Reads 1 and Reads 2 are already contiged by pair.' )
     parser_illumina.add_argument( '-p', '--nb-cpus', type=int, default=1, help="The maximum number of CPUs used. [Default: %(default)s]" )
     parser_illumina.add_argument( '--debug', default=False, action='store_true', help="Keep temporary files to debug program." )
     #     Illumina inputs
     group_illumina_input = parser_illumina.add_argument_group( 'Inputs' )
-    group_illumina_input.add_argument( '--samples-names', type=spl_name_type, nargs='+', default=None, help='The sample name for each R1/R2-files.' )
     group_illumina_input.add_argument( '--input-archive', default=None, help='The tar file containing R1 file and R2 file for each sample.' )
+    group_illumina_input.add_argument( '--samples-names', type=spl_name_type, nargs='+', default=None, help='The sample name for each R1/R2-files.' )
     group_illumina_input.add_argument( '--input-R1', required=None, nargs='+', help='The R1 sequence file for each sample (format: fastq).' )
     group_illumina_input.add_argument( '--input-R2', required=None, nargs='+', help='The R2 sequence file for each sample (format: fastq).' )
     group_illumina_input.set_defaults( sequencer='illumina' )
@@ -1228,8 +1228,7 @@ if __name__ == "__main__":
     --input-archive ARCHIVE_FILE | --input-R1 R1_FILE [R1_FILE ...]
     --min-amplicon-size MIN_AMPLICON_SIZE
     --max-amplicon-size MAX_AMPLICON_SIZE
-    --five-prim-primer FIVE_PRIM_PRIMER
-    --three-prim-primer THREE_PRIM_PRIMER
+    --without-primers | --five-prim-primer FIVE_PRIM_PRIMER --three-prim-primer THREE_PRIM_PRIMER
     [-p NB_CPUS] [--debug] [-v]
     [-d DEREPLICATED_FILE] [-c COUNT_FILE]
     [-s SUMMARY_FILE] [-l LOG_FILE]
@@ -1240,25 +1239,22 @@ if __name__ == "__main__":
     parser_longreads.add_argument( '--five-prim-primer', type=str, help="The 5' primer sequence (wildcards are accepted)." )
     parser_longreads.add_argument( '--three-prim-primer', type=str, help="The 3' primer sequence (wildcards are accepted)." )
     parser_longreads.add_argument( '--without-primers', action='store_true', default=False, help="Use this option when you use custom sequencing primers and these primers are the PCR primers. In this case the reads do not contain the PCR primers." )
-    parser_longreads.add_argument( '--R1-size', type=int, help='The read1 size.' )
-    parser_longreads.add_argument( '--R2-size', type=int, help='The read2 size.' )
     parser_longreads.add_argument( '-p', '--nb-cpus', type=int, default=1, help="The maximum number of CPUs used. [Default: %(default)s]" )
     parser_longreads.add_argument( '--debug', default=False, action='store_true', help="Keep temporary files to debug program." )
     # Long-reads inputs
     group_longreads_input = parser_longreads.add_argument_group('Inputs')
-    group_longreads_input.add_argument('--samples-names', type=spl_name_type,
-                                  nargs='+', default=None, help='The sample name for each R1/R2-files.')
     group_longreads_input.add_argument('--input-archive', default=None,
                                   help='The tar file containing R1 file and R2 file for each sample (format: tar).')
+    group_longreads_input.add_argument('--samples-names', type=spl_name_type,
+                                  nargs='+', default=None, help='The sample name for each R1/R2-files.')
     group_longreads_input.add_argument( '--input-R1', required=None, nargs='+', help='The R1 sequence file for each sample (format: fastq). Required for single-ends OR paired-ends data.' )
-    group_longreads_input.add_argument( '--input-R2', required=None, nargs='+', help='The R2 sequence file for each sample (format: fastq). Required for paired-ends data.' )
     # Long-reads outputs
     group_longreads_output = parser_longreads.add_argument_group( 'Outputs' )
     group_longreads_output.add_argument( '--output-dereplicated', default='preprocess.fasta', help='FASTA file with unique sequences. Each sequence has an ID ended with the number of initial sequences represented (example : ">a0101;size=10"). [Default: %(default)s]')
     group_longreads_output.add_argument( '-c', '--output-count', default='preprocess_counts.tsv', help='TSV file with count by sample for each unique sequence (example with 3 samples : "a0101<TAB>5<TAB>8<TAB>0"). [Default: %(default)s]')
     group_longreads_output.add_argument( '-s', '--summary', default='preprocess.html', help='The HTML file containing the graphs. [Default: %(default)s]')
     group_longreads_output.add_argument( '-l', '--log-file', default=sys.stdout, help='This output file will contain several information on executed commands.')
-    parser_longreads.set_defaults( sequencer='longreads' )
+    parser_longreads.set_defaults( sequencer='longreads', already_contiged=True, keep_unmerged=False )
     # 454
     parser_454 = subparsers.add_parser('454', help='454 sequencers.', usage='''
   preprocess.py 454
@@ -1279,18 +1275,17 @@ if __name__ == "__main__":
     parser_454.add_argument( '--debug', default=False, action='store_true', help="Keep temporary files to debug program." )
     #     454 inputs
     group_454_input = parser_454.add_argument_group( 'Inputs' )
-    group_454_input.add_argument( '--samples-names', type=spl_name_type, nargs='+', default=None, help='The sample name for each R1/R2-files.' )
     group_454_input.add_argument( '--input-archive', default=None, help='The tar file containing R1 file and R2 file for each sample (format: tar).' )
+    group_454_input.add_argument( '--samples-names', type=spl_name_type, nargs='+', default=None, help='The sample name for each R1/R2-files.' )
     group_454_input.add_argument( '--input-R1', required=None, nargs='+', help='The sequence file for each sample (format: fastq).' )
-    group_454_input.set_defaults( sequencer='illumina' )
+    group_454_input.set_defaults( sequencer='454' )
     #     454 outputs
     group_454_output = parser_454.add_argument_group( 'Outputs' )
     group_454_output.add_argument( '-d', '--output-dereplicated', default='preprocess.fasta', help='FASTA file with unique sequences. Each sequence has an ID ended with the number of initial sequences represented (example : ">a0101;size=10"). [Default: %(default)s]')
     group_454_output.add_argument( '-c', '--output-count', default='preprocess_counts.tsv', help='TSV file with count by sample for each unique sequence (example with 3 samples : "a0101<TAB>5<TAB>8<TAB>0"). [Default: %(default)s]')
     group_454_output.add_argument( '-s', '--summary', default='preprocess.html', help='The HTML file containing the graphs. [Default: %(default)s]')
     group_454_output.add_argument( '-l', '--log-file', default=sys.stdout, help='This output file will contain several information on executed commands.')
-    parser_454.set_defaults( sequencer='454' )
-    parser_454.set_defaults( already_contiged=True, keep_unmerged=False )
+    parser_454.set_defaults( sequencer='454', already_contiged=True, keep_unmerged=False )
 
     # Parse parameters
     args = parser.parse_args()
@@ -1304,10 +1299,6 @@ if __name__ == "__main__":
         if args.samples_names is not None: raise_exception( argparse.ArgumentTypeError( "\n\n#ERROR : With '--archive-file' parameter you cannot set the parameter '--samples-names'.\n\n" ))
         if args.sequencer == "illumina":
             if args.input_R2 is not None: raise_exception( argparse.ArgumentTypeError( "\n\n#ERROR : With '--archive-file' parameter you cannot set the parameter '--R2-files'.\n\n" ))
-        if args.sequencer == "longreads":
-            args.already_contiged = False
-            if args.input_R2 is None:
-                args.already_contiged = True
 
     else:  # inputs are files
         if args.input_R1 is None: raise_exception( argparse.ArgumentTypeError( "\n\n#ERROR : '--R1-files' is required.\n\n" ))
@@ -1316,21 +1307,18 @@ if __name__ == "__main__":
             if len(args.samples_names) != len(set(args.samples_names)):
                 duplicated_samples = set([name for name in args.samples_names if args.samples_names.count(name) > 1])
                 raise_exception( argparse.ArgumentTypeError( '\n\n#ERROR : Samples names must be unique (duplicated: "' + '", "'.join(duplicated_samples) + '").\n\n' ))
-        if args.sequencer == "longreads":
-            args.already_contiged = False
-            if args.input_R2 is None:
-                args.already_contiged = True
-        if args.sequencer == "illumina" or args.sequencer == "longreads":
+        if args.sequencer == "illumina":
             if not args.already_contiged and args.input_R2 is None: raise_exception( argparse.ArgumentTypeError( "\n\n#ERROR : '--R2-files' is required.\n\n" ))
 
     if args.sequencer == "illumina" or args.sequencer == "longreads":
-        if (args.R1_size is None or args.R2_size is None ) and not args.already_contiged: raise_exception( Exception( "\n\n#ERROR : '--R1-size/--R2-size' or '--already-contiged' must be setted.\n\n" ))
         if args.without_primers:
             if args.five_prim_primer or args.three_prim_primer: raise_exception( argparse.ArgumentTypeError( "\n\n#ERROR : The option '--without-primers' cannot be used with '--five-prim-primer' and '--three-prim-primer'.\n\n" ))
         else:
             if args.five_prim_primer is None or args.three_prim_primer is None: raise_exception( argparse.ArgumentTypeError( "\n\n#ERROR : '--five-prim-primer/--three-prim-primer' or 'without-primers'  must be setted.\n\n" ))
             if args.min_amplicon_size <= (len(args.five_prim_primer) + len(args.three_prim_primer)): raise_exception( argparse.ArgumentTypeError( "\n\n#ERROR : The minimum length of the amplicon (--min-length) must be superior to the size of the two primers, i.e "+str(len(args.five_prim_primer) + len(args.three_prim_primer)) + "\n\n"))
+
     if args.sequencer == "illumina":
+        if (args.R1_size is None or args.R2_size is None ) and not args.already_contiged: raise_exception( Exception( "\n\n#ERROR : '--R1-size/--R2-size' or '--already-contiged' must be setted.\n\n" ))
         if (args.already_contiged and args.keep_unmerged): raise_exception( Exception("\n\n#ERROR : --already-contiged and keep-unmerged options cannot be used together\n\n"))
         if (not args.already_contiged):
             if args.merge_software == "flash":
@@ -1338,9 +1326,6 @@ if __name__ == "__main__":
 
         if args.mismatch_rate and args.mismatch_rate < 0 or args.mismatch_rate > 1:
             raise_exception( argparse.ArgumentTypeError( "\n\n#ERROR : mismatch-rate option need to be included between 0 and 1.\n\n" ))
-
-    if args.sequencer == "longreads":
-        args.keep_unmerged = False
 
     # Process
     process( args )
