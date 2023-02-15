@@ -24,5 +24,5 @@ fi
  --output-fasta 26-frogsfunc_function.fasta \
  --output-weighted 26-frogsfunc_functions_weighted_nsti.tsv \
  --output-excluded 26-frogsfunc_functions_excluded.txt \
- --summary 26-frogsfunc_functions_summary.html 
+ --summary 26-frogsfunc_functions_summary.html --debug 
 

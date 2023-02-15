@@ -115,7 +115,7 @@ DT_foldchange <- da.abundances_table %>% datatable(filter = "top",              
 DT_foldchange
 ```
 
-```{r prepare_ipath3, eval = run_ipath}
+```{r prepare_ipath3, eval=run_ipath, echo=run_ipath}
 
 func_sign_over <- da.abundances_table %>% 
   filter(log2FoldChange > 0 ) %>%
@@ -162,12 +162,12 @@ svg_file_over <- params$svg_file_over
 svg_file_under <- params$svg_file_under
 ```
 
-```{asis, echo=run_ipath}
+```{asis, eval=run_ipath, echo=run_ipath}
 ## iPath3
 
 ### Differentially abundant functions visualized with iPath 3.
 ```
-```{r doc_path, echo=run_ipath}
+```{r doc_path, eval=run_ipath, echo=run_ipath}
 # Import input files
 if(params$mod1 != "None") {
      doc <- paste0("You chose to compare ", params$mod1, " to the reference modality ", params$mod2, ". This implies that the over-abundants pathways (first image) and under-abundant pathways (second image) are involved in ", params$mod1, " condition.")
@@ -184,11 +184,11 @@ files ipath_under.tsv and ipath_over.tsv (located in the same folder as this htm
 [WARNING] : The images must remain in the same folder as this html report to continue to be displayed.")
 cat(doc)
 ```
-```{r ipath3, code = readLines("../../libexec/process_ipath.R"), eval = run_ipath}
+```{r ipath3, code = readLines("../../libexec/process_ipath.R"), eval=run_ipath, echo=run_ipath}
 
 ```
 
-```{r, eval=run_ipath}
+```{r, eval=run_ipath, echo=run_ipath}
 setwd(dir_name)
 knitr::include_graphics(basename(params$svg_file_over))
 
