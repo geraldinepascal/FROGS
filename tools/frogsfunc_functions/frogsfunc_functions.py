@@ -24,12 +24,8 @@ __email__ = 'frogs@toulouse.inrae.fr'
 __status__ = 'dev'
 
 import os
-import re
 import sys
-import gzip
-import glob
 import json
-import shutil
 import argparse
 import pandas as pd
 
@@ -42,6 +38,7 @@ LIB_DIR = os.path.abspath(os.path.join(os.path.dirname(CURRENT_DIR), "lib"))
 sys.path.append(LIB_DIR)
 if os.getenv('PYTHONPATH') is None: os.environ['PYTHONPATH'] = LIB_DIR
 else: os.environ['PYTHONPATH'] = os.environ['PYTHONPATH'] + os.pathsep + LIB_DIR
+
 if os.getenv('GENE_HIERARCHY_FILE'):
    GENE_HIERARCHY_FILE=os.environ['GENE_HIERARCHY_FILE']
 else:
@@ -57,21 +54,50 @@ from frogsBiom import BiomIO
 #
 ##################################################################################################################################################
 
+class HspFunction(Cmd):
+	"""
+	@summary: Predict number of marker copies (16S, 18S or ITS) for each cluster sequence (i.e OTU).
+	"""
+	def __init__(self, tree, marker_type, marker_file, function_table, functions, hsp_method, output_dir, output_file, nb_cpus, log_file):
+		"""
+		@param observed_marker_table: [str] Path to marker table file if marker studied is not 16S.
+		@param in_tree: [str] Path to resulting tree file with inserted clusters sequences from frogsfunc_placeseqs.
+		@param hsp_method: [str] HSP method to use.
+		@param output: [str] PICRUSt2 marker output file.
+		"""
+		if marker_type != "16S":
+			opt = ' --input-function-table ' + function_table
+		elif function_table is None:
+			opt = ' --functions ' + functions
+
+		Cmd.__init__(self,
+				 'launch_hsp.py',
+				 'predict gene copy number per sequence.', 
+				 ' function --input-tree ' + tree + ' --marker-type ' + marker_type + opt + ' --marker-file ' + marker_file + ' --hsp-method ' + hsp_method + ' --output-dir ' + output_dir + ' -o ' + output_file + ' --nb-cpus ' + str(nb_cpus) + '  --log-file ' + log_file,
+				"--version")
+
+		self.output = output_file
+		self.log_file = log_file
+
+	def get_version(self):
+		return Cmd.get_version(self, 'stdout').strip()
+
+
 class MetagenomePipeline(Cmd):
 	"""
 	@summary: Per-sample metagenome functional profiles are generated based on the predicted functions for each study sequence.
 	"""
-	def __init__(self, in_biom, marker, function, max_nsti, min_reads, min_samples, strat_out, function_abund, seqtab, weighted, contrib, log):
+	def __init__(self, in_biom, marker, function, max_nsti, min_reads, min_samples, strat_out, output_dir, log):
 		"""
 		@param in_biom: [str] Path to BIOM input file used in frogsfunc_placeseqs.
 		@param marker: [str] Table of predicted marker gene copy numbers (frogsfunc_copynumbers output : frogsfunc_copynumbers_marker_nsti_predicted.tsv).
-		@param function: [str] Table of predicted gene family copy numbers (frogsfunc_copynumbers output : frogsfunc_copynumbers_predicted_functions.tsv).
+		@param function: [str] Table of predicted function copy numbers (frogsfunc_copynumbers output : frogsfunc_copynumbers_predicted_functions.tsv).
 		@param max_nsti: [float] Sequences with NSTI values above this value will be excluded .
 		@param min_reads: [int] Minimum number of reads across all samples for each input OTU.
 		@param min_samples [int] Minimum number of samples that an OTU needs to be identfied within.
 		@param strat_out: [boolean] if strat_out, output table stratified by sequences as well.
-		@param function_abund: [str] Output file for metagenome predictions abundance.
-		@param seqtab: [str] Output file with abundance normalized per marker copies number.
+		@param function_abund: [str] Output file for function predictions abundance.
+		@param otu_norm: [str] Output file with abundance normalized per marker copies number.
 		@param weighted: [str] Output file with the mean of nsti value per sample.
 		@param contrib: [str] Stratified output that reports contributions to community-wide abundances.
 		"""
@@ -80,63 +106,58 @@ class MetagenomePipeline(Cmd):
 		Cmd.__init__(self,
 				 'metagenome_pipeline.py ',
 				 'Per-sample functional profiles prediction.',
-				 " --input " +  in_biom + " --marker " + marker + " --function " + function + " --out_dir ./ --max_nsti " + str(max_nsti) + " --min_reads " + str(min_reads) + " --min_samples " + str(min_samples) + opt + ' 2> ' + log,
+				 " --input " +  in_biom + " --marker " + marker + " --function " + function + " --out_dir " + output_dir + " --max_nsti " + str(max_nsti) + " --min_reads " + str(min_reads) + " --min_samples " + str(min_samples) + opt + ' 2> ' + log,
 				"--version")
 
-		self.abund = function_abund
-		self.seqtab = seqtab
-		self.weighted = weighted
-		self.strat = strat_out
-		self.contrib = contrib
+	def get_version(self):
+		 return "PICRUSt2 " + Cmd.get_version(self, 'stdout').split()[1].strip()
+
+
+class ParseMetagenomePipeline(Cmd):
+	"""
+	@summary: Parse results of PICRUSt2 metageome_pipeline.py software to rerieve additional informations (i.g. databases functions links)
+	"""
+	def __init__(self, in_dir, out_abund, otu_norm_file , out_weighted, strat_out, out_contrib, log):
+		opt = ''
+		if strat_out:
+			opt += " --input-contrib " + out_contrib
+		Cmd.__init__( self,
+					  'frogsFuncUtils.py',
+					  'Parse metagenome_pipeline.py outputs.',
+					  "parse-metagenome --input-dir " + in_dir + " --output-abund " + out_abund + " --output-seqtab " + otu_norm_file  + " --output-weighted " + out_weighted + opt + " 2>> " + log,
+					  '--version' )
 
 	def get_version(self):
-		 return Cmd.get_version(self, 'stdout').split()[1].strip()
+		 return Cmd.get_version(self, 'stdout').strip()
 
-	def parser(self, log_file):
-		START_GENBANK_LINK = "https://www.genome.jp/dbget-bin/www_bget?"
-		START_COG_LINK = "https://www.ncbi.nlm.nih.gov/research/cog/cog/"
-		START_PFAM_LINK = "https://pfam.xfam.org/family/"
-		START_TIGR_LINK = "https://0-www-ncbi-nlm-nih-gov.linyanti.ub.bw/genome/annotation_prok/evidence/"
-		f_in = gzip.open('pred_metagenome_unstrat.tsv.gz', 'rt').readlines()
-		f_out = open(self.abund, 'wt')
-		header = f_in[0].strip().split('\t')
-		header.insert(0,'db_link')
-		f_out.write("\t".join(header)+"\n")
-		for li in f_in[1:]:
-			li = li.split('\t')
-			function = li[0]
-			if "COG" in function:
-				li.insert(0,START_COG_LINK + function )
-			elif "PF" in function:
-				li.insert(0,START_PFAM_LINK + function )
-			elif "TIGR" in function:
-				li.insert(0,START_TIGR_LINK + function )
-			elif re.search('K[0-9]{5}',function) or "EC:" in function:
-				li.insert(0,START_GENBANK_LINK + function )
-			else:
-				li.insert(0,"no link" )
-			f_out.write("\t".join(li))
-		os.remove('pred_metagenome_unstrat.tsv.gz')
-		with gzip.open('seqtab_norm.tsv.gz', 'rb') as f_in:
-			with open(self.seqtab, 'wb') as f_out:
-				shutil.copyfileobj(f_in, f_out)
-			os.remove('seqtab_norm.tsv.gz')
-		with gzip.open('weighted_nsti.tsv.gz', 'rb') as f_in:
-			with open(self.weighted, 'wb') as f_out:
-				shutil.copyfileobj(f_in, f_out)
-			os.remove('weighted_nsti.tsv.gz')
-		if self.strat:
-			with gzip.open('pred_metagenome_contrib.tsv.gz', 'rb') as f_in:
-				with open(self.contrib, 'wb') as f_out:
-					shutil.copyfileobj(f_in, f_out)
-				os.remove('pred_metagenome_contrib.tsv.gz')
+
+class RemoveSeqsBiomFasta(Cmd):
+	'''
+	@summary: Create new biom and fasta file without not insert sequences in tree.
+	'''
+	def __init__(self, in_fasta, in_biom, out_fasta, out_biom, excluded_file):
+		'''
+		@param in_fasta: [str] Path to fasta input file.
+		@param in_biom: [str] Path to BIOM input file.
+		@param out_fasta: [str] Path to fasta output file.
+		@param out_biom: [str] Path to BIOM output file.
+		@param excluded_file: [str] Path to not insert sequences file (Cluster ID in the first column).
+		'''
+		Cmd.__init__(self,
+			'remove_seqs_biom_fasta.py',
+			'remove not insert sequences in tree from fasta and biom file.',
+			'--input-biom ' + in_biom + ' --input-fasta ' + in_fasta + ' --excluded-sequences ' + excluded_file + ' --output-biom ' + out_biom + " --output-fasta " + out_fasta,
+			'--version')
+
+	def get_version(self):
+		return Cmd.get_version(self, 'stdout').strip()
+
 
 class Biom2tsv(Cmd):
 	"""
 	@summary: Converts BIOM file to TSV file.
 	"""
 	def __init__(self, in_biom, out_tsv):
-
 		Cmd.__init__( self,
 					  'biom2tsv.py',
 					  'Converts a BIOM file in TSV file.',
@@ -145,6 +166,7 @@ class Biom2tsv(Cmd):
 
 	def get_version(self):
 		 return Cmd.get_version(self, 'stdout').strip()
+
 
 class Tsv2biom(Cmd):
 	"""
@@ -162,12 +184,29 @@ class Tsv2biom(Cmd):
 		self.in_tsv = in_tsv
 
 	def get_version(self):
-		 return Cmd.get_version(self, 'stdout').strip()
+		return Cmd.get_version(self, 'stdout').strip()
 
 	def parser(self, log_file):
 		f_in = pd.read_csv(self.in_tsv, sep='\t')
 		sum_col = f_in.pop("observation_sum")
 		f_in.to_csv(self.in_tsv ,sep='\t' ,index=False)
+
+
+class FormateAbundances(Cmd):
+	"""
+	@summary: Formate function abundances file in order to add function classifications and display sunbursts graphs.
+	"""
+	def __init__(self, in_abund, tmp_sunburst, tmp_unstrat, hierarchy_file, log):
+
+		Cmd.__init__(self,
+			'frogsFuncUtils.py',
+			'Formate function abundances file.',
+			'formate-abundances --input-abundances ' + in_abund + ' --input-tmp-sunburst ' + tmp_sunburst + ' --input-tmp-unstrat ' + tmp_unstrat + ' --hierarchy-file ' + hierarchy_file + ' 2>> ' + log,
+			'--version')
+
+	def get_version(self):
+		return Cmd.get_version(self, 'stdout').strip()
+
 
 class TaxonomyTree(Cmd):
 	"""
@@ -195,80 +234,115 @@ class TaxonomyTree(Cmd):
 #
 ##################################################################################################################################################
 
-def excluded_sequence(in_biom, in_marker, out_seqtab, excluded):
+def otus_filter(in_biom, nsti_file, min_blast_identity, min_blast_coverage, max_nsti, excluded_file):
 	"""
-	@summary: Returns the excluded sequence, that have a NSTI score above the NSTI threshold.
-	@param in_biom: Biom file.
-	@param in_marker: [str] Path to frogsfunc_copynumbers marker file to process.
-	@param out_seqtab: [str] Path to frogsfunc_functions seqtab file to process.
-	@output: The file of excluded sequence names.
+	@summary: Removes sequences from biom file that does not pass the selected blast threshold.
+	@param in biom: Biom file from frogsfunc_placeseqs step.
+	@param blast_identity: Threshold of minimal blast % identity between the cluster sequence and its PICRUSt2 reference sequence.
+	@param blast_coverage: Threshold of minimal blast % coverage between the cluster sequence and its PICRUSt2 reference sequence.
+	@param out_biom: Output biom file without excluded sequences.
 	"""
-	marker_file = open( in_marker ).readlines()[1:]
-	seqtab_file = open( out_seqtab )
 	biom = BiomIO.from_json(in_biom)
-	cluster_to_nstis = dict()
-	excluded = open(excluded, "wt")
-	clusters_in = list()
-	for li in marker_file:
-		clusters_in.append(li.strip().split('\t')[0])
-		cluster_to_nstis[li.strip().split('\t')[0]] = li.strip().split('\t')[2]
-	clusters_out = [ li.strip().split('\t')[0] for li in seqtab_file.readlines()[1:]]
-	no_excluded = True
-	write_header = True
-	for cluster in clusters_in:
-		if cluster not in clusters_out:
-			no_excluded = False
-			if write_header:
-				excluded.write('\t'.join(['Cluster','FROGS_taxonomy','PICRUSt2_taxonomy','NSTI'])+"\n")
-				write_header = False
-			excluded.write(cluster+"\t")
-			try:
-				excluded.write("\t".join([str(';'.join(biom.get_observation_metadata(cluster)['blast_taxonomy']))  ,str(biom.get_observation_metadata(cluster)['picrust2_affiliations']), cluster_to_nstis[cluster]])+"\n")
-			except:
-				excluded.write("\t".join(["unknown"  ,str(biom.get_observation_metadata(cluster)['picrust2_affiliations']), cluster_to_nstis[cluster]])+"\n")
-	if no_excluded:
-		excluded.write('#No excluded OTUs.\n')
-	excluded.close()
-	seqtab_file.close()
+	discards = list()
+	excluded_infos = dict()
+	nstis = dict()
+	FH_excluded = open(excluded_file, 'wt')
 
-def formate_abundances_file(function_file, gene_hierarchy_file, hierarchy_tag = "classification"):
-	"""
-	@summary: Formate frogsfunc_functions output in order to create a biom file of pathways abundances.
-	@param function_file: frogsfunc_functions output of gene abundances prediction (frogsfunc_functions_unstrat.tsv)
-	@param gene_hierarchy_file: reference file that links every gene ID to its hierarchy levels.
-	"""
-	id_to_hierarchy = {}
-	path_fi = open(gene_hierarchy_file).readlines()
-	for li in path_fi:
-		li = li.strip().split('\t')
-		id_to_hierarchy[li[-1]] = ";".join(li)
+	with open(nsti_file) as FH_nsti:
+		next(FH_nsti)
+		for li in FH_nsti:
+			nstis[li.split('\t')[0]] = float(li.strip().split('\t')[-1])
+	
+	for observation in biom.get_observations():
+		cov = float(observation['metadata']['blast_picrust_ref_perc_query_coverage'].split()[0]) / 100
+		ident = float(observation['metadata']['blast_picrust_ref_perc_identity'].split()[0]) / 100
+		nsti = nstis[observation['id']]
+		exclusion_paramater = str()
+		value_paramater = str()
+		if min_blast_identity and ident < min_blast_identity:
+			exclusion_paramater = "min_blast_identity"
+			value_paramater = "identity = " + str(ident)
+		if min_blast_coverage and cov < min_blast_coverage:
+			if exclusion_paramater == "":
+				exclusion_paramater = "min_blast_coverage"
+				value_paramater = "coverage = " + str(cov)
+			else:
+				exclusion_paramater += ",min_blast_coverage"
+				value_paramater += ",coverage = " + str(cov)
+		if max_nsti and nsti > max_nsti:
+			if exclusion_paramater == "":
+				exclusion_paramater = "max_nsti"
+				value_paramater = "nsti = " + str(nsti)
+			else:
+				exclusion_paramater += ",max_nsti"
+				value_paramater += ",nsti = " + str(nsti)	
+		if exclusion_paramater != "":
+			discards.append(observation['id'])
+			excluded_infos[observation['id']] = dict()
+			excluded_infos[observation['id']]['FROGS_taxonomy'] = str(';'.join(biom.get_observation_metadata(observation['id'])['blast_taxonomy']))
+			excluded_infos[observation['id']]['PICRUSt2_taxonomy'] = biom.get_observation_metadata(observation['id'])['picrust2_affiliations']
+			excluded_infos[observation['id']]['exclusion_paramater'] = exclusion_paramater
+			excluded_infos[observation['id']]['value_parameter'] = value_paramater
+	if len(excluded_infos) > 0:
+		FH_excluded.write('\t'.join(['#Cluster','FROGS_taxonomy','PICRUSt2_taxonomy','exclusion_paramater','value_parameter'])+"\n")
+		for excluded in excluded_infos:
+			FH_excluded.write('\t'.join([excluded, excluded_infos[excluded]['FROGS_taxonomy'], excluded_infos[excluded]['PICRUSt2_taxonomy'], excluded_infos[excluded]['exclusion_paramater'], excluded_infos[excluded]['value_parameter']]) + "\n")
+	else:
+		FH_excluded.write('#No excluded OTUs.\n')
+	FH_excluded.close()
+	return excluded_infos
 
-	df = pd.read_csv(function_file,sep='\t')
-	df.insert(2,'observation_sum',df.sum(axis=1, numeric_only=True))
-	df.rename(columns = {'function':'observation_name'}, inplace = True)
-	headers = ['observation_name', 'db_link']
-	for column in df:
-		if column not in headers:
-			df[column] = df[column].round(0).astype(int)
+def check_nsti_threshold(max_nsti, in_biom):
+	'''
+	Test if the NSTI threshold specified by the user is less than the minimum NSTI on the dataset.
+	'''
+	biom = BiomIO.from_json(in_biom)
+	min_nsti = None
+	for observation in biom.get_observations():
+		if biom.get_observation_metadata(observation['id'])['NSTI']:
+			cur_nsti = float(biom.get_observation_metadata(observation['id'])['NSTI'])
+			if min_nsti == None:
+				min_nsti = cur_nsti
+			elif cur_nsti < min_nsti:
+				min_nsti = cur_nsti
 
-	df.to_csv(function_file ,sep='\t' ,index=False)
-	tmp = open(function_file + ".tmp", 'wt')
-	FH_in = open(function_file).readlines()
-	header = FH_in[0].strip().split('\t')
-	header.insert(0, hierarchy_tag)
-	tmp.write("\t".join(header)+"\n")
-	for li in FH_in[1:]:
-		li = li.strip().split('\t')
-		if li[1] in id_to_hierarchy:
-			li.insert(0,id_to_hierarchy[li[1]])
-		else:
-			li.insert(0,'unknown')
-		tmp.write("\t".join(li)+"\n")
-	tmp.close()
-	os.rename(function_file +'.tmp', function_file)
-	return hierarchy_tag
+	if args.max_nsti < min_nsti:
+		return raise_exception( Exception( "\n\n#ERROR : --max-nsti " + str(max_nsti) + " threshold will remove all clusters.\n\n" ))
 
-def write_summary(in_biom, function_file, nsti_file, excluded, tree_count_file, tree_ids_file, summary_file):
+def check_basename_files(arg_name, file_path):
+	'''
+	Test if output file name specified by the user only contains the file name, without directory.
+	'''
+	if not os.path.basename(file_path) == file_path:
+		return raise_exception( Exception( "\n\n#ERROR : --" + arg_name.replace('_','-') + \
+		" should only contain a filename, without directory (You specified " + arg_value +" ). Please use --output-dir to specify the output directory.\n\n"))
+
+def count_nb_obs_per_ranks(in_biom):
+	'''
+	rank_to_obs associates each taxonomic level rank to its observations.
+	@Output: List with number of different observations per taxonomic rank.
+	'''
+	rank_to_obs = {
+		"0" : [],
+		"1" : [],
+		"2" : [],
+		"3" : [],
+		"4" : [],
+		"5" : [],
+		"6" : [],
+	}
+	no_info_obs = ["Multi-affiliation", "unknown species"]
+	biom = BiomIO.from_json(in_biom)
+
+	for observation in biom.get_observations():
+		if biom.has_metadata("blast_taxonomy"):
+			taxo_hiera = biom.get_observation_metadata(observation['id'])["blast_taxonomy"]
+			for i in range(len(taxo_hiera)):
+				if taxo_hiera[i] not in rank_to_obs[str(i)] and taxo_hiera[i] not in no_info_obs:
+					rank_to_obs[str(i)].append(taxo_hiera[i])
+	return [ len(rank_to_obs[str(i)]) for i in rank_to_obs ]
+
+def write_summary(in_biom, function_file, nsti_file, excluded, tree_count_file, tree_ids_file, out_biom, summary_file):
 	"""
 	@summary: Writes the process summary in one html file.
 	@param in_biom: [str] path to the input BIOM file.
@@ -293,7 +367,7 @@ def write_summary(in_biom, function_file, nsti_file, excluded, tree_count_file, 
 		number_otu_all +=1
 		number_abundance_all += biom.get_observation_count(otu)
 	excluded_clusters = open( excluded ).readlines()
-	if not excluded_clusters[0].startswith('#'):
+	if not excluded_clusters[0].startswith('#No excluded OTU'):
 		#[1:] for skip header
 		for otu in excluded_clusters[1:]:
 			summary_info['nb_removed'] +=1
@@ -342,8 +416,13 @@ def write_summary(in_biom, function_file, nsti_file, excluded, tree_count_file, 
 			'name': li[2],
 			'data': list(map(str,li[3:]))
 			})
+	# Construct star_plot about number of different taxonomics ranks retrieved before and after different thresholds.
+	in_taxo_ranks, out_taxo_ranks = count_nb_obs_per_ranks(args.input_biom), count_nb_obs_per_ranks(args.output_biom)
+	starplot_series = {
+		'before_series' : in_taxo_ranks,
+		'after_series' : out_taxo_ranks
+	}
 
-	# record details about removed OTU
 	FH_summary_tpl = open( os.path.join(CURRENT_DIR, "frogsfunc_functions_tpl.html") )
 	FH_summary_out = open( summary_file, "wt" )
 
@@ -362,6 +441,8 @@ def write_summary(in_biom, function_file, nsti_file, excluded, tree_count_file, 
 			line = line.replace( "###DATA_SAMPLE###", json.dumps(samples_distrib) )
 		elif "###TREE_DISTRIBUTION###" in line:
 			line = line.replace( "###TREE_DISTRIBUTION###", json.dumps(newick_tree) )
+		elif "###STARPLOT_SERIES###" in line:
+			line = line.replace( "###STARPLOT_SERIES###", json.dumps(starplot_series) )
 		FH_summary_out.write( line )
 
 	FH_summary_out.close()
@@ -377,52 +458,156 @@ if __name__ == "__main__":
 	parser = argparse.ArgumentParser( description='Per-sample functional profiles prediction.' )
 	parser.add_argument('-v', '--version', action='version', version=__version__)
 	parser.add_argument('--debug', default=False, action='store_true', help="Keep temporary files to debug program." )
+	parser.add_argument( '-p', '--nb-cpus', type=int, default=1, help="The maximum number of CPUs used. [Default: %(default)s]" )
 	parser.add_argument('--strat-out', default=False, action='store_true', help='If activated, a new table is built. It will contain the abundances of each function of each OTU in each sample.')
 	# Inputs
 	group_input = parser.add_argument_group( 'Inputs' )
 	group_input.add_argument('-b', '--input-biom', required=True, type=str, help='frogsfunc_placeseqs Biom output file (frogsfunc_placeseqs.biom).')
-	group_input.add_argument('-f', '--function', required=True, type=str, help='Table of predicted gene family copy numbers (frogsfunc_copynumbers output, frogsfunc_copynumbers_predicted_functions.tsv).')
-	group_input.add_argument('-m', '--marker', required=True, type=str, help='Table of predicted marker gene copy numbers (frogsfunc_copynumbers output, ex frogsfunc_copynumbers_marker.tsv).')
+	group_input.add_argument('-i', '--input-fasta', required=True, help='frogsfunc_placeseqs Fasta output file (frogsfunc_placeseqs.fasta).')
+	group_input.add_argument('-t', '--input-tree', required=True, type=str, help='frogsfunc_placeseqs output tree in newick format containing both studied sequences (i.e. ASVs or OTUs) and reference sequences.')
+	group_input.add_argument('-m', '--input-marker', required=True, type=str, help='Table of predicted marker gene copy numbers (frogsfunc_placeseqs output : frogsfunc_marker.tsv).')
+	group_input.add_argument('--marker-type', required=True, choices=['16S','ITS','18S'], help='Marker gene to be analyzed.')
+	
+	group_input_16S = parser.add_argument_group( '16S ' )
+	group_input_16S.add_argument('-f', '--functions', default=["EC"], nargs='+', choices=['EC', 'KO', 'COG', 'PFAM', 'TIGRFAM','PHENO'], help="Specifies which function databases should be used (%(default)s). EC is used by default because necessary for frogsfunc_pathways. At least EC or KO is required. To run the command with several functions, separate the functions with spaces (ex: -i EC PFAM).")
+	group_input_other = parser.add_argument_group( 'ITS and 18S ' )
+	group_input_other.add_argument('--input-function-table',help="The path to input functions table describing directly observed functions, in tab-delimited format.(ex $PICRUSt2_PATH/default_files/fungi/ec_ITS_counts.txt.gz). Required.")
+    
+	group_input.add_argument('--hsp-method', default='mp', choices=['mp', 'emp_prob', 'pic', 'scp', 'subtree_average'], help='HSP method to use. mp: predict discrete traits using max parsimony. emp_prob: predict discrete traits based on empirical state probabilities across tips. subtree_average: predict continuous traits using subtree averaging. pic: predict continuous traits with phylogentic independent contrast. scp: reconstruct continuous traits using squared-change parsimony (default: %(default)s).')
 	group_input.add_argument('--max-nsti', type=float, default=2.0, help='Sequences with NSTI values above this value will be excluded (default: %(default)d).')
+	group_input.add_argument('--min-blast-ident', type=float, default=None, help='Sequences with blast percentage identity against the PICRUSt2 closest ref above this value will be excluded (between 0 and 1)')
+	group_input.add_argument('--min-blast-cov', type=float, default=None, help='Sequences with blast percentage coverage against the PICRUSt2 closest ref above this value will be excluded (between 0 and 1)')
 	group_input.add_argument('--min-reads', metavar='INT', type=int, default=1, help='Minimum number of reads across all samples for each input OTU. OTUs below this cut-off will be counted as part of the \"RARE\" category in the stratified output. If you choose 1, none OTU will be grouped in “RARE” category.(default: %(default)d).')
 	group_input.add_argument('--min-samples', metavar='INT', type=int, default=1, help='Minimum number of samples that an OTU needs to be identfied within. OTUs below this cut-off will be counted as part of the \"RARE\" category in the stratified output.  If you choose 1, none OTU will be grouped in “RARE” category. (default: %(default)d).')
 	#Outputs
 	group_output = parser.add_argument_group( 'Outputs')
-	group_output.add_argument('--function-abund', default='frogsfunc_functions_unstrat.tsv', help='Output file for metagenome predictions abundance. (default: %(default)s).')
-	group_output.add_argument('--seqtab', default='frogsfunc_functions_marker_norm.tsv', help='Output file with abundance normalized per marker copies number. (default: %(default)s).')
-	group_output.add_argument('--weighted', default='frogsfunc_functions_weighted_nsti.tsv', help='Output file with the mean of nsti value per sample (format: TSV). [Default: %(default)s]' )
-	group_output.add_argument('--contrib', default=None, help=' Stratified output that reports contributions to community-wide abundances (ex pred_metagenome_contrib.tsv)')
-	group_output.add_argument('-e', '--excluded', default='frogsfunc_functions_excluded.txt', help='List of sequences with NSTI values above NSTI threshold ( --max_NSTI NSTI ).[Default: %(default)s]')
+	group_output.add_argument('-d', '--output-dir', default='frogsfunc_function_results', help='Output directory for function predictions.')
+	group_output.add_argument('--output-function', default="frogsfunc_copynumbers_functions.tsv", type=str, help='Output table with predicted function abundances per studied sequence in input tree. If the extension \".gz\" is added the table will automatically be gzipped.[Default: %(default)s]')
+	group_output.add_argument('--output-function-abund', default='frogsfunc_functions_unstrat.tsv', help='Output file for function prediction abundances. (default: %(default)s).')
+	group_output.add_argument('--output-otu-norm', default='frogsfunc_functions_marker_norm.tsv', help='Output file with otu abundances normalized by marker copies number. (default: %(default)s).')
+	group_output.add_argument('--output-weighted', default='frogsfunc_functions_weighted_nsti.tsv', help='Output file with the mean of nsti value per sample (format: TSV). [Default: %(default)s]' )
+	group_output.add_argument('--output-contrib', default=None, help=' Stratified output that reports otu contributions to community-wide function abundances (ex pred_function_otu_contrib.tsv).')
+	group_output.add_argument('--output-biom', default='frogsfunc_function.biom', help='Biom file without excluded OTUs (NSTI, blast perc identity or blast perc coverage thresholds). (format: BIOM) [Default: %(default)s]')
+	group_output.add_argument('--output-fasta', default='frogsfunc_function.fasta', help='Fasta file without excluded OTUs (NSTI, blast perc identity or blast perc coverage thresholds). (format: FASTA). [Default: %(default)s]')
+	group_output.add_argument('-e', '--output-excluded', default='frogsfunc_functions_excluded.txt', help='List of OTUs with NSTI values above NSTI threshold ( --max_NSTI NSTI ).[Default: %(default)s]')
 	group_output.add_argument('-l', '--log-file', default=sys.stdout, help='List of commands executed.')
-	group_output.add_argument('-t', '--html', default='frogsfunc_functions_summary.html', help="Path to store resulting html file. [Default: %(default)s]" )
+	group_output.add_argument('-s', '--summary', default='frogsfunc_functions_summary.html', help="Path to store resulting html file. [Default: %(default)s]" )
 	args = parser.parse_args()
 	prevent_shell_injections(args)
+	args_dict = vars(args)
+	for arg_name, arg_value in args_dict.items():
+		if arg_name.startswith('output') and arg_name != "output_dir" and arg_value is not None:
+			check_basename_files(arg_name, arg_value)
+			
+	### Check inputs
+	# Check for 16S input
+	if args.marker_type == "16S" and (not 'EC' in args.functions and not 'KO' in args.functions):
+			parser.error("\n\n#ERROR : --input-functions : 'EC' and/or 'KO' must be at least indicated (others functions are optionnal)")
+	# Check for ITS or 18S input
+	if args.marker_type in ["ITS", "18S"]:
+		if args.input_function_table is None:
+			parser.error("\n\n#ERROR : --input-function-table required when studied marker is not 16S!\n\n")
 
-	if args.strat_out and args.contrib is None:
-		args.contrib = 'frogsfunc_functions_strat.tsv'
+	if not args.strat_out and args.output_contrib is not None:
+		parser.error('--strat_out flag must be include with --output-contrib')
+	if args.strat_out and args.output_contrib is None:
+		parser.error('--output-contrib FILENAME must be include with --strat_out flag')
+	
+	if args.min_blast_ident:
+		if args.min_blast_ident < 0.0 or args.min_blast_ident > 1.0:
+			parser.error('--min-blast-ident must be between 0.0 and 1.0.')
+	if args.min_blast_cov:
+		if args.min_blast_cov < 0.0 or args.min_blast_cov > 1.0:
+			parser.error('--min-blast-cov must be between 0.0 and 1.0.')
+	###
+	### Output paths
+	args.output_otu_norm = args.output_dir + "/" + args.output_otu_norm
+	args.output_weighted = args.output_dir + "/" + args.output_weighted
+	args.output_biom = args.output_dir + "/" + args.output_biom
+	args.output_fasta = args.output_dir + "/" + args.output_fasta 
+	args.output_excluded = args.output_dir + "/" + args.output_excluded 
+	args.summary = args.output_dir + "/" + args.summary
+	if args.strat_out:
+		if args.output_contrib is None:
+			args.output_contrib = "frogsfunc_functions_unstrat.tsv"
+		args.output_contrib = args.output_dir + "/" + args.output_contrib
 
-	if not args.strat_out and args.contrib is not None:
-		parser.error('--contrib FILENAME must be include with --strat_out flag')
-	HIERARCHY_RANKS = ["Level1", "Level2", "Level3", "Gene"]
-	tmp_files=TmpFiles(os.path.split(args.html)[0])
+	tmp_files=TmpFiles(os.path.split(args.output_otu_norm)[0])
+	tmp_files_picrust =  TmpFiles(os.path.split(args.output_otu_norm)[0])
+
+	HIERARCHY_RANKS = ["Level1", "Level2", "Level3", "Function_id"]
 	try:
 		Logger.static_write(args.log_file, "## Application\nSoftware :" + sys.argv[0] + " (version : " + str(__version__) + ")\nCommand : " + " ".join(sys.argv) + "\n\n")
-		#temp tsv file necessary for metagenome_pipeline.py
-		tmp_biom_to_tsv = tmp_files.add( 'tmp_biom_to_tsv' )
-		Biom2tsv(args.input_biom, tmp_biom_to_tsv).submit( args.log_file )
 
-		tmp_metag_pipeline = tmp_files.add( 'tmp_metagenome_pipeline.log' )
-		MetagenomePipeline(tmp_biom_to_tsv, args.marker, args.function, args.max_nsti, args.min_reads, args.min_samples, args.strat_out, args.function_abund, args.seqtab, args.weighted, args.contrib, tmp_metag_pipeline).submit( args.log_file )
+		check_nsti_threshold(args.max_nsti, args.input_biom)
+		excluded_infos = dict()
+		if args.min_blast_ident or args.min_blast_cov or args.max_nsti:
+			tmp_biom_blast_thresh = tmp_files.add( 'tmp_biom_blast_thresh' )
+			tmp_excluded = tmp_files.add( 'tmp_excluded' )
+## ecrire ligne loger.static write sur l'exclusion des parametres en question
+			excluded_infos = otus_filter(args.input_biom, args.input_marker, args.min_blast_ident, args.min_blast_cov, args.max_nsti, args.output_excluded)
 
-		excluded_sequence(args.input_biom, args.marker, args.seqtab, args.excluded)
-		hierarchy_tag = formate_abundances_file(args.function_abund, GENE_HIERARCHY_FILE)
+			RemoveSeqsBiomFasta(args.input_fasta, args.input_biom, args.output_fasta, args.output_biom, args.output_excluded).submit(args.log_file)
+			tmp_biom_to_tsv = tmp_files.add( 'tmp_biom_to_tsv' )
+			Biom2tsv(args.output_biom, tmp_biom_to_tsv).submit( args.log_file )
+
+		else:
+			#temp tsv file necessary for metagenome_pipeline.py
+			tmp_biom_to_tsv = tmp_files.add( 'tmp_biom_to_tsv' )
+			Biom2tsv(args.input_biom, tmp_biom_to_tsv).submit( args.log_file )
+
+		functions = " ".join(args.functions)
+		tmp_hsp_function = tmp_files.add( 'tmp_hsp_function.log' )
+		args.output_function = args.output_dir + "/" + args.output_function
+		HspFunction(args.input_tree, args.marker_type, args.input_marker, args.input_function_table, functions, args.hsp_method, args.output_dir, args.output_function, args.nb_cpus, tmp_hsp_function).submit(args.log_file)
+		FH_in = open(tmp_hsp_function)
+		for line in FH_in:
+			if line.startswith('## Software :'):
+				tool_version =  line.strip().replace("##Software :", "##Software : PICRUSt2 ")
+		FH_in.close()
+		Logger.static_write(args.log_file, tool_version + "\n\n")
+
+		function_outputs = [function + "_copynumbers_predicted.tsv" for function in args.functions]
+		for function_file in function_outputs:
+			database = function_file.split('_')[0]
+			tmp_metag_pipeline = tmp_files.add( 'tmp_metagenome_pipeline.log' )
+			function_file = args.output_dir + "/" + function_file
+			##
+			tmp_files_picrust =  TmpFiles(os.path.dirname(function_file), prefix="")
+			tmp_seqtab = tmp_files_picrust.add('seqtab_norm.tsv.gz')
+			tmp_weighted = tmp_files_picrust.add('weighted_nsti.tsv.gz')
+			tmp_unstrat = tmp_files_picrust.add('pred_metagenome_unstrat.tsv.gz')
+			if args.strat_out:
+				tmp_strat = tmp_files_picrust.add('pred_metagenome_contrib.tsv.gz')
+			##
+			MetagenomePipeline(tmp_biom_to_tsv, args.input_marker, function_file, args.max_nsti, args.min_reads, args.min_samples, args.strat_out, args.output_dir, tmp_metag_pipeline).submit( args.log_file )
+			function_basename_ext = os.path.basename(args.output_function_abund)
+			function_basename = os.path.splitext(function_basename_ext)[0]
+			ext = os.path.splitext(function_basename_ext)[1]
+			output_function_abund = args.output_dir + "/" + function_basename + "_" + database + ext
+			tmp_parse = tmp_files.add( 'tmp_parse_metagenome.log' )
+			ParseMetagenomePipeline(args.output_dir, output_function_abund, args.output_otu_norm, args.output_weighted, args.strat_out, args.output_contrib, tmp_parse).submit( args.log_file)
+			
+			# Launch one time for EC or KO.
+			to_run = True
+			if (database == "EC" or database == "KO") and to_run:
+				# Make a temporary functions abundances file to display sunbursts graphs.
+				tmp_function_sunburst = tmp_files.add( "functions_unstrat_sunburst.tmp")
+				tmp_function_unstrat = tmp_files.add( "functions_unstrat.tmp")
+				tmp_formate_abundances = tmp_files.add( 'tmp_formate_abundances.log' )
+				FormateAbundances(output_function_abund, tmp_function_sunburst, tmp_function_unstrat, GENE_HIERARCHY_FILE, tmp_formate_abundances).submit( args.log_file)
+				function_file_sunburst = output_function_abund
+				to_run = False
+
 		tmp_biom = tmp_files.add( 'gene_abundances.biom' )
-		Tsv2biom(args.function_abund, tmp_biom).submit( args.log_file)
+		Tsv2biom(tmp_function_sunburst, tmp_biom).submit( args.log_file)
 		tree_count_file = tmp_files.add( "geneCount.enewick" )
 		tree_ids_file = tmp_files.add( "geneCount_ids.tsv" )
+		hierarchy_tag = "classification"
 		TaxonomyTree(tmp_biom, hierarchy_tag, tree_count_file, tree_ids_file).submit( args.log_file )
 
-		write_summary(args.input_biom, args.function_abund, args.weighted, args.excluded, tree_count_file, tree_ids_file, args.html)
+		write_summary(args.input_biom, function_file_sunburst, args.output_weighted, args.output_excluded, tree_count_file, tree_ids_file, args.output_biom, args.summary)
 	finally:
 		if not args.debug:
 			tmp_files.deleteAll()
+			tmp_files_picrust.deleteAll()

@@ -23,13 +23,13 @@ __version__ = '4.0.1'
 __email__ = 'frogs@toulouse.inrae.fr'
 __status__ = 'dev'
 
-import re
 import os
+import re
 import sys
 import json
 import gzip
+import math
 import argparse
-from collections import OrderedDict
 
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
 # PATH
@@ -59,7 +59,7 @@ class HspMarker(Cmd):
 	def __init__(self, observed_marker_table, in_tree, hsp_method, output, result_file, log):
 		"""
 		@param observed_marker_table: [str] Path to marker table file if marker studied is not 16S.
-		@param in_tree: [str] Path to resulting tree file with insert clusters sequences from frogsfunc_placeseqs.
+		@param in_tree: [str] Path to resulting tree file with inserted clusters sequences from frogsfunc_placeseqs.
 		@param hsp_method: [str] HSP method to use.
 		@param output: [str] PICRUSt2 marker output file.
 		@param result_file: [str] frogsfunc_copynumbers formatted output file.
@@ -71,7 +71,7 @@ class HspMarker(Cmd):
 
 		Cmd.__init__(self,
 				 'hsp.py',
-				 'predict gene copy numer per sequence.', 
+				 'predict gene copy number per sequence.', 
 				 input_marker + " -t " + in_tree + " --hsp_method " + hsp_method + " -o " + output + " -n  2> " + log,
 				"--version")
 
@@ -79,17 +79,17 @@ class HspMarker(Cmd):
 		self.result_file = result_file
 
 	def get_version(self):
-		return Cmd.get_version(self, 'stdout').split()[1].strip()
+		return "PICRUSt2 " + Cmd.get_version(self, 'stdout').split()[1].strip()
 
 	def parser(self, log_file):
 		"""
 		@summary: Write first column (Clusters names) and last column (nsti score) into final functions results file.
 		"""
 		if is_gzip(self.output):
-			FH_in = gzip.open(self.output,'rt').readlines()
+			FH_in = gzip.open(self.output,'rt')
 			FH_results = gzip.open(self.result_file,'wt')
 		else:
-			FH_in = open(self.output,'rt').readlines()
+			FH_in = open(self.output,'rt')
 			FH_results = open(self.result_file,'wt')
 	
 		for line in FH_in:
@@ -126,7 +126,7 @@ class HspFunction(Cmd):
 		self.result_file = result_file
 
 	def get_version(self):
-		return Cmd.get_version(self, 'stdout').split()[1].strip()
+		return "PICRUSt2 " + Cmd.get_version(self, 'stdout').split()[1].strip()
 
 	def parser(self, log_file):
 		"""
@@ -170,34 +170,46 @@ def is_gzip( file ):
 		FH_input.close()
 	return is_gzip
 
-def check_functions( functions ):
-	"""
-	@summary: check if --in_trait parameter is valid.
-	"""
-	VALID_FUNCTIONS = ['EC','COG','KO','PFAM','TIGRFAM','PHENO']
-	# if the user add mulitple functions prediction
-	if "," in functions:
-		functions = functions.split(',')
-	else:
-		functions = [functions]
-	for function in functions:
-		if function not in VALID_FUNCTIONS:
-			raise_exception( argparse.ArgumentTypeError( "\n\n#ERROR : With '--function' parameter: " + function + " not a valid function.\n\n" ))
-	return functions
+def rounding(nb):
+	'''
+	@summary: Rounding numbers decimal 
+	'''
+	if re.search("^[0-9]{1}[.][0-9]+e",str(nb)):
+		start = re.compile("[0-9][.][0-9]{1,2}")
+		end = re.compile("e-[0-9]+")
+		return float("".join(start.findall(str(nb))+end.findall(str(nb))))
 
-def write_summary(biom_file, output_marker, depth_nsti_file, summary_file ):
+	elif re.search("[0][.][0-9]+",str(nb)):
+		return(round(nb,2))
+
+	elif re.search("[0][.][0]+",str(nb)):
+		motif = re.compile("[0][.][0]+[0-9]{2}")
+		return float("".join(motif.findall(str(nb))))
+
+	else:
+		return(round(nb,2))
+
+def write_summary(biom_file, output_marker, summary_file ):
 	"""
-	@summary: Writes the informations to generate graph of the number of OTUs and sequences removed according NCTI score.
+	@summary: Writes the informations to generate graph of the number of OTUs and sequences removed according NSTI score.
 	@param biom_file: [str] Biom file (output of frogsfunc_placeseqs).
 	@param output_marker: [str] HspMarker step output file, used to find NSTI score per Cluster.
 	@param depth_nsti_file: [str] Writes log of nb OTUs and nb sequences kept according to NSTI score.
 	"""
 	depth_nsti = open(output_marker).readlines()
+	max_nsti = 0
+	for li in depth_nsti[1:]:
+		li = li.strip().split('\t')
+		if float(li[2]) > max_nsti:
+			max_nsti = float(li[2])
+	max_nsti = math.ceil( max_nsti * 50 + 1)
+
 	biom=BiomIO.from_json(biom_file)
-	FH_log = Logger( depth_nsti_file )
-	FH_log.write("#nsti\tnb_clust_kept\tnb_abundances_kept\n")
-	step_nsti = [i/50 for i in range(0,101)] 
+	# FH_log = Logger( depth_nsti_file )
+	# FH_log.write("#nsti\tnb_clust_kept\tnb_abundances_kept\n")
+	step_nsti = [i/50 for i in range(0,max_nsti)] 
 	cluster_kept = dict()
+
 	for cur_nsti in step_nsti:
 		cluster_kept[cur_nsti] = { 'Nb' : [], 'Abundances' : 0 }
 		for li in depth_nsti[1:]:
@@ -209,14 +221,17 @@ def write_summary(biom_file, output_marker, depth_nsti_file, summary_file ):
 	clusters_size = list()
 	abundances_size = list()
 	nstis = list()
+
 	for nsti,clusters in cluster_kept.items():
 		clusters_size.append(len(clusters['Nb']))
 		abundances_size.append(clusters['Abundances'])
 		nstis.append(float(nsti))
-		FH_log.write("\t".join([str(nsti), str(len(clusters['Nb'])), str(clusters['Abundances']) ])+"\n")
+		# FH_log.write("\t".join([str(nsti), str(len(clusters['Nb'])), str(clusters['Abundances']) ])+"\n")
+		
 	nstis = sorted(nstis)
 	clusters_size = sorted(clusters_size)
 	abundances_size = sorted(abundances_size)
+	total_abundances = abundances_size[-1]
 
 	FH_summary_tpl = open( os.path.join(CURRENT_DIR, "frogsfunc_copynumbers_tpl.html") )
 	FH_summary_out = open( summary_file, "wt" )
@@ -228,7 +243,7 @@ def write_summary(biom_file, output_marker, depth_nsti_file, summary_file ):
 		elif "###NSTI_THRESH###" in line:
 			line = line.replace( "###NSTI_THRESH###", json.dumps(nstis) )
 		FH_summary_out.write( line )
-	FH_log.close()
+	# FH_log.close()
 	FH_summary_out.close()
 	FH_summary_tpl.close()
 
@@ -246,34 +261,35 @@ if __name__ == "__main__":
 	# Inputs
 	group_input = parser.add_argument_group( 'Inputs' )
 	group_input.add_argument('-b', '--input-biom', required=True, help='frogsfunc_placeseqs output Biom file (frogsfunc_placeseqs.biom).')
-	
-	group_16S = group_input.add_mutually_exclusive_group()
-	group_16S.add_argument('-i', '--in-trait', default="EC",help="For 16S marker input: Specifies which default function database should be used ('EC', 'KO', 'COG', PFAM', 'TIGRFAM' or 'PHENO'). EC is used by default because necessary for frogsfunc_pathways. To run the command with several functions, separate the functions with commas (ex: KO,PFAM). (for ITS or 18S : only EC available)")
-	group_16S.add_argument('--observed-trait-table',help="If you don't work on 16S marker:  The path to input functions table describing directly observed functions,in tab-delimited format.(ex $PICRUSt2_PATH/frogsfunc_suppdata/fungi/ec_ITS_counts.txt.gz). This input is required when the --observed-marker-table option is set. ")
+	group_input.add_argument('-t', '--input-tree', required=True, type=str, help='frogsfunc_placeseqs output tree in newick format containing both studied sequences (i.e. ASVs or OTUs) and reference sequences.')
+	group_input.add_argument('--hsp-method', default='mp', choices=['mp', 'emp_prob', 'pic', 'scp', 'subtree_average'], help='HSP method to use. mp: predict discrete traits using max parsimony. emp_prob: predict discrete traits based on empirical state probabilities across tips. subtree_average: predict continuous traits using subtree averaging. pic: predict continuous traits with phylogentic independent contrast. scp: reconstruct continuous traits using squared-change parsimony (default: %(default)s).')
 
-	group_input.add_argument('--observed-marker-table',help="The input marker table describing directly observed traits (e.g. sequenced genomes) in tab-delimited format. Necessary if you don't work on 16S marker. (ex $PICRUSt2_PATH/frogsfunc_suppdata/fungi/ITS_counts.txt.gz). This input is required when the --observed-trait-table option is set. ")
-	group_input.add_argument('-t', '--tree', required=True, type=str, help='frogsfunc_placeseqs output tree in newick format containing both study sequences (i.e. ASVs or OTUs) and reference sequences.')
-	group_input.add_argument('-s', '--hsp-method', default='mp', choices=['mp', 'emp_prob', 'pic', 'scp', 'subtree_average'], help='HSP method to use.' +'"mp": predict discrete traits using max parsimony. ''"emp_prob": predict discrete traits based on empirical ''state probabilities across tips. "subtree_average": ''predict continuous traits using subtree averaging. ' '"pic": predict continuous traits with phylogentic ' 'independent contrast. "scp": reconstruct continuous ''traits using squared-change parsimony (default: ''%(default)s).')
+	group_input.add_argument('-m', '--marker-type', required=True, choices=['16S','ITS','18S'], help='Marker gene to be analyzed.')
+	group_input_16S = parser.add_argument_group( '16S ' )
+	group_input_16S.add_argument('-i', '--input-functions', default=["EC"], nargs='+', choices=['EC', 'KO', 'COG', 'PFAM', 'TIGRFAM','PHENO'], help="Specifies which function databases should be used (%(default)s). EC is used by default because necessary for frogsfunc_pathways. At least EC or KO is required. To run the command with several functions, separate the functions with spaces (ex: -i EC PFAM).")
+
+	group_input_other = parser.add_argument_group( 'ITS and 18S ' )
+	group_input_other.add_argument('--input-function-table',help="The path to input functions table describing directly observed functions, in tab-delimited format.(ex $PICRUSt2_PATH/default_files/fungi/ec_ITS_counts.txt.gz). Required.")
+	group_input_other.add_argument('--input-marker-table',help="The input marker table describing directly observed traits (e.g. sequenced genomes) in tab-delimited format. (ex $PICRUSt2_PATH/default_files/fungi/ITS_counts.txt.gz). Required.")
+
 	# Output
 	group_output = parser.add_argument_group( 'Outputs' )
-	group_output.add_argument('-m', '--output-marker', default="frogsfunc_copynumbers_marker.tsv", type=str, help='Output table of predicted marker gene copy numbers per study sequence in input tree. If the extension \".gz\" is added the table will automatically be gzipped.[Default: %(default)s]')
-	group_output.add_argument('-o', '--output-function', default="frogsfunc_copynumbers_predicted_functions.tsv", type=str, help='Output table with predicted abundances per study sequence in input tree. If the extension \".gz\" is added the table will automatically be gzipped.[Default: %(default)s]')
+	group_output.add_argument('-o', '--output-marker', default="frogsfunc_copynumbers_marker.tsv", type=str, help='Output table of predicted marker gene copy numbers per studied sequence in input tree. If the extension \".gz\" is added the table will automatically be gzipped.[Default: %(default)s]')
+	group_output.add_argument('-f', '--output-function', default="frogsfunc_copynumbers_predicted_functions.tsv", type=str, help='Output table with predicted function abundances per studied sequence in input tree. If the extension \".gz\" is added the table will automatically be gzipped.[Default: %(default)s]')
 	group_output.add_argument('-l', '--log-file', default=sys.stdout, help='List of commands executed.')
-	group_output.add_argument('--html', default='frogsfunc_copynumbers_summary.html', help="Path to store resulting html file. [Default: %(default)s]" )
+	group_output.add_argument('-s', '--summary', default='frogsfunc_copynumbers_summary.html', help="Path to store resulting html file. [Default: %(default)s]" )
 	args = parser.parse_args()
 	prevent_shell_injections(args)
 
-	if args.in_trait is not None:
-		if not 'EC' in args.in_trait and not 'KO' in args.in_trait:
-			parser.error("\n\n#ERROR : --in-trait : 'EC' and/or 'KO' must be at least indicated (others functions are optionnal)")
-	if (args.observed_trait_table is not None and args.observed_marker_table is None) or (args.observed_trait_table is None and args.observed_marker_table is not None):
-		parser.error("\n\n#ERROR : --observed-trait-table and --observed-marker-table both required when studied marker is not 16S!\n\n")
-	elif args.observed_trait_table is not None and args.observed_marker_table is not None:
-		args.in_trait = None
-
-	# default output marker file name
-	if args.output_marker is None:
-		args.output_marker = "frogsfunc_copynumbers_marker.tsv"
+	# Check for 16S input
+	if args.marker_type == "16S" and (not 'EC' in args.input_functions and not 'KO' in args.input_functions):
+			parser.error("\n\n#ERROR : --input-functions : 'EC' and/or 'KO' must be at least indicated (others functions are optionnal)")
+	# Check for ITS or 18S input
+	if args.marker_type in ["ITS", "18S"]:
+		if (args.input_function_table is not None and args.input_marker_table is None) or (args.input_function_table is None and args.input_marker_table is not None):
+			parser.error("\n\n#ERROR : --input-function-table and --input-marker-table both required when studied marker is not 16S!\n\n")
+		elif args.input_function_table is not None and args.input_marker_table is not None:
+			args.input_functions = None
 
 	tmp_files=TmpFiles(os.path.split(args.output_marker)[0])
 
@@ -281,23 +297,24 @@ if __name__ == "__main__":
 		Logger.static_write(args.log_file, "## Application\nSoftware :" + sys.argv[0] + " (version : " + str(__version__) + ")\nCommand : " + " ".join(sys.argv) + "\n\n")
 
 		tmp_hsp_marker = tmp_files.add( 'tmp_hsp_marker.log' )
-		HspMarker(args.observed_marker_table, args.tree, args.hsp_method, args.output_marker, args.output_function, tmp_hsp_marker).submit(args.log_file)
+		HspMarker(args.input_marker_table, args.input_tree, args.hsp_method, args.output_marker, args.output_function, tmp_hsp_marker).submit(args.log_file)
 
-		tmp_depth_nsti = tmp_files.add( 'depth_nsti.txt' )
-		write_summary(args.input_biom, args.output_marker, tmp_depth_nsti, args.html)
+		# tmp_depth_nsti = tmp_files.add( 'depth_nsti.txt' )
+		write_summary(args.input_biom, args.output_marker, args.summary)
 
 		tmp_hsp_function = tmp_files.add( 'tmp_hsp_function.log' )
-		if args.in_trait is not None:
-			in_traits = check_functions(args.in_trait)
+		if args.input_functions is not None:
 
-			suffix_name = "_predicted.tsv"
-			for trait in in_traits:
+			suffix_name = "_copynumbers_predicted.tsv"
+			for trait in args.input_functions:
 				cur_output_function = trait + suffix_name
+				tmp_output_function = tmp_files.add( cur_output_function )
 				Logger.static_write(args.log_file, '\n\nRunning ' + trait + ' functions prediction.\n')
-				HspFunction(trait, args.observed_trait_table, args.tree, args.hsp_method, cur_output_function, args.output_function, tmp_hsp_function).submit(args.log_file)
+				HspFunction(trait, args.input_function_table, args.input_tree, args.hsp_method, tmp_output_function, args.output_function, tmp_hsp_function).submit(args.log_file)
 		else:
-			cur_output_function = "function_predicted.tsv"
-			HspFunction(args.in_trait, args.observed_trait_table, args.tree, args.hsp_method, cur_output_function, args.output_function, tmp_hsp_function).submit(args.log_file)
+			cur_output_function = "copynumbers_predicted.tsv"
+			tmp_output_function = tmp_files.add( cur_output_function )
+			HspFunction(args.input_functions, args.input_function_table, args.input_tree, args.hsp_method, tmp_output_function, args.output_function, tmp_hsp_function).submit(args.log_file)
 	
 	finally:
 		if not args.debug:

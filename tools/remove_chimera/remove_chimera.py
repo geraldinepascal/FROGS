@@ -23,6 +23,7 @@ __version__ = '4.0.1'
 __email__ = 'frogs-support@inrae.fr'
 __status__ = 'prod'
 
+from decimal import DivisionByZero
 import os
 import sys
 import json
@@ -152,13 +153,19 @@ def write_summary( summary_file, results_chimera ):
                 else:
                     line_fields = line.split("\t")
                     # Calculate % of abundance kep on fly:
-                    line_fields.insert(2,float(100-(float(int(int(line_fields[3])*100)/\
-                        int(int(line_fields[1])+int(line_fields[3]))))))
-                    line_fields.insert(4,float(100-(float(int(int(line_fields[5])*100)/\
-                        int(int(line_fields[3])+int(line_fields[5]))))))
+                    try:
+                        line_fields.insert(2, float(100-(float(int(int(line_fields[3])*100)/\
+                            int(int(line_fields[1])+int(line_fields[3]))))))
+                    except ZeroDivisionError:
+                        line_fields.insert(2, 'NA')
+                    try:
+                        line_fields.insert(4, float(100-(float(int(int(line_fields[5])*100)/\
+                            int(int(line_fields[3])+int(line_fields[5]))))))
+                    except ZeroDivisionError:
+                        line_fields.insert(4, 'NA')     
                     detection_data.append({
                              'name': line_fields[0],
-                             'data': list(map(float, line_fields[1:]))
+                             'data': line_fields[1:]
                     })
             elif in_remove_metrics:
                 if section_first_line:

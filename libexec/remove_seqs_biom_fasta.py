@@ -32,20 +32,21 @@ from frogsSequenceIO import *
 
 def find_excluded(excluded_file):
 	"""
-	@summary: Returns the list of clusters not insert into reference tree from excluded.txt file.
+	@summary: Returns the list of clusters excluded from excluded file.
 	@param excluded_file: [str] Path to the excluded clusters file. 
-	@note : Excluded clusters file must be one cluster ID per line:
+	@note : Excluded clusters file must be one cluster ID in the first column:
 	Cluster_1
 	Cluster_4
 	...
 	"""
-	excluded = []
-	excluded_file = open(excluded_file,'r').readlines()
+	excluded = list()
+	FH_in = open(excluded_file,'rt')
 
-	if excluded_file is not None:
-		for li in excluded_file:
-			if re.match("(Cluster_[0-9]+)",li):
-				excluded.append(li.strip())
+	for line in FH_in.readlines():
+		if not line.startswith('#'):
+			excluded.append(line.strip().split()[0])
+	FH_in.close()
+	
 	return excluded
 
 def remove_excluded_fasta( in_fasta, out_fasta, excluded_seqs):
@@ -67,6 +68,7 @@ def remove_excluded_biom(input_biom, output_biom, excluded_seqs):
 	@summary: Removes the specified list of observations.
 	@param excluded_seqs: [list] The names of the observations to remove.
 	"""
+	print(excluded_seqs)
 	biom = BiomIO.from_json( input_biom )
 	biom.remove_observations( excluded_seqs )
 	BiomIO.write( output_biom, biom )
