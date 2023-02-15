@@ -1,3 +1,29 @@
+# v4.1.0 [DEV]
+
+### Tools modified:
+* FROGSFunc copynumber removed
+* FROGSFunc placeseq : integrates FROGSFunc marker copynumber part
+* FROGSFunc function : integrates FROGSFunc function copynumber part
+
+### Function added
+* Preprocess: add a longread sequencer option to deal with longreads
+* AFfiliation_filter : add a –-keep-blast-taxa option
+* DESeq preprocess : adapt the tool to deal with function abundance table (output from FROGSFunc Function) in TSV format
+* DESeq visualisation : 
+  * adapt the tool to functionnal abundance differential analysis
+  * add Ipath3 visualisation functionnal abundance differential analysis
+* FROGSFunc placeseq : add %identity and %coverage between amplicon sequences and Picrust reference sequences.
+* FROGSFunc function : 
+  * in addition to NSTI, add filter on %identity and %coverage between amplicon sequences and Picrust reference sequences.
+  * add a star plot to visualise the filter impact on taxonomies kept
+  * parallelization of function abundance prediction on different function database (MetaCyc, KEGG, COG, ...)
+
+## Bug fixed
+* Remove_chimera : deal with empty sample to compute proportion of sequence kept in the report. Proportion is now set to NA.
+* Affiliation_filter : 
+  * correctly find number of taxonomical rank
+  * remove OTU without affiliation when using blast metrics filters
+ 
 # v4.0.1 [2022-06]
 
 ### Bug fixed
