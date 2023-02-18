@@ -498,6 +498,8 @@ if __name__ == "__main__":
 	for arg_name, arg_value in args_dict.items():
 		if arg_name.startswith('output') and arg_name != "output_dir" and arg_value is not None:
 			check_basename_files(arg_name, arg_value)
+	if not os.path.exists(args.output_dir):
+		os.mkdir(args.output_dir)
 			
 	### Check inputs
 	# Check for 16S input
@@ -521,17 +523,18 @@ if __name__ == "__main__":
 			parser.error('--min-blast-cov must be between 0.0 and 1.0.')
 	###
 	### Output paths
+
 	args.output_otu_norm = args.output_dir + "/" + args.output_otu_norm
 	args.output_weighted = args.output_dir + "/" + args.output_weighted
+	args.output_fasta = args.output_dir + "/" + args.output_fasta
 	args.output_biom = args.output_dir + "/" + args.output_biom
-	args.output_fasta = args.output_dir + "/" + args.output_fasta 
-	args.output_excluded = args.output_dir + "/" + args.output_excluded 
+	args.output_excluded = args.output_dir + "/" + args.output_excluded
 	args.summary = args.output_dir + "/" + args.summary
 	if args.strat_out:
 		if args.output_contrib is None:
 			args.output_contrib = "frogsfunc_functions_unstrat.tsv"
 		args.output_contrib = args.output_dir + "/" + args.output_contrib
-
+		
 	tmp_files=TmpFiles(os.path.split(args.output_otu_norm)[0])
 	tmp_files_picrust =  TmpFiles(os.path.split(args.output_otu_norm)[0])
 

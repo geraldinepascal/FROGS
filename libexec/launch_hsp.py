@@ -174,6 +174,8 @@ def parallel_submission( function, inputs, tree, hsp_method, outputs, logs, cpu_
 def append_results(logs_hsp, log_file):
     """
     """
+    if type(logs_hsp) != list:
+        logs_hsp = [logs_hsp]
     # Append log
     FH_log = Logger(log_file)
     FH_log.write("\n")
@@ -267,16 +269,24 @@ if __name__ == "__main__":
             tmp_hsp_function = tmp_files.add( 'tmp_hsp_function.log' )
 
             # if args.functions is not None:
-            suffix_name = "_copynumbers_predicted.tsv"
-            functions_outputs = [args.output_dir + "/" + trait + "_copynumbers_predicted.tsv" for trait in args.functions]
-            logs_hsp = [tmp_files.add( trait + "_tmp_hsp_function.log") for trait in args.functions]
-            if len(args.functions) == 1 or args.nb_cpus == 1:
-                Logger.static_write(args.log_file, '\n\nRunning ' + " ".join(args.functions) + ' functions prediction.\n')
-                process_hsp_function(args.functions, args.input_function_table, args.input_tree, args.hsp_method, functions_outputs, logs_hsp)
+            if args.marker_type == "16S":
+                suffix_name = "_copynumbers_predicted.tsv"
+                functions_outputs = [args.output_dir + "/" + trait + "_copynumbers_predicted.tsv" for trait in args.functions]
+                logs_hsp = [tmp_files.add( trait + "_tmp_hsp_function.log") for trait in args.functions]
 
-            else:
-                parallel_submission( process_hsp_function, args.functions, args.input_tree, args.hsp_method, functions_outputs, logs_hsp, len(args.functions) )
+                if len(args.functions) == 1 or args.nb_cpus == 1:
+                    Logger.static_write(args.log_file, '\n\nRunning ' + " ".join(args.functions) + ' functions prediction.\n')
+                    process_hsp_function(args.functions, args.input_function_table, args.input_tree, args.hsp_method, functions_outputs, logs_hsp)
+
+                else:
+                    parallel_submission( process_hsp_function, args.functions, args.input_tree, args.hsp_method, functions_outputs, logs_hsp, len(args.functions) )
             
+            elif args.marker_type in ["ITS", "18S"]:
+                functions_outputs = args.output_dir + "/" + "EC_copynumbers_predicted.tsv"
+                logs_hsp = tmp_files.add("EC_tmp_hsp_function.log")
+                Logger.static_write(args.log_file, '\n\nRunning EC functions prediction.\n')
+                process_hsp_function(args.functions, args.input_function_table, args.input_tree, args.hsp_method, functions_outputs, logs_hsp)             
+
             append_results(logs_hsp, args.log_file)
     
     finally:
