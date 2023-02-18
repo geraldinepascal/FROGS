@@ -530,7 +530,7 @@ if __name__ == "__main__":
 	args.summary = args.output_dir + "/" + args.summary
 	if args.strat_out:
 		if args.output_contrib is None:
-			args.output_contrib = "frogsfunc_functions_unstrat.tsv"
+			args.output_contrib = "frogsfunc_functions_strat.tsv"
 		args.output_contrib = args.output_dir + "/" + args.output_contrib
 
 	tmp_files=TmpFiles(os.path.split(args.output_otu_norm)[0])
@@ -579,6 +579,10 @@ if __name__ == "__main__":
 			tmp_weighted = tmp_files_picrust.add('weighted_nsti.tsv.gz')
 			tmp_unstrat = tmp_files_picrust.add('pred_metagenome_unstrat.tsv.gz')
 			if args.strat_out:
+				strat_basename_ext = os.path.basename(args.output_contrib)
+				strat_basename = os.path.splitext(strat_basename_ext)[0]
+				ext = os.path.splitext(strat_basename_ext)[1]
+				output_strat_abund = args.output_dir + "/" + strat_basename + "_" + database + ext
 				tmp_strat = tmp_files_picrust.add('pred_metagenome_contrib.tsv.gz')
 			##
 			MetagenomePipeline(tmp_biom_to_tsv, args.input_marker, function_file, args.max_nsti, args.min_reads, args.min_samples, args.strat_out, args.output_dir, tmp_metag_pipeline).submit( args.log_file )
@@ -587,7 +591,7 @@ if __name__ == "__main__":
 			ext = os.path.splitext(function_basename_ext)[1]
 			output_function_abund = args.output_dir + "/" + function_basename + "_" + database + ext
 			tmp_parse = tmp_files.add( 'tmp_parse_metagenome.log' )
-			ParseMetagenomePipeline(args.output_dir, output_function_abund, args.output_otu_norm, args.output_weighted, args.strat_out, args.output_contrib, tmp_parse).submit( args.log_file)
+			ParseMetagenomePipeline(args.output_dir, output_function_abund, args.output_otu_norm, args.output_weighted, args.strat_out, output_strat_abund, tmp_parse).submit( args.log_file)
 			
 			# Launch one time for EC or KO.
 			to_run = True
