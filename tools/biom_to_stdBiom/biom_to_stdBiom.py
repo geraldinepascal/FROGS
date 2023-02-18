@@ -69,7 +69,7 @@ def process( in_biom, out_biom, out_metadata ):
                 if isinstance(observation["metadata"][metadata_key], list) or isinstance(observation["metadata"][metadata_key], tuple):
                     observation["metadata"][metadata_key] = ";".join( map(str, observation["metadata"][metadata_key]) )
         if "blast_taxonomy" in observation["metadata"]:
-            if observation["metadata"]["blast_taxonomy"] is None:
+            if observation["metadata"]["blast_taxonomy"] is None or len(observation["metadata"]["blast_taxonomy"])==0:
                 unclassified_observations.append( observation["id"] )
                 observation["metadata"]["taxonomy"] = list()
             else:

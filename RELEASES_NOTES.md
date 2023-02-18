@@ -34,7 +34,8 @@
   * add exception to avoid using sepp tools with ITS or 18S amplicon
 * frogsfunc_function:
   * deal with function that are not associated with database link (picrust trait PHENO)
-* Affiliation_filter : correctly find the number of taxonomical rank (in cas of empty affiliation in the first cluster)
+* Affiliation_filter: correctly find the number of taxonomical rank (in cas of empty affiliation in the first cluster)
+* biom_to_stdBiom.py: deal with empty affiliations (add "Unclassified" for each taxonomic rank)
 
 # v4.0.0 [2022-05]
 
