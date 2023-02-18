@@ -512,8 +512,6 @@ if __name__ == "__main__":
 
 	if not args.strat_out and args.output_contrib is not None:
 		parser.error('--strat_out flag must be include with --output-contrib')
-	if args.strat_out and args.output_contrib is None:
-		parser.error('--output-contrib FILENAME must be include with --strat_out flag')
 	
 	if args.min_blast_ident:
 		if args.min_blast_ident < 0.0 or args.min_blast_ident > 1.0:
@@ -534,7 +532,7 @@ if __name__ == "__main__":
 		if args.output_contrib is None:
 			args.output_contrib = "frogsfunc_functions_unstrat.tsv"
 		args.output_contrib = args.output_dir + "/" + args.output_contrib
-		
+
 	tmp_files=TmpFiles(os.path.split(args.output_otu_norm)[0])
 	tmp_files_picrust =  TmpFiles(os.path.split(args.output_otu_norm)[0])
 
