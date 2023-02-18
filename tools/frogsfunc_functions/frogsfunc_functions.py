@@ -120,7 +120,7 @@ class ParseMetagenomePipeline(Cmd):
 	def __init__(self, in_dir, out_abund, otu_norm_file , out_weighted, strat_out, out_contrib, log):
 		opt = ''
 		if strat_out:
-			opt += " --input-contrib " + out_contrib
+			opt += " --output-contrib " + out_contrib
 		Cmd.__init__( self,
 					  'frogsFuncUtils.py',
 					  'Parse metagenome_pipeline.py outputs.',
