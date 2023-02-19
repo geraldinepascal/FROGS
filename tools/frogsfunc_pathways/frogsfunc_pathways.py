@@ -151,12 +151,27 @@ class FormateAbundances(Cmd):
 	"""
 	@summary: Formate pathway abundances file in order to add function classifications and display sunbursts graphs.
 	"""
-	def __init__(self, in_abund, tmp_sunburst, tmp_unstrat, hierarchy_file, log):
+	def __init__(self, in_abund, tmp_unstrat, hierarchy_file, log):
 
 		Cmd.__init__(self,
 			'frogsFuncUtils.py',
 			'Formate pathway abundances file.',
-			'formate-abundances --input-abundances ' + in_abund + ' --input-tmp-sunburst ' + tmp_sunburst + ' --input-tmp-unstrat ' + tmp_unstrat + ' --hierarchy-file ' + hierarchy_file + ' 2>> ' + log,
+			'formate-abundances --input-abundances ' + in_abund + ' --input-tmp-unstrat ' + tmp_unstrat + ' --hierarchy-file ' + hierarchy_file + ' 2>> ' + log,
+			'--version')
+
+	def get_version(self):
+		return Cmd.get_version(self, 'stdout').strip()
+
+class GenerateSunburst(Cmd):
+	"""
+	@summary: Generate sunburst input files for html graphics
+	"""
+	def __init__(self, in_abund, tmp_sunburst, log):
+
+		Cmd.__init__(self,
+			'frogsFuncUtils.py',
+			'Generate sunburst input files.',
+			'generate-sunburst --input-abundances ' + in_abund + ' --input-tmp-sunburst ' + tmp_sunburst + ' 2>> ' + log,
 			'--version')
 
 	def get_version(self):
@@ -306,6 +321,8 @@ if __name__ == "__main__":
 	for arg_name, arg_value in args_dict.items():
 		if arg_name.startswith('output') and arg_name != "output_dir" and arg_value is not None:
 			check_basename_files(arg_name, arg_value)
+	if not os.path.exists(args.output_dir):
+		os.mkdir(args.output_dir)
 
 	if args.per_sequence_contrib:
 		if args.per_sequence_abun == None or args.per_sequence_function == None:
@@ -324,7 +341,7 @@ if __name__ == "__main__":
 	args.summary = args.output_dir + "/" + args.summary
 	tmp_files=TmpFiles(os.path.split(args.summary)[0])
 	tmp_files_picrust =  TmpFiles(os.path.dirname(args.output_pathways_abund), prefix="")
-	
+
 	HIERARCHY_RANKS = ['Level1','Level2','Level3','Pathway']
 	try:	 
 		Logger.static_write(args.log_file, "## Application\nSoftware :" + sys.argv[0] + " (version : " + str(__version__) + ")\nCommand : " + " ".join(sys.argv) + "\n\n")
@@ -351,7 +368,13 @@ if __name__ == "__main__":
 		tmp_formate_abundances = tmp_files.add( 'tmp_formate_abundances.log' )
 		tmp_pathway_sunburst = tmp_files.add( "functions_unstrat_sunburst.tmp")
 		tmp_pathway_unstrat = tmp_files.add( "functions_unstrat.tmp")
-		FormateAbundances(args.output_pathways_abund, tmp_pathway_sunburst, tmp_pathway_unstrat, PATHWAYS_HIERARCHY_FILE, tmp_formate_abundances).submit( args.log_file)
+		FormateAbundances(args.output_pathways_abund, tmp_pathway_unstrat, PATHWAYS_HIERARCHY_FILE, tmp_formate_abundances).submit( args.log_file)
+
+		tmp_function_sunburst = tmp_files.add( "functions_unstrat_sunburst.tmp")
+		function_file_sunburst = args.output_pathways_abund
+		tmp_sunburst_log = tmp_files.add( 'tmp_generate_sunburst.log' )
+		GenerateSunburst(args.output_pathways_abund, tmp_pathway_sunburst, tmp_sunburst_log).submit( args.log_file)
+
 		if args.normalisation:
 			normalized_abundances_file( args.output_pathways_abund)
 		tmp_biom = tmp_files.add( 'pathway_abundances.biom' )
