@@ -107,30 +107,33 @@ def task_formate_abundances_file( args, hierarchy_tag = "classification"):
 	df.rename(columns = {'function':'observation_name'}, inplace = True)
 	df.to_csv(args.input_abundances ,sep='\t', index=False)
 
-	tmp_sunburst = open(args.input_tmp_sunburst, 'wt')
 	tmp_unstrat = open(args.input_tmp_unstrat, 'wt')
 	FH_in = open(args.input_abundances).readlines()
 
 	header = FH_in[0].strip().split('\t')
 	header.insert(0, hierarchy_tag)
-	
-	tmp_sunburst.write("\t".join(header)+"\n")
+
 	tmp_unstrat.write("\t".join(header)+"\n")
 	for li in FH_in[1:]:
 		li = li.strip().split('\t')
 		if li[1] in id_to_hierarchy:
-			li.insert(0,id_to_hierarchy[li[1]])
-			tmp_unstrat.write("\t".join(li)+"\n") 
-			if not li[2].startswith('COG'):
-				tmp_sunburst.write("\t".join(li)+"\n")
-	tmp_sunburst.close()
+			li.insert(0, id_to_hierarchy[li[1]])
+		else:
+			li.insert(0, "NA")
+		tmp_unstrat.write("\t".join(li)+"\n") 
+
 	tmp_unstrat.close()
 	with open(args.input_tmp_unstrat, 'rt') as f_in:
 		with open(args.input_abundances, 'wt') as f_out:
 			shutil.copyfileobj(f_in, f_out)
 
-	tmp_sunburst = pd.read_csv(args.input_tmp_sunburst, sep="\t")
-
+def task_generate_sunburst( args, hierarchy_tag = "classification"):
+	'''
+	@summary: Generate sunburst input files for html graphical outputs.
+	@param input-abundances: function or pathway abundances files.
+	@param input-tmp-sunburst: abundances formatted file (with rounded numbers)
+	'''
+	tmp_sunburst = pd.read_csv(args.input_abundances, sep="\t")
 	headers = ['observation_name', 'db_link', hierarchy_tag]
 	for column in tmp_sunburst:
 		if column not in headers:
@@ -243,12 +246,17 @@ if __name__ == "__main__":
     # Formate abundances files
     parser_formate = subparsers.add_parser('formate-abundances', help='Add classifications columns and create temporary abundance file to display sunburst graphs.', usage='frogsFuncUtils.py formate-abundances [-h] -i INPUT_FILE -o OUTPUT_FILE')
     parser_formate.add_argument( '-i', '--input-abundances', required=True, type=str, help='Input function or pathway abundances file.' )
-    parser_formate.add_argument( '-t', '--input-tmp-sunburst', required=True, type=str, help='Tmp path of abundances to display sunburst graphs.' )
     parser_formate.add_argument( '-u', '--input-tmp-unstrat', required=True, type=str, help='Tmp path of function abundances.' )
     parser_formate.add_argument( '-f', '--hierarchy-file', required=True, type=str, help='Reference file that links every pathways or function ID to its hierarchy levels..' )
     parser_formate.set_defaults(func=task_formate_abundances_file)
 
-	# Parse MetagenomePipeline outputs
+    # Generate sunburst input files
+    parser_sunburst = subparsers.add_parser('generate-sunburst', help= 'Generate sunburst input files to display sunburst graphs in frogsfunc_function html')
+    parser_sunburst.add_argument( '-i', '--input-abundances', required=True, type=str, help='Input function or pathway abundances file.' )
+    parser_sunburst.add_argument( '-t', '--input-tmp-sunburst', required=True, type=str, help='Tmp path of abundances to display sunburst graphs.' )
+    parser_sunburst.set_defaults(func=task_generate_sunburst)
+
+    # Parse MetagenomePipeline outputs
     parser_function = subparsers.add_parser('parse-metagenome', help='Parse results of PICRUSt2 metageome_pipeline.py software to rerieve additional informations (i.g. databases functions links).')
     parser_function.add_argument( '-i', '--input-dir', required=True, type=str, help='Output directory for PICRSUt2 metagenome_pipeline.py functions predictions.' )
     parser_function.add_argument( '-a', '--output-abund', required=True, type=str, help='PICRSUt2 metagenome_pipeline.py output file for metagenome prediction abundances.' )

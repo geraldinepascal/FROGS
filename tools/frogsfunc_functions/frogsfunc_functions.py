@@ -196,17 +196,28 @@ class FormateAbundances(Cmd):
 	"""
 	@summary: Formate function abundances file in order to add function classifications and display sunbursts graphs.
 	"""
-	def __init__(self, in_abund, tmp_sunburst, tmp_unstrat, hierarchy_file, log):
+	def __init__(self, in_abund, tmp_unstrat, hierarchy_file, log):
 
 		Cmd.__init__(self,
 			'frogsFuncUtils.py',
 			'Formate function abundances file.',
-			'formate-abundances --input-abundances ' + in_abund + ' --input-tmp-sunburst ' + tmp_sunburst + ' --input-tmp-unstrat ' + tmp_unstrat + ' --hierarchy-file ' + hierarchy_file + ' 2>> ' + log,
+			'formate-abundances --input-abundances ' + in_abund +  ' --input-tmp-unstrat ' + tmp_unstrat + ' --hierarchy-file ' + hierarchy_file + ' 2>> ' + log,
 			'--version')
 
 	def get_version(self):
 		return Cmd.get_version(self, 'stdout').strip()
 
+class GenerateSunburst(Cmd):
+	"""
+	@summary: Generate sunburst input files for html graphics
+	"""
+	def __init__(self, in_abund, tmp_sunburst, log):
+
+		Cmd.__init__(self,
+			'frogsFuncUtils.py',
+			'Generate sunburst input files.',
+			'generate-sunburst --input-abundances ' + in_abund + ' --input-tmp-sunburst ' + tmp_sunburst + ' 2>> ' + log,
+			'--version')
 
 class TaxonomyTree(Cmd):
 	"""
@@ -578,6 +589,7 @@ if __name__ == "__main__":
 			tmp_seqtab = tmp_files_picrust.add('seqtab_norm.tsv.gz')
 			tmp_weighted = tmp_files_picrust.add('weighted_nsti.tsv.gz')
 			tmp_unstrat = tmp_files_picrust.add('pred_metagenome_unstrat.tsv.gz')
+			output_strat_abund = None
 			if args.strat_out:
 				strat_basename_ext = os.path.basename(args.output_contrib)
 				strat_basename = os.path.splitext(strat_basename_ext)[0]
@@ -592,16 +604,20 @@ if __name__ == "__main__":
 			output_function_abund = args.output_dir + "/" + function_basename + "_" + database + ext
 			tmp_parse = tmp_files.add( 'tmp_parse_metagenome.log' )
 			ParseMetagenomePipeline(args.output_dir, output_function_abund, args.output_otu_norm, args.output_weighted, args.strat_out, output_strat_abund, tmp_parse).submit( args.log_file)
+				
+			tmp_function_unstrat = tmp_files.add( "functions_unstrat.tmp")
+			tmp_formate_abundances = tmp_files.add( 'tmp_formate_abundances.log' )
+			FormateAbundances(output_function_abund, tmp_function_unstrat, GENE_HIERARCHY_FILE, tmp_formate_abundances).submit( args.log_file)		
 			
 			# Launch one time for EC or KO.
 			to_run = True
 			if (database == "EC" or database == "KO") and to_run:
 				# Make a temporary functions abundances file to display sunbursts graphs.
 				tmp_function_sunburst = tmp_files.add( "functions_unstrat_sunburst.tmp")
-				tmp_function_unstrat = tmp_files.add( "functions_unstrat.tmp")
-				tmp_formate_abundances = tmp_files.add( 'tmp_formate_abundances.log' )
-				FormateAbundances(output_function_abund, tmp_function_sunburst, tmp_function_unstrat, GENE_HIERARCHY_FILE, tmp_formate_abundances).submit( args.log_file)
 				function_file_sunburst = output_function_abund
+				tmp_sunburst_log = tmp_files.add( 'tmp_generate_sunburst.log' )
+				GenerateSunburst(output_function_abund, tmp_function_sunburst, tmp_sunburst_log).submit( args.log_file)
+				function_file_sunburst = tmp_function_sunburst
 				to_run = False
 
 		tmp_biom = tmp_files.add( 'gene_abundances.biom' )
