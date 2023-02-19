@@ -307,32 +307,32 @@ if __name__ == "__main__":
 		if arg_name.startswith('output') and arg_name != "output_dir" and arg_value is not None:
 			check_basename_files(arg_name, arg_value)
 
+	if args.per_sequence_contrib:
+		if args.per_sequence_abun == None or args.per_sequence_function == None:
+			parser.error("\n\n#ERROR : --per-sequence-abun and --per-sequence-function required when --per-sequence-contrib option is set!\n\n")
+		if args.output_pathways_contrib is None:
+			args.output_pathways_contrib = args.output_dir + '/frogsfunc_pathways_strat.tsv'
+		if args.output_pathways_predictions is None:
+			args.output_pathways_predictions = args.output_dir + '/frogsfunc_pathways_predictions.tsv'
+		if args.output_pathways_abund_per_seq is None:
+			args.output_pathways_abund_per_seq = args.output_dir + '/frogsfunc_pathways_unstrat_per_seq.tsv'
+
+	if (args.per_sequence_abun is not None or args.per_sequence_function is not None) and not args.per_sequence_contrib:
+		parser.error("\n\n#ERROR : --per-sequence-contrib required when --per-sequence-contrib and --per-sequence-function option is set!\n\n")
+
 	args.output_pathways_abund = args.output_dir + "/" + args.output_pathways_abund
 	args.summary = args.output_dir + "/" + args.summary
 	tmp_files=TmpFiles(os.path.split(args.summary)[0])
+	tmp_files_picrust =  TmpFiles(os.path.dirname(args.output_pathways_abund), prefix="")
 	
 	HIERARCHY_RANKS = ['Level1','Level2','Level3','Pathway']
 	try:	 
 		Logger.static_write(args.log_file, "## Application\nSoftware :" + sys.argv[0] + " (version : " + str(__version__) + ")\nCommand : " + " ".join(sys.argv) + "\n\n")
 
-		if args.per_sequence_contrib:
-			if args.per_sequence_abun == None or args.per_sequence_function == None:
-				parser.error("\n\n#ERROR : --per-sequence-abun and --per-sequence-function required when --per-sequence-contrib option is set!\n\n")
-			if args.output_pathways_contrib is None:
-				args.output_pathways_contrib = args.output_dir + '/frogsfunc_pathways_strat.tsv'
-			if args.output_pathways_predictions is None:
-				args.output_pathways_predictions = args.output_dir + '/frogsfunc_pathways_predictions.tsv'
-			if args.output_pathways_abund_per_seq is None:
-				args.output_pathways_abund_per_seq = args.output_dir + '/frogsfunc_pathways_unstrat_per_seq.tsv'
-
-		if (args.per_sequence_abun is not None or args.per_sequence_function is not None) and not args.per_sequence_contrib:
-			parser.error("\n\n#ERROR : --per-sequence-contrib required when --per-sequence-contrib and --per-sequence-function option is set!\n\n")
-
 		tmp_pathway = tmp_files.add( 'pathway_pipeline.log' )
 		tmp_tsv = tmp_files.add( 'genes_abundances_formatted.tsv')
 		formate_input_file(args.input_file, tmp_tsv)
 		##
-		tmp_files_picrust =  TmpFiles(os.path.dirname(args.output_pathways_abund), prefix="")
 		tmp_seqtab = tmp_files_picrust.add('path_abun_unstrat.tsv.gz')
 		if args.per_sequence_contrib:
 			tmp_contrib = tmp_files_picrust.add('path_abun_contrib.tsv.gz')
