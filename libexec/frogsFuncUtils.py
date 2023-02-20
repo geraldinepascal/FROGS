@@ -134,6 +134,8 @@ def task_generate_sunburst( args, hierarchy_tag = "classification"):
 	@param input-tmp-sunburst: abundances formatted file (with rounded numbers)
 	'''
 	tmp_sunburst = pd.read_csv(args.input_abundances, sep="\t")
+	# Keep only values with classifications
+	tmp_sunburst = tmp_sunburst[tmp_sunburst.classification.notnull()]
 	headers = ['observation_name', 'db_link', hierarchy_tag]
 	for column in tmp_sunburst:
 		if column not in headers:
