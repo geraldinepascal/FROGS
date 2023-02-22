@@ -58,7 +58,7 @@ class HspFunction(Cmd):
 	"""
 	@summary: Predict number of marker copies (16S, 18S or ITS) for each cluster sequence (i.e OTU).
 	"""
-	def __init__(self, tree, marker_type, marker_file, function_table, functions, hsp_method, output_dir, output_file, nb_cpus, log_file):
+	def __init__(self, tree, marker_type, marker_file, function_table, functions, hsp_method, output_dir, nb_cpus, log_file):
 		"""
 		@param observed_marker_table: [str] Path to marker table file if marker studied is not 16S.
 		@param in_tree: [str] Path to resulting tree file with inserted clusters sequences from frogsfunc_placeseqs.
@@ -73,10 +73,9 @@ class HspFunction(Cmd):
 		Cmd.__init__(self,
 				 'launch_hsp.py',
 				 'predict gene copy number per sequence.', 
-				 ' function --input-tree ' + tree + ' --marker-type ' + marker_type + opt + ' --marker-file ' + marker_file + ' --hsp-method ' + hsp_method + ' --output-dir ' + output_dir + ' -o ' + output_file + ' --nb-cpus ' + str(nb_cpus) + '  --log-file ' + log_file,
+				 ' function --input-tree ' + tree + ' --marker-type ' + marker_type + opt + ' --marker-file ' + marker_file + ' --hsp-method ' + hsp_method + ' --output-dir ' + output_dir + ' --nb-cpus ' + str(nb_cpus) + '  --log-file ' + log_file,
 				"--version")
 
-		self.output = output_file
 		self.log_file = log_file
 
 	def get_version(self):
@@ -492,8 +491,6 @@ if __name__ == "__main__":
 	group_input.add_argument('--min-samples', metavar='INT', type=int, default=1, help='Minimum number of samples that an OTU needs to be identfied within. OTUs below this cut-off will be counted as part of the \"RARE\" category in the stratified output.  If you choose 1, none OTU will be grouped in “RARE” category. (default: %(default)d).')
 	#Outputs
 	group_output = parser.add_argument_group( 'Outputs')
-	group_output.add_argument('-d', '--output-dir', default='frogsfunc_function_results', help='Output directory for function predictions.')
-	group_output.add_argument('--output-function', default="frogsfunc_copynumbers_functions.tsv", type=str, help='Output table with predicted function abundances per studied sequence in input tree. If the extension \".gz\" is added the table will automatically be gzipped.[Default: %(default)s]')
 	group_output.add_argument('--output-function-abund', default='frogsfunc_functions_unstrat.tsv', help='Output file for function prediction abundances. (default: %(default)s).')
 	group_output.add_argument('--output-otu-norm', default='frogsfunc_functions_marker_norm.tsv', help='Output file with otu abundances normalized by marker copies number. (default: %(default)s).')
 	group_output.add_argument('--output-weighted', default='frogsfunc_functions_weighted_nsti.tsv', help='Output file with the mean of nsti value per sample (format: TSV). [Default: %(default)s]' )
@@ -506,13 +503,8 @@ if __name__ == "__main__":
 	args = parser.parse_args()
 	prevent_shell_injections(args)
 	args_dict = vars(args)
-	for arg_name, arg_value in args_dict.items():
-		if arg_name.startswith('output') and arg_name != "output_dir" and arg_value is not None:
-			check_basename_files(arg_name, arg_value)
-	if not os.path.exists(args.output_dir):
-		os.mkdir(args.output_dir)
-			
-	### Check inputs
+	output_dir = os.path.dirname(os.path.abspath(args.output_function_abund))
+
 	# Check for 16S input
 	if args.marker_type == "16S" and (not 'EC' in args.functions and not 'KO' in args.functions):
 			parser.error("\n\n#ERROR : --input-functions : 'EC' and/or 'KO' must be at least indicated (others functions are optionnal)")
@@ -523,7 +515,11 @@ if __name__ == "__main__":
 
 	if not args.strat_out and args.output_contrib is not None:
 		parser.error('--strat_out flag must be include with --output-contrib')
-	
+
+	if args.strat_out:
+		if args.output_contrib is None:
+			args.output_contrib = "frogsfunc_functions_strat.tsv"
+
 	if args.min_blast_ident:
 		if args.min_blast_ident < 0.0 or args.min_blast_ident > 1.0:
 			parser.error('--min-blast-ident must be between 0.0 and 1.0.')
@@ -531,18 +527,6 @@ if __name__ == "__main__":
 		if args.min_blast_cov < 0.0 or args.min_blast_cov > 1.0:
 			parser.error('--min-blast-cov must be between 0.0 and 1.0.')
 	###
-	### Output paths
-
-	args.output_otu_norm = args.output_dir + "/" + args.output_otu_norm
-	args.output_weighted = args.output_dir + "/" + args.output_weighted
-	args.output_fasta = args.output_dir + "/" + args.output_fasta
-	args.output_biom = args.output_dir + "/" + args.output_biom
-	args.output_excluded = args.output_dir + "/" + args.output_excluded
-	args.summary = args.output_dir + "/" + args.summary
-	if args.strat_out:
-		if args.output_contrib is None:
-			args.output_contrib = "frogsfunc_functions_strat.tsv"
-		args.output_contrib = args.output_dir + "/" + args.output_contrib
 
 	tmp_files=TmpFiles(os.path.split(args.output_otu_norm)[0])
 	tmp_files_picrust =  TmpFiles(os.path.split(args.output_otu_norm)[0])
@@ -570,8 +554,7 @@ if __name__ == "__main__":
 
 		functions = " ".join(args.functions)
 		tmp_hsp_function = tmp_files.add( 'tmp_hsp_function.log' )
-		args.output_function = args.output_dir + "/" + args.output_function
-		HspFunction(args.input_tree, args.marker_type, args.input_marker, args.input_function_table, functions, args.hsp_method, args.output_dir, args.output_function, args.nb_cpus, tmp_hsp_function).submit(args.log_file)
+		HspFunction(args.input_tree, args.marker_type, args.input_marker, args.input_function_table, functions, args.hsp_method, output_dir, args.nb_cpus, tmp_hsp_function).submit(args.log_file)
 		FH_in = open(tmp_hsp_function)
 		for line in FH_in:
 			if line.startswith('## Software :'):
@@ -583,7 +566,7 @@ if __name__ == "__main__":
 		for function_file in function_outputs:
 			database = function_file.split('_')[0]
 			tmp_metag_pipeline = tmp_files.add( 'tmp_metagenome_pipeline.log' )
-			function_file = args.output_dir + "/" + function_file
+			function_file = output_dir + "/" + function_file
 			##
 			tmp_files_picrust =  TmpFiles(os.path.dirname(function_file), prefix="")
 			tmp_seqtab = tmp_files_picrust.add('seqtab_norm.tsv.gz')
@@ -594,16 +577,16 @@ if __name__ == "__main__":
 				strat_basename_ext = os.path.basename(args.output_contrib)
 				strat_basename = os.path.splitext(strat_basename_ext)[0]
 				ext = os.path.splitext(strat_basename_ext)[1]
-				output_strat_abund = args.output_dir + "/" + strat_basename + "_" + database + ext
+				output_strat_abund = output_dir + "/" + strat_basename + "_" + database + ext
 				tmp_strat = tmp_files_picrust.add('pred_metagenome_contrib.tsv.gz')
 			##
-			MetagenomePipeline(tmp_biom_to_tsv, args.input_marker, function_file, args.max_nsti, args.min_reads, args.min_samples, args.strat_out, args.output_dir, tmp_metag_pipeline).submit( args.log_file )
+			MetagenomePipeline(tmp_biom_to_tsv, args.input_marker, function_file, args.max_nsti, args.min_reads, args.min_samples, args.strat_out, output_dir, tmp_metag_pipeline).submit( args.log_file )
 			function_basename_ext = os.path.basename(args.output_function_abund)
 			function_basename = os.path.splitext(function_basename_ext)[0]
 			ext = os.path.splitext(function_basename_ext)[1]
-			output_function_abund = args.output_dir + "/" + function_basename + "_" + database + ext
+			output_function_abund = output_dir + "/" + function_basename + "_" + database + ext
 			tmp_parse = tmp_files.add( 'tmp_parse_metagenome.log' )
-			ParseMetagenomePipeline(args.output_dir, output_function_abund, args.output_otu_norm, args.output_weighted, args.strat_out, output_strat_abund, tmp_parse).submit( args.log_file)
+			ParseMetagenomePipeline(output_dir, output_function_abund, args.output_otu_norm, args.output_weighted, args.strat_out, output_strat_abund, tmp_parse).submit( args.log_file)
 				
 			tmp_function_unstrat = tmp_files.add( "functions_unstrat.tmp")
 			tmp_formate_abundances = tmp_files.add( 'tmp_formate_abundances.log' )
