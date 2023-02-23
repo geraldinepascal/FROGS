@@ -248,7 +248,6 @@ def normalized_abundances_file( strat_file ):
 	df = pd.read_csv(strat_file,sep='\t')
 	for column in df.iloc[:,3:]:
 		df[column] = df[column] / df[column].sum() * 1000000
-		df[column] = df[column].round(0).astype(int)
 	df.to_csv(strat_file, sep='\t', index=False)
 
 def write_summary(strat_file, tree_count_file, tree_ids_file, summary_file):
