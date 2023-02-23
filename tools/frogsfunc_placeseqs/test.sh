@@ -10,13 +10,13 @@ then
 fi
 
 ./frogsfunc_placeseqs.py \
- -i data/frogsfunc.fasta \
- -b data/frogsfunc.biom \
- -p sepp \
- -o test/25-frogsfunc_placeseqs_tree.nwk \
- -e test/25-frogsfunc_placeseqs_excluded.txt \
- -s test/25-frogsfunc_placeseqs.fasta \
- -m test/25-frogsfunc_placeseqs.biom\
- -c test/25-frogsfunc_placeseqs_closests_ref_sequences.txt \
- -om test/25-frogsfunc_marker.tsv \
- --summary test/25-frogsfunc_placeseqs_summary.html 
+    -i data/frogsfunc.fasta \
+    -b data/frogsfunc.biom \
+    --placement-tool sepp \
+    --output-tree test/25-frogsfunc_placeseqs_tree.nwk \
+    --excluded test/25-frogsfunc_placeseqs_excluded.txt \
+    --output-fasta test/25-frogsfunc_placeseqs.fasta \
+    --output-biom test/25-frogsfunc_placeseqs.biom \
+    --closests-ref test/25-frogsfunc_placeseqs_closests_ref_sequences.txt \
+    --output-marker test/25-frogsfunc_marker.tsv \
+    --summary test/25-frogsfunc_placeseqs_summary.html

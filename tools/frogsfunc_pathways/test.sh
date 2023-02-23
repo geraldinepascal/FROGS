@@ -12,7 +12,13 @@ then
 fi
 
 ./frogsfunc_pathways.py \
- -i data/26-frogsfunc_functions_unstrat_EC.tsv \
- --output-dir test \
- --output-pathways-abund 27-frogsfunc_pathways_unstrat.tsv \
- --summary 27-frogsfunc_pathways_summary.html 
+    --input-file data/26-frogsfunc_functions_unstrat_EC.tsv \
+    --normalisation \
+    --per-sequence-contrib \
+    --per-sequence-abun data/26-frogsfunc_functions_marker_norm.tsv \
+    --per-sequence-function data/EC_copynumbers_predicted.tsv \
+    --output-pathways-abund test/27-frogsfunc_pathways_unstrat.tsv \
+    --output-pathways-contrib test/27-frogsfunc_pathways_strat.tsv \
+    --output-pathways-predictions test/27-frogsfunc_pathways_predictions.tsv \
+    --output-pathways-abund-per-seq test/27-frogsfunc_pathways_unstrat_per_seq.tsv \
+    --summary test/27-frogsfunc_pathways_summary.html

@@ -11,18 +11,17 @@ then
 fi
 
 ./frogsfunc_functions.py \
- -b data/25-frogsfunc_placeseqs.biom \
- -i data/25-frogsfunc_placeseqs.fasta \
- -m data/25-frogsfunc_marker.tsv \
- -t data/25-frogsfunc_placeseqs_tree.nwk \
- --output-dir test \
- --marker-type 16S \
- --output-function 26-frogsfunc_copynumbers_functions.tsv \
- --output-function-abund 26-frogsfunc_functions_unstrat.tsv \
- --output-otu-norm 26-frogsfunc_functions_marker_norm.tsv \
- --output-biom 26-frogsfunc_function.biom \
- --output-fasta 26-frogsfunc_function.fasta \
- --output-weighted 26-frogsfunc_functions_weighted_nsti.tsv \
- --output-excluded 26-frogsfunc_functions_excluded.txt \
- --summary 26-frogsfunc_functions_summary.html --debug 
+    --strat-out \
+    --marker-type 16S \
+    --input-biom data/25-frogsfunc_placeseqs.biom \
+    --input-fasta data/25-frogsfunc_placeseqs.fasta \
+    --input-marker data/25-frogsfunc_marker.tsv \
+    --input-tree data/25-frogsfunc_placeseqs_tree.nwk
+    --output-function-abund test/26-frogsfunc_functions_unstrat.tsv \
+    --output-otu-norm test/26-frogsfunc_functions_marker_norm.tsv \
+    --output-weighted test/26-frogsfunc_functions_weighted_nsti.tsv \
+    --output-excluded test/26-frogsfunc_functions_excluded.txt \
+    --output-contrib test/26-frogsfunc_functions_strat.tsv \
+    --summary test/26-frogsfunc_functions_summary.html 
+
 
