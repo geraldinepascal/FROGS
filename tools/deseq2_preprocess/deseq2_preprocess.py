@@ -110,7 +110,7 @@ class PhyloseqImport(Cmd):
     """
     @summary: import data from two files: biomfile and samplefile into a phyloseq object for FUNC analysis.
     """
-    def __init__(self, biom_file, sample_file, ranks, out_rdata, log):
+    def __init__(self, biom_file, sample_file, ranks, out_rdata, out_html, log):
         """
         @param biom_file: [str] Path to biom file of function abundances from frogsfunc_functions.py step.
         @param sample_file: [str] Path to samplefile of metadata.
@@ -121,7 +121,7 @@ class PhyloseqImport(Cmd):
         Cmd.__init__(self,
                  'phyloseq_import_data.py',
                  'predict gene copy number per sequence.', 
-                 ' -b ' + biom_file + ' -s ' + sample_file + ' --ranks ' + ranks + ' --rdata ' + out_rdata + '  2>> ' + log,
+                 ' -b ' + biom_file + ' -s ' + sample_file + ' --ranks ' + ranks + ' --rdata ' + out_rdata + ' --html ' + out_html + '  2>> ' + log,
                 "--version")
 
     def get_version(self):
@@ -171,7 +171,7 @@ if __name__ == "__main__":
     # output
     group_output = parser.add_argument_group( 'Outputs' )
     group_output.add_argument('-o','--out-Rdata', default='DESeq2_preprocess.Rdata', help="The path to store resulting dataframe of DESeq2. [Default: %(default)s]" )
-    group_output.add_argument( '-l', '--log-file', default=sys.stdout, help='This output file will contain several information on executed commands.')
+    group_output.add_argument('-l', '--log-file', default=sys.stdout, help='This output file will contain several information on executed commands.')
     args = parser.parse_args()
     prevent_shell_injections(args)
 
@@ -198,7 +198,8 @@ if __name__ == "__main__":
 
         ranks = " ".join(['Level_4', 'Level_3', 'Level_2', 'Level_1'])
         phyloseq_log = tmpFiles.add( "phyloseq_import.log")
-        PhyloseqImport(tmp_function_abundances_biom, args.samplefile, ranks, args.out_Phyloseq, phyloseq_log).submit( args.log_file)
+        phyloseq_html = tmpFiles.add( "phyloseq_import.html")
+        PhyloseqImport(tmp_function_abundances_biom, args.samplefile, ranks, args.out_Phyloseq, phyloseq_html, phyloseq_log).submit( args.log_file)
 
     # Process  
     Logger.static_write(args.log_file, "## Application\nSoftware :" + sys.argv[0] + " (version : " + str(__version__) + ")\nCommand : " + " ".join(sys.argv) + "\n\n")
