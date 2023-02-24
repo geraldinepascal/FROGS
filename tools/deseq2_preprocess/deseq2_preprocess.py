@@ -198,7 +198,7 @@ if __name__ == "__main__":
 
         ranks = " ".join(['Level_4', 'Level_3', 'Level_2', 'Level_1'])
         phyloseq_log = tmpFiles.add( "phyloseq_import.log")
-        phyloseq_html = tmpFiles.add( "phyloseq_import.html")
+        phyloseq_html = tmpFiles.add( "phyloseq_import.nb.html")
         PhyloseqImport(tmp_function_abundances_biom, args.samplefile, ranks, args.out_Phyloseq, phyloseq_html, phyloseq_log).submit( args.log_file)
 
     # Process  
