@@ -105,3 +105,19 @@ echo $OUT "masking mode"
 --min-blast-coverage 1.0 \
 --max-blast-evalue 0 \
 --ignore-blast-taxa "Methylovulum miyakonense" "subsp." "unknown species"
+
+OUT=test/without_affiliation
+mkdir -p $OUT
+echo ""
+echo $OUT "delete mode"
+
+./affiliation_filters.py \
+--input-biom data/without_affiliation.biom --input-fasta data/without_affiliation.fasta \
+--output-biom $OUT/filtered_OTU_masked.biom --output-fasta $OUT/filtered_OTU_masked.fasta \
+--summary $OUT/summary_OTU_without_affi_deleted.html --impacted $OUT/summary_OTU_without_affi_deleted.tsv --impacted-multihit $OUT/summary_OTU_without_affi_deleted.tsv \
+--log-file $OUT/summary_OTU_without_affi_deleted.txt \
+--delete \
+--min-blast-length 40 \
+--min-blast-identity 0.7 \
+--min-blast-coverage 0.2 \
+--keep-blast-taxa "Saccharomycetales"
