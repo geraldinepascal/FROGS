@@ -11,12 +11,25 @@ else
     rm -r test/*
 fi
 
+# DESeq2 visualisation with OTU 
+echo ""
+OUT=test/deseq2_otu
+echo $OUT "DESeq2 otu abundances"
+mkdir -p $OUT
+
 # test on quantitative variables for OTU abundances
-python deseq2_visualisation.py --abundanceData  data/phyloseq_OTU.Rdata -a OTU --dds data/EnvType_DESeq_dds.Rdata \
+./deseq2_visualisation.py --abundanceData  data/phyloseq_OTU.Rdata -a OTU --dds data/EnvType_DESeq_OTU.Rdata \
                             --var EnvType --mod1 SaumonFume --mod2 DesLardons \
-                            --log-file test/deseq2_preprocess_EnvType_OTU.log  \
-                            --html test/EnvType_DesLardons_SaumonFume.nb.html --debug
+                            --log-file $OUT/deseq2_preprocess_EnvType_OTU.log  \
+                            --html $OUT/EnvType_DesLardons_SaumonFume_OTU.nb.html 
 
-# test on function abundances
-python deseq2_visualisation.py --abundanceData data/
+# DESeq2 visualisation with OTU 
+echo ""
+OUT=test/deseq2_func
+echo $OUT "DESeq2 function abundances"
+mkdir -p $OUT
 
+./deseq2_visualisation.py --abundanceData  data/phyloseq_FUNC.Rdata -a FUNC --dds data/EnvType_DESeq_FUNC.Rdata \
+                            --var EnvType --mod1 SaumonFume --mod2 DesLardons \
+                            --log-file $OUT/deseq2_preprocess_EnvType_FUNC.log  \
+                            --html $OUT/EnvType_DesLardons_SaumonFume_FUNC.nb.html 
