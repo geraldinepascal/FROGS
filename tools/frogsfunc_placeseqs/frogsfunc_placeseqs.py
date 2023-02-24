@@ -19,7 +19,7 @@
 __author__ = ' Moussa Samb & Vincent Darbot & Geraldine Pascal GENPHYSE '
 __copyright__ = 'Copyright (C) 2022 INRAE'
 __license__ = 'GNU General Public License'
-__version__ = '4.0.1'
+__version__ = '4.1.0'
 __email__ = 'frogs@toulouse.inrae.fr'
 __status__ = 'dev'
 
@@ -381,8 +381,8 @@ if __name__ == "__main__":
 	prevent_shell_injections(args)
 
 	tmp_files=TmpFiles(os.path.split(args.output_tree)[0])
-
 	try:
+
 		Logger.static_write(args.log_file, "## Application\nSoftware :" + sys.argv[0] + " (version : " + str(__version__) + ")\nCommand : " + " ".join(sys.argv) + "\n\n")
 
 		if args.ref_dir is None or 'pro_ref' in args.ref_dir:

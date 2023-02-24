@@ -1,5 +1,5 @@
 ---
-title: "FROGS Phyloseq: Alpha Diversity Visualisation (version 4.0.1)"
+title: "FROGS Phyloseq: Alpha Diversity Visualisation (version 4.1.0)"
 output: 
   html_notebook:
     code_folding: hide
