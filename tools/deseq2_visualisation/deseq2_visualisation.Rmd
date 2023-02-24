@@ -84,7 +84,7 @@ if(params$mod1 == "None"){
 #This implies that a positive log2FoldChange means more abundant in low than in high.")
 ```
 
-Then we extract significant OTUs/FUNCs at the p-value adjusted threshold level (after correction) and enrich results with taxonomic informations and sort taxa by pvalue.
+Then we extract significant OTUs or FUNCs at the p-value adjusted threshold (after Benjamini Hochberg correction) and enrich results with taxonomic/functional classification and sort the results by pvalue.
 
 ```{r da_abundances}
 
@@ -129,24 +129,16 @@ func_sign_under <- da.abundances_table %>%
 # gsub for create valid EC numbers for iPath3.
 
 func_sign_over <- func_sign_over %>% 
-  mutate(Color = if_else(log2FoldChange < 3, "#d8fcd8",
-   if_else(log2FoldChange < 6, "#a0f9a0",
-   if_else(log2FoldChange < 9, "#62f163",
-   if_else(log2FoldChange < 12, "#2aed2d", "#03df04"))))) %>%
-  mutate(Width = if_else(padj < 0.00001, "W12", 
-   if_else(padj < 0.0001, "W10",
-   if_else(padj < 0.001, "W8",
-   if_else(padj < 0.01, "W6", "W4")))))
+  mutate(Color = if_else(log2FoldChange < 1, "#B0C6C5",
+   if_else(log2FoldChange < 2, "#8EADAC	", "#637978	"))) %>%
+  mutate(Width = if_else(padj < 0.001, "W12",
+   if_else(padj < 0.01, "W10", "W8")))
 
 func_sign_under <- func_sign_under %>% 
-  mutate(Color = if_else(log2FoldChange > -3, "#d9a6a0",
-   if_else(log2FoldChange > -6, "#d17d81",
-   if_else(log2FoldChange > -9, "#E97E88",
-   if_else(log2FoldChange > -12, "#E15566", "#DA2C43"))))) %>%
-  mutate(Width = if_else(padj < 0.00001, "W12", 
-   if_else(padj < 0.0001, "W10",
-   if_else(padj < 0.001, "W8",
-   if_else(padj < 0.01, "W6", "W4")))))
+  mutate(Color = if_else(log2FoldChange > -1, "#9B6F51",
+   if_else(log2FoldChange > -2, "#DE9F73", "#B27F5C")))%>%
+  mutate(Width = if_else(padj < 0.001, "W12",
+   if_else(padj < 0.01, "W10", "W8")))
 
 func_sign_over <- func_sign_over %>% select(ID, Color, Width)
 func_sign_under <- func_sign_under %>% select(ID, Color, Width)
@@ -167,7 +159,7 @@ svg_file_under <- params$svg_file_under
 
 ### Differentially abundant functions visualized with iPath 3.
 ```
-```{r doc_path, eval=run_ipath, echo=run_ipath}
+```{r doc_path, eval=run_ipath, echo=run_ipath, message=FALSE}
 # Import input files
 if(params$mod1 != "None") {
      doc <- paste0("You chose to compare ", params$mod1, " to the reference modality ", params$mod2, ". This implies that the over-abundants pathways (first image) and under-abundant pathways (second image) are involved in ", params$mod1, " condition.")
@@ -176,14 +168,17 @@ if(params$mod1 != "None") {
      doc <- paste0("The first image (green paths) represents the over-abundants involved pathways. The second image (red paths) represents the under-abundant pathways.")
      cat(doc)
 }
-doc <- paste0("The darker the path, the higher the log2 fold change (>0, >3, >6, >9 or >12).
+```
+
+```{asis, eval=run_ipath, echo=run_ipath}
+The darker the path, the higher the log2 fold change (<1, <2, or >2).
 
 If you want to interact with the metabolic pathways, please go to the [iPath 3 website](https://pathways.embl.de/), and use the two FROGS deseq2_visualisation \
 files ipath_under.tsv and ipath_over.tsv (located in the same folder as this html report) as inputs.
 
-[WARNING] : The images must remain in the same folder as this html report to continue to be displayed.")
-cat(doc)
+[WARNING] : The images (ipath_over.svg, ipath_under.svg) must remain in the same folder as this html report to continue to be displayed
 ```
+
 ```{r ipath3, code = readLines("../../libexec/process_ipath.R"), eval=run_ipath, echo=run_ipath}
 
 ```
@@ -214,7 +209,7 @@ Pie <- ggplot(da_pie, aes(x="", y=Number, fill=IDs)) +
            coord_polar("y", start=0) + 
            scale_fill_manual(values=c('#8EADAC', '#DE9F73', '#C0C0C0')) + 
            geom_text(aes(label = Number), position = position_stack(vjust = 0.5), color = "white") +
-           labs(x = NULL, y = NULL, fill = NULL, title = "Pie chart to view OTUs/FUNCs number of Differential Abundance test") +
+           labs(x = NULL, y = NULL, fill = NULL, title = "Pie chart to view OTUsor FUNCs number of Differential Abundance test") +
            theme_classic() + theme(
                 axis.line = element_blank(), 
                 axis.text = element_blank(),
@@ -287,7 +282,7 @@ DESeq2::plotMA(results, ylim = c(-10,10),
 ## Heatmap plot
 
 ```{r echo = FALSE, eval = (nrow(da.abundances_table) == 0)}
-cat("There are no differentially abundant OTUs/FUNCs. Please use a higher threshold for the adjusted p-value or consider a different comparison.")
+cat("There are no differentially abundant OTUsor FUNCs. Please use a higher threshold for the adjusted p-value or consider a different comparison.")
 ```
 
 ```{r heatmap, fig.width=10, fig.height=8, eval = (nrow(da.abundances_table) > 0)}
@@ -307,7 +302,7 @@ if ( length(result_names)==2 || params$mod1 != "None"){
 						  taxa.label = NULL,
 						  taxa.order = da.abundances_table$id, low = "yellow", high = "red", na.value = "white") + 
 				facet_grid(as.formula(paste("~", params$var)), scales = "free_x") + 
-				ggtitle("Heatmap plot of DA otus/func, between 2 conditions", subtitle = subtitle)
+				ggtitle("Heatmap plot of DA otus or functions, between 2 conditions", subtitle = subtitle)
 ## Quantitative variable
 } else {
     idx <- order(get_variable(abundances_input, params$var))
@@ -317,7 +312,7 @@ if ( length(result_names)==2 || params$mod1 != "None"){
     					  taxa.label = NULL,
     	                  taxa.order = da.abundances_table$id, sample.order = my.sample.order, 
     	                  low = "yellow", high = "red", na.value = "white") + 
-             ggtitle(paste0("Heatmap plot of DA otus/func with samples ordered according to ", params$var))
+             ggtitle(paste0("Heatmap plot of DA otus or functions with samples ordered according to ", params$var))
 }
 # ggplotly(hplot)
 hplot

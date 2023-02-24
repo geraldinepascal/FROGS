@@ -118,16 +118,14 @@ if __name__ == "__main__":
     group_input.add_argument('-p','--abundanceData', required=True, help="The path to the RData file containing the OTU/FUNC abundances table. (result of FROGS Phyloseq Import Data)")
     group_input.add_argument('-d','--dds', required=True, help="The path to the Rdata file containing the DESeq dds object (result of FROGS DESeq2 Preprocess)")   
     
-    group_input_function = parser.add_argument_group( ' FUNC ' )
-    group_input_function.add_argument('-od', '--output_dir', default=None, help='FUNC analysis output directory, containing svg images and ipath3 input files. [Default: deseq2_visualisation_func]')
-    
     # output
     group_output = parser.add_argument_group( 'Outputs' )
     group_output.add_argument('-o','--html', default='DESeq2_visualisation.html', help="The HTML file containing the graphs. [Default: %(default)s]" )
     group_output.add_argument('-l', '--log-file', default=sys.stdout, help='This output file will contain several informations on executed commands.')
     args = parser.parse_args()
     prevent_shell_injections(args)
-   
+    output_dir = os.path.dirname(os.path.abspath(args.html))
+
     # Process  
     Logger.static_write(args.log_file, "## Application\nSoftware :" + sys.argv[0] + " (version : " + str(__version__) + ")\nCommand : " + " ".join(sys.argv) + "\n\n")
     abundance_data=os.path.abspath(args.abundanceData)
@@ -136,21 +134,12 @@ if __name__ == "__main__":
 
     try:
         R_stderr = tmpFiles.add("R.stderr")
+        html=os.path.abspath(args.html)
         if args.analysis == "OTU":
-            html=os.path.abspath(args.html)
-            if args.output_dir is not None:
-                raise_exception( argparse.ArgumentTypeError( "\n\n#ERROR : '--out_dir' only required for FUNC analysis.\n\n" ))
             Rscript(abundance_data, dds, args.var, args.mod1, args.mod2, args.padj, html, args.analysis, R_stderr, None, None ).submit(args.log_file)
         elif args.analysis == "FUNC":
-            if args.output_dir is None:
-                args.output_dir = "deseq2_visualisation_func"
-            if os.path.exists(args.output_dir):
-                Logger.static_write(args.log_file, "[WARNING]: " + args.output_dir + " folder already exists, the results will be overwritten\n\n")
-            else:
-                os.mkdir(args.output_dir)
-            html = os.path.abspath(args.output_dir + "/" + args.html)
-            svg_ipath_file_over  = os.path.abspath(args.output_dir + "/" +  "ipath_over.svg")
-            svg_ipath_file_under  = os.path.abspath(args.output_dir + "/" +  "ipath_under.svg")
+            svg_ipath_file_over  = os.path.abspath(output_dir + "/" +  "ipath_over.svg")
+            svg_ipath_file_under  = os.path.abspath(output_dir + "/" +  "ipath_under.svg")
             Rscript(abundance_data, dds, args.var, args.mod1, args.mod2, args.padj, html, args.analysis, R_stderr, svg_ipath_file_over, svg_ipath_file_under).submit(args.log_file)
     
     finally :
