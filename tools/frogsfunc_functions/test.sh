@@ -16,12 +16,14 @@ fi
     --input-biom data/25-frogsfunc_placeseqs.biom \
     --input-fasta data/25-frogsfunc_placeseqs.fasta \
     --input-marker data/25-frogsfunc_marker.tsv \
-    --input-tree data/25-frogsfunc_placeseqs_tree.nwk
+    --input-tree data/25-frogsfunc_placeseqs_tree.nwk \
     --output-function-abund test/26-frogsfunc_functions_unstrat.tsv \
     --output-otu-norm test/26-frogsfunc_functions_marker_norm.tsv \
     --output-weighted test/26-frogsfunc_functions_weighted_nsti.tsv \
     --output-excluded test/26-frogsfunc_functions_excluded.txt \
     --output-contrib test/26-frogsfunc_functions_strat.tsv \
-    --summary test/26-frogsfunc_functions_summary.html 
+    --output-fasta test/26-frogsfunc_function.fasta \
+    --output-biom test/26-frogsfunc_function.biom \
+    --summary test/26-frogsfunc_functions_summary.html
 
 
