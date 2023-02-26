@@ -132,8 +132,6 @@ def process_hsp_function(trait, observed_trait_table, in_tree, hsp_method, outpu
     cmd = ["hsp.py", input_function.split()[0], input_function.split()[1] ,"-t", in_tree, "--hsp_method", hsp_method, "-o", output]
     FH_log.write("## hsp.py command: " + " ".join(cmd) + "\n")
     submit_cmd( cmd, log, log )
-    # FH_log.write("".join(open(tmp_out).readlines()) + "\n" )
-    # FH_log.write("".join(open(tmp_err).readlines()) + "\n" )
     FH_log.close()
 
 
