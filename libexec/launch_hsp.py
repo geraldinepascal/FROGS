@@ -115,33 +115,26 @@ def submit_cmd( cmd, stdout_path, stderr_path, get_version = False):
         raise_exception( Exception( "\n\n#ERROR : " + error_msg + "\n\n" ))
 
 
-def process_hsp_function(in_traits, observed_trait_table, in_tree, hsp_method, outputs, logs):
-    if type(in_traits) != list:
-        in_traits = [in_traits]
-    if type(outputs) != list:
-        outputs = [outputs]
-    if type(logs) != list:
-        logs = [logs]
+def process_hsp_function(trait, observed_trait_table, in_tree, hsp_method, output, log):
     # run hsp.py
-    for idx, in_trait in enumerate(in_traits):
-        if observed_trait_table is None:
-            input_function = " --in_trait " + in_trait
-            message = "## Process function : " + in_trait + "\n"
-        else:
-            input_function = " --observed_trait_table " + observed_trait_table
-            message = "## Process function table : " + observed_trait_table + "\n"
-        FH_log = Logger( logs[idx] )
-        FH_log.write(message)
-        # get version of hsp.py
-        version = submit_cmd(["hsp.py", "-v"],logs[idx], logs[idx], get_version = True )
+    if observed_trait_table is None:
+        input_function = " --in_trait " + trait
+        message = "## Process function : " + trait + "\n"
+    else:
+        input_function = " --observed_trait_table " + observed_trait_table
+        message = "## Process function table : " + observed_trait_table + "\n"
+    FH_log = Logger( log )
+    FH_log.write(message)
+    # get version of hsp.py
+    version = submit_cmd(["hsp.py", "-v"],log, log, get_version = True )
 
-        FH_log.write("## Software : " + version )
-        cmd = ["hsp.py", input_function.split()[0], input_function.split()[1] ,"-t", in_tree, "--hsp_method", hsp_method, "-o", outputs[idx]]
-        FH_log.write("## hsp.py command: " + " ".join(cmd) + "\n")
-        submit_cmd( cmd, logs[idx], logs[idx] )
-        # FH_log.write("".join(open(tmp_out).readlines()) + "\n" )
-        # FH_log.write("".join(open(tmp_err).readlines()) + "\n" )
-        FH_log.close()
+    FH_log.write("## Software : " + version )
+    cmd = ["hsp.py", input_function.split()[0], input_function.split()[1] ,"-t", in_tree, "--hsp_method", hsp_method, "-o", output]
+    FH_log.write("## hsp.py command: " + " ".join(cmd) + "\n")
+    submit_cmd( cmd, log, log )
+    # FH_log.write("".join(open(tmp_out).readlines()) + "\n" )
+    # FH_log.write("".join(open(tmp_err).readlines()) + "\n" )
+    FH_log.close()
 
 
 def parallel_submission( function, inputs, tree, hsp_method, outputs, logs, cpu_used):
@@ -152,10 +145,10 @@ def parallel_submission( function, inputs, tree, hsp_method, outputs, logs, cpu_
         processes[process_idx]['inputs'] = inputs[trait]
         processes[process_idx]['outputs'] = outputs[trait]
         processes[process_idx]['log_files'] = logs[trait]
+
     
     for current_process in processes:
         if trait == 0:  # First process is threaded with parent job
-            
             current_process['process'] = threading.Thread(target=function,
                                                           args=(current_process['inputs'], None, tree, hsp_method, current_process['outputs'], current_process['log_files']))
         else:  # Others processes are processed on diffrerent CPU
@@ -275,7 +268,11 @@ if __name__ == "__main__":
 
                 if len(args.functions) == 1 or args.nb_cpus == 1:
                     Logger.static_write(args.log_file, '\n\nRunning ' + " ".join(args.functions) + ' functions prediction.\n')
-                    process_hsp_function(args.functions, args.input_function_table, args.input_tree, args.hsp_method, functions_outputs, logs_hsp)
+                    for i in range(len(args.functions)):
+                        function_cur = args.functions[i]
+                        output_cur = functions_outputs[i]
+                        log_cur = logs_hsp[i] 
+                        process_hsp_function(function_cur, args.input_function_table, args.input_tree, args.hsp_method, output_cur, log_cur)
 
                 else:
                     parallel_submission( process_hsp_function, args.functions, args.input_tree, args.hsp_method, functions_outputs, logs_hsp, len(args.functions) )
