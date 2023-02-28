@@ -7,7 +7,7 @@
 
 ### Function added
 * Preprocess: add a longread sequencer option to deal with longreads
-* AFfiliation_filter : add a –-keep-blast-taxa option
+* Affiliation_filter : add a –-keep-blast-taxa option
 * DESeq preprocess : adapt the tool to deal with function abundance table (output from FROGSFunc Function) in TSV format
 * DESeq visualisation : 
   * adapt the tool to functionnal abundance differential analysis
