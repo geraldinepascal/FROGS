@@ -19,13 +19,12 @@
 __author__ = ' Vincent Darbot - GENPHYSE '
 __copyright__ = 'Copyright (C) 2022 INRAE'
 __license__ = 'GNU General Public License'
-__version__ = '4.0.1'
+__version__ = '4.1.0'
 __email__ = 'frogs@toulouse.inrae.fr'
 __status__ = 'dev'
 
 import os
 import sys
-import pandas as pd
 import argparse
 from subprocess import Popen, PIPE
 import threading
@@ -132,8 +131,6 @@ def process_hsp_function(trait, observed_trait_table, in_tree, hsp_method, outpu
     cmd = ["hsp.py", input_function.split()[0], input_function.split()[1] ,"-t", in_tree, "--hsp_method", hsp_method, "-o", output]
     FH_log.write("## hsp.py command: " + " ".join(cmd) + "\n")
     submit_cmd( cmd, log, log )
-    # FH_log.write("".join(open(tmp_out).readlines()) + "\n" )
-    # FH_log.write("".join(open(tmp_err).readlines()) + "\n" )
     FH_log.close()
 
 

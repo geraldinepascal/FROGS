@@ -27,7 +27,6 @@ import os
 import sys
 import json
 import argparse
-import pandas as pd
 
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
 # PATH: executable
@@ -143,9 +142,16 @@ class Tsv2biom(Cmd):
 		 return Cmd.get_version(self, 'stdout').strip() 
 
 	def parser(self, log_file):
-		f_in = pd.read_csv(self.in_tsv, sep='\t')
-		sum_col = f_in.pop("observation_sum")
-		f_in.to_csv(self.in_tsv ,sep='\t' ,index=False)
+		f_in = open(self.in_tsv).readlines()
+		f_out = open(self.in_tsv, 'wt')
+		header = f_in[0].strip().split('\t')
+		for i in range(len(header)):
+			if header[i] == "observation_sum":
+				col_to_remove = i
+		for row in f_in:
+			row = row.strip().split('\t')
+			row.pop(col_to_remove)
+			f_out.write("\t".join(row) + "\n")
 
 class FormateAbundances(Cmd):
 	"""
@@ -245,10 +251,25 @@ def normalized_abundances_file( strat_file ):
 	 (value)/(sum of the value in that column)*10^6, which gives CPM values
 	 @param strat_file: [str] path to frogsfunc_pathways output abundances file.
 	"""
-	df = pd.read_csv(strat_file,sep='\t')
-	for column in df.iloc[:,3:]:
-		df[column] = df[column] / df[column].sum() * 1000000
-	df.to_csv(strat_file, sep='\t', index=False)
+	with open(strat_file, 'r') as f:
+		lines = [line.split('\t') for line in f.readlines()]
+	# Get the number of rows and columns in the data
+	num_rows = len(lines)
+	num_cols = len(lines[0])
+	# Calculate the sum of each column and store in a list
+	column_sums = [0] * (num_cols - 3)
+	for i in range(3, num_cols):
+		for j in range(1, num_rows):
+			column_sums[i-3] += float(lines[j][i])
+	# Normalize the values in each column by dividing by the sum and multiplying by 1,000,000
+	for i in range(3, num_cols):
+		for j in range(1, num_rows):
+			lines[j][i] = str(float(lines[j][i]) / column_sums[i-3] * 1000000)
+	# Save the results back to the original file
+	with open(strat_file, 'w') as f:
+		f.write('\t'.join(lines[0]))
+		for line in lines[1:]:
+			f.write('\t'.join(line) + "\n")
 
 def write_summary(strat_file, tree_count_file, tree_ids_file, summary_file):
 	"""

@@ -30,8 +30,6 @@ import gzip
 import shutil
 import argparse
 import ete3 as ete
-import pandas as pd
-
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
 LIB_DIR = os.path.abspath(os.path.join(os.path.dirname(CURRENT_DIR), "lib"))
 sys.path.append(LIB_DIR)
@@ -101,11 +99,25 @@ def task_formate_abundances_file( args, hierarchy_tag = "classification"):
 		li = li.strip().split('\t')
 		id_to_hierarchy[li[-1]] = ";".join(li[:-1])
 
-	df = pd.read_csv(args.input_abundances, sep='\t')
-	df.insert(2,'observation_sum',df.sum(axis=1, numeric_only=True))
-	df.rename(columns = {'pathway':'observation_name'}, inplace = True)
-	df.rename(columns = {'function':'observation_name'}, inplace = True)
-	df.to_csv(args.input_abundances ,sep='\t', index=False)
+	data = open(args.input_abundances).readlines()
+	new_data = open(args.input_tmp_unstrat, 'wt')
+	sums = list()
+	for row in data:
+		row = row.strip().split('\t')
+		if not row[0] == "db_link":
+			for i in range(len(row[2:])):
+				row[2+i] = float(row[2+i])
+			sums = sum(row[2:])
+			new_data.write("\t".join(row[:2]) + "\t" + str(sums) + "\t" + "\t".join([str(i) for i in row[2:]]) + "\n")
+
+		else:
+			row[1] = "observation_name"
+			new_data.write("\t".join(row[:2]) + "\tobservation_sum\t" + "\t".join(row[2:]) + "\n")
+	new_data.close()
+
+	with open(args.input_tmp_unstrat, 'rt') as f_in:
+		with open(args.input_abundances, 'wt') as f_out:
+			shutil.copyfileobj(f_in, f_out)
 
 	tmp_unstrat = open(args.input_tmp_unstrat, 'wt')
 	FH_in = open(args.input_abundances).readlines()
@@ -133,14 +145,29 @@ def task_generate_sunburst( args, hierarchy_tag = "classification"):
 	@param input-abundances: function or pathway abundances files.
 	@param input-tmp-sunburst: abundances formatted file (with rounded numbers)
 	'''
-	tmp_sunburst = pd.read_csv(args.input_abundances, sep="\t")
-	# Keep only values with classifications
-	tmp_sunburst = tmp_sunburst[tmp_sunburst.classification.notnull()]
-	headers = ['observation_name', 'db_link', hierarchy_tag]
-	for column in tmp_sunburst:
-		if column not in headers:
-			tmp_sunburst[column] = tmp_sunburst[column].round(0).astype(int)
-	tmp_sunburst.to_csv(args.input_tmp_sunburst, sep="\t", index=False)
+	tmp_sunburst = open(args.input_abundances).readlines()
+	new_tmp_sunburst = open(args.input_tmp_sunburst, 'wt')
+	columns_not_conserved = ['observation_name', 'db_link', hierarchy_tag]
+	to_not_conserve = []
+	header = tmp_sunburst[0].strip().split('\t')
+	for col in range(len(header)):
+		if header[col] in columns_not_conserved:
+			to_not_conserve.append(col)
+		new_tmp_sunburst.write(header[col] + "\t")
+	new_tmp_sunburst.write("\n")
+			
+	for row in tmp_sunburst[1:]:
+		# Keep only values with classifications
+		row = row.strip().split('\t')
+		if row[0] != "NA":
+			for col in range(len(row)):
+				if col not in to_not_conserve:
+					row[col] = int(round(float(row[col]),0))
+					new_tmp_sunburst.write(str(row[col]) + "\t")
+				else:
+					new_tmp_sunburst.write(row[col] + "\t")
+			new_tmp_sunburst.write('\n')
+	new_tmp_sunburst.close()
 
 def task_parse_metagenome_pipeline( args ):
 	'''

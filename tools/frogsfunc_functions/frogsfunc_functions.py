@@ -27,7 +27,6 @@ import os
 import sys
 import json
 import argparse
-import pandas as pd
 
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
 # PATH: executable
@@ -186,9 +185,16 @@ class Tsv2biom(Cmd):
 		return Cmd.get_version(self, 'stdout').strip()
 
 	def parser(self, log_file):
-		f_in = pd.read_csv(self.in_tsv, sep='\t')
-		sum_col = f_in.pop("observation_sum")
-		f_in.to_csv(self.in_tsv ,sep='\t' ,index=False)
+		f_in = open(self.in_tsv).readlines()
+		f_out = open(self.in_tsv, 'wt')
+		header = f_in[0].strip().split('\t')
+		for i in range(len(header)):
+			if header[i] == "observation_sum":
+				col_to_remove = i
+		for row in f_in:
+			row = row.strip().split('\t')
+			row.pop(col_to_remove)
+			f_out.write("\t".join(row) + "\n")
 
 
 class FormateAbundances(Cmd):
@@ -217,6 +223,9 @@ class GenerateSunburst(Cmd):
 			'Generate sunburst input files.',
 			'generate-sunburst --input-abundances ' + in_abund + ' --input-tmp-sunburst ' + tmp_sunburst + ' 2>> ' + log,
 			'--version')
+
+	def get_version(self):
+		return Cmd.get_version(self, 'stdout').strip()
 
 class TaxonomyTree(Cmd):
 	"""
