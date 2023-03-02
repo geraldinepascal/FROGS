@@ -2,8 +2,8 @@
 
 nb_cpu=2
 java_mem=1
-out_dir=res_4.0.1_to_check
-expected_dir=frogs_4.0.0
+out_dir=res_4.1.0_to_check
+expected_dir=frogs_4.0.1
 run_programs=false	## if true lance les python sinon, fait uniquement les comparatifs de résultats
 
 ## Set ENV
@@ -34,7 +34,7 @@ diff_size() {
 echo "Step demultiplexe `date`"
 if $run_programs
 then
-	demultiplex.py --input-R1 data/demultiplex_test2_R1.fq.gz --input-R2 data/demultiplex_test2_R2.fq.gz --input-barcode data/demultiplex_barcode.txt \
+demultiplex.py --input-R1 data/demultiplex_test2_R1.fq.gz --input-R2 data/demultiplex_test2_R2.fq.gz --input-barcode data/demultiplex_barcode.txt \
 	    --mismatches 1 --end both \
 	    --output-demultiplexed $out_dir/demultiplexed.tar.gz --output-excluded $out_dir/undemultiplexed.tar.gz \
 	    --log-file $out_dir/demultiplex.log --summary $out_dir/demultiplex_summary.txt
@@ -54,7 +54,7 @@ echo "Step preprocess : Flash `date`"
 
 if $run_programs
 then
-	preprocess.py illumina \
+preprocess.py illumina \
 	 --min-amplicon-size 44 --max-amplicon-size 490 \
 	 --five-prim-primer GGCGVACGGGTGAGTAA --three-prim-primer GTGCCAGCNGCNGCGG \
 	 --R1-size 267 --R2-size 266 --expected-amplicon-size 420 --merge-software flash \
@@ -86,7 +86,7 @@ echo "Step preprocess : Vsearch `date`"
 
 if $run_programs
 then
-	preprocess.py illumina \
+preprocess.py illumina \
 	 --min-amplicon-size 44 --max-amplicon-size 490 \
 	 --five-prim-primer GGCGVACGGGTGAGTAA --three-prim-primer GTGCCAGCNGCNGCGG \
 	 --R1-size 267 --R2-size 266 --merge-software vsearch \
@@ -124,7 +124,7 @@ echo "Step clustering fastidious `date`"
 
 if $run_programs
 then
-	clustering.py \
+clustering.py \
 	 --distance 1 \
 	 --fastidious \
 	 --input-fasta $expected_dir/01-prepro-vsearch.fasta \
@@ -161,7 +161,7 @@ echo "Step remove_chimera `date`"
 
 if $run_programs
 then
-	remove_chimera.py \
+remove_chimera.py \
 	 --input-fasta $expected_dir/02-clustering_fastidious.fasta \
 	 --input-biom $expected_dir/02-clustering_fastidious.biom \
 	 --non-chimera $out_dir/03-chimera.fasta \
@@ -196,7 +196,7 @@ echo "Step otu filters `date`"
 
 if $run_programs
 then
-	otu_filters.py \
+otu_filters.py \
 	 --min-abundance 0.00005 \
 	 --min-sample-presence 3 \
 	 --contaminant data/phi.fa \
@@ -239,7 +239,7 @@ fi
 echo "Step ITSx `date`"
 if $run_programs
 then
-	itsx.py \
+itsx.py \
 	 --input-fasta $expected_dir/04-filters.fasta \
 	 --input-biom $expected_dir/04-filters.biom \
 	 --region ITS1 --nb-cpus $nb_cpu \
@@ -280,7 +280,7 @@ echo "Step affiliation_OTU `date`"
 
 if $run_programs
 then
-	affiliation_OTU.py \
+affiliation_OTU.py \
 	 --reference data/ITS1.rdp.fasta \
 	 --input-fasta $expected_dir/04-filters.fasta \
 	 --input-biom $expected_dir/04-filters.biom \
@@ -311,7 +311,7 @@ echo "Step affiliation_filter: masking mode `date`"
 
 if $run_programs
 then
-	affiliation_filters.py \
+affiliation_filters.py \
 	--input-biom $expected_dir/06-affiliation.biom \
 	--input-fasta $expected_dir/04-filters.fasta \
 	--output-biom $out_dir/07-affiliation_masked.biom \
@@ -359,7 +359,7 @@ echo "Step affiliation_filter: deleted mode `date`"
 
 if $run_programs
 then
-	affiliation_filters.py \
+affiliation_filters.py \
 	--input-biom $expected_dir/06-affiliation.biom \
 	--input-fasta $expected_dir/04-filters.fasta \
 	--output-biom $out_dir/07-affiliation_deleted.biom \
@@ -413,7 +413,7 @@ echo "Step affiliation_postprocess `date`"
 
 if $run_programs
 then
-	affiliation_postprocess.py \
+affiliation_postprocess.py \
 	 --input-biom $expected_dir/06-affiliation.biom \
 	 --input-fasta $expected_dir/04-filters.fasta \
 	 --reference data/Unite_extract_ITS1.fasta \
@@ -449,7 +449,7 @@ echo "Step normalisation `date`"
 if $run_programs
 then
 
-	normalisation.py \
+normalisation.py \
 	 -n 25000 \
 	 --delete-samples \
 	 --input-biom $out_dir/08-affiliation_postprocessed.biom \
@@ -465,7 +465,7 @@ then
 		exit 1;
 	fi
 
-	normalisation.py \
+normalisation.py \
 	 --sampling-by-min \
 	 --input-biom $out_dir/08-affiliation_postprocessed.biom \
 	 --input-fasta $out_dir/08-affiliation_postprocessed.fasta \
@@ -481,7 +481,7 @@ then
 	fi
 
 	# to reduce computing time for the others step
-	normalisation.py \
+normalisation.py \
 	 -n 100 \
 	 --input-biom $expected_dir/08-affiliation_postprocessed.biom \
 	 --input-fasta $expected_dir/08-affiliation_postprocessed.fasta \
@@ -567,7 +567,7 @@ echo "Step clusters_stat `date`"
 
 if $run_programs
 then
-	clusters_stat.py \
+clusters_stat.py \
 	 --input-biom $expected_dir/09-normalisation.biom \
 	 --output-file $out_dir/10-clustersStat.html \
 	 --log-file $out_dir/10-clustersStat.log
@@ -588,7 +588,7 @@ echo "Step affiliations_stat `date`"
 
 if $run_programs
 then
-	affiliations_stat.py \
+affiliations_stat.py \
 	 --input-biom $expected_dir/09-normalisation.biom \
 	 --output-file $out_dir/11-affiliationsStat.html \
 	 --log-file $out_dir/11-affiliationsStat.log \
@@ -621,7 +621,7 @@ echo "Step biom_to_tsv `date`"
 
 if $run_programs
 then
-	biom_to_tsv.py \
+biom_to_tsv.py \
 	 --input-biom $expected_dir/09-normalisation.biom \
 	 --input-fasta $expected_dir/09-normalisation.fasta \
 	 --output-tsv $out_dir/12-biom2tsv.tsv \
@@ -649,7 +649,7 @@ echo "Step biom_to_stdBiom `date`"
 
 if $run_programs
 then
-	biom_to_stdBiom.py \
+biom_to_stdBiom.py \
 	 --input-biom $expected_dir/09-normalisation.biom \
 	 --output-biom $out_dir/13-affiliation_std.biom \
 	 --output-metadata $out_dir/13-affiliation_multihit.tsv \
@@ -676,7 +676,7 @@ echo "Step tsv_to_biom `date`"
 
 if $run_programs
 then
-	tsv_to_biom.py \
+tsv_to_biom.py \
 	 --input-tsv $expected_dir/12-biom2tsv.tsv \
 	 --input-multi-affi $expected_dir/12-biom2tsv-affiliation_multihit.tsv \
 	 --output-biom $out_dir/14-tsv2biom.biom \
@@ -704,7 +704,7 @@ echo "Step tree : mafft `date`"
 
 if $run_programs
 then
-	tree.py \
+tree.py \
 	 --nb-cpus $nb_cpu \
 	 --input-sequences $expected_dir/09-normalisation.fasta \
 	 --biom-file $expected_dir/09-normalisation.biom \
@@ -749,7 +749,7 @@ echo "Step phyloseq_import_data `date`"
 
 if $run_programs
 then
-	phyloseq_import_data.py  \
+phyloseq_import_data.py  \
 	 --biomfile data/chaillou.biom \
 	 --samplefile data/sample_metadata.tsv \
 	 --treefile data/tree.nwk \
@@ -775,7 +775,7 @@ echo "Step phyloseq_composition `date`"
 
 if $run_programs
 then
-	phyloseq_composition.py  \
+phyloseq_composition.py  \
 	 --varExp EnvType --taxaRank1 Kingdom --taxaSet1 Bacteria --taxaRank2 Phylum --numberOfTaxa 9 \
 	 --rdata $expected_dir/16-phylo_import.Rdata \
 	 --html $out_dir/17-phylo_composition.nb.html \
@@ -802,7 +802,7 @@ echo "Step phyloseq_alpha_diversity `date`"
 
 if $run_programs
 then
-	phyloseq_alpha_diversity.py  \
+phyloseq_alpha_diversity.py  \
 	 --varExp EnvType \
 	 --rdata $expected_dir/16-phylo_import.Rdata --alpha-measures Observed Chao1 Shannon \
 	 --alpha-out $out_dir/18-phylo_alpha_div.tsv \
@@ -826,7 +826,7 @@ echo "Step phyloseq_beta_diversity `date`"
 
 if $run_programs
 then
-	phyloseq_beta_diversity.py  \
+phyloseq_beta_diversity.py  \
 	 --varExp EnvType --distance-methods cc,unifrac \
 	 --rdata $expected_dir/16-phylo_import.Rdata \
 	 --matrix-outdir $out_dir \
@@ -849,7 +849,7 @@ echo "Step phyloseq_structure `date`"
 
 if $run_programs
 then
-	phyloseq_structure.py  \
+phyloseq_structure.py  \
 	 --varExp EnvType --ordination-method MDS \
 	 --rdata $expected_dir/16-phylo_import.Rdata --distance-matrix $expected_dir/unifrac.tsv \
 	 --html $out_dir/20-phylo_structure.nb.html \
@@ -880,7 +880,7 @@ echo "Step phyloseq_clustering `date`"
 
 if $run_programs
 then
-	phyloseq_clustering.py  \
+phyloseq_clustering.py  \
 	 --varExp EnvType \
 	 --rdata $expected_dir/16-phylo_import.Rdata --distance-matrix $expected_dir/unifrac.tsv \
 	 --html $out_dir/21-phylo_clustering.nb.html \
@@ -903,7 +903,7 @@ echo "Step phyloseq_manova `date`"
 
 if $run_programs
 then
-	phyloseq_manova.py  \
+phyloseq_manova.py  \
 	 --varExp EnvType \
 	 --rdata $expected_dir/16-phylo_import.Rdata --distance-matrix $expected_dir/unifrac.tsv \
 	 --html $out_dir/22-phylo_manova.nb.html \
@@ -925,13 +925,14 @@ then
 fi
 
 echo "Step deseq2_preprocess `date`"
-
+echo "DESeq2 otu abundances"
 if $run_programs
 then
-	deseq2_preprocess.py \
-	 --data $expected_dir/16-phylo_import.Rdata \
-	 --log-file $out_dir/23-deseq2_preprocess.log \
-	 --out-Rdata $out_dir/23-deseq2_preprocess.Rdata \
+deseq2_preprocess.py \
+	 --data $out_dir/16-phylo_import.Rdata \
+	 --analysis OTU \
+	 --log-file $out_dir/23-deseq2_preprocess_otu.log \
+	 --out-Rdata $out_dir/23-deseq2_preprocess_otu.Rdata \
 	 --var EnvType
 
 	if [ $? -ne 0 ]
@@ -941,20 +942,45 @@ then
 	fi
 fi
 
-if diff_line $out_dir/23-deseq2_preprocess.Rdata $expected_dir/23-deseq2_preprocess.Rdata 50
+if diff_line $out_dir/23-deseq2_preprocess_otu.Rdata $expected_dir/23-deseq2_preprocess_otu.Rdata 50
+then
+	echo "Difference in deseq2_preprocess : 23-deseq2_preprocess.Rdata " >&2
+fi
+
+echo "DESeq2 function abundances"
+if $run_programs
+then
+deseq2_preprocess.py \
+	 --samplefile data/sample_metadata.tsv \
+	 --input-functions data/frogsfunc_functions_unstrat_EC.tsv \
+	 --analysis FUNC \
+	 --log-file $out_dir/23-deseq2_preprocess_func.log \
+	 --out-Rdata $out_dir/23-deseq2_preprocess_func.Rdata \
+	 --out-Phyloseq $out_dir/23-phyloseq_functions.Rdata \
+	 --var EnvType
+
+	if [ $? -ne 0 ]
+	then
+		echo "Error in deseq2_preprocess " >&2
+		exit 1;
+	fi
+fi
+
+if diff_line $out_dir/23-deseq2_preprocess_func.Rdata $expected_dir/23-deseq2_preprocess_func.Rdata 50
 then
 	echo "Difference in deseq2_preprocess : 23-deseq2_preprocess.Rdata " >&2
 fi
 
 echo "Step deseq2_visualisation `date`"
-
+echo "DESeq2 otu abundances"
 if $run_programs
 then
-	deseq2_visualisation.py \
-	 --phyloseqData $expected_dir/16-phylo_import.Rdata \
-	 --dds $expected_dir/23-deseq2_preprocess.Rdata \
-	 --log-file $out_dir/24-deseq2_visualisation.log \
-	 --html $out_dir/24-deseq2_visualisation.nb.html \
+deseq2_visualisation.py \
+	 --abundanceData $out_dir/16-phylo_import.Rdata \
+	 --analysis OTU \
+	 --dds $out_dir/23-deseq2_preprocess_otu.Rdata \
+	 --log-file $out_dir/24-deseq2_visualisation_otu.log \
+	 --html $out_dir/24-deseq2_visualisation_otu.nb.html \
 	 --var EnvType --mod1 BoeufHache --mod2 SaumonFume
 	                            
 
@@ -965,18 +991,49 @@ then
 	fi
 fi
 
+if [ $? -ne 0 ]
+then
+	echo "Error in deseq2_visualisation " >&2
+	exit 1;
+fi
+
 # récupérer les tableau CSV via la page HTML
 # et faire sdiff
 # dans les XML on teste les valeurs de otu_01582 avec des valeurs avec 3 décimales (des mises à jours de DESeq provoque des ajustements des valeurs ...)
 
-grep otu_01582 $out_dir/24-deseq2_visualisation.nb.html | sed 's/],/],\n/g' > /tmp/tmp
-grep otu_01582 $expected_dir/24-deseq2_visualisation.nb.html | sed 's/],/],\n/g'  > /tmp/tmp1
+grep otu_01582 $out_dir/24-deseq2_visualisation_otu.nb.html | sed 's/],/],\n/g' > /tmp/tmp
+grep otu_01582 $expected_dir/24-deseq2_visualisation_otu.nb.html | sed 's/],/],\n/g'  > /tmp/tmp1
 
 if diff_line /tmp/tmp /tmp/tmp1 1
 then
-	echo "Difference in deseq2_visualisation : 24-deseq2_visualisation.nb.html  " >&2
+	echo "Difference in deseq2_visualisation : 24-deseq2_visualisation_otu.nb.html  " >&2
 fi
 
-rm /tmp/tmp /tmp/tmp1
-echo "Completed with success"
+echo "DESeq2 function abundances"
+if $run_programs
+then
+deseq2_visualisation.py \
+	--abundanceData $out_dir/23-phyloseq_functions.Rdata \
+	--analysis FUNC \
+	--dds $out_dir/23-deseq2_preprocess_func.Rdata \
+	--log-file $out_dir/24-deseq2_visualisation_func.log \
+	--html $out_dir/24-deseq2_visualisation_func.nb.html \
+	--var EnvType --mod1 BoeufHache --mod2 SaumonFume
 
+	if [ $? -ne 0 ]
+		then
+			echo "Error in deseq2_visualisation " >&2
+			exit 1;
+		fi
+fi
+
+grep otu_01582 $out_dir/24-deseq2_visualisation_func.nb.html | sed 's/],/],\n/g' > /tmp/tmp
+grep otu_01582 $expected_dir/24-deseq2_visualisation_func.nb.html | sed 's/],/],\n/g'  > /tmp/tmp1
+
+if diff_line /tmp/tmp /tmp/tmp1 1
+then
+	echo "Difference in deseq2_visualisation : 24-deseq2_visualisation_func.nb.html  " >&2
+fi
+rm /tmp/tmp /tmp/tmp1
+
+echo "Completed with success"

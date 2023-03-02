@@ -543,7 +543,7 @@ deseq2_visualisation.py \
  --html $out_dir/24-deseq2_visualisation_otu.nb.html \
  --var EnvType --mod1 BoeufHache --mod2 SaumonFume
 
-echo $OUT "DESeq2 function abundances"
+echo "DESeq2 function abundances"
 deseq2_visualisation.py \
  --abundanceData $out_dir/23-phyloseq_functions.Rdata\
  --analysis FUNC \
