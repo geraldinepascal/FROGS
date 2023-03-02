@@ -51,9 +51,6 @@ library(DT)
 library(dplyr)
 ```
 
-Since we only have a binary factor we can use the following syntax to format the log2 fold change from the fitted model
-if not, we will use the other syntax with contrast=c()
-
 ```{r import}
 # Import input files
 abundances_input <- get(load(params$abundance_data))
@@ -135,8 +132,8 @@ func_sign_over <- func_sign_over %>%
    if_else(padj < 0.01, "W10", "W8")))
 
 func_sign_under <- func_sign_under %>% 
-  mutate(Color = if_else(log2FoldChange > -1, "#9B6F51",
-   if_else(log2FoldChange > -2, "#DE9F73", "#B27F5C")))%>%
+  mutate(Color = if_else(log2FoldChange > -1, "#9B6037",
+   if_else(log2FoldChange > -2, "#B26E3E", "#DE894E")))%>%
   mutate(Width = if_else(padj < 0.001, "W12",
    if_else(padj < 0.01, "W10", "W8")))
 
