@@ -176,7 +176,7 @@ files ipath_under.tsv and ipath_over.tsv (located in the same folder as this htm
 [WARNING] : The images (ipath_over.svg, ipath_under.svg) must remain in the same folder as this html report to continue to be displayed
 ```
 
-```{r ipath3, code = readLines("../../libexec/process_ipath.R"), eval=run_ipath, echo=run_ipath}
+```{r ipath3, code = readLines(here::here("libexec/process_ipath.R")), eval=run_ipath, echo=run_ipath}
 
 ```
 
