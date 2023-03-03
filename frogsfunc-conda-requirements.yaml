@@ -3,7 +3,7 @@ channels:
   - bioconda
 dependencies:
 # bioconda
-  - frogs =4.0.1
+  - frogs =4.1.0
   - picrust2 =2.5.1
   - ete3 =3.1.1
   - biopython =1.79
