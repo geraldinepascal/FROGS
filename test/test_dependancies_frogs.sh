@@ -4,7 +4,7 @@ nb_cpu=2
 java_mem=1
 out_dir=res_4.1.0_to_check
 expected_dir=frogs_4.0.1
-run_programs=false	## if true lance les python sinon, fait uniquement les comparatifs de résultats
+run_programs=true	## if true lance les python sinon, fait uniquement les comparatifs de résultats
 
 ## Set ENV
 ## export PATH=../app:$PATH
