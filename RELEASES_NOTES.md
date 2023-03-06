@@ -7,16 +7,18 @@
 
 ### Function added
 * Preprocess: add a longread sequencer option to deal with longreads
-* Affiliation_filter : add a –-keep-blast-taxa option
+* Affiliation_filter : add a –-keep-blast-taxa option : Taxon list to keep in Blast affiliations. All others affiliations will be masks/delete.
 * DESeq preprocess : adapt the tool to deal with function abundance table (output from FROGSFunc Function) in TSV format
 * DESeq visualisation : 
   * adapt the tool to functionnal abundance differential analysis
   * add Ipath3 visualisation functionnal abundance differential analysis
-* FROGSFunc placeseq : add %identity and %coverage between amplicon sequences and Picrust reference sequences.
+* FROGSFunc placeseq : 
+  * add %identity and %coverage between amplicon sequences and Picrust reference sequences.
+  * add a line chart of NSTI values versus blasts %identity and %coverage values.
 * FROGSFunc function : 
   * in addition to NSTI, add filter on %identity and %coverage between amplicon sequences and Picrust reference sequences.
   * add a star plot to visualise the filter impact on taxonomies kept
-  * parallelization of function abundance prediction on different function database (MetaCyc, KEGG, COG, ...)
+  * parallelization of function abundance prediction on different function database (MetaCyc, KEGG, COG, ...), reducing the calculation time by more than half using all databases.
 
 ## Bug fixed
 * Remove_chimera : deal with empty sample to compute proportion of sequence kept in the report. Proportion is now set to NA.
