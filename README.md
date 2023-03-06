@@ -216,7 +216,6 @@ Example:
 ```
 [user@computer:/home/frogs/FROGS/test/]$ sh test_frogsfunc.sh ../ res
 Step frogsfunc_placeseqs lun. 25 avril 2022 16:17:33 CEST
-Step frogsfunc_copynumbers lun. 25 avril 2022 16:17:05 CEST
 Step frogsfunc_functions lun. 25 avril 2022 16:17:50 CEST
 Step frogsfunc_pathways lun. 25 avril 2022 16:17:56 CEST
 Completed with success
