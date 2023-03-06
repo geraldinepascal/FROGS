@@ -6,7 +6,7 @@
 
 Visit our web site : http://frogs.toulouse.inrae.fr/
 
-[![Release](https://img.shields.io/badge/release-4.0.1-blue.svg)![Date](https://img.shields.io/badge/date-June%202022-red.svg)](https://github.com/geraldinepascal/FROGS-wrappers/releases) [<img src="https://www.podcastscience.fm/wp-content/uploads/2017/12/deezer.png" width="5%" style="display: block; margin: auto;"/>](https://www.deezer.com/fr/playlist/5233843102?utm_source=deezer&utm_content=playlist-5233843102&utm_term=18632989_1545296531&utm_medium=web)
+[![Release](https://img.shields.io/badge/release-4.1.0-blue.svg)![Date](https://img.shields.io/badge/date-March%202023-red.svg)](https://github.com/geraldinepascal/FROGS-wrappers/releases) [<img src="https://www.podcastscience.fm/wp-content/uploads/2017/12/deezer.png" width="5%" style="display: block; margin: auto;"/>](https://www.deezer.com/fr/playlist/5233843102?utm_source=deezer&utm_content=playlist-5233843102&utm_term=18632989_1545296531&utm_medium=web)
 
 
 
@@ -115,7 +115,7 @@ FROGS relies on different specific tools for each of the analysis steps.
 | Tree                          |     [Fasttree](http://www.microbesonline.org/fasttree/)      |               2.1.10 |
 | Tree / FROGSSTAT              | [plotly](https://plotly.com/r/), [phangorn](https://cran.r-project.org/web/packages/phangorn/index.html), [rmarkdown](https://cran.r-project.org/web/packages/rmarkdown/index.html), [phyloseq](https://joey711.github.io/phyloseq/), [DESeq2](https://bioconductor.org/packages/release/bioc/html/DESeq2.html), [optparse](https://cran.r-project.org/web/packages/optparse/index.html), [calibrate](https://cran.r-project.org/web/packages/calibrate/index.html), [formattable](https://cran.r-project.org/web/packages/formattable/), [DT](https://cran.r-project.org/web/packages/DT/index.html) |              R 3.6.3 |
 | FROGSSTAT | [pandoc](https://pandoc.org/) | 2.11.3|
-| FROGSFUNC | [PICRUSt2](https://github.com/picrust/picrust2/wiki) | 2.4.1|
+| FROGSFUNC | [PICRUSt2](https://github.com/picrust/picrust2/wiki) | 2.5.1|
 | FROGSFUNC | [ete3](http://etetoolkit.org/) | 3.1.1|
 
 ### **Use PEAR as read pairs merging software in preprocess**
@@ -136,29 +136,29 @@ FROGS is now available on bioconda (https://anaconda.org/bioconda/frogs).
   * to create a specific environment for a specific FROGS version
 
 ```
-conda env create --name frogs@4.0.1 --file frogs-conda-requirements.yaml
+conda env create --name frogs@4.1.0 --file frogs-conda-requirements.yaml
 # to use FROGS, first you need to activate your environment
-conda activate frogs@4.0.1
+conda activate frogs@4.1.0
 ```
 
 **WARNING** : As PICRUSt2 currently relies on a different R version, in order to use the FROGSFUNC tools, it is necessary to create a dedicated conda environment as follows:
 
 ```
-conda env create --name frogsfunc@4.0.1 --file frogsfunc-conda-requirements.yaml
+conda env create --name frogsfunc@4.1.0 --file frogsfunc-conda-requirements.yaml
 # and then activate the environment
-conda activate frogsfunc@4.0.1
+conda activate frogsfunc@4.1.0
 ```
 
-After that, you just have to switch from one environment to another (with `conda activate frogs@4.0.1` or `conda activate frogsfunc@4.0.1` depending on whether you want to use FROGSFUNC or all the other tools.
+After that, you just have to switch from one environment to another (with `conda activate frogs@4.1.0` or `conda activate frogsfunc@4.1.0` depending on whether you want to use FROGSFUNC or all the other tools.
 
 ## Check intallation
 
 To check your installation you can type:
 
 ```
-cd <conda_env_dir>/frogs@4.0.1/share/FROGS-4.0.1/test
+cd <conda_env_dir>/frogs@4.1.0/share/FROGS-4.1.0/test
 
-conda activate frogs@4.0.1
+conda activate frogs@4.1.0
 
 sh test_frogs.sh <NB_CPU> <JAVA_MEM> <OUT_FOLDER>
 ```
@@ -203,9 +203,9 @@ Completed with success
 Finally, to check the FROGSFUNC tools installation you can type:
 
 ```
-cd <conda_env_dir>/frogsfunc@4.0.1/share/FROGS-4.0.1/test
+cd <conda_env_dir>/frogsfunc@4.1.0/share/FROGS-4.1.0/test
 
-conda activate frogsfunc@4.0.1
+conda activate frogsfunc@4.1.0
 
 sh test_frogsfunc.sh <OUT_FOLDER>
 ```
@@ -286,7 +286,7 @@ GNU GPL v3
 
 
 # Copyright
-2022 INRAE
+2023 INRAE
 
 
 # Citation
