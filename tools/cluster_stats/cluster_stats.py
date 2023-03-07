@@ -169,7 +169,7 @@ def write_summary( summary_file, input_biom, depth_file, classif_file ):
     FH_classif.close()
 
     # Write
-    FH_summary_tpl = open( os.path.join(CURRENT_DIR, "clusters_stat_tpl.html") )
+    FH_summary_tpl = open( os.path.join(CURRENT_DIR, "cluster_stats_tpl.html") )
     FH_summary_out = open( summary_file, "wt" )
     for line in FH_summary_tpl:
         if "###CLUSTERS_SIZES###" in line:

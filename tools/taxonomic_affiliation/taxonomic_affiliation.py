@@ -349,7 +349,7 @@ def summarise_results( summary_file, biom_file, taxonomy_ranks ):
     global_results, samples_results = get_results( biom_file )
 
     # Write
-    FH_summary_tpl = open( os.path.join(CURRENT_DIR, "affiliation_OTU_tpl.html") )
+    FH_summary_tpl = open( os.path.join(CURRENT_DIR, "taxonomic_affiliation_tpl.html") )
     FH_summary_out = open( summary_file, "wt" )
     for line in FH_summary_tpl:
         if "###GLOBAL_DATA###" in line:
