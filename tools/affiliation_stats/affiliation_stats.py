@@ -381,7 +381,7 @@ if __name__ == '__main__':
     group_input.add_argument( '-i', '--input-biom', required=True, help="The input abundance file (format: BIOM)." )
     #     Outputs
     group_output = parser.add_argument_group( 'Outputs' )
-    group_output.add_argument( '-o', '--output-file', default="affiliations_stat.html", help="The HTML file containing the graphs. [Default: %(default)s]" )
+    group_output.add_argument( '-o', '--output-file', default="affiliation_stats.html", help="The HTML file containing the graphs. [Default: %(default)s]" )
     group_output.add_argument( '-l', '--log-file', default=sys.stdout, help='The list of commands executed.' )
     args = parser.parse_args()
     prevent_shell_injections(args)
