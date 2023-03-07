@@ -228,7 +228,7 @@ def frogs_affiliation(fasta_databank, in_biom, in_fasta, output_biom, nb_cpus):
     @param out_biom: [str] Path to the outputed BIOM file.
     @param nb_cpus: [int] Number of used CPUs.
     """
-    exec_cmd( "affiliation_OTU.py" + \
+    exec_cmd( "taxonomic_affiliation.py" + \
         " --reference " + fasta_databank + \
         " --input-fasta " + in_fasta + \
         " --input-biom " + in_biom + \

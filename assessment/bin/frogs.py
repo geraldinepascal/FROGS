@@ -134,7 +134,7 @@ if __name__ == "__main__":
     " --min-abundance 0.00005" )
 
 
-    exec_cmd( "affiliation_OTU.py" + \
+    exec_cmd( "taxonomic_affiliation.py" + \
     " --nb-cpus " + str(args.nb_cpus) + \
     " --reference " + args.affiliation_databank + \
     " --input-fasta " + args.output_fasta + \
