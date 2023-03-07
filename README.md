@@ -108,9 +108,9 @@ FROGS relies on different specific tools for each of the analysis steps.
 | Preprocess                    |       [cutadapt](https://github.com/marcelm/cutadapt) (need to be >=2.8)       |            3.1 |
 | Clustering                    |          [swarm](https://github.com/torognes/swarm) (need to be >=2.1)          |            3.0.0 |
 | ITSx                          |        [ITSx](http://microbiology.se/software/itsx/)         |  1.1.2 |
-| Affiliation_OTU               | [NCBI BLAST+](http://blast.ncbi.nlm.nih.gov/Blast.cgi?PAGE_TYPE=BlastDocs&DOC_TYPE=Download) |          2.10.1 |
-| Affiliation_OTU               |    [RDP Classifier](https://github.com/rdpstaff/RDPTools)    |                2.0.3 |
-| Affiliation_OTU               | [EMBOSS needleall](http://emboss.sourceforge.net/apps/release/6.6/emboss/apps/needleall.html) |                6.6.0 |
+| Taxonomic_affiliation               | [NCBI BLAST+](http://blast.ncbi.nlm.nih.gov/Blast.cgi?PAGE_TYPE=BlastDocs&DOC_TYPE=Download) |          2.10.1 |
+| Taxonomic_affiliation               |    [RDP Classifier](https://github.com/rdpstaff/RDPTools)    |                2.0.3 |
+| Taxonomic_affiliation               | [EMBOSS needleall](http://emboss.sourceforge.net/apps/release/6.6/emboss/apps/needleall.html) |                6.6.0 |
 | Tree                          |       [MAFFT](https://mafft.cbrc.jp/alignment/server/)       |                7.475 |
 | Tree                          |     [Fasttree](http://www.microbesonline.org/fasttree/)      |               2.1.10 |
 | Tree / FROGSSTAT              | [plotly](https://plotly.com/r/), [phangorn](https://cran.r-project.org/web/packages/phangorn/index.html), [rmarkdown](https://cran.r-project.org/web/packages/rmarkdown/index.html), [phyloseq](https://joey711.github.io/phyloseq/), [DESeq2](https://bioconductor.org/packages/release/bioc/html/DESeq2.html), [optparse](https://cran.r-project.org/web/packages/optparse/index.html), [calibrate](https://cran.r-project.org/web/packages/calibrate/index.html), [formattable](https://cran.r-project.org/web/packages/formattable/), [DT](https://cran.r-project.org/web/packages/DT/index.html) |              R 3.6.3 |
@@ -232,7 +232,7 @@ All the CPUs must be on the same computer/node.
 |      Preprocess       |     8Gb     |      -      |   12 CPUs and 96 GB   |
 |      Clustering       |      -      |    10 Gb    |   16 CPUs and 60 GB   |
 | ITSx / Remove_Chimera |     3Gb     |     5Gb     |   12 CPUs and 36 GB   |
-|    Affiliation_OTU    |      -      |    20 Gb    |  30 CPUs and 300 GB   |
+|    Taxonomic_affiliation    |      -      |    20 Gb    |  30 CPUs and 300 GB   |
 
 
 
