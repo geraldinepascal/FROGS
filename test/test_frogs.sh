@@ -16,7 +16,7 @@ then
     mkdir $out_dir
 fi
 
-echo "Step demultiplexe `date`"
+echo "Step demultiplex `date`"
 demultiplex.py --input-R1 data/demultiplex_test2_R1.fq.gz --input-R2 data/demultiplex_test2_R2.fq.gz --input-barcode data/demultiplex_barcode.txt \
     --mismatches 1 --end both \
     --output-demultiplexed $out_dir/demultiplexed.tar.gz --output-excluded $out_dir/undemultiplexed.tar.gz \
@@ -121,9 +121,9 @@ then
 fi
 
 
-echo "Step otu filters `date`"
+echo "Step cluster_filters `date`"
 
-otu_filters.py \
+cluster_filters.py \
  --min-abundance 0.00005 \
  --min-sample-presence 3 \
  --contaminant data/phi.fa \
@@ -140,11 +140,11 @@ otu_filters.py \
 
 if [ $? -ne 0 ]
 then
-	echo "Error in filters" >&2
+	echo "Error in cluster_filters" >&2
 	exit 1;
 fi
 
-echo "Step ITSx `date`"
+echo "Step itsx `date`"
 
 itsx.py \
  --input-fasta $out_dir/04-filters.fasta \
@@ -162,9 +162,9 @@ then
 	exit 1;
 fi
 
-echo "Step affiliation_OTU `date`"
+echo "Step taxonomic_affiliation `date`"
 
-affiliation_OTU.py \
+taxonomic_affiliation.py \
  --reference data/ITS1.rdp.fasta \
  --input-fasta $out_dir/04-filters.fasta \
  --input-biom $out_dir/04-filters.biom \
@@ -176,12 +176,12 @@ affiliation_OTU.py \
 
 if [ $? -ne 0 ]
 then
-	echo "Error in affiliation_OTU" >&2
+	echo "Error in taxonomic_affiliation" >&2
 	exit 1;
 fi
 
 
-echo "Step affiliation_filter: masking mode `date`"
+echo "Step affiliation_filters: masking mode `date`"
 
 affiliation_filters.py \
 --input-biom $out_dir/06-affiliation.biom \
@@ -202,12 +202,12 @@ affiliation_filters.py \
 
 if [ $? -ne 0 ]
 then
-	echo "Error in affiliation_filter" >&2
+	echo "Error in affiliation_filters: masking mode" >&2
 	exit 1;
 fi
 
 
-echo "Step affiliation_filter: deleted mode `date`"
+echo "Step affiliation_filters: deleted mode `date`"
 
 affiliation_filters.py \
 --input-biom $out_dir/06-affiliation.biom \
@@ -229,7 +229,7 @@ affiliation_filters.py \
 
 if [ $? -ne 0 ]
 then
-	echo "Error in affiliation_filter" >&2
+	echo "Error in affiliation_filters: deleted mode" >&2
 	exit 1;
 fi
 
@@ -299,23 +299,23 @@ then
     exit 1;
 fi
 
-echo "Step clusters_stat `date`"
+echo "Step cluster_stats `date`"
 
-clusters_stat.py \
+cluster_stats.py \
  --input-biom $out_dir/09-normalisation.biom \
  --output-file $out_dir/10-clustersStat.html \
  --log-file $out_dir/10-clustersStat.log
 
 if [ $? -ne 0 ]
 then
-	echo "Error in clusters_stat" >&2
+	echo "Error in clusters_stats" >&2
 	exit 1;
 fi
 
 					
-echo "Step affiliations_stat `date`"
+echo "Step affiliation_stats `date`"
 
-affiliations_stat.py \
+affiliation_stats.py \
  --input-biom $out_dir/09-normalisation.biom \
  --output-file $out_dir/11-affiliationsStat.html \
  --log-file $out_dir/11-affiliationsStat.log \
@@ -328,7 +328,7 @@ affiliations_stat.py \
 
 if [ $? -ne 0 ]
 then
-	echo "Error in affiliations_stat" >&2
+	echo "Error in affiliation_stats" >&2
 	exit 1;
 fi
 
