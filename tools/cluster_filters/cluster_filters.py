@@ -444,10 +444,10 @@ def process( args ):
         remove_observations( clusters_discarded, args.input_biom, args.output_biom )
 
         # Selects the N most abundant
-        if args.nb_biggest_otu:
-            label = "Not in the " + str(args.nb_biggest_otu) + " biggest"
-            discards[label] = tmpFiles.add( "nb_biggest_otu" )
-            excluded_obs_on_nBiggest( args.output_biom, args.nb_biggest_otu, discards[label] )
+        if args.nb_biggest_clusters:
+            label = "Not in the " + str(args.nb_biggest_clusters) + " biggest"
+            discards[label] = tmpFiles.add( "nb_biggest_clusters" )
+            excluded_obs_on_nBiggest( args.output_biom, args.nb_biggest_clusters, discards[label] )
             # Removes observations
             remove_observations( uniq_from_files_lists([discards[label]]), args.output_biom, args.output_biom )
 
@@ -475,12 +475,12 @@ if __name__ == '__main__':
     parser.add_argument( '-v', '--version', action='version', version=__version__ )
     #     Filters
     group_filter = parser.add_argument_group( 'Filters' )
-    group_filter.add_argument( '--nb-biggest-otu', type=int, default=None, required=False, help="Number of most abundant OTUs you want to keep.") 
-    group_filter.add_argument( '-s', '--min-sample-presence', type=int, help="Keep OTU present in at least this number of samples.") 
-    group_filter.add_argument( '-r', '--min-replicate-presence', type=minAbundParameter, default=None, help="Keep OTU present in at least this proportion of replicates in at least one group (please indicate a proportion between 0 and 1). Replicates must be defined with --replicate_file REPLICATE FILE")
+    group_filter.add_argument( '--nb-biggest-clusters', type=int, default=None, required=False, help="Number of most abundant clusters you want to keep.") 
+    group_filter.add_argument( '-s', '--min-sample-presence', type=int, help="Keep cluster present in at least this number of samples.") 
+    group_filter.add_argument( '-r', '--min-replicate-presence', type=minAbundParameter, default=None, help="Keep cluster present in at least this proportion of replicates in at least one group (please indicate a proportion between 0 and 1). Replicates must be defined with --replicate_file REPLICATE FILE")
     group_filter.add_argument( '--replicate_file', help='Replicate file must be specified if --min-replicate-presence is set. First column of the file must indicate the sample name, and the second column the group name of this replicate. Exemple: TEM1_L0001_R   Temoin.')
-    group_filter.add_argument( '-a', '--min-abundance', type=minAbundParameter, default=None, required=False, help="Minimum percentage/number of sequences, comparing to the total number of sequences, of an OTU (between 0 and 1 if percentage desired)." )
-    # group_filter.add_argument( '--abundance-by-sample', type=bool, default=False, action='store_true', help="Abundance threshold is applied by default on the total abundance of OTU. Activate this option if you want to applied the threshold on sample abundances (if float, each OTU must be present in a " )
+    group_filter.add_argument( '-a', '--min-abundance', type=minAbundParameter, default=None, required=False, help="Minimum percentage/number of sequences, comparing to the total number of sequences, of a cluster (between 0 and 1 if percentage desired)." )
+    # group_filter.add_argument( '--abundance-by-sample', type=bool, default=False, action='store_true', help="Abundance threshold is applied by default on the total abundance of cluster. Activate this option if you want to applied the threshold on sample abundances (if float, each cluster must be present in a " )
     #     Inputs
     group_input = parser.add_argument_group( 'Inputs' )
     group_input.add_argument('--input-biom', required=True, help="The input BIOM file. (format: BIOM)")
@@ -488,17 +488,17 @@ if __name__ == '__main__':
     group_input.add_argument('--contaminant', default=None, help="Use this databank to filter sequence before affiliation. (format: FASTA)")
     #     Outputs
     group_output = parser.add_argument_group( 'Outputs' )
-    group_output.add_argument('--output-biom', default="otu_filters_abundance.biom", help="The BIOM file output. (format: BIOM) [Default: %(default)s]")
-    group_output.add_argument('--output-fasta', default="otu_filters.fasta", help="The FASTA output file. (format: FASTA) [Default: %(default)s]")
-    group_output.add_argument('--summary', default="otu_filters.html", help="The HTML file containing the graphs. [Default: %(default)s]")
-    group_output.add_argument('--excluded', default="otu_filters_excluded.tsv", help="The TSV file that summarizes all the clusters discarded. (format: TSV) [Default: %(default)s]")
+    group_output.add_argument('--output-biom', default="cluster_filters_abundance.biom", help="The BIOM file output. (format: BIOM) [Default: %(default)s]")
+    group_output.add_argument('--output-fasta', default="cluster_filters.fasta", help="The FASTA output file. (format: FASTA) [Default: %(default)s]")
+    group_output.add_argument('--summary', default="cluster_filters.html", help="The HTML file containing the graphs. [Default: %(default)s]")
+    group_output.add_argument('--excluded', default="cluster_filters_excluded.tsv", help="The TSV file that summarizes all the clusters discarded. (format: TSV) [Default: %(default)s]")
     group_output.add_argument('--log-file', default=sys.stdout, help='This output file will contain several information on executed commands.')
     args = parser.parse_args()
     prevent_shell_injections(args)
 
     Logger.static_write(args.log_file, "## Application\nSoftware: " + os.path.basename(sys.argv[0]) + " (version: " + str(__version__) + ")\nCommand: " + " ".join(sys.argv) + "\n\n")
 
-    if args.nb_biggest_otu is None and args.min_sample_presence is None and args.min_replicate_presence is None and args.min_abundance is None and args.contaminant is None:
+    if args.nb_biggest_clusters is None and args.min_sample_presence is None and args.min_replicate_presence is None and args.min_abundance is None and args.contaminant is None:
         raise_exception( argparse.ArgumentTypeError( "\n\n#ERROR : At least one filter must be set to run " + os.path.basename(sys.argv[0]) + "\n\n"))
     if not args.min_abundance is None and (args.min_abundance <= 0 or (type(args.min_abundance) == float and args.min_abundance >= 1.0 ) ):
         raise_exception( argparse.ArgumentTypeError( "\n\n#ERROR : If filtering on abundance, you must indicate a positive threshold and if percentage abundance threshold must be smaller than 1.0. \n\n" ))
