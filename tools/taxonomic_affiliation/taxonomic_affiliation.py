@@ -222,7 +222,7 @@ class AddAffiliation2Biom(Cmd):
 ###################################################################################################################
 def extract_FROGS_combined(input_fasta, fasta_full_length, fasta_combined):
     """
-    @summary: separate, FROGS artiificila combined OTU (replacing N by "-") and full length OTU.
+    @summary: separate, FROGS artificial combined OTU (replacing N by "-") and full length OTU.
     @param input_fasta : [str] Path to input fasta file
     @param fasta_full_length : [str] Path to output fasta file of full length OTU
     @param fasta_combined : [str] Path to output fasta file of artiificial combined OTU
@@ -542,7 +542,7 @@ if __name__ == "__main__":
     # Outputs
     group_output = parser.add_argument_group('Outputs')
     group_output.add_argument('-o', '--output-biom', default='affiliation_abundance.biom', help='BIOM file with added affiliation annotations from blast/needleall and/or RDPtools. [Default: %(default)s]')
-    group_output.add_argument('-s', '--summary', default='affiliation_OTU.html', help='The HTML file containing the graphs. [Default: %(default)s]')
+    group_output.add_argument('-s', '--summary', default='taxonomic_affiliation.html', help='The HTML file containing the graphs. [Default: %(default)s]')
     group_output.add_argument('-l', '--log-file', default=sys.stdout, help='The list of commands executed.')
     args = parser.parse_args()
     prevent_shell_injections(args)
