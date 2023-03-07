@@ -295,7 +295,7 @@ def write_summary( summary_file, input_biom, tree_count_file, tree_ids_file, rar
     del biom
 
     # Write
-    FH_summary_tpl = open( os.path.join(CURRENT_DIR, "affiliations_stat_tpl.html") )
+    FH_summary_tpl = open( os.path.join(CURRENT_DIR, "affiliation_stats_tpl.html") )
     FH_summary_out = open( summary_file, "wt" )
     for line in FH_summary_tpl:
         if "###TAXONOMIC_RANKS###" in line:
