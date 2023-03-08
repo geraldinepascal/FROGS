@@ -31,7 +31,7 @@ diff_size() {
 	if [ "$diff" -gt $3  ];	then true; else false; fi
 }
 
-echo "Step demultiplexe `date`"
+echo "Step demultiplex `date`"
 if $run_programs
 then
 demultiplex.py --input-R1 data/demultiplex_test2_R1.fq.gz --input-R2 data/demultiplex_test2_R2.fq.gz --input-barcode data/demultiplex_barcode.txt \
@@ -40,7 +40,7 @@ demultiplex.py --input-R1 data/demultiplex_test2_R1.fq.gz --input-R2 data/demult
 	    --log-file $out_dir/demultiplex.log --summary $out_dir/demultiplex_summary.txt
 	if [ $? -ne 0 ]
 	then
-		echo "Error in preprocess : Flash" >&2
+		echo "Error in demultiplex" >&2
 		exit 1;
 	fi
 fi
@@ -196,7 +196,7 @@ echo "Step otu filters `date`"
 
 if $run_programs
 then
-otu_filters.py \
+cluster_filters.py \
 	 --min-abundance 0.00005 \
 	 --min-sample-presence 3 \
 	 --contaminant data/phi.fa \
@@ -218,22 +218,22 @@ fi
 
 if diff_line $out_dir/04-filters.fasta $expected_dir/04-filters.fasta 0
 then
-	echo "difference in otu_filters : 04-filters.fasta " >&2
+	echo "difference in cluster_filters : 04-filters.fasta " >&2
 fi
 
 if diff_size $out_dir/04-filters.biom $expected_dir/04-filters.biom 0
 then
-	echo "difference in otu_filters : 04-filters.biom" >&2
+	echo "difference in cluster_filters : 04-filters.biom" >&2
 fi
 
 if diff_line $out_dir/04-filters.excluded $expected_dir/04-filters.excluded 0
 then
-	echo "difference in otu_filters : 04-filters.excluded " >&2
+	echo "difference in cluster_filters : 04-filters.excluded " >&2
 fi
 
 if diff_line $out_dir/04-filters.html $expected_dir/04-filters.html 0
 then
-	echo "difference in otu_filters : 04-filters.html " >&2
+	echo "difference in cluster_filters : 04-filters.html " >&2
 fi
 
 echo "Step ITSx `date`"
@@ -276,11 +276,11 @@ then
 	echo "difference in ITSx : 05-itsx.html " >&2
 fi
 
-echo "Step affiliation_OTU `date`"
+echo "Step taxonomic_affiliation `date`"
 
 if $run_programs
 then
-affiliation_OTU.py \
+taxonomic_affiliation.py \
 	 --reference data/ITS1.rdp.fasta \
 	 --input-fasta $expected_dir/04-filters.fasta \
 	 --input-biom $expected_dir/04-filters.biom \
@@ -299,15 +299,15 @@ fi
 
 if diff_size $out_dir/06-affiliation.biom $expected_dir/06-affiliation.biom 0
 then
-	echo "difference in affiliation_OTU :06-affiliation.biom " >&2
+	echo "difference in taxonomic_affiliation :06-affiliation.biom " >&2
 fi
 
 if diff_line $out_dir/06-affiliation.html $expected_dir/06-affiliation.html 0
 then
-	echo "difference in affiliation_OTU :06-affiliation.html " >&2
+	echo "difference in taxonomic_affiliation :06-affiliation.html " >&2
 fi
 
-echo "Step affiliation_filter: masking mode `date`"
+echo "Step affiliation_filters: masking mode `date`"
 
 if $run_programs
 then
@@ -330,7 +330,7 @@ affiliation_filters.py \
 
 	if [ $? -ne 0 ]
 	then
-		echo "Error in affiliation_filter" >&2
+		echo "Error in affiliation_filters" >&2
 		exit 1;
 	fi
 fi
@@ -567,28 +567,28 @@ echo "Step clusters_stat `date`"
 
 if $run_programs
 then
-clusters_stat.py \
+cluster_stats.py \
 	 --input-biom $expected_dir/09-normalisation.biom \
 	 --output-file $out_dir/10-clustersStat.html \
 	 --log-file $out_dir/10-clustersStat.log
 
 	if [ $? -ne 0 ]
 	then
-		echo "Error in clusters_stat" >&2
+		echo "Error in cluster_stats" >&2
 		exit 1;
 	fi
 fi
 
 if diff_line $out_dir/10-clustersStat.html $expected_dir/10-clustersStat.html 0
 then
-	echo "Difference in clusters_stat : 10-clustersStat.html" >&2
+	echo "Difference in cluster_stats : 10-clustersStat.html" >&2
 fi
 
-echo "Step affiliations_stat `date`"
+echo "Step affiliation_stats `date`"
 
 if $run_programs
 then
-affiliations_stat.py \
+affiliation_stats.py \
 	 --input-biom $expected_dir/09-normalisation.biom \
 	 --output-file $out_dir/11-affiliationsStat.html \
 	 --log-file $out_dir/11-affiliationsStat.log \
@@ -601,7 +601,7 @@ affiliations_stat.py \
 
 	if [ $? -ne 0 ]
 	then
-		echo "Error in affiliations_stat" >&2
+		echo "Error in affiliation_stats" >&2
 		exit 1;
 	fi
 fi
