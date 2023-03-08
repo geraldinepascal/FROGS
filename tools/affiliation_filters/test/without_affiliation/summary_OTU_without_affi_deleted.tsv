@@ -1,5 +1,0 @@
-#observation_name	blast_taxonomy	 blast_subject	blast_perc_identity	blast_perc_query_coverage	blast_evalue	blast_aln_length
-Cluster_31	k__Fungi;p__Ascomycota;c__Sordariomycetes;o__Hypocreales;f__Hypocreaceae;g__Trichoderma;s__Trichoderma_rodmanii	EU330948_SH316773.07FU_refs	90.411	30.53097345132743	3.07e-21	73
-Cluster_31	k__Fungi;p__Ascomycota;c__Sordariomycetes;o__Hypocreales;f__Hypocreaceae;g__Trichoderma;s__Trichoderma_cremeum	AY737760_SH296378.07FU_refs	90.411	30.973451327433626	3.07e-21	73
-Cluster_38	k__Fungi;p__Ascomycota;c__Sordariomycetes;o__Hypocreales;f__Hypocreaceae;g__Trichoderma;s__Trichoderma_rodmanii	EU330948_SH316773.07FU_refs	90.141	31.753554502369667	1.02e-20	71
-Cluster_38	k__Fungi;p__Ascomycota;c__Sordariomycetes;o__Hypocreales;f__Hypocreaceae;g__Trichoderma;s__Trichoderma_cremeum	AY737760_SH296378.07FU_refs	90.141	32.22748815165877	1.02e-20	71
