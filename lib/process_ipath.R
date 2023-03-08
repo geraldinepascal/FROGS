@@ -83,14 +83,9 @@ get_map <- function(selection, map_name = "map") {
     write(text, file = paste0(map_name))
 }
 
+
+## MAIN
 process_iPath <- function(input_file, output_file) {
     func_str <- generate_ipath_input(input_file)
     get_map(func_str, output_file)
 }
-############# VERSION
-
-
-########## MAIN
-
-process_iPath(input_over, svg_file_over)
-process_iPath(input_under, svg_file_under)

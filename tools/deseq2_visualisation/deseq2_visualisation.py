@@ -29,7 +29,7 @@ import argparse
 
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
 FROGS_DIR=""
-if CURRENT_DIR.endswith("phylo_beta_diversity"):
+if CURRENT_DIR.endswith("deseq2_visualisation"):
     FROGS_DIR = os.path.dirname(os.path.dirname(CURRENT_DIR))
 else:
     FROGS_DIR = os.path.dirname(CURRENT_DIR)
@@ -85,7 +85,7 @@ class Rscript(Cmd):
         Cmd.__init__( self,
                       'Rscript',
                       'Run deseq2_visualisation.Rmd',
-                       '-e "rmarkdown::render(' + "'" + rmd + "', output_file='" + html + "', params=list(abundance_data='" + abundance_data + "', analysis='" + analysis + "', dds='" + dds + "', var='" + var+"', mod1='" + mod1 + "', mod2='" + mod2 + "', padj=" + str(padj) + opt + "), intermediates_dir='" + os.path.dirname(html) +"')" + '" 2> ' + err ,
+                       '-e "rmarkdown::render(' + "'" + rmd + "', output_file='" + html + "', params=list(abundance_data='" + abundance_data + "', analysis='" + analysis + "', dds='" + dds + "', var='" + var+"', mod1='" + mod1 + "', mod2='" + mod2 + "', padj=" + str(padj) + ", libdir ='" + LIB_DIR + "'" + opt + "), intermediates_dir='" + os.path.dirname(html) +"')" + '" 2> ' + err ,
                       "-e '(sessionInfo()[[1]][13])[[1]][1]; library(DESeq2); paste(\"DESeq2 version: \",packageVersion(\"DESeq2\"))'")
                       
     def get_version(self):
