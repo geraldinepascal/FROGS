@@ -219,7 +219,7 @@ if __name__ == "__main__":
     parser.add_argument( '-v', '--version', action='version', version=__version__)
     # Inputs
     group_input = parser.add_argument_group('Inputs')
-    group_input.add_argument('-b', '--input-biom', required=True, help='Abundance table with affiliations metadata from the affiliation_OTU program (format: BIOM).')
+    group_input.add_argument('-b', '--input-biom', required=True, help='Abundance table with affiliations metadata from the taxonomic_affiliation tool (format: BIOM).')
     group_input.add_argument('-f', '--input-fasta', required=True, help='OTU seed sequence file (format: Fasta).')
     # Outputs
     group_output = parser.add_argument_group('Outputs')
