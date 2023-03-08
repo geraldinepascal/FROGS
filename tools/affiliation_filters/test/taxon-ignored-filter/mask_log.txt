@@ -1,0 +1,16 @@
+## Application
+Software: affiliation_filters.py (version: 4.1.0)
+Command: ./affiliation_filters.py --input-biom data/fake_affiliation.biom --input-fasta data/fake_affiliation.fasta --output-biom test/taxon-ignored-filter/filtered_OTU_masked.biom --output-fasta test/taxon-ignored-filter/filtered_OTU_masked.fasta --summary test/taxon-ignored-filter/summary_OTU_masked.html --impacted test/taxon-ignored-filter/impacted_OTU_masked.tsv --impacted-multihit test/taxon-ignored-filter/impacted_OTU_masked_multihit.tsv --log-file test/taxon-ignored-filter/mask_log.txt --ignore-blast-taxa "Methylovulum miyakonense" "subsp." "unknown species" --mask
+
+Identify OTU with :
+	- Blast taxonomies belong to undesired taxon: Methylovulum miyakonense / subsp. / unknown species : 1
+	additionnaly, blast_taxonomy updated for 2 OTU(s)
+########################################################################################################
+# Convert a biom file into tsv file (biom_to_tsv.py version : 4.1.0)
+Command:
+	biom_to_tsv.py  --input-biom test/taxon-ignored-filter/1678206159.6656713_2407282_impacted.biom --input-fasta data/fake_affiliation.fasta --output-tsv test/taxon-ignored-filter/impacted_OTU_masked.tsv --output-multi-affi test/taxon-ignored-filter/impacted_OTU_masked_multihit.tsv --log-file  test/taxon-ignored-filter/1678206159.6656713_2407282_impacted.biom2tsv.log
+
+Execution:
+	start: 07 Mar 2023 17:22:39
+	end:   07 Mar 2023 17:22:40
+

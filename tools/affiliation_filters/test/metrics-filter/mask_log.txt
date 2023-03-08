@@ -1,0 +1,18 @@
+## Application
+Software: affiliation_filters.py (version: 4.1.0)
+Command: ./affiliation_filters.py --input-biom data/fake_affiliation.biom --input-fasta data/fake_affiliation.fasta --output-biom test/metrics-filter/filtered_OTU_masked.biom --output-fasta test/metrics-filter/filtered_OTU_masked.fasta --summary test/metrics-filter/summary_OTU_masked.html --impacted test/metrics-filter/impacted_OTU_masked.tsv --impacted-multihit test/metrics-filter/impacted_OTU_masked_multihit.tsv --log-file test/metrics-filter/mask_log.txt --min-rdp-bootstrap Species:0.8 --min-blast-length 402 --min-blast-identity 1.0 --min-blast-coverage 1.0 --max-blast-evalue 0 --mask
+
+Identify OTU with :
+	- RDP bootstrap for Species < 0.8 : 12
+	- Blast length < 402 : 5
+	- Blast identity < 1.0 : 2
+	additionnaly, blast_taxonomy updated for 1 OTU(s)
+########################################################################################################
+# Convert a biom file into tsv file (biom_to_tsv.py version : 4.1.0)
+Command:
+	biom_to_tsv.py  --input-biom test/metrics-filter/1678206156.337628_2407251_impacted.biom --input-fasta data/fake_affiliation.fasta --output-tsv test/metrics-filter/impacted_OTU_masked.tsv --output-multi-affi test/metrics-filter/impacted_OTU_masked_multihit.tsv --log-file  test/metrics-filter/1678206156.337628_2407251_impacted.biom2tsv.log
+
+Execution:
+	start: 07 Mar 2023 17:22:36
+	end:   07 Mar 2023 17:22:37
+

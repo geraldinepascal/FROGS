@@ -1,0 +1,44 @@
+## Application
+Software :./cluster_stats.py (version : 4.1.0)
+Command : ./cluster_stats.py --input-biom data/swarm.biom --output-file test/clusters_metrics.html --log-file test/log.txt
+
+########################################################################################################
+# Hierarchical classification on observation proportions. (biomTools.py version : 0.11.0)
+Command:
+	biomTools.py hclassification --distance-method braycurtis --linkage-method average --input-file data/swarm.biom --output-file test/1678205899.5456913_2406839_HClassif.newick > test/1678205899.5456913_2406839_HClassif_log.txt
+
+Execution:
+	start: 07 Mar 2023 17:18:19
+	end:   07 Mar 2023 17:18:26
+
+########################################################################################################
+# Writes by abundance the number of clusters. (biomTools.py version : 0.11.0)
+Command:
+	biomTools.py obsdepth --input-file data/swarm.biom --output-file test/1678205899.5456913_2406839_depths.tsv
+
+Execution:
+	start: 07 Mar 2023 17:18:26
+	end:   07 Mar 2023 17:18:27
+
+## Application
+Software :./cluster_stats.py (version : 4.1.0)
+Command : ./cluster_stats.py --input-biom data/swarm.biom --output-file test/clusters_metrics.html --log-file test/log.txt
+
+########################################################################################################
+# Hierarchical classification on observation proportions. (biomTools.py version : 0.11.0)
+Command:
+	biomTools.py hclassification --distance-method braycurtis --linkage-method average --input-file data/swarm.biom --output-file test/1678205974.5109212_2406921_HClassif.newick > test/1678205974.5109212_2406921_HClassif_log.txt
+
+Execution:
+	start: 07 Mar 2023 17:19:34
+	end:   07 Mar 2023 17:19:35
+
+########################################################################################################
+# Writes by abundance the number of clusters. (biomTools.py version : 0.11.0)
+Command:
+	biomTools.py obsdepth --input-file data/swarm.biom --output-file test/1678205974.5109212_2406921_depths.tsv
+
+Execution:
+	start: 07 Mar 2023 17:19:35
+	end:   07 Mar 2023 17:19:36
+

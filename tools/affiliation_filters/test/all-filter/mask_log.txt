@@ -1,0 +1,19 @@
+## Application
+Software: affiliation_filters.py (version: 4.1.0)
+Command: ./affiliation_filters.py --input-biom data/fake_affiliation.biom --input-fasta data/fake_affiliation.fasta --output-biom test/all-filter/filtered_OTU_masked.biom --output-fasta test/all-filter/filtered_OTU_masked.fasta --summary test/all-filter/summary_OTU_masked.html --impacted test/all-filter/impacted_OTU_masked.tsv --impacted-multihit test/all-filter/impacted_OTU_masked_multihit.tsv --log-file test/all-filter/mask_log.txt --mask --taxonomic-ranks Domain Phylum Class Order Family Genus Species --min-rdp-bootstrap Species:0.8 --min-blast-length 402 --min-blast-identity 1.0 --min-blast-coverage 1.0 --max-blast-evalue 0 --ignore-blast-taxa "Methylovulum miyakonense" "subsp." "unknown species"
+
+Identify OTU with :
+	- RDP bootstrap for Species < 0.8 : 12
+	- Blast length < 402 : 6
+	- Blast taxonomies belong to undesired taxon: Methylovulum miyakonense / subsp. / unknown species : 2
+	- Blast identity < 1.0 : 2
+	additionnaly, blast_taxonomy updated for 1 OTU(s)
+########################################################################################################
+# Convert a biom file into tsv file (biom_to_tsv.py version : 4.1.0)
+Command:
+	biom_to_tsv.py  --input-biom test/all-filter/1678206163.10519_2407313_impacted.biom --input-fasta data/fake_affiliation.fasta --output-tsv test/all-filter/impacted_OTU_masked.tsv --output-multi-affi test/all-filter/impacted_OTU_masked_multihit.tsv --log-file  test/all-filter/1678206163.10519_2407313_impacted.biom2tsv.log
+
+Execution:
+	start: 07 Mar 2023 17:22:43
+	end:   07 Mar 2023 17:22:44
+

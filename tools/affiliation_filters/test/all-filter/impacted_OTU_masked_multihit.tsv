@@ -1,0 +1,79 @@
+#observation_name	blast_taxonomy	 blast_subject	blast_perc_identity	blast_perc_query_coverage	blast_evalue	blast_aln_length
+Cluster_5	Bacteria;Proteobacteria;Gammaproteobacteria;Methylococcales;Methylococcaceae;Methylovulum;Methylovulum miyakonense HT12	AQZU01000003.1614416.1615922	100.0	100.0	0.0	425
+Cluster_5	Bacteria;Proteobacteria;Gammaproteobacteria;Methylococcales;Methylococcaceae;Methylovulum;Methylovulum miyakonense HT12	AQZU01000004.275127.276633	100.0	100.0	0.0	425
+Cluster_5	Bacteria;Proteobacteria;Gammaproteobacteria;Methylococcales;Methylococcaceae;Methylovulum;Methylovulum miyakonense HT12	AQZU01000003.804005.805512	100.0	100.0	0.0	425
+Cluster_5	Bacteria;Proteobacteria;Gammaproteobacteria;Methylococcales;Methylococcaceae;Methylovulum;Methylovulum miyakonense	AB501287.1.1488	100.0	100.0	0.0	425
+Cluster_6	Bacteria;Proteobacteria;Epsilonproteobacteria;Campylobacterales;Campylobacteraceae;Campylobacter;Campylobacter fetus subsp. fetus	DQ174128.1.1343	100.0	100.0	0.0	402
+Cluster_6	Bacteria;Proteobacteria;Epsilonproteobacteria;Campylobacterales;Campylobacteraceae;Campylobacter;Campylobacter fetus subsp. fetus	DQ174127.1.1343	100.0	100.0	0.0	402
+Cluster_6	Bacteria;Proteobacteria;Epsilonproteobacteria;Campylobacterales;Campylobacteraceae;Campylobacter;Campylobacter fetus subsp. venerealis	DQ174132.1.1343	100.0	100.0	0.0	402
+Cluster_6	Bacteria;Proteobacteria;Epsilonproteobacteria;Campylobacterales;Campylobacteraceae;Campylobacter;Campylobacter fetus subsp. venerealis	DQ174133.1.1343	100.0	100.0	0.0	402
+Cluster_6	Bacteria;Proteobacteria;Epsilonproteobacteria;Campylobacterales;Campylobacteraceae;Campylobacter;Campylobacter fetus subsp. fetus	DQ174130.1.1343	100.0	100.0	0.0	402
+Cluster_6	Bacteria;Proteobacteria;Epsilonproteobacteria;Campylobacterales;Campylobacteraceae;Campylobacter;Campylobacter fetus subsp. venerealis	DQ174134.1.1343	100.0	100.0	0.0	402
+Cluster_6	Bacteria;Proteobacteria;Epsilonproteobacteria;Campylobacterales;Campylobacteraceae;Campylobacter;Campylobacter fetus subsp. venerealis NCTC 10354	DQ174131.1.1343	100.0	100.0	0.0	402
+Cluster_6	Bacteria;Proteobacteria;Epsilonproteobacteria;Campylobacterales;Campylobacteraceae;Campylobacter;Campylobacter fetus subsp. fetus	DQ174129.1.1343	100.0	100.0	0.0	402
+Cluster_6	Bacteria;Proteobacteria;Epsilonproteobacteria;Campylobacterales;Campylobacteraceae;Campylobacter;Campylobacter fetus subsp. venerealis cfvi03/293	CP006999.133702.135204	100.0	100.0	0.0	402
+Cluster_6	Bacteria;Proteobacteria;Epsilonproteobacteria;Campylobacterales;Campylobacteraceae;Campylobacter;Campylobacter fetus subsp. venerealis cfvi03/293	CP006999.604377.605879	100.0	100.0	0.0	402
+Cluster_6	Bacteria;Proteobacteria;Epsilonproteobacteria;Campylobacterales;Campylobacteraceae;Campylobacter;Campylobacter sp. 03-427	CP006833.139041.140543	100.0	100.0	0.0	402
+Cluster_6	Bacteria;Proteobacteria;Epsilonproteobacteria;Campylobacterales;Campylobacteraceae;Campylobacter;Campylobacter fetus subsp. venerealis cfvi03/293	CP006999.509599.511101	100.0	100.0	0.0	402
+Cluster_6	Bacteria;Proteobacteria;Epsilonproteobacteria;Campylobacterales;Campylobacteraceae;Campylobacter;Campylobacter sp. 03-427	CP006833.511869.513371	100.0	100.0	0.0	402
+Cluster_6	Bacteria;Proteobacteria;Epsilonproteobacteria;Campylobacterales;Campylobacteraceae;Campylobacter;Campylobacter sp. 03-427	CP006833.606315.607817	100.0	100.0	0.0	402
+Cluster_6	Bacteria;Proteobacteria;Epsilonproteobacteria;Campylobacterales;Campylobacteraceae;Campylobacter;Campylobacter fetus subsp. venerealis str. 84-112	HG004426.632960.634420	100.0	100.0	0.0	402
+Cluster_6	Bacteria;Proteobacteria;Epsilonproteobacteria;Campylobacterales;Campylobacteraceae;Campylobacter;Campylobacter fetus subsp. venerealis str. 84-112	HG004426.135674.137134	100.0	100.0	0.0	402
+Cluster_6	Bacteria;Proteobacteria;Epsilonproteobacteria;Campylobacterales;Campylobacteraceae;Campylobacter;Campylobacter fetus subsp. venerealis str. 84-112	HG004426.230424.231884	100.0	100.0	0.0	402
+Cluster_6	Bacteria;Proteobacteria;Epsilonproteobacteria;Campylobacterales;Campylobacteraceae;Campylobacter;Campylobacter fetus subsp. venerealis NCTC 10354	AFGH01000002.416.1910	100.0	100.0	0.0	402
+Cluster_6	Bacteria;Proteobacteria;Epsilonproteobacteria;Campylobacterales;Campylobacteraceae;Campylobacter;Campylobacter fetus subsp. fetus 82-40	CP000487.133597.135057	100.0	100.0	0.0	402
+Cluster_6	Bacteria;Proteobacteria;Epsilonproteobacteria;Campylobacterales;Campylobacteraceae;Campylobacter;Campylobacter fetus subsp. fetus 82-40	CP000487.508860.510320	100.0	100.0	0.0	402
+Cluster_6	Bacteria;Proteobacteria;Epsilonproteobacteria;Campylobacterales;Campylobacteraceae;Campylobacter;Campylobacter fetus subsp. fetus 82-40	CP000487.603684.605144	100.0	100.0	0.0	402
+Cluster_6	Bacteria;Proteobacteria;Epsilonproteobacteria;Campylobacterales;Campylobacteraceae;Campylobacter;Campylobacter fetus subsp. fetus	GQ167674.1.1436	100.0	100.0	0.0	402
+Cluster_6	Bacteria;Proteobacteria;Epsilonproteobacteria;Campylobacterales;Campylobacteraceae;Campylobacter;Campylobacter fetus subsp. fetus	JX912508.1.1437	100.0	100.0	0.0	402
+Cluster_6	Bacteria;Proteobacteria;Epsilonproteobacteria;Campylobacterales;Campylobacteraceae;Campylobacter;Campylobacter fetus subsp. venerealis NCTC 10354	JX912514.1.1437	100.0	100.0	0.0	402
+Cluster_6	Bacteria;Proteobacteria;Epsilonproteobacteria;Campylobacterales;Campylobacteraceae;Campylobacter;Campylobacter fetus subsp. venerealis	AY864915.1.1479	100.0	100.0	0.0	402
+Cluster_6	Bacteria;Proteobacteria;Epsilonproteobacteria;Campylobacterales;Campylobacteraceae;Campylobacter;Campylobacter fetus	JQ743026.1.1415	100.0	100.0	0.0	402
+Cluster_6	Bacteria;Proteobacteria;Epsilonproteobacteria;Campylobacterales;Campylobacteraceae;Campylobacter;Campylobacter fetus	JQ743032.1.1407	100.0	100.0	0.0	402
+Cluster_6	Bacteria;Proteobacteria;Epsilonproteobacteria;Campylobacterales;Campylobacteraceae;Campylobacter;Campylobacter fetus	JQ743030.1.1412	100.0	100.0	0.0	402
+Cluster_6	Bacteria;Proteobacteria;Epsilonproteobacteria;Campylobacterales;Campylobacteraceae;Campylobacter;Campylobacter fetus	JQ743020.1.1395	100.0	100.0	0.0	402
+Cluster_6	Bacteria;Proteobacteria;Epsilonproteobacteria;Campylobacterales;Campylobacteraceae;Campylobacter;Campylobacter fetus	AY621303.1.1480	100.0	100.0	0.0	402
+Cluster_6	Bacteria;Proteobacteria;Epsilonproteobacteria;Campylobacterales;Campylobacteraceae;Campylobacter;Campylobacter fetus subsp. fetus	AY621110.1.1443	100.0	100.0	0.0	402
+Cluster_21	Bacteria;Firmicutes;Clostridia;Clostridiales;Eubacteriaceae;Alkalibacter;Alkalibacterium sp. 8B	AY554414.1.1467	100.0	100.0	0.0	403
+Cluster_21	Bacteria;Firmicutes;Clostridia;Clostridiales;Eubacteriaceae;Alkalibacter;Alkalibaculum bacchi	FJ438469.1.1517	100.0	100.0	0.0	403
+Cluster_23	Bacteria;Proteobacteria;Epsilonproteobacteria;Campylobacterales;Helicobacteraceae;Sulfurimonas;unknown species	FJ535331.1.1340	100.0	100.0	0.0	402
+Cluster_23	Bacteria;Proteobacteria;Epsilonproteobacteria;Campylobacterales;Helicobacteraceae;Sulfurimonas;unknown species	FJ497536.1.1431	100.0	100.0	0.0	401
+Cluster_23	Bacteria;Proteobacteria;Epsilonproteobacteria;Campylobacterales;Helicobacteraceae;Sulfurimonas;unknown species	FJ535346.1.1340	100.0	100.0	0.0	401
+Cluster_23	Bacteria;Proteobacteria;Epsilonproteobacteria;Campylobacterales;Helicobacteraceae;Sulfurimonas;unknown species	FJ535336.1.1340	100.0	100.0	0.0	401
+Cluster_23	Bacteria;Proteobacteria;Epsilonproteobacteria;Campylobacterales;Helicobacteraceae;Sulfurimonas;unknown species	JF320744.1.1439	100.0	100.0	0.0	401
+Cluster_23	Bacteria;Proteobacteria;Epsilonproteobacteria;Campylobacterales;Helicobacteraceae;Sulfurimonas;Sulfurimonas autotrophica DSM 16294	CP002205.696465.697971	100.0	100.0	0.0	401
+Cluster_23	Bacteria;Proteobacteria;Epsilonproteobacteria;Campylobacterales;Helicobacteraceae;Sulfurimonas;Sulfurimonas autotrophica DSM 16294	CP002205.1569484.1570990	100.0	100.0	0.0	401
+Cluster_23	Bacteria;Proteobacteria;Epsilonproteobacteria;Campylobacterales;Helicobacteraceae;Sulfurimonas;Sulfurimonas autotrophica DSM 16294	CP002205.2120484.2121990	100.0	100.0	0.0	401
+Cluster_23	Bacteria;Proteobacteria;Epsilonproteobacteria;Campylobacterales;Helicobacteraceae;Sulfurimonas;Sulfurimonas autotrophica DSM 16294	CP002205.1739383.1740889	100.0	100.0	0.0	401
+Cluster_23	Bacteria;Proteobacteria;Epsilonproteobacteria;Campylobacterales;Helicobacteraceae;Sulfurimonas;hydrothermal vent eubacterium PVB_OTU_3	U15105.1.1439	100.0	100.0	0.0	401
+Cluster_23	Bacteria;Proteobacteria;Epsilonproteobacteria;Campylobacterales;Helicobacteraceae;Sulfurimonas;hydrothermal vent eubacterium PVB_OTU_2	U15100.1.1439	100.0	100.0	0.0	401
+Cluster_23	Bacteria;Proteobacteria;Epsilonproteobacteria;Campylobacterales;Helicobacteraceae;Sulfurimonas;Sulfurimonas autotrophica	AB088431.1.1437	100.0	100.0	0.0	401
+Cluster_25	Bacteria;Gemmatimonadetes;Gemmatimonadetes;Gemmatimonadales;Gemmatimonadaceae;Gemmatimonas;Gemmatimonas aurantiaca T-27	AP009153.1882855.1884381	100.0	100.0	0.0	418
+Cluster_25	Bacteria;Gemmatimonadetes;Gemmatimonadetes;Gemmatimonadales;Gemmatimonadaceae;Gemmatimonas;Gemmatimonas aurantiaca	AB072735.1.1446	100.0	100.0	0.0	418
+Cluster_28	Bacteria;Proteobacteria;Gammaproteobacteria;Chromatiales;Halothiobacillaceae;Thiovirga;unknown species	FJ598344.1.1459	100.0	100.0	0.0	426
+Cluster_28	Bacteria;Proteobacteria;Gammaproteobacteria;Chromatiales;Halothiobacillaceae;Thiovirga;unknown species	FM955624.1.1513	100.0	100.0	0.0	426
+Cluster_28	Bacteria;Proteobacteria;Gammaproteobacteria;Chromatiales;Halothiobacillaceae;Thiovirga;unknown species	FM955663.1.1492	100.0	100.0	0.0	426
+Cluster_28	Bacteria;Proteobacteria;Gammaproteobacteria;Chromatiales;Halothiobacillaceae;Thiovirga;unknown species	AB476674.1.1527	100.0	100.0	0.0	426
+Cluster_28	Bacteria;Proteobacteria;Gammaproteobacteria;Chromatiales;Halothiobacillaceae;Thiovirga;Thiovirga sulfuroxydans	AB118236.1.1466	100.0	100.0	0.0	426
+Cluster_30	Bacteria;Fusobacteria;Fusobacteriia;Fusobacteriales;Fusobacteriaceae;Fusobacterium;Fusobacterium nucleatum subsp. nucleatum	AJ133496.1.1479	100.0	100.0	0.0	404
+Cluster_30	Bacteria;Fusobacteria;Fusobacteriia;Fusobacteriales;Fusobacteriaceae;Fusobacterium;Fusobacterium nucleatum subsp. nucleatum ATCC 25586	AE009951.1072227.1073728	100.0	100.0	0.0	404
+Cluster_30	Bacteria;Fusobacteria;Fusobacteriia;Fusobacteriales;Fusobacteriaceae;Fusobacterium;Fusobacterium nucleatum subsp. nucleatum ATCC 25586	AE009951.2047107.2048608	100.0	100.0	0.0	404
+Cluster_30	Bacteria;Fusobacteria;Fusobacteriia;Fusobacteriales;Fusobacteriaceae;Fusobacterium;Fusobacterium nucleatum subsp. nucleatum ATCC 25586	AE009951.729878.731379	100.0	100.0	0.0	404
+Cluster_30	Bacteria;Fusobacteria;Fusobacteriia;Fusobacteriales;Fusobacteriaceae;Fusobacterium;Fusobacterium nucleatum subsp. nucleatum ATCC 25586	AE009951.530422.531923	100.0	100.0	0.0	404
+Cluster_30	Bacteria;Fusobacteria;Fusobacteriia;Fusobacteriales;Fusobacteriaceae;Fusobacterium;Fusobacterium nucleatum subsp. nucleatum ATCC 25586	AE009951.451529.453030	100.0	100.0	0.0	404
+Cluster_30	Bacteria;Fusobacteria;Fusobacteriia;Fusobacteriales;Fusobacteriaceae;Fusobacterium;Fusobacterium nucleatum subsp. nucleatum ATCC 23726	ADVK01000034.12.1519	100.0	100.0	0.0	404
+Cluster_30	Bacteria;Fusobacteria;Fusobacteriia;Fusobacteriales;Fusobacteriaceae;Fusobacterium;Fusobacterium nucleatum subsp. nucleatum	GQ301038.1.1442	100.0	100.0	0.0	404
+Cluster_30	Bacteria;Fusobacteria;Fusobacteriia;Fusobacteriales;Fusobacteriaceae;Fusobacterium;Fusobacterium nucleatum	KF444246.1.1370	100.0	100.0	0.0	404
+Cluster_30	Bacteria;Fusobacteria;Fusobacteriia;Fusobacteriales;Fusobacteriaceae;Fusobacterium;Fusobacterium nucleatum	KF444239.1.1346	100.0	100.0	0.0	404
+Cluster_30	Bacteria;Fusobacteria;Fusobacteriia;Fusobacteriales;Fusobacteriaceae;Fusobacterium;Fusobacterium nucleatum	KF444259.1.1350	100.0	100.0	0.0	404
+Cluster_30	Bacteria;Fusobacteria;Fusobacteriia;Fusobacteriales;Fusobacteriaceae;Fusobacterium;unknown species	FJ982958.1.1502	100.0	100.0	0.0	404
+Cluster_30	Bacteria;Fusobacteria;Fusobacteriia;Fusobacteriales;Fusobacteriaceae;Fusobacterium;Fusobacterium nucleatum subsp. nucleatum	AB573068.1.1481	100.0	100.0	0.0	404
+Cluster_30	Bacteria;Fusobacteria;Fusobacteriia;Fusobacteriales;Fusobacteriaceae;Fusobacterium;Fusobacterium nucleatum subsp. nucleatum	HM347064.1.1397	100.0	100.0	0.0	404
+Cluster_30	Bacteria;Fusobacteria;Fusobacteriia;Fusobacteriales;Fusobacteriaceae;Fusobacterium;Fusobacterium nucleatum subsp. nucleatum	HM347063.1.1366	100.0	100.0	0.0	404
+Cluster_30	Bacteria;Fusobacteria;Fusobacteriia;Fusobacteriales;Fusobacteriaceae;Fusobacterium;Fusobacterium nucleatum subsp. nucleatum ATCC 23726	HM347070.1.1396	100.0	100.0	0.0	404
+Cluster_32	Bacteria;Proteobacteria;Deltaproteobacteria;Deltaproteobacteria Incertae Sedis;Syntrophorhabdaceae;Syntrophorhabdus;unknown species	GQ181962.1.1418	100.0	100.0	0.0	427
+Cluster_32	Bacteria;Proteobacteria;Deltaproteobacteria;Deltaproteobacteria Incertae Sedis;Syntrophorhabdaceae;Syntrophorhabdus;Syntrophorhabdus aromaticivorans UI	AJUN01000061.89900.91439	100.0	100.0	0.0	427
+Cluster_32	Bacteria;Proteobacteria;Deltaproteobacteria;Deltaproteobacteria Incertae Sedis;Syntrophorhabdaceae;Syntrophorhabdus;Syntrophorhabdus aromaticivorans	AB212873.1.1482	100.0	100.0	0.0	427
+Cluster_39	Bacteria;Proteobacteria;Alphaproteobacteria;Rickettsiales;Rickettsiaceae;Orientia;Orientia tsutsugamushi	D38623.1.1459	100.0	100.0	0.0	401
+Cluster_39	Bacteria;Proteobacteria;Alphaproteobacteria;Rickettsiales;Rickettsiaceae;Orientia;Orientia tsutsugamushi str. Boryong	AM494475.1322607.1324110	100.0	100.0	0.0	401
+Cluster_39	Bacteria;Proteobacteria;Alphaproteobacteria;Rickettsiales;Rickettsiaceae;Orientia;Orientia tsutsugamushi	HM352765.1.1459	100.0	100.0	0.0	401

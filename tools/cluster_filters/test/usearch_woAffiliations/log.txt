@@ -1,0 +1,26 @@
+## Application
+Software: cluster_filters.py (version: 4.1.0)
+Command: ./cluster_filters.py --input-biom data/usearch_woAffi.biom --input-fasta data/usearch_woAffi.fasta --output-biom test/usearch_woAffiliations/filtered.biom --output-fasta test/usearch_woAffiliations/filtered.fasta --summary test/usearch_woAffiliations/summary.html --excluded test/usearch_woAffiliations/excluded.tsv --log-file test/usearch_woAffiliations/log.txt --min-abundance 0.00005 --min-sample-presence 2 --contaminant data/multi_conta.fa
+
+########################################################################################################
+# Removes contaminant sequences. (removeConta.py version : 1.0)
+Command:
+	removeConta.py --nb-cpus 1 --word-size 40 --min-identity 0.8 --min-coverage 0.8 --input-fasta data/usearch_woAffi.fasta --contaminant-db data/multi_conta.fa --input-biom data/usearch_woAffi.biom --clean-fasta test/usearch_woAffiliations/1678206286.0111973_2407498_cleaned_sequences.fasta --clean-biom test/usearch_woAffiliations/1678206286.0111973_2407498_cleaned_abundance.biom --conta-fasta test/usearch_woAffiliations/1678206286.0111973_2407498_contaminated_sequences.fasta --log-file test/usearch_woAffiliations/1678206286.0111973_2407498_clean.log
+
+Execution:
+	start: 07 Mar 2023 17:24:46
+	end:   07 Mar 2023 17:24:47
+
+Results:
+	number of processed sequences: 413
+	number of removed contaminated sequences: 4
+
+########################################################################################################
+# Updates fasta file based on sequence in biom file. (biomFastaUpdate.py version : 1.0.1)
+Command:
+	biomFastaUpdate.py --input-biom test/usearch_woAffiliations/filtered.biom --input-fasta data/usearch_woAffi.fasta --output-file test/usearch_woAffiliations/filtered.fasta --log test/usearch_woAffiliations/1678206286.0111973_2407498_update_fasta_log.txt
+
+Execution:
+	start: 07 Mar 2023 17:24:47
+	end:   07 Mar 2023 17:24:47
+
