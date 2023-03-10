@@ -22,11 +22,9 @@ __version__ = '1.0.0'
 __email__ = 'frogs-support@inrae.fr'
 __status__ = 'dev'
 
-from Bio import Align
 import ete3 as ete
 import argparse
 import os, sys
-import random
 import gzip
 import re
 
@@ -42,6 +40,93 @@ else: os.environ['PYTHONPATH'] = os.environ['PYTHONPATH'] + os.pathsep + LIB_DIR
 from frogsUtils import *
 from frogsBiom import BiomIO
 from frogsSequenceIO import *
+
+
+##################################################################################################################################################
+#
+# CLASSES
+#
+##################################################################################################################################################
+
+class MegaBlastAligner:
+    def __init__(self, query, target):
+        super().__init__()
+        self.match_score = 1.0
+        self.mismatch_score = -2.0
+        self.gap_score = -2.5
+        self.mode = 'local'
+        self.query = query
+        self.target = target
+
+    def score(self):
+        query = self.query
+        target = self.target
+        # Calculate the score matrix
+        m = len(query)
+        n = len(target)
+        score_matrix = [[0] * (n + 1) for _ in range(m + 1)]
+        for i in range(1, m + 1):
+            for j in range(1, n + 1):
+                match_score = self.match_score if query[i - 1] == target[j - 1] else self.mismatch_score
+                diagonal_score = score_matrix[i - 1][j - 1] + match_score
+                up_score = score_matrix[i - 1][j] + self.gap_score
+                left_score = score_matrix[i][j - 1] + self.gap_score
+                score_matrix[i][j] = max(0, diagonal_score, up_score, left_score)
+        
+        # Find the highest score and its location
+        max_score = 0
+        max_i = 0
+        max_j = 0
+        for i in range(1, m + 1):
+            for j in range(1, n + 1):
+                if score_matrix[i][j] > max_score:
+                    max_score = score_matrix[i][j]
+                    max_i = i
+                    max_j = j
+        
+        # Traceback to find the alignment
+        i = max_i
+        j = max_j
+        query_start = query_end = subject_start = subject_end = None
+        identities = mismatches = gaps = 0
+        while i > 0 and j > 0 and score_matrix[i][j] > 0:
+            match_score = self.match_score if query[i - 1] == target[j - 1] else self.mismatch_score
+            if score_matrix[i][j] == score_matrix[i - 1][j - 1] + match_score:
+                if query_start is None:
+                    query_end = i - 1
+                    subject_end = j - 1
+                i -= 1
+                j -= 1
+                if query[i] == target[j]:
+                    identities += 1
+                else:
+                    mismatches += 1
+            elif score_matrix[i][j] == score_matrix[i - 1][j] + self.gap_score:
+                if query_end is None:
+                    query_end = i - 1
+                    subject_end = j
+                i -= 1
+                gaps += 1
+            else:
+                if query_end is None:
+                    query_end = i
+                    subject_end = j - 1
+                j -= 1
+                gaps += 1
+            query_start = i - 1
+            subject_start = j - 1
+        
+        # Calculate query coverage percentage
+        query_coverage = (query_end - query_start) / len(query) * 100
+        identities = identities / (identities + mismatches) * 100 if identities + mismatches > 0 else 0
+        
+        # Return the alignment results
+        res = {
+            "id" : round(identities, 2),
+            "cov" : round(query_coverage, 2),
+            "score" : round(max_score, 2)
+        }
+        return res
 
 ##################################################################################################################################################
 #
@@ -93,68 +178,6 @@ def find_lowest_same_taxo_rank(taxo_frogs, taxo_picrust, hierarchy = ["Up to Kin
 		if taxo_frogs[i] == taxo_picrust[i]:
 			return i, hierarchy[i]
 	return 7, "/"
-
-def iter_sample_fast(iterator, samplesize):
-    results = []
-    
-    # Fill in the first samplesize elements:
-    for _ in range(samplesize):
-        results.append(iterator.__next__())
-    random.shuffle(results)  # Randomize their positions
-    
-    return results[:samplesize]
-
-def run_megablast(query, subject):
-	'''
-	@summary: Run megablast to calculate %identity between frogs sequence \
-	and picrust2 closest ref.
-	return blast results: number of alignments, % of identity, % of aligment coverage, blast score
-	'''
-	## default paramaters
-	aligner = Align.PairwiseAligner()
-	aligner.match_score = 1.0
-	aligner.mismatch_score = -2.0
-	aligner.gap_score = -2.5
-	aligner.mode = 'local'
-	######
-	alignments = aligner.align(query, subject)
-	n = str(len(alignments)) if len(alignments) <=500 else ">500"
-	scores = list()
-	covs = list()
-	identities = list()
-	# check up to the first 500 first alignment
-	if len(alignments) > 500:
-		alignments =  iter_sample_fast(alignments, 500)
-	for aln in alignments:
-		if not aln.score in scores:
-			scores.append(aln.score)
-		coded_aln = aln.format().split('\n')[1].strip()
-		n_match = coded_aln.count('|')
-		n_gap = coded_aln.count('-')
-		n_mismatch = coded_aln.count('.')
-
-		qstart = aln.path[0][0]
-		qend = aln.path[-1][0]
-
-		cov = round(abs(qend-qstart)*100.0/len(query),2)
-		if not cov in covs:
-			covs.append(cov)
-		identity = round(n_match * 100.0 / abs(qend-qstart),2)
-		if not identity in identities:
-			identities.append(identity)
-
-	id = str(min(identities)) + " - " + str(max(identities)) if len(identities) > 1 else str(identities[0])
-	cov = str(min(covs)) + " - " + str(max(covs)) if len(covs) > 1 else str(covs[0])
-	score = str(min(scores)) + " - " + str(max(scores)) if len(scores) > 1 else str(scores[0])
-
-	res = {
-		"n_aln" : n,
-		"id" : id,
-		"cov" : cov,
-		"score" : score
-	}
-
-	return res
 
 def check_ref_files(tree_file, biom_file, biom_path, fasta_file, ref_aln, output ):
 	'''
@@ -215,7 +238,7 @@ def find_closest_ref_sequences(tree, biom, biom_path, ID_to_taxo, ref_seqs, clus
 		"PICRUSt2 closest ID","PICRUSt2 closest reference name","PICRUSt2 closest taxonomy",\
 		"NSTI", "NSTI Confidence" ,"FROGS and PICRUSt2 lowest same taxonomic rank",\
 		 "Comment", "Cluster sequence", "PICRUSt2 closest reference sequence",\
-		"n_aln", "%id", "%cov", "score"])
+		"%id", "%cov", "score"])
 	FH_out.write(header+"\n")
 
 	for observation_name in biom.get_observations_names():
@@ -227,7 +250,6 @@ def find_closest_ref_sequences(tree, biom, biom_path, ID_to_taxo, ref_seqs, clus
 		ref_leaf_taxo = ''
 		lowest_same_rank = '/'
 		comment = '/'
-		blast_n_aln = ''
 		blast_id = ''
 		blast_cov = ''
 		blast_score = ''
@@ -274,8 +296,9 @@ def find_closest_ref_sequences(tree, biom, biom_path, ID_to_taxo, ref_seqs, clus
 				comment+=";identical sequence"
 
 		nsti = float(biom.get_observation_metadata(observation_name)["NSTI"])
-		blast = run_megablast(cluster_to_seq[observation_name], ref_seqs[best_leaf])
-		blast_n_aln, blast_id, blast_cov, blast_score = blast['n_aln'], blast['id'], blast['cov'], blast['score']
+		blast = MegaBlastAligner(cluster_to_seq[observation_name], ref_seqs[best_leaf])
+		results = blast.score()
+		blast_id, blast_cov, blast_score = str(results['id']), str(results['cov']), str(results['score'])
 
 		biom.add_metadata(observation_name, "blast_picrust_ref_perc_identity", blast_id, "observation", erase_warning = False)
 		biom.add_metadata(observation_name, "blast_picrust_ref_perc_query_coverage", blast_cov, "observation", erase_warning = False)
@@ -294,7 +317,7 @@ def find_closest_ref_sequences(tree, biom, biom_path, ID_to_taxo, ref_seqs, clus
 		FH_out.write("\t".join([observation_name, count, frogs_taxo, best_leaf,\
 		ref_leaf_id, ref_leaf_taxo, str(rounding(nsti)),\
 		confidence, lowest_same_rank, comment, cluster_to_seq[observation_name], ref_seqs[best_leaf],\
-		blast_n_aln, blast_id, blast_cov, blast_score])+'\n')
+		blast_id, blast_cov, blast_score])+'\n')
 	BiomIO.write(biom_path, biom)
 	return max_nsti
 
