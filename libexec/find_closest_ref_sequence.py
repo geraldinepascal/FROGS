@@ -234,10 +234,10 @@ def find_closest_ref_sequences(tree, biom, biom_path, ID_to_taxo, ref_seqs, clus
 	"""
 	max_nsti = 0
 	FH_out = open(output,'wt')
-	header = "\t".join(["#Cluster","Nb sequences", "FROGS Taxonomy",\
+	header = "\t".join(["#ASV","Nb sequences", "FROGS Taxonomy",\
 		"PICRUSt2 closest ID","PICRUSt2 closest reference name","PICRUSt2 closest taxonomy",\
 		"NSTI", "NSTI Confidence" ,"FROGS and PICRUSt2 lowest same taxonomic rank",\
-		 "Comment", "Cluster sequence", "PICRUSt2 closest reference sequence",\
+		 "Comment", "ASV sequence", "PICRUSt2 closest reference sequence",\
 		"%id", "%cov", "score"])
 	FH_out.write(header+"\n")
 
