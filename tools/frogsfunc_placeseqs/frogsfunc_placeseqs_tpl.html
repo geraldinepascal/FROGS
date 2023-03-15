@@ -420,31 +420,30 @@
 			/////////// Line plot
 			var step_nsti = ###STEP_NSTI### ;
 			var series = [{
-				'name': "Nb clusters",
+				'name': "Nb ASV",
 				'data': ###CLUSTERS_SIZES###,
 				'yAxis': 1,
 			}, {
-				'name': "Nb sequences (cluster abundance)",
+				'name': "Nb sequences (ASV size)",
 				'data': ###ABUNDANCES_SIZES###
 			}];
 			var sum_series = new Array() ;
 
 			var clusters_ditrib_load = function( container_id ) {
 
-			var cluster_by_nsti = lineplot_param("", "NSTI value", "Nb kept sequences", "Nb kept clusters", step_nsti, series);
+			var cluster_by_nsti = lineplot_param("", "NSTI value", "Nb kept sequences", "Nb kept ASVs", step_nsti, series);
 			cluster_by_nsti['tooltip'] = {
 				formatter:function() {
 							max = this.points[1].series.data[this.points[1].series.data.length - 1].y ;
 							tooltip_body = '' ;
 							for( var i=0 ; i<this.points.length ; i++) {
 								var pcnt = (this.points[1].point.y / max) * 100;
-								tooltip_head = '<b> ' + Highcharts.numberFormat(pcnt, 2) + '% of the total number of sequences kept </b>';
 								tooltip_body += '<tr>' +
-									'<td style="color:' + this.points[i].series.color +'">' + this.points[i].series.name + ' : </td>' +
-									'<td> ' + Highcharts.numberFormat(this.points[i].point.y, 0) + '</td>'
+									'<td style="color:' + this.points[i].series.color +'">' + this.points[i].series.name + ' :</td>' +
+									'<td> ' + Highcharts.numberFormat(this.points[i].point.y, 0) + '  (' + Highcharts.numberFormat((this.points[i].point.y / this.points[i].series.data[this.points[i].series.data.length - 1].y) * 100, 1)+ '%) </td>'
 								   '</tr>' ;
 							}
-							return tooltip_head + '<table>' + tooltip_body + '</table>' ;
+							return '<table>' + tooltip_body + '</table>' ;
 						},
 						shared: true,
 						useHTML: true
@@ -527,7 +526,7 @@
 				
 				// Display chimera detection data
 				var table_categories = detection_categories.slice() ;
-				table_categories.unshift( "Cluster" );
+				table_categories.unshift( "ASV" );
 				var table_series = new Array();
 				for( var spl_idx = 0 ; spl_idx < detection_series.length ; spl_idx++ ){
 					var nb_by_step = detection_series[spl_idx]['data'].slice() ;
@@ -570,14 +569,14 @@
 				},
 				yAxis: {
 					title: {
-						text: 'BLAST % alignment'
+						text: '% alignment'
 					}
 				},
 				legend: {
-					layout: 'vertical',
-					align: 'left',
+					layout: 'horizontal',
+					align: 'center',
 					verticalAlign: 'top',
-					x: 100,
+					x: 0,
 					y: 10,
 					floating: true,
 					backgroundColor: Highcharts.defaultOptions.chart.backgroundColor,
@@ -645,14 +644,14 @@
         		</div>
 			</div>
 			<div id="filter-log">
-				<h2 class="pb-2 mt-4 mb-2 border-bottom">Closest reference sequences by cluster</h2>
+				<h2 class="pb-2 mt-4 mb-2 border-bottom">Closest reference sequences by ASV</h2>
 			</div>
 			<div class="tab-content">
-				<h2 class="pb-2 mt-4 mb-2 border-bottom">Cluster/sequence number according to NSTI threshold</h2>
+				<h2 class="pb-2 mt-4 mb-2 border-bottom">ASV number according to NSTI threshold</h2>
 				<div id="sequence-distrib" role="tabpanel" class="tab-pane active">
 				</div>
 			</div>
-			<h2 class="pb-2 mt-4 mb-2 border-bottom">BLAST % alignment versus NSTI value between kept cluster and closest PICRUSt2 reference sequence</h2>
+			<h2 class="pb-2 mt-4 mb-2 border-bottom">% alignment vs NSTI between kept ASV and closest PICRUSt2 reference sequence</h2>
 			<div id="container_scatter"></div>
 		</div>
 	</body>

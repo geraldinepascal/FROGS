@@ -287,7 +287,7 @@ def write_summary(in_fasta, excluded_file, biomfile, closest_ref_file, category,
 	for cur_nsti in step_nsti:
 		cluster_kept[cur_nsti] = { 'Nb' : 0, 'Abundances' : 0 }
 	for li in closest_ref:
-		if li.startswith('#Cluster'):
+		if li.startswith('#ASV'):
 			continue
 		li = li.strip().split('\t')
 		for cur_nsti in step_nsti[::-1]:
