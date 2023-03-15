@@ -438,7 +438,7 @@
 							tooltip_body = '' ;
 							for( var i=0 ; i<this.points.length ; i++) {
 								var pcnt = (this.points[1].point.y / max) * 100;
-								tooltip_body += '<tr>' +
+								tooltip_body += '<tr> ' +
 									'<td style="color:' + this.points[i].series.color +'">' + this.points[i].series.name + ' :</td>' +
 									'<td> ' + Highcharts.numberFormat(this.points[i].point.y, 0) + '  (' + Highcharts.numberFormat((this.points[i].point.y / this.points[i].series.data[this.points[i].series.data.length - 1].y) * 100, 1)+ '%) </td>'
 								   '</tr>' ;
@@ -569,18 +569,11 @@
 				},
 				yAxis: {
 					title: {
-						text: '% alignment'
+						text: 'alignment metrics (%)'
 					}
 				},
 				legend: {
-					layout: 'horizontal',
-					align: 'center',
-					verticalAlign: 'top',
-					x: 0,
-					y: 10,
-					floating: true,
 					backgroundColor: Highcharts.defaultOptions.chart.backgroundColor,
-					borderWidth: 1
 				},
 				plotOptions: {
 					series : {
@@ -615,7 +608,7 @@
 					enableMouseTracking: false
 				},
 				series: [{
-					name: '% alignment',
+					name: '% identity',
 					color: 'rgba(134, 165, 164, .5)',
 					data: alignment_series
 					}, {
@@ -651,7 +644,7 @@
 				<div id="sequence-distrib" role="tabpanel" class="tab-pane active">
 				</div>
 			</div>
-			<h2 class="pb-2 mt-4 mb-2 border-bottom">% alignment vs NSTI between kept ASV and closest PICRUSt2 reference sequence</h2>
+			<h2 class="pb-2 mt-4 mb-2 border-bottom"> %identity and coverage vs NSTI between kept ASV and closest PICRUSt2 reference sequence</h2>
 			<div id="container_scatter"></div>
 		</div>
 	</body>
