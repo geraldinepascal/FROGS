@@ -9,7 +9,6 @@ email = 'frogs-support@inrae.fr'
 status = 'prod'
 
 ############ IMPORT ###############
-library(optparse)
 library(dplyr)
 library(httr)
 library(stringr)
