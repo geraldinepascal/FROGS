@@ -361,6 +361,17 @@ def count_nb_obs_per_ranks(in_biom):
 					rank_to_obs[str(i)].append(taxo_hiera[i])
 	return [ len(rank_to_obs[str(i)]) for i in rank_to_obs ]
 
+def check_functions( functions ):
+	"""
+	@summary: check if --functions parameter is valid.
+	"""
+	VALID_FUNCTIONS = ['EC','COG','KO','PFAM','TIGRFAM','PHENO']
+	# if the user add mulitple functions prediction
+	for function in functions:
+		if function not in VALID_FUNCTIONS:
+			raise_exception( argparse.ArgumentTypeError( "\n\n#ERROR : With '--function' parameter: " + function + " not a valid function. Note that functions must be seperated by commas (exemple: --functions EC,PFAM)\n\n" ))
+	return functions
+
 def write_summary(in_biom, function_file, nsti_file, excluded, tree_count_file, tree_ids_file, out_biom, summary_file):
 	"""
 	@summary: Writes the process summary in one html file.
@@ -488,7 +499,7 @@ if __name__ == "__main__":
 	group_input.add_argument('--marker-type', required=True, choices=['16S','ITS','18S'], help='Marker gene to be analyzed.')
 	
 	group_input_16S = parser.add_argument_group( '16S ' )
-	group_input_16S.add_argument('-f', '--functions', default=["EC"], nargs='+', choices=['EC', 'KO', 'COG', 'PFAM', 'TIGRFAM','PHENO'], help="Specifies which function databases should be used (%(default)s). EC is used by default because necessary for frogsfunc_pathways. At least EC or KO is required. To run the command with several functions, separate the functions with spaces (ex: -i EC PFAM).")
+	group_input_16S.add_argument('-f', '--functions', type=str, default='EC', help="Specifies which function databases should be used (%(default)s). Available indices : 'EC', 'KO', 'COG', 'PFAM', 'TIGRFAM', 'PHENO'. EC is used by default because necessary for frogsfunc_pathways. At least EC or KO is required. To run the command with several functions, separate the functions with commas (ex: -i EC,PFAM).")
 	group_input_other = parser.add_argument_group( 'ITS and 18S ' )
 	group_input_other.add_argument('--input-function-table',help="The path to input functions table describing directly observed functions, in tab-delimited format.(ex $PICRUSt2_PATH/default_files/fungi/ec_ITS_counts.txt.gz). Required.")
     
@@ -513,9 +524,11 @@ if __name__ == "__main__":
 	prevent_shell_injections(args)
 	args_dict = vars(args)
 	output_dir = os.path.dirname(os.path.abspath(args.output_function_abund))
-
+	functions = args.functions.split(",")
 	# Check for 16S input
-	if args.marker_type == "16S" and (not 'EC' in args.functions and not 'KO' in args.functions):
+	if args.marker_type == "16S":
+		functions = check_functions(functions)
+		if not 'EC' in args.functions and not 'KO' in args.functions:
 			parser.error("\n\n#ERROR : --input-functions : 'EC' and/or 'KO' must be at least indicated (others functions are optionnal)")
 	# Check for ITS or 18S input
 	if args.marker_type in ["ITS", "18S"]:
@@ -561,9 +574,9 @@ if __name__ == "__main__":
 			tmp_biom_to_tsv = tmp_files.add( 'tmp_biom_to_tsv' )
 			Biom2tsv(args.input_biom, tmp_biom_to_tsv).submit( args.log_file )
 
-		functions = " ".join(args.functions)
+		in_functions = " ".join(functions)
 		tmp_hsp_function = tmp_files.add( 'tmp_hsp_function.log' )
-		HspFunction(args.input_tree, args.marker_type, args.input_marker, args.input_function_table, functions, args.hsp_method, output_dir, args.nb_cpus, tmp_hsp_function).submit(args.log_file)
+		HspFunction(args.input_tree, args.marker_type, args.input_marker, args.input_function_table, in_functions, args.hsp_method, output_dir, args.nb_cpus, tmp_hsp_function).submit(args.log_file)
 		FH_in = open(tmp_hsp_function)
 		for line in FH_in:
 			if line.startswith('## Software :'):
@@ -571,7 +584,7 @@ if __name__ == "__main__":
 		FH_in.close()
 		Logger.static_write(args.log_file, tool_version + "\n\n")
 
-		function_outputs = [function + "_copynumbers_predicted.tsv" for function in args.functions]
+		function_outputs = [function + "_copynumbers_predicted.tsv" for function in functions]
 		for function_file in function_outputs:
 			database = function_file.split('_')[0]
 			tmp_metag_pipeline = tmp_files.add( 'tmp_metagenome_pipeline.log' )
