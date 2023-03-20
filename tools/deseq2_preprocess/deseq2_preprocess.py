@@ -29,7 +29,7 @@ import pandas as pd
 
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
 FROGS_DIR=""
-if CURRENT_DIR.endswith("phylo_beta_diversity"):
+if CURRENT_DIR.endswith("deseq2_preprocess"):
     FROGS_DIR = os.path.dirname(os.path.dirname(CURRENT_DIR))
 else:
     FROGS_DIR = os.path.dirname(CURRENT_DIR)
