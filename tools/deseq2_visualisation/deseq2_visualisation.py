@@ -130,7 +130,8 @@ if __name__ == "__main__":
     Logger.static_write(args.log_file, "## Application\nSoftware :" + sys.argv[0] + " (version : " + str(__version__) + ")\nCommand : " + " ".join(sys.argv) + "\n\n")
     abundance_data=os.path.abspath(args.abundanceData)
     dds=os.path.abspath(args.dds)
-    tmpFiles = TmpFiles(os.path.dirname(dds))
+    html=os.path.abspath(args.html)
+    tmpFiles = TmpFiles(os.path.dirname(html))
 
     try:
         R_stderr = tmpFiles.add("R.stderr")
