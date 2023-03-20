@@ -247,7 +247,7 @@ if __name__ == "__main__":
     args.to_launch = str()
     args.func(args)
     prevent_shell_injections(args)
-    tmp_files=TmpFiles(os.path.split(args.input_tree)[0])
+    tmp_files=TmpFiles(os.path.split(args.output_dir)[0])
     try:
         Logger.static_write(args.log_file, "## Application\nSoftware :" + sys.argv[0] + " (version : " + str(__version__) + ")\nCommand : " + " ".join(sys.argv) + "\n\n")
         if args.to_launch == "marker":

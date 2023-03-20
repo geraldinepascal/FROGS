@@ -537,8 +537,8 @@ if __name__ == "__main__":
 			parser.error('--min-blast-cov must be between 0.0 and 1.0.')
 	###
 
-	tmp_files=TmpFiles(os.path.split(args.output_otu_norm)[0])
-	tmp_files_picrust =  TmpFiles(os.path.split(args.output_otu_norm)[0])
+	tmp_files=TmpFiles(os.path.split(args.summary)[0])
+	tmp_files_picrust =  TmpFiles(os.path.split(args.summary)[0])
 
 	HIERARCHY_RANKS = ["Level1", "Level2", "Level3", "Function_id"]
 	try:
