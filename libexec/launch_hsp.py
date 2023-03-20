@@ -247,14 +247,15 @@ if __name__ == "__main__":
     args.to_launch = str()
     args.func(args)
     prevent_shell_injections(args)
-    tmp_files=TmpFiles(os.path.split(args.output_dir)[0])
     try:
         Logger.static_write(args.log_file, "## Application\nSoftware :" + sys.argv[0] + " (version : " + str(__version__) + ")\nCommand : " + " ".join(sys.argv) + "\n\n")
         if args.to_launch == "marker":
+            tmp_files=TmpFiles(os.path.split(args.output_marker)[0])
             tmp_hsp_marker = tmp_files.add( 'tmp_hsp_marker.log' )
             HspMarker(args.input_marker_table, args.input_tree, args.hsp_method, args.output_marker, tmp_hsp_marker).submit(args.log_file)
 
         if args.to_launch == "function":
+            tmp_files=TmpFiles(os.path.split(args.output_dir)[0])
             tmp_hsp_function = tmp_files.add( 'tmp_hsp_function.log' )
 
             # if args.functions is not None:
