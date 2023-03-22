@@ -61,7 +61,7 @@ class Rscript(Cmd):
     """
     def __init__(self, biomfile, samplefile, treefile, html, normalisation, phyloseq, ranks, rmd_stderr):
         """
-        @param biomfile: [str] The biom file contains the  OTU's informations: abundance and taxonomy. These file is the result of FROGS.
+        @param biomfile: [str] The biom file contains the  ASV's informations: abundance and taxonomy. These file is the result of FROGS.
         @param samplefile: [str] The tabular file contains the samples's informations. 
                                  Advice: within SampleID or without SampleID
         @param treefile: [str] The Newick file contains the tree's informations from Frogs Tree.

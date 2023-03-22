@@ -4,13 +4,13 @@ output:
   html_notebook:
     code_folding: hide
 params:
-  # Path OTU abundance biom file
+  # Path ASV abundance biom file
   biomfile: 
     value: x
   # Path to sample metadata TSV file
   samplefile:
     value: x
-  # (optional) Path to OTUs tree NWK file
+  # (optional) Path to ASVs tree NWK file
   treefile:
     value: x
   # (optional) normalisation string option : TRUE or FALSE
@@ -67,13 +67,13 @@ library(ggplot2)
 library(ape)
 
 ## Settin variables
-  ## The OTU abundance matrix with taxonomy annotation file (biom format)
+  ## The ASV abundance matrix with taxonomy annotation file (biom format)
   # biomfile <- ""
 
   ## The sample metadata file(TSV format)
   # samplefile <- ""
 
-  ## (optional) the OTU tree file (nwk format). Write "None" if you do not have any tree
+  ## (optional) the ASV tree file (nwk format). Write "None" if you do not have any tree
   # treefile <- ""
 
   ## The ordered taxonomic levels stored in BIOM. Each level is separated by one space.

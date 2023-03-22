@@ -42,7 +42,7 @@ knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
 Phyloseq `r packageVersion("phyloseq")` and DESeq2 `r packageVersion("DESeq2")`
 
 # {.tabset .tabset-fade .tabset-pills}
-## Differentially abundant OTU/FUNC table
+## Differentially abundant ASV/FUNC table
 
 ```{r packages, echo=FALSE, code_folding="show"}
 library(phyloseq)
@@ -59,7 +59,7 @@ source(file.path(params$libdir, "process_ipath.R"))
 abundances_input <- get(load(params$abundance_data))
 dds_input     <- get(load(params$dds))
 base_name <- dirname(params$dds)
-run_ipath <- ifelse(params$analysis == "OTU", FALSE, TRUE)
+run_ipath <- ifelse(params$analysis == "ASV", FALSE, TRUE)
 result_names <- DESeq2::resultsNames(dds_input)
 
 # doc <- ""
@@ -84,7 +84,7 @@ if(params$mod1 == "None"){
 #This implies that a positive log2FoldChange means more abundant in low than in high.")
 ```
 
-Then we extract significant OTUs or FUNCs at the p-value adjusted threshold (after Benjamini Hochberg correction) and enrich results with taxonomic/functional classification and sort the results by pvalue.
+Then we extract significant ASVs or FUNCs at the p-value adjusted threshold (after Benjamini Hochberg correction) and enrich results with taxonomic/functional classification and sort the results by pvalue.
 
 ```{r da_abundances}
 
@@ -210,7 +210,7 @@ Pie <- ggplot(da_pie, aes(x="", y=Number, fill=IDs)) +
            coord_polar("y", start=0) + 
            scale_fill_manual(values=c('#8EADAC', '#DE9F73', '#C0C0C0')) + 
            geom_text(aes(label = Number), position = position_stack(vjust = 0.5), color = "white") +
-           labs(x = NULL, y = NULL, fill = NULL, title = "Pie chart to view OTUsor FUNCs number of Differential Abundance test") +
+           labs(x = NULL, y = NULL, fill = NULL, title = "Pie chart to view ASVs or FUNCs number of Differential Abundance test") +
            theme_classic() + theme(
                 axis.line = element_blank(), 
                 axis.text = element_blank(),
@@ -222,7 +222,7 @@ Pie
 ## Volcano plot
 ```{r volcano, fig.width=10, fig.height=8}
 ## Volcano plot by DESeq2
-# Add OTU/FUNC names
+# Add ASV/FUNC names
 # Add the -log10 pvalue 
 # Add the pre-calculated log2 fold change
 da_volcano <- data.frame(
@@ -283,7 +283,7 @@ DESeq2::plotMA(results, ylim = c(-10,10),
 ## Heatmap plot
 
 ```{r echo = FALSE, eval = (nrow(da.abundances_table) == 0)}
-cat("There are no differentially abundant OTUsor FUNCs. Please use a higher threshold for the adjusted p-value or consider a different comparison.")
+cat("There are no differentially abundant ASVs or FUNCs. Please use a higher threshold for the adjusted p-value or consider a different comparison.")
 ```
 
 ```{r heatmap, fig.width=10, fig.height=8, eval = (nrow(da.abundances_table) > 0)}
@@ -303,7 +303,7 @@ if ( length(result_names)==2 || params$mod1 != "None"){
 						  taxa.label = NULL,
 						  taxa.order = da.abundances_table$id, low = "yellow", high = "red", na.value = "white") + 
 				facet_grid(as.formula(paste("~", params$var)), scales = "free_x") + 
-				ggtitle("Heatmap plot of DA otus or functions, between 2 conditions", subtitle = subtitle)
+				ggtitle("Heatmap plot of DA asv or functions, between 2 conditions", subtitle = subtitle)
 ## Quantitative variable
 } else {
     idx <- order(get_variable(abundances_input, params$var))
@@ -313,7 +313,7 @@ if ( length(result_names)==2 || params$mod1 != "None"){
     					  taxa.label = NULL,
     	                  taxa.order = da.abundances_table$id, sample.order = my.sample.order, 
     	                  low = "yellow", high = "red", na.value = "white") + 
-             ggtitle(paste0("Heatmap plot of DA otus or functions with samples ordered according to ", params$var))
+             ggtitle(paste0("Heatmap plot of DA asv or functions with samples ordered according to ", params$var))
 }
 # ggplotly(hplot)
 hplot

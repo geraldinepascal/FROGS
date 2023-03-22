@@ -62,16 +62,16 @@ class Rscript(Cmd):
     """
     def __init__(self, analysis, data, var, function_table, samplefile, out, stderr ):
         """
-        @param analysis: [str] OTU or FUNC: Type of analysis to be done.
-        @param data : [str] [OTU]: The path of one phyloseq-class object in Rdata file.
-        @param var: [str] Experimental variable suspected to have an impact on OTUs/FUNCs abundances.
+        @param analysis: [str] ASV or FUNC: Type of analysis to be done.
+        @param data : [str] [ASV]: The path of one phyloseq-class object in Rdata file.
+        @param var: [str] Experimental variable suspected to have an impact on ASVs/FUNCs abundances.
         @param function_table: [str] [FUNC]: Path to function prediction abundances table from FROGSFUNC function step.
         @param samplefile: [str]: [FUNC]: Path to metadata samplefile.
         @param out  : [str] Path to Rdata file storing DESeq2 prepreocessing step.
         @param stderr  : [str] Path to stderr output file
         """ 
         rcode = os.path.join(BIN_DIR, "deseq2_preprocess.R")
-        if analysis == "OTU":
+        if analysis == "ASV":
             opt = ' --inRdata ' + data
         elif analysis == "FUNC":
             opt = ' --inputFunction ' + function_table + ' --samplefile ' + samplefile
@@ -159,10 +159,10 @@ if __name__ == "__main__":
         You may precise complexe string such as variables with confounding effect (ex: Treatment+Gender or Treatmet*Gender)' )   
     # Inputs
     group_input = parser.add_argument_group( 'Inputs' )
-    group_input.add_argument('-a', '--analysis', required=True, choices=['OTU', 'FUNC'], help='Type of data to perform the differential analysis. OTU: DESeq2 is run on the OTUs abundances table. FUNC: DESeq2 is run on FROGSFUNC function abundances table (frogsfunc_functions_unstrat.tsv from FROGSFUNC function step).')
+    group_input.add_argument('-a', '--analysis', required=True, choices=['ASV', 'FUNC'], help='Type of data to perform the differential analysis. ASV: DESeq2 is run on the ASVs abundances table. FUNC: DESeq2 is run on FROGSFUNC function abundances table (frogsfunc_functions_unstrat.tsv from FROGSFUNC function step).')
 
-    group_input_otu_table = parser.add_argument_group( ' OTU ' )
-    group_input_otu_table.add_argument('-d','--data', default=None, help="The path of RData file containing a phyloseq object, result of FROGS Phyloseq Import Data. Required.")
+    group_input_asv_table = parser.add_argument_group( ' ASV ' )
+    group_input_asv_table.add_argument('-d','--data', default=None, help="The path of RData file containing a phyloseq object, result of FROGS Phyloseq Import Data. Required.")
 
     group_input_function_table = parser.add_argument_group( ' FUNC ' )
     group_input_function_table.add_argument('-f', '--input-functions', default=None, help='Input file of metagenome function prediction abundances (frogsfunc_functions_unstrat.tsv from FROGSFUNC function step). Required. (default: %(default)s).')
@@ -178,11 +178,11 @@ if __name__ == "__main__":
     out_Rdata=os.path.abspath(args.out_Rdata)
     tmpFiles = TmpFiles(os.path.dirname(out_Rdata))
 
-    # Check for OTU input
+    # Check for ASV input
     data = args.data
-    if args.analysis == "OTU" and data is None:
-        parser.error("\n\n#ERROR : --data is required for OTUs analysis. ")
-    elif args.analysis == "OTU":
+    if args.analysis == "ASV" and data is None:
+        parser.error("\n\n#ERROR : --data is required for ASVs analysis. ")
+    elif args.analysis == "ASV":
         data=os.path.abspath(args.data)
 
     # Check for ITS or 18S input

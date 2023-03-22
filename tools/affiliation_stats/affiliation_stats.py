@@ -267,7 +267,7 @@ def write_summary( summary_file, input_biom, tree_count_file, tree_ids_file, rar
     rarefaction_step_size = None
     rarefaction = None
     biom = BiomIO.from_json( input_biom )
-    args.rarefaction_ranks.append('OTUs')
+    args.rarefaction_ranks.append('ASVs')
     for rank_idx, current_file in enumerate(rarefaction_files):
         rank = args.rarefaction_ranks[rank_idx]
         FH_rarefaction = open( current_file )
@@ -279,7 +279,7 @@ def write_summary( summary_file, input_biom, tree_count_file, tree_ids_file, rar
                     rarefaction = dict()
                     for sample in samples:
                         rarefaction[sample] = dict()
-                        rarefaction[sample]['nb_otus'] = len([ i for i in biom.get_sample_obs(sample) if i >0 ])
+                        rarefaction[sample]['nb_asv'] = len([ i for i in biom.get_sample_obs(sample) if i >0 ])
                         rarefaction[sample]['nb_seq'] = biom.get_sample_count( sample )
                 for sample in samples:
                     rarefaction[sample][rank] = list()
@@ -343,7 +343,7 @@ def process( args ):
         rarefaction_cmd = Rarefaction(tmp_biom, tmp_files, used_taxonomy_tag, tax_depth)
         rarefaction_cmd.submit( args.log_file )
         rarefaction_files = rarefaction_cmd.output_files
-        # Put OTUs rarefaction file at the end , after species 
+        # Put ASVs rarefaction file at the end , after species 
         rarefaction_files.append(rarefaction_files.pop(0))
         # Taxonomy tree
         tree_count_file = tmp_files.add( "taxCount.enewick" )
@@ -364,14 +364,14 @@ def process( args ):
 ##################################################################################################################################################
 if __name__ == '__main__':
     # Parameters
-    parser = argparse.ArgumentParser(description='Produces several metrics describing OTUs based on their taxonomies and the quality of the affiliations.')
+    parser = argparse.ArgumentParser(description='Produces several metrics describing ASVs based on their taxonomies and the quality of the affiliations.')
     parser.add_argument( '-d', '--debug', default=False, action='store_true', help="Keep temporary files to debug program." )
     parser.add_argument( '-v', '--version', action='version', version=__version__ )
     parser.add_argument( '--taxonomic-ranks', nargs='*', default=["Domain", "Phylum", "Class", "Order", "Family", "Genus", "Species"], help='The ordered ranks levels used in the metadata taxonomy. [Default: %(default)s]' )
     parser.add_argument( '--rarefaction-ranks', nargs='*', default=["Genus"], help='The ranks that will be evaluated in rarefaction. [Default: %(default)s]' )
     group_exclusion_taxonomy = parser.add_mutually_exclusive_group()
     group_exclusion_taxonomy.add_argument( '--taxonomy-tag', type=str, help='The metadata tag used in BIOM file to store the taxonomy. Use this parameter if the taxonomic affiliation has been processed by a software that adds only one affiliation or if you does not have a metadata with the consensus taxonomy (see "--tax-consensus-tag").Not allowed with --tax-consensus-tag.' )
-    group_exclusion_taxonomy.add_argument( '--tax-consensus-tag', type=str, help='The metadata tag used in BIOM file to store the consensus taxonomy. This parameter is used instead of "--taxonomy-tag" when you have several affiliations for each OTU.' )
+    group_exclusion_taxonomy.add_argument( '--tax-consensus-tag', type=str, help='The metadata tag used in BIOM file to store the consensus taxonomy. This parameter is used instead of "--taxonomy-tag" when you have several affiliations for each ASV.' )
     parser.add_argument( '--multiple-tag', type=str, default=None, help='The metadata tag used in BIOM file to store the list of possible taxonomies. Use this parameter if the taxonomic affiliation has been processed by a software that adds several affiliation in the BIOM file (example: same score ambiguity).' )
     parser.add_argument( '--bootstrap-tag', type=str, default=None, help='The metadata tag used in BIOM file to store the taxonomy bootstraps.' )
     parser.add_argument( '--identity-tag', type=str, default=None, help='The metadata tag used in BIOM file to store the alignment identity.' )

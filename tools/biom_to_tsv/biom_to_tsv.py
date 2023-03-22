@@ -49,7 +49,7 @@ from frogsBiom import BiomIO
 class Biom2tsv(Cmd):
     """
     @summary: Converts BIOM file to TSV file.
-    @note: taxonomyRDP seedID seedSequence blastSubject blastEvalue blastLength blastPercentCoverage blastPercentIdentity blastTaxonomy OTUname SommeCount sample_count
+    @note: taxonomyRDP seedID seedSequence blastSubject blastEvalue blastLength blastPercentCoverage blastPercentIdentity blastTaxonomy ASVname SommeCount sample_count
     """
     def __init__( self, out_tsv, in_biom, headerOnly, in_fasta=None ):
         """

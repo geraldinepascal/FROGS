@@ -328,7 +328,7 @@ def find_closest_ref_sequences(tree, biom, biom_path, ID_to_taxo, ref_seqs, clus
 ##################################################################################################################################################
 if __name__ == "__main__":
 	# Manage parameters
-	parser = argparse.ArgumentParser(description="Find OTUs closests references sequences in tree")
+	parser = argparse.ArgumentParser(description="Find ASVs closests references sequences in tree")
 	parser.add_argument( '-v', '--version', action='version', version=__version__ )
 
 	# Inputs
