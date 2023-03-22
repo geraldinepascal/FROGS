@@ -392,9 +392,12 @@ class CutadaptPaired(Cmd):
         @param cutadapt_err: [str] Path to the error file.
         @param param: [Namespace] The primer sequence 'param.three_prim_primer'.
         """
+        message = "Removes read pairs without the 5' and 3' primer and removes primer sequence."
+        if param.swarm is False:
+            message = "Before all, removes read pairs without the 5' and 3' primer and removes primer sequence."
         Cmd.__init__( self,
                       'cutadapt',
-                      "Removes read pairs without the 5' and 3' primer and removes primer sequence.",
+                      message,
                       '-g \"' + param.five_prim_primer + ';min_overlap=' + str(len(param.five_prim_primer)-1) + '\" -G \"' + revcomp(param.three_prim_primer) + ';min_overlap=' + str(len(param.three_prim_primer)-1) + '\" --error-rate 0.1 --discard-untrimmed --match-read-wildcards --pair-filter=any ' + ' -o ' + out_R1_fastq + ' -p ' + out_R2_fastq + ' ' + in_R1_fastq + ' ' + in_R2_fastq + ' > ' + cutadapt_log + ' 2> ' + cutadapt_err,
                       '--version' )
         self.cutadapt_log = cutadapt_log
@@ -433,7 +436,7 @@ class MultiFilter(Cmd):
     """
     @summary : Filters sequences.
     """
-    def __init__(self, in_r1, in_r2, min_len, max_len, tag, out_r1, out_r2, log_file, param):
+    def __init__(self, in_r1, in_r2, min_len, max_len, max_n, tag, out_r1, out_r2, log_file, param):
         """
         @param in_fastq: [str] Path to the processed fastq.
         @param min_len, max_len [int] : minimum and maximum length filter criteria
@@ -447,25 +450,27 @@ class MultiFilter(Cmd):
         if param.sequencer == "454":
             cmd_description = 'Filters amplicons without primers by length, N count, homopolymer length and distance between quality low quality.',
             add_options = ' --max-homopolymer 7 --qual-window threshold:10 win_size:10'
-        if min_len > -1:
+        if min_len is not None:
             add_options += ' --min-length ' + str(min_len)
-        if max_len > -1:
+        if max_len is not None:
             add_options += ' --max-length ' + str(max_len)
         if not tag is None:
             add_options += ' --tag ' + tag
+        if not max_n is None:
+            add_options += ' --max-N ' + str(max_n)
             
         if in_r2 is None:
             Cmd.__init__( self,
               'filterSeq.py',
               'Filters amplicons without primers by length and N count.',
-              '--force-fasta --max-N 0' + add_options + ' --input-file1 ' + in_r1 + ' --output-file1 ' + out_r1 + ' --log-file ' + log_file,
+              '--force-fasta' + add_options + ' --input-file1 ' + in_r1 + ' --output-file1 ' + out_r1 + ' --log-file ' + log_file,
               '--version' )
         else:
 
             Cmd.__init__( self,
                           'filterSeq.py',
                           'Filters amplicons without primers by length and N count.',
-                          ' --max-N 0' + add_options + ' --input-file1 ' + in_r1 + ' --input-file2 ' + in_r2 + ' --output-file1 ' + out_r1 + ' --output-file2 ' + out_r2 + ' --log-file ' + log_file,
+                          add_options + ' --input-file1 ' + in_r1 + ' --input-file2 ' + in_r2 + ' --output-file1 ' + out_r1 + ' --output-file2 ' + out_r2 + ' --log-file ' + log_file,
                           '--version' )
         self.program_log = log_file
 
@@ -844,6 +849,67 @@ def summarise_results( samples_names, lengths_files, log_files, param ):
     FH_summary_out.close()
     FH_summary_tpl.close()
 
+def summarise_results_dada2( samples_names, lengths_files, log_files, param ):
+    """
+    @summary: Writes one summary of results from several logs.
+    @param samples_names: [list] The samples names.
+    @param lengths_files: [list] The list of path to files containing the contiged sequences lengths (in samples_names order).
+    @param log_files: [list] The list of path to log files (in samples_names order).
+    @param param: [str] The 'param.summary' .
+    """
+    # Get data
+    categories = get_filter_steps(log_files[0])
+    filters_by_sample = {"before process":{}, "merged":{}}
+    before_lengths_by_sample = dict()
+    after_lengths_by_sample = dict()
+    
+    # recover all filter by sample
+    for spl_idx, spl_name in enumerate(samples_names):
+
+        filters = get_sample_results_dada2(log_files[spl_idx])
+        filters_by_sample["before process"][spl_name] = filters["before process"]
+        filters_by_sample["merged"][spl_name] = filters["merged"]
+
+        if "artificial combined" in filters:
+            if not "artificial combined" in filters_by_sample:
+                filters_by_sample["artificial combined"] = {}
+            filters_by_sample["artificial combined"][spl_name] = filters["artificial combined"]
+            # add total uncombined pair
+            filters_by_sample["artificial combined"][spl_name]["paired-end assembled"] = filters_by_sample["before process"][spl_name] - filters_by_sample["merged"][spl_name]["paired-end assembled"]
+
+        
+        # length distribution
+        with open(lengths_files[spl_idx]) as FH_lengths:
+            lenghts = json.load(FH_lengths)
+            before_lengths_by_sample[spl_name] = lenghts["before"]
+            after_lengths_by_sample[spl_name] = lenghts["after"]
+
+    # check length
+    b_count= 0
+    a_count = 0
+    
+    for sample in samples_names:
+        for l in before_lengths_by_sample[sample]:
+            b_count += before_lengths_by_sample[sample][l]
+        for l in after_lengths_by_sample[sample]:
+            a_count += after_lengths_by_sample[sample][l]
+    
+    # Write
+    FH_summary_tpl = open( os.path.join(CURRENT_DIR, "preprocess_tpl.html") )
+    FH_summary_out = open( param.summary, "wt" )
+    for line in FH_summary_tpl:
+        if "###FILTERS_CATEGORIES###" in line:
+            line = line.replace( "###FILTERS_CATEGORIES###", json.dumps(categories) )
+        elif "###FILTERS_DATA###" in line:
+            line = line.replace( "###FILTERS_DATA###", json.dumps(filters_by_sample) )
+        elif "###BEFORE_LENGTHS_DATA###" in line:
+            line = line.replace( "###BEFORE_LENGTHS_DATA###", json.dumps(before_lengths_by_sample) )
+        elif "###AFTER_LENGTHS_DATA###" in line:
+            line = line.replace( "###AFTER_LENGTHS_DATA###", json.dumps(after_lengths_by_sample) )
+        FH_summary_out.write( line )
+    FH_summary_out.close()
+    FH_summary_tpl.close()
+
 def get_filter_steps( log_file ):
     """
     @summary: Returns the ordered list of steps.
@@ -871,6 +937,28 @@ def get_sample_results( log_file ):
     key="merged"
     for line in FH_input:
         if "combine_and_split" in line or "Removes read pairs without the 5' and 3' primer and removes primer sequence." in line :
+            key="artificial combined"
+            if key not in nb_seq:
+                nb_seq[key]={}
+        if line.strip().startswith('nb seq before process'):
+            nb_seq["before process"] = int(line.split(':')[1].strip())
+        elif line.strip().startswith('nb seq'):
+            step = line.split('nb seq')[1].split(':')[0].strip() 
+            nb_seq[key][step] = int(line.split(':')[1].strip()) 
+    FH_input.close()
+    return nb_seq
+
+def get_sample_results_dada2( log_file ):
+    """
+    @summary: Returns the sample results (number of sequences after each filters).
+    @param log_file: [str] Path to a log file.
+    @return: [list] The number of sequences after each filter.
+    """
+    nb_seq = {"before process":0, "merged":{}}
+    FH_input = open(log_file)
+    key="merged"
+    for line in FH_input:
+        if "combine_and_split" in line:			
             key="artificial combined"
             if key not in nb_seq:
                 nb_seq[key]={}
@@ -1066,12 +1154,19 @@ def clean_before_denoising_process(R1_file, R2_file, sample_name, R1_cutadapted_
     log_cutadapt = tmp_files.add( sample_name + '_cutadapt.log' )
     log_Nfilter = tmp_files.add( sample_name + '_Nfilter.log' )
     err_cutadapt = tmp_files.add( sample_name + '_cutadapt.err' )
+    
+    FH_log = open(log_file, "at")
+    FH_log.write('##Sample\nContiged file : ' + R1_file + '\nSample name : ' + sample_name + '\n')
+    FH_log.write('nb seq before process : ' + str(get_nb_seq(R1_file)) +'\n' )
+    FH_log.write('##Commands\n')
+    FH_log.close()
+    
     try:
         if args.five_prim_primer and args.three_prim_primer: # Illumina standard sequencing protocol
             CutadaptPaired(R1_file, R2_file, R1_tmp_cutadapt, R2_tmp_cutadapt, log_cutadapt, err_cutadapt, args).submit(log_file)
-            MultiFilter(R1_tmp_cutadapt, R2_tmp_cutadapt, 0, 1000, None, R1_cutadapted_and_filtered_file, R2_cutadapted_and_filtered_file, log_Nfilter, args).submit(log_file)
+            MultiFilter(R1_tmp_cutadapt, R2_tmp_cutadapt, 20, None, 0, None, R1_cutadapted_and_filtered_file, R2_cutadapted_and_filtered_file, log_Nfilter, args).submit(log_file)
         else: # Custom sequencing primers. The amplicons is full length (Illumina) except PCR primers (it is use as sequencing primers). [Protocol Kozich et al. 2013]
-            MultiFilter(R1_file, R2_file, 0, 1000, None, R1_cutadapted_and_filtered_file, R2_cutadapted_and_filtered_file, log_Nfilter, args).submit(log_file)
+            MultiFilter(R1_file, R2_file, 20, None, 0, None, R1_cutadapted_and_filtered_file, R2_cutadapted_and_filtered_file, log_Nfilter, args).submit(log_file)
     finally:
         if not args.debug:
             tmp_files.deleteAll()
@@ -1140,12 +1235,12 @@ def process_sample_after_denoising(R1_file, R2_file, sample_name, out_file, art_
 
     try:
         # Start log
-        FH_log = open(log_file, "wt")
+        FH_log = open(log_file, "at")
         if not args.already_contiged:
             FH_log.write('##Sample\nR1 : ' + R1_file + '\nR2 : ' + R2_file + '\nSample name : ' + sample_name + '\n')
         else:
             FH_log.write('##Sample\nContiged file : ' + R1_file + '\nSample name : ' + sample_name + '\n')
-        FH_log.write('nb seq before process : ' + str(get_nb_seq(R1_file)) +'\n' )
+        #FH_log.write('nb seq before process : ' + str(get_nb_seq(R1_file)) +'\n' )
         FH_log.write('##Commands\n')
         FH_log.close()
 
@@ -1168,14 +1263,14 @@ def process_sample_after_denoising(R1_file, R2_file, sample_name, out_file, art_
         min_len = args.min_amplicon_size - primers_size
         max_len = args.max_amplicon_size - primers_size
         # filter on length, N 
-        MultiFilter(out_contig, None, min_len, max_len, None, out_NAndLengthfilter, None, log_NAndLengthfilter, args).submit(log_file)
+        MultiFilter(out_contig, None, min_len, max_len, None, None, out_NAndLengthfilter, None, log_NAndLengthfilter, args).submit(log_file)
         
         # Get length before and after process
         length_dict = dict()
-        nb_before_by_legnth = get_seq_length( out_contig )
+        nb_before_by_legnth = get_seq_length( out_contig , size_separator=";size=")
         length_dict["before"]=nb_before_by_legnth
         
-        nb_after_by_legnth = get_seq_length( out_NAndLengthfilter )
+        nb_after_by_legnth = get_seq_length( out_NAndLengthfilter , size_separator=";size=")
         length_dict["after"] = nb_after_by_legnth
         
         with open(lengths_file, "wt") as FH_lengths:
@@ -1184,7 +1279,7 @@ def process_sample_after_denoising(R1_file, R2_file, sample_name, out_file, art_
         # dealing with uncontiged reads.
         if args.keep_unmerged:
             Combined(out_notcombined_R1, out_notcombined_R2, "X"*100, art_out_cutadapt ).submit(log_file)
-            MultiFilter(art_out_cutadapt, None, args.R1_size, -1, None, art_out_Nfilter, None, art_log_Nfilter, args).submit(log_file)
+            MultiFilter(art_out_cutadapt, None, args.R1_size, -1, None, None, art_out_Nfilter, None, art_log_Nfilter, args).submit(log_file)
             ReplaceJoinTag(art_out_Nfilter, "X"*100, "N"*100, art_out_XtoN ).submit(log_file)
             DerepBySample(out_NAndLengthfilter + " " + art_out_XtoN, out_file, out_count, size_separator="';size='").submit(log_file)
         
@@ -1318,7 +1413,7 @@ def process_sample(R1_file, R2_file, sample_name, out_file, art_out_file, length
         min_len = args.min_amplicon_size - primers_size
         max_len = args.max_amplicon_size - primers_size
         # filter on length, N 
-        MultiFilter(out_cutadapt, None, min_len, max_len, None, out_NAndLengthfilter, None, log_NAndLengthfilter, args).submit(log_file)
+        MultiFilter(out_cutadapt, None, min_len, max_len, 0, None, out_NAndLengthfilter, None, log_NAndLengthfilter, args).submit(log_file)
         
         # Get length before and after process
         length_dict = dict()
@@ -1340,7 +1435,7 @@ def process_sample(R1_file, R2_file, sample_name, out_file, art_out_file, length
             else: # Custom sequencing primers. The amplicons is full length (Illumina) except PCR primers (it is use as sequencing primers). [Protocol Kozich et al. 2013]
                 Combined(out_notcombined_R1, out_notcombined_R2, "X"*100, art_out_cutadapt ).submit(log_file)
             # filter on length, N 
-            MultiFilter(art_out_cutadapt, None, args.R1_size, -1, None, art_out_Nfilter, None, art_log_Nfilter, args).submit(log_file)
+            MultiFilter(art_out_cutadapt, None, args.R1_size, None, None, None, art_out_Nfilter, None, art_log_Nfilter, args).submit(log_file)
             ReplaceJoinTag(art_out_Nfilter, "X"*100, "N"*100, art_out_XtoN ).submit(log_file)
             DerepBySample(out_NAndLengthfilter + " " + art_out_XtoN, out_file, out_count).submit(log_file)
         else:
@@ -1447,7 +1542,7 @@ def process( args ):
             # Temporary files
             filename_woext = os.path.split(args.output_fasta)[1].split('.')[0]
             clustering_log = tmp_files.add( filename_woext + '_clustering_log.txt' )
-
+            
             Clustering(args.output_dereplicated, args.output_count, args.distance, args.fastidious, args.output_compo, args.output_fasta, args.output_biom, clustering_log, args.nb_cpus).submit( args.log_file)
         
         else:
@@ -1462,13 +1557,16 @@ def process( args ):
                 clean_before_denoising_process_multiples_files( R1_files, R2_files, samples_names, R1_cutadapted_files, R2_cutadapted_files, lengths_files, log_files, args )
             else:
                 parallel_submission( clean_before_denoising_process_multiples_files, R1_files, R2_files, samples_names, R1_cutadapted_files, R2_cutadapted_files, lengths_files, log_files, nb_processses_used, args)
-
+            # Write summary
+            log_append_files( args.log_file, log_files )
+            
             R_stderr = tmp_files.add("dada2.stderr")
             tmp_output_filenames = tmp_files.add("tmp_output_filenames")
             Logger.static_write(args.log_file, '##Sample\nAll\n##Commands\n')
             R1_files = [os.path.abspath(file) for file in R1_files]
             R2_files = [os.path.abspath(file) for file in R2_files]
 
+            #Logger.static_write(args.log_file, '##Sample\nAll\n##Commands\n')
             Dada2Core(R1_cutadapted_files, R2_cutadapted_files, output_dir, args.nb_cpus, tmp_output_filenames, R_stderr, args.pseudo_pooling).submit(args.log_file)
             
             R1_files = list()
@@ -1496,7 +1594,7 @@ def process( args ):
             
             Logger.static_write(args.log_file, '##Sample\nAll\n##Commands\n')
             DerepGlobalMultiFasta(filtered_files, samples_names, tmp_files.add('derep_inputs.tsv'), args.output_dereplicated, args.output_count, args).submit( args.log_file )
-            summarise_results( samples_names, lengths_files, log_files, args )
+            summarise_results_dada2( samples_names, lengths_files, log_files, args )
 
             # Check the number of sequences after filtering
             nb_seq = get_nb_seq(args.output_dereplicated)

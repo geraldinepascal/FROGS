@@ -117,10 +117,10 @@ write2FastqFromDada <- function(dadaF, derepF, dadaR, derepR, path)
       ups <- data.frame(matrix(ncol = length(outnames), 
                                nrow = 0))
       names(ups) <- outnames
-      if (verbose) {
-        message("No paired-reads (in ZERO unique pairings) successfully merged out of ", 
-                nrow(pairdf), " pairings) input.")
-      }
+      #if (verbose) {
+      #  message("No paired-reads (in ZERO unique pairings) successfully merged out of ", 
+      #          nrow(pairdf), " pairings) input.")
+      #}
       return(ups)
     }
     else {
@@ -297,11 +297,11 @@ if(opt$pseudopooling){
 }
 
 if (opt$debug){
-    saveRDS(derepFs,"derepFs.rds")
-    saveRDS(dadaFs,"dadaFs.rds")
+    saveRDS(derepFs, file.path(opt$outputDir,"derepFs.rds"))
+    saveRDS(dadaFs, file.path(opt$outputDir,"dadaFs.rds"))
     if(!is.null(opt$R2Files)){
-		saveRDS(derepRs,"derepRs.rds")
-		saveRDS(dadaRs,"dadaRs.rds")
+		saveRDS(derepRs, file.path(opt$outputDir,"derepRs.rds"))
+		saveRDS(dadaRs, file.path(opt$outputDir,"dadaRs.rds"))
 	}
 }
 

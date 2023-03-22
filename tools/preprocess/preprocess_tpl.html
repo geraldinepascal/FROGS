@@ -571,33 +571,62 @@
                 var extended_data = new Array();
                 var non_overlapped_data = new Array();
                 var enableStackedLabel = false;
+                if(filters_categories[1] == "with 5' primer"){
+					for( var spl_name in filters_by_sample["merged"] ){
+						total_input += filters_by_sample["before process"][spl_name] ;
+						for ( var cat_idx = 1 ; cat_idx < filters_categories.length ; cat_idx++ ){
+							var cat = filters_categories[cat_idx] ;
+							if(extended_data.length <= cat_idx-1){
+								extended_data.push(0);
+								non_overlapped_data.push(0);
+							}
+							
+							if (cat in filters_by_sample["merged"][spl_name]){
+								extended_data[cat_idx-1] += filters_by_sample["merged"][spl_name][cat] ;    
+							}else{
+								extended_data[cat_idx-1] = extended_data[cat_idx-2] ;
+							}
 
-                for( var spl_name in filters_by_sample["merged"] ){
-                    total_input += filters_by_sample["before process"][spl_name] ;
-                    for ( var cat_idx = 1 ; cat_idx < filters_categories.length ; cat_idx++ ){
-                        var cat = filters_categories[cat_idx] ;
-                        if(extended_data.length <= cat_idx-1){
-                            extended_data.push(0);
-                            non_overlapped_data.push(0);
-                        }
-                        
-                        if (cat in filters_by_sample["merged"][spl_name]){
-                            extended_data[cat_idx-1] += filters_by_sample["merged"][spl_name][cat] ;    
-                        }else{
-                            extended_data[cat_idx-1] = extended_data[cat_idx-2] ;
-                        }
+							if ("artificial combined" in filters_by_sample) {
+								enableStackedLabel = true;
+								if ( cat in filters_by_sample["artificial combined"][spl_name] ){
+									non_overlapped_data[cat_idx-1] += filters_by_sample["artificial combined"][spl_name][cat] ;
+								}else{
+									non_overlapped_data[cat_idx-1] = 0 ;
+								}
+							}
+						} 
 
-                        if ("artificial combined" in filters_by_sample) {
-                        	enableStackedLabel = true;
-                            if ( cat in filters_by_sample["artificial combined"][spl_name] ){
-                                non_overlapped_data[cat_idx-1] += filters_by_sample["artificial combined"][spl_name][cat] ;
-                            }else{
-                                non_overlapped_data[cat_idx-1] = non_overlapped_data[cat_idx-2] ;
-                            }
-                        }
-                    } 
+					}
+				}
+				else{
+					for( var spl_name in filters_by_sample["merged"] ){
+						total_input += filters_by_sample["before process"][spl_name] ;
+						for ( var cat_idx = 1 ; cat_idx < filters_categories.length ; cat_idx++ ){
+							var cat = filters_categories[cat_idx] ;
+							if(extended_data.length <= cat_idx-1){
+								extended_data.push(0);
+								non_overlapped_data.push(0);
+							}
+							
+							if (cat in filters_by_sample["merged"][spl_name]){
+								extended_data[cat_idx-1] += filters_by_sample["merged"][spl_name][cat] ;    
+							}else{
+								extended_data[cat_idx-1] = extended_data[cat_idx-2] ;
+							}
 
-                }
+							if ("artificial combined" in filters_by_sample) {
+								enableStackedLabel = true;
+								if ( cat in filters_by_sample["artificial combined"][spl_name] ){
+									non_overlapped_data[cat_idx-1] += filters_by_sample["artificial combined"][spl_name][cat] ;
+								}else{
+									non_overlapped_data[cat_idx-1] = non_overlapped_data[cat_idx-2] ;
+								}
+							}
+						} 
+
+					}
+				}
                 
                 var global_series = [ { name: 'merged', data: extended_data }]
                 if ("artificial combined" in filters_by_sample) {
