@@ -491,7 +491,7 @@
 				$('#clstr-multi-affi').highcharts( histogram_param('Multi-affiliation by taxonomic rank', '% of multi-affiliated', taxonomy_ranks, histogram_series, '%') );
 				
 				// Display data by sample
-				var table_categories = [ 'Sample', 'Nb ASVs', '% ASVs affiliated by blast', 'Nb seq', '% seq affiliated by blast' ];
+				var table_categories = [ 'Sample', 'Nb Clusters', '% affiliated clusters by blast', 'Nb seq', '% Affiliated sequences by blast' ];
 				var table_series = new Array();
 				for( var sample_name in sample_results ){
 					table_series.push([
