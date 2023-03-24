@@ -133,15 +133,15 @@ class UpdateFasta(Cmd):
 ##################################################################################################################################################
 def ratioParameter( arg_value ):
     """
-    @summary: Argparse type for ratio (float between 0 and 1).
+    @summary: Argparse type for ratio (float between 0 and 100).
     """
     float_arg_value = None
     try:
         float_arg_value = float(arg_value)
-        if float_arg_value < 0.0 or float_arg_value > 1.0:
-            raise_exception( argparse.ArgumentTypeError("\n\n#ERROR : must be between 0.0 and 1.0.\n"))
+        if float_arg_value < 0.0 or float_arg_value > 100.0:
+            raise_exception( argparse.ArgumentTypeError("\n\n#ERROR : must be between 0 and 100.\n"))
     except:
-        raise_exception( argparse.ArgumentTypeError("\n\n#ERROR : must be between 0.0 and 1.0.\n"))
+        raise_exception( argparse.ArgumentTypeError("\n\n#ERROR : must be between 0 and 100.\n"))
     return float_arg_value
 
 def checkBlastTaxa( param ):
@@ -400,7 +400,7 @@ def filter_biom(in_biom_file, impacted_file, output_file, params):
             # add blast identity criteria
             if params.min_blast_identity:
                 label = "Blast identity < " + str(args.min_blast_identity)
-                out_blast_affiliations['filter_on_identity'] = impacted_blast_affi_on_blastMetrics(observation, "perc_identity", ">=", 100*params.min_blast_identity)
+                out_blast_affiliations['filter_on_identity'] = impacted_blast_affi_on_blastMetrics(observation, "perc_identity", ">=", params.min_blast_identity)
                 uniq_tax = get_uniq_tax(out_blast_affiliations['filter_on_identity'])
                 if len(uniq_tax) != len(tax_in):
                     observation['metadata']['comment'].append("blast_identity_lt_" + str(params.min_blast_identity))
@@ -413,7 +413,7 @@ def filter_biom(in_biom_file, impacted_file, output_file, params):
             # add blast coverage criteria
             if params.min_blast_coverage:
                 label = "Blast coverage < " + str(args.min_blast_coverage)
-                out_blast_affiliations['filter_on_coverage'] = impacted_blast_affi_on_blastMetrics(observation, "perc_query_coverage", ">=", 100*params.min_blast_coverage)
+                out_blast_affiliations['filter_on_coverage'] = impacted_blast_affi_on_blastMetrics(observation, "perc_query_coverage", ">=", params.min_blast_coverage)
                 uniq_tax = get_uniq_tax(out_blast_affiliations['filter_on_coverage'])
                 if len(uniq_tax) != len(tax_in):
                     observation['metadata']['comment'].append("blast_coverage_lt_" + str(params.min_blast_coverage))
@@ -776,8 +776,8 @@ if __name__ == '__main__':
     group_filter_blast_taxa.add_argument( '--ignore-blast-taxa', type=str, nargs='*', help="Taxon list to masks/delete in Blast affiliations")
     group_filter_blast_taxa.add_argument( '--keep-blast-taxa', type=str, nargs='*', help="Taxon list to keep in Blast affiliations. All others affiliations will be masks/delete.")
     group_filter.add_argument( '-b', '--min-rdp-bootstrap', type=str, action=BootstrapParameter, metavar=("TAXONOMIC_LEVEL:MIN_BOOTSTRAP"), help="The minimal RDP bootstrap must be superior to this value (between 0 and 1)." )
-    group_filter.add_argument( '-i', '--min-blast-identity', type=ratioParameter, help="The number corresponding to the blast percentage identity (between 0 and 1)." )
-    group_filter.add_argument( '-c', '--min-blast-coverage', type=ratioParameter, help="The number corresponding to the blast percentage coverage (between 0 and 1)." )
+    group_filter.add_argument( '-i', '--min-blast-identity', type=ratioParameter, help="The number corresponding to the blast percentage identity (between 0 and 100)." )
+    group_filter.add_argument( '-c', '--min-blast-coverage', type=ratioParameter, help="The number corresponding to the blast percentage coverage (between 0 and 100)." )
     group_filter.add_argument( '-e', '--max-blast-evalue', type=float, help="The number corresponding to the blast e value (between 0 and 1).")
     group_filter.add_argument( '-l', '--min-blast-length', type=int, default=None, required=False, help="The number corresponding to the blast length." )
     #     Inputs
