@@ -44,7 +44,7 @@ if (opt$version){
 library(DESeq2)
 library(phyloseq)
 
-if (opt$analysis == "OTU"){
+if (opt$analysis == "ASV"){
 	load(opt$inRdata)
 	cds <- phyloseq_to_deseq2(data, as.formula(paste("~", opt$var)))
 	dds <- DESeq2::DESeq(cds, sfType = "poscounts")
