@@ -468,9 +468,10 @@ if __name__ == "__main__":
     parser.add_argument( '-p', '--nb-cpus', type=int, default=1, help="The maximum number of CPUs used. [Default: %(default)s]" )
     parser.add_argument( '--debug', default=False, action='store_true', help="Keep temporary files to debug program." )
     parser.add_argument( '-v', '--version', action='version', version=__version__ + " [ITSx " + get_ITSx_version() + "]" )
-    parser.add_argument( '-i', '--its', type=str, required=True, choices=['ITS1','ITS2'], help='Which ITS region are targeted. either ITS1 or ITS2 ')
     parser.add_argument( '--organism-groups', type=str, nargs="*", default=['F'], help='Reduce ITSx scan to specified organim groups. [Default: %(default)s , which means Fungi only]')
-    parser.add_argument( '--check-its-only', action='store_true', default=False, help='Check only if sequences seem to be an ITS. No sequence trimming will happen' )
+    group_exclusion_params = parser.add_mutually_exclusive_group(required=True)
+    group_exclusion_params.add_argument( '-i', '--its', type=str, choices=['ITS1','ITS2'], help='Which fungal ITS region is targeted and trimmed: either ITS1 or ITS2. (mutually exclusive with --check-its-only) ')
+    group_exclusion_params.add_argument( '--check-its-only', action='store_true', default=False, help='Check only if sequences seem to be an ITS (mutually exclusive with --its)' )
     group_input = parser.add_argument_group( 'Inputs' ) # Inputs
     group_input.add_argument( '-f', '--input-fasta', required=True, help='The fasta input sequences to treat' )
     group_input.add_argument( '-b', '--input-biom', required=True, help='The abundance file for clusters by sample (format: BIOM).' )

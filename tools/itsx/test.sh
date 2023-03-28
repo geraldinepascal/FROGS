@@ -11,12 +11,12 @@ else
     rm -r test/*
 fi
 
-echo "ITSx"
+echo "ITSx ITS1 trimming"
 ./itsx.py --input-fasta data/input.fasta --input-biom data/input.biom \
     --region ITS1 \
     --out-abundance test/itsx.biom --summary test/itsx.html --log-file test/itsx.log --out-fasta test/itsx.fasta --out-removed test/removed.fasta
 
 echo "ITSx ckeck ITS only"
 ./itsx.py --input-fasta data/input.fasta --input-biom data/input.biom \
-    --region ITS1 --check-its-only --organism-groups F A \
+    --check-its-only --organism-groups F A \
     --out-abundance test/itsx.biom --summary test/itsx2.html --log-file test/itsx2.log --out-fasta test/itsx2.fasta --out-removed test/removed2.fasta 
