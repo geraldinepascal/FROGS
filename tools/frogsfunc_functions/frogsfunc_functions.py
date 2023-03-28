@@ -625,6 +625,13 @@ if __name__ == "__main__":
 				function_file_sunburst = tmp_function_sunburst
 				to_run = False
 
+			with open(function_file, 'r+') as file:
+				lines = file.readlines()
+				lines[0] = lines[0].replace("sequence", "ASV")
+				file.seek(0)
+				file.writelines(lines)
+				file.truncate()
+
 		tmp_biom = tmp_files.add( 'gene_abundances.biom' )
 		Tsv2biom(tmp_function_sunburst, tmp_biom).submit( args.log_file)
 		tree_count_file = tmp_files.add( "geneCount.enewick" )
