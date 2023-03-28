@@ -61,24 +61,24 @@ class Rscript(Cmd):
     @see:  http://rmarkdown.rstudio.com/
            https://joey711.github.io/phyloseq/
     """
-    def __init__(self, abundance_data, dds, var, mod1, mod2, padj, html, analysis, err, svg_file_over, svg_file_under ):
+    def __init__(self, abundance_data, dds, var, mod1, mod2, padj, html, analysis, err, ipath_over, ipath_under, svg_file_over, svg_file_under ):
         """
-        @param data: [str] The path of ASV or FUNC abundance table in Rdata file. 
+        @param data: [str] The path of ASV or FUNCTION abundance table in Rdata file. 
         @param dds : [str] The path of rdata file containing the DESeqDataSet.
         @param var : [str] The experiment variable.
         @param mod1: [str] one variance of variable that you want to test.
         @param mod2: [str] one other variance of variable that you want to test.
         @param padj: [str] the adjusted p-value.
         @param html: [str] path to store resulting html file.
-        @param analysis: [str] Either ASV or FUNC.
-        @param over_svg: [str] Path to temporary svg file (FUNC analysis)
-        @param under_svg: [str] Path to temporary svg file (FUNC analysis)
+        @param analysis: [str] Either ASV or FUNCTION.
+        @param over_svg: [str] Path to temporary svg file (FUNCTION analysis)
+        @param under_svg: [str] Path to temporary svg file (FUNCTION analysis)
         @param err:  [str] path to store RScript stderr output
 
         """ 
         rmd = os.path.join(CURRENT_DIR, "deseq2_visualisation.Rmd")
-        if  analysis == "FUNC":
-            opt = ", svg_file_over='" + svg_file_over + "', svg_file_under='" + svg_file_under + "'"
+        if  analysis == "FUNCTION":
+            opt = ", ipath_over='" + ipath_over + "', ipath_under='" + ipath_under + "', svg_file_over='" + svg_file_over + "', svg_file_under='" + svg_file_under + "'"
         else:
             opt = ""
             
@@ -111,15 +111,17 @@ if __name__ == "__main__":
     parser.add_argument('-m1', '--mod1', type=str, default="None", help='one value of the tested variable you want to compare (if more than 2 value in your experiement variable analyzed.)' )
     parser.add_argument('-m2', '--mod2', type=str, default="None", help='second value of the tested variable you want to compare.(if more than 2 value in your experiement variable analyzed.)' )
     parser.add_argument('-pa', '--padj', type=float, default=0.05, help='the adjusted p-value threshold to defined ASV as differentially abundant. [Default: %(default)s]' )
-    parser.add_argument('-a', '--analysis', default="ASV", required=True, choices=['ASV', 'FUNC'], help='Type of data to perform the differential analysis. ASV: DESeq2 is run on the ASVs abundances table. FUNC: DESeq2 is run on FROGSFUNC function abundances table (frogsfunc_functions_unstrat.tsv from FROGSFUNC function step).')
+    parser.add_argument('-a', '--analysis', default="ASV", required=True, choices=['ASV', 'FUNCTION'], help='Type of data to perform the differential analysis. ASV: DESeq2 is run on the ASVs abundances table. FUNC: DESeq2 is run on FROGSFUNC function abundances table (frogsfunc_functions_unstrat.tsv from FROGSFUNC function step).')
 
     # Inputs
     group_input = parser.add_argument_group( 'Inputs' )
-    group_input.add_argument('-p','--abundanceData', required=True, help="The path to the RData file containing the ASV/FUNC abundances table. (result of FROGS Phyloseq Import Data)")
+    group_input.add_argument('-p','--abundanceData', required=True, help="The path to the RData file containing the ASV/FUNCTION abundances table. (result of FROGS Phyloseq Import Data)")
     group_input.add_argument('-d','--dds', required=True, help="The path to the Rdata file containing the DESeq dds object (result of FROGS DESeq2 Preprocess)")   
     
     # output
     group_output = parser.add_argument_group( 'Outputs' )
+    group_output.add_argument('--ipath-over', default=None, help="The tsv file of over abundants functions (FUNCTION analysis only)" )
+    group_output.add_argument('--ipath-under', default=None, help="The tsv file of under abundants functions (FUNCTION analysis only)" )
     group_output.add_argument('-o','--html', default='DESeq2_visualisation.html', help="The HTML file containing the graphs. [Default: %(default)s]" )
     group_output.add_argument('-l', '--log-file', default=sys.stdout, help='This output file will contain several informations on executed commands.')
     args = parser.parse_args()
@@ -137,11 +139,20 @@ if __name__ == "__main__":
         R_stderr = tmpFiles.add("R.stderr")
         html=os.path.abspath(args.html)
         if args.analysis == "ASV":
-            Rscript(abundance_data, dds, args.var, args.mod1, args.mod2, args.padj, html, args.analysis, R_stderr, None, None ).submit(args.log_file)
-        elif args.analysis == "FUNC":
+            if args.ipath_over is not None or args.ipath_under is not None:
+                parser.error("\n\n#ERROR : --ipath-over and --ipath-under only available for FUNCTION analysis. ")
+            Rscript(abundance_data, dds, args.var, args.mod1, args.mod2, args.padj, html, args.analysis, R_stderr, None, None, None, None ).submit(args.log_file)
+        elif args.analysis == "FUNCTION":
             svg_ipath_file_over  = os.path.abspath(output_dir + "/" +  "ipath_over.svg")
             svg_ipath_file_under  = os.path.abspath(output_dir + "/" +  "ipath_under.svg")
-            Rscript(abundance_data, dds, args.var, args.mod1, args.mod2, args.padj, html, args.analysis, R_stderr, svg_ipath_file_over, svg_ipath_file_under).submit(args.log_file)
+            if args.ipath_over is None:
+                args.ipath_over = "ipath_over.tsv"
+            args.ipath_over =  os.path.abspath(output_dir + "/" + os.path.basename(args.ipath_over))
+            if args.ipath_under is None:
+                args.ipath_under = "ipath_under.tsv"
+            args.ipath_under = os.path.abspath(output_dir + "/" +  os.path.basename(args.ipath_under))
+
+            Rscript(abundance_data, dds, args.var, args.mod1, args.mod2, args.padj, html, args.analysis, R_stderr, args.ipath_over, args.ipath_under, svg_ipath_file_over, svg_ipath_file_under).submit(args.log_file)
     
     finally :
         if not args.debug:
