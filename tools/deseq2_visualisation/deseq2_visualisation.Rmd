@@ -20,7 +20,7 @@ params:
   mod2:
     value: x
   # adjusted pvalue threshold
-  padj:
+  padj_th:
     value: x
   # Type of analysis
   analysis:
@@ -94,7 +94,7 @@ Then we extract significant ASVs or FUNCTIONs at the p-value adjusted threshold 
 
 da.abundances_table <- results %>% as_tibble(rownames = "ID") %>% 
 	inner_join(tax_table(abundances_input) %>% as.data.frame() %>% mutate(ID = taxa_names(abundances_input)), by = "ID") %>% 
-    filter(padj < params$padj) %>% 
+    filter(padj < params$padj_th) %>% 
     arrange(padj)
 
 ```
@@ -232,7 +232,7 @@ da_volcano <- data.frame(
 # Remove rows that have NA values
 da_volcano <- na.omit(da_volcano)
 # add a threshol line
-y_axix_volcano_line <- -log10(params$padj)
+y_axix_volcano_line <- -log10(params$padj_th)
 
 # Modify dataset to add new coloumn of colors
 da_volcano <- da_volcano %>%
@@ -255,7 +255,7 @@ volcano_plot <- ggplot(da_volcano, aes(x = lfc, y = evidence)) +
     geom_vline(xintercept = 0, colour = "grey80", linetype = 2) +                                # add line at 0
     geom_hline(aes(yintercept = y_axix_volcano_line), yintercept = y_axix_volcano_line, colour = "grey80", linetype = 2) +
     annotate(geom = "text", 
-        label = paste("padj =", params$padj), 
+        label = paste("padj =", params$padj_th), 
         x = min(da_volcano$lfc), 
         y = y_axix_volcano_line + 0.25, 
         size = 4,
@@ -273,7 +273,7 @@ volcano_plot + scale_y_continuous(trans = "log1p")
 
 ## Could do with built-in DESeq2 function:
 DESeq2::plotMA(results, ylim = c(-10,10),
-    ylab = "log2 fold change", alpha=params$padj,
+    ylab = "log2 fold change", alpha=params$padj_th,
     cex  = 0.8, colNonSig="#C0C0C0", colSig="#A2A32F", colLine="#C0C0C0",
     main = "Post Normalisation DESeq2: MA plot of log2FoldChange",
     legend = TRUE)
@@ -288,7 +288,7 @@ cat("There are no differentially abundant ASVs or FUNCTIONs. Please use a higher
 ```{r heatmap, fig.width=10, fig.height=8, eval = (nrow(da.abundances_table) > 0)}
 
 da.abundances_table <- da.abundances_table %>% arrange(log2FoldChange)
-
+y_title <- ifelse(params$analysis == "ASV", "ASV", "Functions")
 if ( length(result_names)==2 || params$mod1 != "None"){
 
     subtitle <- result_names[2]
@@ -298,9 +298,10 @@ if ( length(result_names)==2 || params$mod1 != "None"){
     }
 
     ##Heatmap plot with 2 conditions
-	hplot <- plot_heatmap(prune_taxa(da.abundances_table$id, abundances_input), 
+	hplot <- plot_heatmap(prune_taxa(da.abundances_table$ID, abundances_input), 
 						  taxa.label = NULL,
-						  taxa.order = da.abundances_table$id, low = "yellow", high = "red", na.value = "white") + 
+						  taxa.order = da.abundances_table$ID, low = "yellow", high = "red", na.value = "white") +
+                scale_y_discrete(y_title) +  
 				facet_grid(as.formula(paste("~", params$var)), scales = "free_x") + 
 				ggtitle("Heatmap plot of DA asv or functions, between 2 conditions", subtitle = subtitle)
 ## Quantitative variable
@@ -308,10 +309,11 @@ if ( length(result_names)==2 || params$mod1 != "None"){
     idx <- order(get_variable(abundances_input, params$var))
     my.sample.order <- sample_names(abundances_input)[idx]
     ##Heatmap plot with all conditions of variable
-    hplot <- plot_heatmap(prune_taxa(da.abundances_table$id, abundances_input), 
+    hplot <- plot_heatmap(prune_taxa(da.abundances_table$ID, abundances_input), 
     					  taxa.label = NULL,
-    	                  taxa.order = da.abundances_table$id, sample.order = my.sample.order, 
+    	                  taxa.order = da.abundances_table$ID, sample.order = my.sample.order, 
     	                  low = "yellow", high = "red", na.value = "white") + 
+             scale_y_discrete(y_title) +
              ggtitle(paste0("Heatmap plot of DA asv or functions with samples ordered according to ", params$var))
 }
 # ggplotly(hplot)
