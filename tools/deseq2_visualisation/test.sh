@@ -11,19 +11,19 @@ else
     rm -r test/*
 fi
 
-# DESeq2 visualisation with OTU 
+# DESeq2 visualisation with ASV
 echo ""
-OUT=test/deseq2_otu
-echo $OUT "DESeq2 otu abundances"
+OUT=test/deseq2_asv
+echo $OUT "DESeq2 asv abundances"
 mkdir -p $OUT
 
-# test on quantitative variables for OTU abundances
-./deseq2_visualisation.py --abundanceData  data/phyloseq_OTU.Rdata -a ASV --dds data/EnvType_DESeq_OTU.Rdata \
+# test on quantitative variables for ASV abundances
+./deseq2_visualisation.py --abundanceData  data/phyloseq_ASV.Rdata -a ASV --dds data/EnvType_DESeq_ASV.Rdata \
                             --var EnvType --mod1 SaumonFume --mod2 DesLardons \
-                            --log-file $OUT/deseq2_preprocess_EnvType_OTU.log  \
-                            --html $OUT/EnvType_DesLardons_SaumonFume_OTU.nb.html 
+                            --log-file $OUT/deseq2_preprocess_EnvType_ASV.log  \
+                            --html $OUT/EnvType_DesLardons_SaumonFume_ASV.nb.html 
 
-# DESeq2 visualisation with OTU 
+# DESeq2 visualisation with FUNC
 echo ""
 OUT=test/deseq2_func
 echo $OUT "DESeq2 function abundances"
