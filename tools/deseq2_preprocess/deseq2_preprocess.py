@@ -167,16 +167,13 @@ if __name__ == "__main__":
     group_input_function_table = parser.add_argument_group( ' FUNCTION ' )
     group_input_function_table.add_argument('-f', '--input-functions', default=None, help='Input file of metagenome function prediction abundances (frogsfunc_functions_unstrat.tsv from FROGSFUNC function step). Required. (default: %(default)s).')
     group_input_function_table.add_argument('-s', '--samplefile', default=None, help='path to sample file (format: TSV). Required.' )
-    group_input_function_table.add_argument('--out-Phyloseq', default='phyloseq_data.Rdata', help="path to store phyloseq-class object in Rdata file. [Default: %(default)s]" )
+    group_input_function_table.add_argument('--out-Phyloseq', default='function_data.Rdata', help="path to store phyloseq-class object in Rdata file. [Default: %(default)s]" )
     # output
     group_output = parser.add_argument_group( 'Outputs' )
-    group_output.add_argument('-o','--out-Rdata', default='DESeq2_preprocess.Rdata', help="The path to store resulting dataframe of DESeq2. [Default: %(default)s]" )
+    group_output.add_argument('-o','--out-Rdata', default=None, help="The path to store resulting dataframe of DESeq2. [Default: %(default)s]" )
     group_output.add_argument('-l', '--log-file', default=sys.stdout, help='This output file will contain several information on executed commands.')
     args = parser.parse_args()
     prevent_shell_injections(args)
-
-    out_Rdata=os.path.abspath(args.out_Rdata)
-    tmpFiles = TmpFiles(os.path.dirname(out_Rdata))
 
     # Check for ASV input
     data = args.data
@@ -185,8 +182,17 @@ if __name__ == "__main__":
     elif args.analysis == "ASV":
         data=os.path.abspath(args.data)
 
+    if args.out_Rdata is None:
+        if args.analysis == "ASV":
+            args.out_Rdata = "asv_dds.Rdata"
+        elif args.analysis == "FUNCTION":
+            args.out_Rdata = "function_dds.Rdata"
+
+    out_Rdata=os.path.abspath(args.out_Rdata)
+    tmpFiles = TmpFiles(os.path.dirname(out_Rdata))
+
     # Check for ITS or 18S input
-    elif args.analysis == "FUNCTION":
+    if args.analysis == "FUNCTION":
         if args.input_functions is None or args.samplefile is None:
             parser.error("\n\n#ERROR : --input-functions and --samplefile both required for FROGSFUNC analysis.\n\n")
 
