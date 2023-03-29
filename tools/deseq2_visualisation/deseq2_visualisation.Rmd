@@ -298,9 +298,9 @@ if ( length(result_names)==2 || params$mod1 != "None"){
     }
 
     ##Heatmap plot with 2 conditions
-	hplot <- plot_heatmap(prune_taxa(da.abundances_table$id, abundances_input), 
+	hplot <- plot_heatmap(prune_taxa(da.abundances_table$ID, abundances_input), 
 						  taxa.label = NULL,
-						  taxa.order = da.abundances_table$id, low = "yellow", high = "red", na.value = "white") + 
+						  taxa.order = da.abundances_table$ID, low = "yellow", high = "red", na.value = "white") + 
 				facet_grid(as.formula(paste("~", params$var)), scales = "free_x") + 
 				ggtitle("Heatmap plot of DA asv or functions, between 2 conditions", subtitle = subtitle)
 ## Quantitative variable
@@ -308,9 +308,9 @@ if ( length(result_names)==2 || params$mod1 != "None"){
     idx <- order(get_variable(abundances_input, params$var))
     my.sample.order <- sample_names(abundances_input)[idx]
     ##Heatmap plot with all conditions of variable
-    hplot <- plot_heatmap(prune_taxa(da.abundances_table$id, abundances_input), 
+    hplot <- plot_heatmap(prune_taxa(da.abundances_table$ID, abundances_input), 
     					  taxa.label = NULL,
-    	                  taxa.order = da.abundances_table$id, sample.order = my.sample.order, 
+    	                  taxa.order = da.abundances_table$ID, sample.order = my.sample.order, 
     	                  low = "yellow", high = "red", na.value = "white") + 
              ggtitle(paste0("Heatmap plot of DA asv or functions with samples ordered according to ", params$var))
 }
