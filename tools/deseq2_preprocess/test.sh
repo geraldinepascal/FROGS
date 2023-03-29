@@ -20,8 +20,8 @@ mkdir -p $OUT
 ./deseq2_preprocess.py \
  --data data/data.Rdata \
  --analysis ASV \
- --log-file $OUT/deseq2_preprocess_OTU.log \
- --out-Rdata $OUT/deseq2_preprocess_OTU.Rdata \
+ --log-file $OUT/deseq2_preprocess_ASV.log \
+ --out-Rdata $OUT/deseq2_preprocess_ASV.Rdata \
  --var EnvType
 
 # DESeq2 preprocess with ASV abundances 
@@ -33,7 +33,7 @@ mkdir -p $OUT
 ./deseq2_preprocess.py \
  --samplefile data/chaillou.sample \
  --input-functions data/frogsfunc_functions_unstrat_EC.tsv \
- --analysis FUNC \
+ --analysis FUNCTION \
  --log-file $OUT/deseq2_preprocess_func.log \
  --out-Rdata $OUT/deseq2_preprocess_func.Rdata \
  --out-Phyloseq $OUT/phyloseq_functions.Rdata \
