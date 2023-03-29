@@ -7,6 +7,7 @@
 
 ### Function added
 * Preprocess: add a longread sequencer option to deal with longreads
+* Itsx : add mutual exclusion between --region and --check-its-only
 * Affiliation_filter : add a –-keep-blast-taxa option : Taxon list to keep in Blast affiliations. All others affiliations will be masks/delete.
 * DESeq preprocess : adapt the tool to deal with function abundance table (output from FROGSFunc Function) in TSV format
 * DESeq visualisation : 
