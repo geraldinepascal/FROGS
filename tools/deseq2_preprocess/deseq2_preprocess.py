@@ -29,7 +29,7 @@ import pandas as pd
 
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
 FROGS_DIR=""
-if CURRENT_DIR.endswith("phylo_beta_diversity"):
+if CURRENT_DIR.endswith("deseq2_preprocess"):
     FROGS_DIR = os.path.dirname(os.path.dirname(CURRENT_DIR))
 else:
     FROGS_DIR = os.path.dirname(CURRENT_DIR)
@@ -62,18 +62,18 @@ class Rscript(Cmd):
     """
     def __init__(self, analysis, data, var, function_table, samplefile, out, stderr ):
         """
-        @param analysis: [str] OTU or FUNC: Type of analysis to be done.
-        @param data : [str] [OTU]: The path of one phyloseq-class object in Rdata file.
-        @param var: [str] Experimental variable suspected to have an impact on OTUs/FUNCs abundances.
-        @param function_table: [str] [FUNC]: Path to function prediction abundances table from FROGSFUNC function step.
-        @param samplefile: [str]: [FUNC]: Path to metadata samplefile.
+        @param analysis: [str] ASV or FUNCTION: Type of analysis to be done.
+        @param data : [str] [ASV]: The path of one phyloseq-class object in Rdata file.
+        @param var: [str] Experimental variable suspected to have an impact on ASVs/FUNCTIONs abundances.
+        @param function_table: [str] [FUNCTION]: Path to function prediction abundances table from FROGSFUNC function step.
+        @param samplefile: [str]: [FUNCTION]: Path to metadata samplefile.
         @param out  : [str] Path to Rdata file storing DESeq2 prepreocessing step.
         @param stderr  : [str] Path to stderr output file
         """ 
         rcode = os.path.join(BIN_DIR, "deseq2_preprocess.R")
-        if analysis == "OTU":
+        if analysis == "ASV":
             opt = ' --inRdata ' + data
-        elif analysis == "FUNC":
+        elif analysis == "FUNCTION":
             opt = ' --inputFunction ' + function_table + ' --samplefile ' + samplefile
 
         Cmd.__init__( self,
@@ -91,7 +91,7 @@ class Rscript(Cmd):
 
 class Tsv2biom(Cmd):
     """
-    @summary: Create a temporary biom file for FUNC phyloseq data object.
+    @summary: Create a temporary biom file for FUNCTION phyloseq data object.
     """
     def __init__(self, in_tsv, out_biom):
 
@@ -108,7 +108,7 @@ class Tsv2biom(Cmd):
 
 class PhyloseqImport(Cmd):
     """
-    @summary: import data from two files: biomfile and samplefile into a phyloseq object for FUNC analysis.
+    @summary: import data from two files: biomfile and samplefile into a phyloseq object for FUNCTION analysis.
     """
     def __init__(self, biom_file, sample_file, ranks, out_rdata, out_html, log):
         """
@@ -159,34 +159,40 @@ if __name__ == "__main__":
         You may precise complexe string such as variables with confounding effect (ex: Treatment+Gender or Treatmet*Gender)' )   
     # Inputs
     group_input = parser.add_argument_group( 'Inputs' )
-    group_input.add_argument('-a', '--analysis', required=True, choices=['OTU', 'FUNC'], help='Type of data to perform the differential analysis. OTU: DESeq2 is run on the OTUs abundances table. FUNC: DESeq2 is run on FROGSFUNC function abundances table (frogsfunc_functions_unstrat.tsv from FROGSFUNC function step).')
+    group_input.add_argument('-a', '--analysis', required=True, choices=['ASV', 'FUNCTION'], help='Type of data to perform the differential analysis. ASV: DESeq2 is run on the ASVs abundances table. FUNCTION: DESeq2 is run on FROGSFUNC function abundances table (frogsfunc_functions_unstrat.tsv from FROGSFUNC function step).')
 
-    group_input_otu_table = parser.add_argument_group( ' OTU ' )
-    group_input_otu_table.add_argument('-d','--data', default=None, help="The path of RData file containing a phyloseq object, result of FROGS Phyloseq Import Data. Required.")
+    group_input_asv_table = parser.add_argument_group( ' ASV ' )
+    group_input_asv_table.add_argument('-d','--data', default=None, help="The path of RData file containing a phyloseq object, result of FROGS Phyloseq Import Data. Required.")
 
-    group_input_function_table = parser.add_argument_group( ' FUNC ' )
+    group_input_function_table = parser.add_argument_group( ' FUNCTION ' )
     group_input_function_table.add_argument('-f', '--input-functions', default=None, help='Input file of metagenome function prediction abundances (frogsfunc_functions_unstrat.tsv from FROGSFUNC function step). Required. (default: %(default)s).')
     group_input_function_table.add_argument('-s', '--samplefile', default=None, help='path to sample file (format: TSV). Required.' )
-    group_input_function_table.add_argument('--out-Phyloseq', default='phyloseq_functions.Rdata', help="path to store phyloseq-class object in Rdata file. [Default: %(default)s]" )
+    group_input_function_table.add_argument('--out-Phyloseq', default='function_data.Rdata', help="path to store phyloseq-class object in Rdata file. [Default: %(default)s]" )
     # output
     group_output = parser.add_argument_group( 'Outputs' )
-    group_output.add_argument('-o','--out-Rdata', default='DESeq2_preprocess.Rdata', help="The path to store resulting dataframe of DESeq2. [Default: %(default)s]" )
+    group_output.add_argument('-o','--out-Rdata', default=None, help="The path to store resulting dataframe of DESeq2. [Default: %(default)s]" )
     group_output.add_argument('-l', '--log-file', default=sys.stdout, help='This output file will contain several information on executed commands.')
     args = parser.parse_args()
     prevent_shell_injections(args)
 
+    # Check for ASV input
+    data = args.data
+    if args.analysis == "ASV" and data is None:
+        parser.error("\n\n#ERROR : --data is required for ASVs analysis. ")
+    elif args.analysis == "ASV":
+        data=os.path.abspath(args.data)
+
+    if args.out_Rdata is None:
+        if args.analysis == "ASV":
+            args.out_Rdata = "asv_dds.Rdata"
+        elif args.analysis == "FUNCTION":
+            args.out_Rdata = "function_dds.Rdata"
+
     out_Rdata=os.path.abspath(args.out_Rdata)
     tmpFiles = TmpFiles(os.path.dirname(out_Rdata))
 
-    # Check for OTU input
-    data = args.data
-    if args.analysis == "OTU" and data is None:
-        parser.error("\n\n#ERROR : --data is required for OTUs analysis. ")
-    elif args.analysis == "OTU":
-        data=os.path.abspath(args.data)
-
     # Check for ITS or 18S input
-    elif args.analysis == "FUNC":
+    if args.analysis == "FUNCTION":
         if args.input_functions is None or args.samplefile is None:
             parser.error("\n\n#ERROR : --input-functions and --samplefile both required for FROGSFUNC analysis.\n\n")
 

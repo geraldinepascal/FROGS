@@ -17,7 +17,7 @@
 -->
 <html>
 	<head>
-		<title>FrogsFunc functions (Step3)</title>
+		<title>FrogsFunc functions (Step2)</title>
 		<meta charset="UTF-8">
 		<meta name="version" content="4.1.0">
 		<!-- CSS -->
@@ -303,6 +303,9 @@
 				var series = [{
 	                type: 'pie',
 	                name: unity,
+			credits: {
+			 	        	enabled: false
+			 	        },
 	                data: pData
             	}]
 				var plot = chartplot( pTitle, null, null, null, series );
@@ -529,7 +532,7 @@
 					['Kept', remove_info['nb_kept']],
 					['Removed', remove_info['nb_removed']]
 				];
-				$('#nb-filtered').highcharts( pie_param('Clusters', nb_filtered_data, 'Clusters') );
+				$('#nb-filtered').highcharts( pie_param('ASVs', nb_filtered_data, 'ASVs') );
 				var abundance_filtered_data = [
   					['Kept', remove_info['abundance_kept']],
   					['Removed', remove_info['abundance_removed']]
@@ -584,10 +587,20 @@
 						pointFormat: '<span style="color:{series.color}">{series.name}: <b>{point.y:,.0f}</b><br/>'
 					},
 
+					credits: {
+			 	        	enabled: false
+			 	        },
+
 					legend: {
 						align: 'center',
 						verticalAlign: 'bottom',
-						layout: 'vertical'
+						layout: 'vertical',
+						title: {
+							text: 'Number of different taxonomic observations per rank before and after applying NSTI or alignments thresholds',
+							style: {
+								fontStyle: 'italic'
+							}
+						}
 					},
 
 					series: [{
@@ -658,7 +671,7 @@
 		        		<div id="abundance-filtered" class="col-md-6"></div>
 	        		</div>
 				</div>
-				<h2 class="pb-2 mt-4 mb-2 border-bottom">Number of different taxonomic observations per rank before and after applying NSTI or Blast thresholds</h2>
+				<h2 class="pb-2 mt-4 mb-2 border-bottom">Remaining diversity after filtering for functional inference</h2>
 				<div id="starplot_container"></div>
 				<div id="tax-distrib" role="tabpanel" class="tab-pane active">
 					<h2 class="pb-2 mt-4 mb-2 border-bottom">Function abundances per sample 

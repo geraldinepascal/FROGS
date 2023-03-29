@@ -82,7 +82,7 @@ def task_excluded_sequences_tree( args ):
 			no_excluded = False
 	FH_input.close()
 	if no_excluded:
-		excluded.write('#No excluded OTUs.\n')
+		excluded.write('#No excluded ASV.\n')
 	excluded.close()
 
 def task_formate_abundances_file( args, hierarchy_tag = "classification"):

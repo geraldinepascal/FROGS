@@ -49,7 +49,7 @@ from frogsSequenceIO import *
 
 
 ###################################################################################################################
-###                                 OTU AFFILIATION CLASSES                                                     ###
+###                                 ASV AFFILIATION CLASSES                                                     ###
 ###################################################################################################################
 class Blast(Cmd):
     def __init__(self, ref_fasta, query_fasta, output_blast, nb_cpus):
@@ -218,14 +218,14 @@ class AddAffiliation2Biom(Cmd):
         return Cmd.get_version(self, 'stdout').strip()
 
 ###################################################################################################################
-###                                 OTU AFFILIATION FUNCTIONS                                                   ###
+###                                 ASV AFFILIATION FUNCTIONS                                                   ###
 ###################################################################################################################
 def extract_FROGS_combined(input_fasta, fasta_full_length, fasta_combined):
     """
-    @summary: separate, FROGS artificial combined OTU (replacing N by "-") and full length OTU.
+    @summary: separate, FROGS artificial combined ASV (replacing N by "-") and full length ASV.
     @param input_fasta : [str] Path to input fasta file
-    @param fasta_full_length : [str] Path to output fasta file of full length OTU
-    @param fasta_combined : [str] Path to output fasta file of artiificial combined OTU
+    @param fasta_full_length : [str] Path to output fasta file of full length ASV
+    @param fasta_combined : [str] Path to output fasta file of artiificial combined ASV
     """
 
     FH_input = FastaIO(input_fasta)
@@ -527,18 +527,18 @@ def needleall_parallel_submission( function, reference, inputs_fasta, temp_sams,
 ###################################################################################################################
 if __name__ == "__main__":
     # Manage parameters
-    parser = argparse.ArgumentParser(description="Taxonomic affiliation of each OTU's seed by RDPtools and BLAST.")
+    parser = argparse.ArgumentParser(description="Taxonomic affiliation of each ASV's seed by RDPtools and BLAST.")
     parser.add_argument( '-p', '--nb-cpus', type=int, default=1, help="The maximum number of CPUs used. [Default: %(default)s]")
     parser.add_argument( '-m', '--java-mem', type=int, default=2, help="Java memory allocation in Go. [Default: %(default)s]")
     parser.add_argument( '-t', '--taxonomy-ranks', nargs='*', default=["Domain", "Phylum", "Class", "Order", "Family", "Genus", "Species"], help='The ordered ranks levels present in the reference databank. [Default: %(default)s]' )
-    parser.add_argument('--rdp', default=False,  action='store_true',  help="Use RDP classifier to affiliate OTU")
+    parser.add_argument('--rdp', default=False,  action='store_true',  help="Use RDP classifier to affiliate ASV")
     parser.add_argument( '-d', '--debug', default=False, action='store_true', help="Keep temporary files to debug program.")
     parser.add_argument( '-v', '--version', action='version', version=__version__)
     # Inputs
     group_input = parser.add_argument_group('Inputs')
     group_input.add_argument('-r', '--reference', required=True, help='Preformated reference file (format: blast-indexed FASTA).')
     group_input.add_argument('-b', '--input-biom', required=True, help='BIOM file (format: BIOM).')
-    group_input.add_argument('-f', '--input-fasta', required=True, help="FASTA file of OTU's seed (format: FASTA).")
+    group_input.add_argument('-f', '--input-fasta', required=True, help="FASTA file of ASV's seed (format: FASTA).")
     # Outputs
     group_output = parser.add_argument_group('Outputs')
     group_output.add_argument('-o', '--output-biom', default='affiliation_abundance.biom', help='BIOM file with added affiliation annotations from blast/needleall and/or RDPtools. [Default: %(default)s]')

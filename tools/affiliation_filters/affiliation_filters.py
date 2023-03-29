@@ -87,7 +87,7 @@ class BIOM_to_TSV(Cmd):
         @param in_biom [str] : Path of the biom file to convert
         @param in_fasta [str] : Path of the fasta file associated with biom file
         @param out_tsv [str] : Path of the tabular file to create
-        @param out_multihit [str] : Path of the detailed multiaffiliated OTU.
+        @param out_multihit [str] : Path of the detailed multiaffiliated ASV.
         @param out_log [str] : biom_to_tsv log file
         @param header_only [bool] : extract only header
         """
@@ -133,15 +133,15 @@ class UpdateFasta(Cmd):
 ##################################################################################################################################################
 def ratioParameter( arg_value ):
     """
-    @summary: Argparse type for ratio (float between 0 and 1).
+    @summary: Argparse type for ratio (float between 0 and 100).
     """
     float_arg_value = None
     try:
         float_arg_value = float(arg_value)
-        if float_arg_value < 0.0 or float_arg_value > 1.0:
-            raise_exception( argparse.ArgumentTypeError("\n\n#ERROR : must be between 0.0 and 1.0.\n"))
+        if float_arg_value < 0.0 or float_arg_value > 100.0:
+            raise_exception( argparse.ArgumentTypeError("\n\n#ERROR : must be between 0 and 100.\n"))
     except:
-        raise_exception( argparse.ArgumentTypeError("\n\n#ERROR : must be between 0.0 and 1.0.\n"))
+        raise_exception( argparse.ArgumentTypeError("\n\n#ERROR : must be between 0 and 100.\n"))
     return float_arg_value
 
 def checkBlastTaxa( param ):
@@ -315,9 +315,9 @@ def get_uniq_tax ( indexed_affiliations):
 
 def filter_biom(in_biom_file, impacted_file, output_file, params):
     """
-    @summary : parse in_biom and delete OTU or mask affiliation whether they do not respect filter expressed in params
+    @summary : parse in_biom and delete ASV or mask affiliation whether they do not respect filter expressed in params
     @param in_biom [str] : Path to input biom file
-    @param impacted_file [str] : Path to impacted biom file to store all impacted (deleted / masked or updated) OTU
+    @param impacted_file [str] : Path to impacted biom file to store all impacted (deleted / masked or updated) ASV
     @param output_file [str] : Path to output biom file
     @param params [NameSpace] : taxonomical filtering criteria
     @return impacted_dict to summarize the results
@@ -400,7 +400,7 @@ def filter_biom(in_biom_file, impacted_file, output_file, params):
             # add blast identity criteria
             if params.min_blast_identity:
                 label = "Blast identity < " + str(args.min_blast_identity)
-                out_blast_affiliations['filter_on_identity'] = impacted_blast_affi_on_blastMetrics(observation, "perc_identity", ">=", 100*params.min_blast_identity)
+                out_blast_affiliations['filter_on_identity'] = impacted_blast_affi_on_blastMetrics(observation, "perc_identity", ">=", params.min_blast_identity)
                 uniq_tax = get_uniq_tax(out_blast_affiliations['filter_on_identity'])
                 if len(uniq_tax) != len(tax_in):
                     observation['metadata']['comment'].append("blast_identity_lt_" + str(params.min_blast_identity))
@@ -413,7 +413,7 @@ def filter_biom(in_biom_file, impacted_file, output_file, params):
             # add blast coverage criteria
             if params.min_blast_coverage:
                 label = "Blast coverage < " + str(args.min_blast_coverage)
-                out_blast_affiliations['filter_on_coverage'] = impacted_blast_affi_on_blastMetrics(observation, "perc_query_coverage", ">=", 100*params.min_blast_coverage)
+                out_blast_affiliations['filter_on_coverage'] = impacted_blast_affi_on_blastMetrics(observation, "perc_query_coverage", ">=", params.min_blast_coverage)
                 uniq_tax = get_uniq_tax(out_blast_affiliations['filter_on_coverage'])
                 if len(uniq_tax) != len(tax_in):
                     observation['metadata']['comment'].append("blast_coverage_lt_" + str(params.min_blast_coverage))
@@ -462,17 +462,17 @@ def filter_biom(in_biom_file, impacted_file, output_file, params):
                     impacted_dict[impact].remove(observation['id'])
 
         # write observation in impacted biom as the orignal but with additionnal status metadata corresponding to 
-        # the type of filtering (OTU_deleted/Affiliation_masked/Blast_taxonomy_changed) and/or in output biom file whithout affiliation that do not respect one of the criteria
+        # the type of filtering (ASV_deleted/Affiliation_masked/Blast_taxonomy_changed) and/or in output biom file whithout affiliation that do not respect one of the criteria
         if params.delete :
-            # set status to OTU_deleted, blast_taxonomy changed or None
+            # set status to ASV_deleted, blast_taxonomy changed or None
             if filter_on_rdpBootstrap or filter_on_blastCriteria:
-                observation['metadata']['status'] = 'OTU_deleted'
+                observation['metadata']['status'] = 'ASV_deleted'
                 add_obs(in_biom, observation['id'], observation['metadata'], impacted_biom)
                 
-            # if change in blast consensus taxonomy, write OTU in both output biom and impacted biom
+            # if change in blast consensus taxonomy, write ASV in both output biom and impacted biom
             else:
                 add_obs(in_biom, observation['id'], metadata_out, out_biom)
-                # if blast consensus taxonomy changed, store also in impacted biom the original OTU.
+                # if blast consensus taxonomy changed, store also in impacted biom the original ASV.
                 if observation['metadata']['blast_taxonomy'] != metadata_out['blast_taxonomy']:
                     if not 'Blast_taxonomy_changed' in impacted_dict:
                         impacted_dict['Blast_taxonomy_changed'] = list()
@@ -497,13 +497,13 @@ def filter_biom(in_biom_file, impacted_file, output_file, params):
                 else:
                     status = "Blast_taxonomy_changed"
 
-            # write OTU with possible metadata updated into output biom
+            # write ASV with possible metadata updated into output biom
             add_obs(in_biom, observation['id'], metadata_out, out_biom)
-            # add status metadata and write OTU in impacted biom if any change
+            # add status metadata and write ASV in impacted biom if any change
             if status :
                 observation['metadata']['status'] = status
                 add_obs(in_biom, observation['id'], observation['metadata'], impacted_biom)
-                # add OTU name in list of OTU impacted, OTU have not been mask but only updated
+                # add ASV name in list of ASV impacted, ASV have not been mask but only updated
                 if status == "Blast_taxonomy_changed":
                     if status not in impacted_dict:
                         impacted_dict[status] = list()
@@ -594,7 +594,7 @@ def write_summary( summary_file, input_biom, output_biom, discards, params ):
 
     # compute globale_results
     for observation_name in in_biom.get_observations_names():
-        # OTU removed or taxonomy masked
+        # ASV removed or taxonomy masked
         if observation_name in filters_intersections:
             global_results['cluster'][mode] += 1
             global_results['sequence'][mode] += in_biom.get_observation_count( observation_name )
@@ -706,8 +706,8 @@ def write_summary( summary_file, input_biom, output_biom, discards, params ):
             line = line.replace( "###SAMPLES_RESULTS###", json.dumps(samples_results) )
         elif "###FILTERS_RESULTS###" in line:
             line = line.replace( "###FILTERS_RESULTS###", json.dumps(list(filters_results.values())) )
-        elif "Draw a Venn to see which OTUs had been deleted by the filters chosen (Maximum 6 options): " in line and params.mask:
-            line = "Draw a Venn to see which OTUs had its taxonomy masked by the filters chosen (Maximum 6 options): "
+        elif "Draw a Venn to see which ASVs had been deleted by the filters chosen (Maximum 6 options): " in line and params.mask:
+            line = "Draw a Venn to see which ASVs had its taxonomy masked by the filters chosen (Maximum 6 options): "
         FH_summary_out.write( line )
 
     FH_summary_out.close()
@@ -723,16 +723,16 @@ def process( args ):
     impacted_biom2tsv_log= tmpFiles.add('impacted.biom2tsv.log')
 
     try:
-        # parse biom, store impacted, write output biom by deleting OTU or masking taxonomies
+        # parse biom, store impacted, write output biom by deleting ASV or masking taxonomies
         impacted_dict = filter_biom(args.input_biom,impacted_biom, args.output_biom, args)
         
         # write log
-        Logger.static_write(args.log_file, "Identify OTU with :\n")
+        Logger.static_write(args.log_file, "Identify ASV with :\n")
         for label in impacted_dict:
             if label != "Blast_taxonomy_changed" : 
                 Logger.static_write(args.log_file, "\t- " + label + " : "+ str(len(impacted_dict[label])) + "\n")
         if 'Blast_taxonomy_changed' in impacted_dict:
-            Logger.static_write(args.log_file,"\tadditionnaly, blast_taxonomy updated for " + str(len(impacted_dict['Blast_taxonomy_changed'])) + ' OTU(s)\n')
+            Logger.static_write(args.log_file,"\tadditionnaly, blast_taxonomy updated for " + str(len(impacted_dict['Blast_taxonomy_changed'])) + ' ASV(s)\n')
 
         # convert impacted biom in TSV
         if len(impacted_dict) > 0:
@@ -769,15 +769,15 @@ if __name__ == '__main__':
     group_filter_bh = parser.add_argument_group( 'Filters behavior' )
     group_exclusion_filter_bh = group_filter_bh.add_mutually_exclusive_group()
     group_exclusion_filter_bh.add_argument('-m','--mask', default=False, action='store_true', help="If affiliations do not respect one of the filter they are replaced by NA (mutually exclusive with --delete)")
-    group_exclusion_filter_bh.add_argument('-d','--delete', default=False, action='store_true', help="If affiliations do not respect one of the filter the entire OTU is deleted.(mutually exclusive with --mask)")
+    group_exclusion_filter_bh.add_argument('-d','--delete', default=False, action='store_true', help="If affiliations do not respect one of the filter the entire ASV is deleted.(mutually exclusive with --mask)")
     #     Filters
     group_filter = parser.add_argument_group( 'Filters' )
     group_filter_blast_taxa = group_filter.add_mutually_exclusive_group()
     group_filter_blast_taxa.add_argument( '--ignore-blast-taxa', type=str, nargs='*', help="Taxon list to masks/delete in Blast affiliations")
     group_filter_blast_taxa.add_argument( '--keep-blast-taxa', type=str, nargs='*', help="Taxon list to keep in Blast affiliations. All others affiliations will be masks/delete.")
     group_filter.add_argument( '-b', '--min-rdp-bootstrap', type=str, action=BootstrapParameter, metavar=("TAXONOMIC_LEVEL:MIN_BOOTSTRAP"), help="The minimal RDP bootstrap must be superior to this value (between 0 and 1)." )
-    group_filter.add_argument( '-i', '--min-blast-identity', type=ratioParameter, help="The number corresponding to the blast percentage identity (between 0 and 1)." )
-    group_filter.add_argument( '-c', '--min-blast-coverage', type=ratioParameter, help="The number corresponding to the blast percentage coverage (between 0 and 1)." )
+    group_filter.add_argument( '-i', '--min-blast-identity', type=ratioParameter, help="The number corresponding to the blast percentage identity (between 0 and 100)." )
+    group_filter.add_argument( '-c', '--min-blast-coverage', type=ratioParameter, help="The number corresponding to the blast percentage coverage (between 0 and 100)." )
     group_filter.add_argument( '-e', '--max-blast-evalue', type=float, help="The number corresponding to the blast e value (between 0 and 1).")
     group_filter.add_argument( '-l', '--min-blast-length', type=int, default=None, required=False, help="The number corresponding to the blast length." )
     #     Inputs
@@ -790,7 +790,7 @@ if __name__ == '__main__':
     group_output.add_argument('--output-fasta', default="affiliation-filtered.fasta", help="The fasta output file. [Default: %(default)s]")
     group_output.add_argument('--summary', default="summary.html", help="The HTML file containing the graphs. [Default: %(default)s]")
     group_output.add_argument('--impacted', default="impacted_clusters.tsv", help="The abundance file that summarizes all the clusters impacted (deleted or with affiliations masked). [Default: %(default)s]")
-    group_output.add_argument('--impacted-multihit', default="impacted_clusters_multihit.tsv", help="The multihit TSV file associated with impacted OTU. [Default: %(default)s]")
+    group_output.add_argument('--impacted-multihit', default="impacted_clusters_multihit.tsv", help="The multihit TSV file associated with impacted ASV. [Default: %(default)s]")
     group_output.add_argument('--log-file', default=sys.stdout, help='The list of commands executed.')
     args = parser.parse_args()
     prevent_shell_injections(args)
@@ -812,7 +812,7 @@ if __name__ == '__main__':
     Logger.static_write(args.log_file, "## Application\nSoftware: " + os.path.basename(sys.argv[0]) + " (version: " + str(__version__) + ")\nCommand: " + " ".join(cmd) + "\n\n")
     
     if not args.delete and not args.mask:
-        raise_exception( argparse.ArgumentTypeError("\n\n#ERROR : You must precise if you want to mask affiliations of delete OTU with --mask or --delete options.\n\n"))
+        raise_exception( argparse.ArgumentTypeError("\n\n#ERROR : You must precise if you want to mask affiliations of delete ASV with --mask or --delete options.\n\n"))
 
     if args.min_rdp_bootstrap is None and args.min_blast_length is None and args.max_blast_evalue is None and args.min_blast_identity is None and args.min_blast_coverage is None:
         if args.ignore_blast_taxa is None and args.keep_blast_taxa is None:

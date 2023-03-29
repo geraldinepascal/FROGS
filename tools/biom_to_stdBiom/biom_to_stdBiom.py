@@ -52,7 +52,7 @@ def process( in_biom, out_biom, out_metadata ):
     unclassified_observations = list()
 
     FH_metadata = open( out_metadata, "wt" )
-    FH_metadata.write( "#OTUID\t" + "\t".join([item for item in ordered_blast_keys]) + "\n" )
+    FH_metadata.write( "ASVID\t" + "\t".join([item for item in ordered_blast_keys]) + "\n" )
     biom = BiomIO.from_json( in_biom )
     for observation in biom.get_observations():
         for metadata_key in list(observation["metadata"].keys()):

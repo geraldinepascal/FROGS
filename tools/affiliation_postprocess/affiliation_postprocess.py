@@ -151,23 +151,23 @@ def process(params):
 ###################################################################################################################
 if __name__ == "__main__":
     # Manage parameters
-    parser = argparse.ArgumentParser(description="Refine affiliations, to manage amplicon included in other sequence, and to deal with surnumerary OTU (OTU with same affiliations.")
-    parser.add_argument( '-i', '--identity', default=99.0, help="Min percentage identity to agggregate OTU. [Default: %(default)s]")
-    parser.add_argument( '-c', '--coverage', default=99.0, help="Min percentage coverage to agggregate OTU. [Default: %(default)s]")
-    parser.add_argument( '-t', '--taxon-ignored', type=str, nargs='*', help="Taxon list to ignore when OTUs agggregation")
+    parser = argparse.ArgumentParser(description="Refine affiliations, to manage amplicon included in other sequence, and to deal with surnumerary ASV (ASV with same affiliations.")
+    parser.add_argument( '-i', '--identity', default=99.0, help="Min percentage identity to agggregate ASV. [Default: %(default)s]")
+    parser.add_argument( '-c', '--coverage', default=99.0, help="Min percentage coverage to agggregate ASV. [Default: %(default)s]")
+    parser.add_argument( '-t', '--taxon-ignored', type=str, nargs='*', help="Taxon list to ignore when ASVs agggregation")
     parser.add_argument( '-d', '--debug', default=False, action='store_true', help="Keep temporary files to debug program.")
     parser.add_argument( '-v', '--version', action='version', version=__version__)
 
     # Inputs
     group_input = parser.add_argument_group('Inputs')
-    group_input.add_argument('-b', '--input-biom', required=True, help='Abundance table with affiliations metadata from the affiliation_OTU program (format: BIOM).')
-    group_input.add_argument('-f', '--input-fasta', required=True, help='OTU seed sequence file (format: FASTA).')
+    group_input.add_argument('-b', '--input-biom', required=True, help='Abundance table with affiliations metadata from the affiliation_ASV program (format: BIOM).')
+    group_input.add_argument('-f', '--input-fasta', required=True, help='ASV seed sequence file (format: FASTA).')
     group_input.add_argument('-r', '--reference', required=False, help='amplicon reference file, to resolve inclusive amplicon affiliations (format: FASTA)')
     # Outputs
     group_output = parser.add_argument_group('Outputs')
     group_output.add_argument('--output-biom', default='affiliation_postprocess_abundance.biom', help='BIOM file whith refind affiliation annotations. (format: BIOM) [Default: %(default)s]')
-    group_output.add_argument('--output-compo', default='affiliation_postprocess_otu_composition.tsv', help='Aggregated OTU composition (format: TSV) [Default: %(default)s]')
-    group_output.add_argument('--output-fasta', default='affiliation_postprocess_OTU.fasta', help='Updated OTU FASTA file (format: FASTA) [Default: %(default)s]')
+    group_output.add_argument('--output-compo', default='affiliation_postprocess_otu_composition.tsv', help='Aggregated ASV composition (format: TSV) [Default: %(default)s]')
+    group_output.add_argument('--output-fasta', default='affiliation_postprocess_OTU.fasta', help='Updated ASV FASTA file (format: FASTA) [Default: %(default)s]')
     group_output.add_argument('--log-file', default=sys.stdout, help='The list of commands executed.')
     args = parser.parse_args()
     prevent_shell_injections(args)

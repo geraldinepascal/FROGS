@@ -12,7 +12,7 @@ Visit our web site : http://frogs.toulouse.inrae.fr/
 
 # Description
 
-FROGS is a CLI workflow designed to produce an OTU count matrix from high depth sequencing amplicon data.
+FROGS is a CLI workflow designed to produce an ASV count matrix from high depth sequencing amplicon data.
 
 FROGS-wrappers allow to add FROGS on a Galaxy instance. (see https://github.com/geraldinepascal/FROGS-wrappers)
 
@@ -175,9 +175,9 @@ Step preprocess : Flash lun. 25 avril 2022 16:01:36 CEST
 Step preprocess : Vsearch lun. 25 avril 2022 16:02:34 CEST
 Step clustering lun. 25 avril 2022 16:03:30 CEST
 Step remove_chimera lun. 25 avril 2022 16:05:21 CEST
-Step otu filters lun. 25 avril 2022 16:06:25 CEST
+Step cluster filters lun. 25 avril 2022 16:06:25 CEST
 Step ITSx lun. 25 avril 2022 16:06:43 CEST
-Step affiliation_OTU lun. 25 avril 2022 16:06:51 CEST
+Step taxonomic_affiliation lun. 25 avril 2022 16:06:51 CEST
 Step affiliation_filter: masking mode lun. 25 avril 2022 16:06:54 CEST
 Step affiliation_filter: deleted mode lun. 25 avril 2022 16:06:55 CEST
 Step affiliation_postprocess lun. 25 avril 2022 16:06:56 CEST
@@ -238,7 +238,7 @@ All the CPUs must be on the same computer/node.
 
 # Download databanks
 
-Reference database are needed to filter contaminants, assign taxonomy to each OTU or filter ambiguities for hyper variable amplicon length.
+Reference database are needed to filter contaminants, assign taxonomy to each ASV or filter ambiguities for hyper variable amplicon length.
 
 We propose some databanks, that you simply need to download and extract.
 

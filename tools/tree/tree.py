@@ -155,11 +155,11 @@ def write_summary( summary_file, fasta_in, align_out, biomfile, treefile):
     """
     @summary: Writes the process summary in one html file.
     @param summary_file: [str] path to the output html file.
-    @param align_out: [str] path to the fasta file of unaligned OTU
+    @param align_out: [str] path to the fasta file of unaligned ASV
     @param biomfile: [str] path to the input BIOM file.
     @param treefile: [str] path to the Newick file.
     """
-    # to summary OTUs number && abundances number               
+    # to summary ASVs number && abundances number               
     summary_info = {
        'otu_kept' : 0,
        'otu_removed' : 0,
@@ -168,7 +168,7 @@ def write_summary( summary_file, fasta_in, align_out, biomfile, treefile):
     }
     number_otu_all = 0
     number_abundance_all = 0
-    # to detail removed OTU
+    # to detail removed ASV
     removed_details_categories =["Taxonomic Information", "Abundance Number", "% with abundance total", "Sequence length"]
     removed_details_data =[]
     
@@ -181,19 +181,19 @@ def write_summary( summary_file, fasta_in, align_out, biomfile, treefile):
     treefile = open(treefile, "rt")
     newick = treefile.read().strip()
 
-    # record nb OTU and abundance
+    # record nb ASV and abundance
     for otu in FastaIO(fasta_in):
         list_otu_all.append(otu.id)
         number_otu_all +=1
         number_abundance_all += biom.get_observation_count(otu.id)
 
-    # record details about removed OTU
+    # record details about removed ASV
     if align_out is not None:
         for otu in FastaIO(align_out):
             summary_info['otu_removed'] +=1
             summary_info['abundance_removed'] += biom.get_observation_count(otu.id)
             
-            # to built one table of OTUs out of phylogenetic tree
+            # to built one table of ASVs out of phylogenetic tree
             taxonomy=""
             if biom.has_metadata("taxonomy"):
                 taxonomy = ";".join(biom.get_observation_metadata(otu.id)["taxonomy"]) if issubclass(biom.get_observation_metadata(otu.id)["taxonomy"].__class__,list) else str(biom.get_observation_metadata(otu.id)["taxonomy"])
@@ -235,7 +235,7 @@ def write_summary( summary_file, fasta_in, align_out, biomfile, treefile):
             line = line.replace( "###REMOVED_DETAILS_DATA###", json.dumps(removed_details_data) )
         elif "###SUMMARY###" in line:
             line = line.replace( "###SUMMARY###", json.dumps(summary_info) )
-        elif '<div id="OTUs-fail" style="display:none;">' in line:
+        elif '<div id="ASVs-fail" style="display:none;">' in line:
             if summary_info['otu_removed']!=0:
                 line = line.replace( 'style="display:none;"', '' )
         FH_summary_out.write(line)
@@ -258,7 +258,7 @@ if __name__ == "__main__":
 
     # Inputs
     group_input = parser.add_argument_group( 'Inputs' )
-    group_input.add_argument( '-i', '--input-sequences', required=True, help='Path to input FASTA file of OTU seed sequences. Warning: FROGS Tree is only working on less than 10000 sequences!' )
+    group_input.add_argument( '-i', '--input-sequences', required=True, help='Path to input FASTA file of ASV seed sequences. Warning: FROGS Tree is only working on less than 10000 sequences!' )
     group_input.add_argument( '-b', '--biom-file', help='Path to the abundance BIOM file.' )
         
     # output
@@ -276,7 +276,7 @@ if __name__ == "__main__":
     # alignment temporary files
     stderr = tmpFiles.add("mafft.stderr")
     align= tmpFiles.add('mafft_aligned.fasta')   
-    # if we want to add alignment method that do not keep necessarily all OTU, such as pynast when supported in FROGS
+    # if we want to add alignment method that do not keep necessarily all ASV, such as pynast when supported in FROGS
     align_out=None 
     
     # fastree temporary files
@@ -289,8 +289,8 @@ if __name__ == "__main__":
         nb_seq = get_fasta_nb_seq(args.input_sequences)
         biom = BiomIO.from_json(args.biom_file)
         if nb_seq > len(biom.rows):
-            raise_exception( Exception("\n\n#ERROR : Your fasta input file contains more OTU than your biom file.\n\n"))
-        Logger.static_write(args.log_file, "Number of input OTUs sequences: " + str(nb_seq) + "\n\n")
+            raise_exception( Exception("\n\n#ERROR : Your fasta input file contains more ASV than your biom file.\n\n"))
+        Logger.static_write(args.log_file, "Number of input ASVs sequences: " + str(nb_seq) + "\n\n")
         if nb_seq >10000:
             raise_exception( Exception( "\n\n#ERROR : FROGS Tree is only working on less than 10 000 sequences!\n\n" ))
         

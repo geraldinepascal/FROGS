@@ -13,7 +13,7 @@ library(optparse)
 
 ############## OPTPARSE
 option_list = list(
-	make_option(c("-a", "--analysis"), type="character", default=NULL, help='Type of data to perform the differential analysis. OTU: DESeq2 is run on the OTUs abundances table. FUNC: DESeq2 is run on FROGSFUNC function abundances table (frogsfunc_functions_unstrat.tsv from FROGSFUNC function step).'),
+	make_option(c("-a", "--analysis"), type="character", default=NULL, help='Type of data to perform the differential analysis. OTU: DESeq2 is run on the OTUs abundances table. FUNCTION: DESeq2 is run on FROGSFUNC function abundances table (frogsfunc_functions_unstrat.tsv from FROGSFUNC function step).'),
 	make_option(c("-i", "--inRdata"), type="character", default=NULL, help="The path of RData file containing a phyloseq object, result of FROGS Phyloseq Import Data (required)"),
 	make_option(c("-v", "--var"), type="character", default=NULL, help="Experimental variable suspected to have an impact on OTUs abundances."),
 	make_option(c("-f", "--inputFunction"), type="character", default=NULL, help='Input file of metagenome function predictions abundance. Required. (default: %(default)s).'),
@@ -44,12 +44,12 @@ if (opt$version){
 library(DESeq2)
 library(phyloseq)
 
-if (opt$analysis == "OTU"){
+if (opt$analysis == "ASV"){
 	load(opt$inRdata)
 	cds <- phyloseq_to_deseq2(data, as.formula(paste("~", opt$var)))
 	dds <- DESeq2::DESeq(cds, sfType = "poscounts")
 
-}else if (opt$analysis == "FUNC"){
+}else if (opt$analysis == "FUNCTION"){
 	inputFunction <- read.csv(file=opt$inputFunction, sep = '\t', header = TRUE, row.names = 3)
 	countData <- as.matrix(inputFunction[, c(4:ncol(inputFunction)) ])
 	countData <- round(countData, 0)
