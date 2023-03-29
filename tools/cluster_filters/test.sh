@@ -25,7 +25,7 @@ mkdir -p $OUT
 --min-sample-presence 2 \
 --min-abundance 4296 \
 --contaminant data/phi.fa \
---nb-biggest-otu 5 \
+--nb-biggest-clusters 5 \
 --replicate_file data/replicates_file.tsv -r 1 
 
 

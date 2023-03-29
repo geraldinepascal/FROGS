@@ -11,20 +11,20 @@ else
     rm -r test/*
 fi
 
-# DESeq2 preprocess with OTU abundances 
+# DESeq2 preprocess with ASV abundances 
 echo ""
-OUT=test/deseq2_otu
-echo $OUT "DESeq2 otu abundances"
+OUT=test/deseq2_asv
+echo $OUT "DESeq2 asv abundances"
 mkdir -p $OUT
 
 ./deseq2_preprocess.py \
  --data data/data.Rdata \
- --analysis OTU \
+ --analysis ASV \
  --log-file $OUT/deseq2_preprocess_OTU.log \
  --out-Rdata $OUT/deseq2_preprocess_OTU.Rdata \
  --var EnvType
 
-# DESeq2 preprocess with OTU abundances 
+# DESeq2 preprocess with ASV abundances 
 echo ""
 OUT=test/deseq2_func
 echo $OUT "DESeq2 function abundances"
