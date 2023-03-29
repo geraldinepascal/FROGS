@@ -144,6 +144,7 @@ p3 <- plot_heatmap(data, method = params$method, distance = dist) + scale_fill_g
 e  <- paste('~', params$varExp) 
 p3 <- p3 + facet_grid(e, scales = "free_x") +
            theme(plot.title = element_text(hjust = 0.5)) +
-           ggtitle(paste("Heatmap plot with", params$varExp))
+           ggtitle(paste("Heatmap plot with", params$varExp)) +
+           ylab("ASV")
 plot(p3)
 ```
