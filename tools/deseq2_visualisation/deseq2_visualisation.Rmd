@@ -288,7 +288,7 @@ cat("There are no differentially abundant ASVs or FUNCTIONs. Please use a higher
 ```{r heatmap, fig.width=10, fig.height=8, eval = (nrow(da.abundances_table) > 0)}
 
 da.abundances_table <- da.abundances_table %>% arrange(log2FoldChange)
-
+da.abundances_table 
 if ( length(result_names)==2 || params$mod1 != "None"){
 
     subtitle <- result_names[2]
