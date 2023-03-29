@@ -77,7 +77,7 @@ class BIOM_sampling(Cmd):
 class BIOM_FASTA_update(Cmd):
     """
     @summary: Converts BIOM file to TSV file.
-    @note: taxonomyRDP seedID seedSequence blastSubject blastEvalue blastLength blastPercentCoverage blastPercentIdentity blastTaxonomy OTUname SommeCount sample_count
+    @note: taxonomyRDP seedID seedSequence blastSubject blastEvalue blastLength blastPercentCoverage blastPercentIdentity blastTaxonomy ASVname SommeCount sample_count
     """
     def __init__(self, in_biom, in_fasta, out_fasta, log):
         """
@@ -104,7 +104,7 @@ def write_log(in_biom, num_reads, out_biom, log):
     if num_reads is None:
         sampling_by_min = True
     FH_log=open(log,"wt")
-    FH_log.write("#sample\tnb_otu_before\tnb_otu_after\n")
+    FH_log.write("#sample\tnb_asv_before\tnb_asv_after\n")
     initial_biom = BiomIO.from_json( in_biom )
     new_biom = BiomIO.from_json( out_biom )
     tot_seqs_before = 0
@@ -118,10 +118,10 @@ def write_log(in_biom, num_reads, out_biom, log):
             nb_otu_after = len([ i for i in new_biom.get_sample_obs(sample_name) if i > 0])
             tot_seqs_after += sum([ i for i in new_biom.get_sample_obs(sample_name) if i >0 ])
             if sampling_by_min is True or nb_seqs_before >= num_reads:
-                FH_log.write("Sample name: "+sample_name+"\n\tnb initials OTU: "+str(nb_otu_before)+"\n\tnb normalised OTU: "+str(nb_otu_after)+"\n")
+                FH_log.write("Sample name: "+sample_name+"\n\tnb initials ASV: "+str(nb_otu_before)+"\n\tnb normalised ASV: "+str(nb_otu_after)+"\n")
             else:
                 FH_log.write("Below threshold sample: "+sample_name+"\n\tnb sequences: "+str(initial_biom.get_sample_count(sample_name))+"\n")
-                FH_log.write("Sample name: "+sample_name+"\n\tnb initials OTU: "+str(nb_otu_before)+"\n\tnb normalised OTU: "+str(nb_otu_after)+"\n")
+                FH_log.write("Sample name: "+sample_name+"\n\tnb initials ASV: "+str(nb_otu_before)+"\n\tnb normalised ASV: "+str(nb_otu_after)+"\n")
         else:
             tot_seqs_before += sum([ i for i in initial_biom.get_sample_obs(sample_name) if i >0 ])
             FH_log.write("Below threshold sample: "+sample_name+"\n\tnb sequences: "+str(initial_biom.get_sample_count(sample_name))+"\n")
@@ -131,7 +131,7 @@ def write_log(in_biom, num_reads, out_biom, log):
     nb_new_otu=len(new_biom.rows)
     nb_seqs_removed = tot_seqs_before - tot_seqs_after
     nb_otus_removed = nb_initial_otu - nb_new_otu
-    FH_log.write("Sample name: all samples\n\tnb sequences kept: "+str(tot_seqs_after)+"\n\tnb sequences removed: "+str(nb_seqs_removed)+"\n\tnb OTU kept: "+str(nb_new_otu)+"\n\tnb OTU removed: "+str(nb_otus_removed)+"\n")
+    FH_log.write("Sample name: all samples\n\tnb sequences kept: "+str(tot_seqs_after)+"\n\tnb sequences removed: "+str(nb_seqs_removed)+"\n\tnb ASV kept: "+str(nb_new_otu)+"\n\tnb ASV removed: "+str(nb_otus_removed)+"\n")
     FH_log.close()
 
 def summarise_results( summary_file, is_delete_samples, num_reads, biom_subsample_log ):
@@ -141,8 +141,8 @@ def summarise_results( summary_file, is_delete_samples, num_reads, biom_subsampl
     @param log_files: [list] The list of path to log files (one log file by sample).
     """
     # Get data
-    # to summary OTUs number && abundances number              
-    categories = ["Nb OTU before normalisation" ,"Nb OTU after normalisation" ]
+    # to summary ASVs number && abundances number              
+    categories = ["Nb ASV before normalisation" ,"Nb ASV after normalisation" ]
     delete_categories = ['Nb sequences']
     series = list()
     deletes = list()
@@ -210,18 +210,18 @@ def get_sample_resuts( log_file, output_list ):
             results['data'].append( int(line.split(':')[1].strip()) )
         elif line.strip().startswith('nb sequences removed:'):
             results['data'].append( int(line.split(':')[1].strip()) )
-        elif line.strip().startswith('nb OTU kept'):
+        elif line.strip().startswith('nb ASV kept'):
             results['data'].append( int(line.split(':')[1].strip()) )
         # case if informations about kept sample
-        elif line.strip().startswith('nb initials OTU:'):
+        elif line.strip().startswith('nb initials ASV:'):
             results['data'].append( int(line.split(':')[1].strip()) )
         # case if informations about deleted sample
         elif line.strip().startswith('Below threshold sample:'):
             results['name'] = "Below threshold sample: " + line.split(':')[1].strip()
         # end of every cases and add all informations
         elif line.strip().startswith('nb sequences:') or\
-         line.strip().startswith('nb normalised OTU:') or \
-         line.strip().startswith('nb OTU removed:'):
+         line.strip().startswith('nb normalised ASV:') or \
+         line.strip().startswith('nb ASV removed:'):
             results['data'].append( int(line.split(':')[1].strip()) )
             output_list.append(results)
             results = {

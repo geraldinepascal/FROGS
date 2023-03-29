@@ -58,7 +58,7 @@ knitr::opts_chunk$set(echo = TRUE, error = TRUE)
 ```
 Phyloseq `r packageVersion("phyloseq")`
 
-```{r import, message=FALSE}
+```{r import, message=FALSE, warning=FALSE}
 ## Import functions
 library(plotly)
 library(phyloseq)

@@ -206,7 +206,7 @@ ggrare <- function(physeq, step = 10, label = NULL, color = NULL, plot = TRUE, p
     }
     
     p <- ggplot(data = data, aes_string(x = "Size", y = ".S", group = "Sample", color = color))
-    p <- p + labs(x = "Sample Size", y = "OTU Richness")
+    p <- p + labs(x = "Sample Size", y = "ASV Richness")
     if (!is.null(label)) {
         p <- p + geom_text(data = labels, aes_string(x = "x", y = "y", label = label, color = color),
                            size = 4, hjust = 0)

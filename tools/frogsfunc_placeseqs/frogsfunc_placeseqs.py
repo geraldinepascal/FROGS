@@ -52,7 +52,7 @@ from frogsSequenceIO import *
 
 class PlaceSeqs(Cmd):
 	"""
-	@summary: place cluster sequences (i.e. OTUs) into a reference tree.
+	@summary: place cluster sequences (i.e. ASVs) into a reference tree.
 	"""
 	def __init__(self, in_fasta, out_tree, placement_tool, ref_dir, min_align, log):
 		"""
@@ -69,7 +69,7 @@ class PlaceSeqs(Cmd):
 
 		Cmd.__init__(self,
 		'place_seqs.py',
-		'Place studies sequences (i.e. OTUs) on reference tree.',
+		'Place studies sequences (i.e. ASVs) on reference tree.',
 		'--study_fasta ' + in_fasta + ' --out_tree ' + out_tree + ' --placement_tool ' + placement_tool + " --min_align " + str(min_align) + opt + " --verbose 2>> " + log,
 		'--version')
 
@@ -78,7 +78,7 @@ class PlaceSeqs(Cmd):
 
 class FindClosestsRefSequences(Cmd):
 	'''
-	@summary: find OTUs closest reference sequences into a reference tree. 
+	@summary: find ASVs closest reference sequences into a reference tree. 
 	'''
 	def __init__(self, in_tree, in_biom, in_fasta, ref_aln, out_biom, out_summary, log):
 		'''
@@ -94,7 +94,7 @@ class FindClosestsRefSequences(Cmd):
 		'''
 		Cmd.__init__(self,
 			'find_closest_ref_sequence.py',
-			'find OTUs closests reference sequences into a reference tree.',
+			'find ASVs closests reference sequences into a reference tree.',
 			'--input-tree ' + in_tree + ' --input-biom ' + in_biom + ' --input-fasta ' + in_fasta + ' --ref-aln ' + ref_aln + ' --output-biom ' + out_biom + ' --output-tsv ' + out_summary + " --log-file " + log,
 			'--version')
 		self.log_file = log
@@ -162,7 +162,7 @@ class ExcludedSequences(Cmd):
 
 class HspMarker(Cmd):
 	"""
-	@summary: Predict number of marker copies (16S, 18S or ITS) for each cluster sequence (i.e OTU).
+	@summary: Predict number of marker copies (16S, 18S or ITS) for each cluster sequence (i.e ASV).
 	"""
 	def __init__(self, tree, marker_type, marker_table, hsp_method, biom_file, output, log):
 		"""
@@ -248,7 +248,7 @@ def write_summary(in_fasta, excluded_file, biomfile, closest_ref_file, category,
 	@param category: ITS or 16S
 	@param summary_file: [str] path to the output html file.
 	"""
-	# to summary OTUs number && abundances number			   
+	# to summary ASVs number && abundances number			   
 	summary_info = {
 	   'nb_kept' : 0,
 	   'nb_removed' : 0,
@@ -262,7 +262,7 @@ def write_summary(in_fasta, excluded_file, biomfile, closest_ref_file, category,
 	infos_otus = list()
 	biom=BiomIO.from_json(biomfile)
 	list_otu_all = list()
-	# record nb OTU and abundance
+	# record nb ASV and abundance
 	for otu in FastaIO(in_fasta):
 		list_otu_all.append(otu.id)
 		number_otu_all +=1
@@ -319,7 +319,7 @@ def write_summary(in_fasta, excluded_file, biomfile, closest_ref_file, category,
 	# record details about removed OTU
 	FH_excluded = open(excluded_file, 'rt').readlines()
 	for li in FH_excluded:
-		if not li.startswith('#No excluded OTUs.'):
+		if not li.startswith('#No excluded ASV.'):
 			cluster = li.strip()
 			summary_info['nb_removed'] +=1
 			summary_info['abundance_removed'] += biom.get_observation_count(cluster)
@@ -355,7 +355,7 @@ def write_summary(in_fasta, excluded_file, biomfile, closest_ref_file, category,
 ##################################################################################################################################################
 if __name__ == "__main__":
 	# Manage parameters
-	parser = argparse.ArgumentParser(description="place studies sequences (i.e. OTUs) into a reference tree.")
+	parser = argparse.ArgumentParser(description="place studies sequences (i.e. ASVs) into a reference tree.")
 	parser.add_argument('-v', '--version', action='version', version=__version__)
 	parser.add_argument( '--debug', default=False, action='store_true', help="Keep temporary files to debug program." )
 	# Inputs

@@ -541,7 +541,7 @@ class Biom:
     @see: https://github.com/biom-format
     """
     def __init__( self, id=None, format="Biological Observation Matrix 1.0.0", 
-                  format_url="http://biom-format.org", type="OTU table",
+                  format_url="http://biom-format.org", type=None,
                   generated_by=None, date=None, rows=None, columns=None,
                   matrix_type="dense", matrix_element_type="int",
                   data=None ):
