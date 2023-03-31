@@ -229,7 +229,6 @@ def remove_observations( removed_observations, input_biom, output_biom ):
     @param output_biom: [str] The path to the output BIOM.
     """
     biom = BiomIO.from_json( input_biom )
-    biom.type = "ASV table"
     biom.remove_observations( removed_observations )
     BiomIO.write( output_biom, biom )
 
