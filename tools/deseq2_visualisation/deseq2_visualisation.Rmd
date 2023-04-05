@@ -133,16 +133,22 @@ func_sign_under <- da.abundances_table %>%
 # gsub for create valid EC numbers for iPath3.
 
 func_sign_over <- func_sign_over %>% 
-  mutate(Color = if_else(log2FoldChange < 1, "#9B6037",
-   if_else(log2FoldChange < 2, "#B26E3E ", "#DE894E "))) %>%
-  mutate(Width = if_else(padj < 0.001, "W12",
-   if_else(padj < 0.01, "W10", "W8")))
+  mutate(Color = if_else(log2FoldChange < 1, "#DE894E",
+   if_else(log2FoldChange < 2, "#B26E3E ", "#9B6037 "))) %>%
+  mutate(Width = if_else(padj < 0.001, "W11",
+   if_else(padj < 0.01, "W10", "W9")))
+
+# func_sign_over <- func_sign_over %>% 
+#   mutate(Color = if_else(log2FoldChange < 1, "#9B6037",
+#    if_else(log2FoldChange < 2, "#B26E3E ", "#DE894E "))) %>%
+#   mutate(Width = if_else(padj < 0.001, "W12",
+#    if_else(padj < 0.01, "W10", "W8")))
 
 func_sign_under <- func_sign_under %>% 
   mutate(Color = if_else(log2FoldChange > -1, "#B0C6C5",
    if_else(log2FoldChange > -2, "#8EADAC", "#637978")))%>%
-  mutate(Width = if_else(padj < 0.001, "W12",
-   if_else(padj < 0.01, "W10", "W8")))
+  mutate(Width = if_else(padj < 0.001, "W11",
+   if_else(padj < 0.01, "W10", "W9")))
 
 # func_sign_over <- func_sign_over %>% 
 #   mutate(Color = if_else(log2FoldChange < 1, "#B0C6C5",
@@ -184,7 +190,7 @@ if(params$mod1 != "None") {
 ```
 
 ```{asis, eval=run_ipath, echo=run_ipath}
-The darker the path, the higher the log2 fold change (<1, <2, or >2).
+The darker the path, the higher the absolute log2 fold change (<=1, <=2, or >2).
 
 To visualise and explore metabolic pathways with [IPATH3 website](https://pathways.embl.de/),  use the two files 
 **ipath_under.tsv** and **ipath_over.tsv** as inputs. 
