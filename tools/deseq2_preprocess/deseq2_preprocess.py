@@ -110,7 +110,7 @@ class PhyloseqImport(Cmd):
     """
     @summary: import data from two files: biomfile and samplefile into a phyloseq object for FUNCTION analysis.
     """
-    def __init__(self, biom_file, sample_file, ranks, out_rdata, out_html, debug, log):
+    def __init__(self, biom_file, sample_file, ranks, out_rdata, out_html, log):
         """
         @param biom_file: [str] Path to biom file of function abundances from frogsfunc_functions.py step.
         @param sample_file: [str] Path to samplefile of metadata.
@@ -118,13 +118,10 @@ class PhyloseqImport(Cmd):
         @param log: [str] log file.
         """
 
-        opt=""
-        if debug :
-            opt= " --debug "
         Cmd.__init__(self,
                  'phyloseq_import_data.py',
                  'predict gene copy number per sequence.', 
-                 ' -b ' + biom_file + ' -s ' + sample_file + ' --ranks ' + ranks + ' --rdata ' + out_rdata + ' --html ' + out_html + opt +'  2>> ' + log,
+                 ' -b ' + biom_file + ' -s ' + sample_file + ' --ranks ' + ranks + ' --rdata ' + out_rdata + ' --html ' + out_html + '  2>> ' + log,
                 "--version")
 
     def get_version(self):
