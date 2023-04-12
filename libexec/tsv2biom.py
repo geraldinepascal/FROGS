@@ -206,8 +206,8 @@ def tsv_to_biom( input_tsv, multi_hit_dict, fields, samples_names, output_biom, 
                 else:
                     metadata_dict[metadata_index[idx]] = val
             # recover samples count
-            elif idx in sample_index and int(val) > 0:
-                count_by_sample[sample_index[idx]] = int(val)
+            elif idx in sample_index and int(float(val)) > 0:
+                count_by_sample[sample_index[idx]] = int(float(val))
             # recover seed sequence
             elif idx == seed_seq_idx:
                 seed_seq = val
