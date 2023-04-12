@@ -367,9 +367,20 @@ if __name__ == "__main__":
 			tmp_contrib = tmp_files_picrust.add('path_abun_contrib.tsv.gz')
 			tmp_predictions = tmp_files_picrust.add('path_abun_predictions.tsv.gz')
 			tmp_unstrat_per_seq = tmp_files_picrust.add('path_abun_unstrat_per_seq.tsv.gz')
+
+			per_sequence_function = tmp_files.add('function_modified.tsv')
+
+			with open(args.per_sequence_function, 'r+') as file:
+				lines = file.readlines()
+				lines[0] = lines[0].replace("ASV", "sequence")
+				file.seek(0)
+				with open(per_sequence_function, 'w') as new_file:
+					new_file.writelines(lines)
+					new_file.truncate()
+		per_sequence_function = args.per_sequence_function
 		##
 		try:
-			PathwayPipeline(tmp_tsv, args.map, args.per_sequence_contrib, args.per_sequence_abun, args.per_sequence_function, output_dir, tmp_pathway).submit(args.log_file)
+			PathwayPipeline(tmp_tsv, args.map, args.per_sequence_contrib, args.per_sequence_abun, per_sequence_function, output_dir, tmp_pathway).submit(args.log_file)
 		except:
 			raise_exception( Exception("\n\n#Note that the default pathway and regroup mapfiles are meant for EC numbers with 16S sequences. KEGG pathways are not supported since KEGG is a closed-source database, but you can input custom pathway mapfiles with the flag --map, associated with the file available here: $PICRUSt2_PATH/default_files/pathway_mapfiles/KEGG_pathways_to_KO.tsv. For ITS or 18S please use --map with the file available here: $PICRUSt2_PATH/default_files/pathway_mapfiles/metacyc_path2rxn_struc_filt_fungi.txt. \n\n"))
 			
