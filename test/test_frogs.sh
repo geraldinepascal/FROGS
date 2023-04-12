@@ -505,21 +505,21 @@ fi
 
 
 echo "Step deseq2_preprocess `date`"
-echo "DESeq2 otu abundances"
+echo "DESeq2 asv abundances"
 
-deseq2_preprocess.py \
+../app/deseq2_preprocess.py \
  --data $out_dir/16-phylo_import.Rdata \
- --analysis OTU \
+ --analysis ASV \
  --log-file $out_dir/23-deseq2_preprocess_otu.log \
  --out-Rdata $out_dir/23-deseq2_preprocess_otu.Rdata \
  --var EnvType
 
 echo "DESeq2 function abundances"
 
-deseq2_preprocess.py \
+../app/deseq2_preprocess.py \
  --samplefile data/sample_metadata.tsv \
  --input-functions data/frogsfunc_functions_unstrat_EC.tsv \
- --analysis FUNC \
+ --analysis FUNCTION \
  --log-file $out_dir/23-deseq2_preprocess_func.log \
  --out-Rdata $out_dir/23-deseq2_preprocess_func.Rdata \
  --out-Phyloseq $out_dir/23-phyloseq_functions.Rdata \
@@ -535,18 +535,18 @@ fi
 echo "Step deseq2_visualisation `date`"
 
 echo "DESeq2 otu abundances"
-deseq2_visualisation.py \
+../app/deseq2_visualisation.py \
  --abundanceData $out_dir/16-phylo_import.Rdata \
- --analysis OTU \
+ --analysis ASV \
  --dds $out_dir/23-deseq2_preprocess_otu.Rdata \
  --log-file $out_dir/24-deseq2_visualisation_otu.log \
  --html $out_dir/24-deseq2_visualisation_otu.nb.html \
  --var EnvType --mod1 BoeufHache --mod2 SaumonFume
 
 echo "DESeq2 function abundances"
-deseq2_visualisation.py \
+../app/deseq2_visualisation.py \
  --abundanceData $out_dir/23-phyloseq_functions.Rdata\
- --analysis FUNC \
+ --analysis FUNCTION \
  --dds $out_dir/23-deseq2_preprocess_func.Rdata \
  --log-file $out_dir/24-deseq2_visualisation_func.log \
  --html $out_dir/24-deseq2_visualisation_func.nb.html \
