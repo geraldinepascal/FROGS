@@ -53,6 +53,171 @@ from frogsBiom import Biom, BiomIO
 # COMMAND LINES
 #
 ##################################################################################################################################################
+class HClassification(Cmd):
+    """
+    @summary: Hierarchical classification on observation proportions.
+    """
+    def __init__(self, in_biom, out_newick, out_log, dist_method, linkage_method):
+        """
+        @param in_biom: [str] The processed BIOM path.
+        @param out_newick: [str] The path to the output.
+        @param out_log: [str] The path to the execution log.
+        @param dist_method: [str] The distance method used.
+        @param linkage_method: [str] The linkage method used.
+        """
+        self.exec_log = out_log
+        Cmd.__init__( self,
+                      'biomTools.py',
+                      'Hierarchical classification on observation proportions.',
+                      'hclassification --distance-method ' + dist_method + ' --linkage-method ' + linkage_method + ' --input-file ' + in_biom + ' --output-file ' + out_newick + ' > ' + out_log,
+                      '--version' )
+
+    def parser(self, log_file):
+        """
+        @summary : Parse the command results to add information in log_file.
+        @log_file : [str] Path to the sample process log file.
+        """
+        excluded_exists = False
+
+        # Parse execution log
+        warning_lines = list()
+        FH_exec_log = open( self.exec_log )
+        for line in FH_exec_log:
+            if line.strip() != "" and not line.startswith("#"):
+                warning_lines.append(line.strip())
+                if "xcluded samples" in line:
+                    excluded_exists = True
+        FH_exec_log.close()
+
+        # Write warning (if at least one sample has been excluded)
+        if excluded_exists:
+            FH_log = Logger( log_file )
+            FH_log.write( 'Warning:\n' )
+            for line in warning_lines:
+                FH_log.write( '\t' + line + '\n' )
+            FH_log.close()
+            
+    def get_version(self):   
+        return Cmd.get_version(self, 'stdout').strip()            
+
+
+class Depths(Cmd):
+    """
+    @summary: Writes by abundance the number of clusters.
+    """
+    def __init__(self, in_biom, out_tsv):
+        """
+        @param in_biom: [str] The processed BIOM path.
+        @param out_tsv: [str] The path of the output.
+        """
+        Cmd.__init__( self,
+                      'biomTools.py',
+                      'Writes by abundance the number of clusters.',
+                      'obsdepth --input-file ' + in_biom + ' --output-file ' + out_tsv,
+                      '--version' )
+
+    def get_version(self):   
+        return Cmd.get_version(self, 'stdout').strip()          
+        
+class ExtractSwarmsFasta(Cmd):
+    """
+    @summary: Extracts seeds sequences to produce the seeds fasta.
+    """
+    def __init__(self, in_fasta, in_swarms, out_seeds_file):
+        """
+        @param in_fasta: [str] Path to the input fasta file.
+        @param in_swarms: [str] Path to swarm output file. It describes which reads compose each swarm.
+        @param out_seeds_file: [str] Path to the output fasta file.
+        """
+        Cmd.__init__( self,
+                      'extractSwarmsFasta.py',
+                      'Extracts seeds sequences to produce the seeds fasta.',
+                      '--input-fasta ' + in_fasta + ' --input-swarms ' + in_swarms + ' --output-fasta ' + out_seeds_file,
+                      '--version' )
+
+    def get_version(self):
+        """
+        @summary: Returns the program version number.
+        @return: [str] Version number if this is possible, otherwise this method return 'unknown'.
+        """
+        return Cmd.get_version(self, 'stdout').strip()
+        
+class Swarm2Biom(Cmd):
+    """
+    @summary: Converts swarm results in BIOM file.
+    """
+    def __init__(self, in_swarms, in_count, out_biom):
+        """
+        @param in_swarms: [str] Path to swarm output file. It describes which reads compose each swarm.
+        @param in_count: [str] Path to the count file. It contains the count by sample for each representative sequence.
+        @param out_biom: [str] Path to the output BIOM.
+        """
+        Cmd.__init__( self,
+                      'swarm2biom.py',
+                      'Converts swarm output to abundance file (format BIOM).',
+                      "--clusters-file " + in_swarms + " --count-file " + in_count + " --output-file " + out_biom,
+                      '--version' )
+    
+    def get_version(self):
+        """
+        @summary: Returns the program version number.
+        @return: [str] Version number if this is possible, otherwise this method return 'unknown'.
+        """
+        return Cmd.get_version(self, 'stdout').strip()
+        
+class Swarm(Cmd):
+    """
+    @summary: Sequences clustering.
+    @see: https://github.com/torognes/swarm
+    """
+    def __init__(self, in_fasta, out_swarms, out_log, distance, fastidious_opt, nb_cpus):
+        """
+        @param in_fasta: [str] Path to fasta file to process.
+        @param out_swarms: [str] Path to swarm output file. It describes which reads compose each swarm.
+        @param out_log: [str] Path to swarm log file.
+        @param distance: [int] The 'param.distance'
+        @param nb_cpus : [int] 'param.nb_cpus'.
+        """
+        opt = ' --fastidious ' if fastidious_opt else ''
+        Cmd.__init__( self,
+                      'swarm',
+                      'Clustering sequences.',
+                      "--differences " + str(distance) + opt + " --threads " + str(nb_cpus) + " --log " + out_log + " --output-file " + out_swarms + " " + in_fasta,
+                      '--version' )
+
+    def get_version(self):
+        """
+        @summary: Returns the program version number.
+        @return: [str] Version number if this is possible, otherwise this method return 'unknown'.
+        """
+        return Cmd.get_version(self, 'stderr').split()[1]
+
+class SortFasta(Cmd):
+    """
+    @summary: Sort dereplicated sequences by decreasing abundance.
+    """
+    def __init__(self, in_fasta, out_fasta, debug, size_separator=';size='):
+        """
+        @param in_fasta: [str] Path to unsorted file.
+        @param out_fasta: [str] Path to file after sort.
+        @param size_separator: [str] Each sequence in in_fasta is see as a pre-cluster. The number of sequences represented by the pre-cluster is stored in sequence ID.
+               Sequence ID format : '<REAL_ID><size_separator><NB_SEQ>'. If this size separator is missing in ID, the number of sequences represented is 1.
+        """
+        opt = ' --debug ' if debug else ''
+        Cmd.__init__( self,
+                      'sortAbundancies.py',
+                      'Sort pre-clusters by abundancies.',
+                      "--size-separator '" + size_separator + "' --input-file " + in_fasta + ' --output-file ' + out_fasta + opt,
+                      '--version' )
+
+    def get_version(self):
+        """
+        @summary: Returns the program version number.
+        @return: [str] Version number if this is possible, otherwise this method return 'unknown'.
+        """
+        return Cmd.get_version(self, 'stdout').strip()
+
+
 class Dada2Core(Cmd):
     """
     @summary: Launch Rscript to calcul data frame of DESEq2 from a phyloseq object in RData file, the result of FROGS Phyloseq Import Data.
@@ -651,7 +816,34 @@ class DerepGlobalFastaCount(Cmd):
 #
 ##################################################################################################################################################
 
-###
+def replaceNtags(in_fasta, out_fasta):
+    """
+    @summary : for FROGS_combined sequence, replace N tags by A and record start and stop positions in description
+    @param : [str] Path to input fasta file
+    @param : [str] Path to output fasta file
+    """
+
+    FH_in = FastaIO(in_fasta)
+    FH_out = FastaIO(out_fasta, "wt")
+    for record in FH_in:
+        if "FROGS_combined" in record.id :
+            if not 100*"N" in record.string:
+                raise_exception(Exception("\n\n#ERROR : record " + record.id + " is a FROGS_combined sequence but it does not contain de 100N tags\n"))
+
+            N_idx1 = record.string.find("N")
+            N_idx2 = record.string.rfind("N")
+            replace_tag = 50*"A" + 50 * "C"
+            record.string = record.string.replace(100*"N",replace_tag)
+
+            if record.description :
+                record.description += "50A50C:" + str(N_idx1) + ":" + str(N_idx2)
+            else:
+                record.description = "50A50C:" + str(N_idx1) + ":" + str(N_idx2)
+        FH_out.write(record)
+
+    FH_in.close()
+    FH_out.close()
+
 def addNtags(in_fasta, output_fasta):
     """
     @summary : replace sequence indicated in seed description by N : ex A:10:110 replace 100A from 10 to 110 by N
@@ -788,7 +980,7 @@ def get_seq_length_by_sample( input_file, count_file):
     FH_seq.close()
     return nb_by_length
 
-def summarise_results( samples_names, lengths_files, log_files, param ):
+def summarise_results( samples_names, lengths_files, biom_file, depth_file, classif_file, log_files, param ):
     """
     @summary: Writes one summary of results from several logs.
     @param samples_names: [list] The samples names.
@@ -833,11 +1025,60 @@ def summarise_results( samples_names, lengths_files, log_files, param ):
         for l in after_lengths_by_sample[sample]:
             a_count += after_lengths_by_sample[sample][l]
     
+    # Get size distribution data
+    clusters_size = list()
+    counts = list()
+    FH_depth = open( depth_file )
+    for line in FH_depth:
+        if not line.startswith('#'):
+            fields = line.strip().split()
+            if fields[1] != "0":
+                clusters_size.append( int(fields[0]) )
+                counts.append( int(fields[1]) )
+    FH_depth.close()
+
+    # Get sample data
+    biom = BiomIO.from_json( biom_file )
+    samples_distrib = dict()
+    for sample_name in biom.get_samples_names():
+        shared_seq = 0
+        shared_observations = 0
+        own_seq = 0
+        own_observations = 0
+        for observation in biom.get_observations_by_sample(sample_name):
+            obs_count_in_spl = biom.get_count( observation['id'], sample_name )
+            if obs_count_in_spl != 0 and obs_count_in_spl == biom.get_observation_count(observation['id']):
+                own_observations += 1
+                own_seq += obs_count_in_spl
+            else:
+                shared_observations += 1
+                shared_seq += obs_count_in_spl
+        samples_distrib[sample_name] = {
+            'shared_seq': shared_seq,
+            'shared_observations': shared_observations,
+            'own_seq': own_seq,
+            'own_observations': own_observations
+        }
+    del biom
+
+    # Get newick data
+    FH_classif = open( classif_file )
+    newick = FH_classif.readlines()[0].replace("\n", "")
+    FH_classif.close()
+    
     # Write
     FH_summary_tpl = open( os.path.join(CURRENT_DIR, "preprocess_tpl.html") )
     FH_summary_out = open( param.summary, "wt" )
     for line in FH_summary_tpl:
-        if "###FILTERS_CATEGORIES###" in line:
+        if "###CLUSTERS_SIZES###" in line:
+            line = line.replace( "###CLUSTERS_SIZES###", json.dumps(clusters_size) )
+        elif "###DATA_COUNTS###" in line:
+            line = line.replace( "###DATA_COUNTS###", json.dumps(counts) )
+        elif "###DATA_SAMPLE###" in line:
+            line = line.replace( "###DATA_SAMPLE###", json.dumps(samples_distrib) )
+        elif "###NEWICK###" in line:
+            line = line.replace( "###NEWICK###", json.dumps(newick) )
+        elif "###FILTERS_CATEGORIES###" in line:
             line = line.replace( "###FILTERS_CATEGORIES###", json.dumps(categories) )
         elif "###FILTERS_DATA###" in line:
             line = line.replace( "###FILTERS_DATA###", json.dumps(filters_by_sample) )
@@ -958,7 +1199,7 @@ def get_sample_results_dada2( log_file ):
     FH_input = open(log_file)
     key="merged"
     for line in FH_input:
-        if "combine_and_split" in line:			
+        if "combine_and_split" in line:            
             key="artificial combined"
             if key not in nb_seq:
                 nb_seq[key]={}
@@ -1525,7 +1766,7 @@ def process( args ):
             # Dereplicate global on combined filtered cutadapted multifiltered derep
             Logger.static_write(args.log_file, '##Sample\nAll\n##Commands\n')
             DerepGlobalMultiFasta(filtered_files, samples_names, tmp_files.add('derep_inputs.tsv'), args.output_dereplicated, args.output_count, args).submit( args.log_file )
-            summarise_results( samples_names, lengths_files, log_files, args )
+            
 
             # Check the number of sequences after filtering
             nb_seq = get_nb_seq(args.output_dereplicated)
@@ -1534,17 +1775,56 @@ def process( args ):
                 
             # Clustering
             
-            if args.denoising and args.fastidious:
-                raise_exception( parser.error("\n#ERROR : --fastidious and --denoising are mutually exclusive.\n\n"))
-            if args.distance > 1 and args.fastidious:
-                raise_exception( parser.error("\n#ERROR : --fastidious is not allowed with d>1.\n\n"))
+            
 
             # Temporary files
             filename_woext = os.path.split(args.output_fasta)[1].split('.')[0]
-            clustering_log = tmp_files.add( filename_woext + '_clustering_log.txt' )
+            #clustering_log = tmp_files.add( filename_woext + '_clustering_log.txt' )
             
-            Clustering(args.output_dereplicated, args.output_count, args.distance, args.fastidious, args.output_compo, args.output_fasta, args.output_biom, clustering_log, args.nb_cpus).submit( args.log_file)
-        
+            #Clustering(args.output_dereplicated, args.output_count, args.distance, args.fastidious, args.output_compo, args.output_fasta, args.output_biom, clustering_log, args.nb_cpus).submit( args.log_file)
+            Logger.static_write(args.log_file, "## Application\nSoftware :" + sys.argv[0] + " (version : " + str(__version__) + ")\nCommand : " + " ".join(sys.argv) + "\n\n")
+
+            if args.distance == 1 and args.denoising:
+                Logger.static_write(args.log_file, "Warning: using the denoising option with a distance of 1 is useless. The denoising option is cancelled\n\n")
+                args.denoising = False
+
+            sorted_fasta = tmp_files.add( filename_woext + '_sorted.fasta' )
+            replaceN_fasta = tmp_files.add( filename_woext + '_sorted_NtoA.fasta' )
+            final_sorted_fasta = replaceN_fasta
+            swarms_file = args.output_compo
+            swarms_seeds = tmp_files.add( filename_woext + '_final_seeds.fasta' )
+            swarm_log = tmp_files.add( filename_woext + '_swarm_log.txt' )
+
+            SortFasta( args.output_dereplicated, sorted_fasta, args.debug ).submit( args.log_file )
+            Logger.static_write(args.log_file, "repalce 100 N tags by 50A-50C in: " + sorted_fasta + " out : "+ replaceN_fasta +"\n")
+            replaceNtags(sorted_fasta, replaceN_fasta)
+
+            if args.denoising and args.distance > 1:
+                # Denoising
+                denoising_log = tmp_files.add( filename_woext + '_denoising_log.txt' )
+                denoising_compo = tmp_files.add( filename_woext + '_denoising_composition.txt' )
+                denoising_seeds = tmp_files.add( filename_woext + '_denoising_seeds.fasta' )
+                denoising_resized_seeds = tmpFiles.add( filename_woext + '_denoising_resizedSeeds.fasta' )
+                swarms_file = tmp_files.add( filename_woext + '_swarmD' + str(args.distance) + '_composition.txt' )
+                final_sorted_fasta = tmp_files.add( filename_woext + '_denoising_sortedSeeds.fasta' )
+
+                Swarm( replaceN_fasta, denoising_compo, denoising_log, 1 , args.fastidious, args.nb_cpus ).submit( args.log_file )
+                ExtractSwarmsFasta( replaceN_fasta, denoising_compo, denoising_seeds ).submit( args.log_file )
+                resizeSeed( denoising_seeds, denoising_compo, denoising_resized_seeds ) # add size to seeds name
+                SortFasta( denoising_resized_seeds, final_sorted_fasta, args.debug, "_" ).submit( args.log_file )
+
+            Swarm( final_sorted_fasta, swarms_file, swarm_log, args.distance, args.fastidious, args.nb_cpus ).submit( args.log_file )
+
+            if args.denoising and args.distance > 1:
+                # convert cluster composition in read composition ==> final swarm composition
+                agregate_composition(denoising_compo, swarms_file, args.output_compo)
+
+            Swarm2Biom( args.output_compo, args.output_count, args.output_biom ).submit( args.log_file )
+            ExtractSwarmsFasta( final_sorted_fasta, swarms_file, swarms_seeds ).submit( args.log_file )
+            Logger.static_write(args.log_file, "replace 50A-50C  tags by N. in: " + swarms_seeds + " out : "+ args.output_fasta +"\n")
+            addNtags(swarms_seeds, args.output_fasta)
+            
+
         else:
             
             R1_cutadapted_files = [tmp_files.add(current_sample + '_cutadapt_R1.fastq.gz') for current_sample in samples_names]
@@ -1599,6 +1879,21 @@ def process( args ):
             if  nb_seq == 0:
                 raise_exception( Exception( "\n\n#ERROR : The filters have eliminated all sequences (see summary for more details).\n\n" ))
             to_biom_and_fasta(args.output_count, args.output_dereplicated, args.output_biom, args.output_fasta)
+    
+        Logger.static_write(args.log_file, "## Application\nSoftware :" + sys.argv[0] + " (version : " + str(__version__) + ")\nCommand : " + " ".join(sys.argv) + "\n\n")
+
+        classif_file = tmp_files.add( "HClassif.newick" )
+        classif_log = tmp_files.add( "HClassif_log.txt" )
+        #HClassification(args.output_biom, classif_file, classif_log, args.distance_method, args.linkage_method).submit( args.log_file )
+        HClassification(args.output_biom, classif_file, classif_log, "braycurtis", "average").submit( args.log_file )
+
+        depth_file = tmp_files.add( "depths.tsv" )
+        Depths(args.output_biom, depth_file).submit( args.log_file )
+        if args.swarm == True:
+            summarise_results( samples_names, lengths_files, args.output_biom, depth_file, classif_file, log_files, args )
+        else:
+            summarise_results_dada2( samples_names, lengths_files, args.output_biom, depth_file, classif_file, log_files, args )
+
 
     finally:    
         if not args.debug:
@@ -1891,6 +2186,11 @@ if __name__ == "__main__":
     if args.sequencer == "longreads":
         args.swarm = True
         args.keep_unmerged = False
+        
+    if args.denoising and args.fastidious:
+        raise_exception( parser.error("\n#ERROR : --fastidious and --denoising are mutually exclusive.\n\n"))
+    if args.distance > 1 and args.fastidious:
+        raise_exception( parser.error("\n#ERROR : --fastidious is not allowed with d>1.\n\n"))
 
     # Process
     process( args )
