@@ -377,7 +377,6 @@ if __name__ == "__main__":
 				with open(per_sequence_function, 'w') as new_file:
 					new_file.writelines(lines)
 					new_file.truncate()
-		per_sequence_function = args.per_sequence_function
 		##
 		try:
 			PathwayPipeline(tmp_tsv, args.map, args.per_sequence_contrib, args.per_sequence_abun, per_sequence_function, output_dir, tmp_pathway).submit(args.log_file)
