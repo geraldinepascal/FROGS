@@ -377,9 +377,11 @@ if __name__ == "__main__":
 				with open(per_sequence_function, 'w') as new_file:
 					new_file.writelines(lines)
 					new_file.truncate()
+			
+			args.per_sequence_function = per_sequence_function
 		##
 		try:
-			PathwayPipeline(tmp_tsv, args.map, args.per_sequence_contrib, args.per_sequence_abun, per_sequence_function, output_dir, tmp_pathway).submit(args.log_file)
+			PathwayPipeline(tmp_tsv, args.map, args.per_sequence_contrib, args.per_sequence_abun, args.per_sequence_function, output_dir, tmp_pathway).submit(args.log_file)
 		except:
 			raise_exception( Exception("\n\n#Note that the default pathway and regroup mapfiles are meant for EC numbers with 16S sequences. KEGG pathways are not supported since KEGG is a closed-source database, but you can input custom pathway mapfiles with the flag --map, associated with the file available here: $PICRUSt2_PATH/default_files/pathway_mapfiles/KEGG_pathways_to_KO.tsv. For ITS or 18S please use --map with the file available here: $PICRUSt2_PATH/default_files/pathway_mapfiles/metacyc_path2rxn_struc_filt_fungi.txt. \n\n"))
 			
