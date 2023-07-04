@@ -1417,6 +1417,19 @@
 
 					}
 				}
+				
+				// Display data by sample
+                if ("merged" in filters_by_sample ){
+                    sampleDetailsLoad("merged",true, "filterBySample-table-combined", true);
+                }else{
+                    $("#filterBySample-table-combined").remove();
+                }
+                if ("artificial combined" in filters_by_sample ){
+                    sampleDetailsLoad("artificial combined", false, "filterBySample-table-artificialCombined", false);    
+                }else{
+                    $("#filterBySample-table-artificialCombined").prev("h2").remove();
+                    $("#filterBySample-table-artificialCombined").remove();
+                }
                 
                 var global_series = [ { name: 'merged', data: extended_data }]
                 if ("artificial combined" in filters_by_sample) {
@@ -1556,18 +1569,7 @@
                 
                 // Display summary
                 summaryLoad();
-                // Display data by sample
-                if ("merged" in filters_by_sample ){
-                    sampleDetailsLoad("merged",true, "filterBySample-table-combined", true);
-                }else{
-                    $("#filterBySample-table-combined").remove();
-                }
-                if ("artificial combined" in filters_by_sample ){
-                    sampleDetailsLoad("artificial combined", false, "filterBySample-table-artificialCombined", false);    
-                }else{
-                    $("#filterBySample-table-artificialCombined").prev("h2").remove();
-                    $("#filterBySample-table-artificialCombined").remove();
-                }
+                
                 
                                 
                 /*$("select").addClass("selectpicker");
@@ -1612,7 +1614,7 @@
         <!-- Content -->
         <div id="content" class="hidden">
 			<ul class="nav nav-tabs">
-				<!--<li class="nav-item active"><a class="nav-link active" href="#preprocess">Preprocess summary</a></li>-->
+				<li class="nav-item active"><a class="nav-link active" href="#preprocess">Preprocess</a></li>
 				<li class="nav-item active"><a class="nav-link" href="#cluster-distrib">Clusters distribution</a></li>
 				<li class="nav-item active"><a class="nav-link" href="#sequence-distrib">Sequences distribution</a></li>
 				<li class="nav-item active"><a class="nav-link" href="#samples-distrib">Samples distribution</a></li>
@@ -1640,7 +1642,7 @@
 				</div>
 				
 				<div id="preprocess" role="tabpanel" class="tab-pane active">
-					<h2 class="pb-2-first mt-4 mb-2 border-bottom" style="margin-top: 1rem">Preprocess summary</h2>
+					<!--<h2 class="pb-2-first mt-4 mb-2 border-bottom" style="margin-top: 1rem">Preprocess summary</h2>-->
 					<div id="filter-summary"></div>
 					
 					<div id="filter-log">

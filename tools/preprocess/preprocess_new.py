@@ -16,12 +16,12 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-__author__ = 'Frederic Escudie - Plateforme bioinformatique Toulouse / Maria Bernard - SIGENAE Jouy en Josas'
-__copyright__ = 'Copyright (C) 2015 INRA'
+__author__ = 'Olivier Rué & Vincent Darbot - FROGS team'
+__copyright__ = 'Copyright (C) 2023 INRAE'
 __license__ = 'GNU General Public License'
-__version__ = '3.2.3'
+__version__ = '5.0'
 __email__ = 'frogs-support@inrae.fr'
-__status__ = 'prod'
+__status__ = 'dev'
 
 import re
 import os
@@ -234,6 +234,8 @@ class Dada2Core(Cmd):
         opts = ""
         if pseudo_pooling:
             opts = " --pseudopooling "
+        if args.debug:
+            opts += " --debug"
         Cmd.__init__( self,
                       'dada2_process.R',
                       'Write denoised FASTQ files from cutadapted and cleaned FASTQ files',
@@ -1264,6 +1266,10 @@ def samples_from_tar( archive, contiged, global_tmp_files, R1_files, R2_files, s
                     raise_exception( Exception("\n\n#ERROR : The file '" + file_info.name + "' in archive '" + archive + "' is invalid. The files names must contain '_R1' or '_R2'.\n\n"))
         else:
             raise_exception( Exception("\n\n#ERROR : The archive '" + archive + "' must not contain folders."))
+    R1_files = sorted(R1_files)
+    R2_files = sorted(R2_files)
+    samples_names = sorted(samples_names)
+    
     if len(R1_files) != len(R2_files) and not contiged:
         if len(R1_files) > len(R2_files):
             raise_exception( Exception( "\n\n#ERORR : " + str(len(R1_files) - len(R2_files)) + " R2 file(s) are missing in arhive '" + archive + "'. R1 file : [" + ", ".join(R1_files) + "] ; R2 files : [" + ", ".join(R2_files) + "]\n\n" ))
@@ -1746,6 +1752,7 @@ def process( args ):
         if len(samples_names) != len(set(samples_names)):
             raise_exception( Exception( '\n\n#ERROR : Impossible to retrieve unique samples names from files. The sample name must be before the first dot.\n\n' ))
         
+        
         if args.swarm == True:
             # Tmp files
             filtered_files = [tmp_files.add(current_sample + '_filtered.fasta') for current_sample in samples_names]
@@ -1826,7 +1833,6 @@ def process( args ):
             
 
         else:
-            
             R1_cutadapted_files = [tmp_files.add(current_sample + '_cutadapt_R1.fastq.gz') for current_sample in samples_names]
             R2_cutadapted_files = [tmp_files.add(current_sample + '_cutadapt_R2.fastq.gz') for current_sample in samples_names]
             lengths_files = [tmp_files.add(current_sample + '_lengths.json') for current_sample in samples_names]
@@ -1847,6 +1853,7 @@ def process( args ):
             R2_files = [os.path.abspath(file) for file in R2_files]
 
             #Logger.static_write(args.log_file, '##Sample\nAll\n##Commands\n')
+            
             Dada2Core(R1_cutadapted_files, R2_cutadapted_files, output_dir, args.nb_cpus, tmp_output_filenames, R_stderr, args.pseudo_pooling).submit(args.log_file)
             
             R1_files = list()
@@ -1858,6 +1865,7 @@ def process( args ):
                     R2_files.append(li[1])
 
             filtered_files = [tmp_files.add(current_sample + '_filter.fasta') for current_sample in samples_names]
+            
             art_filtered_files = [tmp_files.add(current_sample + '_artComb_filter.fasta') for current_sample in samples_names]
             
             nb_processses_used = min( len(R1_files), args.nb_cpus )
@@ -1889,10 +1897,10 @@ def process( args ):
 
         depth_file = tmp_files.add( "depths.tsv" )
         Depths(args.output_biom, depth_file).submit( args.log_file )
-        if args.swarm == True:
-            summarise_results( samples_names, lengths_files, args.output_biom, depth_file, classif_file, log_files, args )
-        else:
-            summarise_results_dada2( samples_names, lengths_files, args.output_biom, depth_file, classif_file, log_files, args )
+        #if args.swarm == True:
+        summarise_results( samples_names, lengths_files, args.output_biom, depth_file, classif_file, log_files, args )
+        #else:
+        #    summarise_results_dada2( samples_names, lengths_files, args.output_biom, depth_file, classif_file, log_files, args )
 
 
     finally:    
