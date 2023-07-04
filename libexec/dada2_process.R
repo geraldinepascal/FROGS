@@ -163,8 +163,7 @@ write1FastqFromDada <- function(dadaF, derepF, path)
     mapF <- getDerep(derepF[[i]])$map
     if (!(is.integer(mapF))) 
       stop("Incorrect format of $map in derep-class arguments.")
-    if (!(max(mapF, na.rm = TRUE) == 
-          length(dadaF[[i]]$map) )) {
+    if (!(max(mapF, na.rm = TRUE) == length(dadaF[[i]]$map) )) {
       stop("Non-corresponding derep-class and dada-class objects.")
     }
     rF <- dadaF[[i]]$map[mapF]
@@ -174,13 +173,8 @@ write1FastqFromDada <- function(dadaF, derepF, path)
     ups <- ups[keep, ]
     if (nrow(ups) == 0) {
       outnames <- c("abundance", "forward")
-      ups <- data.frame(matrix(ncol = length(outnames), 
-                               nrow = 0))
+      ups <- data.frame(matrix(ncol = length(outnames), nrow = 0))
       names(ups) <- outnames
-      if (verbose) {
-        message("No paired-reads (in ZERO unique pairings) successfully merged out of ", 
-                nrow(pairdf), " pairings) input.")
-      }
       return(ups)
     }
     else {
@@ -195,8 +189,7 @@ write1FastqFromDada <- function(dadaF, derepF, path)
       tab <- table(pairdf$forward)
       ups$abundance <- tab[cbind(ups$forward)]
       
-      ups <- ups[order(ups$abundance, decreasing = TRUE), 
-      ]
+      #ups <- ups[order(ups$abundance, decreasing = TRUE), ]
       
       rownames(ups) <- NULL
       ups$id <- 1:nrow(ups)
