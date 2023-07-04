@@ -91,13 +91,10 @@ write2FastqFromDada <- function(dadaF, derepF, dadaR, derepR, path)
     keep <- !is.na(ups$forward) & !is.na(ups$reverse)
     ups <- ups[keep, ]
     if (nrow(ups) == 0) {
-      outnames <- c("abundance", "forward", 
-                    "reverse")
-      ups <- data.frame(matrix(ncol = length(outnames), 
-                               nrow = 0))
+      outnames <- c("abundance", "forward", "reverse")
+      ups <- data.frame(matrix(ncol = length(outnames), nrow = 0))
       names(ups) <- outnames
       
-      return(ups)
     }
     else {
       int_to_quality <- function(qualities) {
@@ -111,8 +108,6 @@ write2FastqFromDada <- function(dadaF, derepF, dadaR, derepR, path)
       
       tab <- table(pairdf$forward, pairdf$reverse)
       ups$abundance <- tab[cbind(ups$forward, ups$reverse)]
-      
-      #ups <- ups[order(ups$abundance, decreasing = TRUE), ]
       
       rownames(ups) <- NULL
       ups$id <- 1:nrow(ups)
@@ -128,25 +123,16 @@ write2FastqFromDada <- function(dadaF, derepF, dadaR, derepR, path)
       #set up writing
       cat(R1_path, R2_path, file=opt$fileNames, append=TRUE, sep = ",")
       cat("", file=opt$fileNames, append=TRUE, sep = "\n")
-
-      return(ups)
     }
   })
-  if (!is.null(names(dadaF))) 
-    names(rval) <- names(dadaF)
-  if (length(rval) == 1) 
-    rval <- rval[[1]]
-  return(rval)
 }
 
-write1FastqFromDada <- function(dadaF, derepF, path)
-{
+write1FastqFromDada <- function(dadaF, derepF, path){
   if (is(dadaF, "dada")) 
     dadaF <- list(dadaF)
   if (is(derepF, "derep")) 
     derepF <- list(derepF)
-  else if (is(derepF, "character") && length(derepF) == 1 && 
-           dir.exists(derepF)) 
+  else if (is(derepF, "character") && length(derepF) == 1 && dir.exists(derepF)) 
     derepF <- parseFastqDirectory(derepF)
   if (!(is.list.of(dadaF, "dada"))) {
     stop("dadaF must be provided as dada-class objects or lists of dada-class objects.")
@@ -157,7 +143,6 @@ write1FastqFromDada <- function(dadaF, derepF, path)
   nrecs <- c(length(dadaF), length(derepF))
   if (length(unique(nrecs)) > 1) 
     stop("The dadaF/derepF arguments must be the same length.")
-    
     
   rval <- lapply(seq_along(dadaF), function(i) {
     mapF <- getDerep(derepF[[i]])$map
@@ -175,7 +160,6 @@ write1FastqFromDada <- function(dadaF, derepF, path)
       outnames <- c("abundance", "forward")
       ups <- data.frame(matrix(ncol = length(outnames), nrow = 0))
       names(ups) <- outnames
-      return(ups)
     }
     else {
       int_to_quality <- function(qualities) {
@@ -189,8 +173,6 @@ write1FastqFromDada <- function(dadaF, derepF, path)
       tab <- table(pairdf$forward)
       ups$abundance <- tab[cbind(ups$forward)]
       
-      #ups <- ups[order(ups$abundance, decreasing = TRUE), ]
-      
       rownames(ups) <- NULL
       ups$id <- 1:nrow(ups)
       ups$forward <- Funqseq
@@ -202,14 +184,8 @@ write1FastqFromDada <- function(dadaF, derepF, path)
       cat(R1_path, file=opt$fileNames, append=TRUE, sep = ",")
       cat("", file=opt$fileNames, append=TRUE, sep = "\n")
 
-      return(ups)
     }
   })
-  if (!is.null(names(dadaF))) 
-    names(rval) <- names(dadaF)
-  if (length(rval) == 1) 
-    rval <- rval[[1]]
-  return(rval)
 }
 
 ########## MAIN
