@@ -303,7 +303,7 @@ DESeq2::plotMA(results, ylim = c(-10,10),
 cat("There are no differentially abundant ASVs or FUNCTIONs. Please use a higher threshold for the adjusted p-value or consider a different comparison.")
 ```
 
-```{r heatmap, fig.width=10, fig.height=8, eval = (nrow(da.abundances_table) > 0)}
+```{r heatmap, fig.width=10, fig.height=8, eval = (nrow(da.abundances_table) > 1)}
 
 da.abundances_table <- da.abundances_table %>% arrange(log2FoldChange)
 y_title <- ifelse(params$analysis == "ASV", "ASV", "Functions")
