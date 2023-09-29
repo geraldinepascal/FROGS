@@ -143,6 +143,9 @@ def rounding(nb):
 		end = re.compile("e-[0-9]+")
 		return float("".join(start.findall(str(nb))+end.findall(str(nb))))
 
+	elif re.search("[0][.][0]+[0-9]{1}", str(nb)):
+		return nb
+
 	elif re.search("[0][.][0]+",str(nb)):
 		motif = re.compile("[0][.][0]+[0-9]{2}")
 		return float("".join(motif.findall(str(nb))))
