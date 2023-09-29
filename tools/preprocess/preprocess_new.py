@@ -1819,7 +1819,15 @@ def process( args ):
 
             #Logger.static_write(args.log_file, '##Sample\nAll\n##Commands\n')
             
-            Dada2Core(R1_cutadapted_files, R2_cutadapted_files, output_dir, args.nb_cpus, tmp_output_filenames, R_stderr, args.pseudo_pooling).submit(args.log_file)
+            try:
+                Dada2Core(R1_cutadapted_files, R2_cutadapted_files, output_dir, args.nb_cpus, tmp_output_filenames, R_stderr, args.pseudo_pooling).submit(args.log_file)
+            except subprocess.CalledProcessError as e:
+                f = open(R_stderr,"r")
+                print(f.read())
+                raise_exception( Exception( "\n\n#ERROR : "+ "Error while running DADA2 \n\n" ))
+                
+
+                
             
             R1_files = list()
             R2_files = list()
