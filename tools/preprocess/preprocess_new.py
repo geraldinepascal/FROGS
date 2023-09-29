@@ -249,37 +249,6 @@ class Dada2Core(Cmd):
         """
         return Cmd.get_version(self, 'stdout')
 
-
-class Clustering(Cmd):
-    """
-    @summary: Sequences clustering.
-    @see: https://github.com/torognes/swarm
-    """
-    def __init__(self, in_fasta, input_count, distance, fastidious, output_compo, output_fasta, output_biom, log, nb_cpus):
-        """
-        @param in_fasta: [str] Path to fasta file to process.
-        @param input_count: [str] Path to the count file associated to fasta file.
-        @param distance: [int] Maximum distance between sequences in each aggregation step. RECOMMENDED : d=1 in combination with --fastidious option.
-        @param fastidious: [bool] Use the fastidious option of swarm to refine OTU.
-        @param nb_cpus : [int] 'param.nb_cpus'.
-        @param output_compo : [str] This output file will contain the composition of each cluster.
-        @param output_fasta : [str] This output file will contain the seed sequence for each cluster.
-        @param output_biom : [str] This output file will contain the abundance per sample for each cluster.
-        """
-        opt = ' --fastidious ' if fastidious else ''
-        Cmd.__init__( self,
-                      'clustering.py',
-                      'Clustering sequences.',
-                      "--input-fasta " + in_fasta + " --input-count " + input_count + " --distance " + str(distance) + opt + " --nb-cpus " + str(nb_cpus) + " --log-file " + log + " --output-compo " + output_compo + " --output-fasta " + output_fasta + " --output-biom " + output_biom, 
-                      '--version' )
-
-    def get_version(self):
-        """
-        @summary: Returns the program version number.
-        @return: [str] Version number if this is possible, otherwise this method return 'unknown'.
-        """
-        return Cmd.get_version(self, 'stderr')
-
         
 class Pear(Cmd):
     """
@@ -1779,10 +1748,6 @@ def process( args ):
             nb_seq = get_nb_seq(args.output_dereplicated)
             if  nb_seq == 0:
                 raise_exception( Exception( "\n\n#ERROR : The filters have eliminated all sequences (see summary for more details).\n\n" ))
-                
-            # Clustering
-            
-            
 
             # Temporary files
             filename_woext = os.path.split(args.output_fasta)[1].split('.')[0]
