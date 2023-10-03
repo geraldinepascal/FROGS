@@ -1211,6 +1211,8 @@ def samples_from_tar( archive, contiged, global_tmp_files, R1_files, R2_files, s
     """
     R1_tmp = list()
     R2_tmp = list()
+    R1_samples_names = list()
+    R2_samples_names = list()
     tmp_folder = os.path.join( global_tmp_files.tmp_dir, global_tmp_files.prefix + "_tmp" )
     if not tarfile.is_tarfile(archive):
         raise_exception( Exception("\n\n#ERROR : The archive '" + archive + "' is not a tar file.\n\n"))
@@ -1226,19 +1228,24 @@ def samples_from_tar( archive, contiged, global_tmp_files, R1_files, R2_files, s
             else:
                 if "_R1" in file_info.name or "_r1" in file_info.name:
                     samples_names.append( re.split('_[Rr]1', file_info.name)[0] )
+                    R1_samples_names.append( re.split('_[Rr]1', file_info.name)[0] )
                     R1_files.append( global_tmp_files.add(file_info.name) )
                     R1_tmp.append( os.path.join(tmp_folder, file_info.name) )
                 elif "_R2" in file_info.name or "_r2" in file_info.name:
                     R2_files.append( global_tmp_files.add(file_info.name) )
                     R2_tmp.append( os.path.join(tmp_folder, file_info.name) )
+                    R2_samples_names.append( re.split('_[Rr]2', file_info.name)[0] )
                 else:
                     raise_exception( Exception("\n\n#ERROR : The file '" + file_info.name + "' in archive '" + archive + "' is invalid. The files names must contain '_R1' or '_R2'.\n\n"))
         else:
             raise_exception( Exception("\n\n#ERROR : The archive '" + archive + "' must not contain folders."))
     R1_files = sorted(R1_files)
     R2_files = sorted(R2_files)
+    R1_samples_names = sorted(R1_samples_names)
+    R2_samples_names = sorted(R2_samples_names)
     samples_names = sorted(samples_names)
-    
+    if R1_samples_names != R2_samples_names:
+        raise_exception( Exception( "\n\n#ERORR : Samples names are not identical in the archive '" + archive + "'. R1 samples names : [" + ", ".join(R1_samples_names) + "] ; R2 samples names : [" + ", ".join(R2_samples_names) + "]\n\n" ))
     if len(R1_files) != len(R2_files) and not contiged:
         if len(R1_files) > len(R2_files):
             raise_exception( Exception( "\n\n#ERORR : " + str(len(R1_files) - len(R2_files)) + " R2 file(s) are missing in arhive '" + archive + "'. R1 file : [" + ", ".join(R1_files) + "] ; R2 files : [" + ", ".join(R2_files) + "]\n\n" ))
