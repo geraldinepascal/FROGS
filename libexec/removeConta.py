@@ -281,6 +281,10 @@ if __name__ == "__main__":
             tmp_files.add("contaminant_db.fasta.nsq")
             tmp_files.add("contaminant_db.fasta.nhr")
             tmp_files.add("contaminant_db.fasta.nin")
+            tmp_files.add("contaminant_db.fasta.ndb")
+            tmp_files.add("contaminant_db.fasta.not")
+            tmp_files.add("contaminant_db.fasta.nto")
+            tmp_files.add("contaminant_db.fasta.ntf")
             copyfile(args.contaminant_db,contaminant_db)
             makeblastdb_cmd = ["makeblastdb","-in",contaminant_db,"-dbtype","nucl"]
             makeblastdb_stdout = tmp_files.add("makeblastdb.stdout")
