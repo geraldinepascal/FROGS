@@ -213,7 +213,7 @@ def filter_seq( input_file1, output_file1, log_file, min_length=None, max_length
     # Write log
     log_fh = open( log_file, "wt" )
     log_fh.write( "Nb seq processed : " + str(nb_seq) + "\n" )
-    if not(min_length is None and max_length is None):
+    if not(min_length is None or min_length == 20 and max_length is None):
         log_fh.write( "Nb seq filtered on length : " + str(filter_on_length) + "\n" )
     if not max_N is None:
         log_fh.write( "Nb seq filtered on N : " + str(filter_on_N) + "\n" )

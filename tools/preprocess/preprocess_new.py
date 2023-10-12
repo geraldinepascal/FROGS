@@ -16,12 +16,12 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-__author__ = 'Frederic Escudie - Plateforme bioinformatique Toulouse / Maria Bernard - SIGENAE Jouy en Josas'
-__copyright__ = 'Copyright (C) 2015 INRA'
+__author__ = 'Olivier Rué & Vincent Darbot - FROGS team'
+__copyright__ = 'Copyright (C) 2023 INRAE'
 __license__ = 'GNU General Public License'
-__version__ = '3.2.3'
+__version__ = '5.0'
 __email__ = 'frogs-support@inrae.fr'
-__status__ = 'prod'
+__status__ = 'dev'
 
 import re
 import os
@@ -53,6 +53,171 @@ from frogsBiom import Biom, BiomIO
 # COMMAND LINES
 #
 ##################################################################################################################################################
+class HClassification(Cmd):
+    """
+    @summary: Hierarchical classification on observation proportions.
+    """
+    def __init__(self, in_biom, out_newick, out_log, dist_method, linkage_method):
+        """
+        @param in_biom: [str] The processed BIOM path.
+        @param out_newick: [str] The path to the output.
+        @param out_log: [str] The path to the execution log.
+        @param dist_method: [str] The distance method used.
+        @param linkage_method: [str] The linkage method used.
+        """
+        self.exec_log = out_log
+        Cmd.__init__( self,
+                      'biomTools.py',
+                      'Hierarchical classification on observation proportions.',
+                      'hclassification --distance-method ' + dist_method + ' --linkage-method ' + linkage_method + ' --input-file ' + in_biom + ' --output-file ' + out_newick + ' > ' + out_log,
+                      '--version' )
+
+    def parser(self, log_file):
+        """
+        @summary : Parse the command results to add information in log_file.
+        @log_file : [str] Path to the sample process log file.
+        """
+        excluded_exists = False
+
+        # Parse execution log
+        warning_lines = list()
+        FH_exec_log = open( self.exec_log )
+        for line in FH_exec_log:
+            if line.strip() != "" and not line.startswith("#"):
+                warning_lines.append(line.strip())
+                if "xcluded samples" in line:
+                    excluded_exists = True
+        FH_exec_log.close()
+
+        # Write warning (if at least one sample has been excluded)
+        if excluded_exists:
+            FH_log = Logger( log_file )
+            FH_log.write( 'Warning:\n' )
+            for line in warning_lines:
+                FH_log.write( '\t' + line + '\n' )
+            FH_log.close()
+            
+    def get_version(self):   
+        return Cmd.get_version(self, 'stdout').strip()            
+
+
+class Depths(Cmd):
+    """
+    @summary: Writes by abundance the number of clusters.
+    """
+    def __init__(self, in_biom, out_tsv):
+        """
+        @param in_biom: [str] The processed BIOM path.
+        @param out_tsv: [str] The path of the output.
+        """
+        Cmd.__init__( self,
+                      'biomTools.py',
+                      'Writes by abundance the number of clusters.',
+                      'obsdepth --input-file ' + in_biom + ' --output-file ' + out_tsv,
+                      '--version' )
+
+    def get_version(self):   
+        return Cmd.get_version(self, 'stdout').strip()          
+        
+class ExtractSwarmsFasta(Cmd):
+    """
+    @summary: Extracts seeds sequences to produce the seeds fasta.
+    """
+    def __init__(self, in_fasta, in_swarms, out_seeds_file):
+        """
+        @param in_fasta: [str] Path to the input fasta file.
+        @param in_swarms: [str] Path to swarm output file. It describes which reads compose each swarm.
+        @param out_seeds_file: [str] Path to the output fasta file.
+        """
+        Cmd.__init__( self,
+                      'extractSwarmsFasta.py',
+                      'Extracts seeds sequences to produce the seeds fasta.',
+                      '--input-fasta ' + in_fasta + ' --input-swarms ' + in_swarms + ' --output-fasta ' + out_seeds_file,
+                      '--version' )
+
+    def get_version(self):
+        """
+        @summary: Returns the program version number.
+        @return: [str] Version number if this is possible, otherwise this method return 'unknown'.
+        """
+        return Cmd.get_version(self, 'stdout').strip()
+        
+class Swarm2Biom(Cmd):
+    """
+    @summary: Converts swarm results in BIOM file.
+    """
+    def __init__(self, in_swarms, in_count, out_biom):
+        """
+        @param in_swarms: [str] Path to swarm output file. It describes which reads compose each swarm.
+        @param in_count: [str] Path to the count file. It contains the count by sample for each representative sequence.
+        @param out_biom: [str] Path to the output BIOM.
+        """
+        Cmd.__init__( self,
+                      'swarm2biom.py',
+                      'Converts swarm output to abundance file (format BIOM).',
+                      "--clusters-file " + in_swarms + " --count-file " + in_count + " --output-file " + out_biom,
+                      '--version' )
+    
+    def get_version(self):
+        """
+        @summary: Returns the program version number.
+        @return: [str] Version number if this is possible, otherwise this method return 'unknown'.
+        """
+        return Cmd.get_version(self, 'stdout').strip()
+        
+class Swarm(Cmd):
+    """
+    @summary: Sequences clustering.
+    @see: https://github.com/torognes/swarm
+    """
+    def __init__(self, in_fasta, out_swarms, out_log, distance, fastidious_opt, nb_cpus):
+        """
+        @param in_fasta: [str] Path to fasta file to process.
+        @param out_swarms: [str] Path to swarm output file. It describes which reads compose each swarm.
+        @param out_log: [str] Path to swarm log file.
+        @param distance: [int] The 'param.distance'
+        @param nb_cpus : [int] 'param.nb_cpus'.
+        """
+        opt = ' --fastidious ' if fastidious_opt else ''
+        Cmd.__init__( self,
+                      'swarm',
+                      'Clustering sequences.',
+                      "--differences " + str(distance) + opt + " --threads " + str(nb_cpus) + " --log " + out_log + " --output-file " + out_swarms + " " + in_fasta,
+                      '--version' )
+
+    def get_version(self):
+        """
+        @summary: Returns the program version number.
+        @return: [str] Version number if this is possible, otherwise this method return 'unknown'.
+        """
+        return Cmd.get_version(self, 'stderr').split()[1]
+
+class SortFasta(Cmd):
+    """
+    @summary: Sort dereplicated sequences by decreasing abundance.
+    """
+    def __init__(self, in_fasta, out_fasta, debug, size_separator=';size='):
+        """
+        @param in_fasta: [str] Path to unsorted file.
+        @param out_fasta: [str] Path to file after sort.
+        @param size_separator: [str] Each sequence in in_fasta is see as a pre-cluster. The number of sequences represented by the pre-cluster is stored in sequence ID.
+               Sequence ID format : '<REAL_ID><size_separator><NB_SEQ>'. If this size separator is missing in ID, the number of sequences represented is 1.
+        """
+        opt = ' --debug ' if debug else ''
+        Cmd.__init__( self,
+                      'sortAbundancies.py',
+                      'Sort pre-clusters by abundancies.',
+                      "--size-separator '" + size_separator + "' --input-file " + in_fasta + ' --output-file ' + out_fasta + opt,
+                      '--version' )
+
+    def get_version(self):
+        """
+        @summary: Returns the program version number.
+        @return: [str] Version number if this is possible, otherwise this method return 'unknown'.
+        """
+        return Cmd.get_version(self, 'stdout').strip()
+
+
 class Dada2Core(Cmd):
     """
     @summary: Launch Rscript to calcul data frame of DESEq2 from a phyloseq object in RData file, the result of FROGS Phyloseq Import Data.
@@ -69,6 +234,8 @@ class Dada2Core(Cmd):
         opts = ""
         if pseudo_pooling:
             opts = " --pseudopooling "
+        if args.debug:
+            opts += " --debug"
         Cmd.__init__( self,
                       'dada2_process.R',
                       'Write denoised FASTQ files from cutadapted and cleaned FASTQ files',
@@ -81,37 +248,6 @@ class Dada2Core(Cmd):
         @return : [str] Version number if this is possible, otherwise this method return 'unknown'.
         """
         return Cmd.get_version(self, 'stdout')
-
-
-class Clustering(Cmd):
-    """
-    @summary: Sequences clustering.
-    @see: https://github.com/torognes/swarm
-    """
-    def __init__(self, in_fasta, input_count, distance, fastidious, output_compo, output_fasta, output_biom, log, nb_cpus):
-        """
-        @param in_fasta: [str] Path to fasta file to process.
-        @param input_count: [str] Path to the count file associated to fasta file.
-        @param distance: [int] Maximum distance between sequences in each aggregation step. RECOMMENDED : d=1 in combination with --fastidious option.
-        @param fastidious: [bool] Use the fastidious option of swarm to refine OTU.
-        @param nb_cpus : [int] 'param.nb_cpus'.
-        @param output_compo : [str] This output file will contain the composition of each cluster.
-        @param output_fasta : [str] This output file will contain the seed sequence for each cluster.
-        @param output_biom : [str] This output file will contain the abundance per sample for each cluster.
-        """
-        opt = ' --fastidious ' if fastidious else ''
-        Cmd.__init__( self,
-                      'clustering.py',
-                      'Clustering sequences.',
-                      "--input-fasta " + in_fasta + " --input-count " + input_count + " --distance " + str(distance) + opt + " --nb-cpus " + str(nb_cpus) + " --log-file " + log + " --output-compo " + output_compo + " --output-fasta " + output_fasta + " --output-biom " + output_biom, 
-                      '--version' )
-
-    def get_version(self):
-        """
-        @summary: Returns the program version number.
-        @return: [str] Version number if this is possible, otherwise this method return 'unknown'.
-        """
-        return Cmd.get_version(self, 'stderr')
 
         
 class Pear(Cmd):
@@ -298,7 +434,7 @@ class Cutadapt5prim(Cmd):
         @param param: [Namespace] The primer sequence 'param.five_prim_primer'.
         """
         opt = ''
-        if param.sequencer == "hifi":
+        if param.sequencer == "longreads":
             opt = ' --revcomp '
         Cmd.__init__( self,
                       'cutadapt',
@@ -345,7 +481,7 @@ class Cutadapt3prim(Cmd):
         @param param: [Namespace] The primer sequence 'param.three_prim_primer'.
         """
         opt = ''
-        if param.sequencer == "hifi":
+        if param.sequencer == "longreads":
             opt = ' --revcomp '
         Cmd.__init__( self,
                       'cutadapt',
@@ -392,9 +528,12 @@ class CutadaptPaired(Cmd):
         @param cutadapt_err: [str] Path to the error file.
         @param param: [Namespace] The primer sequence 'param.three_prim_primer'.
         """
+        message = "Removes read pairs without the 5' and 3' primer and removes primer sequence."
+        if param.swarm is False:
+            message = "Before all, removes read pairs without the 5' and 3' primer and removes primer sequence."
         Cmd.__init__( self,
                       'cutadapt',
-                      "Removes read pairs without the 5' and 3' primer and removes primer sequence.",
+                      message,
                       '-g \"' + param.five_prim_primer + ';min_overlap=' + str(len(param.five_prim_primer)-1) + '\" -G \"' + revcomp(param.three_prim_primer) + ';min_overlap=' + str(len(param.three_prim_primer)-1) + '\" --error-rate 0.1 --discard-untrimmed --match-read-wildcards --pair-filter=any ' + ' -o ' + out_R1_fastq + ' -p ' + out_R2_fastq + ' ' + in_R1_fastq + ' ' + in_R2_fastq + ' > ' + cutadapt_log + ' 2> ' + cutadapt_err,
                       '--version' )
         self.cutadapt_log = cutadapt_log
@@ -433,7 +572,7 @@ class MultiFilter(Cmd):
     """
     @summary : Filters sequences.
     """
-    def __init__(self, in_r1, in_r2, min_len, max_len, tag, out_r1, out_r2, log_file, param):
+    def __init__(self, in_r1, in_r2, min_len, max_len, max_n, tag, out_r1, out_r2, log_file, param):
         """
         @param in_fastq: [str] Path to the processed fastq.
         @param min_len, max_len [int] : minimum and maximum length filter criteria
@@ -447,25 +586,27 @@ class MultiFilter(Cmd):
         if param.sequencer == "454":
             cmd_description = 'Filters amplicons without primers by length, N count, homopolymer length and distance between quality low quality.',
             add_options = ' --max-homopolymer 7 --qual-window threshold:10 win_size:10'
-        if min_len > -1:
+        if min_len is not None:
             add_options += ' --min-length ' + str(min_len)
-        if max_len > -1:
+        if max_len is not None:
             add_options += ' --max-length ' + str(max_len)
         if not tag is None:
             add_options += ' --tag ' + tag
+        if not max_n is None:
+            add_options += ' --max-N ' + str(max_n)
             
         if in_r2 is None:
             Cmd.__init__( self,
               'filterSeq.py',
               'Filters amplicons without primers by length and N count.',
-              '--force-fasta --max-N 0' + add_options + ' --input-file1 ' + in_r1 + ' --output-file1 ' + out_r1 + ' --log-file ' + log_file,
+              '--force-fasta' + add_options + ' --input-file1 ' + in_r1 + ' --output-file1 ' + out_r1 + ' --log-file ' + log_file,
               '--version' )
         else:
 
             Cmd.__init__( self,
                           'filterSeq.py',
                           'Filters amplicons without primers by length and N count.',
-                          ' --max-N 0' + add_options + ' --input-file1 ' + in_r1 + ' --input-file2 ' + in_r2 + ' --output-file1 ' + out_r1 + ' --output-file2 ' + out_r2 + ' --log-file ' + log_file,
+                          add_options + ' --input-file1 ' + in_r1 + ' --input-file2 ' + in_r2 + ' --output-file1 ' + out_r1 + ' --output-file2 ' + out_r2 + ' --log-file ' + log_file,
                           '--version' )
         self.program_log = log_file
 
@@ -646,7 +787,34 @@ class DerepGlobalFastaCount(Cmd):
 #
 ##################################################################################################################################################
 
-###
+def replaceNtags(in_fasta, out_fasta):
+    """
+    @summary : for FROGS_combined sequence, replace N tags by A and record start and stop positions in description
+    @param : [str] Path to input fasta file
+    @param : [str] Path to output fasta file
+    """
+
+    FH_in = FastaIO(in_fasta)
+    FH_out = FastaIO(out_fasta, "wt")
+    for record in FH_in:
+        if "FROGS_combined" in record.id :
+            if not 100*"N" in record.string:
+                raise_exception(Exception("\n\n#ERROR : record " + record.id + " is a FROGS_combined sequence but it does not contain de 100N tags\n"))
+
+            N_idx1 = record.string.find("N")
+            N_idx2 = record.string.rfind("N")
+            replace_tag = 50*"A" + 50 * "C"
+            record.string = record.string.replace(100*"N",replace_tag)
+
+            if record.description :
+                record.description += "50A50C:" + str(N_idx1) + ":" + str(N_idx2)
+            else:
+                record.description = "50A50C:" + str(N_idx1) + ":" + str(N_idx2)
+        FH_out.write(record)
+
+    FH_in.close()
+    FH_out.close()
+
 def addNtags(in_fasta, output_fasta):
     """
     @summary : replace sequence indicated in seed description by N : ex A:10:110 replace 100A from 10 to 110 by N
@@ -783,7 +951,7 @@ def get_seq_length_by_sample( input_file, count_file):
     FH_seq.close()
     return nb_by_length
 
-def summarise_results( samples_names, lengths_files, log_files, param ):
+def summarise_results( samples_names, lengths_files, biom_file, depth_file, classif_file, log_files, param ):
     """
     @summary: Writes one summary of results from several logs.
     @param samples_names: [list] The samples names.
@@ -801,6 +969,116 @@ def summarise_results( samples_names, lengths_files, log_files, param ):
     for spl_idx, spl_name in enumerate(samples_names):
 
         filters = get_sample_results(log_files[spl_idx])
+        filters_by_sample["before process"][spl_name] = filters["before process"]
+        filters_by_sample["merged"][spl_name] = filters["merged"]
+
+        if "artificial combined" in filters:
+            if not "artificial combined" in filters_by_sample:
+                filters_by_sample["artificial combined"] = {}
+            filters_by_sample["artificial combined"][spl_name] = filters["artificial combined"]
+            # add total uncombined pair
+            filters_by_sample["artificial combined"][spl_name]["paired-end assembled"] = filters_by_sample["before process"][spl_name] - filters_by_sample["merged"][spl_name]["paired-end assembled"]
+
+        
+        # length distribution
+        with open(lengths_files[spl_idx]) as FH_lengths:
+            lenghts = json.load(FH_lengths)
+            before_lengths_by_sample[spl_name] = lenghts["before"]
+            after_lengths_by_sample[spl_name] = lenghts["after"]
+
+    # check length
+    b_count= 0
+    a_count = 0
+    
+    for sample in samples_names:
+        for l in before_lengths_by_sample[sample]:
+            b_count += before_lengths_by_sample[sample][l]
+        for l in after_lengths_by_sample[sample]:
+            a_count += after_lengths_by_sample[sample][l]
+    
+    # Get size distribution data
+    clusters_size = list()
+    counts = list()
+    FH_depth = open( depth_file )
+    for line in FH_depth:
+        if not line.startswith('#'):
+            fields = line.strip().split()
+            if fields[1] != "0":
+                clusters_size.append( int(fields[0]) )
+                counts.append( int(fields[1]) )
+    FH_depth.close()
+
+    # Get sample data
+    biom = BiomIO.from_json( biom_file )
+    samples_distrib = dict()
+    for sample_name in biom.get_samples_names():
+        shared_seq = 0
+        shared_observations = 0
+        own_seq = 0
+        own_observations = 0
+        for observation in biom.get_observations_by_sample(sample_name):
+            obs_count_in_spl = biom.get_count( observation['id'], sample_name )
+            if obs_count_in_spl != 0 and obs_count_in_spl == biom.get_observation_count(observation['id']):
+                own_observations += 1
+                own_seq += obs_count_in_spl
+            else:
+                shared_observations += 1
+                shared_seq += obs_count_in_spl
+        samples_distrib[sample_name] = {
+            'shared_seq': shared_seq,
+            'shared_observations': shared_observations,
+            'own_seq': own_seq,
+            'own_observations': own_observations
+        }
+    del biom
+
+    # Get newick data
+    FH_classif = open( classif_file )
+    newick = FH_classif.readlines()[0].replace("\n", "")
+    FH_classif.close()
+    
+    # Write
+    FH_summary_tpl = open( os.path.join(CURRENT_DIR, "preprocess_tpl.html") )
+    FH_summary_out = open( param.summary, "wt" )
+    for line in FH_summary_tpl:
+        if "###CLUSTERS_SIZES###" in line:
+            line = line.replace( "###CLUSTERS_SIZES###", json.dumps(clusters_size) )
+        elif "###DATA_COUNTS###" in line:
+            line = line.replace( "###DATA_COUNTS###", json.dumps(counts) )
+        elif "###DATA_SAMPLE###" in line:
+            line = line.replace( "###DATA_SAMPLE###", json.dumps(samples_distrib) )
+        elif "###NEWICK###" in line:
+            line = line.replace( "###NEWICK###", json.dumps(newick) )
+        elif "###FILTERS_CATEGORIES###" in line:
+            line = line.replace( "###FILTERS_CATEGORIES###", json.dumps(categories) )
+        elif "###FILTERS_DATA###" in line:
+            line = line.replace( "###FILTERS_DATA###", json.dumps(filters_by_sample) )
+        elif "###BEFORE_LENGTHS_DATA###" in line:
+            line = line.replace( "###BEFORE_LENGTHS_DATA###", json.dumps(before_lengths_by_sample) )
+        elif "###AFTER_LENGTHS_DATA###" in line:
+            line = line.replace( "###AFTER_LENGTHS_DATA###", json.dumps(after_lengths_by_sample) )
+        FH_summary_out.write( line )
+    FH_summary_out.close()
+    FH_summary_tpl.close()
+
+def summarise_results_dada2( samples_names, lengths_files, log_files, param ):
+    """
+    @summary: Writes one summary of results from several logs.
+    @param samples_names: [list] The samples names.
+    @param lengths_files: [list] The list of path to files containing the contiged sequences lengths (in samples_names order).
+    @param log_files: [list] The list of path to log files (in samples_names order).
+    @param param: [str] The 'param.summary' .
+    """
+    # Get data
+    categories = get_filter_steps(log_files[0])
+    filters_by_sample = {"before process":{}, "merged":{}}
+    before_lengths_by_sample = dict()
+    after_lengths_by_sample = dict()
+    
+    # recover all filter by sample
+    for spl_idx, spl_name in enumerate(samples_names):
+
+        filters = get_sample_results_dada2(log_files[spl_idx])
         filters_by_sample["before process"][spl_name] = filters["before process"]
         filters_by_sample["merged"][spl_name] = filters["merged"]
 
@@ -882,6 +1160,28 @@ def get_sample_results( log_file ):
     FH_input.close()
     return nb_seq
 
+def get_sample_results_dada2( log_file ):
+    """
+    @summary: Returns the sample results (number of sequences after each filters).
+    @param log_file: [str] Path to a log file.
+    @return: [list] The number of sequences after each filter.
+    """
+    nb_seq = {"before process":0, "merged":{}}
+    FH_input = open(log_file)
+    key="merged"
+    for line in FH_input:
+        if "combine_and_split" in line:            
+            key="artificial combined"
+            if key not in nb_seq:
+                nb_seq[key]={}
+        if line.strip().startswith('nb seq before process'):
+            nb_seq["before process"] = int(line.split(':')[1].strip())
+        elif line.strip().startswith('nb seq'):
+            step = line.split('nb seq')[1].split(':')[0].strip() 
+            nb_seq[key][step] = int(line.split(':')[1].strip()) 
+    FH_input.close()
+    return nb_seq
+
 def log_append_files( log_file, appended_files ):
     """
     @summary: Append content of several log files in one log file.
@@ -911,6 +1211,8 @@ def samples_from_tar( archive, contiged, global_tmp_files, R1_files, R2_files, s
     """
     R1_tmp = list()
     R2_tmp = list()
+    R1_samples_names = list()
+    R2_samples_names = list()
     tmp_folder = os.path.join( global_tmp_files.tmp_dir, global_tmp_files.prefix + "_tmp" )
     if not tarfile.is_tarfile(archive):
         raise_exception( Exception("\n\n#ERROR : The archive '" + archive + "' is not a tar file.\n\n"))
@@ -926,15 +1228,24 @@ def samples_from_tar( archive, contiged, global_tmp_files, R1_files, R2_files, s
             else:
                 if "_R1" in file_info.name or "_r1" in file_info.name:
                     samples_names.append( re.split('_[Rr]1', file_info.name)[0] )
+                    R1_samples_names.append( re.split('_[Rr]1', file_info.name)[0] )
                     R1_files.append( global_tmp_files.add(file_info.name) )
                     R1_tmp.append( os.path.join(tmp_folder, file_info.name) )
                 elif "_R2" in file_info.name or "_r2" in file_info.name:
                     R2_files.append( global_tmp_files.add(file_info.name) )
                     R2_tmp.append( os.path.join(tmp_folder, file_info.name) )
+                    R2_samples_names.append( re.split('_[Rr]2', file_info.name)[0] )
                 else:
                     raise_exception( Exception("\n\n#ERROR : The file '" + file_info.name + "' in archive '" + archive + "' is invalid. The files names must contain '_R1' or '_R2'.\n\n"))
         else:
             raise_exception( Exception("\n\n#ERROR : The archive '" + archive + "' must not contain folders."))
+    R1_files = sorted(R1_files)
+    R2_files = sorted(R2_files)
+    R1_samples_names = sorted(R1_samples_names)
+    R2_samples_names = sorted(R2_samples_names)
+    samples_names = sorted(samples_names)
+    if R1_samples_names != R2_samples_names:
+        raise_exception( Exception( "\n\n#ERORR : Samples names are not identical in the archive '" + archive + "'. R1 samples names : [" + ", ".join(R1_samples_names) + "] ; R2 samples names : [" + ", ".join(R2_samples_names) + "]\n\n" ))
     if len(R1_files) != len(R2_files) and not contiged:
         if len(R1_files) > len(R2_files):
             raise_exception( Exception( "\n\n#ERORR : " + str(len(R1_files) - len(R2_files)) + " R2 file(s) are missing in arhive '" + archive + "'. R1 file : [" + ", ".join(R1_files) + "] ; R2 files : [" + ", ".join(R2_files) + "]\n\n" ))
@@ -1065,12 +1376,19 @@ def clean_before_denoising_process(R1_file, R2_file, sample_name, R1_cutadapted_
     log_cutadapt = tmp_files.add( sample_name + '_cutadapt.log' )
     log_Nfilter = tmp_files.add( sample_name + '_Nfilter.log' )
     err_cutadapt = tmp_files.add( sample_name + '_cutadapt.err' )
+    
+    FH_log = open(log_file, "at")
+    FH_log.write('##Sample\nContiged file : ' + R1_file + '\nSample name : ' + sample_name + '\n')
+    FH_log.write('nb seq before process : ' + str(get_nb_seq(R1_file)) +'\n' )
+    FH_log.write('##Commands\n')
+    FH_log.close()
+    
     try:
         if args.five_prim_primer and args.three_prim_primer: # Illumina standard sequencing protocol
             CutadaptPaired(R1_file, R2_file, R1_tmp_cutadapt, R2_tmp_cutadapt, log_cutadapt, err_cutadapt, args).submit(log_file)
-            MultiFilter(R1_tmp_cutadapt, R2_tmp_cutadapt, 0, 1000, None, R1_cutadapted_and_filtered_file, R2_cutadapted_and_filtered_file, log_Nfilter, args).submit(log_file)
+            MultiFilter(R1_tmp_cutadapt, R2_tmp_cutadapt, 20, None, 0, None, R1_cutadapted_and_filtered_file, R2_cutadapted_and_filtered_file, log_Nfilter, args).submit(log_file)
         else: # Custom sequencing primers. The amplicons is full length (Illumina) except PCR primers (it is use as sequencing primers). [Protocol Kozich et al. 2013]
-            MultiFilter(R1_file, R2_file, 0, 1000, None, R1_cutadapted_and_filtered_file, R2_cutadapted_and_filtered_file, log_Nfilter, args).submit(log_file)
+            MultiFilter(R1_file, R2_file, 20, None, 0, None, R1_cutadapted_and_filtered_file, R2_cutadapted_and_filtered_file, log_Nfilter, args).submit(log_file)
     finally:
         if not args.debug:
             tmp_files.deleteAll()
@@ -1139,12 +1457,12 @@ def process_sample_after_denoising(R1_file, R2_file, sample_name, out_file, art_
 
     try:
         # Start log
-        FH_log = open(log_file, "wt")
+        FH_log = open(log_file, "at")
         if not args.already_contiged:
             FH_log.write('##Sample\nR1 : ' + R1_file + '\nR2 : ' + R2_file + '\nSample name : ' + sample_name + '\n')
         else:
             FH_log.write('##Sample\nContiged file : ' + R1_file + '\nSample name : ' + sample_name + '\n')
-        FH_log.write('nb seq before process : ' + str(get_nb_seq(R1_file)) +'\n' )
+        #FH_log.write('nb seq before process : ' + str(get_nb_seq(R1_file)) +'\n' )
         FH_log.write('##Commands\n')
         FH_log.close()
 
@@ -1167,14 +1485,14 @@ def process_sample_after_denoising(R1_file, R2_file, sample_name, out_file, art_
         min_len = args.min_amplicon_size - primers_size
         max_len = args.max_amplicon_size - primers_size
         # filter on length, N 
-        MultiFilter(out_contig, None, min_len, max_len, None, out_NAndLengthfilter, None, log_NAndLengthfilter, args).submit(log_file)
+        MultiFilter(out_contig, None, min_len, max_len, None, None, out_NAndLengthfilter, None, log_NAndLengthfilter, args).submit(log_file)
         
         # Get length before and after process
         length_dict = dict()
-        nb_before_by_legnth = get_seq_length( out_contig )
+        nb_before_by_legnth = get_seq_length( out_contig , size_separator=";size=")
         length_dict["before"]=nb_before_by_legnth
         
-        nb_after_by_legnth = get_seq_length( out_NAndLengthfilter )
+        nb_after_by_legnth = get_seq_length( out_NAndLengthfilter , size_separator=";size=")
         length_dict["after"] = nb_after_by_legnth
         
         with open(lengths_file, "wt") as FH_lengths:
@@ -1183,7 +1501,7 @@ def process_sample_after_denoising(R1_file, R2_file, sample_name, out_file, art_
         # dealing with uncontiged reads.
         if args.keep_unmerged:
             Combined(out_notcombined_R1, out_notcombined_R2, "X"*100, art_out_cutadapt ).submit(log_file)
-            MultiFilter(art_out_cutadapt, None, args.R1_size, -1, None, art_out_Nfilter, None, art_log_Nfilter, args).submit(log_file)
+            MultiFilter(art_out_cutadapt, None, args.R1_size, -1, None, None, art_out_Nfilter, None, art_log_Nfilter, args).submit(log_file)
             ReplaceJoinTag(art_out_Nfilter, "X"*100, "N"*100, art_out_XtoN ).submit(log_file)
             DerepBySample(out_NAndLengthfilter + " " + art_out_XtoN, out_file, out_count, size_separator="';size='").submit(log_file)
         
@@ -1304,7 +1622,7 @@ def process_sample(R1_file, R2_file, sample_name, out_file, art_out_file, length
                 renamed_out_contig = tmp_files.add( sample_name + '_454.fastq' ) # prevent cutadapt problem (type of file is checked by extension)
             shutil.copyfile( out_contig, renamed_out_contig ) # prevent symlink problem
             Remove454prim(renamed_out_contig, out_cutadapt, log_3prim_cutadapt, err_3prim_cutadapt, args).submit(log_file)
-        elif args.sequencer == "illumina" or args.sequencer == "hifi": # Illumina
+        elif args.sequencer == "illumina" or args.sequencer == "longreads": # Illumina
             if args.five_prim_primer and args.three_prim_primer: # Illumina standard sequencing protocol
                 Cutadapt5prim(out_contig, tmp_cutadapt, log_5prim_cutadapt, err_5prim_cutadapt, args).submit(log_file)
                 Cutadapt3prim(tmp_cutadapt, out_cutadapt, log_3prim_cutadapt, err_3prim_cutadapt, args).submit(log_file)
@@ -1317,7 +1635,7 @@ def process_sample(R1_file, R2_file, sample_name, out_file, art_out_file, length
         min_len = args.min_amplicon_size - primers_size
         max_len = args.max_amplicon_size - primers_size
         # filter on length, N 
-        MultiFilter(out_cutadapt, None, min_len, max_len, None, out_NAndLengthfilter, None, log_NAndLengthfilter, args).submit(log_file)
+        MultiFilter(out_cutadapt, None, min_len, max_len, 0, None, out_NAndLengthfilter, None, log_NAndLengthfilter, args).submit(log_file)
         
         # Get length before and after process
         length_dict = dict()
@@ -1339,7 +1657,7 @@ def process_sample(R1_file, R2_file, sample_name, out_file, art_out_file, length
             else: # Custom sequencing primers. The amplicons is full length (Illumina) except PCR primers (it is use as sequencing primers). [Protocol Kozich et al. 2013]
                 Combined(out_notcombined_R1, out_notcombined_R2, "X"*100, art_out_cutadapt ).submit(log_file)
             # filter on length, N 
-            MultiFilter(art_out_cutadapt, None, args.R1_size, -1, None, art_out_Nfilter, None, art_log_Nfilter, args).submit(log_file)
+            MultiFilter(art_out_cutadapt, None, args.R1_size, None, None, None, art_out_Nfilter, None, art_log_Nfilter, args).submit(log_file)
             ReplaceJoinTag(art_out_Nfilter, "X"*100, "N"*100, art_out_XtoN ).submit(log_file)
             DerepBySample(out_NAndLengthfilter + " " + art_out_XtoN, out_file, out_count).submit(log_file)
         else:
@@ -1398,7 +1716,7 @@ def process( args ):
             samples_from_tar( args.input_archive, args.already_contiged, tmp_files, R1_files, R2_files, samples_names )
         else:  # inputs are files
             R1_files = link_inputFiles(args.input_R1, tmp_files, args.log_file)
-            if args.sequencer == "illumina" or args.sequencer == "hifi":
+            if args.sequencer == "illumina" or args.sequencer == "longreads":
                 if args.R2_size is not None:
                     R2_files = link_inputFiles(args.input_R2, tmp_files, args.log_file)
 
@@ -1408,6 +1726,7 @@ def process( args ):
 
         if len(samples_names) != len(set(samples_names)):
             raise_exception( Exception( '\n\n#ERROR : Impossible to retrieve unique samples names from files. The sample name must be before the first dot.\n\n' ))
+        
         
         if args.swarm == True:
             # Tmp files
@@ -1429,28 +1748,62 @@ def process( args ):
             # Dereplicate global on combined filtered cutadapted multifiltered derep
             Logger.static_write(args.log_file, '##Sample\nAll\n##Commands\n')
             DerepGlobalMultiFasta(filtered_files, samples_names, tmp_files.add('derep_inputs.tsv'), args.output_dereplicated, args.output_count, args).submit( args.log_file )
-            summarise_results( samples_names, lengths_files, log_files, args )
+            
 
             # Check the number of sequences after filtering
             nb_seq = get_nb_seq(args.output_dereplicated)
             if  nb_seq == 0:
                 raise_exception( Exception( "\n\n#ERROR : The filters have eliminated all sequences (see summary for more details).\n\n" ))
-                
-            # Clustering
-            
-            if args.denoising and args.fastidious:
-                raise_exception( parser.error("\n#ERROR : --fastidious and --denoising are mutually exclusive.\n\n"))
-            if args.distance > 1 and args.fastidious:
-                raise_exception( parser.error("\n#ERROR : --fastidious is not allowed with d>1.\n\n"))
 
             # Temporary files
             filename_woext = os.path.split(args.output_fasta)[1].split('.')[0]
-            clustering_log = tmp_files.add( filename_woext + '_clustering_log.txt' )
-
-            Clustering(args.output_dereplicated, args.output_count, args.distance, args.fastidious, args.output_compo, args.output_fasta, args.output_biom, clustering_log, args.nb_cpus).submit( args.log_file)
-        
-        else:
+            #clustering_log = tmp_files.add( filename_woext + '_clustering_log.txt' )
             
+            #Clustering(args.output_dereplicated, args.output_count, args.distance, args.fastidious, args.output_compo, args.output_fasta, args.output_biom, clustering_log, args.nb_cpus).submit( args.log_file)
+            Logger.static_write(args.log_file, "## Application\nSoftware :" + sys.argv[0] + " (version : " + str(__version__) + ")\nCommand : " + " ".join(sys.argv) + "\n\n")
+
+            if args.distance == 1 and args.denoising:
+                Logger.static_write(args.log_file, "Warning: using the denoising option with a distance of 1 is useless. The denoising option is cancelled\n\n")
+                args.denoising = False
+
+            sorted_fasta = tmp_files.add( filename_woext + '_sorted.fasta' )
+            replaceN_fasta = tmp_files.add( filename_woext + '_sorted_NtoA.fasta' )
+            final_sorted_fasta = replaceN_fasta
+            swarms_file = args.output_compo
+            swarms_seeds = tmp_files.add( filename_woext + '_final_seeds.fasta' )
+            swarm_log = tmp_files.add( filename_woext + '_swarm_log.txt' )
+
+            SortFasta( args.output_dereplicated, sorted_fasta, args.debug ).submit( args.log_file )
+            Logger.static_write(args.log_file, "repalce 100 N tags by 50A-50C in: " + sorted_fasta + " out : "+ replaceN_fasta +"\n")
+            replaceNtags(sorted_fasta, replaceN_fasta)
+
+            if args.denoising and args.distance > 1:
+                # Denoising
+                denoising_log = tmp_files.add( filename_woext + '_denoising_log.txt' )
+                denoising_compo = tmp_files.add( filename_woext + '_denoising_composition.txt' )
+                denoising_seeds = tmp_files.add( filename_woext + '_denoising_seeds.fasta' )
+                denoising_resized_seeds = tmpFiles.add( filename_woext + '_denoising_resizedSeeds.fasta' )
+                swarms_file = tmp_files.add( filename_woext + '_swarmD' + str(args.distance) + '_composition.txt' )
+                final_sorted_fasta = tmp_files.add( filename_woext + '_denoising_sortedSeeds.fasta' )
+
+                Swarm( replaceN_fasta, denoising_compo, denoising_log, 1 , args.fastidious, args.nb_cpus ).submit( args.log_file )
+                ExtractSwarmsFasta( replaceN_fasta, denoising_compo, denoising_seeds ).submit( args.log_file )
+                resizeSeed( denoising_seeds, denoising_compo, denoising_resized_seeds ) # add size to seeds name
+                SortFasta( denoising_resized_seeds, final_sorted_fasta, args.debug, "_" ).submit( args.log_file )
+
+            Swarm( final_sorted_fasta, swarms_file, swarm_log, args.distance, args.fastidious, args.nb_cpus ).submit( args.log_file )
+
+            if args.denoising and args.distance > 1:
+                # convert cluster composition in read composition ==> final swarm composition
+                agregate_composition(denoising_compo, swarms_file, args.output_compo)
+
+            Swarm2Biom( args.output_compo, args.output_count, args.output_biom ).submit( args.log_file )
+            ExtractSwarmsFasta( final_sorted_fasta, swarms_file, swarms_seeds ).submit( args.log_file )
+            Logger.static_write(args.log_file, "replace 50A-50C  tags by N. in: " + swarms_seeds + " out : "+ args.output_fasta +"\n")
+            addNtags(swarms_seeds, args.output_fasta)
+            
+
+        else:
             R1_cutadapted_files = [tmp_files.add(current_sample + '_cutadapt_R1.fastq.gz') for current_sample in samples_names]
             R2_cutadapted_files = [tmp_files.add(current_sample + '_cutadapt_R2.fastq.gz') for current_sample in samples_names]
             lengths_files = [tmp_files.add(current_sample + '_lengths.json') for current_sample in samples_names]
@@ -1461,14 +1814,26 @@ def process( args ):
                 clean_before_denoising_process_multiples_files( R1_files, R2_files, samples_names, R1_cutadapted_files, R2_cutadapted_files, lengths_files, log_files, args )
             else:
                 parallel_submission( clean_before_denoising_process_multiples_files, R1_files, R2_files, samples_names, R1_cutadapted_files, R2_cutadapted_files, lengths_files, log_files, nb_processses_used, args)
-
+            # Write summary
+            log_append_files( args.log_file, log_files )
+            
             R_stderr = tmp_files.add("dada2.stderr")
             tmp_output_filenames = tmp_files.add("tmp_output_filenames")
             Logger.static_write(args.log_file, '##Sample\nAll\n##Commands\n')
             R1_files = [os.path.abspath(file) for file in R1_files]
             R2_files = [os.path.abspath(file) for file in R2_files]
 
-            Dada2Core(R1_cutadapted_files, R2_cutadapted_files, output_dir, args.nb_cpus, tmp_output_filenames, R_stderr, args.pseudo_pooling).submit(args.log_file)
+            #Logger.static_write(args.log_file, '##Sample\nAll\n##Commands\n')
+            
+            try:
+                Dada2Core(R1_cutadapted_files, R2_cutadapted_files, output_dir, args.nb_cpus, tmp_output_filenames, R_stderr, args.pseudo_pooling).submit(args.log_file)
+            except subprocess.CalledProcessError as e:
+                f = open(R_stderr,"r")
+                print(f.read())
+                raise_exception( Exception( "\n\n#ERROR : "+ "Error while running DADA2 \n\n" ))
+                
+
+                
             
             R1_files = list()
             R2_files = list()
@@ -1479,6 +1844,7 @@ def process( args ):
                     R2_files.append(li[1])
 
             filtered_files = [tmp_files.add(current_sample + '_filter.fasta') for current_sample in samples_names]
+            
             art_filtered_files = [tmp_files.add(current_sample + '_artComb_filter.fasta') for current_sample in samples_names]
             
             nb_processses_used = min( len(R1_files), args.nb_cpus )
@@ -1490,18 +1856,31 @@ def process( args ):
             # Write summary
             log_append_files( args.log_file, log_files )
             
-            # Dereplicate global on combined filtered cutadapted multifiltered derep
-            #
-            
+            # Global dereplication
             Logger.static_write(args.log_file, '##Sample\nAll\n##Commands\n')
             DerepGlobalMultiFasta(filtered_files, samples_names, tmp_files.add('derep_inputs.tsv'), args.output_dereplicated, args.output_count, args).submit( args.log_file )
-            summarise_results( samples_names, lengths_files, log_files, args )
+            summarise_results_dada2( samples_names, lengths_files, log_files, args )
 
             # Check the number of sequences after filtering
             nb_seq = get_nb_seq(args.output_dereplicated)
             if  nb_seq == 0:
                 raise_exception( Exception( "\n\n#ERROR : The filters have eliminated all sequences (see summary for more details).\n\n" ))
             to_biom_and_fasta(args.output_count, args.output_dereplicated, args.output_biom, args.output_fasta)
+    
+        Logger.static_write(args.log_file, "## Application\nSoftware :" + sys.argv[0] + " (version : " + str(__version__) + ")\nCommand : " + " ".join(sys.argv) + "\n\n")
+
+        classif_file = tmp_files.add( "HClassif.newick" )
+        classif_log = tmp_files.add( "HClassif_log.txt" )
+        #HClassification(args.output_biom, classif_file, classif_log, args.distance_method, args.linkage_method).submit( args.log_file )
+        HClassification(args.output_biom, classif_file, classif_log, "braycurtis", "average").submit( args.log_file )
+
+        depth_file = tmp_files.add( "depths.tsv" )
+        Depths(args.output_biom, depth_file).submit( args.log_file )
+        #if args.swarm == True:
+        summarise_results( samples_names, lengths_files, args.output_biom, depth_file, classif_file, log_files, args )
+        #else:
+        #    summarise_results_dada2( samples_names, lengths_files, args.output_biom, depth_file, classif_file, log_files, args )
+
 
     finally:    
         if not args.debug:
@@ -1673,47 +2052,46 @@ if __name__ == "__main__":
     group_illumina_output.add_argument( '-l', '--log-file', default=sys.stdout, help='This output file will contain several information on executed commands.')
 
 
-    parser_hifi = subparsers.add_parser( 'hifi', help='Hifi sequencers.', usage='''
-    preprocess.py hifi
+    parser_longreads = subparsers.add_parser( 'longreads', help='longreads sequencers.', usage='''
+    preprocess.py longreads
     --input-archive ARCHIVE_FILE | --input-R1 R1_FILE [R1_FILE ...]
     --min-amplicon-size MIN_AMPLICON_SIZE
     --max-amplicon-size MAX_AMPLICON_SIZE
-    --five-prim-primer FIVE_PRIM_PRIMER
-    --three-prim-primer THREE_PRIM_PRIMER
+    --without-primers | --five-prim-primer FIVE_PRIM_PRIMER --three-prim-primer THREE_PRIM_PRIMER
     [-p NB_CPUS] [--debug] [-v]
     [-d DEREPLICATED_FILE] [-c COUNT_FILE]
     [-s SUMMARY_FILE] [-l LOG_FILE]
 ''')
-    parser_hifi.add_argument( '--five-prim-primer', type=str, help="The 5' primer sequence (wildcards are accepted)." )
-    parser_hifi.add_argument( '--three-prim-primer', type=str, help="The 3' primer sequence (wildcards are accepted)." )
-    parser_hifi.add_argument( '--min-amplicon-size', type=int, required=True, help='The minimum size for the amplicons (with primers).' )
-    parser_hifi.add_argument( '--max-amplicon-size', type=int, required=True, help='The maximum size for the amplicons (with primers).' )
-    parser_hifi.add_argument( '--without-primers', action='store_true', default=False, help="Use this option when you use custom sequencing primers and these primers are the PCR primers. In this case the reads do not contain the PCR primers." )
-    parser_hifi.add_argument( '--R1-size', type=int, help='The read1 size.' )
-    parser_hifi.add_argument( '--R2-size', type=int, help='The read2 size.' )
-    parser_hifi.add_argument( '-p', '--nb-cpus', type=int, default=1, help="The maximum number of CPUs used. [Default: %(default)s]" )
-    parser_hifi.add_argument( '--debug', default=False, action='store_true', help="Keep temporary files to debug program." )
-    # parser_hifi.add_argument( '--already-contiged', action='store_true', default=False, help='The archive contains 1 file by sample : Reads 1 and Reads 2 are already contiged by pair.' )
-    group_hifi_input = parser_hifi.add_argument_group('Inputs')
-    group_hifi_input.add_argument('--samples-names', type=spl_name_type,
-                                  nargs='+', default=None, help='The sample name for each R1/R2-files.')
-    group_hifi_input.add_argument('--input-archive', default=None,
+    #     Long-reads parameters
+    parser_longreads.add_argument( '--min-amplicon-size', type=int, required=True, help='The minimum size for the amplicons (with primers).' )
+    parser_longreads.add_argument( '--max-amplicon-size', type=int, required=True, help='The maximum size for the amplicons (with primers).' )
+    parser_longreads.add_argument( '--five-prim-primer', type=str, help="The 5' primer sequence (wildcards are accepted)." )
+    parser_longreads.add_argument( '--three-prim-primer', type=str, help="The 3' primer sequence (wildcards are accepted)." )
+    parser_longreads.add_argument( '--without-primers', action='store_true', default=False, help="Use this option when you use custom sequencing primers and these primers are the PCR primers. In this case the reads do not contain the PCR primers." )
+    parser_longreads.add_argument( '-p', '--nb-cpus', type=int, default=1, help="The maximum number of CPUs used. [Default: %(default)s]" )
+    parser_longreads.add_argument( '--debug', default=False, action='store_true', help="Keep temporary files to debug program." )
+    # Long-reads inputs
+    group_longreads_input = parser_longreads.add_argument_group('Inputs')
+    group_longreads_input.add_argument('--input-archive', default=None,
                                   help='The tar file containing R1 file and R2 file for each sample (format: tar).')
-    group_hifi_input.add_argument( '--input-R1', required=None, nargs='+', help='The R1 sequence file for each sample (format: fastq). Required for single-ends OR paired-ends data.' )
-    group_hifi_input.add_argument( '--input-R2', required=None, nargs='+', help='The R2 sequence file for each sample (format: fastq). Required for paired-ends data.' )
-    group_clustering_hifi = parser_hifi.add_argument_group( 'Clustering options' )
-    group_clustering_hifi.add_argument( '-n', '--denoising', default=False, action='store_true',  help="denoise data by clustering read with distance=1 before perform real clustering. It is mutually exclusive with --fastidious." )
-    group_clustering_hifi.add_argument( '-d', '--distance', type=int, default=1, help="Maximum distance between sequences in each aggregation step. RECOMMENDED : d=1 in combination with --fastidious option [Default: %(default)s]" )
-    group_clustering_hifi.add_argument( '--fastidious', default=False, action='store_true',  help="use the fastidious option of swarm to refine OTU. RECOMMENDED in combination with a distance equal to 1 (-d). it is only usable with d=1 and mutually exclusive with --denoising." )
-    group_clustering_hifi.add_argument( '--output-compo', default='clustering_swarms_composition.tsv', help='This output file will contain the composition of each cluster (format: TSV). One Line is a cluster ; each column is a sequence ID. [Default: %(default)s]')
-    group_hifi_output = parser_hifi.add_argument_group( 'Outputs' )
-    group_hifi_output.add_argument( '--output-dereplicated', default='preprocess.fasta', help='FASTA file with unique sequences. Each sequence has an ID ended with the number of initial sequences represented (example : ">a0101;size=10"). [Default: %(default)s]')
-    group_hifi_output.add_argument( '-c', '--output-count', default='preprocess_counts.tsv', help='TSV file with count by sample for each unique sequence (example with 3 samples : "a0101<TAB>5<TAB>8<TAB>0"). [Default: %(default)s]')
-    group_hifi_output.add_argument( '-b', '--output-biom', default='clustering_abundance.biom', help='This output file will contain the abundance by sample for each OTU or ASV (format: BIOM). [Default: %(default)s]')
-    group_hifi_output.add_argument( '--output-fasta', default='sequences.fasta', help='This output file will contain the sequence for each OTU or ASV (format: FASTA). [Default: %(default)s]')
-    group_hifi_output.add_argument( '-s', '--summary', default='preprocess.html', help='The HTML file containing the graphs. [Default: %(default)s]')
-    group_hifi_output.add_argument( '-l', '--log-file', default=sys.stdout, help='This output file will contain several information on executed commands.')
-    parser_hifi.set_defaults( sequencer='hifi' )
+    group_longreads_input.add_argument('--samples-names', type=spl_name_type,
+                                  nargs='+', default=None, help='The sample name for each R1/R2-files.')
+    group_longreads_input.add_argument( '--input-R1', required=None, nargs='+', help='The R1 sequence file for each sample (format: fastq). Required for single-ends OR paired-ends data.' )
+    group_clustering_longreads = parser_longreads.add_argument_group( 'Clustering options' )
+    group_clustering_longreads.add_argument( '-n', '--denoising', default=False, action='store_true',  help="denoise data by clustering read with distance=1 before perform real clustering. It is mutually exclusive with --fastidious." )
+    group_clustering_longreads.add_argument( '-d', '--distance', type=int, default=1, help="Maximum distance between sequences in each aggregation step. RECOMMENDED : d=1 in combination with --fastidious option [Default: %(default)s]" )
+    group_clustering_longreads.add_argument( '--fastidious', default=False, action='store_true',  help="use the fastidious option of swarm to refine OTU. RECOMMENDED in combination with a distance equal to 1 (-d). it is only usable with d=1 and mutually exclusive with --denoising." )
+    group_clustering_longreads.add_argument( '--output-compo', default='clustering_swarms_composition.tsv', help='This output file will contain the composition of each cluster (format: TSV). One Line is a cluster ; each column is a sequence ID. [Default: %(default)s]')
+    # Long-reads outputs
+    group_longreads_output = parser_longreads.add_argument_group( 'Outputs' )
+    group_longreads_output.add_argument( '--output-dereplicated', default='preprocess.fasta', help='FASTA file with unique sequences. Each sequence has an ID ended with the number of initial sequences represented (example : ">a0101;size=10"). [Default: %(default)s]')
+    group_longreads_output.add_argument( '-c', '--output-count', default='preprocess_counts.tsv', help='TSV file with count by sample for each unique sequence (example with 3 samples : "a0101<TAB>5<TAB>8<TAB>0"). [Default: %(default)s]')
+    group_longreads_output.add_argument( '-s', '--summary', default='preprocess.html', help='The HTML file containing the graphs. [Default: %(default)s]')
+    group_longreads_output.add_argument( '-l', '--log-file', default=sys.stdout, help='This output file will contain several information on executed commands.')
+    group_longreads_output.add_argument( '-b', '--output-biom', default='clustering_abundance.biom', help='This output file will contain the abundance by sample for each OTU or ASV (format: BIOM). [Default: %(default)s]')
+    group_longreads_output.add_argument( '--output-fasta', default='sequences.fasta', help='This output file will contain the sequence for each OTU or ASV (format: FASTA). [Default: %(default)s]')
+    parser_longreads.set_defaults( sequencer='longreads', already_contiged=True, keep_unmerged=False )
+
     # 454
     parser_454 = subparsers.add_parser('454', help='454 sequencers.', usage='''
   preprocess.py 454
@@ -1763,10 +2141,7 @@ if __name__ == "__main__":
         if args.samples_names is not None: raise_exception( argparse.ArgumentTypeError( "\n\n#ERROR : With '--archive-file' parameter you cannot set the parameter '--samples-names'.\n\n" ))
         if args.sequencer == "illumina":
             if args.input_R2 is not None: raise_exception( argparse.ArgumentTypeError( "\n\n#ERROR : With '--archive-file' parameter you cannot set the parameter '--R2-files'.\n\n" ))
-        if args.sequencer == "hifi":
-            args.already_contiged = False
-            if args.input_R2 is None:
-                args.already_contiged = True
+        
     else:  # inputs are files
         if args.input_R1 is None: raise_exception( argparse.ArgumentTypeError( "\n\n#ERROR : '--R1-files' is required.\n\n" ))
         if args.samples_names is not None:
@@ -1774,21 +2149,19 @@ if __name__ == "__main__":
             if len(args.samples_names) != len(set(args.samples_names)):
                 duplicated_samples = set([name for name in args.samples_names if args.samples_names.count(name) > 1])
                 raise_exception( argparse.ArgumentTypeError( '\n\n#ERROR : Samples names must be unique (duplicated: "' + '", "'.join(duplicated_samples) + '").\n\n' ))
-        if args.sequencer == "hifi":
-            args.already_contiged = False
-            if args.input_R2 is None:
-                args.already_contiged = True
-        if args.sequencer == "illumina" or args.sequencer == "hifi":
+        
+        if args.sequencer == "illumina" or args.sequencer == "longreads":
             if not args.already_contiged and args.input_R2 is None: raise_exception( argparse.ArgumentTypeError( "\n\n#ERROR : '--R2-files' is required.\n\n" ))
 
-    if args.sequencer == "illumina" or args.sequencer == "hifi":
-        if (args.R1_size is None or args.R2_size is None ) and not args.already_contiged: raise_exception( Exception( "\n\n#ERROR : '--R1-size/--R2-size' or '--already-contiged' must be setted.\n\n" ))
+    if args.sequencer == "illumina" or args.sequencer == "longreads":
         if args.without_primers:
             if args.five_prim_primer or args.three_prim_primer: raise_exception( argparse.ArgumentTypeError( "\n\n#ERROR : The option '--without-primers' cannot be used with '--five-prim-primer' and '--three-prim-primer'.\n\n" ))
         else:
             if args.five_prim_primer is None or args.three_prim_primer is None: raise_exception( argparse.ArgumentTypeError( "\n\n#ERROR : '--five-prim-primer/--three-prim-primer' or 'without-primers'  must be setted.\n\n" ))
             if args.min_amplicon_size <= (len(args.five_prim_primer) + len(args.three_prim_primer)): raise_exception( argparse.ArgumentTypeError( "\n\n#ERROR : The minimum length of the amplicon (--min-length) must be superior to the size of the two primers, i.e "+str(len(args.five_prim_primer) + len(args.three_prim_primer)) + "\n\n"))
+
     if args.sequencer == "illumina":
+        if (args.R1_size is None or args.R2_size is None ) and not args.already_contiged: raise_exception( Exception( "\n\n#ERROR : '--R1-size/--R2-size' or '--already-contiged' must be setted.\n\n" ))
         if (args.already_contiged and args.keep_unmerged): raise_exception( Exception("\n\n#ERROR : --already-contiged and keep-unmerged options cannot be used together\n\n"))
         if (not args.already_contiged):
             if args.merge_software == "flash":
@@ -1796,12 +2169,15 @@ if __name__ == "__main__":
 
         if args.mismatch_rate and args.mismatch_rate < 0 or args.mismatch_rate > 1:
             raise_exception( argparse.ArgumentTypeError( "\n\n#ERROR : mismatch-rate option need to be included between 0 and 1.\n\n" ))
-        if args.dada2 and args.already_contiged:
-            raise_exception( argparse.ArgumentTypeError( "\n\n#ERROR : Denoising needs to deal with both R1 and R2 FASTQ files. --already-contiged option is incompatible with --dada2 option.\n\n" ))
 
-    if args.sequencer == "hifi":
+    if args.sequencer == "longreads":
         args.swarm = True
         args.keep_unmerged = False
+        
+    if args.denoising and args.fastidious:
+        raise_exception( parser.error("\n#ERROR : --fastidious and --denoising are mutually exclusive.\n\n"))
+    if args.distance > 1 and args.fastidious:
+        raise_exception( parser.error("\n#ERROR : --fastidious is not allowed with d>1.\n\n"))
 
     # Process
     process( args )

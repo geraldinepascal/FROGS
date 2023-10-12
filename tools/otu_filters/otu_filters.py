@@ -343,11 +343,8 @@ def minAbundParameter( arg_value ):
     cleaned_value = float(str_value) if "." in str_value or "e-" in str_value else int(str_value)
     return cleaned_value
 
-
-
 def process( args ):
     tmpFiles = TmpFiles( os.path.split(args.output_biom)[0] )
-
     try:
         discards = dict() # by filter the discard file path
 
@@ -364,6 +361,7 @@ def process( args ):
                 label = "Abundance < " + str(args.min_abundance*100) + "% (i.e " + str(min_nb_seq) + " sequences )"
             else:
                 label = "Abundance < " + str(args.min_abundance)
+            del biom
             discards[label] = tmpFiles.add( "min_abundance" )
             excluded_obs_on_abundance( args.input_biom, args.min_abundance, discards[label] )
 
