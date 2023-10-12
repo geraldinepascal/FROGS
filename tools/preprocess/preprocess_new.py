@@ -1322,7 +1322,6 @@ def get_nb_seq( reads_file ):
 def filter_process_multiples_files(R1_files, R2_files, samples_names, out_files, out_art_files, lengths_files, log_files, args):
     """
     @summary: filters sequences of samples.
-    @param sequencer: [str] Either illumina, longreads or 454.
     @param R1_files: [list] List of path to reads 1 fastq files or contiged files (one by sample).
     @param R2_files: [list] List of path to reads 2 fastq files (one by sample).
     @param samples_names: [list] The list of sample name for each R1/R2-files.
