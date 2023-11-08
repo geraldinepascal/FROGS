@@ -19,7 +19,7 @@
 __author__ = 'Frederic Escudie - Plateforme bioinformatique Toulouse'
 __copyright__ = 'Copyright (C) 2015 INRA'
 __license__ = 'GNU General Public License'
-__version__ = '3.2.3'
+__version__ = '4.1.0'
 __email__ = 'frogs-support@inrae.fr'
 __status__ = 'prod'
 
@@ -52,7 +52,7 @@ def process( in_biom, out_biom, out_metadata ):
     unclassified_observations = list()
 
     FH_metadata = open( out_metadata, "wt" )
-    FH_metadata.write( "#OTUID\t" + "\t".join([item for item in ordered_blast_keys]) + "\n" )
+    FH_metadata.write( "ASVID\t" + "\t".join([item for item in ordered_blast_keys]) + "\n" )
     biom = BiomIO.from_json( in_biom )
     for observation in biom.get_observations():
         for metadata_key in list(observation["metadata"].keys()):
@@ -69,7 +69,7 @@ def process( in_biom, out_biom, out_metadata ):
                 if isinstance(observation["metadata"][metadata_key], list) or isinstance(observation["metadata"][metadata_key], tuple):
                     observation["metadata"][metadata_key] = ";".join( map(str, observation["metadata"][metadata_key]) )
         if "blast_taxonomy" in observation["metadata"]:
-            if observation["metadata"]["blast_taxonomy"] is None:
+            if observation["metadata"]["blast_taxonomy"] is None or len(observation["metadata"]["blast_taxonomy"])==0:
                 unclassified_observations.append( observation["id"] )
                 observation["metadata"]["taxonomy"] = list()
             else:
