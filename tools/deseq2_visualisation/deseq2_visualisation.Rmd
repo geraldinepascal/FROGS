@@ -1,11 +1,11 @@
 ---
-title: "FROGSSTAT DESeq2: Visualisation (version 3.2.3)"
+title: "FROGSSTAT DESeq2: Visualisation (version 4.1.0)"
 output: 
   html_notebook:
     code_folding: hide
 params:
-  # Path to phyloseq_object
-  phyloseq_data:
+  # Path to abundances table phyloseq_object
+  abundance_data:
     value: x
   # DESeq2 preprocessed input
   dds:
@@ -20,7 +20,21 @@ params:
   mod2:
     value: x
   # adjusted pvalue threshold
-  padj:
+  padj_th:
+    value: x
+  # Type of analysis
+  analysis:
+    value: x
+  # iPath functions svg file
+  ipath_over:
+    value: x
+  ipath_under:
+    value: x
+  svg_file_over:
+    value: x
+  svg_file_under:
+    value: x
+  libdir:
     value: x
 ---
 
@@ -32,7 +46,7 @@ knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
 Phyloseq `r packageVersion("phyloseq")` and DESeq2 `r packageVersion("DESeq2")`
 
 # {.tabset .tabset-fade .tabset-pills}
-## Differentially abundant OTU table
+## Differentially abundant ASV/FUNCTION table
 
 ```{r packages, echo=FALSE, code_folding="show"}
 library(phyloseq)
@@ -41,41 +55,54 @@ library(ggplot2)
 # dealing with table
 library(DT)
 library(dplyr)
+source(file.path(params$libdir, "process_ipath.R")) 
 ```
-
-Since we only have a binary factor we can use the following syntax to format the log2 fold change from the fitted model
-if not, we will use the other syntax with contrast=c()
 
 ```{r import}
 # Import input files
-phyloseq_input <- get(load(params$phyloseq_data))
+abundances_input <- get(load(params$abundance_data))
 dds_input     <- get(load(params$dds))
+base_name <- dirname(params$dds)
+run_ipath <- ifelse(params$analysis == "ASV", FALSE, TRUE)
 result_names <- DESeq2::resultsNames(dds_input)
+
+# doc <- ""
+# if(length(result_names) == 2 || params$mod1 == "None"){
+#      results <- DESeq2::results(dds, name = result_names[1])
+# } else if(length(result_names)>=3){
+#      results <- DESeq2::results(dds_input, contrast = c(params$var, params$mod1, params$mod2) )
+#      doc <- paste0("You chose to compare ", params$mod1, " to the reference modality ", params$mod2, ". This implies that a positive log2FoldChange means more abundant in ", params$mod1, " than in ", params$mod2, ".")
+#      cat(doc)
+# }
 doc <- ""
-if(length(result_names) == 2 || params$mod1 == "None"){
+# quantitative variable
+if(params$mod1 == "None"){
      results <- DESeq2::results(dds, name = result_names[1])
-} else if(length(result_names)>=3){
+# qualitative variable
+} else {
      results <- DESeq2::results(dds_input, contrast = c(params$var, params$mod1, params$mod2) )
      doc <- paste0("You chose to compare ", params$mod1, " to the reference modality ", params$mod2, ". This implies that a positive log2FoldChange means more abundant in ", params$mod1, " than in ", params$mod2, ".")
      cat(doc)
 }
+
+#This implies that a positive log2FoldChange means more abundant in low than in high.")
 ```
 
-Then we extract significant OTUs at the p-value adjusted threshold level (after correction) and enrich results with taxonomic informations and sort taxa by pvalue.
+Then we extract significant ASVs or FUNCTIONs at the p-value adjusted threshold (after Benjamini Hochberg correction) and enrich results with taxonomic/functional classification and sort the results by pvalue.
 
-```{r da_otus}
+```{r da_abundances}
 
-da.otus_table <- results %>% as_tibble(rownames = "OTU") %>% 
-	inner_join(tax_table(phyloseq_input) %>% as.data.frame() %>% mutate(OTU = taxa_names(phyloseq_input)), by = "OTU") %>% 
-    filter(padj < params$padj) %>%  
+da.abundances_table <- results %>% as_tibble(rownames = "ID") %>% 
+	inner_join(tax_table(abundances_input) %>% as.data.frame() %>% mutate(ID = taxa_names(abundances_input)), by = "ID") %>% 
+    filter(padj < params$padj_th) %>% 
     arrange(padj)
 
 ```
 
-Using customize datatable we can explore the table of differentially expressed OTUs
+Using customize datatable we can explore the table of differentially expressed abundances
 ```{r datatable, message=FALSE}
 
-DT_foldchange <- da.otus_table %>% datatable(filter = "top",                # ==> add filter for each column
+DT_foldchange <- da.abundances_table %>% datatable(filter = "top",                # ==> add filter for each column
                                              extensions = 'Buttons' , 
                                              options = list(dom = '<fBtlip>', 
                                                 scrollX = TRUE, 
@@ -92,26 +119,115 @@ DT_foldchange <- da.otus_table %>% datatable(filter = "top",                # ==
 DT_foldchange
 ```
 
+```{r prepare_ipath3, eval=run_ipath, echo=run_ipath}
+
+func_sign_over <- da.abundances_table %>% 
+  filter(log2FoldChange > 0 ) %>%
+  select(ID, log2FoldChange, padj) %>%
+  mutate(ID = gsub("EC:", "EC", ID))
+
+func_sign_under <- da.abundances_table %>% 
+  filter(log2FoldChange < 0 ) %>%
+  select(ID, log2FoldChange, padj) %>%
+  mutate(ID = gsub("EC:", "EC", ID))
+# gsub for create valid EC numbers for iPath3.
+
+func_sign_over <- func_sign_over %>% 
+  mutate(Color = if_else(log2FoldChange < 1, "#DE894E",
+   if_else(log2FoldChange < 2, "#B26E3E ", "#9B6037 "))) %>%
+  mutate(Width = if_else(padj < 0.001, "W11",
+   if_else(padj < 0.01, "W10", "W9")))
+
+# func_sign_over <- func_sign_over %>% 
+#   mutate(Color = if_else(log2FoldChange < 1, "#9B6037",
+#    if_else(log2FoldChange < 2, "#B26E3E ", "#DE894E "))) %>%
+#   mutate(Width = if_else(padj < 0.001, "W12",
+#    if_else(padj < 0.01, "W10", "W8")))
+
+func_sign_under <- func_sign_under %>% 
+  mutate(Color = if_else(log2FoldChange > -1, "#B0C6C5",
+   if_else(log2FoldChange > -2, "#8EADAC", "#637978")))%>%
+  mutate(Width = if_else(padj < 0.001, "W11",
+   if_else(padj < 0.01, "W10", "W9")))
+
+# func_sign_over <- func_sign_over %>% 
+#   mutate(Color = if_else(log2FoldChange < 1, "#B0C6C5",
+#    if_else(log2FoldChange < 2, "#8EADAC	", "#637978	"))) %>%
+#   mutate(Width = if_else(padj < 0.001, "W12",
+#    if_else(padj < 0.01, "W10", "W8")))
+
+# func_sign_under <- func_sign_under %>% 
+#   mutate(Color = if_else(log2FoldChange > -1, "#9B6037",
+#    if_else(log2FoldChange > -2, "#B26E3E", "#DE894E")))%>%
+#   mutate(Width = if_else(padj < 0.001, "W12",
+#    if_else(padj < 0.01, "W10", "W8")))
+
+func_sign_over <- func_sign_over %>% select(ID, Color, Width)
+func_sign_under <- func_sign_under %>% select(ID, Color, Width)
+
+dir_name <- dirname(params$svg_file_over)
+
+write.table(func_sign_over, file= params$ipath_over, sep=" ", quote=FALSE, row.names = FALSE)
+write.table(func_sign_under, file= params$ipath_under, sep=" ", quote=FALSE, row.names = FALSE)
+svg_file_over <- params$svg_file_over
+svg_file_under <- params$svg_file_under
+```
+
+```{asis, eval=run_ipath, echo=run_ipath}
+## iPath3
+
+### Differentially abundant functions visualized with iPath 3.
+```
+```{r doc_path, eval=run_ipath, echo=run_ipath, message=FALSE}
+# Import input files
+if(params$mod1 != "None") {
+     doc <- paste0("You chose to compare ", params$mod1, " to the reference modality ", params$mod2, ". This implies that the over-abundants pathways (first image) and under-abundant pathways (second image) are involved in ", params$mod1, " condition.")
+     cat(doc)
+} else {
+     doc <- paste0("The first image (green paths) represents the over-abundants involved pathways. The second image (red paths) represents the under-abundant pathways.")
+     cat(doc)
+}
+```
+
+```{asis, eval=run_ipath, echo=run_ipath}
+The darker the path, the higher the absolute log2 fold change (<=1, <=2, or >2).
+
+To visualise and explore metabolic pathways with [IPATH3 website](https://pathways.embl.de/),  use the two files 
+**ipath_under.tsv** and **ipath_over.tsv** as inputs. 
+```
+
+```{r ipath3, eval=run_ipath, echo=run_ipath}
+process_iPath(params$ipath_over, svg_file_over)
+process_iPath(params$ipath_under, svg_file_under)
+```
+
+```{r, eval=run_ipath, echo=run_ipath}
+setwd(dir_name)
+knitr::include_graphics(basename(params$svg_file_over))
+
+knitr::include_graphics(basename(params$svg_file_under))
+```
+
 ## Pie chart
 ```{r pie, fig.width=8, fig.height=6}
 
 da_pie <- data.frame(
-    OTUs=c("Differentially Abundant (log-fold change > 0)",
+    IDs=c("Differentially Abundant (log-fold change > 0)",
             "Differentially Abundant (log-fold change < 0)",
-            "Not Differentiallly Abundant"
+            "Not Differentially Abundant"
         ),
-    Number=c(sum(da.otus_table$log2FoldChange > 0), 
-        sum(da.otus_table$log2FoldChange < 0), 
-        nrow(results) - nrow(da.otus_table)
+    Number=c(sum(da.abundances_table$log2FoldChange > 0), 
+        sum(da.abundances_table$log2FoldChange < 0), 
+        nrow(results) - nrow(da.abundances_table)
         )
     )
 
-Pie <- ggplot(da_pie, aes(x="", y=Number, fill=OTUs)) + 
+Pie <- ggplot(da_pie, aes(x="", y=Number, fill=IDs)) + 
            geom_bar(stat = "identity") + 
            coord_polar("y", start=0) + 
            scale_fill_manual(values=c('#8EADAC', '#DE9F73', '#C0C0C0')) + 
            geom_text(aes(label = Number), position = position_stack(vjust = 0.5), color = "white") +
-           labs(x = NULL, y = NULL, fill = NULL, title = "Pie chart to view OTUs number of Differential Abundance test") +
+           labs(x = NULL, y = NULL, fill = NULL, title = "Pie chart to view ASVs or FUNCTIONs number of Differential Abundance test") +
            theme_classic() + theme(
                 axis.line = element_blank(), 
                 axis.text = element_blank(),
@@ -123,18 +239,18 @@ Pie
 ## Volcano plot
 ```{r volcano, fig.width=10, fig.height=8}
 ## Volcano plot by DESeq2
-# Add OTU names
+# Add ASV/FUNCTION names
 # Add the -log10 pvalue 
 # Add the pre-calculated log2 fold change
 da_volcano <- data.frame(
-    otu      = row.names(results),
+    id      = row.names(results),
     evidence = -log10(results$padj), 
     lfc      = results$log2FoldChange)
 
 # Remove rows that have NA values
 da_volcano <- na.omit(da_volcano)
 # add a threshol line
-y_axix_volcano_line <- -log10(params$padj)
+y_axix_volcano_line <- -log10(params$padj_th)
 
 # Modify dataset to add new coloumn of colors
 da_volcano <- da_volcano %>%
@@ -157,7 +273,7 @@ volcano_plot <- ggplot(da_volcano, aes(x = lfc, y = evidence)) +
     geom_vline(xintercept = 0, colour = "grey80", linetype = 2) +                                # add line at 0
     geom_hline(aes(yintercept = y_axix_volcano_line), yintercept = y_axix_volcano_line, colour = "grey80", linetype = 2) +
     annotate(geom = "text", 
-        label = paste("padj =", params$padj), 
+        label = paste("padj =", params$padj_th), 
         x = min(da_volcano$lfc), 
         y = y_axix_volcano_line + 0.25, 
         size = 4,
@@ -175,41 +291,48 @@ volcano_plot + scale_y_continuous(trans = "log1p")
 
 ## Could do with built-in DESeq2 function:
 DESeq2::plotMA(results, ylim = c(-10,10),
-    ylab = "log2 fold change", alpha=params$padj,
+    ylab = "log2 fold change", alpha=params$padj_th,
     cex  = 0.8, colNonSig="#C0C0C0", colSig="#A2A32F", colLine="#C0C0C0",
     main = "Post Normalisation DESeq2: MA plot of log2FoldChange",
     legend = TRUE)
 ```
 
 ## Heatmap plot
-```{r heatmap, fig.width=10, fig.height=8}
 
-da.otus_table <- da.otus_table %>% arrange(log2FoldChange)
+```{r echo = FALSE, eval = (nrow(da.abundances_table) == 0)}
+cat("There are no differentially abundant ASVs or FUNCTIONs. Please use a higher threshold for the adjusted p-value or consider a different comparison.")
+```
 
+```{r heatmap, fig.width=10, fig.height=8, eval = (nrow(da.abundances_table) > 0)}
+
+da.abundances_table <- da.abundances_table %>% arrange(log2FoldChange)
+y_title <- ifelse(params$analysis == "ASV", "ASV", "Functions")
 if ( length(result_names)==2 || params$mod1 != "None"){
 
     subtitle <- result_names[2]
     if ( params$mod1!= "None" ){
-    	phyloseq_input <- prune_samples(get_variable(phyloseq_input, params$var) %in% c(params$mod1, params$mod2), phyloseq_input)
+    	abundances_input <- prune_samples(get_variable(abundances_input, params$var) %in% c(params$mod1, params$mod2), abundances_input)
         subtitle <- paste(sep="", params$var, "_", params$mod1, "_vs_", params$mod2)
     }
 
     ##Heatmap plot with 2 conditions
-	hplot <- plot_heatmap(prune_taxa(da.otus_table$OTU, phyloseq_input), 
+	hplot <- plot_heatmap(prune_taxa(da.abundances_table$ID, abundances_input), 
 						  taxa.label = NULL,
-						  taxa.order = da.otus_table$OTU, low = "yellow", high = "red", na.value = "white") + 
+						  taxa.order = da.abundances_table$ID, low = "yellow", high = "red", na.value = "white") +
+                scale_y_discrete(y_title) +  
 				facet_grid(as.formula(paste("~", params$var)), scales = "free_x") + 
-				ggtitle("Heatmap plot of DA otus, between 2 conditions", subtitle = subtitle)
+				ggtitle("Heatmap plot of DA asv or functions, between 2 conditions", subtitle = subtitle)
 ## Quantitative variable
 } else {
-    idx <- order(get_variable(phyloseq_input, params$var))
-    my.sample.order <- sample_names(phyloseq_input)[idx]
+    idx <- order(get_variable(abundances_input, params$var))
+    my.sample.order <- sample_names(abundances_input)[idx]
     ##Heatmap plot with all conditions of variable
-    hplot <- plot_heatmap(prune_taxa(da.otus_table$OTU, phyloseq_input), 
+    hplot <- plot_heatmap(prune_taxa(da.abundances_table$ID, abundances_input), 
     					  taxa.label = NULL,
-    	                  taxa.order = da.otus_table$OTU, sample.order = my.sample.order, 
+    	                  taxa.order = da.abundances_table$ID, sample.order = my.sample.order, 
     	                  low = "yellow", high = "red", na.value = "white") + 
-             ggtitle(paste0("Heatmap plot of DA otus with samples ordered according to ", params$var))
+             scale_y_discrete(y_title) +
+             ggtitle(paste0("Heatmap plot of DA asv or functions with samples ordered according to ", params$var))
 }
 # ggplotly(hplot)
 hplot
