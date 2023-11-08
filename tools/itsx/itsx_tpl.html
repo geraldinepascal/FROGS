@@ -19,7 +19,7 @@
 	<head>
 		<title>FROGS ITSx</title>
 		<meta charset="UTF-8">
-		<meta name="version" content="3.2.3">
+		<meta name="version" content="4.1.0">
 		<link rel="stylesheet" href="https://cdn.datatables.net/1.10.19/css/dataTables.bootstrap4.min.css"></link>
 		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.1.1/css/bootstrap.css"></link>
 		<link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
@@ -288,7 +288,7 @@
 					['Kept', global_results['nb_clstr_kept']],
 					['Removed', (global_results['nb_clstr_ini'] - global_results['nb_clstr_kept'])]
 				];
-				$('#nb-filtered').highcharts( pie_param('OTUs', nb_filtered_data, 'OTUs') );
+				$('#nb-filtered').highcharts( pie_param('ASVs', nb_filtered_data, 'ASVs') );
 				
 				// Results by sequences
 				var abundance_filtered_data = [
@@ -307,7 +307,7 @@
 					
 					sample_table_data.push( sample_data );
 				}
-				$('#' + container_id).append( table("OTUs removed by sample", sample_table_titles, sample_table_data) );
+				$('#' + container_id).append( table("ASVs removed by sample", sample_table_titles, sample_table_data) );
 				$('#' + container_id + ' table').prop( 'id', 'details-table' );
 				$('#' + container_id + ' table').DataTable({
 					"sDom": '<"top"<"#details-csv-export"><"clear">lf>rt<"bottom"ip><"clear">'
