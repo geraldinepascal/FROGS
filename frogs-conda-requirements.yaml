@@ -3,9 +3,9 @@ channels:
   - bioconda
 dependencies:
 # bioconda
-   - frogs =4.1.0
-   - emboss =6.6.0
-   - flash =1.2.11  
+  - frogs =4.1.0
+  - emboss =6.6.0
+  - flash =1.2.11  
 # need to be >=2.8
   - cutadapt =2.10
   # need to be >=2.1
