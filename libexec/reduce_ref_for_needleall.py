@@ -95,16 +95,17 @@ def extract_ref(input_blast_R1, input_blast_R2, input_ref, output_ref):
 
     # extract ref
     c = 0
+    FH_in = FastaIO(input_ref)
     if len(best_ref) > 0 :
-        FH_in = FastaIO(input_ref)
         FH_out = FastaIO(output_ref,"wt")
-        for record in FH_in:
-            c += 1
-            if record.id in best_ref:
-                FH_out.write(record)
-    
+    for record in FH_in:
+        c += 1
+        if record.id in best_ref:
+            FH_out.write(record)
+
+    if len(best_ref) > 0 :
         FH_out.close()
-        FH_in.close()
+    FH_in.close()
 
     return c,len(best_ref)
 
@@ -116,6 +117,8 @@ def process(params):
     Logger.static_write(params.log_file, "# Parsing blast alignment results to reduce reference databse\n")
     nb_tot, nb_ref = extract_ref(params.query_blast_R1, params.query_blast_R2, params.reference, params.output_fasta)
     Logger.static_write(params.log_file, "\tReducing reference databases from " + str(nb_tot) + " to " + str(nb_ref) + " sequences\n\n")
+    if nb_ref == 0 :
+        Logger.static_write(params.log_file, "None of the FROGS_combined sequences can be aligned to the reference database. Global alignment with needlall will not be launched.\n")
 
     
 ###################################################################################################################
