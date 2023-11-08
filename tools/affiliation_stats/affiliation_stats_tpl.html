@@ -17,13 +17,22 @@
 -->
 <html>
 	<head>
-		<title>FROGS Cluster stat</title>
+		<title>FROGS Affiliations stat</title>
 		<meta charset="UTF-8">
-		<meta name="version" content="3.2.3">
+		<meta name="version" content="4.1.0">
 		<!-- CSS -->
 		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.1.1/css/bootstrap.css"></link>
 		<link rel="stylesheet" href="https://cdn.datatables.net/1.10.19/css/dataTables.bootstrap4.min.css"></link>
 		<link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+		<style type="text/css">
+			/*
+			 * jDistrib 0.1.0 - CSS jDistrib Library	
+			 *		 
+			 * Copyright (c) 2015 Escudie Frederic
+			 * Licensed under the MIT (http://www.opensource.org/licenses/mit-license.php) license.
+			 */
+			#sunburst-graph{margin-left:auto;margin-right:auto}.jDistrib-walk-rank{height:100%;margin-right:2px;padding:8px;float:left;border-top-right-radius:7px;border-bottom-right-radius:7px;cursor:pointer;box-shadow:1px 1px 1px #555}.jDistrib-walk-rank-size{margin-left:5px;padding:4px;background-color:#FFF;color:#648a89;border-radius:9px;text-align:center;font-size:10px;font-family:sans-serif}.jDistrib-root-label{font-weight:700;cursor:pointer}.jDistrib-arc-label{cursor:pointer}.jDistrib-arc{cursor:pointer;stroke:#fff;fill-rule:evenodd}.jDistrib-tooltip{position:absolute;padding:10px;font:12px sans-serif;background:#8EADAC;border:0;border-radius:8px;pointer-events:none}.jDistrib-empty-details{color:#fff;background-color:#8EADAC;padding:15px;margin-bottom:20px;border:1px solid transparent;border-radius:4px}.jDistrib-table-details>tbody>tr:nth-of-type(2n+1){background-color:#F5F5F5}.jDistrib-table-details{border:1px solid #DDD;border-radius:8px;border-spacing:1px;border-collapse:separate}.jDistrib-table-details td,th{padding:2px 8px}.jDistrib-table-details .number{text-align:right}.jDistrib-export-toggle{height:30px;width:30px;padding:1px}.jDistrib-export-toggle div{background-color:#636363;border-radius:2px;height:3px;margin-top:2px;margin-bottom:2px}
+		</style>
 		<style type="text/css">
 			#js-alert {
 				width: 90%;
@@ -35,91 +44,60 @@
 				margin-right: auto;
 				margin-left: auto;
 			}
+			ul.nav-tabs {
+				margin-bottom: 30px;
+			}
 			.clear {
 				clear: both;
 				height: 0px;
 				width: 100%;
 				float: none !important;
 			}
-			ul.nav-tabs {
-				margin-bottom: 30px;
-			}
-			#hc-graph {
-				height: 500px;
-				overflow: auto;
-			}
-			#hc-warning {
-				margin-top: 8px;
-			}
-			#hc-newick {
-				width: 90%;
-				position: absolute;
-				background-color: white;
-				border: 1px solid lightgrey;
-				border-radius:5px;
-				padding: 5px 5px 5px 5px;
-				margin-top: 10px;
-			}
-			#dispersion {
-				height: 1000px;
-			}
-			#twofigs{
-				height: 600px;
-			}
-			.label-badge {
-				position: absolute;
-				top: -10px;
-				left: -10px;
-			}
-			.badge-primary{
-				background-color:#8EADAC;
-			}
-			.graph-nb {
-				color: #95959C;
-				font-style: italic;
-				text-align: center;
-			}
-			.circle {
-				border-style: solid;
-				border-width: 3px;
-				border-radius: 50px;
-				box-shadow: 2px 2px 2px #555;
-				border-color: #648a89;
-				background: radial-gradient( #8EADAC, #648a89);
-				color: white;
-				padding: 10px;
-				width: 180px;
-				height: 98px;
-				line-height: 30px;
-				text-align: center;
+			.set-datatype {
+				width: 200px;
 				margin-left: auto;
 				margin-right: auto;
-				margin-bottom: 10px;
+			}
+			.table-action {
 				vertical-align: middle;
+				margin-right: 20px;
 			}
-			.circle-value {
-				font-weight: bold;
+			.fusion-left {
+				position:relative;
+				z-index:2;		
+				margin-right: 0px;
+				margin-bottom: 0px;
+				border-top-left-radius: 4px;
+				border-bottom-left-radius: 4px;
 			}
-			.d3-node {
-				cursor: pointer;
+			.fusion-right {
+				border-top-left-radius: 0px;
+				border-bottom-left-radius: 0px;
+				margin-left:-6px;
 			}
-			.d3-node-dot {
-				fill: #fff;
-				stroke: #8EADAC;
-				stroke-width: 3px;
+			select.table-action {
+				padding: 6px 12px;
+				font-size: 14px;
+				font-weight: 400;
+				line-height: 1.42857;
+				box-shadow: 0px 1px 1px rgba(0, 0, 0, 0.075);
+				color: #555;
+				background-color: #FFF;
+				background-image: none;
+				border: 1px solid #CCC;
 			}
-			.d3-collapsed-node {
-				fill: #8EADAC;
-				stroke: #648a89;
-				stroke-width: 3px;
+			#sunburst-detail table {
+				margin-left: auto;
+				margin-right: auto;
+			}	
+			#sunburst-detail p {
+				text-align: center;
 			}
-			.d3-node text {
-				font: 13px sans-serif;
+			#sunburst-menu input {
+				margin-right: 10px;
 			}
-			.d3-link {
-				fill: none;
-				stroke: #648a89;
-				stroke-width: 2px;
+			#display-global-sunburst {
+				margin-bottom: 40px;
 			}
 			.page-item.active .page-link {
 				z-index: 1;
@@ -174,6 +152,73 @@
 			.page-item.active .page-link {
 				color: #fff;
 			}
+			/* ##### THEME FOR CHECKBOXES ##### */
+			.container {
+				position: relative;
+				padding-left: 0px;
+				margin-bottom: 15px;
+				cursor: pointer;
+				-webkit-user-select: none;
+				-moz-user-select: none;
+				-ms-user-select: none;
+				user-select: none;
+			}
+
+			/* Hide the browser's default checkbox */
+			.container input {
+				position: absolute;
+				opacity: 0;
+				cursor: pointer;
+			}
+
+			/* Create a custom checkbox */
+			.checkmark {
+				position: absolute;
+				top: 0;
+				left: 0;
+				height: 20px;
+				width: 20px;
+				background-color: #8EADAC;
+				border-radius: 5px;
+				opacity:0.65;
+			}
+
+			/* On mouse-over, add a grey background color */
+			.container:hover input ~ .checkmark {
+				background-color: #648a89;
+			}
+
+			/* When the checkbox is checked, add a blue background */
+			.container input:checked ~ .checkmark {
+				background-color: #8EADAC;
+				opacity:1;
+			}
+
+			/* Create the checkmark/indicator (hidden when not checked) */
+			.checkmark:after {
+				content: "";
+				position: absolute;
+				display: none;
+			}
+
+			/* Show the checkmark when checked */
+			.container input:checked ~ .checkmark:after {
+				display: block;
+			}
+
+			/* Style the checkmark/indicator */
+			.container .checkmark:after {
+				left: 7px;
+				top: 3px;
+				width: 6px;
+				height: 10px;
+				border: solid white;
+				border-width: 0 3px 3px 0;
+				-webkit-transform: rotate(45deg);
+				-ms-transform: rotate(45deg);
+				transform: rotate(45deg);
+			}
+			/* ##### END THEME CHECKBOXES ##### */
 			.highcharts-button > path{
 				stroke:#fff !important;
 				fill:#8EADAC !important;
@@ -193,10 +238,12 @@
 		<script type="text/javascript" src="https://code.jquery.com/jquery-2.1.3.min.js"></script>
 		<script type="text/javascript" src="https://code.highcharts.com/8.2.0/highcharts.js"></script>
 		<script type="text/javascript" src="https://code.highcharts.com/8.2.0/highcharts-more.js"></script>
+		<script type="text/javascript" src="https://code.highcharts.com/8.2.0/modules/heatmap.js"></script>
 		<script type="text/javascript" src="https://code.highcharts.com/8.2.0/modules/exporting.js"></script>
 		<script type="text/javascript" src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
 		<script type="text/javascript" src="https://cdn.datatables.net/1.10.19/js/dataTables.bootstrap4.min.js"></script>
 		<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js" integrity="sha384-smHYKdLADwkXOn1EmN1qk/HfnUcbVRZyYmZ4qpPea6sjB/pTJ0euyQp0Mk8ck+5T" crossorigin="anonymous"></script>
+		
 		<script type="text/javascript">
 			/*
 			 * d3 v3 - JavaScript d3 Library
@@ -210,12 +257,23 @@
 		</script>
 		<script type="text/javascript">
 			/*
-			 * Node 0.1.0 - JavaScript Node Library
+			 * jDistrib alpha version - JavaScript jDistrib Library
 			 *
 			 * Copyright (c) 2015 Escudie Frederic
 			 * Licensed under the MIT (http://www.opensource.org/licenses/mit-license.php) license.
 			 */
-			var Node=function(e,t,n,r){if(this.name=e,this.parent=t,this.children=new Array,null!=n)for(var i=0;i<n.length;i++)this.addChild(n[i]);this.metadata=new Array,null!=r&&(this.metadata=r)};Node.fromNewick=function(e){for(var t=new Array,n=0;n<e.length;n++){var r=e[n];if("("==r)t.push("(");else if(")"==r){for(var i=new Node(null,null,null,null);"("!=t[t.length-1];)i.addChild(t.pop());t.pop(),t.push(i)}else if(","==r);else if(";"==r);else if(":"==r){for(var h="";","!=e[n+1]&&")"!=e[n+1]&&";"!=e[n+1];)n++,h+=e[n];t[t.length-1].metadata.dist=h}else{'"'==r?(stop_markers=['"'],n++):stop_markers=[",",")",":",";"];for(var o=e[n];-1==stop_markers.indexOf(e[n+1]);)n++,o+=e[n];-1!=stop_markers.indexOf('"')&&n++;var l=new Node(o,null,null,null);t.push(l)}}return t[0]},Node.prototype.toNewick=function(){},Node.prototype.toJson=function(){var e={name:null!=this.name?this.name:""};if(this.hasChild()){for(var t=new Array,n=0;n<this.children.length;n++)t.push(this.children[n].toJson());e.children=t}return e},Node.prototype.getLeavesNames=function(){var e=new Array;if(this.hasChild())for(var t=0;t<this.children.length;t++)for(var n=this.children[t].getLeavesNames(),r=0;r<n.length;r++)e.push(n[r]);else e.push(this.name);return e},Node.prototype.nbLeaves=function(){var e=0;if(this.hasChild())for(var t=0;t<this.children.length;t++)e+=this.children[t].nbLeaves();else e=1;return e},Node.prototype.maxDepth=function(){var e=0;if(this.hasChild())for(var t=0;t<this.children.length;t++)e=Math.max(e,this.children[t].maxDepth());return 1+e},Node.prototype.toAsciiTree=function(e){null==e&&(e=0);var t="--- "+(null!=this.name?this.name:"ancestor")+" ";e+=t.length;for(var n=0;n<this.children.length;n++)t+="\n"+Array(e).join(" ")+"\\"+this.children[n].toAsciiTree(e);return t},Node.prototype.toString=function(){var e="Node: "+this.name;return e+="\n	Parent="+(null!=this.parent?this.parent.name:"-"),e+=this.hasChild()?"\n	Children="+Object.keys(this.children).join(", "):"\n	Children=-"},Node.prototype.hasChild=function(e){if(null==e)return this.children.length>0;for(var t=!1,n=0;n<this.children.length&&!t;n++)e==this.children[n]&&(t=!0);return t},Node.prototype.getChild=function(e){if(!this.hasChild(e))throw this.name+" doesn't have child named '"+e+"'.";return this.children[e]},Node.prototype.getParent=function(){return this.parent},Node.prototype.addChild=function(e){null==e.parent&&(e.parent=this),this.children.push(e)};
+			var jDistrib={pg_selector:{sunburst:null,walktrace:null,menu:null,detail:null},access:{graph:null,tooltip:null},graph:{sunburst:{padding:30,width:null,height:null,_radius:null,_arc:null,_x:null,_y:null},labels:{padding:7,font_size:15},colors:{set:["#7cb5ec","#434348","#90ed7d","#f7a35c","#8085e9","#f15c80","#e4d354","#2b908f","#f45b5b","#91e8e1"],neutral:"#dadaeb",radialization:15,start_depth:1}},tree:{current_root:null,root_size:0}},cJDistrib=function(t,e){Object.deepExtend(jDistrib,e),null==jDistrib.pg_selector.menu||d3.select(jDistrib.pg_selector.menu).empty()||_setMenu(),null==jDistrib.pg_selector.detail||d3.select(jDistrib.pg_selector.detail).empty()||(jQuery(jDistrib.pg_selector.sunburst).on("jd.walk",function(){clearDetails()}),jQuery(jDistrib.pg_selector.sunburst).on("jd.displayDetails",function(t,e){displayDetails(e)})),null==jDistrib.pg_selector.walktrace||d3.select(jDistrib.pg_selector.walktrace).empty()||jQuery(jDistrib.pg_selector.sunburst).on("jd.walk",function(t,e){walkTraceUpdate(e)}),_setSVG(),_load(t),walkTo(jDistrib.tree.current_root,0)},_setSVG=function(){var t=d3.select(jDistrib.pg_selector.sunburst).append("svg").attr("width",jDistrib.graph.sunburst.width).attr("height",jDistrib.graph.sunburst.height).append("g").attr("transform","translate("+jDistrib.graph.sunburst.width/2+","+jDistrib.graph.sunburst.height/2+")");jDistrib.access.graph=t,jDistrib.graph._radius=Math.min(jDistrib.graph.sunburst.width,jDistrib.graph.sunburst.height)/2-jDistrib.graph.sunburst.padding,(jDistrib.graph.sunburst.padding>=jDistrib.graph.sunburst.width+10||jDistrib.graph.sunburst.padding>=jDistrib.graph.sunburst.height+10)&&(jDistrib.graph._radius=Math.min(jDistrib.graph.sunburst.width,jDistrib.graph.sunburst.height)/2),jDistrib.graph._x=d3.scale.linear().range([0,2*Math.PI]),jDistrib.graph._y=d3.scale.pow().exponent(1.3).domain([0,1]).range([0,jDistrib.graph._radius]),jDistrib.graph._arc=d3.svg.arc().startAngle(function(t){return getStartAngle(t)}).endAngle(function(t){return getEndAngle(t)}).innerRadius(function(t){return getInnerRadius(t)}).outerRadius(function(t){return getOuterRadius(t)}),jDistrib.access.tooltip=d3.select(jDistrib.pg_selector.sunburst).append("div").attr("class","jDistrib-tooltip").style("opacity",0)},_load=function(t){jDistrib.tree.current_root=t,jDistrib.tree.root_size=getSize(t);var e=d3.layout.partition().value(function(t){return t.size});addID(t,0),addDepth(t,0);d3.select(jDistrib.pg_selector.sunburst+" g").datum(t).selectAll("path").data(e.nodes).enter().append("path").attr("d",jDistrib.graph._arc).attr("class","jDistrib-arc").attr("id",function(t){return"sb-arc-"+t.sunburst_id}).on("click",click).on("dblclick",dblclick).on("mousemove",hover).on("mouseout",function(){hideTooltip()}).each(stash),getColorsByFirstNodes(t);changeColorDepth(jDistrib.graph.colors.start_depth)},hover=function(t){displayTooltip(t)},click=function(t){jQuery(jDistrib.pg_selector.sunburst).trigger("jd.displayDetails",[t])},dblclick=function(t){walkTo(t)};Object.deepExtend=function(t,e){for(var r in e)"object"==typeof e[r]&&null!==e[r]?(t[r]=t[r]||{},arguments.callee(t[r],e[r])):t[r]=e[r];return t};var getStartAngle=function(t){return Math.max(0,Math.min(2*Math.PI,jDistrib.graph._x(t.x)))},getEndAngle=function(t){return Math.max(0,Math.min(2*Math.PI,jDistrib.graph._x(t.x+t.dx)))},getInnerRadius=function(t){return Math.max(0,t.y?jDistrib.graph._y(t.y):t.y)},getOuterRadius=function(t){return Math.max(0,jDistrib.graph._y(t.y+t.dy))},stash=function(t){t.x0=t.x,t.dx0=t.dx},brancheSizes=function(t){var e=new Array,r=t;for(e.unshift({name:r.name,size:getSize(r),node:r});r.hasOwnProperty("parent")&&null!=r.parent;)r=r.parent,e.unshift({name:r.name,size:getSize(r),node:r});return e},sunburstUpdate=function(t,e){e=null==e?1e3:e,removeLabels(),d3.selectAll(jDistrib.pg_selector.sunburst+" path").transition().duration(e).attrTween("d",arcTweenZoom(t)),setTimeout(function(){addLabels()},e)},walkTo=function(t,e){jQuery(jDistrib.pg_selector.sunburst).trigger("jd.walk",[t]),jDistrib.tree.current_root=t,sunburstUpdate(t,e)},arcTweenData=function(t,e){function r(e){var r=i(e);return t.x0=r.x,t.dx0=r.dx,jDistrib.graph._arc(r)}var i=d3.interpolate({x:t.x0,dx:t.dx0},t);if(0==e){var n=d3.interpolate(x.domain(),[jDistrib.tree.current_root.x,jDistrib.tree.current_root.x+jDistrib.tree.current_root.dx]);return function(t){return x.domain(n(t)),r(t)}}return r},arcTweenZoom=function(t){var e=d3.interpolate(jDistrib.graph._x.domain(),[t.x,t.x+t.dx]),r=d3.interpolate(jDistrib.graph._y.domain(),[t.y,1]),i=d3.interpolate(jDistrib.graph._y.range(),[t.y?20:0,jDistrib.graph._radius]);return function(t,n){return n?function(){return jDistrib.graph._arc(t)}:function(n){return jDistrib.graph._x.domain(e(n)),jDistrib.graph._y.domain(r(n)).range(i(n)),jDistrib.graph._arc(t)}}},colorComponentToHexa=function(t){var e=t.toString(16);return e.length<2&&(e="0"+e),e},RGBToHexa=function(t,e,r){return colorComponentToHexa(t)+colorComponentToHexa(e)+colorComponentToHexa(r)},hexa2RGB=function(t){return[parseInt(t.substring(0,2),16),parseInt(t.substring(2,4),16),parseInt(t.substring(4,6),16)]},colorToWhite=function(t,e){var r=new Array;if(0===t.indexOf("#"))r=hexa2RGB(t.substr(1));else if(0===t.indexOf("rgb(")){r=t.substr(4,t.length-1).split(",");for(var i=0;3>i;i++)r[i]=parseInt(r[i])}for(var n="#",i=0;3>i;i++)n+=colorComponentToHexa(Math.min(255,r[i]+e));return n},getNodeByDepthSorted=function(t,e){var r=new Array;if(t.depth==e)r.push(t);else if(t.depth<e&&t.hasOwnProperty("children")&&0!=t.children.length)for(var i=t.children.sort(function(t,e){return getSize(e)-getSize(t)}),n=0;n<i.length;n++)for(var s=getNodeByDepth(i[n],e),a=0;a<s.length;a++)r.push(s[a]);return r},getColorsByFirstNodes=function(t){for(var e=getNodeByDepthSorted(t,t.depth+jDistrib.graph.colors.start_depth),r=new Array,i=0;i<e.length;i++)r["sb-arc-"+e[i].sunburst_id]=jDistrib.graph.colors.set[i%jDistrib.graph.colors.set.length];return r},getColorToApply=function(t,e){return t.depth<jDistrib.graph.colors.start_depth?jDistrib.graph.colors.neutral:t.depth==jDistrib.graph.colors.start_depth?e["sb-arc-"+t.sunburst_id]:colorToWhite(d3.select("#sb-arc-"+t.parent.sunburst_id).style("fill"),jDistrib.graph.colors.radialization)},getNodeByDepth=function(t,e){var r=new Array;if(t.depth==e)r.push(t);else if(t.depth<e&&t.hasOwnProperty("children")&&0!=t.children.length)for(var i=0;i<t.children.length;i++)for(var n=getNodeByDepth(t.children[i],e),s=0;s<n.length;s++)r.push(n[s]);return r},addDepth=function(t,e){if(t.depth=e,t.hasOwnProperty("children")&&0!=t.children.length)for(var r=0;r<t.children.length;r++)addDepth(t.children[r],e+1)},addID=function(t,e){if(e+=1,t.sunburst_id=e,t.hasOwnProperty("children")&&0!=t.children.length)for(var r=0;r<t.children.length;r++)e=addID(t.children[r],e);return e},getSize=function(t){if(t.hasOwnProperty("size"))return t.size;if(t.hasOwnProperty("children")&&0!=t.children.length){for(var e=0,r=0;r<t.children.length;r++)e+=getSize(t.children[r]);return e}},getRoot=function(t){for(var e=t;e.hasOwnProperty("parent")&&null!=e.parent;)e=e.parent;return e},addLabels=function(){0!=jDistrib.tree.current_root.depth&&d3.select(jDistrib.pg_selector.sunburst+" g").append("text").text(jDistrib.tree.current_root.depth).attr("class","jDistrib-root-label").attr("text-anchor","middle").attr("x",0).attr("y",0).on("dblclick",function(){walkTo(jDistrib.tree.current_root.parent)}),d3.selectAll(jDistrib.pg_selector.sunburst+" path").each(function(t){if(t==jDistrib.tree.current_root||isChildOf(t,jDistrib.tree.current_root)){var e=getEndAngle(t)-getStartAngle(t),r=getInnerRadius(t),i=Math.sin(e/2)*r*2,n=getOuterRadius(t)-r,s=r+(getOuterRadius(t)-r)/2,a=s*e;a>=n?setLabelArcMode(t,a,n):setLabelLineMode(t,n,i,r,e)}})},setLabelArcMode=function(t,e,r){if(r>=jDistrib.graph.labels.font_size){var i=d3.select(jDistrib.pg_selector.sunburst+" g"),n=t.name;"root"==t.name&&(n=""),i.append("text").text(n).attr("id","evaluate-size").attr("white-space","nowrap").attr("visibility","hidden").style("font-size",jDistrib.graph.labels.font_size+"px");var s=d3.select("#evaluate-size")[0][0].getBBox().width+jDistrib.graph.labels.padding;if(jDistrib.graph.labels.padding>e-3)n="";else for(;s>e-3;)n=n.substring(0,n.length-1),d3.select("#evaluate-size").text(n),s=d3.select("#evaluate-size")[0][0].getBBox().width+jDistrib.graph.labels.padding;d3.select("#evaluate-size").remove(),0!=n.length&&n.length<t.name.length&&(n=n.length>1?n.substring(0,n.length-1)+".":""),n.length>0&&i.append("text").attr("class","jDistrib-arc-label").attr("dy",(getOuterRadius(t)-getInnerRadius(t))/2).style("font-size",jDistrib.graph.labels.font_size+"px").attr("text-rendering","optimizeLegibility").append("textPath").attr("xlink:href",function(){return"#sb-arc-"+t.sunburst_id}).attr("startOffset",jDistrib.graph.labels.padding).text(function(){return n}).on("click",function(){click(t)}).on("dblclick",function(){walkTo(t)}).on("mousemove",function(){displayTooltip(t)}).on("mouseout",function(){hideTooltip()})}},setLabelLineMode=function(t,e,r,i,n){var s=d3.select(jDistrib.pg_selector.sunburst+" g"),a=!1;if(n>=Math.PI&&2*i>jDistrib.graph.labels.font_size?a=!0:r>jDistrib.graph.labels.font_size&&(a=!0),a){var l=t.name;if("root"==t.name&&(l=""),t.hasOwnProperty("children")&&0!=t.children.length){s.append("text").text(l).attr("id","evaluate-size").attr("white-space","nowrap").attr("visibility","hidden").style("font-size",jDistrib.graph.labels.font_size+"px");var o=d3.select("#evaluate-size")[0][0].getBBox().width+jDistrib.graph.labels.padding;if(jDistrib.graph.labels.padding>e-3)l="";else for(;o>e-3;)l=l.substring(0,l.length-1),d3.select("#evaluate-size").text(l),o=d3.select("#evaluate-size")[0][0].getBBox().width+jDistrib.graph.labels.padding;d3.select("#evaluate-size").remove(),0!=l.length&&l.length<t.name.length&&(l=l.length>1?l.substring(0,l.length-1)+".":"")}l.length>0&&s.append("text").text(function(){return l}).attr("class","jDistrib-arc-label").style("font-size",jDistrib.graph.labels.font_size+"px").attr("dy",".35em").attr("text-anchor",function(){return jDistrib.graph._x(t.x+t.dx/2)>Math.PI?"end":"start"}).attr("transform",function(){var e=180*jDistrib.graph._x(t.x+t.dx/2)/Math.PI-90;return"rotate("+e+")translate("+(jDistrib.graph._y(t.y)+jDistrib.graph.labels.padding)+")rotate("+(e>90?-180:0)+")"}).on("click",function(){click(t)}).on("dblclick",function(){walkTo(t)}).on("mousemove",function(){displayTooltip(t)}).on("mouseout",function(){hideTooltip()})}},removeLabels=function(){d3.selectAll(jDistrib.pg_selector.sunburst+" .jDistrib-arc-label").remove(),d3.selectAll(jDistrib.pg_selector.sunburst+" .jDistrib-root-label").remove()},isChildOf=function(t,e){return t.depth<=e.depth?!1:t.depth-1==e.depth?t.parent==e:isChildOf(t.parent,e)},hideTooltip=function(){jDistrib.access.tooltip.transition().duration(500).style("opacity",0)},displayTooltip=function(t){jDistrib.access.tooltip.html(getTooltipContent(t)).style("left",d3.event.layerX+5+"px").style("top",d3.event.layerY-30+"px"),jDistrib.access.tooltip.transition().duration(200).style("opacity",.9)},getTooltipContent=function(t){return 0==jDistrib.tree.current_root.depth?t.name+": <b>"+(getSize(t)/jDistrib.tree.root_size*100).toFixed(3)+"%</b>":t.name+":<br />Total <b>"+(getSize(t)/jDistrib.tree.root_size*100).toFixed(3)+"%</b><br />"+jDistrib.tree.current_root.name+" <b>"+(getSize(t)/getSize(jDistrib.tree.current_root)*100).toFixed(3)+"%</b>"},walkTraceUpdate=function(t){var e=brancheSizes(t),r=d3.select(jDistrib.pg_selector.walktrace);r.selectAll(".jDistrib-walk-path").remove();for(var i=r.append("div").attr("class","jDistrib-walk-path"),n=0;n<e.length;n++){var s=i.append("div").attr("class","jDistrib-walk-rank").attr("style","background-color:#8EADAC;color:#fff");s.append("span").attr("class","jDistrib-walk-rank-name").html(e[n].name),0!=n&&s.append("span").attr("class","jDistrib-walk-rank-size").html((parseInt(e[n].size)/parseInt(e[n-1].size)*100).toFixed(1)),s.data([e[n].node]),s.on("click",function(){walkTo(d3.select(this)[0][0].__data__)})}i.append("div").attr("style","clear:both")},_setMenu=function(){d3.select(jDistrib.pg_selector.menu).append("label").attr("for","in-label-size").text("Font size: "),d3.select(jDistrib.pg_selector.menu).append("input").attr("id","in-label-size").attr("type","number").attr("min",1).attr("value",jDistrib.graph.labels.font_size).on("change",function(){d3.select("#in-color-depth")[0][0].value<1&&(d3.select("#in-color-depth")[0][0].value=1),changeLabelSize(d3.select("#in-label-size")[0][0].value)});var t=7;d3.select(jDistrib.pg_selector.menu).append("label").attr("for","in-color-depth").text("Colors start depth: "),d3.select(jDistrib.pg_selector.menu).append("input").attr("id","in-color-depth").attr("type","number").attr("min",1).attr("max",t).attr("value",jDistrib.graph.colors.start_depth).on("change",function(){d3.select("#in-color-depth")[0][0].value<1?d3.select("#in-color-depth")[0][0].value=1:d3.select("#in-color-depth")[0][0].value>t&&(d3.select("#in-color-depth")[0][0].value=t),changeColorDepth(d3.select("#in-color-depth")[0][0].value)})},changeLabelSize=function(t){jDistrib.graph.labels.font_size=t,removeLabels(),addLabels()},changeColorDepth=function(t){jDistrib.graph.colors.start_depth=t;var e=getColorsByFirstNodes(getRoot(jDistrib.tree.current_root));d3.select(jDistrib.pg_selector.sunburst+" g").selectAll("path").style("fill",function(t){return getColorToApply(t,e)})},clearDetails=function(){d3.select(jDistrib.pg_selector.detail).html(""),d3.select(jDistrib.pg_selector.detail).append("div").attr("class","jDistrib-empty-details").text("Click on an element to see more details.")},displayDetails=function(t){for(var e=brancheSizes(t),r="",i=0;i<e.length;i++){var n="";n+="<td>"+e[i].name+"</td>",n+='<td class="number">'+e[i].size+"</td>",0!=i?(n+='<td class="number">'+(parseInt(e[i].size)/parseInt(e[0].size)*100).toFixed(3)+"</td>",n+='<td class="number">'+(parseInt(e[i].size)/parseInt(e[i-1].size)*100).toFixed(3)+"</td>"):(n+="<td></td>",n+="<td></td>"),r+="<tr>"+n+"</tr>"}d3.select(jDistrib.pg_selector.detail).html('<table class="jDistrib-table-details">	<thead>		<tr>			<th>Name</th>			<th>Size</th>			<th>Global %</th>			<th>Parent %</th>		</tr>	</thead>	<tbody>'+r+"</tbody></table><p>"+t.name+" nb children: "+(void 0==t.children?0:t.children.length)+"</p>")},exportSVG=function(){console.log("export"),d3.select(jDistrib.pg_selector.sunburst+" .jDistrib-data-export").empty()&&d3.select(jDistrib.pg_selector.sunburst).append("a").attr("class","jDistrib-data-export").attr("href","").attr("download","").attr("style","display:none;");var t=d3.select(jDistrib.pg_selector.sunburst+" svg");console.log(t[0][0]),xml=(new XMLSerializer).serializeToString(t[0][0]),svg_data="data:application/octet-stream;base64,"+btoa(xml),d3.select(jDistrib.pg_selector.sunburst+" .jDistrib-data-export").attr("href",svg_data).attr("download","jDistribChart.svg"),jQuery(jDistrib.pg_selector.sunburst+" .jDistrib-data-export")[0].click()};
+		</script>
+		<script type="text/javascript">
+			/*
+			 * ExtendedNode 1.0.0 - JavaScript ExtendedNode Library
+			 *
+			 * Copyright (c) 2015 INRA
+			 * 
+			 * @author: Escudié Frédéric
+			 * @license: MIT (http://www.opensource.org/licenses/mit-license.php) license.
+			 */
+			var ExtendedNode=function(e,t,n,r){if(this.name=e,this.parent=t,this.children=new Array,null!=n)for(var a=0;a<n.length;a++)this.addChild(n[a]);this.metadata=new Array,null!=r&&(this.metadata=r)};ExtendedNode.prototype.hasChild=function(e){if(null==e)return this.children.length>0;for(var t=!1,n=0;n<this.children.length&&!t;n++)e==this.children[n]&&(t=!0);return t},ExtendedNode.prototype.getChild=function(e){if(!this.hasChild(e))throw this.name+" doesn't have child named '"+e+"'.";return this.children[e]},ExtendedNode.prototype.getParent=function(){return this.parent},ExtendedNode.prototype.getNodeByDepth=function(e){var t=new Array;if(0==e)t.push(this);else if(this.hasChild())for(var n=0;n<this.children.length;n++)for(var r=this.children[n].getNodeByDepth(e-1),a=0;a<r.length;a++)t.push(r[a]);return t},ExtendedNode.prototype.addChild=function(e){null==e.parent&&(e.parent=this),this.children.push(e)},ExtendedNode.fromNewick=function(e){for(var t=new Array,n=0;n<e.length;n++){var r=e[n];if("("==r)t.push("(");else if(")"==r){for(var a=new ExtendedNode(null,null,null,null);"("!=t[t.length-1];)a.addChild(t.pop());t.pop(),t.push(a)}else if(","==r);else if(";"==r);else if(" "==r);else if(":"==r)if("{"==e[n+1]){for(metadata_json="{",n++,nb_open=1,nb_closed=0;nb_open!=nb_closed;)n++,metadata_json+=e[n],"{"==e[n]?nb_open++:"}"==e[n]&&nb_closed++;t[t.length-1].metadata=JSON.parse(metadata_json)}else{for(var h="";","!=e[n+1]&&")"!=e[n+1]&&";"!=e[n+1];)n++,h+=e[n];t[t.length-1].metadata.dist=h}else{var i=null;0!=n&&(i=e[n-1]),'"'==r?(stop_markers=['"'],n++):stop_markers=[",",")",":",";"];for(var d=e[n];-1==stop_markers.indexOf(e[n+1]);)n++,d+=e[n];if(-1!=stop_markers.indexOf('"')&&n++,")"==i)t[t.length-1].name=d;else{var l=new ExtendedNode(d,null,null,null);t.push(l)}}}return t[0]},ExtendedNode.prototype.keepOnlySamples=function(e){var t=!1;if(this.hasChild()){for(var n=new Array,r=0;r<this.children.length;r++)this.children[r].keepOnlySamples(e)&&n.push(r);for(var a=0,h=0;h<n.length;h++)this.children.splice(n[h]-a,1),a++;0==this.children.length&&(t=!0)}else{for(var i=!1,d={},l=0;l<e.length;l++)this.metadata.hasOwnProperty(e[l])&&(d[e[l]]=this.metadata[e[l]],i=!0);i?this.metadata=d:t=!0}return t},ExtendedNode.prototype.toJson=function(){var e={name:null!=this.name?this.name:"",metadata:this.metadata};if(this.hasChild()){for(var t=new Array,n=0;n<this.children.length;n++)t.push(this.children[n].toJson());e.children=t}var r=Object.keys(this.metadata);if(0!=r.length){for(var a=0,h=0;h<r.length;h++)a+=this.metadata[r[h]];e.size=a}return e};
 		</script>
 		<script type="text/javascript">
 			/*
@@ -234,124 +292,7 @@
 			 */
 			!function(t){t.fn.datatableExport=function(a){var e={anchor_id:t(this).attr("id"),table_id:null,csv_separator:";",omitted_columns:[]},n=t.extend(e,a);if(!t(this).length)throw"The element where the datatableExport is called does not exist.";if(void 0==n.anchor_id)throw"The datatableExport plugin must be called on an element with id.";if(null==n.table_id)throw"You must set the table_id parameter in datatableExport plugin.";if(!t("#"+n.table_id))throw"The datatable '#"+n.table_id+"' cannot be retieve in DOM.";return this.each(function(){var a=t(this);a.on("click",function(){t.fn.datatableExport.csv(n.anchor_id,n.table_id,n.csv_separator,n.omitted_columns)})})},t.fn.datatableExport.cleanCellMarkup=function(a,e){t.parseHTML(e);t("#"+a).append('<div class="hidden data-tmp">'+e+"</div>"),t("#"+a+" .data-tmp").find("input").each(function(){var a="";a=t(this).is(":checkbox")?t(this).is(":checked")?"true":"false":t(this).val(),t(this).replaceWith(a)});var n=t("#"+a+" .data-tmp").text();return t("#"+a+" .data-tmp").remove(),n},t.fn.datatableExport.csv=function(a,e,n,i){var l="",r=t("#"+e).DataTable(),d=t("#"+e+" thead")[0],o=new HTMLtable(d.cloneNode(!0));o.deleteColumns(i),l+=o.toCSV();var c=r.rows().data();t.each(c,function(e,n){for(var r="",d=0;d<n.length;d++)-1==t.inArray(d,i)&&(r+='"'+t.fn.datatableExport.cleanCellMarkup(a,n[d])+'";');""!=r&&(r=r.slice(0,-1)),l+=r+"\n"}),t("#"+a+"-extract-csv").length||t("#"+a).append('<a id="'+a+'-extract-csv" href="data:text/csv;charset=UTF-8,'+encodeURI(l)+'" download="data.csv" style="display:none;"></a>'),t("#"+a+"-extract-csv")[0].click()}}(jQuery);
 		</script>
-		<script type="text/javascript">
-			//HC global var
-			var linkage_data = null ;
-			var d3_tree = null ;
-			var diagonal = null ;
-			var svg_layout = null ;
-			var node_id = 0 ;			
-			
-			/**
-			 * Draw/update linkage tree.
-			 */
-			function update_linkage_nodes(source) {
-				var duration = d3.event && d3.event.altKey ? 5000 : 500;
-
-				// Compute the new tree layout.
-				var nodes = d3_tree.nodes(linkage_data).reverse();
-
-				// Normalise for fixed-depth.
-				nodes.forEach(function(d) { d.y = d.depth * 100; });
-
-				// Update the nodes.
-				var node = svg_layout.selectAll("g.d3-node")
-					.data(nodes, function(d) { return d.id || (d.id = ++node_id); });
-
-				// Enter any new nodes at the parent's previous position.
-				var nodeEnter = node.enter().append("svg:g")
-					.attr("class", "d3-node")
-					.attr("transform", function(d) { return "translate(" + source.y0 + "," + source.x0 + ")"; })
-					.on("click", function(d) { toggle(d); });
-
-				nodeEnter.append("svg:circle")
-					.attr("r", 1e-6)
-					.attr("class", function(d) { return d._children ? "d3-collapsed-node" : "d3-node-dot"; });
-
-				nodeEnter.append("svg:text")
-					.attr("x", function(d) { return d.children || d._children ? -10 : 10; })
-					.attr("dy", ".35em")
-					.attr("text-anchor", function(d) { return d.children || d._children ? "end" : "start"; })
-					.text(function(d) { return d.name; })
-					.style("fill-opacity", 1e-6);
-
-				// Transition nodes to their new position.
-				var nodeUpdate = node.transition()
-					.duration(duration)
-					.attr("transform", function(d) { return "translate(" + d.y + "," + d.x + ")"; });
-
-				nodeUpdate.select("circle")
-					.attr("r", 6)
-					.attr("class", function(d) { return d._children ? "d3-collapsed-node" : "d3-node-dot"; });
-
-				nodeUpdate.select("text")
-					.style("fill-opacity", 1);
-
-				// Transition exiting nodes to the parent's new position.
-				var nodeExit = node.exit().transition()
-					.duration(duration)
-					.attr("transform", function(d) { return "translate(" + source.y + "," + source.x + ")"; })
-					.remove();
-
-				nodeExit.select("circle")
-					.attr("r", 1e-6);
-
-				nodeExit.select("text")
-					.style("fill-opacity", 1e-6);
-
-				// Update the links
-				var link = svg_layout.selectAll("path.d3-link")
-					.data( d3_tree.links(nodes), function(d) { return d.target.id; } );
-
-				// Enter any new links at the parent's previous position.
-				link.enter().insert("svg:path", "g")
-					.attr("class", "d3-link")
-					.attr("d", function(d) {
-						var o = {x: source.x0, y: source.y0};
-						return diagonal({source: o, target: o});
-					})
-					.transition()
-					.duration(duration)
-					.attr("d", diagonal);
-
-				// Transition links to their new position.
-				link.transition()
-					.duration(duration)
-					.attr("d", diagonal);
-
-				// Transition exiting nodes to the parent's new position.
-				link.exit().transition()
-					.duration(duration)
-					.attr("d", function(d) {
-						var o = {x: source.x, y: source.y};
-						return diagonal({source: o, target: o});
-					})
-					.remove();
-
-				// Stash the old positions for transition.
-				nodes.forEach(function(d) {
-					d.x0 = d.x;
-					d.y0 = d.y;
-				});
-			}
-
-			/**
-			 * Hide/Unhide children's node when toggle on node in linkage view.
-			 */
-			function toggle( d ) {
-				//Hide/Unhide attributes
-				if (d.children) {
-					d._children = d.children;
-					d.children = null;
-				} else {
-					d.children = d._children;
-					d._children = null;
-				}
-				//Update node and her children in SVG
-				update_linkage_nodes(d);
-			}
-		</script>
-
+		
 		<script type="text/javascript">
 			/**
 			 * Returns the string representation of the number. 
@@ -367,221 +308,9 @@
 		    	}
 		        return new_val ;
 		    }
-		    
-			/**
-			 * Returns the HTML table representation of the data. 
-			 * @param pTitle {String} The title of the table.
-			 * @param pCategories {Array} The title of each column.
-			 * @param pData {Array} 2D matrix with row and column data.
-			 * @return {String} The HTML table representation.
-			 */
-			var table = function( pTitle, pCategories, pData  ) {
-				// Header
-				var table_header = '' ;
-				var table_header_line = "" ;
-				for(var idx = 0 ; idx < pCategories.length ; idx++){
-					table_header_line += "      <th>" + pCategories[idx] + "</th>\n" ;
-				}
-				table_header += "    <tr>\n" + table_header_line + "    </tr>\n" ;
-				table_header = "  <thead>\n" + table_header + "  </thead>\n" ;
-				
-				// Body
-				var table_body = '' ;
-				for(var data_idx = 0 ; data_idx < pData.length ; data_idx++){
-					var table_body_row = "" ;
-					for(var category_idx = 0 ; category_idx < pCategories.length ; category_idx++){
-						if( typeof pData[data_idx][category_idx] === "number" ) {
-							table_body_row += "      <td>" + numberDisplay(pData[data_idx][category_idx]) + "</td>\n" ;
-						} else {
-							table_body_row += "      <td>" + pData[data_idx][category_idx] + "</td>\n" ;
-						}
-					}
-					table_body += "    <tr>\n" + table_body_row + "    </tr>\n" ;
-				}
-				table_body = "  <tbody>\n" + table_body + "  </tbody>\n" ;
-
-				return '<table class="table table-striped table-bordered">\n' + table_header + table_body + "</table>\n" ;
-			}
-			
-			 /**
-			  * Returns hash use to init HightChart object (without 'type'). 
-			  * @param pTitle {String} The title of the chart.
-			  * @param pXTitle {String} The xAxis title.
-			  * @param pYTitle {String} The yAxis title.
-			  * @param pXCategories {Array} The title of each category (x scale labels).
-			  * @param pData {Array} The HightChart series.
-			  * @return {Hash} The hash.
-			  * @warning This method use HightChart xAxis.categories.
-			  */
-			 var chartplot = function( pTitle, pXTitle, pYTitle, pXCategories, pData ) {
-			 	var chart = {
-			 	        title: {
-			 	            text: pTitle
-			 	        },
-			 	        xAxis: {},
-			 	        yAxis: {
-			 	            title: {
-			 	                text: pYTitle
-			 	            }
-			 	        },
-			 	        series: pData,
-			 	        credits: {
-			 	        	enabled: false
-			 	        }
-			 	}
-			 	if( pXCategories != null ){
-			 		chart['xAxis']['categories'] = pXCategories ;
-			 	}
-			 	if( pXTitle != null ){
-			 		chart['xAxis']['title'] = { text: pXTitle } ;
-			 	}
-			 	if( pData.length <= 1 ) {
-			 		chart['legend'] = {'enabled': false};
-			 	} else {
-			 		chart['legend'] = {'enabled': true};
-			 	}
-			 	return chart ;
-			 }
-			  /**
-			   * Returns hash use to init HightChart boxplot. 
-			   * @param pTitle {String} The title of the chart.
-			   * @param pXTitle {String} The xAxis title.
-			   * @param pYTitle {String} The yAxis title.
-			   * @param pXCategories {Array} x scale labels.
-			   * @param pData {Array} The HightChart series.
-			   * @return {Hash} Parameters to use in Highchart's constructor.
-			   */
-			  var boxplot_param = function(pTitle, pXTitle, pYTitle, pXCategories, pData) {
-			  	var chart = chartplot( pTitle, null, pYTitle, pXCategories, pData );
-			  	chart['chart'] = { type: 'boxplot', zoomType: 'y',selectionMarkerFill: "rgb(222,159,115,0.25)" };
-			  	chart['yAxis']['min'] = 0 ;
-			  	chart['exporting'] = {buttons: {contextButton: { symbol: 'download' }}};
-			  	chart['navigation'] =  {
-        buttonOptions: {
-            theme: {
-                r: 4,
-                fill:'#8EADAC',
-                states: {
-                    hover: {
-                        fill: 'rgb(100, 138, 137)',
-                        stroke:'#8EADAC'
-                    },
-                    select: {
-                        stroke: '#8EADAC',
-                        fill: 'rgb(100, 138, 137)',
-                    }
-                }
-            }
-        }
-    };
-			  	return chart ;
-			  };
-
-			 /**
-			  * Returns hash use to init HightChart area. 
-			  * @param pTitle {String} The title of the chart.
-			  * @param pXTitle {String} The xAxis title.
-			  * @param pYTitle {String} The yAxis title.
-			  * @param pXCategories {Array} x scale labels.
-			  * @param pData {Array} The HightChart series.
-			  * @return {Hash} Parameters to use in Highchart's constructor.
-			  */
-			 var areaplot_param = function(pTitle, pXTitle, pYTitle, pXCategories, pData) {
-				var x_max = 0 ;
-				for( var series_idx = 0 ; series_idx < pData.length ; series_idx++ ){
-					for( var val_idx = 0 ; val_idx < pData[series_idx].length ; val_idx++ ){
-						x_max = Math.max(parseInt(pData[series_idx][val_idx][0]), parseInt(x_max));
-					}
-				}
-			 	var chart = chartplot( pTitle, pXTitle, pYTitle, pXCategories, pData );
-			 	chart['chart'] = { 
-			 		type: 'area',
-			 		zoomType:"x",
-			 		selectionMarkerFill: "rgb(222,159,115,0.25)"
-			 	};
-			 	chart['xAxis']['tickInterval'] = Math.max(1, parseInt(x_max/10));
-				chart['plotOptions'] = {
-					area: {
-						marker: {
-							enabled: true,
-							symbol: 'circle',radius:4,
-						}
-					}
-				};
-			 	return chart ;
-			 }
-			 
-			/**
-			  * Returns hash use to init HightChart line. 
-			  * @param pTitle {String} The title of the chart.
-			  * @param pXTitle {String} The xAxis title.
-			  * @param pYTitle {String} The yAxis title.
-			  * @param pXCategories {Array} x scale labels.
-			  * @param pData {Array} The HightChart series.
-			  * @return {Hash} Parameters to use in Highchart's constructor.
-			  */
-			 var lineplot_param = function(pTitle, pXTitle, pYTitle, pXCategories, pData) {
-			 	var chart = chartplot( pTitle, pXTitle, pYTitle, pXCategories, pData );
-			 	chart['chart'] = { 
-			 		type: 'line'
-			 	};
-				chart['yAxis']['min'] = 0 ;
-				chart['legend'] = {'enabled': true};
-				chart['plotOptions'] = {
-					area: {
-						marker: {
-							enabled: true,
-							symbol: 'circle',radius:4,
-						}
-					}
-				};
-			 	return chart ;
-			 }
-
-			var get_dispersion = function( values, counts ) { 
-				var dispersion = new Array();
-				
-				// Unstack list
-		        unstacked_list = new Array();
-		        for( var idx = 0 ; idx < values.length ; idx++ ){
-		            for( var nb_add = 0 ; nb_add < counts[idx] ; nb_add++ ){
-		            	unstacked_list.push( values[idx] );
-		        	}
-		        }
-
-				// Process metrics
-				var nb_elt = unstacked_list.length ;
-				dispersion['min'] = unstacked_list[0] ;
-				dispersion['max'] = unstacked_list[nb_elt - 1];
-				if( nb_elt % 2 == 0 ) {
-					dispersion['median'] = unstacked_list[(nb_elt/2) -1] ;
-				} else {
-					dispersion['median'] = (unstacked_list[parseInt((nb_elt/2) -1)] + unstacked_list[parseInt(nb_elt/2)])/2 ;
-				}
-				// Deciles
-				for( var idx = 1 ; idx <= 9 ; idx++ ){
-					if( idx != 5 ) {
-						dispersion[idx + '_decile'] = unstacked_list[Math.floor(idx*(nb_elt/10) + 0.5) -1] ;
-					} else {
-						dispersion['5_decile'] = dispersion['median'] ;
-					}
-				}
-				// Quartiles
-				dispersion['lower_quartile'] = unstacked_list[Math.floor((nb_elt/4) + 0.5) -1] ;
-				dispersion['upper_quartile'] = unstacked_list[Math.floor((3*(nb_elt/4)) + 0.5) -1] ;
-				
-				return dispersion ;
-	        };
-			
-			///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-			//
-			// Nav templates
-			//
-			///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-			var cluster_distrib_load = function( container_id ) {
-				// Radializes colors
+			// Radializes colors
 				Highcharts.setOptions({
-					 colors : ['#8EADAC', '#DE9F73'] ,
+					 colors : ['#8EADAC', '#DE9F73', '#428bca', '#993399', '#DBD75E', '#DB5E8A', '#B6DB5E', "#7EC0D9", "#a64d12", '#e4d354','#2b908f','#434348'], 
 					});
 					Highcharts.SVGRenderer.prototype.symbols.download = function (x, y, w, h) {
 					var path = [
@@ -612,240 +341,729 @@
 			        };
 			    });
 			    */
-				var dispersion = get_dispersion( clusters_sizes, series[0]['data'] );
-				
-				// Nb clusters and nb sequences
-				var nb_clusters = 0 ;
-				var nb_sequences = 0 ;
-				for( var clusters_sizes_idx = 0 ; clusters_sizes_idx < clusters_sizes.length ; clusters_sizes_idx++ ){
-					nb_clusters += series[0]['data'][clusters_sizes_idx] ;
-					nb_sequences += ( series[0]['data'][clusters_sizes_idx] * clusters_sizes[clusters_sizes_idx] );
-				}
-				$('#nb-clusters').append( '' +
-					'<div class="circle">' +
-					'	<span class="circle-title">Clusters</span>' +
-					'	<br />' +
-					'	<span class="circle-value">' + numberDisplay(nb_clusters) + '</span>' +
-					'</div>'
-				);
-				$('#nb-sequences').append( '' +
-					'<div class="circle">' +
-					'	<span class="circle-title">Sequences</span>' +
-					'	<br />' +
-					'	<span class="circle-value">' + numberDisplay(nb_sequences) + '</span>' +
-					'</div>'
-				);
-				
-				// Boxplot
-				var boxplot_series = [{
-					'name': "Cluster size",
-					'data': [[dispersion['min'],
-					          dispersion['lower_quartile'],
-					          dispersion['median'],
-					          dispersion['upper_quartile'],
-					          dispersion['max']]]
-				}];
-				$('#' + container_id).append( '<div id="dispersion"></div>' );
-				$('#dispersion').append( '<h2 class="pb-2 mt-4 mb-2 border-bottom">Clusters size summary</h2>');
-				$('#dispersion').append( '<p>The cluster size is the sum of the abundances of the sequences grouped in a cluster.</p>');
-				$('#dispersion').append('<div id="twofigs" class="row"></div>');
-				$('#twofigs').append( '<div class="col-12 col-md-8"" style="height:100%;">' );
-				$('#dispersion div').last().highcharts( boxplot_param("Clusters size distribution", null, "Cluster size", ["All"], boxplot_series) );
-
-				// Deciles
-				var decile_data = [
-					["Min", dispersion['min']],
-					[1, dispersion['1_decile']],
-					[2, dispersion['2_decile']],
-					[3, dispersion['3_decile']],
-					[4, dispersion['4_decile']],
-					["Median", dispersion['5_decile']],
-					[6, dispersion['6_decile']],
-					[7, dispersion['7_decile']],
-					[8, dispersion['8_decile']],
-					[9, dispersion['9_decile']],
-					["Max", dispersion['max']]
-				];
-				$('#twofigs').append( '<div class="col-12 col-md-4"">' );
-				$('#dispersion div').last().append( table("Clusters size distribution (decile)", ["Decile", "Value"], decile_data) );
-				
-				// Details
-				var cluster_sum = 0 ;
-				for( var idx=0 ; idx < clusters_sizes.length ; idx++ ){
-					cluster_sum += series[0]['data'][idx] ;
-				}
-				var distrib_data = new Array();
-				for( var idx=0 ; idx < clusters_sizes.length ; idx++ ){
-					var cluster_prct = Math.round((series[0]['data'][idx]/cluster_sum)*10000)/100 ;
-					distrib_data.push([ clusters_sizes[idx], series[0]['data'][idx], cluster_prct ]);
-				}
-				$('#dispersion').append( '<h2 class="pb-2 mt-4 mb-2 border-bottom">Clusters size details</h2>');
-				$('#dispersion').append( '<div class="col-md-12"></div>' );
-				//$('#dispersion div').last().append( '<h1 class="page-header">Clusters size details<h1/>' );
-				$('#dispersion div').last().append( table("Clusters size", ["Cluster size", "Number of cluster", "% of all clusters"], distrib_data) );
-				$('#dispersion table').last().prop( 'id', 'dispersion-table' );
-				$('#' + container_id + ' table').last().DataTable({
-					dom: 	"<'#dispersion-csv-export'><'row'<'col-sm-5'l><'col-sm-7'f>>" +
-							"<'row'<'col-sm-12'tr>>" +
-							"<'row'<'col-sm-5'i><'col-sm-7'p>>"
-					//"sDom": '<"top"<"#dispersion-csv-export"><"clear">lf>rt<"bottom"ip><"clear">'
-				});
-				$('#dispersion-csv-export').addClass( 'dataTables_filter' );
-				$('#dispersion-csv-export').html( '<button class="btn"><span class="fa fa-download" aria-hidden="true"> CSV</span></button>' );
-				$('#dispersion-csv-export').datatableExport({
-					'table_id': "dispersion-table"
-				});
-			}
-			
-			var sample_table_load = function( container_id ){
-				var table_data = new Array();
-				for( sample in samples_distrib ){
-					table_data.push([
-					  sample,
-					  samples_distrib[sample]['shared_observations'] + samples_distrib[sample]['own_observations'],
-					  samples_distrib[sample]['shared_observations'],
-					  samples_distrib[sample]['own_observations'],
-					  samples_distrib[sample]['shared_seq'] + samples_distrib[sample]['own_seq'],
-					  samples_distrib[sample]['shared_seq'],
-					  samples_distrib[sample]['own_seq'],
-					])
-				}
-				$('#' + container_id).html( table("Samples information", ["Sample", "Total clusters", "Shared clusters", "Own clusters", "Total sequences", "Shared sequences", "Own sequences"], table_data) );
-				$('#' + container_id + ' table').prop( 'id', 'samples-table' );
-				$('#' + container_id + ' table').DataTable({
-					dom: 	"<'#samples-csv-export'><'row'<'col-sm-5'l><'col-sm-7'f>>" +
-							"<'row'<'col-sm-12'tr>>" +
-							"<'row'<'col-sm-5'i><'col-sm-7'p>>"
-					//"sDom": '<"top"<"#samples-csv-export"><"clear">lf>rt<"bottom"ip><"clear">'
-				});
-				$('#samples-csv-export').addClass( 'dataTables_filter' );
-				$('#samples-csv-export').html( '<button class="btn"><span class="fa fa-download" aria-hidden="true"> CSV</span></button>' );
-				$('#samples-csv-export').datatableExport({
-					'table_id': "samples-table"
-				});
-			}
-			
-			var hierarchical_clustering_load = function( container_id ) {
-				var tree = Node.fromNewick( newick );
-				var leaves_names = tree.getLeavesNames();
-				var leaf_name_length = 0 ;
-				for( var idx = 0 ; idx < leaves_names.length ; idx++ ) {
-					leaf_name_length = Math.max( leaf_name_length, leaves_names[idx].length );
-				}
-				var width = tree.maxDepth() * 95 + (leaf_name_length * 8) ; // nb_link * width_link + text_length 
-				var height = 50 + tree.nbLeaves() * 40 ; //margin_top + nb_terminal_nodes + height_nodes
-
-				// Display tree
-				linkage_data = tree.toJson();
-				d3_tree = null ;
-				diagonal = null ;
-				svg_layout = null ;
-				node_id = 0 ;
-
-				d3_tree = d3.layout.cluster()
-					.size([height, width]);
-
-				diagonal = d3.svg.diagonal()
-					.projection(function(d) { return [d.y, d.x]; });
-				$('#' + container_id).append('<div style="margin-left:auto;margin-right:auto;"></div>');
-				svg_layout = d3.select('#' + container_id +  ' div').append("svg:svg")
-					.attr("width", width)
-					.attr("height", height)
-					.append("svg:g")
-					.attr("transform", "translate(20,20)");
-
-				linkage_data.x0 = height / 2;
-				linkage_data.y0 = 0;
-				
-				update_linkage_nodes(linkage_data);
-				
-				// Display warnings
-				var excluded_samples = $.grep(
-					Object.keys(samples_distrib),
-					function(el){ return $.inArray(el, leaves_names) == -1 }
-				);
-				if( excluded_samples.length > 0 ){
-					$('#' + container_id).append( '' +
-						'<div id="hc-warning" class="alert alert-warning alert-dismissible">' +
-						'    <span>' +
-						'        <span class="glyphicon glyphicon-exclamation-sign"></span>' +
-						'        Excluded because they have no sequence: ' +
-						'    </span>' +
-						'    <span>' + excluded_samples.sort().join(", ") + '</span>' +
-						'</div>'
-					);
-				}
-
-				// Display newick
-				$('#' + container_id).append( '' +
-					'<div id="hc-newick">' +
-					'    <span class="badge badge-primary label-badge">Newick</span>' +
-					'    <span>' + newick + '</span>' +
-					'</div>'
-				);
-			}
-			
-			var sequence_distrib_load = function( container_id ) {
-				var series_cumulative = new Array() ;
-					for( var series_idx = 0 ; series_idx < series.length ; series_idx++ ){
-						series_cumulative.push({
-							'name': series[series_idx]['name'],
-							'data': new Array(),
-							'pointStart': 1
-						});
-						var sum = 0 ;
-						var previous_cumulative_count = 0 ;
-						for( var val_idx = 0 ; val_idx < series[series_idx]['data'].length ; val_idx++ ){
-							var current_count = series[series_idx]['data'][val_idx] * clusters_sizes[val_idx] ;
-							var cumulative_count = previous_cumulative_count + current_count ;
-							series_cumulative[series_idx]['data'].push( [clusters_sizes[val_idx], cumulative_count] );
-							previous_cumulative_count = cumulative_count ;
+			/**
+			 * Returns hash use to init HightChart object (without 'type'). 
+			 * @param pTitle {String} The title of the chart.
+			 * @param pXTitle {String} The xAxis title.
+			 * @param pYTitle {String} The yAxis title.
+			 * @param pXCategories {Array} The title of each category (x scale labels).
+			 * @param pData {Array} The HightChart series.
+			 * @return {Hash} The hash.
+			 * @warning This method use HightChart xAxis.categories.
+			 */
+			var chartplot = function( pTitle, pXTitle, pYTitle, pXCategories, pData ) {
+				var chart = {
+					title: {
+						text: pTitle
+					},
+					xAxis: {},
+					yAxis: {
+						title: {
+							text: pYTitle
 						}
-						sum_series[series[series_idx]['name']] = previous_cumulative_count ;
-					}
-					for( var series_idx = 0 ; series_idx < series.length ; series_idx++ ){
-						for( var val_idx = 0 ; val_idx < series[series_idx]['data'].length ; val_idx++ ){
-							var current_prct = (series_cumulative[series_idx]['data'][val_idx][1] / sum_series[series[series_idx]['name']])*100 ;
-							series_cumulative[series_idx]['data'][val_idx][1] = Math.round(current_prct*100)/100 ;
-						}
-					}
-					var seq_by_depth = areaplot_param("Cumulative sequences proportion by cluster size", "Cluster size", "% sequences", null, series_cumulative);
-					seq_by_depth['tooltip'] = {
-						formatter:function() {
-							tooltip_head = '<b>Clusters with size <= ' + numberDisplay(this.x) + '</b>' ;
-							tooltip_body = '' ;
-							for( var i=0 ; i<this.points.length ; i++) {
-								var pcnt = (this.points[i].point.y / sum_series[this.points[i].series.name]) * 100;
-								tooltip_body += '<tr>' +
-									'<td style="color:' + this.points[i].series.color +'">' + this.points[i].series.name + ' : </td>' +
-									'<td> ' + this.points[i].point.y + '% </td>' +
-									'<td> sequences</td>' +
-								   '</tr>' ;
+					},
+					exporting:{buttons: {contextButton: { symbol: 'download' }}},
+					buttons: {contextButton: {menuItems: ['downloadPNG', 'downloadSVG']}},
+					navigation: {
+						buttonOptions: {
+							theme: {
+								r: 4,
+								fill:'#8EADAC',
+								states: {
+									hover: {
+										fill: 'rgb(100, 138, 137)',
+										stroke:'#8EADAC'
+									},
+									select: {
+										stroke: '#8EADAC',
+										fill: 'rgb(100, 138, 137)',
+									}
+								}
 							}
-							return tooltip_head + '<table>' + tooltip_body + '</table>' ;
-						},
+						}
+					},
+					series: pData,
+					credits: {
+						enabled: false
+					}
+				}
+				if( pXCategories != null ){
+					chart['xAxis']['categories'] = pXCategories ;
+				}
+				if( pXTitle != null ){
+					chart['xAxis']['title'] = { text: pXTitle } ;
+				}
+				if( pData.length <= 1 ) {
+					chart['legend'] = {'enabled': false};
+				} else {
+					chart['legend'] = {'enabled': true};
+				}
+				
+				return chart ;
+			}
+ 
+			/**
+			 * Returns hash use to init HightChart line. 
+			 * @param pTitle {String} The title of the chart.
+			 * @param pXTitle {String} The xAxis title.
+			 * @param pYTitle {String} The yAxis title.
+			 * @param pXCategories {Array} x scale labels.
+			 * @param pData {Array} The HightChart series.
+			 * @return {Hash} Parameters to use in Highchart's constructor.
+			 */
+			var lineplot_param = function(pTitle, pXTitle, pYTitle, pXCategories, pData) {
+				var chart = chartplot( pTitle, pXTitle, pYTitle, pXCategories, pData );
+				chart['chart'] = { 
+					type: 'line',
+                    zoomType: 'x',
+                    selectionMarkerFill: "rgb(222,159,115,0.25)",
+                    exporting:{buttons: {contextButton: { symbol: 'download' }}},
+					buttons: {contextButton: {menuItems: ['downloadPNG', 'downloadSVG']}},
+					navigation: {
+						buttonOptions: {
+							theme: {
+								r: 4,
+								fill:'#8EADAC',
+								states: {
+									hover: {
+										fill: 'rgb(100, 138, 137)',
+										stroke:'#8EADAC'
+									},
+									select: {
+										stroke: '#8EADAC',
+										fill: 'rgb(100, 138, 137)',
+									}
+								}
+							}
+						}
+					}
+				};
+				chart['yAxis']['min'] = 0 ;
+				chart['legend'] = {'enabled': true};
+				chart['plotOptions'] = {
+					area: {
+						marker: {
+							enabled: true,
+							symbol: 'circle',radius:4,
+						}
+					}
+				};
+				return chart ;
+			}
+
+			/**
+			 * Returns hash use to init HightChart column. 
+			 * @param pTitle {String} The title of the chart.
+			 * @param pYTitle {String} The yAxis title.
+			 * @param pCategories {Array} x scale labels.
+			 * @param pSeries {Array} The HightChart series.
+			 * @param unity {String} Unity used in tooltip.
+			 * @return {Hash} Parameters to use in Highchart's constructor.
+			 */
+			var barplot_param = function( pTitle, pYTitle, pCategories, pSeries, unity ) {
+				return {
+					chart: {
+						type: 'column',
+						zoomType: 'y'
+					},
+					title: {
+						text: pTitle
+					},
+					xAxis: {
+						categories: pCategories,
+						crosshair: true
+					},
+					exporting:{buttons: {contextButton: { symbol: 'download' }}},
+					buttons: {contextButton: {menuItems: ['downloadPNG', 'downloadSVG']}},
+					navigation: {
+						buttonOptions: {
+							theme: {
+								r: 4,
+								fill:'#8EADAC',
+								states: {
+									hover: {
+										fill: 'rgb(100, 138, 137)',
+										stroke:'#8EADAC'
+									},
+									select: {
+										stroke: '#8EADAC',
+										fill: 'rgb(100, 138, 137)',
+									}
+								}
+							}
+						}
+					},
+					yAxis: {
+						min: 0,
+					title: {
+							text: pYTitle
+						}
+					},
+					tooltip: {
+						headerFormat: '<span style="font-size:10px">{point.key}</span><table>',
+						pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' +
+						             '<td style="padding:0"><b>{point.y} ' + unity + '</b></td></tr>',
+						footerFormat: '</table>',
 						shared: true,
 						useHTML: true
-					};
-					$('#' + container_id).append('<div></div>');
-					$('#' + container_id).highcharts( seq_by_depth );
-					$('#' + container_id).append('<p class="graph-nb">N.B.: Select area to zoom in.</p>');
+					},
+					plotOptions: {
+						column: {
+							pointPadding: 0.2,
+							borderWidth: 0
+						}
+					},
+					credits: {
+						enabled: false
+					},
+					series: pSeries
+				};
+			}
+			
+			/**
+			 * Returns the list of human readable intervals from The list of right threshold.
+			 * @param categories {Array} The list of right threshold.
+			 * @return {Hash} The formatted hash.
+			 * @example: [ 50, 60, 70 ] => [ "[0% - 50%[", "[50% - 60%[", "[60% - 70%[", "[70]" ]
+			 */
+			var get_displayed_categories = function( categories ){
+				displayed_categories = new Array();
+				var prev = 0 ;
+				for( var idx = 0 ; idx < categories.length ; idx++ ){
+					if( idx != (categories.length - 1) ){
+						displayed_categories.push( "[" + prev + "% - " + categories[idx] + "%[" );
+					} else {
+						if( prev != (categories[idx] - 1) ){
+							displayed_categories.push( "[" + prev + "% - " + (categories[idx] - 1) + "%[" );
+						} else {
+							displayed_categories.push( "[" + prev + "%]" );
+						}
+					}
+					prev = categories[idx] ;
+				}
+				return displayed_categories ;
+			}
+			  
+			///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+			//
+			// Nav templates
+			//
+			///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+			/**
+			 * Returns from alignment data an hash formatted to use in heatmap series.
+			 * @param categories_ident {Array} The list of right threshold for each x category in heatmap.
+			 * @param categories_cover {Array} The list of right threshold for each y category in heatmap.
+			 * @param data_type {String} The type of count ('seq' or 'clstr') [default: clstr].
+			 * @return {Hash} The formatted hash.
+			 */
+			var get_alignment_heatmap_data = function( categories_ident, categories_cover, data_type ){
+				var heatmap_data = new Array();
+				
+				// Data sum by categories
+				var scores_by_category = new Array();
+				for( var data_idx = 0 ; data_idx < alignment_scores.length ; data_idx++ ){
+					ident_idx = 0 ;
+					while( alignment_scores[data_idx][0] >= categories_ident[ident_idx] ){
+						ident_idx++ ;
+					}
+					cover_idx = 0 ;
+					while( alignment_scores[data_idx][1] >= categories_cover[cover_idx] ){
+						cover_idx++ ;
+					}
+					if( !scores_by_category.hasOwnProperty(ident_idx) ){
+						scores_by_category[ident_idx] = new Array();
+					}
+					if( !scores_by_category[ident_idx].hasOwnProperty(cover_idx) ){
+						scores_by_category[ident_idx][cover_idx] = 0 ;
+					}
+					scores_by_category[ident_idx][cover_idx] += alignment_scores[data_idx][2][data_type] ;
+				}
+				
+				// Data to heatmap data format
+				for( var ident_idx = 0 ; ident_idx < categories_ident.length ; ident_idx++ ){
+					for( var cover_idx = 0 ; cover_idx < categories_cover.length ; cover_idx++ ){
+						if( scores_by_category.hasOwnProperty(ident_idx) && scores_by_category[ident_idx].hasOwnProperty(cover_idx) ){
+							heatmap_data.push([
+								ident_idx,
+								cover_idx,
+								scores_by_category[ident_idx][cover_idx]
+							]);
+						} else {
+							heatmap_data.push([
+								ident_idx,
+								cover_idx,
+								""
+							]);
+						}
+					}
+				}
+				
+				return heatmap_data ;
+			}
+			
+			/**
+			 * Returns hash use to init an HightChart heatmap with alignment distribution.
+			 * @param data_type {String} The type of count ('seq' or 'clstr') [default: clstr].
+			 * @return {Hash} The hash.
+			 */
+			var alignment_param = function( data_type ){
+				if( data_type == null ){ data_type = "clstr" ; }
+				
+				// Parameters
+				var clean_type = {
+					"clstr": "ASVs",
+					"seq": "sequences"
+				}
+				var categories_ident = [1, 50, 80, 90, 95, 99, 100, 101];
+				var categories_cover = [1, 50, 80, 90, 95, 99, 100, 101];
+
+				// Chart
+				var chart = {
+					chart: {
+						type: 'heatmap'
+					},
+					title: {
+						text: 'Number of ' + clean_type[data_type] + ' among their alignment results'
+					},
+					exporting:{buttons: {contextButton: { symbol: 'download' }}},
+					buttons: {contextButton: {menuItems: ['downloadPNG', 'downloadSVG']}},
+					navigation: {
+						buttonOptions: {
+							theme: {
+								r: 4,
+								fill:'#8EADAC',
+								states: {
+									hover: {
+										fill: 'rgb(100, 138, 137)',
+										stroke:'#8EADAC'
+									},
+									select: {
+										stroke: '#8EADAC',
+										fill: 'rgb(100, 138, 137)',
+									}
+								}
+							}
+						}
+					},
+					xAxis: { 
+						categories: get_displayed_categories(categories_ident),
+						title: {text: 'Identity'}, 
+					}, 
+					yAxis: {
+						categories: get_displayed_categories(categories_cover),
+						title: {text: 'Coverage'}, 
+					},
+					colorAxis: {
+						min: 0,
+						minColor: '#FFFFFF',
+						maxColor: Highcharts.getOptions().colors[0]
+					},
+					legend: {
+						align: 'right',
+						layout: 'vertical',
+						margin: 0,
+						verticalAlign: 'top',
+						y: 25,
+						symbolHeight: 280
+					},
+					tooltip: { 
+						formatter: function () {
+							return 'Identity: <b>' + this.series.xAxis.categories[this.point.x] + '</b><br>'
+								+ ' Coverage: <b>' + this.series.yAxis.categories[this.point.y] + '</b><br>'
+								+ ' Nb ' + clean_type[data_type] + ': <b>' + ((this.point.value == "") ? 0 : this.point.value) + '</b>' ;
+						} 
+					},
+					credits: {enabled: false},
+					/*exporting: {
+						sourceHeight: 400,
+						sourceWidth: 850
+					},*/
+					series: [{
+						name: clean_type[data_type],
+						borderWidth: 1,
+						data: get_alignment_heatmap_data( categories_ident, categories_cover, data_type ),
+						dataLabels: {
+							enabled: true,
+							color: '#000000'
+						}
+					}]
+				};
+				
+				return chart ;
+			}
+			
+			/**
+			 * Returns from bootstrap data for one taxonomic rank an hash formatted to use in tag data in one barplot series.
+			 * @param bootstrap_categories {Array} The list of right threshold for each x category in barplot.
+			 * @param scores {Hash} The bootstrap data for one taxonomic rank.
+			 * @param data_type {String} The type of count ('seq' or 'clstr') [default: clstr].
+			 * @return {Hash} The formatted hash.
+			 */
+			var get_bootstrap_barplot_data = function( bootstrap_categories, scores, data_type ){
+				var formated_data = new Array();
+				
+				// Data to hash by category
+				var scores_by_xCategory = new Array();
+				for( var bootstrap in scores ){
+					bootstrap_idx = 0 ;
+					while( bootstrap >= bootstrap_categories[bootstrap_idx] ){
+						bootstrap_idx++ ;
+					}
+					if( !scores_by_xCategory.hasOwnProperty(bootstrap_idx) ){
+						scores_by_xCategory[bootstrap_idx] = 0 ;
+					}
+					scores_by_xCategory[bootstrap_idx] += scores[bootstrap][data_type] ;
+				}
+				
+				// Data to series data format
+				for( var bootstrap_idx = 0 ; bootstrap_idx < bootstrap_categories.length ; bootstrap_idx++ ){
+					if( scores_by_xCategory.hasOwnProperty(bootstrap_idx) ){
+						formated_data.push( scores_by_xCategory[bootstrap_idx] );
+					} else {
+						formated_data.push( 0 );
+					}
+				}
+				
+				return formated_data ;
+			}
+			
+			/**
+			 * Returns hash use to init an HightChart barplot with bootstrap distribution.
+			 * @param data_type {String} The type of count ('seq' or 'clstr') [default: clstr].
+			 * @return {Hash} The hash.
+			 */
+			var bootstrap_param = function( data_type ){
+				if( data_type == null ){ data_type = "clstr" ; }
+				
+				// Parameters
+				var clean_type = {
+					"clstr": "ASVs",
+					"seq": "sequences"
+				}
+				var bootstrap_categories = [50, 80, 90, 95, 100, 101];
+				
+				// Data
+				var histogram_series = new Array();
+				for( var taxonomic_rank in bootstrap_scores ){
+					histogram_series.push({
+						"name": taxonomic_rank,
+						"data": get_bootstrap_barplot_data( bootstrap_categories, bootstrap_scores[taxonomic_rank], data_type ),
+						"index": taxonomic_ranks.indexOf( taxonomic_rank )
+					});
+				}
+				
+				// Chart
+				return(
+					barplot_param(
+						'Number of ' + clean_type[data_type] + ' by bootstrap on affiliation',
+						'Nb ' + clean_type[data_type],
+						get_displayed_categories(bootstrap_categories),
+						histogram_series,
+						clean_type[data_type]
+					)
+				);
+			}
+			
+			/**
+			 * Add listener to update content of rarefaction-modal.
+			 */
+			var add_rarefaction_listeners = function() {				
+				$('#rarefaction-modal').on('shown.bs.modal', function (e) { // Draw curves when modal is shown
+					// Select data
+					var selected_level = $('#rarefaction-level').val() ;
+					var selected_series = new Array();
+					$('input[id^="taxBySample-chk-"]').each( function(){
+						if( $(this).is(':checked')){
+							var selected_sample = $(this).prop('id').substring(16, $(this).prop('id').length) ;
+							var series_data = new Array([0, 0]); // Add the zero point to curve
+							for( var sampling_idx = 0 ; sampling_idx < rarefaction[selected_sample][selected_level].length ; sampling_idx++ ){
+								series_data.push([
+									(sampling_idx+1)*rarefaction_step, 
+									rarefaction[selected_sample][selected_level][sampling_idx]
+								]);
+							}
+							selected_series.push({
+								'name': selected_sample,
+								'data': series_data
+							});
+						}
+					});
+					// Draw chart
+					$('#rarefaction-chart').highcharts( lineplot_param("Rarefaction curves", "Nb sampled sequences", "Nb " + selected_level, null, selected_series) );
+				});
+			}
+			
+			/**
+			 * Add listener to update content of sunburst-modal.
+			 */
+			var add_sunburst_listeners = function() {
+				$('#sunburst-modal').on('shown.bs.modal', function (event) { // Draw sunburst when modal is shown
+					// Clean previous chart
+					$('#sunburst-graph').empty() ;
+					$('#sunburst-walktrace').empty() ;
+					$('#sunburst-menu').empty() ;
+					$('#sunburst-detail').empty() ;
+
+					// Select data
+					var tree = ExtendedNode.fromNewick( tree_distribution );
+					if( event.relatedTarget.id == "display-spl-sunburst" ){
+						var selected_samples = new Array();
+						$('input[id^="taxBySample-chk-"]').each( function(){
+							if( $(this).is(':checked')){
+								var sample_name = $(this).prop('id').substring(16, $(this).prop('id').length) ;
+								selected_samples.push( samples_names.indexOf(sample_name) );
+							}
+						});
+						tree.keepOnlySamples( selected_samples );
+					}
+					// Draw chart
+					cJDistrib( 
+						tree.toJson(),
+						{
+							"pg_selector": {
+								"sunburst": "#sunburst-graph",
+								"walktrace": "#sunburst-walktrace",
+								"menu": "#sunburst-menu",
+								"detail": "#sunburst-detail"
+							},
+							"graph": {
+								"sunburst": {
+									"width": Math.min($("#sunburst-graph").width(), $(window).height()),
+									"height": Math.min($("#sunburst-graph").width(), $(window).height()),
+								},
+								"colors": {
+									"start_depth": 2
+								}
+							},
+						}
+					);
+
+					// Center sunburst
+					$("#sunburst-graph").width( Math.min($("#sunburst-graph").width(), $(window).height()) );
+				});
 			}
 
+			/**
+			 * disable/enable buttons in "taxonomy distribution" datatable.
+			 */
+			var updateTaxButtonState = function(){
+				//$("#display-rarefaction").removeClass( "disabled" );
+				$("#display-rarefaction").prop('disabled', false);
+				//$("#display-spl-sunburst").removeClass( "disabled" );
+				$("#display-spl-sunburst").prop('disabled', false);
+				if( $('input[id^="taxBySample-chk-"]:checked').length == 0 ){
+					$("#display-rarefaction").prop( "disabled" , true);
+					$("#display-spl-sunburst").prop( "disabled" ,true );
+				}
+			}
+			
+			/**
+			 * Loads content of "taxonomy distribution" nav.
+			 * @param cotainer_id {String} The ID of the content where the information will be added.
+			 */
+			var taxBySample_load = function( container_id ) {
+				// Table titles
+				//var titles = [ '<input id="taxBySample-check-all" type="checkbox" value="1">', "Samples" ];
+				var titles = ['<label class="container"><input type="checkbox" id="taxBySample-check-all" value="1"><span class="checkmark"></span></label>','Samples'];
+				for( var rank = 0 ; rank < taxonomic_ranks.length ; rank++ ){
+					titles.push( "Nb " + taxonomic_ranks[rank].toLowerCase() );
+				}
+				titles.push( "Nb asv" );
+				titles.push( "Nb sequences" );
+				$('#taxBySample-table thead').append( '<tr><th>' + titles.join("</th><th>") + '</th></tr>' );
+				$('#taxBySample-table .title').attr( "colspan", titles.length );
+				$('#taxBySample-table tfoot th').each(function(){
+					$(this).attr( "colspan", titles.length );
+				});
+				
+				// Table data
+				for( var sample_idx = 0 ; sample_idx < samples_names.length ; sample_idx++ ){
+					var sample_name = samples_names[sample_idx] ;
+					var tree = ExtendedNode.fromNewick( tree_distribution );
+					tree.keepOnlySamples( [sample_idx] );
+					//var sample_data = [ '<input id="taxBySample-chk-' + sample_name + '" type="checkbox" value="1">', sample_name ];
+					var sample_data = ['<label class="container"><input type="checkbox" id="taxBySample-chk-' + sample_name + '" value="1"><span class="checkmark"></span></label>',sample_name];
+					for( var rank = 0 ; rank < taxonomic_ranks.length ; rank++ ){
+						sample_data.push( numberDisplay(tree.getNodeByDepth(rank+1).length) );
+					}
+					sample_data.push( numberDisplay(rarefaction[sample_name]['nb_asv']) );
+					sample_data.push( numberDisplay(rarefaction[sample_name]['nb_seq']) );
+					// Add row data
+					$('#taxBySample-table tbody').append( '<tr><td>' + sample_data.join("</td><td>") + '</td></tr>' );
+				}
+				
+				// Buttons enable/disable management
+				$('input[id^="taxBySample-check-all"]').on( 'change', updateTaxButtonState );
+				$('input[id^="taxBySample-chk-"]').on( 'change', updateTaxButtonState );
+				
+				// Check all management
+				$('#taxBySample-check-all').on('click', function (e) { // Manage check all
+					if( $(this).is(':checked') ){
+						$('input[id^="taxBySample-chk-"]').each( function(){
+							$(this).prop( 'checked', true );
+						});
+					} else {
+						$('input[id^="taxBySample-chk-"]').each( function(){
+							$(this).prop( 'checked', false );
+						});
+					}
+				});
+				$('input[id^="taxBySample-chk-"]').on('change', function (e) { // Uncheck select all when uncheck one sample
+					if( !$(this).is(':checked') && $('#taxBySample-check-all').is(':checked') ){
+						$('#taxBySample-check-all').prop( 'checked', false );
+					}
+				});
+				
+				// Datatable
+				$('#taxBySample-table').DataTable({
+					//"sDom": '<"top"<"#taxBySample-csv-export"><"clear">lf>rt<"bottom"ip><"clear">',
+					dom: 	"<'#taxBySample-csv-export'><'row'<'col-sm-5'l><'col-sm-7'f>>" +
+							"<'row'<'col-sm-12'tr>>" +
+							"<'row'<'col-sm-5'i><'col-sm-7'p>>",
+					'order': [[1, 'asc']],
+					'lengthMenu': [[10, 25, 50, 100, -1], [10, 25, 50, 100, "All"]],
+					'columnDefs': [{
+						'targets': [0],
+						'orderable': false
+					}],
+					"fnDrawCallback": updateTaxButtonState
+				});
+				// Datatable export
+				$('#taxBySample-csv-export').addClass( 'dataTables_filter' );
+				$('#taxBySample-csv-export').html( '<button class="btn"><span class="fa fa-download" aria-hidden="true"> CSV</span></button>' );
+				$('#taxBySample-csv-export').datatableExport({
+					'table_id': "taxBySample-table",
+					'omitted_columns': [0]
+				});
+				
+				
+				
+				// Rarefaction select options
+				var select_lvl_options = "" ;
+				$.each( rarefaction_ranks, function( idx, level ){
+					if( level != "nb_seq" ){
+						select_lvl_options += '<option value="' + level + '">' + level.charAt(0).toUpperCase() + level.slice(1) + '</option>'
+					}
+				});
+				$('#rarefaction-level').html( select_lvl_options );
+				
+				// Add listeners
+				add_sunburst_listeners() ;
+				add_rarefaction_listeners() ;
+			}
+
+			/**
+			 * Loads content of "alignment distribution" nav.
+			 * @param cotainer_id {String} The ID of the content where the information will be added.
+			 */
+			var alignment_score_load = function( cotainer_id ){
+				$('#' + cotainer_id).highcharts( alignment_param() );
+				
+				$('#heatmap-clstr-btn').on('click', function (e) {
+					$('#heatmap-seq-btn').prop('disabled', false );
+					$('#heatmap-clstr-btn').prop('disabled', true );
+					$('#' + cotainer_id).highcharts( alignment_param("clstr") );
+				});
+				$('#heatmap-seq-btn').on('click', function (e) {
+					$('#heatmap-clstr-btn').prop('disabled', false );
+					$('#heatmap-seq-btn').prop('disabled', true );
+					$('#' + cotainer_id).highcharts( alignment_param("seq") );
+				});
+			}
+			
+			/**
+			 * Loads content of "bootstrap distribution" nav.
+			 * @param cotainer_id {String} The ID of the content where the information will be added.
+			 */
+			var bootstrap_score_load = function( cotainer_id ){
+				$('#' + cotainer_id).highcharts( bootstrap_param() );
+				
+				$('#bootstrap-clstr-btn').on('click', function (e) { // Display view by ASVs
+					if( $('#bootstrap-clstr-btn').hasClass("btn-default") ){
+						$('#bootstrap-clstr-btn').removeClass( "btn-default" );
+						$('#bootstrap-clstr-btn').addClass( "btn-primary" );
+					}
+					if( $('#bootstrap-seq-btn').hasClass("btn-primary") ){
+						$('#bootstrap-seq-btn').removeClass( "btn-primary" );
+						$('#bootstrap-seq-btn').addClass( "btn-default" );
+					}
+					$('#' + cotainer_id).highcharts( bootstrap_param("clstr") );
+				});
+				
+				$('#bootstrap-seq-btn').on('click', function (e) { // Display view by sequences
+					if( $('#bootstrap-seq-btn').hasClass("btn-default") ){
+						$('#bootstrap-seq-btn').removeClass( "btn-default" );
+						$('#bootstrap-seq-btn').addClass( "btn-primary" );
+					}
+					if( $('#bootstrap-clstr-btn').hasClass("btn-primary") ){
+						$('#bootstrap-clstr-btn').removeClass( "btn-primary" );
+						$('#bootstrap-clstr-btn').addClass( "btn-default" );
+					}
+					$('#' + cotainer_id).highcharts( bootstrap_param("seq") );
+				});
+			}
+			
+			
 			
 			///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 			//
 			// Data
 			//
 			///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-			var clusters_sizes = ###CLUSTERS_SIZES### ;
-			var series = [{
-				'name': "All",
-				'data': ###DATA_COUNTS###
-			}];
-			var sum_series = new Array() ;
-			var samples_distrib = ###DATA_SAMPLE### ;
-			var newick = ###NEWICK### ;
+			var taxonomic_ranks = ###TAXONOMIC_RANKS### ;
+			/* Example:
+				["Domain", "Phylum", "Class", "Order", "Family", "Genus", "Species"]
+			*/
+			var samples_names = ###SAMPLES_NAMES### ;
+			/* Example:
+				["Surface-01", "Surface-02", "Surface-03", "Middle-01", "Middle-02", "Middle-03"]
+			*/
+			var tree_distribution = ###TREE_DISTRIBUTION### ;
+			/* This string is in newick extended format. The metadata is the count by sample (each sample is referenced by is index position in "samples_names"). */
+			var rarefaction = ###DATA_RAREFACTION### ;
+			/* Example:
+				{
+					"Surface-01": {
+						"nb_seq": 7115, 
+						"Genus": [108, 164, 196, 226, 252, 252, 252],
+						"Species": [108, 164, 196, 227, 253, 268, 287],
+						"Family": [85, 119, 133, 146, 154, 163, 169]
+					},
+					"Surface-02": {
+					...
+				}
+			*/	
+			var rarefaction_step = ###RAREFACTION_STEP_SIZE### ;
+			/* Example:
+				1000
+			*/
+			var rarefaction_ranks = ###RAREFACTION_RANKS### ;
+			/* Example:
+				["Family", "Genus", "Species"]
+			*/
+			var alignment_scores = ###ALIGNMENT_SCORES### ;
+			/* Example:
+				[
+					[100, 100, { "clstr": 53, "seq": 20500 }],
+					[99, 100, { "clstr": 35, "seq": 18000 }],
+					[90, 95, { "clstr": 1, "seq": 10 }],
+				]
+			*/
+			var bootstrap_scores = ###BOOTSTRAP_SCORES### ;
+			/* Example:
+				{
+					"Phylum": {
+						"80": { "clstr": 1, "seq":100 },
+						"90": {	"clstr": 2,	"seq":400 },
+						"100": { "clstr": 50, "seq":20000 },
+					},
+					"Genus":{
+						"80":{ "clstr": 1, "seq":100 },
+						"90":{ "clstr": 2, "seq":400 },
+						"100":{ "clstr": 50, "seq":20000 },
+					}
+				}
+			*/
 
 
 			///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -859,23 +1077,31 @@
 				$('#content').removeClass("hidden");
 
 				// Load active tab
-				cluster_distrib_load( "cluster-distrib" );
+				taxBySample_load( "tax-distrib" );
+				
+				// Hide tab if no data
+				if( alignment_scores == null ){
+					$('#alignment-nav-tab').remove();
+					/*
+					$('#alignment-nav-tab').each( function(){
+						$(this).addClass("hidden");
+					});
+					*/
+				}
+				if( bootstrap_scores == null ){
+					$('#bootstrap-nav-tab').remove();
+				}
 				
 				// Add tab listener
 				$('.nav-tabs a').click(function (e) {
 					e.preventDefault();
 					$(this).tab('show');
-					if( $(this).attr('href') == "#sequence-distrib" && $('#sequence-distrib').hasClass('disabled') ){
-						$('#sequence-distrib').removeClass("disabled");
-						sequence_distrib_load( "sequence-distrib" );
-					} else if( $(this).attr('href') == "#samples-distrib" && $('#samples-distrib').hasClass('disabled') ){
-						$('#samples-distrib').removeClass("disabled");
-						sample_table_load( "samples-distrib-table" );
-						if(newick.length>0){
-						    hierarchical_clustering_load( "samples-distrib-hc" );
-						}else{
-							$("#hclust").remove();
-						}
+					if( $(this).attr('href') == "#bootstrap-distrib" && $('#bootstrap-distrib').prop('disabled',true)  ) {
+						$('#bootstrap').prop("disabled",true);
+						bootstrap_score_load( "bootstrap-barplot" );
+					} else if( $(this).attr('href') == "#alignment-distrib" && $('#alignment-distrib').prop('disabled',true)  ) {
+						$('#alignment').prop("disabled",true);
+						alignment_score_load( "alignment-heatmap" );
 					}
 				})
 			});
@@ -889,28 +1115,82 @@
 		
 		<div id="content" class="hidden">
 			<ul class="nav nav-tabs">
-				<li class="nav-item active"><a class="nav-link active" href="#cluster-distrib">Clusters distribution</a></li>
-				<li class="nav-item active"><a class="nav-link" href="#sequence-distrib">Sequences distribution</a></li>
-				<li class="nav-item active"><a class="nav-link" href="#samples-distrib">Samples distribution</a></li>
+				<li class="nav-item active"><a class="nav-link active" href="#tax-distrib">Taxonomy distribution</a></li>
+				<li class="nav-item" id="bootstrap-nav-tab"><a class="nav-link" href="#bootstrap-distrib">Bootstrap distribution</a></li>
+				<li class="nav-item" id="alignment-nav-tab"><a class="nav-link" href="#alignment-distrib">Alignment distribution</a></li>
 			</ul>
-			<div class="tab-content">
-				<div id="cluster-distrib" role="tabpanel" class="tab-pane active">
-					<div class="row">
-						<div class="col-md-2"></div>
-						<div id="nb-clusters" class="col-sm-6 col-md-4"></div>
-						<div id="nb-sequences" class="col-sm-6 col-md-4"></div>
-						<div class="col-md-2"></div>
+			<div id="tab-content" class="tab-content">
+				<div id="tax-distrib" role="tabpanel" class="tab-pane active">
+					<button id="display-global-sunburst" class="btn d-block mx-auto" data-toggle="modal" data-target="#sunburst-modal">
+						<span class="fa fa-pie-chart" aria-hidden="true"> Display global distribution</span>
+					</button>
+					<table id="taxBySample-table" class="table table-striped">
+						<thead>
+						</thead>
+						<tbody></tbody>
+						<tfoot>
+							<tr>
+								<th>
+									<span class="table-action">With selection:</span>
+									<select id="rarefaction-level" name="select" class="table-action fusion-left"></select>
+									<button id="display-rarefaction" class="btn table-action fusion-right" disabled data-toggle="modal" data-target="#rarefaction-modal"><span class="fa fa-line-chart" aria-hidden="true"> Display rarefaction</span></button>
+									<button id="display-spl-sunburst" class="btn table-action" disabled data-toggle="modal" data-target="#sunburst-modal"><span class="fa fa-pie-chart" aria-hidden="true"> Display distribution</span></button>
+								</th>
+							</tr>
+						</tfoot>
+					</table>
+				</div>
+				<div id="bootstrap-distrib" role="tabpanel" class="tab-pane disabled">
+					<div id="bootstrap-barplot"></div>
+					<div id="set-bootstrap-barplot" class="set-datatype">
+						<button id="bootstrap-clstr-btn" type="button" class="btn btn-md btn-block">by ASVs</button>
+						<button id="bootstrap-seq-btn" type="button" class="btn btn-md btn-block">by sequences</button>
 					</div>
 				</div>
-				<div id="sequence-distrib" role="tabpanel" class="tab-pane disabled"></div>
-				<div id="samples-distrib" role="tabpanel" class="tab-pane disabled">
-					<div>
-						<h2 class="pb-2 mt-4 mb-2 border-bottom">Sequences count</h2>
-						<div id="samples-distrib-table"></div>
+				<div id="alignment-distrib" role="tabpanel" class="tab-pane disabled">
+					<div id="alignment-heatmap"></div>
+					<div id="set-alignment-heatmap" class="set-datatype">
+						<button id="heatmap-clstr-btn" type="button" class="btn btn-md btn-block" disabled>by ASVs</button>
+						<button id="heatmap-seq-btn" type="button" class="btn btn-md btn-block">by sequences</button>
 					</div>
-					<div>
-						<h2 id="hclust" class="pb-2 mt-4 mb-2 border-bottom">Hierarchical clustering</h2>
-						<div id="samples-distrib-hc"></div>
+				</div>
+			</div>
+		</div>
+		
+		<div class="modal" id="sunburst-modal" tabindex="-1" role="dialog" aria-hidden="true">
+			<div class="modal-dialog modal-lg">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h6 class="modal-title">Taxa distribution</h6>
+						<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+					</div>
+					<div class="modal-body">
+						<div id="sunburst-walktrace"></div>
+						<div id="sunburst-graph"></div>
+						<div>
+							</br><h6>Detail on selected:</h6>
+							<div id="sunburst-detail"></div>
+						</div>
+					</div>
+					<div class="modal-footer">
+						<span id="sunburst-menu"></span>
+						<button type="button" class="btn btn-default" data-dismiss="modal"><span class="fa fa-close" aria-hidden="true"> Close</span> </button>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="modal" id="rarefaction-modal" tabindex="-1" role="dialog" aria-hidden="true">
+			<div class="modal-dialog modal-lg">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h6 class="modal-title">Rarefaction</h6>
+						<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+					</div>
+					<div class="modal-body">
+						<div id="rarefaction-chart"></div>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-default" data-dismiss="modal"><span class="fa fa-close" aria-hidden="true"> Close</span> </button>
 					</div>
 				</div>
 			</div>

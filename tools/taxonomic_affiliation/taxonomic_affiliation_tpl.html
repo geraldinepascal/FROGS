@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <!--
-# Copyright (C) 2017 INRA
+# Copyright (C) 2015 INRA
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -17,41 +17,41 @@
 -->
 <html>
 	<head>
-		<title>FROGS Tree</title>
+		<title>FROGS Affiliation</title>
 		<meta charset="UTF-8">
-		<meta name="version" content="4.0.1">
+		<meta name="version" content="4.1.0">
 		<!-- CSS -->
 		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.1.1/css/bootstrap.css"></link>
 		<link rel="stylesheet" href="https://cdn.datatables.net/1.10.19/css/dataTables.bootstrap4.min.css"></link>
-		<link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+		<link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet"></link>
 		<style type="text/css">
-			#js-alert {
-				width: 90%;
-				margin-right: auto;
-				margin-left: auto;
-			}
-			#content {
-				width: 90%;
-				margin-right: auto;
-				margin-left: auto;
-			}
-			.clear {
-				clear: both;
-				height: 0px;
-				width: 100%;
-				float: none !important;
-			}
-			ul.nav-tabs {
+            #js-alert {
+                width: 90%;
+                margin-right: auto;
+                margin-left: auto;
+            }
+            #content {
+                width: 90%;
+                margin-right: auto;
+                margin-left: auto;
+            }
+            .clear {
+                clear: both;
+                height: 0px;
+                width: 100%;
+                float: none !important;
+            }
+            ul.nav-tabs {
 				margin-bottom: 30px;
 			}
-			
 			.page-item.active .page-link {
 				z-index: 1;
 				color: #fff;
 				background-color: #8EADAC;
 				border-color: #8EADAC;
+				outline: none !important;
+				box-shadow: none !important;
 			}
-			
 			.btn {
 				color: #fff;
 				border:#8EADAC;
@@ -67,7 +67,6 @@
 				background-color: #648a89;
 				cursor:pointer !important;
 			}
-			
 			.pb-2, .py-2 {
 				padding-bottom: 1.5rem !important;
 				margin-bottom: 2rem !important;
@@ -78,23 +77,11 @@
 				margin-bottom: 2rem !important;
 				margin-top: 1rem !important;
 			}
-			.nav-tabs .nav-link.active, .nav-tabs .nav-item.show .nav-link{
-				color: #fff;
-				background-color: #8EADAF;
-				border-color: #dee2e6 #dee2e6 #fff;
-			}
-			a {
-				color: #8EAEAF;
-			}
-			a:hover{
-				color:#648a89;
-			}
-			
 			/* ##### THEME FOR CHECKBOXES ##### */
 			.container {
 				position: relative;
-				padding-left: 35px;
-				margin-bottom: 12px;
+				padding-left: 0px;
+				margin-bottom: 15px;
 				cursor: pointer;
 				-webkit-user-select: none;
 				-moz-user-select: none;
@@ -114,8 +101,8 @@
 				position: absolute;
 				top: 0;
 				left: 0;
-				height: 25px;
-				width: 25px;
+				height: 20px;
+				width: 20px;
 				background-color: #8EADAC;
 				border-radius: 5px;
 				opacity:0.65;
@@ -146,9 +133,9 @@
 
 			/* Style the checkmark/indicator */
 			.container .checkmark:after {
-				left: 9px;
-				top: 5px;
-				width: 5px;
+				left: 7px;
+				top: 3px;
+				width: 6px;
 				height: 10px;
 				border: solid white;
 				border-width: 0 3px 3px 0;
@@ -156,7 +143,6 @@
 				-ms-transform: rotate(45deg);
 				transform: rotate(45deg);
 			}
-			/* ##### END THEME CHECKBOXES ##### */
 			.highcharts-button > path{
 				stroke:#fff !important;
 				fill:#8EADAC !important;
@@ -171,74 +157,40 @@
 				background-color: #648a89;
 				cursor:pointer !important;
 			}
-            ul.nav-pills {
-				margin-bottom: 30px;
+			<!--
+			.selectpicker{
+				 	background-color:rgb(100, 138, 137,0.25);
+				 	border-color:#8EADAC;
 			}
-			.clear {
-				clear: both;
-				height: 0px;
-				width: 100%;
-				float: none !important;
-            }
-            #phylocanvas {
-                width: 1150px;
-                height: ###HEIGHT###px;
-            }
-            .onoffswitch {
-                position: relative; width: 90px;
-                -webkit-user-select:none; -moz-user-select:none; -ms-user-select: none;
-            }
-            .onoffswitch-checkbox {
-                display: none;
-            }
-            .onoffswitch-label {
-                display: block; overflow: hidden; cursor: pointer;
-                border: 2px solid #999999; border-radius: 20px;
-            }
-            .onoffswitch-inner {
-                display: block; width: 200%; margin-left: -100%;
-                transition: margin 0.3s ease-in 0s;
-            }
-            .onoffswitch-inner:before, .onoffswitch-inner:after {
-                display: block; float: left; width: 50%; height: 30px; padding: 0; line-height: 30px;
-                font-size: 14px; color: white; font-family: Trebuchet, Arial, sans-serif; font-weight: bold;
-                box-sizing: border-box;
-            }
-            .onoffswitch-inner:before {
-                content: "ON";
-                padding-left: 10px;
-                background-color: #34A7C1; color: #FFFFFF;
-            }
-            .onoffswitch-inner:after {
-                content: "OFF";
-                padding-right: 10px;
-                background-color: #EEEEEE; color: #999999;
-                text-align: right;
-            }
-            .onoffswitch-switch {
-                display: block; width: 18px; margin: 6px;
-                background: #FFFFFF;
-                position: absolute; top: 0; bottom: 0;
-                right: 56px;
-                border: 2px solid #999999; border-radius: 20px;
-                transition: all 0.3s ease-in 0s; 
-            }
-            .onoffswitch-checkbox:checked + .onoffswitch-label .onoffswitch-inner {
-                margin-left: 0;
-            }
-            .onoffswitch-checkbox:checked + .onoffswitch-label .onoffswitch-switch {
-                right: 0px; 
-            }
-		</style>
-        <script type="application/javascript" src="https://cdn.rawgit.com/phylocanvas/phylocanvas-quickstart/v2.8.1/phylocanvas-quickstart.js"></script>
-        <script src="https://code.jquery.com/jquery-3.1.1.slim.min.js"></script>
-        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+			.selectpicker:hover{
+				 	background-color:rgb(100, 138, 137,0.25);
+				 	border-color:#8EADAC;
+			}
+			-->
+			option{
+				color:green
+			}
+			option:active, option:hover {
+			  outline: none !important;
+			}
+
+			/* make it red instead (with with same width and style) */
+			option:active, option:hover {
+			  box-shadow:red !important;
+			  outline-color: red !important;
+			}
+			select { -webkit-border-radius:25px; -moz-border-radius:25px; border-radius:25px; } select:hover { background-color:gren; } option:hover { background-color:yellow; } option { -webkit-border-radius:25px; -moz-border-radius:25px; border-radius:25px; color:blue; background-color:yellow; }
+						 
+        </style>
+		<!-- JS -->
 		<script type="text/javascript" src="https://code.jquery.com/jquery-2.1.3.min.js"></script>
 		<script type="text/javascript" src="https://code.highcharts.com/8.2.0/highcharts.js"></script>
 		<script type="text/javascript" src="https://code.highcharts.com/8.2.0/modules/exporting.js"></script>
-		<script type="text/javascript" src="https://cdn.datatables.net/1.10.6/js/jquery.dataTables.min.js"></script>
+		<script type="text/javascript" src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
 		<script type="text/javascript" src="https://cdn.datatables.net/1.10.19/js/dataTables.bootstrap4.min.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.11.0/umd/popper.min.js" integrity="sha384-b/U6ypiBEHpOf/4+1nzFpr53nxSS+GLCkfwBdFNTxtclqqenISfwAzpKaMNFNmj4" crossorigin="anonymous"></script>
 		<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js" integrity="sha384-smHYKdLADwkXOn1EmN1qk/HfnUcbVRZyYmZ4qpPea6sjB/pTJ0euyQp0Mk8ck+5T" crossorigin="anonymous"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.12.4/js/bootstrap-select.min.js"></script>
 		<script type="text/javascript">
 			/*
 			 * HTMLTable.js 0.1.0 - HTMLTable Library
@@ -257,25 +209,7 @@
 			!function(t){t.fn.datatableExport=function(a){var e={anchor_id:t(this).attr("id"),table_id:null,csv_separator:";",omitted_columns:[]},n=t.extend(e,a);if(!t(this).length)throw"The element where the datatableExport is called does not exist.";if(void 0==n.anchor_id)throw"The datatableExport plugin must be called on an element with id.";if(null==n.table_id)throw"You must set the table_id parameter in datatableExport plugin.";if(!t("#"+n.table_id))throw"The datatable '#"+n.table_id+"' cannot be retieve in DOM.";return this.each(function(){var a=t(this);a.on("click",function(){t.fn.datatableExport.csv(n.anchor_id,n.table_id,n.csv_separator,n.omitted_columns)})})},t.fn.datatableExport.cleanCellMarkup=function(a,e){t.parseHTML(e);t("#"+a).append('<div class="hidden data-tmp">'+e+"</div>"),t("#"+a+" .data-tmp").find("input").each(function(){var a="";a=t(this).is(":checkbox")?t(this).is(":checked")?"true":"false":t(this).val(),t(this).replaceWith(a)});var n=t("#"+a+" .data-tmp").text();return t("#"+a+" .data-tmp").remove(),n},t.fn.datatableExport.csv=function(a,e,n,i){var l="",r=t("#"+e).DataTable(),d=t("#"+e+" thead")[0],o=new HTMLtable(d.cloneNode(!0));o.deleteColumns(i),l+=o.toCSV();var c=r.rows().data();t.each(c,function(e,n){for(var r="",d=0;d<n.length;d++)-1==t.inArray(d,i)&&(r+='"'+t.fn.datatableExport.cleanCellMarkup(a,n[d])+'";');""!=r&&(r=r.slice(0,-1)),l+=r+"\n"}),t("#"+a+"-extract-csv").length||t("#"+a).append('<a id="'+a+'-extract-csv" href="data:text/csv;charset=UTF-8,'+encodeURI(l)+'" download="data.csv" style="display:none;"></a>'),t("#"+a+"-extract-csv")[0].click()}}(jQuery);
 		</script>
 		<script type="text/javascript">
-			/**
-			 * Returns the string representation of the number. 
-			 * @param pValue {Float} The number to process.
-			 * @return {String} The string representation (example: 12856892.11111 => 12,856,892.11).
-			 */
-		    var numberDisplay = function( pValue ){
-		    	var new_val = "" ;
-		    	if( ("" + pValue + "").indexOf(".") != -1 ){
-		    		new_val = pValue.toFixed(2).replace(/(\d)(?=(\d{3})+\b)/g, '$1,');
-		    	} else {
-		    		new_val = pValue.toFixed().replace(/(\d)(?=(\d{3})+\b)/g, '$1,');
-		    	}
-		        return new_val ;
-		    }
-		    // Radializes colors
-			Highcharts.setOptions({
-				 colors : ['#8EADAC', '#DE9F73'] ,
-				});
-				Highcharts.SVGRenderer.prototype.symbols.download = function (x, y, w, h) {
+			Highcharts.SVGRenderer.prototype.symbols.download = function (x, y, w, h) {
 				var path = [
 					// Arrow stem
 					'M', x + w * 0.5, y,
@@ -292,26 +226,31 @@
 				];
 				return path;
 			};
-			/* Radial gradient ?*/
-			Highcharts.getOptions().colors = Highcharts.map(Highcharts.getOptions().colors, function (color) {
-				return {
-					radialGradient: { cx: 0.5, cy: 0.3, r: 0.7 },
-					stops: [
-						[0, color],
-						[1, Highcharts.Color(color).brighten(-0.1).get('rgb')] // darken
-					]
-				};
-			});
+			
+			/**
+			 * Returns the string representation of the number. 
+			 * @param pValue {Float} The number to process.
+			 * @return {String} The string representation (example: 12856892.11111 => 12,856,892.11).
+			 */
+		    var numberDisplay = function( pValue ){
+		    	var new_val = "" ;
+		    	if( ("" + pValue + "").indexOf(".") != -1 ){
+		    		new_val = pValue.toFixed(2).replace(/(\d)(?=(\d{3})+\b)/g, '$1,');
+		    	} else {
+		    		new_val = pValue.toFixed().replace(/(\d)(?=(\d{3})+\b)/g, '$1,');
+		    	}
+		        return new_val ;
+		    }
 		    
 			/**
 			 * Returns the HTML table representation of the data. 
+			 * @param pTitle {String} The title of the table.
 			 * @param pCategories {Array} The title of each column.
 			 * @param pData {Array} 2D matrix with row and column data.
 			 * @return {String} The HTML table representation.
 			 */
-			var table = function( pCategories, pData  ) {
+			var table = function( pTitle, pCategories, pData  ) {
 				// Header
-				
 				var table_header = '' ;
 				var table_header_line = "" ;
 				for(var idx = 0 ; idx < pCategories.length ; idx++){
@@ -337,46 +276,138 @@
 
 				return '<table class="table table-striped table-bordered">\n' + table_header + table_body + "</table>\n" ;
 			}
-			 
-			 /**
-			  * Returns hash use to init HightChart object (without 'type'). 
-			  * @param pTitle {String} The title of the chart.
-			  * @param pXTitle {String} The xAxis title.
-			  * @param pYTitle {String} The yAxis title.
-			  * @param pXCategories {Array} The title of each category (x scale labels).
-			  * @param pData {Array} The HightChart series.
-			  * @return {Hash} The hash.
-			  * @warning This method use HightChart xAxis.categories.
-			  */
-			 var chartplot = function( pTitle, pXTitle, pYTitle, pXCategories, pData ) {
-			 	var chart = {
-			 	        title: {
-			 	            text: pTitle
-			 	        },
-			 	        xAxis: {},
-			 	        yAxis: {
-			 	            title: {
-			 	                text: pYTitle
-			 	            }
-			 	        },
-			 	        series: pData,
-			 	        credits: {
-			 	        	enabled: false
-			 	        }
-			 	}
-			 	if( pXCategories != null ){
-			 		chart['xAxis']['categories'] = pXCategories ;
-			 	}
-			 	if( pXTitle != null ){
-			 		chart['xAxis']['title'] = { text: pXTitle } ;
-			 	}
-			 	if( pData.length <= 1 ) {
-			 		chart['legend'] = {'enabled': false};
-			 	} else {
-			 		chart['legend'] = {'enabled': true};
-			 	}
-			 	return chart ;
-			 }
+			
+			// couleur des diapos : bleu #8EADAC, vert : #A2A32F, orange1 #C6792B , taupe #9A866C, orange pastel : #DE9F73
+			var histogram_param = function( pTitle, pYTitle, pCategories, pSeries, unity ) {
+				var param = {
+					chart: {
+						type: 'column'
+					},
+					colors : [
+                            '#8EADAC', '#DE9F73'
+                    ] ,
+                    exporting:{buttons: {contextButton: { symbol: 'download' }}},
+					buttons: {contextButton: {menuItems: ['downloadPNG', 'downloadSVG']}},
+					navigation: {
+						buttonOptions: {
+							theme: {
+								r: 4,
+								fill:'#8EADAC',
+								states: {
+									hover: {
+										fill: 'rgb(100, 138, 137)',
+										stroke:'#8EADAC'
+									},
+									select: {
+										stroke: '#8EADAC',
+										fill: 'rgb(100, 138, 137)',
+									}
+								}
+							}
+						}
+					},
+					title: {
+						text: pTitle
+					},
+					xAxis: {
+						categories: pCategories,
+						crosshair: true,
+						crosshair: {
+							color: "rgb(142,173,172,0.25)"
+						}
+					},
+					yAxis: {
+						min: 0,
+						title: {
+							text: pYTitle
+						}
+					},
+					tooltip: {
+						headerFormat: '<span style="font-size:10px">{point.key}</span><table>',
+						pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' +
+							'<td style="padding:0"><b>{point.y} ' + unity + '</b></td></tr>',
+						footerFormat: '</table>',
+						shared: true,
+						useHTML: true
+					},
+					plotOptions: {
+						column: {
+							pointPadding: 0.2,
+							borderWidth: 0
+						}
+					},
+					credits: {
+						enabled: false
+					},
+					series: pSeries
+				};
+				
+				return param ;
+			}
+			
+			/**
+			* Returns hash use to init HightChart object (without 'type'). 
+			* @param pTitle {String} The title of the chart.
+			* @param pXTitle {String} The xAxis title.
+			* @param pYTitle {String} The yAxis title.
+			* @param pXCategories {Array} The title of each category (x scale labels).
+			* @param pData {Array} The HightChart series.
+			* @return {Hash} The hash.
+			* @warning This method use HightChart xAxis.categories.
+			*/
+			// couleur des diapos : bleu #8EADAC, vert : #A2A32F, orange1 #C6792B , taupe #9A866C, orange pastel : #DE9F73
+			var chartplot = function( pTitle, pXTitle, pYTitle, pXCategories, pData ) {
+				var chart = {
+						title: {
+							text: pTitle
+						},
+						colors : [
+                            '#8EADAC', '#DE9F73'
+                    	] ,
+                    	exporting:{buttons: {contextButton: { symbol: 'download' }}},
+						buttons: {contextButton: {menuItems: ['downloadPNG', 'downloadSVG']}},
+						navigation: {
+							buttonOptions: {
+								theme: {
+									r: 4,
+									fill:'#8EADAC',
+									states: {
+										hover: {
+											fill: 'rgb(100, 138, 137)',
+											stroke:'#8EADAC'
+										},
+										select: {
+											stroke: '#8EADAC',
+											fill: 'rgb(100, 138, 137)',
+										}
+									}
+								}
+							}
+						},
+						xAxis: {},
+						yAxis: {
+							title: {
+								text: pYTitle
+							}
+						},
+						series: pData,
+						credits: {
+							enabled: false
+						}
+				}
+				if( pXCategories != null ){
+					chart['xAxis']['categories'] = pXCategories ;
+				}
+				if( pXTitle != null ){
+					chart['xAxis']['title'] = { text: pXTitle } ;
+				}
+				if( pData.length <= 1 ) {
+					chart['legend'] = {'enabled': false};
+				} else {
+					chart['legend'] = {'enabled': true};
+				}
+				return chart ;
+			}
 			
 			var pie_param = function( pTitle, pData, unity ) {
 				var series = [{
@@ -406,27 +437,18 @@
 		        };
 				return plot ;
 			};
-
-				
+			
 			$(function() {
-				// var summary = {"otu_removed": 4, "abundance_removed": 22025, "abundance_kept": 233756, "otu_kept": 48} ;	
-				var summary = ###SUMMARY### ;
-				// var removed_details_categories = ["Taxonomic Information", "Abundance Number", "% with abundance total", "Sequence length"] ;
-				var removed_details_categories = ###REMOVED_DETAILS_CATEGORIES### ;
-				// var removed_details_data = [
-				// 	{"data": ["k__Bacteria;p__Tenericutes;c__Mollicutes;o__Mycoplasmatales;f__Mycoplasmataceae;g__Candidatus Lumbricincola;s__NA", 200, 0.07819189071901353, 558], "name": "otu_01778"}, 
-				// 	{"data": ["k__Bacteria;p__Firmicutes;c__Bacilli;o__Lactobacillales;f__Carnobacteriaceae;g__Carnobacterium;s__Funditum", 459, 0.17945038920013606, 506], "name": "otu_00186"}, 
-				// 	{"data": ["k__Bacteria;p__Proteobacteria;c__Gammaproteobacteria;o__Vibrionales;f__Vibrionaceae;g__Photobacterium;s__Aquimaris", 1044, 0.4081616695532506, 538], "name": "otu_01097"}, 
-				// 	{"data": ["k__Bacteria;p__CK-1C4-19;c__NA;o__NA;f__NA;g__NA;s__NA", 20322, 7.9450780159589645, 501], "name": "otu_01918"}
-				// ] ;
-				var removed_details_data = ###REMOVED_DETAILS_DATA### ;
+				var global_results = ###GLOBAL_DATA### ;
+				var sample_results = ###SAMPLES_DATA### ;
+				var taxonomy_ranks = ###TAXONOMY_RANKS### ;
 				
-                // Remove alert
+				// Remove alert
 				$('#js-alert').remove();
 				$('#content').removeClass("hidden");
 				
-				// Radialize the colors
-				/*
+				// Display summary
+				var std_color = Highcharts.getOptions().colors ;
 			    Highcharts.getOptions().colors = Highcharts.map(Highcharts.getOptions().colors, function (color) {
 			        return {
 			            radialGradient: { cx: 0.5, cy: 0.3, r: 0.7 },
@@ -436,95 +458,91 @@
 			            ]
 			        };
 			    });
-			    */
+			    
+				var pie_series = [
+					["With affiliation", global_results["nb_clstr_with_affi"]],
+					["Without affiliation", (global_results["nb_clstr"] - global_results["nb_clstr_with_affi"])]
+				]
+				$('#clstr-ratio-affi').highcharts( pie_param("ASVs affiliation", pie_series, 'ASVs') );
 				
-			 	// Display summary
-				var nb_otu = [
-					['In Tree', summary['otu_kept']],
-					['Out of Tree', summary['otu_removed']]
+				var pie_series = [
+					["With affiliation", global_results["nb_seq_with_affi"]],
+					["Without affiliation", (global_results["nb_seq"] - global_results["nb_seq_with_affi"])]
+				]
+				$('#seq-ratio-affi').highcharts( pie_param("Sequences affiliation", pie_series, 'sequences') );
+				
+				Highcharts.getOptions().colors = std_color ;
+				
+				var histogram_series = [
+					{
+						'name': 'ASVs',
+						'data': global_results["nb_clstr_ambiguous"].map(function(num) {
+							var prct = (num/global_results["nb_clstr"])*10000/100 ;
+							return( parseFloat(numberDisplay(prct)) );
+						})
+					}, {
+						'name': 'Sequences',
+						'data': global_results["nb_seq_ambiguous"].map(function(num) {
+							var prct = (num/global_results["nb_seq"])*10000/100 ;
+							return( parseFloat(numberDisplay(prct)) );
+						})
+					}
 				];
-				$('#nb-otu').highcharts( pie_param('OTUs', nb_otu, 'OTUs') );
-				var nb_abundance = [
-  					['In Tree', summary['abundance_kept']],
-  					['Out of Tree', summary['abundance_removed']]
-  				];
-				$('#nb-abundance').highcharts( pie_param('Abundance', nb_abundance, 'Sequences') );
+				$('#clstr-multi-affi').highcharts( histogram_param('Multi-affiliation by taxonomic rank', '% of multi-affiliated', taxonomy_ranks, histogram_series, '%') );
 				
-				// Display failed OTUs table
-				var table_categories = removed_details_categories.slice() ;
-				table_categories.unshift( "OTU Name" );
+				// Display data by sample
+				var table_categories = [ 'Sample', 'Nb Clusters', '% affiliated clusters by blast', 'Nb seq', '% Affiliated sequences by blast' ];
 				var table_series = new Array();
-				for( var spl_idx = 0 ; spl_idx < removed_details_data.length ; spl_idx++ ){
-					var nb_by_step = removed_details_data[spl_idx]['data'].slice() ;
-					nb_by_step.unshift( removed_details_data[spl_idx]['name'] );
-					table_series.push( nb_by_step );
+				for( var sample_name in sample_results ){
+					table_series.push([
+						sample_name,
+						sample_results[sample_name]['nb_clstr'],
+						Math.round(((sample_results[sample_name]['nb_clstr_with_affi']/sample_results[sample_name]['nb_clstr'])*10000)/100),
+						sample_results[sample_name]['nb_seq'],
+						Math.round(((sample_results[sample_name]['nb_seq_with_affi']/sample_results[sample_name]['nb_seq'])*10000)/100)
+					]);
 				};
-				$('#OTUs-fail').append( table(table_categories, table_series) );
-				$('#OTUs-fail table').prop( 'id', 'details-table' );
-				$('#OTUs-fail table').DataTable({
+				$('#samples-details').append( table("Blast affiliation by sample", table_categories, table_series) );
+				$('#samples-details table').prop( 'id', 'details-table' );
+				$('#samples-details table').DataTable({
+					//"sDom": '<"top"<"#details-csv-export"><"clear">lf>rt<"bottom"ip><"clear">'
 					dom: 	"<'#details-csv-export'><'row'<'col-sm-5'l><'col-sm-7'f>>" +
 							"<'row'<'col-sm-12'tr>>" +
-							"<'row'<'col-sm-5'i><'col-sm-7'p>>"
+							"<'row'<'col-sm-5'i><'col-sm-7'p>>",
+							"pagingType": "simple"
 				});
-				$('#details-csv-export').html( '<button class="btn"><span class="fa fa-download" aria-hidden="true"> CSV</span></button>' );
+				$('#details-csv-export').html( '<button class="btn btn-primary" ><span class="fa fa-download" aria-hidden="true"> CSV</span></button>' );
 				$('#details-csv-export').addClass( 'dataTables_filter' );
 				$('#details-csv-export').datatableExport({
 					'table_id': "details-table"
 				});
-                //// Construct tree object
-                var tree = Phylocanvas.createTree('phylocanvas');
-                tree.setTreeType('rectangular');
-                tree.alignLabels = true;
-                tree.setNodeSize(12);
-                tree.setTextSize(12);
-                tree.lineWidth = 1.5;
-                tree.disableZoom = true;
-                $('#myonoffswitch').change(function() {
-                    if(this.checked) {
-                        tree.disableZoom = false;
-                    } else {
-                        tree.disableZoom = true;
-                    }
-                });
-                tree.branchColour = "#8EADAC";
-                tree.selectedColour = "#DE9F73";
-                tree.load('###NEWICK###');
-                tree.backColour = true;
-                tree.draw();
 			});
 		</script>
-        <script>
-            $(document).ready(function() { $('div:empty').remove(); });
-        </script>
 	</head>
 	<body>
-		<!-- Alert -->
 		<p id="js-alert" class="alert alert-warning">
 			javascript is needed to display data.<br />
 			If you try to view this data on galaxy please contact your administrator to authorise javascript or download the file to view.
 		</p>
-		
-		<!-- Content -->
 		<div id="content" class="hidden">
-            <h2 class="pb-2 mt-4 mb-2 border-bottom">Summary</h2>
-            <div class="row">
-                <div id="nb-otu" class="col-md-6"></div>
-                <div id="nb-abundance" class="col-md-6"></div>
-            </div>
-            <div id="OTUs-fail" style="display:none;">
-            	<h2 class="pb-2 mt-4 mb-2 border-bottom">Table of failed OTUs</h2>
-            </div>
-            <h1 class="page-header">Tree View
-                <h5>Enabling zoom:</h5>
-            </h1>
-            <div class="onoffswitch">
-	            <input type="checkbox" name="onoffswitch" class="onoffswitch-checkbox" id="myonoffswitch">
-	            <label class="onoffswitch-label" for="myonoffswitch">
-	                <span class="onoffswitch-inner"></span>
-	                <span class="onoffswitch-switch"></span>
-	            </label>
-        	</div>
-            <div id="phylocanvas"></div>
-        </div>
-     </body>
+			<div id="global-summary">
+				<h2 class="pb-2-first mt-4 mb-2 border-bottom" style="margin-top: 1rem">Blast affiliation summary</h2>
+				<div class="row">
+					<div class="col-md-1"></div>
+					<div id="clstr-ratio-affi" class="col-md-5"></div>
+					<div id="seq-ratio-affi" class="col-md-5"></div>
+					<div class="col-md-1"></div>
+				</div>
+				<h2 class="pb-2 mt-4 mb-2 border-bottom">Blast multi-affiliation summary</h2>
+				<div class="row">
+					<div class="col-md-1"></div>
+					<div id="clstr-multi-affi" class="col-md-10"></div>
+					<div class="col-md-1"></div>
+				</div>
+			</div>
+			<div id="samples-details">
+				<h2 class="pb-2 mt-4 mb-2 border-bottom">Blast affiliation by sample</h2>
+			</div>
+		</div>
+	</body>
 </html>

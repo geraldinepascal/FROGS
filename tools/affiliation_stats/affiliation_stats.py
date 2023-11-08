@@ -19,7 +19,7 @@
 __author__ = 'Frederic Escudie - Plateforme bioinformatique Toulouse'
 __copyright__ = 'Copyright (C) 2015 INRA'
 __license__ = 'GNU General Public License'
-__version__ = '3.2.3'
+__version__ = '4.1.0'
 __email__ = 'frogs-support@inrae.fr'
 __status__ = 'prod'
 
@@ -65,6 +65,8 @@ class Rarefaction(Cmd):
         # Out files management
         out_basename_pattern = "rarefaction_rank_##RANK##.tsv"
         out_files = list()
+        out_files.append( tmp_files_manager.add(out_basename_pattern.replace('##RANK##', 'otu')) )
+
         for rank in rarefaction_levels:
             out_files.append( tmp_files_manager.add(out_basename_pattern.replace('##RANK##', str(rank))) )
         out_path_pattern = os.path.join( tmp_files_manager.tmp_dir, tmp_files_manager.prefix + "_" + out_basename_pattern )
@@ -257,16 +259,15 @@ def write_summary( summary_file, input_biom, tree_count_file, tree_ids_file, rar
     bootstrap_results = None
     if args.bootstrap_tag is not None:
         bootstrap_results = get_bootstrap_distrib( input_biom, args.bootstrap_tag, args.multiple_tag )
-
     # Get alignment metrics
     aln_results = None
     if args.identity_tag is not None and args.coverage_tag is not None:
         aln_results = get_alignment_distrib( input_biom, args.identity_tag, args.coverage_tag, args.multiple_tag )
-
     # Get rarefaction data
     rarefaction_step_size = None
     rarefaction = None
     biom = BiomIO.from_json( input_biom )
+    args.rarefaction_ranks.append('ASVs')
     for rank_idx, current_file in enumerate(rarefaction_files):
         rank = args.rarefaction_ranks[rank_idx]
         FH_rarefaction = open( current_file )
@@ -278,6 +279,7 @@ def write_summary( summary_file, input_biom, tree_count_file, tree_ids_file, rar
                     rarefaction = dict()
                     for sample in samples:
                         rarefaction[sample] = dict()
+                        rarefaction[sample]['nb_asv'] = len([ i for i in biom.get_sample_obs(sample) if i >0 ])
                         rarefaction[sample]['nb_seq'] = biom.get_sample_count( sample )
                 for sample in samples:
                     rarefaction[sample][rank] = list()
@@ -293,7 +295,7 @@ def write_summary( summary_file, input_biom, tree_count_file, tree_ids_file, rar
     del biom
 
     # Write
-    FH_summary_tpl = open( os.path.join(CURRENT_DIR, "affiliations_stat_tpl.html") )
+    FH_summary_tpl = open( os.path.join(CURRENT_DIR, "affiliation_stats_tpl.html") )
     FH_summary_out = open( summary_file, "wt" )
     for line in FH_summary_tpl:
         if "###TAXONOMIC_RANKS###" in line:
@@ -341,7 +343,8 @@ def process( args ):
         rarefaction_cmd = Rarefaction(tmp_biom, tmp_files, used_taxonomy_tag, tax_depth)
         rarefaction_cmd.submit( args.log_file )
         rarefaction_files = rarefaction_cmd.output_files
-
+        # Put ASVs rarefaction file at the end , after species 
+        rarefaction_files.append(rarefaction_files.pop(0))
         # Taxonomy tree
         tree_count_file = tmp_files.add( "taxCount.enewick" )
         tree_ids_file = tmp_files.add( "taxCount_ids.tsv" )
@@ -361,14 +364,14 @@ def process( args ):
 ##################################################################################################################################################
 if __name__ == '__main__':
     # Parameters
-    parser = argparse.ArgumentParser(description='Produces several metrics describing OTUs based on their taxonomies and the quality of the affiliations.')
+    parser = argparse.ArgumentParser(description='Produces several metrics describing ASVs based on their taxonomies and the quality of the affiliations.')
     parser.add_argument( '-d', '--debug', default=False, action='store_true', help="Keep temporary files to debug program." )
     parser.add_argument( '-v', '--version', action='version', version=__version__ )
     parser.add_argument( '--taxonomic-ranks', nargs='*', default=["Domain", "Phylum", "Class", "Order", "Family", "Genus", "Species"], help='The ordered ranks levels used in the metadata taxonomy. [Default: %(default)s]' )
     parser.add_argument( '--rarefaction-ranks', nargs='*', default=["Genus"], help='The ranks that will be evaluated in rarefaction. [Default: %(default)s]' )
     group_exclusion_taxonomy = parser.add_mutually_exclusive_group()
     group_exclusion_taxonomy.add_argument( '--taxonomy-tag', type=str, help='The metadata tag used in BIOM file to store the taxonomy. Use this parameter if the taxonomic affiliation has been processed by a software that adds only one affiliation or if you does not have a metadata with the consensus taxonomy (see "--tax-consensus-tag").Not allowed with --tax-consensus-tag.' )
-    group_exclusion_taxonomy.add_argument( '--tax-consensus-tag', type=str, help='The metadata tag used in BIOM file to store the consensus taxonomy. This parameter is used instead of "--taxonomy-tag" when you have several affiliations for each OTU.' )
+    group_exclusion_taxonomy.add_argument( '--tax-consensus-tag', type=str, help='The metadata tag used in BIOM file to store the consensus taxonomy. This parameter is used instead of "--taxonomy-tag" when you have several affiliations for each ASV.' )
     parser.add_argument( '--multiple-tag', type=str, default=None, help='The metadata tag used in BIOM file to store the list of possible taxonomies. Use this parameter if the taxonomic affiliation has been processed by a software that adds several affiliation in the BIOM file (example: same score ambiguity).' )
     parser.add_argument( '--bootstrap-tag', type=str, default=None, help='The metadata tag used in BIOM file to store the taxonomy bootstraps.' )
     parser.add_argument( '--identity-tag', type=str, default=None, help='The metadata tag used in BIOM file to store the alignment identity.' )
@@ -378,7 +381,7 @@ if __name__ == '__main__':
     group_input.add_argument( '-i', '--input-biom', required=True, help="The input abundance file (format: BIOM)." )
     #     Outputs
     group_output = parser.add_argument_group( 'Outputs' )
-    group_output.add_argument( '-o', '--output-file', default="affiliations_stat.html", help="The HTML file containing the graphs. [Default: %(default)s]" )
+    group_output.add_argument( '-o', '--output-file', default="affiliation_stats.html", help="The HTML file containing the graphs. [Default: %(default)s]" )
     group_output.add_argument( '-l', '--log-file', default=sys.stdout, help='The list of commands executed.' )
     args = parser.parse_args()
     prevent_shell_injections(args)

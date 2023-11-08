@@ -1,5 +1,5 @@
 ---
-title: "FROGS Phyloseq: Visualise Data Composition (version 3.2.3)"
+title: "FROGS Phyloseq: Visualise Data Composition (version 4.1.0)"
 output:
   html_notebook:
     code_folding : hide
@@ -54,11 +54,11 @@ h4 {
 </style>
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = TRUE, error = TRUE)
 ```
 Phyloseq `r packageVersion("phyloseq")`
 
-```{r import, message=FALSE}
+```{r import, message=FALSE, warning=FALSE}
 ## Import functions
 library(plotly)
 library(phyloseq)

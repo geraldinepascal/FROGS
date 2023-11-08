@@ -18,7 +18,7 @@
 __author__ = ' Ta Thi Ngan & Maria Bernard INRA - SIGENAE '
 __copyright__ = 'Copyright (C) 2017 INRA'
 __license__ = 'GNU General Public License'
-__version__ = '3.2.3'
+__version__ = '4.1.0'
 __email__ = 'frogs-support@inrae.fr'
 __status__ = 'prod'
 
@@ -61,7 +61,7 @@ class Rscript(Cmd):
     """
     def __init__(self, biomfile, samplefile, treefile, html, normalisation, phyloseq, ranks, rmd_stderr):
         """
-        @param biomfile: [str] The biom file contains the  OTU's informations: abundance and taxonomy. These file is the result of FROGS.
+        @param biomfile: [str] The biom file contains the  ASV's informations: abundance and taxonomy. These file is the result of FROGS.
         @param samplefile: [str] The tabular file contains the samples's informations. 
                                  Advice: within SampleID or without SampleID
         @param treefile: [str] The Newick file contains the tree's informations from Frogs Tree.
@@ -134,7 +134,7 @@ if __name__ == "__main__":
    
     # output
     group_output = parser.add_argument_group( 'Outputs' ) 
-    group_output.add_argument('--rdata', default='phyloseq_data.Rdata', help="path to store phyloseq-class object in Rdata file. [Default: %(default)s]" )
+    group_output.add_argument('--rdata', default='asv_data.Rdata', help="path to store phyloseq-class object in Rdata file. [Default: %(default)s]" )
     group_output.add_argument('-o','--html', default='phyloseq_import_summary.nb.html', help="The HTML file containing the graphs. [Default: %(default)s]" )
     group_output.add_argument( '-l', '--log-file', default=sys.stdout, help='This output file will contain several informations on executed commands.')   
     args = parser.parse_args()

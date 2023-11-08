@@ -1657,7 +1657,7 @@ def process_sample(R1_file, R2_file, sample_name, out_file, art_out_file, length
             else: # Custom sequencing primers. The amplicons is full length (Illumina) except PCR primers (it is use as sequencing primers). [Protocol Kozich et al. 2013]
                 Combined(out_notcombined_R1, out_notcombined_R2, "X"*100, art_out_cutadapt ).submit(log_file)
             # filter on length, N 
-            MultiFilter(art_out_cutadapt, None, args.R1_size, None, None, None, art_out_Nfilter, None, art_log_Nfilter, args).submit(log_file)
+            MultiFilter(art_out_cutadapt, None, min_len, max_len, 0, None, art_out_Nfilter, None, art_log_Nfilter, args).submit(log_file)
             ReplaceJoinTag(art_out_Nfilter, "X"*100, "N"*100, art_out_XtoN ).submit(log_file)
             DerepBySample(out_NAndLengthfilter + " " + art_out_XtoN, out_file, out_count).submit(log_file)
         else:
@@ -1756,7 +1756,8 @@ def process( args ):
                 raise_exception( Exception( "\n\n#ERROR : The filters have eliminated all sequences (see summary for more details).\n\n" ))
 
             # Temporary files
-            filename_woext = os.path.split(args.output_fasta)[1].split('.')[0]
+            filename_woext = os.path.split(args.output_dereplicated)[1].split('.')[0]
+            
             #clustering_log = tmp_files.add( filename_woext + '_clustering_log.txt' )
             
             #Clustering(args.output_dereplicated, args.output_count, args.distance, args.fastidious, args.output_compo, args.output_fasta, args.output_biom, clustering_log, args.nb_cpus).submit( args.log_file)

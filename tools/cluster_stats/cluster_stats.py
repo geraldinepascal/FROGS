@@ -19,7 +19,7 @@
 __author__ = 'Frederic Escudie - Plateforme bioinformatique Toulouse'
 __copyright__ = 'Copyright (C) 2015 INRA'
 __license__ = 'GNU General Public License'
-__version__ = '3.2.3'
+__version__ = '4.1.0'
 __email__ = 'frogs-support@inrae.fr'
 __status__ = 'prod'
 
@@ -119,7 +119,7 @@ class Depths(Cmd):
 # FUNCTIONS
 #
 ##################################################################################################################################################
-def write_summary( summary_file, input_biom, depth_file, classif_file=None ):
+def write_summary( summary_file, input_biom, depth_file, classif_file ):
     """
     @summary: Writes the summary of results.
     @param summary_file: [str] The output file.
@@ -164,15 +164,12 @@ def write_summary( summary_file, input_biom, depth_file, classif_file=None ):
     del biom
 
     # Get newick data
-    if classif_file is not None:
-        FH_classif = open( classif_file )
-        newick = FH_classif.readlines()[0].replace("\n", "")
-        FH_classif.close()
-    else:
-        newick = ""
+    FH_classif = open( classif_file )
+    newick = FH_classif.readlines()[0].replace("\n", "")
+    FH_classif.close()
 
     # Write
-    FH_summary_tpl = open( os.path.join(CURRENT_DIR, "clusters_stat_tpl.html") )
+    FH_summary_tpl = open( os.path.join(CURRENT_DIR, "cluster_stats_tpl.html") )
     FH_summary_out = open( summary_file, "wt" )
     for line in FH_summary_tpl:
         if "###CLUSTERS_SIZES###" in line:
@@ -198,7 +195,6 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         description='Process several metrics on abundance from BIOM file.'
     )
-    parser.add_argument( '--h-clustering', default=False, action='store_true', help='Perform hierarchical clustering. [Default: False]' )
     parser.add_argument( '--distance-method', type=str, default="braycurtis", help='Used distance method for classify (see http://docs.scipy.org/doc/scipy-0.14.0/reference/generated/generated/scipy.spatial.distance.pdist.html#scipy.spatial.distance.pdist). [Default: %(default)s]',
                          choices=["euclidean", "cityblock", "seuclidean", "sqeuclidean", "cosine", "correlation", "hamming", "jaccard", "chebyshev", "canberra", "braycurtis", "mahalanobis", "yule", "matching", "dice", "kulsinski", "rogerstanimoto", "russellrao", "sokalmichener", "sokalsneath", "wminkowski"] )
     parser.add_argument( '--linkage-method', type=str, default="average", help='Used linkage method for classify (see http://docs.scipy.org/doc/scipy-0.14.0/reference/generated/scipy.cluster.hierarchy.linkage.html). [Default: %(default)s]',
@@ -210,7 +206,7 @@ if __name__ == "__main__":
     group_input.add_argument( '-i', '--input-biom', required=True, help='The BIOM file to process.' )
     # Outputs
     group_output = parser.add_argument_group( 'Outputs' )
-    group_output.add_argument( '-o', '--output-file', default='clusters_stat.html', help='The HTML file containing the graphs. [Default: %(default)s]')
+    group_output.add_argument( '-o', '--output-file', default='cluster_stats.html', help='The HTML file containing the graphs. [Default: %(default)s]')
     group_output.add_argument( '-l', '--log-file', default=sys.stdout, help='This output file will contain several informations on executed commands.')
     args = parser.parse_args()
     prevent_shell_injections(args)
@@ -220,17 +216,15 @@ if __name__ == "__main__":
     # Process
     try:
         Logger.static_write(args.log_file, "## Application\nSoftware :" + sys.argv[0] + " (version : " + str(__version__) + ")\nCommand : " + " ".join(sys.argv) + "\n\n")
-        if args.h_clustering:
-            classif_file = tmp_files.add( "HClassif.newick" )
-            classif_log = tmp_files.add( "HClassif_log.txt" )
-            HClassification(args.input_biom, classif_file, classif_log, args.distance_method, args.linkage_method).submit( args.log_file )
+
+        classif_file = tmp_files.add( "HClassif.newick" )
+        classif_log = tmp_files.add( "HClassif_log.txt" )
+        HClassification(args.input_biom, classif_file, classif_log, args.distance_method, args.linkage_method).submit( args.log_file )
 
         depth_file = tmp_files.add( "depths.tsv" )
         Depths(args.input_biom, depth_file).submit( args.log_file )
-        if args.h_clustering:
-            write_summary( args.output_file, args.input_biom, depth_file, classif_file )
-        else:
-            write_summary( args.output_file, args.input_biom, depth_file)
+
+        write_summary( args.output_file, args.input_biom, depth_file, classif_file )
     # Remove temporary files
     finally:
         if not args.debug:

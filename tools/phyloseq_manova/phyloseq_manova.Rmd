@@ -1,5 +1,5 @@
 ---
-title: "FROGS Phyloseq: Multivariate Analysis of Variance (version 3.2.3)"
+title: "FROGS Phyloseq: Multivariate Analysis of Variance (version 4.1.0)"
 output:
   html_notebook:
     code_folding : hide
@@ -47,7 +47,7 @@ h4 {
 </style>
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = TRUE, error = TRUE, warning = FALSE)
 ```
 Phyloseq `r packageVersion("phyloseq")`
 
@@ -81,5 +81,7 @@ dist     <- as.dist(A)
 
 ## Multivariate ANOVA performed with adonis
 adonis <- paste('adonis(dist ~ ', params$varExp, ', data = metadata, perm = 9999)')
-eval(parse(text = adonis))
+adonis_res <- eval(parse(text = adonis))
+print(adonis_res$call)
+print(adonis_res$aov.tab)
 ```
