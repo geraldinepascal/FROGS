@@ -19,7 +19,7 @@
 __author__ = 'Olivier Rue - Migale MaIAGE Jouy-en-Josas - Maria Bernard - Sigenae Jouy en Josas'
 __copyright__ = 'Copyright (C) 2015 INRA'
 __license__ = 'GNU General Public License'
-__version__ = '3.2.3'
+__version__ = '4.1.0'
 __email__ = 'frogs-support@inrae.fr'
 __status__ = 'prod'
 
@@ -52,7 +52,7 @@ class ITSx(Cmd):
     """
     @summary: Use ITSx to identifies ITS sequences and extracts the ITS region
     """
-    def __init__(self, in_fasta, in_biom, target, organism_groups, out_fasta, out_count, out_removed, log_file, param):
+    def __init__(self, in_fasta, in_biom, organism_groups, out_fasta, out_count, out_removed, log_file, param):
         """
         @param in_fasta: [str] Path to the fasta to process.
         @param in_count: [str] Path to the associated count file to update.
@@ -70,10 +70,12 @@ class ITSx(Cmd):
             options += " --debug "
         if param.check_its_only:
             options += " --check-its-only"
+        else :
+            options += " --its "+param.region
         Cmd.__init__(self,
             'parallelITSx.py',
             'identifies ITS sequences and extracts the ITS region',
-            ' -f ' + in_fasta + ' -b ' + in_biom + options + ' --its '+ target + ' --organism-groups ' + ' '.join(organism_groups) + ' -o ' + out_fasta + ' -m ' + out_removed + ' -a ' + out_count + ' --log-file ' + log_file,
+            ' -f ' + in_fasta + ' -b ' + in_biom + options + ' --organism-groups ' + ' '.join(organism_groups) + ' -o ' + out_fasta + ' -m ' + out_removed + ' -a ' + out_count + ' --log-file ' + log_file,
             '--version')
         self.program_log = log_file
 
@@ -227,14 +229,16 @@ if __name__ == "__main__":
     parser.add_argument( '-p', '--nb-cpus', type=int, default=1, help="The maximum number of CPUs used. [Default: %(default)s]" )
     parser.add_argument( '--debug', default=False, action='store_true', help="Keep temporary files to debug program." )
     parser.add_argument( '-v', '--version', action='version', version=__version__ )
+    # Params
+    group_params = parser.add_argument_group( 'Parameters' )
+    group_params.add_argument( '--organism-groups', type=str, nargs="+", default=['F'], help='Reduce ITSx scan to specified organim groups. [Default: %(default)s , which means Fungi only]')
+    group_exclusion_params = group_params.add_mutually_exclusive_group(required=True)
+    group_exclusion_params.add_argument( '--region', type=str, default=None, choices=['ITS1','ITS2'], help='Which fungal ITS region is targeted and trimmed: either ITS1 or ITS2. (mutually exclusive with --check-its-only)' )
+    group_exclusion_params.add_argument( '--check-its-only', action='store_true', default=False, help='Check only if sequences seem to be an ITS (mutually exclusive with --region)' )
     # Inputs
     group_input = parser.add_argument_group( 'Inputs' )
-    group_input.add_argument( '--region', type=str, required=True,  choices=['ITS1','ITS2'], help='Which fungal ITS region is targeted: either ITS1 or ITS2' )
-    group_input.add_argument( '--organism-groups', type=str, nargs="*", default=['F'], help='Reduce ITSx scan to specified organim groups. [Default: %(default)s , which means Fungi only]')
-    group_input.add_argument( '--check-its-only', action='store_true', default=False, help='Check only if sequences seem to be an ITS' )
     group_input.add_argument( '-f', '--input-fasta', required=True, help='The cluster sequences (format: FASTA).' )
-    group_exclusion_abundance = group_input.add_mutually_exclusive_group()
-    group_exclusion_abundance.add_argument( '-b', '--input-biom', help='The abundance file for clusters by sample (format: BIOM).' )
+    group_input.add_argument( '-b', '--input-biom', help='The abundance file for clusters by sample (format: BIOM).' )
     # Outputs
     group_output = parser.add_argument_group( 'Outputs' )
     group_output.add_argument( '-n', '--out-fasta', default='itsx.fasta', help='sequences file out from ITSx (format: FASTA). [Default: %(default)s]')
@@ -253,7 +257,7 @@ if __name__ == "__main__":
         Logger.static_write(args.log_file, "## Application\nSoftware :" + sys.argv[0] + " (version : " + str(__version__) + ")\nCommand : " + " ".join(sys.argv) + "\n\n")
         log_itsx = tmpFiles.add("ITSx.log")
         
-        ITSx(args.input_fasta, args.input_biom, args.region, args.organism_groups, args.out_fasta, args.out_abundance, args.out_removed, log_itsx, args ).submit( args.log_file )
+        ITSx(args.input_fasta, args.input_biom, args.organism_groups, args.out_fasta, args.out_abundance, args.out_removed, log_itsx, args ).submit( args.log_file )
         write_summary( args.summary, args.input_biom, args.out_abundance)
         
         # Append independant log files
