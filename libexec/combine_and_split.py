@@ -61,10 +61,8 @@ def get_nb_seq( reads_file ):
     return nb_seq
 
 def get_id_and_abundance( recid ):
-    print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>", recid)
     seqid = re.split(";size=",recid)[0]
     abundance = re.split(";size=",recid)[1]
-    print(seqid, abundance)
     return(seqid, abundance)
     
 
