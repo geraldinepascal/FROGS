@@ -19,7 +19,7 @@
 	<head>
 		<title>FROGS Tree</title>
 		<meta charset="UTF-8">
-		<meta name="version" content="4.0.1">
+		<meta name="version" content="4.1.0">
 		<!-- CSS -->
 		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.1.1/css/bootstrap.css"></link>
 		<link rel="stylesheet" href="https://cdn.datatables.net/1.10.19/css/dataTables.bootstrap4.min.css"></link>
@@ -443,25 +443,25 @@
 					['In Tree', summary['otu_kept']],
 					['Out of Tree', summary['otu_removed']]
 				];
-				$('#nb-otu').highcharts( pie_param('OTUs', nb_otu, 'OTUs') );
+				$('#nb-otu').highcharts( pie_param('ASVs', nb_otu, 'ASVs') );
 				var nb_abundance = [
   					['In Tree', summary['abundance_kept']],
   					['Out of Tree', summary['abundance_removed']]
   				];
 				$('#nb-abundance').highcharts( pie_param('Abundance', nb_abundance, 'Sequences') );
 				
-				// Display failed OTUs table
+				// Display failed ASVs table
 				var table_categories = removed_details_categories.slice() ;
-				table_categories.unshift( "OTU Name" );
+				table_categories.unshift( "ASV Name" );
 				var table_series = new Array();
 				for( var spl_idx = 0 ; spl_idx < removed_details_data.length ; spl_idx++ ){
 					var nb_by_step = removed_details_data[spl_idx]['data'].slice() ;
 					nb_by_step.unshift( removed_details_data[spl_idx]['name'] );
 					table_series.push( nb_by_step );
 				};
-				$('#OTUs-fail').append( table(table_categories, table_series) );
-				$('#OTUs-fail table').prop( 'id', 'details-table' );
-				$('#OTUs-fail table').DataTable({
+				$('#ASVs-fail').append( table(table_categories, table_series) );
+				$('#ASVs-fail table').prop( 'id', 'details-table' );
+				$('#ASVs-fail table').DataTable({
 					dom: 	"<'#details-csv-export'><'row'<'col-sm-5'l><'col-sm-7'f>>" +
 							"<'row'<'col-sm-12'tr>>" +
 							"<'row'<'col-sm-5'i><'col-sm-7'p>>"
@@ -511,8 +511,8 @@
                 <div id="nb-otu" class="col-md-6"></div>
                 <div id="nb-abundance" class="col-md-6"></div>
             </div>
-            <div id="OTUs-fail" style="display:none;">
-            	<h2 class="pb-2 mt-4 mb-2 border-bottom">Table of failed OTUs</h2>
+            <div id="ASVs-fail" style="display:none;">
+            	<h2 class="pb-2 mt-4 mb-2 border-bottom">Table of failed ASVs</h2>
             </div>
             <h1 class="page-header">Tree View
                 <h5>Enabling zoom:</h5>

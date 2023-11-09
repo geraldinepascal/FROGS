@@ -278,16 +278,21 @@ chmod 777 FastTree
 ln -s $BIN_DIR/Fasttree/FastTree $FROGS_libexec/.
 ```
 
-## 12) R 3.6.3, for all FROGSSTAT Phyloseq tools
+## 12) R 4.0.5, for all FROGSSTAT Phyloseq tools
 
-**installation**
+**installation** (follow official instructions for example available on a french mirror: https://pbil.univ-lyon1.fr/CRAN/bin/linux/ubuntu )
 
-add repository to `/etc/apt/sources.list` for  your ubuntu version! (see https://pbil.univ-lyon1.fr/CRAN/ , this is a french mirror), write `deb https://cloud.r-project.org/bin/linux/ubuntu bionic-cran35/ `at the end of the sources.list file
 ```bash
-# add secure key 
-sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys E298A3A825C0D65DFD57CBB651716619E084DAB9
-sudo apt-get update
-sudo apt-get install r-base
+# update indices
+apt update -qq
+# install two helper packages we need
+apt install --no-install-recommends software-properties-common dirmngr
+# import the signing key (by Michael Rutter) for these repo
+apt-key adv --keyserver keyserver.ubuntu.com --recv-keys E298A3A825C0D65DFD57CBB651716619E084DAB9
+# add the R 4.0 repo from CRAN -- adjust 'focal' to 'groovy' or 'bionic' as needed
+add-apt-repository "deb https://cloud.r-project.org/bin/linux/ubuntu $(lsb_release -cs)-cran40/"
+# install R
+apt install --no-install-recommends r-base
 # check installation
 R --version
 # add to FROGS
@@ -323,7 +328,7 @@ library(phangorn)
 
 * phyloseq (this will take some times)
 
-  version tested until 1.30
+  version tested until 1.34
 ```R
 if (!requireNamespace("BiocManager", quietly = TRUE))
     install.packages("BiocManager")
@@ -335,7 +340,7 @@ library(phyloseq)
 
 * DESeq2
 
-  version tested until 1.26
+  version tested until 1.30
 
   ```R
   BiocManager::install("DESeq2")
@@ -379,12 +384,12 @@ sessionInfo()
 other attached packages:
  [1] formattable_0.2.0.1         calibrate_1.7.7            
  [3] MASS_7.3-53                 optparse_1.6.6             
- [5] DESeq2_1.26.0               SummarizedExperiment_1.16.1
+ [5] DESeq2_1.30.0               SummarizedExperiment_1.16.1
  [7] DelayedArray_0.12.3         BiocParallel_1.20.1        
  [9] matrixStats_0.57.0          Biobase_2.46.0             
 [11] GenomicRanges_1.38.0        GenomeInfoDb_1.22.1        
 [13] IRanges_2.20.2              S4Vectors_0.24.4           
-[15] BiocGenerics_0.32.0         phyloseq_1.30.0            
+[15] BiocGenerics_0.32.0         phyloseq_1.34.0            
 [17] phangorn_2.5.5              ape_5.4-1                  
 [19] plotly_4.9.2.2              ggplot2_3.3.3  
 ```

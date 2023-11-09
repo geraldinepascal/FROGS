@@ -130,7 +130,7 @@ def process(params) :
     biom_out = Biom( matrix_type="sparse" )
 
     if not biom_in.has_metadata("blast_taxonomy"):
-        raise_exception( Exception("\n\n#ERROR : Your biom file need to be affiliated with FROGS_affiliation_OTU tool\n\n"))
+        raise_exception( Exception("\n\n#ERROR : Your biom file need to be affiliated with FROGS taxonomic_affiliation tool\n\n"))
 
     #add samples to biom
     for sample_name in biom_in.get_samples_names():
@@ -176,7 +176,7 @@ if __name__ == "__main__":
     parser.add_argument( '-v', '--version', action='version', version=__version__)
     # Inputs
     group_input = parser.add_argument_group('Inputs')
-    group_input.add_argument('-b', '--input-biom', required=True, help='Abundance table with affiliations metadata from the affiliation_OTU program (format: BIOM).')
+    group_input.add_argument('-b', '--input-biom', required=True, help='Abundance table with affiliations metadata from the taxonomic_affiliation tool (format: BIOM).')
     group_input.add_argument('-r', '--ITS-reference', required=True, help='reference ITS1 or ITS2 fasta file')
     # Outputs
     group_output = parser.add_argument_group('Outputs')

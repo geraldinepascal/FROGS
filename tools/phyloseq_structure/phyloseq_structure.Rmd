@@ -49,11 +49,11 @@ h4 {
 </style>
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE, error=TRUE)
+knitr::opts_chunk$set(echo = TRUE, error = TRUE)
 ```
 Phyloseq `r packageVersion("phyloseq")`
 
-```{r import, message=FALSE}
+```{r import, message=FALSE, warning=FALSE}
 ## Import packages
 library(phyloseq)
 library(plotly)
@@ -144,6 +144,7 @@ p3 <- plot_heatmap(data, method = params$method, distance = dist) + scale_fill_g
 e  <- paste('~', params$varExp) 
 p3 <- p3 + facet_grid(e, scales = "free_x") +
            theme(plot.title = element_text(hjust = 0.5)) +
-           ggtitle(paste("Heatmap plot with", params$varExp))
+           ggtitle(paste("Heatmap plot with", params$varExp)) +
+           ylab("ASV")
 plot(p3)
 ```
