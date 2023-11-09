@@ -189,30 +189,32 @@ write1FastqFromDada <- function(dadaF, derepF, path){
 }
 
 ########## MAIN
-if(file.exists("dadaFs.rds") && file.exists("dadaRs.rds") && file.exists("derepFs.rds") && file.exists("derepRs.rds")){
-	dadaFs <- readRDS("dadaFs.rds")
-	dadaRs <- readRDS("dadaRs.rds")
-	derepFs <- readRDS("derepFs.rds")
-	derepRs <- readRDS("derepRs.rds")
-}else{
+if (opt$debug){
+	if(file.exists("dadaFs.rds") && file.exists("dadaRs.rds") && file.exists("derepFs.rds") && file.exists("derepRs.rds")){
+		dadaFs <- readRDS("dadaFs.rds")
+		dadaRs <- readRDS("dadaRs.rds")
+		derepFs <- readRDS("derepFs.rds")
+		derepRs <- readRDS("derepRs.rds")
+	}
+}
 
 library(dada2)
 
 # store R1 files
 fnFs <- strsplit(opt$R1Files, ",")[[1]]
+if (opt$debug) saveRDS(fnFs,"fnFs.rds")
 
 # store R2 files
-saveRDS(fnFs,"fnFs.rds")
 if(!is.null(opt$R2Files)){
 	fnRs <- strsplit(opt$R2Files, ",")[[1]]
+	if (opt$debug) saveRDS(fnRs,"fnRs.rds")
 }
 
-saveRDS(fnRs,"fnRs.rds")
 # function to get samples from file names
 get.sample.name <- function(fname) paste(strsplit(basename(fname), "_R1.fastq.gz")[[1]][1],collapse="_")
 # get sample names
 sample.names <- unname(sapply(fnFs, get.sample.name))
-saveRDS(sample.names,"samples.rds")
+if (opt$debug) saveRDS(sample.names,"samples.rds")
 
 ### Learn the Error Rates
 errF <- learnErrors(fnFs, multithread=opt$threads)
@@ -256,4 +258,4 @@ if(!is.null(opt$R2Files)){
 }else{
 	write1FastqFromDada(dadaFs, derepFs, path=opt$outputDir)
 }
-}
+
