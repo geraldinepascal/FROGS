@@ -1,3 +1,73 @@
+# v4.1.0 [2023-03]
+
+### Tools modified:
+* FROGSFunc copynumber removed
+* FROGSFunc placeseq : integrates FROGSFunc marker copynumber part
+* FROGSFunc function : integrates FROGSFunc function copynumber part
+
+### Function added
+* Preprocess: add a longread sequencer option to deal with longreads
+* Itsx : add mutual exclusion between --region and --check-its-only
+* Affiliation_filter : add a –-keep-blast-taxa option : Taxon list to keep in Blast affiliations. All others affiliations will be masks/delete.
+* DESeq preprocess : adapt the tool to deal with function abundance table (output from FROGSFunc Function) in TSV format
+* DESeq visualisation : 
+  * adapt the tool to functionnal abundance differential analysis
+  * add Ipath3 visualisation functionnal abundance differential analysis
+* FROGSFunc placeseq : 
+  * add %identity and %coverage between amplicon sequences and Picrust reference sequences.
+  * add a line chart of NSTI values versus blasts %identity and %coverage values.
+* FROGSFunc function : 
+  * in addition to NSTI, add filter on %identity and %coverage between amplicon sequences and Picrust reference sequences.
+  * add a star plot to visualise the filter impact on taxonomies kept
+  * parallelization of function abundance prediction on different function database (MetaCyc, KEGG, COG, ...), reducing the calculation time by more than half using all databases.
+
+## Bug fixed
+* Remove_chimera : deal with empty sample to compute proportion of sequence kept in the report. Proportion is now set to NA.
+* Affiliation_filter : 
+  * correctly find number of taxonomical rank
+  * remove OTU without affiliation when using blast metrics filters
+
+# v4.0.1 [2022-06]
+
+### Bug fixed
+* frogsfunc_placeseqs : 
+  * repare html link in PICRUSt2 closest ID (JGI) column
+  * add missing genomes in JGI_ID_to_taxonomy.txt file
+  * deal with empty FROGS affiliation
+  * add exception to avoid using sepp tools with ITS or 18S amplicon
+* frogsfunc_function:
+  * deal with function that are not associated with database link (picrust trait PHENO)
+* Affiliation_filter: correctly find the number of taxonomical rank (in cas of empty affiliation in the first cluster)
+* biom_to_stdBiom.py: deal with empty affiliations (add "Unclassified" for each taxonomic rank)
+
+# v4.0.0 [2022-05]
+
+### Tools added:
+
+PICRUSt2 is a software for predicting functional abundances based only on marker gene sequences. This tool is integrated in S suite as FROGSFunc tools. They are splittedto 4 steps :
+ * frogsfunc_placeseqs : places the OTUs into a reference phylogenetic tree.
+ * frogsfunc_copynumbers : predicts marker and function copy number of each OTU.
+ * frogsfunc_functions : calculates functions abundances in each sample.
+ * frogsfunc_pathways :  calculates pathway abundances in each sample.
+
+### Installation note:
+
+As PICRUSt2 currently relies on a different R version, please install `frogsfunc-conda-requirements.yaml` and activate this environment before using FROGSFUNC tools. 
+
+### Function added
+
+  * Normalisation : 
+    * add "Sampling by the number of sequences of the smallest sample" sampling method. This method automatically detects the sample with the smallest number of sequences, and samples all other samples with that number.  
+    * If you chose "Select a number of reads" sampling method, you may or not activate "Remove samples" option. If it's activated, samples whose total number of sequences is lower than the specified number, will be removed from the abundance table. If the option is disabled, the samples will be kept in the analysis but with a number of sequences lower than the specified number (the total number of the sample). 
+  * Otu_filter : add "Replicate identification" Minimum prevalence method. It allows to keep OTUs present in miniam replication proportions in at least one group (must be a proportion between 0 and 1). 
+  * Affiliation_stat : add OTU rarefaction curves in HTML, in addition to the previously existing taxonomic ranks.
+  * Remove_chimera : add "% Clusters kept" and "% Cluster abundance kept" in HTML chimera detection by sample table.
+
+### Bug corrected:
+
+* Affiliation_OTU : do not perform Needlall alignment if reduced reference database constructing by blasting R1 and R2 part of FROGS_combined OTU sequences is empty
+
+
 # v3.2.3 [2021-05]
 
 ### Installation note:
