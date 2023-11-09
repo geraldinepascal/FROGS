@@ -1622,7 +1622,7 @@ def process_sample(R1_file, R2_file, sample_name, out_file, art_out_file, length
                 renamed_out_contig = tmp_files.add( sample_name + '_454.fastq' ) # prevent cutadapt problem (type of file is checked by extension)
             shutil.copyfile( out_contig, renamed_out_contig ) # prevent symlink problem
             Remove454prim(renamed_out_contig, out_cutadapt, log_3prim_cutadapt, err_3prim_cutadapt, args).submit(log_file)
-        elif args.sequencer == "illumina" or args.sequencer == "longreads": # Illumina
+        elif args.sequencer == "illumina" or args.sequencer == "longreads": 
             if args.five_prim_primer and args.three_prim_primer: # Illumina standard sequencing protocol
                 Cutadapt5prim(out_contig, tmp_cutadapt, log_5prim_cutadapt, err_5prim_cutadapt, args).submit(log_file)
                 Cutadapt3prim(tmp_cutadapt, out_cutadapt, log_3prim_cutadapt, err_3prim_cutadapt, args).submit(log_file)
@@ -2116,7 +2116,7 @@ if __name__ == "__main__":
     group_454_input.add_argument( '--samples-names', type=spl_name_type, nargs='+', default=None, help='The sample name for each R1/R2-files.' )
     group_454_input.add_argument( '--input-archive', default=None, help='The tar file containing R1 file and R2 file for each sample (format: tar).' )
     group_454_input.add_argument( '--input-R1', required=None, nargs='+', help='The sequence file for each sample (format: fastq).' )
-    group_454_input.set_defaults( sequencer='illumina' )
+    group_454_input.set_defaults( sequencer='454' )
     #     454 outputs
     group_454_output = parser_454.add_argument_group( 'Outputs' )
     group_454_output.add_argument( '-d', '--output-dereplicated', default='preprocess.fasta', help='FASTA file with unique sequences. Each sequence has an ID ended with the number of initial sequences represented (example : ">a0101;size=10"). [Default: %(default)s]')
@@ -2127,8 +2127,8 @@ if __name__ == "__main__":
     group_454_output.add_argument( '--output-fasta', default='sequences.fasta', help='This output file will contain the sequence for each OTU or ASV (format: FASTA). [Default: %(default)s]')
     group_454_output.add_argument( '-s', '--summary', default='preprocess.html', help='The HTML file containing the graphs. [Default: %(default)s]')
     group_454_output.add_argument( '-l', '--log-file', default=sys.stdout, help='This output file will contain several information on executed commands.')
-    parser_454.set_defaults( sequencer='454' )
-    parser_454.set_defaults( already_contiged=True, keep_unmerged=False )
+    parser_454.set_defaults( sequencer='454', already_contiged=True, keep_unmerged=False )
+
 
     # Parse parameters
     args = parser.parse_args()
