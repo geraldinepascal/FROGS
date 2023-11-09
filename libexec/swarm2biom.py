@@ -55,7 +55,7 @@ def to_biom( clusters_file, count_file, output_biom, size_separator ):
     @param output_biom : [str] path to the output file.
     @param size_separator : [str] the pre-cluster abundance separator.
     """
-    biom = Biom( generated_by='swarm', matrix_type="sparse" )
+    biom = Biom( generated_by='swarm', matrix_type="sparse", type="OTU table" )
 
     # Preclusters count by sample
     preclusters_count = dict()
