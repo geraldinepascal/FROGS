@@ -1,20 +1,14 @@
 #!/bin/bash
-frogs_dir=$1
-nb_cpu=$2
-java_mem=$3
-out_dir=$4
+nb_cpu=$1
+java_mem=$2
+out_dir=$3
 
 # Check parameters
-if [ "$#" -ne 4 ]; then
+if [ "$#" -ne 3 ]; then
     echo "ERROR: Illegal number of parameters." ;
-    echo 'Command usage: test.sh <FROGS_FOLDER> <NB_CPU> <JAVA_MEM> <OUT_FOLDER>' ;
+    echo 'Command usage: test_frogs.sh <NB_CPU> <JAVA_MEM> <OUT_FOLDER>' ;
     exit 1 ;
 fi
-
-# Set ENV
-export PATH=$frogs_dir/libexec:$frogs_dir/app:$PATH
-export PYTHONPATH=$frogs_dir/lib:$PYTHONPATH
-
 
 # Create output folder
 if [ ! -d "$out_dir" ]
@@ -22,11 +16,12 @@ then
     mkdir $out_dir
 fi
 
-echo "Step demultiplexe `date`"
-demultiplex.py \
-  --input-R1 data/demultiplex.fastq.gz --input-barcode data/demultiplex.barcode.txt \
-  --mismatches 1 --end both \
-  --output-demultiplexed $out_dir/demultiplexed.tar.gz --output-excluded $out_dir/undemultiplexed.tar.gz --log-file $out_dir/demultiplex.log --summary $out_dir/demultiplex_summary.txt 
+echo "Step demultiplex `date`"
+demultiplex.py --input-R1 data/demultiplex_test2_R1.fq.gz --input-R2 data/demultiplex_test2_R2.fq.gz --input-barcode data/demultiplex_barcode.txt \
+    --mismatches 1 --end both \
+    --output-demultiplexed $out_dir/demultiplexed.tar.gz --output-excluded $out_dir/undemultiplexed.tar.gz \
+    --log-file $out_dir/demultiplex.log --summary $out_dir/demultiplex_summary.txt
+
 
 if [ $? -ne 0 ]
 then
@@ -41,7 +36,7 @@ preprocess.py illumina \
  --five-prim-primer GGCGVACGGGTGAGTAA --three-prim-primer GTGCCAGCNGCNGCGG \
  --R1-size 267 --R2-size 266 --expected-amplicon-size 420 --merge-software flash \
  --nb-cpus $nb_cpu --mismatch-rate 0.15 --keep-unmerged \
- --input-archive $frogs_dir/test/data/test_dataset.tar.gz \
+ --input-archive data/test_dataset.tar.gz \
  --output-dereplicated $out_dir/01-prepro-flash.fasta \
  --output-count $out_dir/01-prepro-flash.tsv \
  --summary $out_dir/01-prepro-flash.html \
@@ -60,7 +55,7 @@ preprocess.py illumina \
  --five-prim-primer GGCGVACGGGTGAGTAA --three-prim-primer GTGCCAGCNGCNGCGG \
  --R1-size 267 --R2-size 266 --merge-software vsearch \
  --nb-cpus $nb_cpu --mismatch-rate 0.15 --keep-unmerged \
- --input-archive $frogs_dir/test/data/test_dataset.tar.gz \
+ --input-archive data/test_dataset.tar.gz \
  --output-dereplicated $out_dir/01-prepro-vsearch.fasta \
  --output-count $out_dir/01-prepro-vsearch.tsv \
  --summary $out_dir/01-prepro-vsearch.html \
@@ -82,15 +77,31 @@ clustering.py \
  --output-biom $out_dir/02-clustering_fastidious.biom \
  --output-fasta $out_dir/02-clustering_fastidious.fasta \
  --output-compo $out_dir/02-clustering_fastidious_compo.tsv \
- --log-file $out_dir/02-clustering.log \
+ --log-file $out_dir/02-clustering_fastidious.log \
  --nb-cpus $nb_cpu
 
 if [ $? -ne 0 ]
 then
-	echo "Error in clustering" >&2
+	echo "Error in clustering fastidious" >&2
 	exit 1;
 fi
 
+clustering.py \
+ --distance 3 \
+ --denoising \
+ --input-fasta $out_dir/01-prepro-vsearch.fasta \
+ --input-count $out_dir/01-prepro-vsearch.tsv \
+ --output-biom $out_dir/02-clustering_denoising.biom \
+ --output-fasta $out_dir/02-clustering_denoising.fasta \
+ --output-compo $out_dir/02-clustering_denoising_compo.tsv \
+ --log-file $out_dir/02-clustering_denoising.log \
+ --nb-cpus $nb_cpu
+
+if [ $? -ne 0 ]
+then
+    echo "Error in clustering denoising" >&2
+    exit 1;
+fi
 
 echo "Step remove_chimera `date`"
 
@@ -110,15 +121,17 @@ then
 fi
 
 
-echo "Step otu filters `date`"
+echo "Step cluster_filters `date`"
 
-otu_filters.py \
+cluster_filters.py \
  --min-abundance 0.00005 \
  --min-sample-presence 3 \
  --contaminant data/phi.fa \
  --nb-cpus $nb_cpu \
  --input-biom $out_dir/03-chimera.biom \
  --input-fasta $out_dir/03-chimera.fasta \
+ --replicate_file data/replicates_file.tsv \
+ --min-replicate-presence 0.5 \
  --output-fasta $out_dir/04-filters.fasta \
  --output-biom $out_dir/04-filters.biom \
  --excluded $out_dir/04-filters.excluded \
@@ -127,11 +140,11 @@ otu_filters.py \
 
 if [ $? -ne 0 ]
 then
-	echo "Error in filters" >&2
+	echo "Error in cluster_filters" >&2
 	exit 1;
 fi
 
-echo "Step ITSx `date`"
+echo "Step itsx `date`"
 
 itsx.py \
  --input-fasta $out_dir/04-filters.fasta \
@@ -149,10 +162,10 @@ then
 	exit 1;
 fi
 
-echo "Step affiliation_OTU `date`"
+echo "Step taxonomic_affiliation `date`"
 
-affiliation_OTU.py \
- --reference $frogs_dir/test/data/ITS1.rdp.fasta \
+taxonomic_affiliation.py \
+ --reference data/ITS1.rdp.fasta \
  --input-fasta $out_dir/04-filters.fasta \
  --input-biom $out_dir/04-filters.biom \
  --output-biom $out_dir/06-affiliation.biom \
@@ -163,12 +176,12 @@ affiliation_OTU.py \
 
 if [ $? -ne 0 ]
 then
-	echo "Error in affiliation_OTU" >&2
+	echo "Error in taxonomic_affiliation" >&2
 	exit 1;
 fi
 
 
-echo "Step affiliation_filter: masking mode `date`"
+echo "Step affiliation_filters: masking mode `date`"
 
 affiliation_filters.py \
 --input-biom $out_dir/06-affiliation.biom \
@@ -189,12 +202,12 @@ affiliation_filters.py \
 
 if [ $? -ne 0 ]
 then
-	echo "Error in affiliation_filter" >&2
+	echo "Error in affiliation_filters: masking mode" >&2
 	exit 1;
 fi
 
 
-echo "Step affiliation_filter: deleted mode `date`"
+echo "Step affiliation_filters: deleted mode `date`"
 
 affiliation_filters.py \
 --input-biom $out_dir/06-affiliation.biom \
@@ -216,7 +229,7 @@ affiliation_filters.py \
 
 if [ $? -ne 0 ]
 then
-	echo "Error in affiliation_filter" >&2
+	echo "Error in affiliation_filters: deleted mode" >&2
 	exit 1;
 fi
 
@@ -226,7 +239,7 @@ echo "Step affiliation_postprocess `date`"
 affiliation_postprocess.py \
  --input-biom $out_dir/06-affiliation.biom \
  --input-fasta $out_dir/04-filters.fasta \
- --reference $frogs_dir/test/data/Unite_extract_ITS1.fasta \
+ --reference data/Unite_extract_ITS1.fasta \
  --output-biom $out_dir/08-affiliation_postprocessed.biom \
  --output-compo $out_dir/08-affiliation_postprocessed.compo.tsv \
  --output-fasta $out_dir/08-affiliation_postprocessed.fasta \
@@ -240,6 +253,38 @@ fi
 
 echo "Step normalisation `date`"
 normalisation.py \
+ -n 25000 \
+ --delete-samples \
+ --input-biom $out_dir/08-affiliation_postprocessed.biom \
+ --input-fasta $out_dir/08-affiliation_postprocessed.fasta \
+ --output-biom $out_dir/09-normalisation_25K_delS.biom \
+ --output-fasta $out_dir/09-normalisation_25K_delS.fasta \
+ --summary $out_dir/09-normalisation_25K_delS.html \
+ --log-file $out_dir/09-normalisation_25K_delS.log
+ 
+if [ $? -ne 0 ]
+then
+	echo "Error in normalisation 25K_delS" >&2
+	exit 1;
+fi
+
+normalisation.py \
+ --sampling-by-min \
+ --input-biom $out_dir/08-affiliation_postprocessed.biom \
+ --input-fasta $out_dir/08-affiliation_postprocessed.fasta \
+ --output-biom $out_dir/09-normalisation_by_min.biom \
+ --output-fasta $out_dir/09-normalisation_by_min.fasta \
+ --summary $out_dir/09-normalisation_by_min.html \
+ --log-file $out_dir/09-normalisation_by_min.log
+ 
+if [ $? -ne 0 ]
+then
+    echo "Error in normalisation by min" >&2
+    exit 1;
+fi
+
+# to reduce computing time for the others step
+normalisation.py \
  -n 100 \
  --input-biom $out_dir/08-affiliation_postprocessed.biom \
  --input-fasta $out_dir/08-affiliation_postprocessed.fasta \
@@ -250,27 +295,27 @@ normalisation.py \
  
 if [ $? -ne 0 ]
 then
-	echo "Error in normalisation" >&2
-	exit 1;
+    echo "Error in normalisation by min" >&2
+    exit 1;
 fi
 
-echo "Step clusters_stat `date`"
+echo "Step cluster_stats `date`"
 
-clusters_stat.py \
+cluster_stats.py \
  --input-biom $out_dir/09-normalisation.biom \
  --output-file $out_dir/10-clustersStat.html \
  --log-file $out_dir/10-clustersStat.log
 
 if [ $? -ne 0 ]
 then
-	echo "Error in clusters_stat" >&2
+	echo "Error in clusters_stats" >&2
 	exit 1;
 fi
 
 					
-echo "Step affiliations_stat `date`"
+echo "Step affiliation_stats `date`"
 
-affiliations_stat.py \
+affiliation_stats.py \
  --input-biom $out_dir/09-normalisation.biom \
  --output-file $out_dir/11-affiliationsStat.html \
  --log-file $out_dir/11-affiliationsStat.log \
@@ -283,7 +328,7 @@ affiliations_stat.py \
 
 if [ $? -ne 0 ]
 then
-	echo "Error in affiliations_stat" >&2
+	echo "Error in affiliation_stats" >&2
 	exit 1;
 fi
 
@@ -353,9 +398,9 @@ fi
 echo "Step phyloseq_import_data `date`"
 
 phyloseq_import_data.py  \
- --biomfile $frogs_dir/test/data/chaillou.biom \
- --samplefile $frogs_dir/test/data/sample_metadata.tsv \
- --treefile $frogs_dir/test/data/tree.nwk \
+ --biomfile data/chaillou.biom \
+ --samplefile data/sample_metadata.tsv \
+ --treefile data/tree.nwk \
  --rdata $out_dir/16-phylo_import.Rdata \
  --html $out_dir/16-phylo_import.nb.html \
  --log-file $out_dir/16-phylo_import.log
@@ -460,11 +505,24 @@ fi
 
 
 echo "Step deseq2_preprocess `date`"
+echo "DESeq2 asv abundances"
 
-deseq2_preprocess.py \
+../app/deseq2_preprocess.py \
  --data $out_dir/16-phylo_import.Rdata \
- --log-file $out_dir/23-deseq2_preprocess.log \
- --out-Rdata $out_dir/23-deseq2_preprocess.Rdata \
+ --analysis ASV \
+ --log-file $out_dir/23-deseq2_preprocess_otu.log \
+ --out-Rdata $out_dir/23-deseq2_preprocess_otu.Rdata \
+ --var EnvType
+
+echo "DESeq2 function abundances"
+
+../app/deseq2_preprocess.py \
+ --samplefile data/sample_metadata.tsv \
+ --input-functions data/frogsfunc_functions_unstrat_EC.tsv \
+ --analysis FUNCTION \
+ --log-file $out_dir/23-deseq2_preprocess_func.log \
+ --out-Rdata $out_dir/23-deseq2_preprocess_func.Rdata \
+ --out-Phyloseq $out_dir/23-phyloseq_functions.Rdata \
  --var EnvType
 
 if [ $? -ne 0 ]
@@ -476,13 +534,23 @@ fi
 
 echo "Step deseq2_visualisation `date`"
 
-deseq2_visualisation.py \
- --phyloseqData $out_dir/16-phylo_import.Rdata \
- --dds $out_dir/23-deseq2_preprocess.Rdata \
- --log-file $out_dir/24-deseq2_visualisation.log \
- --html $out_dir/24-deseq2_visualisation.nb.html \
+echo "DESeq2 otu abundances"
+../app/deseq2_visualisation.py \
+ --abundanceData $out_dir/16-phylo_import.Rdata \
+ --analysis ASV \
+ --dds $out_dir/23-deseq2_preprocess_otu.Rdata \
+ --log-file $out_dir/24-deseq2_visualisation_otu.log \
+ --html $out_dir/24-deseq2_visualisation_otu.nb.html \
  --var EnvType --mod1 BoeufHache --mod2 SaumonFume
-                            
+
+echo "DESeq2 function abundances"
+../app/deseq2_visualisation.py \
+ --abundanceData $out_dir/23-phyloseq_functions.Rdata\
+ --analysis FUNCTION \
+ --dds $out_dir/23-deseq2_preprocess_func.Rdata \
+ --log-file $out_dir/24-deseq2_visualisation_func.log \
+ --html $out_dir/24-deseq2_visualisation_func.nb.html \
+ --var EnvType --mod1 BoeufHache --mod2 SaumonFume
 
 if [ $? -ne 0 ]
 then
@@ -491,4 +559,3 @@ then
 fi
 
 echo "Completed with success"
-
