@@ -19,10 +19,11 @@
 __author__ = 'Frederic Escudie - Plateforme bioinformatique Toulouse - Maria Bernard - Sigenae Jouy en Josas'
 __copyright__ = 'Copyright (C) 2015 INRA'
 __license__ = 'GNU General Public License'
-__version__ = '3.2.3'
+__version__ = '4.1.0'
 __email__ = 'frogs-support@inrae.fr'
 __status__ = 'prod'
 
+from decimal import DivisionByZero
 import os
 import sys
 import json
@@ -145,13 +146,26 @@ def write_summary( summary_file, results_chimera ):
             if in_detection_metrics:
                 if section_first_line:
                     line_fields = line[1:].split("\t")[1:]
+                    line_fields.insert(1,"%  Clusters kept")
+                    line_fields.insert(3,"%  Cluster abundance kept")
                     detection_categories = line_fields
                     section_first_line = False
                 else:
                     line_fields = line.split("\t")
+                    # Calculate % of abundance kep on fly:
+                    try:
+                        line_fields.insert(2, float(100-(float(int(int(line_fields[3])*100)/\
+                            int(int(line_fields[1])+int(line_fields[3]))))))
+                    except ZeroDivisionError:
+                        line_fields.insert(2, 'NA')
+                    try:
+                        line_fields.insert(4, float(100-(float(int(int(line_fields[5])*100)/\
+                            int(int(line_fields[3])+int(line_fields[5]))))))
+                    except ZeroDivisionError:
+                        line_fields.insert(4, 'NA')     
                     detection_data.append({
                              'name': line_fields[0],
-                             'data': list(map(int, line_fields[1:]))
+                             'data': line_fields[1:]
                     })
             elif in_remove_metrics:
                 if section_first_line:
@@ -195,13 +209,11 @@ if __name__ == "__main__":
     # Inputs
     group_input = parser.add_argument_group( 'Inputs' )
     group_input.add_argument( '-f', '--input-fasta', required=True, help='The cluster sequences (format: FASTA).' )
-    group_exclusion_abundance = group_input.add_mutually_exclusive_group()
-    group_exclusion_abundance.add_argument( '-b', '--input-biom', help='The abundance file for clusters by sample (format: BIOM).' )
-    #group_exclusion_abundance.add_argument( '-c', '--input-count', help='The counts file for clusters by sample (format: TSV).' )
+    group_input.add_argument( '-b', '--input-biom', required=True, help='The abundance file for clusters by sample (format: BIOM).' )
     # Outputs
     group_output = parser.add_argument_group( 'Outputs' )
     group_output.add_argument( '-n', '--non-chimera', default='remove_chimera.fasta', help='sequences file without chimera (format: FASTA). [Default: %(default)s]')
-    group_output.add_argument( '-a', '--out-abundance', default=None, help='Abundance file without chimera (format: BIOM). [Default: remove_chimera_abundance.biom]')
+    group_output.add_argument( '-a', '--out-abundance', default='remove_chimera_abundance.biom', help='Abundance file without chimera (format: BIOM). [Default: %(default)s]')
     group_output.add_argument( '--summary', default="remove_chimera.html", help='The HTML file containing the graphs. [Default: %(default)s]')
     group_output.add_argument( '-l', '--log-file', default=sys.stdout, help='This output file will contain several informations on executed commands.')
     args = parser.parse_args()
@@ -217,14 +229,8 @@ if __name__ == "__main__":
         tmp_chimera_summary = tmpFiles.add(os.path.basename(args.non_chimera) + "_summary.tsv")
         tmp_log  = tmpFiles.add(os.path.basename(args.non_chimera) + "_tmp.log")
         size_separator = get_size_separator( args.input_fasta )
-        #if args.input_count is None:
-        if args.out_abundance == None:
-            args.out_abundance = "remove_chimera_abundance.biom"
-            ParallelChimera( args.input_fasta, args.input_biom, args.non_chimera, args.out_abundance, tmp_chimera_summary, "biom", args.nb_cpus, tmp_log, args.debug, size_separator ).submit( args.log_file )
-        #else:
-        #    if args.out_abundance == None:
-        #        args.out_abundance = "remove_chimera_abundance.tsv"
-        #    ParallelChimera( args.input_fasta, args.input_count, args.non_chimera, args.out_abundance, tmp_chimera_summary, "count", args.nb_cpus, tmp_log, args.debug, size_separator ).submit( args.log_file )
+
+        ParallelChimera( args.input_fasta, args.input_biom, args.non_chimera, args.out_abundance, tmp_chimera_summary, "biom", args.nb_cpus, tmp_log, args.debug, size_separator ).submit( args.log_file )
         write_summary( args.summary, tmp_chimera_summary )
         
         # Append independant log files
