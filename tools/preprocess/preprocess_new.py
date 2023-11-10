@@ -534,7 +534,7 @@ class CutadaptPaired(Cmd):
         Cmd.__init__( self,
                       'cutadapt',
                       message,
-                      '-g \"' + param.five_prim_primer + ';min_overlap=' + str(len(param.five_prim_primer)-1) + '\" -G \"' + revcomp(param.three_prim_primer) + ';min_overlap=' + str(len(param.three_prim_primer)-1) + '\" --error-rate 0.1 --discard-untrimmed --match-read-wildcards --pair-filter=any ' + ' -o ' + out_R1_fastq + ' -p ' + out_R2_fastq + ' ' + in_R1_fastq + ' ' + in_R2_fastq + ' > ' + cutadapt_log + ' 2> ' + cutadapt_err,
+                      '-g \"' + param.five_prim_primer + ';min_overlap=' + str(len(param.five_prim_primer)-1) + '\" -G \"' + revcomp(param.three_prim_primer) + ';min_overlap=' + str(len(param.three_prim_primer)-1) + '\" --minimum-length 1 --error-rate 0.1 --discard-untrimmed --match-read-wildcards --pair-filter=any ' + ' -o ' + out_R1_fastq + ' -p ' + out_R2_fastq + ' ' + in_R1_fastq + ' ' + in_R2_fastq + ' > ' + cutadapt_log + ' 2> ' + cutadapt_err,
                       '--version' )
         self.cutadapt_log = cutadapt_log
 
