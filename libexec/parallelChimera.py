@@ -19,7 +19,7 @@
 __author__ = 'Frederic Escudie - Plateforme bioinformatique Toulouse - Maria Bernard - Sigenae Jouy en Josas'
 __copyright__ = 'Copyright (C) 2015 INRA'
 __license__ = 'GNU General Public License'
-__version__ = '0.7.2'
+__version__ = '0.8.2'
 __email__ = 'frogs-support@inrae.fr'
 __status__ = 'prod'
 
@@ -357,12 +357,7 @@ def main_process(args):
     tmp_files = TmpFiles(os.path.split(args.non_chimera)[0])
 
     try:
-        #if args.out_abundance is None:
-        #    args.out_abundance = "count.tsv"
-        #if args.biom is not None:
-        #    args.out_abundance = "abundance.biom"
 
-        #count_table = args.count
         if args.biom is not None:
             count_table = tmp_files.add("tmp_count.tsv")
             biom = BiomIO.from_json( args.biom )
@@ -422,12 +417,8 @@ def main_process(args):
                               'abundance_ambiguous': 0}
         log_remove_spl = {}
 
-        #if args.biom is not None:
         remove_chimera_biom( samples, chimera_files, args.biom, args.out_abundance, args.lenient_filter, log_remove_global, log_remove_spl, args.log_file )
         remove_chimera_fasta( args.sequences, args.non_chimera, get_obs_from_biom(args.out_abundance), args.size_separator )
-        #else:
-        #    remove_chimera_count( samples, chimera_files, args.count, args.out_abundance, args.lenient_filter, log_remove_global, log_remove_spl, args.log_file )
-        #    remove_chimera_fasta( args.sequences, args.non_chimera, get_obs_from_count(args.out_abundance), args.size_separator )
 
         # Summary
         write_summary( samples, sample_logs, log_remove_global, log_remove_spl, args.summary )
@@ -469,12 +460,10 @@ if __name__ == "__main__":
     parser.add_argument( '-v', '--version', action='version', version=__version__ + " [vsearch " + get_vsearch_version() + "]" )
     group_input = parser.add_argument_group( 'Inputs' ) # Inputs
     group_input.add_argument( '-s', '--sequences', required=True, help='The cluster sequences.' )
-    group_exclusion_abundance = group_input.add_mutually_exclusive_group()
-    group_exclusion_abundance.add_argument( '-b', '--biom', help='The abundance file for clusters by sample (format: BIOM).' )
-    #group_exclusion_abundance.add_argument( '-c', '--count', help='The abundance file for clusters by sample (format: count).' )
+    group_input.add_argument( '-b', '--biom', required=True, help='The abundance file for clusters by sample (format: BIOM).' )
     group_output = parser.add_argument_group( 'Outputs' ) # Outputs
     group_output.add_argument( '-n', '--non-chimera', default='non_chimera.fasta', help='Fasta without chimera. [Default: %(default)s]' )
-    group_output.add_argument( '-a', '--out-abundance', default=None, help='Abundance file without chimera.' )
+    group_output.add_argument( '-a', '--out-abundance', default='non_chimera_abundance.biom', help='Abundance file without chimera. [Default: %(default)s]' )
     group_output.add_argument( '--summary', default='summary.tsv', help='Summary file. [Default: %(default)s]' )
     group_output.add_argument( '--log-file', default=sys.stdout, help='This output file will contain several information on executed commands.' )
     args = parser.parse_args()
