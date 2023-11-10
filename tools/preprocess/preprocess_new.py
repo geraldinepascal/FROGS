@@ -598,7 +598,7 @@ class MultiFilter(Cmd):
         if in_r2 is None:
             Cmd.__init__( self,
               'filterSeq.py',
-              'Filters amplicons without primers by length and N count.',
+              'Filters amplicons without primers by length and N count',
               '--force-fasta' + add_options + ' --input-file1 ' + in_r1 + ' --output-file1 ' + out_r1 + ' --log-file ' + log_file,
               '--version' )
         else:
@@ -759,27 +759,6 @@ class DerepGlobalMultiFasta(Cmd):
     def get_version(self):   
         return Cmd.get_version(self, 'stdout').strip()                      
 
-class DerepGlobalFastaCount(Cmd):
-    """
-    @summary: Dereplicates together sequences from several files.
-    """
-    def __init__(self, fasta, count, out_fasta, out_count, param):
-        """
-        @param fasta: [str] Path to the processed fasta.
-        @param count: [str] Path to the processed count.
-        @param out_fasta: [str] Path to the dereplicated fasta.
-        @param out_count: [str] Path to the count file. It contains the count by sample for each representative sequence.
-        @param param: [str] The 'param.nb_cpus'.
-        """
-        # Init
-        Cmd.__init__( self,
-                      'derepSamples.py',
-                      'Dereplicates together sequences from several samples based on one fasta file and one count file.',
-                      "--nb-cpus " + str(param.nb_cpus) + " --size-separator ';size=' --sequences-file " + fasta + " --samples-count " + count + " --dereplicated-file " + out_fasta + " --count-file " + out_count,
-                      '--version' )
-                      
-    def get_version(self):   
-        return Cmd.get_version(self, 'stdout').strip()                      
 
 ##################################################################################################################################################
 #
@@ -915,42 +894,6 @@ def get_seq_length( input_file, size_separator=None ):
     FH_seq.close()
     return nb_by_length
 
-def get_seq_length_by_sample( input_file, count_file):
-    """
-    @summary: Returns the number of sequences by sequences lengths.
-    @param input_file: [str] The sequence file path.
-    @param count_file: [str] The sequence abondance count file by sample.
-    @param size_separator: [str] If it exists the size separator in sequence ID.
-    @return: [dict] By sample and by sequences lengths the number of sequence.
-    """
-    nb_by_length = dict()
-    samples_names = list()
-    sample_by_seq = dict()
-
-    FH_count = open(count_file)
-    for line in FH_count :
-        if line.startswith("#id") : 
-            samples_names = line.strip().split("\t")[1:]
-            nb_by_length = {s:{} for s in samples_names}
-        else:
-            seq_id = line.split()[0]
-            if not "FROGS_combined" in seq_id :
-                sample_by_seq[seq_id]= { samples_names[idx-1]:int(count) for idx,count in enumerate(line.strip().split()[1:]) if int(count) > 0 }
-    FH_count.close()
-
-    FH_seq = SequenceFileReader.factory( input_file )
-    for record in FH_seq:
-        if "FROGS_combined" in record.id:
-            continue
-        nb_seq = sample_by_seq[record.id.split(";size=")[0]]
-        seq_length = len(record.string)
-        for sample_name in nb_seq :
-            if str(seq_length) not in nb_by_length[sample_name]:
-                nb_by_length[sample_name][str(seq_length)] = 0
-            nb_by_length[sample_name][str(seq_length)] += nb_seq[sample_name]
-    FH_seq.close()
-    return nb_by_length
-
 def summarise_results( samples_names, lengths_files, biom_file, depth_file, classif_file, log_files, param ):
     """
     @summary: Writes one summary of results from several logs.
@@ -986,16 +929,6 @@ def summarise_results( samples_names, lengths_files, biom_file, depth_file, clas
             before_lengths_by_sample[spl_name] = lenghts["before"]
             after_lengths_by_sample[spl_name] = lenghts["after"]
 
-    # check length
-    b_count= 0
-    a_count = 0
-    
-    for sample in samples_names:
-        for l in before_lengths_by_sample[sample]:
-            b_count += before_lengths_by_sample[sample][l]
-        for l in after_lengths_by_sample[sample]:
-            a_count += after_lengths_by_sample[sample][l]
-    
     # Get size distribution data
     clusters_size = list()
     counts = list()
@@ -1096,16 +1029,6 @@ def summarise_results_dada2( samples_names, lengths_files, log_files, param ):
             before_lengths_by_sample[spl_name] = lenghts["before"]
             after_lengths_by_sample[spl_name] = lenghts["after"]
 
-    # check length
-    b_count= 0
-    a_count = 0
-    
-    for sample in samples_names:
-        for l in before_lengths_by_sample[sample]:
-            b_count += before_lengths_by_sample[sample][l]
-        for l in after_lengths_by_sample[sample]:
-            a_count += after_lengths_by_sample[sample][l]
-    
     # Write
     FH_summary_tpl = open( os.path.join(CURRENT_DIR, "preprocess_tpl.html") )
     FH_summary_out = open( param.summary, "wt" )
@@ -1451,9 +1374,6 @@ def process_sample_after_denoising(R1_file, R2_file, sample_name, out_file, art_
         art_log_Nfilter = tmp_files.add( sample_name + '_art_N_filter_log.txt' )
         # REPLACE COMBINED TAG X BY N
         art_out_XtoN = tmp_files.add( sample_name + '_art_XtoN.fasta' )
-        art_log_XtoN = tmp_files.add( sample_name + '_art_XtoN_log.txt' )
-        # FINAL COUNT ON ARTIFICIAL COMBINED CUTADAPTED
-        art_out_count = tmp_files.add( sample_name + '_derep_count.tsv' )
 
     try:
         # Start log
@@ -1583,9 +1503,6 @@ def process_sample(R1_file, R2_file, sample_name, out_file, art_out_file, length
         art_log_Nfilter = tmp_files.add( sample_name + '_art_N_filter_log.txt' )
         # REPLACE COMBINED TAG X BY N
         art_out_XtoN = tmp_files.add( sample_name + '_art_XtoN.fasta' )
-        art_log_XtoN = tmp_files.add( sample_name + '_art_XtoN_log.txt' )
-        # FINAL COUNT ON ARTIFICIAL COMBINED CUTADAPTED
-        art_out_count = tmp_files.add( sample_name + '_derep_count.tsv' )
 
     try:
         # Start log
@@ -1931,7 +1848,7 @@ def to_biom_and_fasta(count_file, fasta_file, output_biom, output_fasta):
     
     cpt=1
     for line in count_fh:
-        precluster_id, count_str = line.strip().split(None, 1)
+        count_str, count_str = line.strip().split(None, 1)
         preclusters_count[cpt] = count_str # For large dataset store count into a string consumes minus RAM than a sparse count
         cpt+=1
     count_fh.close()
@@ -1953,7 +1870,6 @@ def to_biom_and_fasta(count_file, fasta_file, output_biom, output_fasta):
                 cluster_name = "Cluster_" + str(cluster_idx)
                 comment = list()
             cluster_count = {key:0 for key in samples}
-            line_fields = line.strip().split()
             
             sample_counts = preclusters_count[cluster_idx].split("\t")
             for sample_idx, sample_name in enumerate(samples):
