@@ -22,8 +22,7 @@ mkdir -p $OUT
  --analysis ASV \
  --log-file $OUT/deseq2_preprocess_ASV.log \
  --out-Rdata $OUT/deseq2_preprocess_ASV.Rdata \
- --var EnvType \
- --debug
+ --var EnvType 
 
 # DESeq2 preprocess with ASV abundances 
 echo ""
@@ -38,5 +37,4 @@ mkdir -p $OUT
  --log-file $OUT/deseq2_preprocess_func.log \
  --out-Rdata $OUT/deseq2_preprocess_func.Rdata \
  --out-Phyloseq $OUT/phyloseq_functions.Rdata \
- --var EnvType \
- --debug
+ --var EnvType 
