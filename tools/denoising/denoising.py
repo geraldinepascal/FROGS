@@ -971,7 +971,7 @@ def summarise_results_old( samples_names, lengths_files, biom_file, depth_file, 
     FH_classif.close()
     
     # Write
-    FH_summary_tpl = open( os.path.join(CURRENT_DIR, "preprocess_tpl.html") )
+    FH_summary_tpl = open( os.path.join(CURRENT_DIR, "denoising_tpl.html") )
     FH_summary_out = open( param.summary, "wt" )
     for line in FH_summary_tpl:
         if "###CLUSTERS_SIZES###" in line:
@@ -1692,6 +1692,8 @@ def parallel_submission( function, R1_files, R2_files, samples_names, filtered_f
 def process( args ):
     tmp_files = TmpFiles( os.path.split(args.output_fasta)[0] )
     output_dir = os.path.abspath(tmp_files.tmp_dir)
+    dereplicated_fasta = tmp_files.add("preprocess.fasta")
+    tmp_count = tmp_files.add("counts.tsv")
 
     # Process
     try:
@@ -1737,16 +1739,16 @@ def process( args ):
 
             # Dereplicate global on combined filtered cutadapted multifiltered derep
             Logger.static_write(args.log_file, '##Sample\nAll\n##Commands\n')
-            DerepGlobalMultiFasta(filtered_files, samples_names, tmp_files.add('derep_inputs.tsv'), args.output_dereplicated, args.output_count, args).submit( args.log_file )
+            DerepGlobalMultiFasta(filtered_files, samples_names, tmp_files.add('derep_inputs.tsv'), dereplicated_fasta, tmp_count, args).submit( args.log_file )
             
 
             # Check the number of sequences after filtering
-            nb_seq = get_nb_seq(args.output_dereplicated)
+            nb_seq = get_nb_seq(dereplicated_fasta)
             if  nb_seq == 0:
                 raise_exception( Exception( "\n\n#ERROR : The filters have eliminated all sequences (see summary for more details).\n\n" ))
 
             # Temporary files
-            filename_woext = os.path.split(args.output_dereplicated)[1].split('.')[0]
+            filename_woext = os.path.split(dereplicated_fasta)[1].split('.')[0]
             
             #clustering_log = tmp_files.add( filename_woext + '_clustering_log.txt' )
             
@@ -1764,7 +1766,7 @@ def process( args ):
             swarms_seeds = tmp_files.add( filename_woext + '_final_seeds.fasta' )
             swarm_log = tmp_files.add( filename_woext + '_swarm_log.txt' )
 
-            SortFasta( args.output_dereplicated, sorted_fasta, args.debug ).submit( args.log_file )
+            SortFasta( dereplicated_fasta, sorted_fasta, args.debug ).submit( args.log_file )
             Logger.static_write(args.log_file, "repalce 100 N tags by 50A-50C in: " + sorted_fasta + " out : "+ replaceN_fasta +"\n")
             replaceNtags(sorted_fasta, replaceN_fasta)
 
@@ -1788,7 +1790,7 @@ def process( args ):
                 # convert cluster composition in read composition ==> final swarm composition
                 agregate_composition(denoising_compo, swarms_file, args.output_compo)
 
-            Swarm2Biom( args.output_compo, args.output_count, args.output_biom ).submit( args.log_file )
+            Swarm2Biom( args.output_compo, tmp_count, args.output_biom ).submit( args.log_file )
             ExtractSwarmsFasta( final_sorted_fasta, swarms_file, swarms_seeds ).submit( args.log_file )
             Logger.static_write(args.log_file, "replace 50A-50C  tags by N. in: " + swarms_seeds + " out : "+ args.output_fasta +"\n")
             addNtags(swarms_seeds, args.output_fasta)
@@ -1851,14 +1853,14 @@ def process( args ):
                         
             # Global dereplication
             Logger.static_write(args.log_file, '##Sample\nAll\n##Commands\n')
-            DerepGlobalMultiFasta(filtered_files, samples_names, tmp_files.add('derep_inputs.tsv'), args.output_dereplicated, args.output_count, args).submit( args.log_file )
+            DerepGlobalMultiFasta(filtered_files, samples_names, tmp_files.add('derep_inputs.tsv'), dereplicated_fasta, tmp_count, args).submit( args.log_file )
             #summarise_results_dada2( samples_names, lengths_files, log_files, args )
 
             # Check the number of sequences after filtering
-            nb_seq = get_nb_seq(args.output_dereplicated)
+            nb_seq = get_nb_seq(dereplicated_fasta)
             if  nb_seq == 0:
                 raise_exception( Exception( "\n\n#ERROR : The filters have eliminated all sequences (see summary for more details).\n\n" ))
-            to_biom_and_fasta(args.output_count, args.output_dereplicated, args.output_biom, args.output_fasta)
+            to_biom_and_fasta(tmp_count, dereplicated_fasta, args.output_biom, args.output_fasta)
             
         else:
             # Tmp files
@@ -1879,16 +1881,16 @@ def process( args ):
 
             # Dereplicate global on combined filtered cutadapted multifiltered derep
             Logger.static_write(args.log_file, '##Sample\nAll\n##Commands\n')
-            DerepGlobalMultiFasta(filtered_files, samples_names, tmp_files.add('derep_inputs.tsv'), args.output_dereplicated, args.output_count, args).submit( args.log_file )
+            DerepGlobalMultiFasta(filtered_files, samples_names, tmp_files.add('derep_inputs.tsv'), dereplicated_fasta, tmp_count, args).submit( args.log_file )
             
 
             # Check the number of sequences after filtering
-            nb_seq = get_nb_seq(args.output_dereplicated)
+            nb_seq = get_nb_seq(dereplicated_fasta)
             if  nb_seq == 0:
                 raise_exception( Exception( "\n\n#ERROR : The filters have eliminated all sequences (see summary for more details).\n\n" ))
 
             # Temporary files
-            filename_woext = os.path.split(args.output_dereplicated)[1].split('.')[0]
+            filename_woext = os.path.split(dereplicated_fasta)[1].split('.')[0]
             
             #clustering_log = tmp_files.add( filename_woext + '_clustering_log.txt' )
             
@@ -1906,10 +1908,10 @@ def process( args ):
             swarms_seeds = tmp_files.add( filename_woext + '_final_seeds.fasta' )
             swarm_log = tmp_files.add( filename_woext + '_swarm_log.txt' )
 
-            SortFasta( args.output_dereplicated, sorted_fasta, args.debug ).submit( args.log_file )
+            SortFasta( dereplicated_fasta, sorted_fasta, args.debug ).submit( args.log_file )
             Logger.static_write(args.log_file, "repalce 100 N tags by 50A-50C in: " + sorted_fasta + " out : "+ replaceN_fasta +"\n")
             replaceNtags(sorted_fasta, replaceN_fasta)
-            to_biom_and_fasta(args.output_count, args.output_dereplicated, args.output_biom, args.output_fasta)
+            to_biom_and_fasta(tmp_count, dereplicated_fasta, args.output_biom, args.output_fasta)
     
         #Logger.static_write(args.log_file, "## Application\nSoftware :" + sys.argv[0] + " (version : " + str(__version__) + ")\nCommand : " + " ".join(sys.argv) + "\n\n")
 
@@ -2073,7 +2075,7 @@ if __name__ == "__main__":
     group_clustering = parser_illumina.add_argument_group( 'Clustering options' )
     group_clustering.add_argument( '-n', '--denoising', default=False, action='store_true',  help="denoise data by clustering read with distance=1 before perform real clustering. It is mutually exclusive with --fastidious." )
     group_clustering.add_argument( '-d', '--distance', type=int, default=1, help="Maximum distance between sequences in each aggregation step. RECOMMENDED : d=1 in combination with --fastidious option [Default: %(default)s]" )
-    group_clustering.add_argument( '--fastidious', default=False, action='store_true',  help="use the fastidious option of swarm to refine OTU. RECOMMENDED in combination with a distance equal to 1 (-d). it is only usable with d=1 and mutually exclusive with --denoising." )
+    group_clustering.add_argument( '--fastidious', default=False, action='store_true',  help="use the fastidious option of swarm to refine cluster. RECOMMENDED in combination with a distance equal to 1 (-d). it is only usable with d=1 and mutually exclusive with --denoising." )
     group_clustering.add_argument( '--output-compo', default='clustering_swarms_composition.tsv', help='This output file will contain the composition of each cluster (format: TSV). One Line is a cluster ; each column is a sequence ID. [Default: %(default)s]')
     group_denoising = parser_illumina.add_argument_group( 'Denoising options' )
     group_denoising.add_argument( '--pseudo-pooling', default=False, action='store_true',  help="Perform dada2 pseudo-pooling to reduce inconvenients of independent sample processing" )
@@ -2088,10 +2090,10 @@ if __name__ == "__main__":
     group_illumina_input.set_defaults( sequencer='illumina' )
     #     Illumina outputs
     group_illumina_output = parser_illumina.add_argument_group( 'Outputs' )
-    group_illumina_output.add_argument( '--output-dereplicated', default='preprocess.fasta', help='FASTA file with unique sequences. Each sequence has an ID ended with the number of initial sequences represented (example : ">a0101;size=10"). [Default: %(default)s]')
-    group_illumina_output.add_argument( '-c', '--output-count', default='preprocess_counts.tsv', help='TSV file with count by sample for each unique sequence (example with 3 samples : "a0101<TAB>5<TAB>8<TAB>0"). [Default: %(default)s]')
-    group_illumina_output.add_argument( '-b', '--output-biom', default='clustering_abundance.biom', help='This output file will contain the abundance by sample for each OTU or ASV (format: BIOM). [Default: %(default)s]')
-    group_illumina_output.add_argument( '--output-fasta', default='sequences.fasta', help='This output file will contain the sequence for each OTU or ASV (format: FASTA). [Default: %(default)s]')
+    #group_illumina_output.add_argument( '--output-dereplicated', default='preprocess.fasta', help='FASTA file with unique sequences. Each sequence has an ID ended with the number of initial sequences represented (example : ">a0101;size=10"). [Default: %(default)s]')
+    #group_illumina_output.add_argument( '-c', '--output-count', default='preprocess_counts.tsv', help='TSV file with count by sample for each unique sequence (example with 3 samples : "a0101<TAB>5<TAB>8<TAB>0"). [Default: %(default)s]')
+    group_illumina_output.add_argument( '-b', '--output-biom', default='clustering_abundance.biom', help='This output file will contain the abundance by sample for each cluster or ASV (format: BIOM). [Default: %(default)s]')
+    group_illumina_output.add_argument( '--output-fasta', default='sequences.fasta', help='This output file will contain the sequence for each cluster or ASV (format: FASTA). [Default: %(default)s]')
     group_illumina_output.add_argument( '-s', '--summary', default='preprocess.html', help='The HTML file containing the graphs. [Default: %(default)s]')
     group_illumina_output.add_argument( '-l', '--log-file', default=sys.stdout, help='This output file will contain several information on executed commands.')
 
@@ -2124,16 +2126,16 @@ if __name__ == "__main__":
     group_clustering_longreads = parser_longreads.add_argument_group( 'Clustering options' )
     group_clustering_longreads.add_argument( '-n', '--denoising', default=False, action='store_true',  help="denoise data by clustering read with distance=1 before perform real clustering. It is mutually exclusive with --fastidious." )
     group_clustering_longreads.add_argument( '-d', '--distance', type=int, default=1, help="Maximum distance between sequences in each aggregation step. RECOMMENDED : d=1 in combination with --fastidious option [Default: %(default)s]" )
-    group_clustering_longreads.add_argument( '--fastidious', default=False, action='store_true',  help="use the fastidious option of swarm to refine OTU. RECOMMENDED in combination with a distance equal to 1 (-d). it is only usable with d=1 and mutually exclusive with --denoising." )
+    group_clustering_longreads.add_argument( '--fastidious', default=False, action='store_true',  help="use the fastidious option of swarm to refine cluster. RECOMMENDED in combination with a distance equal to 1 (-d). it is only usable with d=1 and mutually exclusive with --denoising." )
     group_clustering_longreads.add_argument( '--output-compo', default='clustering_swarms_composition.tsv', help='This output file will contain the composition of each cluster (format: TSV). One Line is a cluster ; each column is a sequence ID. [Default: %(default)s]')
     # Long-reads outputs
     group_longreads_output = parser_longreads.add_argument_group( 'Outputs' )
-    group_longreads_output.add_argument( '--output-dereplicated', default='preprocess.fasta', help='FASTA file with unique sequences. Each sequence has an ID ended with the number of initial sequences represented (example : ">a0101;size=10"). [Default: %(default)s]')
-    group_longreads_output.add_argument( '-c', '--output-count', default='preprocess_counts.tsv', help='TSV file with count by sample for each unique sequence (example with 3 samples : "a0101<TAB>5<TAB>8<TAB>0"). [Default: %(default)s]')
+    #group_longreads_output.add_argument( '--output-dereplicated', default='preprocess.fasta', help='FASTA file with unique sequences. Each sequence has an ID ended with the number of initial sequences represented (example : ">a0101;size=10"). [Default: %(default)s]')
+    #group_longreads_output.add_argument( '-c', '--output-count', default='preprocess_counts.tsv', help='TSV file with count by sample for each unique sequence (example with 3 samples : "a0101<TAB>5<TAB>8<TAB>0"). [Default: %(default)s]')
     group_longreads_output.add_argument( '-s', '--summary', default='preprocess.html', help='The HTML file containing the graphs. [Default: %(default)s]')
     group_longreads_output.add_argument( '-l', '--log-file', default=sys.stdout, help='This output file will contain several information on executed commands.')
-    group_longreads_output.add_argument( '-b', '--output-biom', default='clustering_abundance.biom', help='This output file will contain the abundance by sample for each OTU or ASV (format: BIOM). [Default: %(default)s]')
-    group_longreads_output.add_argument( '--output-fasta', default='sequences.fasta', help='This output file will contain the sequence for each OTU or ASV (format: FASTA). [Default: %(default)s]')
+    group_longreads_output.add_argument( '-b', '--output-biom', default='clustering_abundance.biom', help='This output file will contain the abundance by sample for each cluster or ASV (format: BIOM). [Default: %(default)s]')
+    group_longreads_output.add_argument( '--output-fasta', default='sequences.fasta', help='This output file will contain the sequence for each cluster or ASV (format: FASTA). [Default: %(default)s]')
     parser_longreads.set_defaults( sequencer='longreads', already_contiged=True, keep_unmerged=False )
 
     # 454
@@ -2162,13 +2164,13 @@ if __name__ == "__main__":
     group_454_input.set_defaults( sequencer='454' )
     #     454 outputs
     group_454_output = parser_454.add_argument_group( 'Outputs' )
-    group_454_output.add_argument( '-d', '--output-dereplicated', default='preprocess.fasta', help='FASTA file with unique sequences. Each sequence has an ID ended with the number of initial sequences represented (example : ">a0101;size=10"). [Default: %(default)s]')
-    group_454_output.add_argument( '-c', '--output-count', default='preprocess_counts.tsv', help='TSV file with count by sample for each unique sequence (example with 3 samples : "a0101<TAB>5<TAB>8<TAB>0"). [Default: %(default)s]')
+    #group_454_output.add_argument( '-d', '--output-dereplicated', default='preprocess.fasta', help='FASTA file with unique sequences. Each sequence has an ID ended with the number of initial sequences represented (example : ">a0101;size=10"). [Default: %(default)s]')
+    #group_454_output.add_argument( '-c', '--output-count', default='preprocess_counts.tsv', help='TSV file with count by sample for each unique sequence (example with 3 samples : "a0101<TAB>5<TAB>8<TAB>0"). [Default: %(default)s]')
     #group_illumina_output.add_argument( '-d', '--output-dereplicated', default='preprocess.fasta', help='FASTA file with unique sequences. Each sequence has an ID ended with the number of initial sequences represented (example : ">a0101;size=10"). [Default: %(default)s]')
     #group_illumina_output.add_argument( '-c', '--output-count', default='preprocess_counts.tsv', help='TSV file with count by sample for each unique sequence (example with 3 samples : "a0101<TAB>5<TAB>8<TAB>0"). [Default: %(default)s]')
-    group_454_output.add_argument( '-b', '--output-biom', default='abundance.biom', help='This output file will contain the abundance by sample for each OTU or ASV (format: BIOM). [Default: %(default)s]')
-    group_454_output.add_argument( '--output-fasta', default='sequences.fasta', help='This output file will contain the sequence for each OTU or ASV (format: FASTA). [Default: %(default)s]')
-    group_454_output.add_argument( '-s', '--summary', default='preprocess.html', help='The HTML file containing the graphs. [Default: %(default)s]')
+    group_454_output.add_argument( '-b', '--output-biom', default='abundance.biom', help='This output file will contain the abundance by sample for each cluster or ASV (format: BIOM). [Default: %(default)s]')
+    group_454_output.add_argument( '--output-fasta', default='sequences.fasta', help='This output file will contain the sequence for each cluster or ASV (format: FASTA). [Default: %(default)s]')
+    group_454_output.add_argument( '-s', '--summary', default='denoising.html', help='The HTML file containing the graphs. [Default: %(default)s]')
     group_454_output.add_argument( '-l', '--log-file', default=sys.stdout, help='This output file will contain several information on executed commands.')
     parser_454.set_defaults( sequencer='454', already_contiged=True, keep_unmerged=False )
 
