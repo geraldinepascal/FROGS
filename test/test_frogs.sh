@@ -29,85 +29,64 @@ then
 	exit 1;
 fi
 
-echo "Step preprocess : Flash `date`"
+echo "Step denoising 16S vsearch `date`":
 
-preprocess.py illumina \
- --min-amplicon-size 44 --max-amplicon-size 490 \
- --five-prim-primer GGCGVACGGGTGAGTAA --three-prim-primer GTGCCAGCNGCNGCGG \
- --R1-size 267 --R2-size 266 --expected-amplicon-size 420 --merge-software flash \
- --nb-cpus $nb_cpu --mismatch-rate 0.15 --keep-unmerged \
- --input-archive data/test_dataset.tar.gz \
- --output-dereplicated $out_dir/01-prepro-flash.fasta \
- --output-count $out_dir/01-prepro-flash.tsv \
- --summary $out_dir/01-prepro-flash.html \
- --log-file $out_dir/01-prepro-flash.log
- 
-if [ $? -ne 0 ]
-then
-	echo "Error in preprocess : Flash" >&2
-	exit 1;
-fi
-
-echo "Step preprocess : Vsearch `date`"
-
-preprocess.py illumina \
+denoising.py illumina \
+ --process swarm \
  --min-amplicon-size 44 --max-amplicon-size 490 \
  --five-prim-primer GGCGVACGGGTGAGTAA --three-prim-primer GTGCCAGCNGCNGCGG \
  --R1-size 267 --R2-size 266 --merge-software vsearch \
- --nb-cpus $nb_cpu --mismatch-rate 0.15 --keep-unmerged \
+ --nb-cpus $nb_cpu --mismatch-rate 0.15 \
  --input-archive data/test_dataset.tar.gz \
- --output-dereplicated $out_dir/01-prepro-vsearch.fasta \
- --output-count $out_dir/01-prepro-vsearch.tsv \
- --summary $out_dir/01-prepro-vsearch.html \
- --log-file $out_dir/01-prepro-vsearch.log 
- 
-if [ $? -ne 0 ]
-then
-	echo "Error in preprocess : Vsearch" >&2
-	exit 1;
-fi
+ --output-fasta $out_dir/01-denoising-swarm-vsearch.fasta \
+ --output-biom $out_dir/01-denoising-swarm-vsearch.biom \
+ --summary $out_dir/01-denoising-swarm-vsearch.html \
+ --log-file $out_dir/01-denoising-swarm-vsearch.log 
 
-echo "Step clustering `date`"
+echo "Step denoising: dada2 keep-unmerged `date`"
 
-clustering.py \
- --distance 1 \
- --fastidious \
- --input-fasta $out_dir/01-prepro-vsearch.fasta \
- --input-count $out_dir/01-prepro-vsearch.tsv \
- --output-biom $out_dir/02-clustering_fastidious.biom \
- --output-fasta $out_dir/02-clustering_fastidious.fasta \
- --output-compo $out_dir/02-clustering_fastidious_compo.tsv \
- --log-file $out_dir/02-clustering_fastidious.log \
- --nb-cpus $nb_cpu
+denoising.py illumina  \
+ --process dada2 --keep-unmerged \
+ --input-archive data/verysmallITS.tar.gz \
+ --min-amplicon-size 50 --max-amplicon-size 1000 --merge-software vsearch \
+ --five-prim-primer TAGACTCGTCAHCGATGAAGAACGYRG --three-prim-primer GCATATCAATAAGCGSAGGAA \
+ --R1-size 300 --R2-size 300  --nb-cpus $nb_cpu \
+ --output-fasta $out_dir/01-denoising-dada2-clusters.fasta \
+ --output-biom $out_dir/01-denoising-dada2-clusters.biom \
+ --summary $out_dir/01-denoising-dada2.html \
+ --log-file $out_dir/01-denoising-dada2.log
 
-if [ $? -ne 0 ]
-then
-	echo "Error in clustering fastidious" >&2
-	exit 1;
-fi
+echo "Step denoising: swarm `date`"
 
-clustering.py \
- --distance 3 \
- --denoising \
- --input-fasta $out_dir/01-prepro-vsearch.fasta \
- --input-count $out_dir/01-prepro-vsearch.tsv \
- --output-biom $out_dir/02-clustering_denoising.biom \
- --output-fasta $out_dir/02-clustering_denoising.fasta \
- --output-compo $out_dir/02-clustering_denoising_compo.tsv \
- --log-file $out_dir/02-clustering_denoising.log \
- --nb-cpus $nb_cpu
+preprocess.py illumina  \
+ --process swarm \
+ --input-archive data/verysmallITS.tar.gz \
+ --min-amplicon-size 50 --max-amplicon-size 1000 --merge-software vsearch \
+ --five-prim-primer TAGACTCGTCAHCGATGAAGAACGYRG --three-prim-primer GCATATCAATAAGCGSAGGAA \
+ --R1-size 300 --R2-size 300  --nb-cpus $nb_cpu \
+ --output-fasta $out_dir/01-denoising-swarm-clusters.fasta \
+ --output-biom $out_dir/01-denoising-swarm-clusters.biom \
+ --summary $out_dir/01-denoising-swarm.html \
+ --log-file $out_dir/01-denoising-swarm.log
 
-if [ $? -ne 0 ]
-then
-    echo "Error in clustering denoising" >&2
-    exit 1;
-fi
+echo "Step denoising: preprocess only `date`"
+
+denoising.py illumina  \
+ --process preprocess-only \
+ --input-archive data/verysmallITS.tar.gz \
+ --min-amplicon-size 50 --max-amplicon-size 1000 --merge-software vsearch \
+ --five-prim-primer TAGACTCGTCAHCGATGAAGAACGYRG --three-prim-primer GCATATCAATAAGCGSAGGAA \
+ --R1-size 300 --R2-size 300  --nb-cpus $nb_cpu \
+ --output-fasta $out_dir/01-prepro-only-clusters.fasta \
+ --output-biom $out_dir/01-prepro-only-clusters.biom \
+ --summary $out_dir/01-prepro-only.html \
+ --log-file $out_dir/01-prepro-only.log
 
 echo "Step remove_chimera `date`"
 
 remove_chimera.py \
- --input-fasta $out_dir/02-clustering_fastidious.fasta \
- --input-biom $out_dir/02-clustering_fastidious.biom \
+ --input-fasta $out_dir/01-denoising-swarm-vsearch.fasta \
+ --input-biom $out_dir/01-denoising-swarm-vsearch.biom \
  --non-chimera $out_dir/03-chimera.fasta \
  --out-abundance $out_dir/03-chimera.biom \
  --summary $out_dir/03-chimera.html \
