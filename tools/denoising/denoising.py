@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (C) 2018 INRA
+# Copyright (C) 2023 INRAE
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -2046,7 +2046,7 @@ if __name__ == "__main__":
       --min-amplicon-size MIN_AMPLICON_SIZE
       --max-amplicon-size MAX_AMPLICON_SIZE
       --without-primers | --five-prim-primer FIVE_PRIM_PRIMER --three-prim-primer THREE_PRIM_PRIMER
-      [--keep-unmerged]
+      [--process PROCESS]
       [--samples-names SAMPLE_NAME [SAMPLE_NAME ...]]
       [-p NB_CPUS] [--debug] [-v]
       [-d DEREPLICATED_FILE] [-c COUNT_FILE]
@@ -2061,6 +2061,7 @@ if __name__ == "__main__":
       --min-amplicon-size MIN_AMPLICON_SIZE
       --max-amplicon-size MAX_AMPLICON_SIZE
       --without-primers | --five-prim-primer FIVE_PRIM_PRIMER --three-prim-primer THREE_PRIM_PRIMER
+      [--process PROCESS]
       [-p NB_CPUS] [--debug] [-v]
       [-d DEREPLICATED_FILE] [-c COUNT_FILE] [--artComb-output-dereplicated ART_DEREPLICATED_FILE] [--artComb-output-count ART_COUNT_FILE]
       [-b BIOM_FILE] [--output-fasta FASTA_FILE]
@@ -2068,7 +2069,7 @@ if __name__ == "__main__":
 ''')
     #     Illumina parameters
     parser_illumina.add_argument( '--merge-software', default="vsearch", choices=["vsearch","flash","pear"], help='Software used to merge paired reads' )
-    parser_illumina.add_argument( '--process', default="swarm", choices=["swarm","dada2","preprocess-only"], help='Choose between preprocess only and obtain TSV and FASTA files, use swarm or dada2 to build ASVs and obtain BIOM and FASTA files [Default: %(default)s]' )
+    parser_illumina.add_argument( '--process', default="swarm", choices=["swarm","dada2","preprocess-only"], help='Choose between preprocess only (dereplication), swarm and dada2 to build ASVs and obtain BIOM and FASTA files [Default: %(default)s]' )
     parser_illumina.add_argument( '--keep-unmerged', default=False, action='store_true', help='In case of uncontiged paired reads, keep unmerged, and artificially combined them with 100 Ns.' )
     parser_illumina.add_argument( '--min-amplicon-size', type=int, required=True, help='The minimum size for the amplicons (with primers).' )
     parser_illumina.add_argument( '--max-amplicon-size', type=int, required=True, help='The maximum size for the amplicons (with primers).' )
@@ -2112,10 +2113,12 @@ if __name__ == "__main__":
     --max-amplicon-size MAX_AMPLICON_SIZE
     --without-primers | --five-prim-primer FIVE_PRIM_PRIMER --three-prim-primer THREE_PRIM_PRIMER
     [-p NB_CPUS] [--debug] [-v]
+    [--process PROCESS]
     [-d DEREPLICATED_FILE] [-c COUNT_FILE]
     [-s SUMMARY_FILE] [-l LOG_FILE]
 ''')
     #     Long-reads parameters
+    parser_longreads.add_argument( '--process', default="swarm", choices=["swarm","preprocess-only"], help='Choose between preprocess only (dereplication only) and swarm to build ASVs and obtain BIOM and FASTA files [Default: %(default)s]' )
     parser_longreads.add_argument( '--min-amplicon-size', type=int, required=True, help='The minimum size for the amplicons (with primers).' )
     parser_longreads.add_argument( '--max-amplicon-size', type=int, required=True, help='The maximum size for the amplicons (with primers).' )
     parser_longreads.add_argument( '--five-prim-primer', type=str, help="The 5' primer sequence (wildcards are accepted)." )
@@ -2151,15 +2154,16 @@ if __name__ == "__main__":
     --max-amplicon-size MAX_AMPLICON_SIZE
     --five-prim-primer FIVE_PRIM_PRIMER
     --three-prim-primer THREE_PRIM_PRIMER
+    [--process PROCESS]
     [-p NB_CPUS] [--debug] [-v]
     [-d DEREPLICATED_FILE] [-c COUNT_FILE]
     [-s SUMMARY_FILE] [-l LOG_FILE]
 ''')
-    parser_454.add_argument( '--process', default="swarm", choices=["swarm","dada2","preprocess-only"], help='Choose between preprocess only and obtain TSV and FASTA files, use swarm or dada2 to build ASVs and obtain BIOM and FASTA files [Default: %(default)s]' )
     parser_454.add_argument( '--min-amplicon-size', type=int, required=True, help='The minimum size for the amplicons (with primers).' )
     parser_454.add_argument( '--max-amplicon-size', type=int, required=True, help='The maximum size for the amplicons (with primers).' )
     parser_454.add_argument( '--five-prim-primer', type=str, required=True, help="The 5' primer sequence (wildcards are accepted)." )
     parser_454.add_argument( '--three-prim-primer', type=str, required=True, help="The 3' primer sequence (wildcards are accepted)." )
+    parser_454.add_argument( '--process', default="swarm", choices=["swarm","preprocess-only"], help='Choose between preprocess only (dereplication only) and swarm to build ASVs and obtain BIOM and FASTA files [Default: %(default)s]' )
     parser_454.add_argument( '-p', '--nb-cpus', type=int, default=1, help="The maximum number of CPUs used. [Default: %(default)s]" )
     parser_454.add_argument( '--debug', default=False, action='store_true', help="Keep temporary files to debug program." )
     #     454 inputs
@@ -2224,11 +2228,7 @@ if __name__ == "__main__":
 
         if args.mismatch_rate and args.mismatch_rate < 0 or args.mismatch_rate > 1:
             raise_exception( argparse.ArgumentTypeError( "\n\n#ERROR : mismatch-rate option need to be included between 0 and 1.\n\n" ))
-
-    if args.sequencer == "longreads":
-        args.process = "swarm"
-        args.keep_unmerged = False
-        
+            
     if args.denoising and args.fastidious:
         raise_exception( parser.error("\n#ERROR : --fastidious and --denoising are mutually exclusive.\n\n"))
     if args.distance > 1 and args.fastidious:
