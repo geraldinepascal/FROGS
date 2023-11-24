@@ -766,6 +766,85 @@ class DerepGlobalMultiFasta(Cmd):
 #
 ##################################################################################################################################################
 
+def spl_name_type( arg_value ):
+    """
+    @summary: Argparse type for samples-names.
+    """
+    if re.search("\s", arg_value): raise_exception( argparse.ArgumentTypeError( "\n\n#ERROR : A sample name must not contain white spaces.\n\n" ))
+    return str(arg_value)
+
+def to_biom_and_fasta(count_file, fasta_file, output_biom, output_fasta):
+    """
+    @summary : Write a biom and a fasta file from a count and a fasta file by adding Cluster_ prefix
+    @param count_file : [str] path to the count file. It contains the count of
+                         sequences by sample of each preclusters.
+                         Line format : "Precluster_id    nb_in_sampleA    nb_in_sampleB"
+    @param fasta_file : [str] path to the fasta file
+    @param output_biom : [str] path to the output biom file
+    @param output_fasta : [str] path to the output fasta file
+    """
+    biom = Biom( generated_by='dada2', matrix_type="sparse" )
+        
+    in_fasta_fh = FastaIO( fasta_file )
+    out_fasta_fh = FastaIO( output_fasta, "wt")
+    cpt=1
+    for record in in_fasta_fh:
+        if "FROGS_combined" in record.id:
+            record.id = "Cluster_"+str(cpt)+"_FROGS_combined"
+        else:
+            record.id = "Cluster_"+str(cpt)
+        out_fasta_fh.write(record)
+        cpt+=1
+    in_fasta_fh.close()
+    out_fasta_fh.close()
+    
+    # Preclusters count by sample
+    preclusters_count = dict()
+    count_fh = open( count_file )
+    samples = count_fh.readline().strip().split()[1:]
+    
+    cpt=1
+    for line in count_fh:
+        count_str, count_str = line.strip().split(None, 1)
+        preclusters_count[cpt] = count_str # For large dataset store count into a string consumes minus RAM than a sparse count
+        cpt+=1
+    count_fh.close()
+    
+    # Add samples
+    for sample_name in samples:
+        biom.add_sample( sample_name )
+
+    # Process count
+    cluster_idx = 1
+    clusters_fh = open( count_file )
+    for line in clusters_fh:
+        if not line.startswith("#"):
+            seq_id = line.strip().split()[0]
+            if "FROGS_combined" in seq_id:
+                cluster_name = "Cluster_" + str(cluster_idx) + "_FROGS_combined"
+                comment = ["FROGS_combined"]
+            else:
+                cluster_name = "Cluster_" + str(cluster_idx)
+                comment = list()
+            cluster_count = {key:0 for key in samples}
+            
+            sample_counts = preclusters_count[cluster_idx].split("\t")
+            for sample_idx, sample_name in enumerate(samples):
+                cluster_count[sample_name] += int(sample_counts[sample_idx])
+            preclusters_count[cluster_idx] = None
+            
+            # Add cluster on biom
+            biom.add_observation( cluster_name, {'comment': comment, 'seed_id':""} )
+            observation_idx = biom.find_idx("observation", cluster_name)
+            for sample_idx, sample_name in enumerate(samples):
+                if cluster_count[sample_name] > 0:
+                    biom.data.change( observation_idx, sample_idx, cluster_count[sample_name] )
+            # Next cluster
+            cluster_idx += 1
+
+    # Write
+    BiomIO.write( output_biom, biom )
+
 def replaceNtags(in_fasta, out_fasta):
     """
     @summary : for FROGS_combined sequence, replace N tags by A and record start and stop positions in description
@@ -1901,27 +1980,27 @@ def process( args ):
                 raise_exception( Exception( "\n\n#ERROR : The filters have eliminated all sequences (see summary for more details).\n\n" ))
 
             # Temporary files
-            filename_woext = os.path.split(dereplicated_fasta)[1].split('.')[0]
+            #filename_woext = os.path.split(dereplicated_fasta)[1].split('.')[0]
             
             #clustering_log = tmp_files.add( filename_woext + '_clustering_log.txt' )
             
             #Clustering(args.output_dereplicated, args.output_count, args.distance, args.fastidious, args.output_compo, args.output_fasta, args.output_biom, clustering_log, args.nb_cpus).submit( args.log_file)
-            Logger.static_write(args.log_file, "## Application\nSoftware :" + sys.argv[0] + " (version : " + str(__version__) + ")\nCommand : " + " ".join(sys.argv) + "\n\n")
+            #Logger.static_write(args.log_file, "## Application\nSoftware :" + sys.argv[0] + " (version : " + str(__version__) + ")\nCommand : " + " ".join(sys.argv) + "\n\n")
 
-            if args.distance == 1 and args.denoising:
-                Logger.static_write(args.log_file, "Warning: using the denoising option with a distance of 1 is useless. The denoising option is cancelled\n\n")
-                args.denoising = False
+            #if args.distance == 1 and args.denoising:
+            #    Logger.static_write(args.log_file, "Warning: using the denoising option with a distance of 1 is useless. The denoising option is cancelled\n\n")
+            #    args.denoising = False
 
-            sorted_fasta = tmp_files.add( filename_woext + '_sorted.fasta' )
-            replaceN_fasta = tmp_files.add( filename_woext + '_sorted_NtoA.fasta' )
-            final_sorted_fasta = replaceN_fasta
-            swarms_file = args.output_compo
-            swarms_seeds = tmp_files.add( filename_woext + '_final_seeds.fasta' )
-            swarm_log = tmp_files.add( filename_woext + '_swarm_log.txt' )
+            #sorted_fasta = tmp_files.add( filename_woext + '_sorted.fasta' )
+            #replaceN_fasta = tmp_files.add( filename_woext + '_sorted_NtoA.fasta' )
+            #final_sorted_fasta = replaceN_fasta
+            #swarms_file = args.output_compo
+            #swarms_seeds = tmp_files.add( filename_woext + '_final_seeds.fasta' )
+            #swarm_log = tmp_files.add( filename_woext + '_swarm_log.txt' )
 
-            SortFasta( dereplicated_fasta, sorted_fasta, args.debug ).submit( args.log_file )
-            Logger.static_write(args.log_file, "repalce 100 N tags by 50A-50C in: " + sorted_fasta + " out : "+ replaceN_fasta +"\n")
-            replaceNtags(sorted_fasta, replaceN_fasta)
+            #SortFasta( dereplicated_fasta, sorted_fasta, args.debug ).submit( args.log_file )
+            #Logger.static_write(args.log_file, "repalce 100 N tags by 50A-50C in: " + sorted_fasta + " out : "+ replaceN_fasta +"\n")
+            #replaceNtags(sorted_fasta, replaceN_fasta)
             to_biom_and_fasta(tmp_count, dereplicated_fasta, args.output_biom, args.output_fasta)
     
         #Logger.static_write(args.log_file, "## Application\nSoftware :" + sys.argv[0] + " (version : " + str(__version__) + ")\nCommand : " + " ".join(sys.argv) + "\n\n")
@@ -1948,84 +2027,8 @@ def process( args ):
                 for f in R2_files:
                     os.remove(f)
 
-def spl_name_type( arg_value ):
-    """
-    @summary: Argparse type for samples-names.
-    """
-    if re.search("\s", arg_value): raise_exception( argparse.ArgumentTypeError( "\n\n#ERROR : A sample name must not contain white spaces.\n\n" ))
-    return str(arg_value)
 
-def to_biom_and_fasta(count_file, fasta_file, output_biom, output_fasta):
-    """
-    @summary : Write a biom file from swarm results.
-    @param clusters_file : [str] path to the '.clstr' file.
-    @param count_file : [str] path to the count file. It contains the count of
-                         sequences by sample of each preclusters.
-                         Line format : "Precluster_id    nb_in_sampleA    nb_in_sampleB"
-    @param output_biom : [str] path to the output file.
-    @param size_separator : [str] the pre-cluster abundance separator.
-    """
-    biom = Biom( generated_by='dada2', matrix_type="sparse" )
-        
-    in_fasta_fh = FastaIO( fasta_file )
-    out_fasta_fh = FastaIO( output_fasta, "wt")
-    cpt=1
-    for record in in_fasta_fh:
-        if "FROGS_combined" in record.id:
-            record.id = "Cluster_"+str(cpt)+"_FROGS_combined"
-        else:
-            record.id = "Cluster_"+str(cpt)
-        out_fasta_fh.write(record)
-        cpt+=1
-    in_fasta_fh.close()
-    out_fasta_fh.close()
-    
-    # Preclusters count by sample
-    preclusters_count = dict()
-    count_fh = open( count_file )
-    samples = count_fh.readline().strip().split()[1:]
-    
-    cpt=1
-    for line in count_fh:
-        count_str, count_str = line.strip().split(None, 1)
-        preclusters_count[cpt] = count_str # For large dataset store count into a string consumes minus RAM than a sparse count
-        cpt+=1
-    count_fh.close()
-    
-    # Add samples
-    for sample_name in samples:
-        biom.add_sample( sample_name )
 
-    # Process count
-    cluster_idx = 1
-    clusters_fh = open( count_file )
-    for line in clusters_fh:
-        if not line.startswith("#"):
-            seq_id = line.strip().split()[0]
-            if "FROGS_combined" in seq_id:
-                cluster_name = "Cluster_" + str(cluster_idx) + "_FROGS_combined"
-                comment = ["FROGS_combined"]
-            else:
-                cluster_name = "Cluster_" + str(cluster_idx)
-                comment = list()
-            cluster_count = {key:0 for key in samples}
-            
-            sample_counts = preclusters_count[cluster_idx].split("\t")
-            for sample_idx, sample_name in enumerate(samples):
-                cluster_count[sample_name] += int(sample_counts[sample_idx])
-            preclusters_count[cluster_idx] = None
-            
-            # Add cluster on biom
-            biom.add_observation( cluster_name, {'comment': comment, 'seed_id':""} )
-            observation_idx = biom.find_idx("observation", cluster_name)
-            for sample_idx, sample_name in enumerate(samples):
-                if cluster_count[sample_name] > 0:
-                    biom.data.change( observation_idx, sample_idx, cluster_count[sample_name] )
-            # Next cluster
-            cluster_idx += 1
-
-    # Write
-    BiomIO.write( output_biom, biom )
 
 ##################################################################################################################################################
 #
