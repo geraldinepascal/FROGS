@@ -202,9 +202,9 @@ def tsv_to_biom( input_tsv, multi_hit_dict, fields, samples_names, output_biom, 
             # recover metadata
             if idx in metadata_index:
                 if metadata_index[idx]=="observation_name" :
-                    cluster_name = val
+                    cluster_name = val.rstrip()
                 else:
-                    metadata_dict[metadata_index[idx]] = val
+                    metadata_dict[metadata_index[idx]] = val.rstrip()
             # recover samples count
             elif idx in sample_index and int(float(val)) > 0:
                 count_by_sample[sample_index[idx]] = int(float(val))
