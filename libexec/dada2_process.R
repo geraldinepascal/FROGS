@@ -69,6 +69,16 @@ is.list.of <- function(x, ctype) {
 
 write2FastqFromDada <- function(dadaF, derepF, dadaR, derepR, path)
 {
+  if (is(dadaF, "dada")){ 
+    dadaF <- list(dadaF)
+    dadaR <- list(dadaR)
+  }
+  if (is(derepF, "derep")) {
+    derepF <- list(derepF)
+    derepR <- list(derepR)
+  }
+  else if (is(derepF, "character") && length(derepF) == 1 && dir.exists(derepF)) 
+    derepF <- parseFastqDirectory(derepF)
   nrecs <- c(length(dadaF), length(derepF), length(dadaR), 
              length(derepR))
   if (length(unique(nrecs)) > 1) 
@@ -225,10 +235,10 @@ if(!is.null(opt$R2Files)){
 
 ### Dereplicate 
 derepFs <- derepFastq(fnFs, verbose = TRUE)
-names(derepFs) <- sample.names
+#names(derepFs) <- sample.names
 if(!is.null(opt$R2Files)){
 	derepRs <- derepFastq(fnRs, verbose = TRUE)
-	names(derepRs) <- sample.names
+	#names(derepRs) <- sample.names
 }
 
 ### Sample Inference
