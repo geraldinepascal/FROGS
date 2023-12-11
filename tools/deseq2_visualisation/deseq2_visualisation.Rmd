@@ -307,16 +307,29 @@ cat("There are no differentially abundant ASVs or FUNCTIONs. Please use a higher
 
 da.abundances_table <- da.abundances_table %>% arrange(log2FoldChange)
 y_title <- ifelse(params$analysis == "ASV", "ASV", "Functions")
+
+abundances_input2 <- prune_samples(get_variable(abundances_input, params$var) %in% c(params$mod1, params$mod2), abundances_input)
+abundances_input3 <- prune_taxa(da.abundances_table$ID, abundances_input2)
+
+# Be sure there is no more samples or taxa with 0 value
+empty_samples <- sample_names(abundances_input3)[which(sample_sums(abundances_input3)==0)]
+sample_to_keep <- sample_names(abundances_input3)[which(sample_sums(abundances_input3)>0)]
+data <- prune_samples(sample_to_keep, abundances_input3)
+
+empty_taxa <- taxa_names(data)[which(taxa_sums(data)==0)]
+taxa_to_keep <- taxa_names(data)[which(taxa_sums(data)>0)]
+hplot_input <- prune_taxa(taxa_to_keep, data)
+
 if ( length(result_names)==2 || params$mod1 != "None"){
 
     subtitle <- result_names[2]
     if ( params$mod1!= "None" ){
-    	abundances_input <- prune_samples(get_variable(abundances_input, params$var) %in% c(params$mod1, params$mod2), abundances_input)
+    	#abundances_input <- prune_samples(get_variable(abundances_input, params$var) %in% c(params$mod1, params$mod2), abundances_input)
         subtitle <- paste(sep="", params$var, "_", params$mod1, "_vs_", params$mod2)
     }
 
     ##Heatmap plot with 2 conditions
-	hplot <- plot_heatmap(prune_taxa(da.abundances_table$ID, abundances_input), 
+	hplot <- plot_heatmap(hplot_input, 
 						  taxa.label = NULL,
 						  taxa.order = da.abundances_table$ID, low = "yellow", high = "red", na.value = "white") +
                 scale_y_discrete(y_title) +  
@@ -327,7 +340,7 @@ if ( length(result_names)==2 || params$mod1 != "None"){
     idx <- order(get_variable(abundances_input, params$var))
     my.sample.order <- sample_names(abundances_input)[idx]
     ##Heatmap plot with all conditions of variable
-    hplot <- plot_heatmap(prune_taxa(da.abundances_table$ID, abundances_input), 
+    hplot <- plot_heatmap(hplot_input, 
     					  taxa.label = NULL,
     	                  taxa.order = da.abundances_table$ID, sample.order = my.sample.order, 
     	                  low = "yellow", high = "red", na.value = "white") + 
