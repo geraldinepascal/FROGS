@@ -121,7 +121,7 @@ class Biom2multiAffi(Cmd):
         @param out_tsv: [str] Path to output TSV file.
         """
         if headerOnly:
-            header_list = ["observation_name", "blast_taxonomy", " blast_subject", "blast_perc_identity", "blast_perc_query_coverage", "blast_evalue", "blast_aln_length"]
+            header_list = ["observation_name", "blast_taxonomy", "blast_subject", "blast_perc_identity", "blast_perc_query_coverage", "blast_evalue", "blast_aln_length"]
             Cmd.__init__( self,
                           'echo',
                           'Print biom blast multiAffiliation as TSV header file',
