@@ -243,9 +243,9 @@ if(!is.null(opt$R2Files)){
 
 ### Sample Inference
 if(opt$pseudopooling){
-	dadaFs <- dada(derepFs, err=errF, multithread=opt$threads, pool=TRUE)
+	dadaFs <- dada(derepFs, err=errF, multithread=opt$threads, pool="pseudo")
 	if(!is.null(opt$R2Files)){
-		dadaRs <- dada(derepRs, err=errF, multithread=opt$threads, pool=TRUE)
+		dadaRs <- dada(derepRs, err=errF, multithread=opt$threads, pool="pseudo")
 	}
 }else{
 	dadaFs <- dada(derepFs, err=errF, multithread=opt$threads)
