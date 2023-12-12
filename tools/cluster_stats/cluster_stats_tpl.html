@@ -871,7 +871,11 @@
 					} else if( $(this).attr('href') == "#samples-distrib" && $('#samples-distrib').hasClass('disabled') ){
 						$('#samples-distrib').removeClass("disabled");
 						sample_table_load( "samples-distrib-table" );
-						hierarchical_clustering_load( "samples-distrib-hc" );
+						if(newick != null){
+							hierarchical_clustering_load( "samples-distrib-hc" );
+						}else{
+							$('#samples-distrib-hc-title').remove();
+						}
 					}
 				})
 			});
@@ -905,7 +909,7 @@
 						<div id="samples-distrib-table"></div>
 					</div>
 					<div>
-						<h2 class="pb-2 mt-4 mb-2 border-bottom">Hierarchical clustering</h2>
+						<h2 id="samples-distrib-hc-title" class="pb-2 mt-4 mb-2 border-bottom">Hierarchical clustering</h2>
 						<div id="samples-distrib-hc"></div>
 					</div>
 				</div>

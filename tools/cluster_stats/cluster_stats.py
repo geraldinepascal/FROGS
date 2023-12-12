@@ -119,7 +119,7 @@ class Depths(Cmd):
 # FUNCTIONS
 #
 ##################################################################################################################################################
-def write_summary( summary_file, input_biom, depth_file, classif_file ):
+def write_summary( summary_file, input_biom, depth_file, classif_file=None ):
     """
     @summary: Writes the summary of results.
     @param summary_file: [str] The output file.
@@ -164,9 +164,10 @@ def write_summary( summary_file, input_biom, depth_file, classif_file ):
     del biom
 
     # Get newick data
-    FH_classif = open( classif_file )
-    newick = FH_classif.readlines()[0].replace("\n", "")
-    FH_classif.close()
+    if classif_file is not None:
+        FH_classif = open( classif_file )
+        newick = FH_classif.readlines()[0].replace("\n", "")
+        FH_classif.close()
 
     # Write
     FH_summary_tpl = open( os.path.join(CURRENT_DIR, "cluster_stats_tpl.html") )
@@ -179,7 +180,10 @@ def write_summary( summary_file, input_biom, depth_file, classif_file ):
         elif "###DATA_SAMPLE###" in line:
             line = line.replace( "###DATA_SAMPLE###", json.dumps(samples_distrib) )
         elif "###NEWICK###" in line:
-            line = line.replace( "###NEWICK###", json.dumps(newick) )
+            if classif_file is not None:
+                line = line.replace( "###NEWICK###", json.dumps(newick) )
+            else:
+                line = line.replace( "###NEWICK###", "null" )
         FH_summary_out.write( line )
     FH_summary_out.close()
     FH_summary_tpl.close()
@@ -195,6 +199,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         description='Process several metrics on abundance from BIOM file.'
     )
+    parser.add_argument( '--hierarchical-clustering', action='store_true', default=False, help="Perform Hierarchical classification on observation proportions." )
     parser.add_argument( '--distance-method', type=str, default="braycurtis", help='Used distance method for classify (see http://docs.scipy.org/doc/scipy-0.14.0/reference/generated/generated/scipy.spatial.distance.pdist.html#scipy.spatial.distance.pdist). [Default: %(default)s]',
                          choices=["euclidean", "cityblock", "seuclidean", "sqeuclidean", "cosine", "correlation", "hamming", "jaccard", "chebyshev", "canberra", "braycurtis", "mahalanobis", "yule", "matching", "dice", "kulsinski", "rogerstanimoto", "russellrao", "sokalmichener", "sokalsneath", "wminkowski"] )
     parser.add_argument( '--linkage-method', type=str, default="average", help='Used linkage method for classify (see http://docs.scipy.org/doc/scipy-0.14.0/reference/generated/scipy.cluster.hierarchy.linkage.html). [Default: %(default)s]',
@@ -216,15 +221,19 @@ if __name__ == "__main__":
     # Process
     try:
         Logger.static_write(args.log_file, "## Application\nSoftware :" + sys.argv[0] + " (version : " + str(__version__) + ")\nCommand : " + " ".join(sys.argv) + "\n\n")
-
-        classif_file = tmp_files.add( "HClassif.newick" )
-        classif_log = tmp_files.add( "HClassif_log.txt" )
-        HClassification(args.input_biom, classif_file, classif_log, args.distance_method, args.linkage_method).submit( args.log_file )
+        if args.hierarchical_clustering:
+            classif_file = tmp_files.add( "HClassif.newick" )
+            classif_log = tmp_files.add( "HClassif_log.txt" )
+            HClassification(args.input_biom, classif_file, classif_log, args.distance_method, args.linkage_method).submit( args.log_file )
 
         depth_file = tmp_files.add( "depths.tsv" )
         Depths(args.input_biom, depth_file).submit( args.log_file )
+        if args.hierarchical_clustering:
+            write_summary( args.output_file, args.input_biom, depth_file, classif_file )
+        else:
+            write_summary( args.output_file, args.input_biom, depth_file, None )
 
-        write_summary( args.output_file, args.input_biom, depth_file, classif_file )
+        
     # Remove temporary files
     finally:
         if not args.debug:
