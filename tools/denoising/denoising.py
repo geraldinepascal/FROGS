@@ -2091,7 +2091,7 @@ if __name__ == "__main__":
     group_clustering.add_argument( '--fastidious', default=False, action='store_true',  help="use the fastidious option of swarm to refine cluster. RECOMMENDED in combination with a distance equal to 1 (-d). it is only usable with d=1 and mutually exclusive with --denoising." )
     group_clustering.add_argument( '--output-compo', default='clustering_swarms_composition.tsv', help='This output file will contain the composition of each cluster (format: TSV). One Line is a cluster ; each column is a sequence ID. [Default: %(default)s]')
     group_denoising = parser_illumina.add_argument_group( 'Denoising options' )
-    group_denoising.add_argument( '--pseudo-pooling', default=False, action='store_true',  help="Perform dada2 pseudo-pooling to reduce inconvenients of independent sample processing" )
+    group_denoising.add_argument( '--pseudo-pooling', default=True, action='store_true',  help="Perform dada2 pseudo-pooling to reduce inconvenients of independent sample processing" )
     parser_illumina.add_argument( '-p', '--nb-cpus', type=int, default=1, help="The maximum number of CPUs used. [Default: %(default)s]" )
     parser_illumina.add_argument( '--debug', default=False, action='store_true', help="Keep temporary files to debug program." )
     #     Illumina inputs
