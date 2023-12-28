@@ -126,6 +126,10 @@ empty_samples <- sample_names(data)[which(sample_sums(data)==0)]
 sample_to_keep <- sample_names(data)[which(sample_sums(data)>0)]
 data <- prune_samples(sample_to_keep, data)
 
+empty_taxa <- taxa_names(data)[which(taxa_sums(data)==0)]
+taxa_to_keep <- taxa_names(data)[which(taxa_sums(data)>0)]
+data <- prune_taxa(taxa_to_keep, data)
+
 ## abundance normalisation
 if(params$normalisation){ data <- rarefy_even_depth(data, rngseed = 1121983)}
 
@@ -138,6 +142,7 @@ save(data, file=params$outputRdata)
 ```{r summary}
 data
 if(length(empty_samples) > 0) {cat(paste('Remove empty samples: ', paste(empty_samples, collapse=",")))}
+if(length(empty_taxa) > 0) {cat(paste('Remove empty taxa: ', paste(empty_taxa, collapse=",")))}
 if(params$normalisation){cat(paste('Number of sequences in each sample after normalisation: ', head(sample_sums(data))[[1]]))}
 ```
 
