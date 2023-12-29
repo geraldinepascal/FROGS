@@ -1464,7 +1464,7 @@ def clean_before_denoising_process(R1_file, R2_file, sample_name, R1_cutadapted_
     err_cutadapt = tmp_files.add( sample_name + '_cutadapt.err' )
     
     FH_log = open(log_file, "at")
-    FH_log.write('##Sample\nContiged file : ' + R1_file + '\nSample name : ' + sample_name + '\n')
+    FH_log.write('##Sample\nRaw file : ' + R1_file + '\nSample name : ' + sample_name + '\n')
     FH_log.write('nb seq before process : ' + str(get_nb_seq(R1_file)) +'\n' )
     FH_log.write('##Commands\n')
     FH_log.close()
