@@ -2105,7 +2105,7 @@ if __name__ == "__main__":
     group_illumina_output = parser_illumina.add_argument_group( 'Outputs' )
     group_illumina_output.add_argument( '-b', '--output-biom', default='denoising_abundance.biom', help='This output file will contain the abundance by sample for each cluster or ASV (format: BIOM). [Default: %(default)s]')
     group_illumina_output.add_argument( '--output-fasta', default='sequences.fasta', help='This output file will contain the sequence for each cluster or ASV (format: FASTA). [Default: %(default)s]')
-    group_illumina_output.add_argument( '-s', '--summary', default='preprocess.html', help='The HTML file containing the graphs. [Default: %(default)s]')
+    group_illumina_output.add_argument( '-s', '--summary', default='denoising.html', help='The HTML file containing the graphs. [Default: %(default)s]')
     group_illumina_output.add_argument( '-l', '--log-file', default=sys.stdout, help='This output file will contain several information on executed commands.')
 
 
