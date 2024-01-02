@@ -224,7 +224,7 @@ class Dada2Core(Cmd):
     @see: http://rmarkdown.rstudio.com/
           https://joey711.github.io/phyloseq/
     """
-    def __init__(self, r1_files, r2_files, output_dir, cpus, output_filenames, stderr, pseudo_pooling ):
+    def __init__(self, r1_files, r2_files, output_dir, cpus, output_filenames, stderr, pseudo_pooling, sequencer ):
         """
         @param data : [str] The path of one phyloseq-class object in Rdata file.
         @param model: [str] Experimental variable suspected to have an impact on OTUs abundances.
@@ -239,7 +239,7 @@ class Dada2Core(Cmd):
         Cmd.__init__( self,
                       'dada2_process.R',
                       'Write denoised FASTQ files from cutadapted and cleaned FASTQ files',
-                      ' --R1Files ' + ",".join(r1_files) + ' --R2Files ' + ",".join(r2_files) + opts + ' --outputDir ' + output_dir + ' --fileNames ' + output_filenames + ' --threads ' + str(cpus) + ' 2> ' + stderr,
+                      ' --R1Files ' + ",".join(r1_files) + ' --R2Files ' + ",".join(r2_files) + opts + ' --outputDir ' + output_dir + ' --fileNames ' + output_filenames + ' --sequencer ' + sequencer + ' --threads ' + str(cpus) + ' 2> ' + stderr,
                       '--version')       
                        
     def get_version(self):
@@ -1910,7 +1910,7 @@ def process( args ):
             #Logger.static_write(args.log_file, '##Sample\nAll\n##Commands\n')
             
             try:
-                Dada2Core(R1_cutadapted_files, R2_cutadapted_files, output_dir, args.nb_cpus, tmp_output_filenames, R_stderr, args.pseudo_pooling).submit(args.log_file)
+                Dada2Core(R1_cutadapted_files, R2_cutadapted_files, output_dir, args.nb_cpus, tmp_output_filenames, R_stderr, args.pseudo_pooling, args.sequencer).submit(args.log_file)
             except subprocess.CalledProcessError as e:
                 f = open(R_stderr,"r")
                 print(f.read())
@@ -2041,38 +2041,45 @@ if __name__ == "__main__":
     parser.add_argument( '-v', '--version', action='version', version=__version__ )
     subparsers = parser.add_subparsers()
     parser_illumina = subparsers.add_parser( 'illumina', help='Illumina sequencers.', usage='''
-  For samples files:
-    preprocess.py illumina
-      --swarm [--denoising] [--distance DISTANCE] [--fastidious] | --dada2
-      --input-R1 R1_FILE [R1_FILE ...]
-      --already-contiged | --input-R2 R2_FILE [R2_FILE ...] --R1-size R1_SIZE --R2-size R2_SIZE [--mismatch-rate RATE ] [--quality-scale SCALE ] [--merge-software {vsearch,flash,pear} [--expected-amplicon-size]] [--keep-unmerged]
-      --min-amplicon-size MIN_AMPLICON_SIZE
-      --max-amplicon-size MAX_AMPLICON_SIZE
-      --without-primers | --five-prim-primer FIVE_PRIM_PRIMER --three-prim-primer THREE_PRIM_PRIMER
-      [--process PROCESS]
-      [--samples-names SAMPLE_NAME [SAMPLE_NAME ...]]
-      [-p NB_CPUS] [--debug] [-v]
-      [-d DEREPLICATED_FILE] [-c COUNT_FILE]
-      [-b BIOM_FILE] [--output-fasta FASTA_FILE]
-      [-s SUMMARY_FILE] [-l LOG_FILE]
-
   For samples archive:
-    preprocess.py illumina
-      --swarm [--denoising] [--distance DISTANCE] [--fastidious] | --dada2
-      --input-archive ARCHIVE_FILE
-      --already-contiged | --R1-size R1_SIZE --R2-size R2_SIZE [--mismatch-rate RATE ] [--quality-scale SCALE ] [--merge-software {vsearch,flash,pear} [--expected-amplicon-size] ] [--keep-unmerged]
-      --min-amplicon-size MIN_AMPLICON_SIZE
-      --max-amplicon-size MAX_AMPLICON_SIZE
-      --without-primers | --five-prim-primer FIVE_PRIM_PRIMER --three-prim-primer THREE_PRIM_PRIMER
-      [--process PROCESS]
-      [-p NB_CPUS] [--debug] [-v]
-      [-d DEREPLICATED_FILE] [-c COUNT_FILE] [--artComb-output-dereplicated ART_DEREPLICATED_FILE] [--artComb-output-count ART_COUNT_FILE]
-      [-b BIOM_FILE] [--output-fasta FASTA_FILE]
-      [-s SUMMARY_FILE] [-l LOG_FILE]
+	preprocess.py illumina
+	  --input-archive ARCHIVE_FILE
+	  --already-contiged
+	  --R1-size R1_SIZE [--R2-size R2_SIZE]
+	  --without-primers | --five-prim-primer FIVE_PRIM_PRIMER --three-prim-primer THREE_PRIM_PRIMER
+	  --min-amplicon-size MIN_AMPLICON_SIZE
+	  --max-amplicon-size MAX_AMPLICON_SIZE
+	  [--process {swarm, dada2, preprocess-only}]
+	  [--denoising] [--distance DISTANCE] [--fastidious] | [--pseudo-pooling]
+	  [--mismatch-rate RATE ] [--quality-scale SCALE ] [--merge-software {vsearch,flash,pear}] [--expected-amplicon-size] 
+	  [--keep-unmerged]
+	  [-p NB_CPUS] [--debug] [-v]
+	  [-d DEREPLICATED_FILE] [-c COUNT_FILE]
+	  [-b BIOM_FILE] [--output-fasta FASTA_FILE]
+	  [-s SUMMARY_FILE] [-l LOG_FILE]
+	  
+  For samples files:
+	preprocess.py illumina
+	  --input-R1 R1_FILE [R1_FILE ...] 
+	  --already-contiged | --input-R2 R2_FILE [R2_FILE ...]
+	  --R1-size R1_SIZE [--R2-size R2_SIZE]
+	  --samples-names SAMPLE_NAME [SAMPLE_NAME ...]
+	  --without-primers | --five-prim-primer FIVE_PRIM_PRIMER --three-prim-primer THREE_PRIM_PRIMER
+	  --min-amplicon-size MIN_AMPLICON_SIZE
+	  --max-amplicon-size MAX_AMPLICON_SIZE
+	  [--process {swarm, dada2, preprocess-only}]
+	  [--denoising] [--distance DISTANCE] [--fastidious] | [--pseudo-pooling]
+	  [--mismatch-rate RATE ] [--quality-scale SCALE ] [--merge-software {vsearch,flash,pear}] [--expected-amplicon-size] 
+	  [--keep-unmerged]
+	  [-p NB_CPUS] [--debug] [-v]
+	  [-d DEREPLICATED_FILE] [-c COUNT_FILE]
+	  [-b BIOM_FILE] [--output-fasta FASTA_FILE]
+	  [-s SUMMARY_FILE] [-l LOG_FILE]
+
 ''')
     #     Illumina parameters
-    parser_illumina.add_argument( '--merge-software', default="vsearch", choices=["vsearch","flash","pear"], help='Software used to merge paired reads' )
     parser_illumina.add_argument( '--process', default="swarm", choices=["swarm","dada2","preprocess-only"], help='Choose between preprocess only (dereplication), swarm and dada2 to build ASVs and obtain BIOM and FASTA files [Default: %(default)s]' )
+    parser_illumina.add_argument( '--merge-software', default="vsearch", choices=["vsearch","flash","pear"], help='Software used to merge paired reads' )
     parser_illumina.add_argument( '--keep-unmerged', default=False, action='store_true', help='In case of uncontiged paired reads, keep unmerged, and artificially combined them with 100 Ns.' )
     parser_illumina.add_argument( '--min-amplicon-size', type=int, required=True, help='The minimum size for the amplicons (with primers).' )
     parser_illumina.add_argument( '--max-amplicon-size', type=int, required=True, help='The maximum size for the amplicons (with primers).' )

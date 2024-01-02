@@ -16,6 +16,7 @@ option_list = list(
   make_option(c("--R1Files"), type="list", default=NULL, help="List of R1 files to be process"),
   make_option(c("--R2Files"), type="list", default=NULL, help="List of R2 files to be process"),
   make_option(c("--pseudopooling"), action="store_true", default=FALSE, help="Perform pseudo-pooling to reduce inconvenients of independent sample processing"),
+  make_option(c("--sequencer"), type="character", default="illumina", help=""),
   make_option(c("-o", "--outputDir"), type="character", default=".", help="The directory path to write denoised FASTQ files. [default= %default]"),
   make_option(c("-f", "--fileNames"), type="character", default=".", help="Linked R1 and R2 files in the current analysis."),
   make_option(c("-t", "--threads"), type="integer", default=1, help="Number of CPUs to use. [default= %default]"),
@@ -25,7 +26,7 @@ option_list = list(
 
 opt_parser = OptionParser(option_list=option_list);
 opt = parse_args(opt_parser);
-
+print(opt)
 ############# VERSION
 get_version <- function(){
   library(dada2)
@@ -227,9 +228,17 @@ sample.names <- unname(sapply(fnFs, get.sample.name))
 if (opt$debug) saveRDS(sample.names,"samples.rds")
 
 ### Learn the Error Rates
-errF <- learnErrors(fnFs, multithread=opt$threads)
+if(opt$sequencer == "illumina"){
+	errF <- learnErrors(fnFs, errorEstimationFunction=loessErrfun, multithread=opt$threads)
+}else if(opt$sequencer == "longreads"){
+	errF <- learnErrors(fnFs, errorEstimationFunction=PacBioErrfun, BAND_SIZE=32, multithread=opt$threads)
+}
 if(!is.null(opt$R2Files)){
-	errR <- learnErrors(fnRs, multithread=opt$threads)
+	if(opt$sequencer == "illumina"){
+		errR <- learnErrors(fnRs, errorEstimationFunction=loessErrfun, multithread=opt$threads)
+	}else if(opt$sequencer == "longreads"){
+		errR <- learnErrors(fnRs, errorEstimationFunction=PacBioErrfun, BAND_SIZE=32, multithread=opt$threads)
+	}
 }
 ###
 
