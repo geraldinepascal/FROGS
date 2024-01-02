@@ -1160,7 +1160,7 @@ def summarise_results( samples_names, lengths_files, biom_file, depth_file, clas
     FH_classif.close()
     
     # Write
-    FH_summary_tpl = open( os.path.join(CURRENT_DIR, "preprocess_tpl.html") )
+    FH_summary_tpl = open( os.path.join(CURRENT_DIR, "denoising_tpl.html") )
     FH_summary_out = open( param.summary, "wt" )
     for line in FH_summary_tpl:
         if "###CLUSTERS_SIZES###" in line:
@@ -2042,7 +2042,7 @@ if __name__ == "__main__":
     subparsers = parser.add_subparsers()
     parser_illumina = subparsers.add_parser( 'illumina', help='Illumina sequencers.', usage='''
   For samples archive:
-	preprocess.py illumina
+	denoising.py illumina
 	  --input-archive ARCHIVE_FILE
 	  --already-contiged
 	  --R1-size R1_SIZE [--R2-size R2_SIZE]
@@ -2059,7 +2059,7 @@ if __name__ == "__main__":
 	  [-s SUMMARY_FILE] [-l LOG_FILE]
 	  
   For samples files:
-	preprocess.py illumina
+	denoising.py illumina
 	  --input-R1 R1_FILE [R1_FILE ...] 
 	  --already-contiged | --input-R2 R2_FILE [R2_FILE ...]
 	  --R1-size R1_SIZE [--R2-size R2_SIZE]
@@ -2117,7 +2117,7 @@ if __name__ == "__main__":
 
 
     parser_longreads = subparsers.add_parser( 'longreads', help='longreads sequencers.', usage='''
-    preprocess.py longreads
+    denoising.py longreads
     --input-archive ARCHIVE_FILE | --input-R1 R1_FILE [R1_FILE ...]
     --min-amplicon-size MIN_AMPLICON_SIZE
     --max-amplicon-size MAX_AMPLICON_SIZE
@@ -2158,7 +2158,7 @@ if __name__ == "__main__":
 
     # 454
     parser_454 = subparsers.add_parser('454', help='454 sequencers.', usage='''
-  preprocess.py 454
+  denoising.py 454
     --input-archive ARCHIVE_FILE | --input-R1 R1_FILE [R1_FILE ...]
     --min-amplicon-size MIN_AMPLICON_SIZE
     --max-amplicon-size MAX_AMPLICON_SIZE
