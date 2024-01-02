@@ -32,7 +32,7 @@ fi
 echo "Step denoising 16S vsearch `date`":
 
 denoising.py illumina \
- --process swarm \
+ --process swarm --keep-unmerged \
  --min-amplicon-size 44 --max-amplicon-size 490 \
  --five-prim-primer GGCGVACGGGTGAGTAA --three-prim-primer GTGCCAGCNGCNGCGG \
  --R1-size 267 --R2-size 266 --merge-software vsearch \
