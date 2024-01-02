@@ -143,6 +143,7 @@ def rounding(nb):
 		end = re.compile("e-[0-9]+")
 		return float("".join(start.findall(str(nb))+end.findall(str(nb))))
 
+	# Cas support où le NSTI est égal à 0.05 :
 	elif re.search("[0][.][0]+[0-9]{1}", str(nb)):
 		return nb
 
