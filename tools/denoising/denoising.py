@@ -2037,7 +2037,7 @@ def process( args ):
 ##################################################################################################################################################
 if __name__ == "__main__":
     # Manage parameters
-    parser = argparse.ArgumentParser( description='Pre-process amplicons to use reads in diversity analysis.' )
+    parser = argparse.ArgumentParser( description='Pre-process reads and denoise or cluster them.' )
     parser.add_argument( '-v', '--version', action='version', version=__version__ )
     subparsers = parser.add_subparsers()
     parser_illumina = subparsers.add_parser( 'illumina', help='Illumina sequencers.', usage='''
