@@ -186,7 +186,8 @@ def get_bests_blast_affi( blast_files, taxonomy_by_subject ):
                     'aln_length': int(parts[3]),
                     'perc_identity': float(parts[2]),
                     # (end - start + 1) / qlen *100
-                    'perc_query_coverage': (int(parts[7]) - int(parts[6]) + 1) / float(parts[12]) * 100
+                    'perc_query_coverage': (int(parts[7]) - int(parts[6]) + 1) / float(parts[12]) * 100,
+                    'perc_subject_coverage': (int(parts[7]) - int(parts[6]) + 1) / float(parts[13]) * 100
                 })
         FH_blast.close()
     return blast_annot

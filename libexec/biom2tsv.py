@@ -90,6 +90,11 @@ def observation_line_parts( observation, count_by_sample, fields, list_separator
                 line.append( str(uniq(observation['metadata']["blast_affiliations"], "perc_query_coverage", "multi-coverage")) )
             else:
                 line.append( no_data_str )
+        elif current_field == "@blast_perc_subject_coverage":
+            if issubclass(observation['metadata']["blast_affiliations"].__class__, list) and len(observation['metadata']["blast_affiliations"]) > 0:
+                line.append( str(uniq(observation['metadata']["blast_affiliations"], "perc_subject_coverage", "multi-coverage")) )
+            else:
+                line.append( no_data_str )
         elif current_field == "@blast_evalue":
             if issubclass(observation['metadata']["blast_affiliations"].__class__, list) and  len(observation['metadata']["blast_affiliations"]) > 0:
                 line.append( str(uniq(observation['metadata']["blast_affiliations"], "evalue", "multi-evalue")) )
@@ -133,6 +138,8 @@ def header_line_parts( fields, biom ):
             header_parts.append( "blast_perc_identity" )
         elif current_field == "@blast_perc_query_coverage":
             header_parts.append( "blast_perc_query_coverage" )
+        elif current_field == "@blast_perc_subject_coverage":
+            header_parts.append( "blast_perc_subject_coverage" )
         elif current_field == "@blast_evalue":
             header_parts.append( "blast_evalue" )
         elif current_field == "@blast_subject":
