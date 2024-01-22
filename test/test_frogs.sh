@@ -32,7 +32,7 @@ fi
 echo "Step denoising 16S vsearch `date`":
 
 denoising.py illumina \
- --process swarm --keep-unmerged \
+ --process swarm \
  --min-amplicon-size 44 --max-amplicon-size 490 \
  --five-prim-primer GGCGVACGGGTGAGTAA --three-prim-primer GTGCCAGCNGCNGCGG \
  --R1-size 267 --R2-size 266 --merge-software vsearch \
@@ -42,6 +42,20 @@ denoising.py illumina \
  --output-biom $out_dir/01-denoising-swarm-vsearch.biom \
  --summary $out_dir/01-denoising-swarm-vsearch.html \
  --log-file $out_dir/01-denoising-swarm-vsearch.log 
+
+echo "Step denoising 16S pear `date`":
+
+denoising.py illumina \
+ --process swarm \
+ --min-amplicon-size 44 --max-amplicon-size 490 \
+ --five-prim-primer GGCGVACGGGTGAGTAA --three-prim-primer GTGCCAGCNGCNGCGG \
+ --R1-size 267 --R2-size 266 --merge-software pear \
+ --nb-cpus $nb_cpu --mismatch-rate 0.15 \
+ --input-archive data/test_dataset.tar.gz \
+ --output-fasta $out_dir/01-denoising-swarm-pear.fasta \
+ --output-biom $out_dir/01-denoising-swarm-pear.biom \
+ --summary $out_dir/01-denoising-swarm-pear.html \
+ --log-file $out_dir/01-denoising-swarm-pear.log 
 
 echo "Step denoising: dada2 keep-unmerged `date`"
 
@@ -56,18 +70,18 @@ denoising.py illumina  \
  --summary $out_dir/01-denoising-dada2.html \
  --log-file $out_dir/01-denoising-dada2.log
 
-echo "Step denoising: swarm `date`"
+#echo "Step denoising: swarm `date`"7
 
-preprocess.py illumina  \
- --process swarm \
- --input-archive data/verysmallITS.tar.gz \
- --min-amplicon-size 50 --max-amplicon-size 1000 --merge-software vsearch \
- --five-prim-primer TAGACTCGTCAHCGATGAAGAACGYRG --three-prim-primer GCATATCAATAAGCGSAGGAA \
- --R1-size 300 --R2-size 300  --nb-cpus $nb_cpu \
- --output-fasta $out_dir/01-denoising-swarm-clusters.fasta \
- --output-biom $out_dir/01-denoising-swarm-clusters.biom \
- --summary $out_dir/01-denoising-swarm.html \
- --log-file $out_dir/01-denoising-swarm.log
+#preprocess.py illumina  \
+# --process swarm \
+# --input-archive data/verysmallITS.tar.gz \
+# --min-amplicon-size 50 --max-amplicon-size 1000 --merge-software vsearch \
+# --five-prim-primer TAGACTCGTCAHCGATGAAGAACGYRG --three-prim-primer GCATATCAATAAGCGSAGGAA \
+# --R1-size 300 --R2-size 300  --nb-cpus $nb_cpu \
+# --output-fasta $out_dir/01-denoising-swarm-clusters.fasta \
+# --output-biom $out_dir/01-denoising-swarm-clusters.biom \
+# --summary $out_dir/01-denoising-swarm.html \
+# --log-file $out_dir/01-denoising-swarm.log
 
 echo "Step denoising: preprocess only `date`"
 
