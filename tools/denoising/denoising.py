@@ -1937,17 +1937,12 @@ def process( args ):
                     li = li.strip().split(',')
                     R1_files.append(li[0])
                     R2_files.append(li[1])
-            if (len(R1_files)) != len(samples_names) | (len(R1_files)) != len(samples_names):
-                 fff="ddd"
-                 #raise_exception( Exception( "\n\n#ERROR : "+ "Some samples have 0 reads after dada2 process \n\n" ))
-
+            
             filtered_files = [tmp_files.add(current_sample + '_filter.fasta') for current_sample in samples_names]
             
             art_filtered_files = [tmp_files.add(current_sample + '_artComb_filter.fasta') for current_sample in samples_names]
             
             nb_processses_used = min( len(R1_files), args.nb_cpus )
-            
-            #print(len(R1_files), R2_files, len(samples_names), filtered_files, art_filtered_files, lengths_files, log_files2)
             
             if nb_processses_used == 1:
                 process_sample_after_denoising_multiple_files( R1_files, R2_files, samples_names, filtered_files, art_filtered_files, lengths_files, log_files2, args )
