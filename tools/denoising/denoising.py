@@ -271,7 +271,7 @@ class Pear(Cmd):
             'join overlapping paired reads',
              ' --forward-fastq ' + in_R1 + ' --reverse-fastq ' + in_R2 +' --output ' + out_prefix \
              + ' --min-overlap ' + str(min_overlap) + ' --max-assembly-length ' + str(max_assembly_length) + ' --min-assembly-length ' + str(min_assembly_length) \
-             + ' --keep-original > ' + pear_log,
+             + ' --keep-original &> '+ pear_log+'.err ' +' > ' + pear_log,
              ' --version')
 
         self.output = out_prefix + '.assembled.fastq'
@@ -289,6 +289,8 @@ class Pear(Cmd):
         @log_file: [str] Path to the sample process log file.
         """
         # Parse output
+        if not os.path.isfile(self.output):
+            open(self.output, "x")
         nb_seq_merged = get_nb_seq(self.output)
         # Write result
         FH_log = Logger( log_file )
@@ -1561,7 +1563,7 @@ def process_sample_after_denoising(R1_file, R2_file, sample_name, out_file, art_
             elif args.merge_software == "pear":
                 pear_cmd = Pear(R1_file, R2_file, out_contig.replace(".assembled.fastq",""), out_contig_log, args)
                 pear_cmd.submit(log_file)
-                
+
         primers_size = 0
         if args.five_prim_primer is not None: primers_size += len(args.five_prim_primer)
         if args.three_prim_primer is not None: primers_size += len(args.three_prim_primer)
@@ -1843,7 +1845,7 @@ def process( args ):
             #clustering_log = tmp_files.add( filename_woext + '_clustering_log.txt' )
             
             #Clustering(args.output_dereplicated, args.output_count, args.distance, args.fastidious, args.output_compo, args.output_fasta, args.output_biom, clustering_log, args.nb_cpus).submit( args.log_file)
-            Logger.static_write(args.log_file, "## Application\nSoftware :" + sys.argv[0] + " (version : " + str(__version__) + ")\nCommand : " + " ".join(sys.argv) + "\n\n")
+            #Logger.static_write(args.log_file, "## Application\nSoftware :" + sys.argv[0] + " (version : " + str(__version__) + ")\nCommand : " + " ".join(sys.argv) + "\n\n")
 
             if args.distance == 1 and args.denoising:
                 Logger.static_write(args.log_file, "Warning: using the denoising option with a distance of 1 is useless. The denoising option is cancelled\n\n")
@@ -1908,6 +1910,15 @@ def process( args ):
             R2_files = [os.path.abspath(file) for file in R2_files]
 
             #Logger.static_write(args.log_file, '##Sample\nAll\n##Commands\n')
+            for R1file in R1_cutadapted_files:
+                nb_seq=0
+                FH_seq = SequenceFileReader.factory( R1file )
+                for record in FH_seq:
+            	    nb_seq += 1
+                if nb_seq == 0:
+                    raise_exception( Exception( '\n\n#ERROR : No more reads present in ' + R1file +  '. Check this sample, dada2 is not able to deal with it.\n\n' ))
+                FH_seq.close()
+
             
             try:
                 Dada2Core(R1_cutadapted_files, R2_cutadapted_files, output_dir, args.nb_cpus, tmp_output_filenames, R_stderr, args.pseudo_pooling, args.sequencer).submit(args.log_file)
@@ -1926,12 +1937,18 @@ def process( args ):
                     li = li.strip().split(',')
                     R1_files.append(li[0])
                     R2_files.append(li[1])
+            if (len(R1_files)) != len(samples_names) | (len(R1_files)) != len(samples_names):
+                 fff="ddd"
+                 #raise_exception( Exception( "\n\n#ERROR : "+ "Some samples have 0 reads after dada2 process \n\n" ))
 
             filtered_files = [tmp_files.add(current_sample + '_filter.fasta') for current_sample in samples_names]
             
             art_filtered_files = [tmp_files.add(current_sample + '_artComb_filter.fasta') for current_sample in samples_names]
             
             nb_processses_used = min( len(R1_files), args.nb_cpus )
+            
+            #print(len(R1_files), R2_files, len(samples_names), filtered_files, art_filtered_files, lengths_files, log_files2)
+            
             if nb_processses_used == 1:
                 process_sample_after_denoising_multiple_files( R1_files, R2_files, samples_names, filtered_files, art_filtered_files, lengths_files, log_files2, args )
             else:
@@ -2054,7 +2071,6 @@ if __name__ == "__main__":
 	  [--mismatch-rate RATE ] [--quality-scale SCALE ] [--merge-software {vsearch,flash,pear}] [--expected-amplicon-size] 
 	  [--keep-unmerged]
 	  [-p NB_CPUS] [--debug] [-v]
-	  [-d DEREPLICATED_FILE] [-c COUNT_FILE]
 	  [-b BIOM_FILE] [--output-fasta FASTA_FILE]
 	  [-s SUMMARY_FILE] [-l LOG_FILE]
 	  
@@ -2072,7 +2088,6 @@ if __name__ == "__main__":
 	  [--mismatch-rate RATE ] [--quality-scale SCALE ] [--merge-software {vsearch,flash,pear}] [--expected-amplicon-size] 
 	  [--keep-unmerged]
 	  [-p NB_CPUS] [--debug] [-v]
-	  [-d DEREPLICATED_FILE] [-c COUNT_FILE]
 	  [-b BIOM_FILE] [--output-fasta FASTA_FILE]
 	  [-s SUMMARY_FILE] [-l LOG_FILE]
 
@@ -2124,7 +2139,7 @@ if __name__ == "__main__":
     --without-primers | --five-prim-primer FIVE_PRIM_PRIMER --three-prim-primer THREE_PRIM_PRIMER
     [-p NB_CPUS] [--debug] [-v]
     [--process PROCESS]
-    [-d DEREPLICATED_FILE] [-c COUNT_FILE]
+    [-b BIOM_FILE] [--output-fasta FASTA_FILE]
     [-s SUMMARY_FILE] [-l LOG_FILE]
 ''')
     #     Long-reads parameters
@@ -2166,8 +2181,8 @@ if __name__ == "__main__":
     --three-prim-primer THREE_PRIM_PRIMER
     [--process PROCESS]
     [-p NB_CPUS] [--debug] [-v]
-    [-d DEREPLICATED_FILE] [-c COUNT_FILE]
-    [-s SUMMARY_FILE] [-l LOG_FILE]
+	[-b BIOM_FILE] [--output-fasta FASTA_FILE]
+	[-s SUMMARY_FILE] [-l LOG_FILE]
 ''')
     parser_454.add_argument( '--min-amplicon-size', type=int, required=True, help='The minimum size for the amplicons (with primers).' )
     parser_454.add_argument( '--max-amplicon-size', type=int, required=True, help='The maximum size for the amplicons (with primers).' )
