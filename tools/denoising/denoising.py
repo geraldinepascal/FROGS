@@ -254,12 +254,13 @@ class Pear(Cmd):
     """
     @summary: Overlapping and merging mate pairs from fragments shorter than twice the length of reads.
     """
-    def __init__(self, in_R1, in_R2, out_prefix, pear_log, param):
+    def __init__(self, in_R1, in_R2, out_prefix, pear_log, pear_stderr, param):
         """
         @param in_R1: [str] Path to the R1 fastq file.
         @param in_R2: [str] Path to the R2 fastq file.
         @param out_prefix: [str] Prefix of path to the output fastq files.
         @param pear_log: [str] Path to log file
+        @param pear_stderr: [str] Path to stderr file
         @param param: [Namespace] The 'param.min_amplicon_size', 'param.max_amplicon_size', 'param.R1_size', 'param.R2_size'
         """
         min_overlap=max(param.R1_size+param.R2_size-param.max_amplicon_size, 10)
@@ -271,7 +272,7 @@ class Pear(Cmd):
             'join overlapping paired reads',
              ' --forward-fastq ' + in_R1 + ' --reverse-fastq ' + in_R2 +' --output ' + out_prefix \
              + ' --min-overlap ' + str(min_overlap) + ' --max-assembly-length ' + str(max_assembly_length) + ' --min-assembly-length ' + str(min_assembly_length) \
-             + ' --keep-original &> '+ pear_log+'.err ' +' > ' + pear_log,
+             + ' --keep-original 2> '+ pear_stderr + ' &> ' + pear_log,
              ' --version')
 
         self.output = out_prefix + '.assembled.fastq'
@@ -1515,6 +1516,7 @@ def process_sample_after_denoising(R1_file, R2_file, sample_name, out_file, art_
             out_notcombined_R1 = tmp_files.add( sample_name + '_pear.unassembled.forward.fastq' )
             out_notcombined_R2 = tmp_files.add( sample_name + '_pear.unassembled.reverse.fastq' )
             out_contig_log = tmp_files.add(sample_name + '_pear.log')
+            out_stderr = tmp_files.add(sample_name + '_pear.stderr')
             tmp_files.add(sample_name + '_pear.discarded.fastq')   # other file to remove
 
         # VSEARCH
@@ -1561,7 +1563,7 @@ def process_sample_after_denoising(R1_file, R2_file, sample_name, out_file, art_
                 flash_cmd = Flash(R1_file, R2_file, out_contig.replace(".extendedFrags.fastq.gz",""), out_contig_log, args)
                 flash_cmd.submit(log_file)
             elif args.merge_software == "pear":
-                pear_cmd = Pear(R1_file, R2_file, out_contig.replace(".assembled.fastq",""), out_contig_log, args)
+                pear_cmd = Pear(R1_file, R2_file, out_contig.replace(".assembled.fastq",""), out_contig_log, out_stderr, args)
                 pear_cmd.submit(log_file)
 
         primers_size = 0
