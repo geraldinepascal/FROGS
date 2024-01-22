@@ -26,7 +26,6 @@ option_list = list(
 
 opt_parser = OptionParser(option_list=option_list);
 opt = parse_args(opt_parser);
-print(opt)
 ############# VERSION
 get_version <- function(){
   library(dada2)
@@ -105,7 +104,13 @@ write2FastqFromDada <- function(dadaF, derepF, dadaR, derepR, path)
       outnames <- c("abundance", "forward", "reverse")
       ups <- data.frame(matrix(ncol = length(outnames), nrow = 0))
       names(ups) <- outnames
-      
+      sample_name <- substr(names(dadaF)[i],1,nchar(names(dadaF)[i])-12)
+      R1_path <- file.path(path,paste0(sample_name,"_denoised_R1.fastq"))
+      file.create(R1_path)
+      R2_path <- file.path(path,paste0(sample_name,"_denoised_R2.fastq"))
+      file.create(R2_path)
+      cat(R1_path, R2_path, file=opt$fileNames, append=TRUE, sep = ",")
+      cat("", file=opt$fileNames, append=TRUE, sep = "\n")
     }
     else {
       int_to_quality <- function(qualities) {
@@ -126,9 +131,11 @@ write2FastqFromDada <- function(dadaF, derepF, dadaR, derepR, path)
       ups$reverse <- Runqseq
       ups$forwardQual <- Funqqual
       ups$reverseQual <- Runqqual
-      sample_name <- names(dadaF)[i]
+      sample_name <- substr(names(dadaF)[i],1,nchar(names(dadaF)[i])-12)
       R1_path <- file.path(path,paste0(sample_name,"_denoised_R1.fastq"))
+      file.create(R1_path)
       R2_path <- file.path(path,paste0(sample_name,"_denoised_R2.fastq"))
+      file.create(R2_path)
       writeFASTQsingle(ups, file=R1_path, direction="forward")
       writeFASTQsingle(ups, file=R2_path, direction="reverse")
       #set up writing
@@ -188,7 +195,7 @@ write1FastqFromDada <- function(dadaF, derepF, path){
       ups$id <- 1:nrow(ups)
       ups$forward <- Funqseq
       ups$forwardQual <- Funqqual
-      sample_name <- names(dadaF)[i]
+      sample_name <- substr(names(dadaF)[i],1,nchar(names(dadaF)[i])-12)	
       R1_path <- file.path(path,paste0(sample_name,"_denoised_R1.fastq"))
       writeFASTQsingle(ups, file=R1_path, direction="forward")
       #set up writing
