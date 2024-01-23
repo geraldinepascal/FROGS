@@ -17,7 +17,7 @@
 -->
 <html>
     <head>
-        <title>FROGS Pre-process</title>
+        <title>FROGS denoising</title>
         <meta charset="UTF-8">
         <meta name="version" content="3.2.3">
         <!-- CSS -->
@@ -1435,6 +1435,7 @@
                 if ("artificial combined" in filters_by_sample) {
                     global_series.push({name: 'artificial combined', data: non_overlapped_data});
                 }
+                
                 $('#filter-summary').highcharts( histogram_param('Summary', total_input, 'Nb sequences', filters_categories.slice(0-filters_categories.length+1), global_series, 'seq', enableStackedLabel) );
             }
 
