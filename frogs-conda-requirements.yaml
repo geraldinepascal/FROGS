@@ -5,21 +5,21 @@ dependencies:
 # bioconda
   - frogs =4.1.0
   - emboss =6.6.0
-  - flash =1.2.11  
-# need to be >=2.8
-  - cutadapt =2.10
+  - flash =1.2.11
+  # need to be >=2.8
+  - cutadapt =2.10    
   # need to be >=2.1
   - swarm =3.0.0
-  # need to be >= 2.17
   - vsearch =2.17.0
   - itsx =1.1.2
   - blast =2.10
   # - rdptool=2.0.3 # is already included in the frogs dependency
   - mafft =7.407
   - fasttree =2.1.9
-  - bioconductor-dada2
+  - bioconductor-dada2= 1.22.0
   - bioconductor-phyloseq =1.38
   - bioconductor-deseq2 =1.34.0
+  
 # conda-forge
   - r-base =4.1.2
   - r-essentials =4.1
@@ -36,6 +36,7 @@ dependencies:
     # pandoc
     # r-rmarkdown
     # r-dplyr
+    # r-codetools
 #   bioconductor-phyloseq includes:
     # r-ggplot2 
     # r-vegan
