@@ -61,6 +61,8 @@ class MegaBlastAligner:
     def score(self):
         query = self.query
         target = self.target
+        query = query.upper()
+        target = target.upper()
         # Calculate the score matrix
         m = len(query)
         n = len(target)
