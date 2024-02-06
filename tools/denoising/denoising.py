@@ -274,12 +274,14 @@ class Pear(Cmd):
             'join overlapping paired reads',
              ' --forward-fastq ' + in_R1 + ' --reverse-fastq ' + in_R2 +' --output ' + out_prefix \
              + ' --min-overlap ' + str(min_overlap) + ' --max-assembly-length ' + str(max_assembly_length) + ' --min-assembly-length ' + str(min_assembly_length) \
-             + ' --keep-original 2> '+ pear_stderr + ' &> ' + pear_log,
+             + ' --keep-original 2> '+ pear_stderr + ' > ' + pear_log,
              ' --version')
 
         self.output = out_prefix + '.assembled.fastq'
         self.unassembled_forward = out_prefix + '.unassembled.forward.fastq'
         self.unassembled_reverse = out_prefix + '.unassembled.reverse.fastq'
+        self.process = param.process
+        self.in_R1 = in_R1
 
     def get_version(self):
         """
@@ -302,6 +304,9 @@ class Pear(Cmd):
         # Write result
         FH_log = Logger( log_file )
         FH_log.write( 'Results:\n' )
+        if self.process == "dada2":
+            nb_seq_denoised = get_nb_seq(self.in_R1)
+            FH_log.write( '\tnb seq denoised: ' + str(nb_seq_denoised) + '\n' )
         FH_log.write( '\tnb seq paired-end assembled: ' + str(nb_seq_merged) + '\n' )
         FH_log.close()
 
@@ -327,6 +332,8 @@ class Flash(Cmd):
                       '--threads 1 --allow-outies --min-overlap ' + str(min_overlap) + ' --max-overlap ' + str(max_expected_overlap) + ' --max-mismatch-density ' + str(param.mismatch_rate) +'  --compress ' + in_R1 + ' ' + in_R2 + ' --output-directory '+ out_dir + ' --output-prefix ' + os.path.basename(out_join_prefix) +' 2> ' + flash_err,
                       ' --version' )
         self.output = out_join_prefix + ".extendedFrags.fastq.gz"
+        self.process = param.process
+        self.in_R1 = in_R1
 
     def get_version(self):
         """
@@ -345,6 +352,9 @@ class Flash(Cmd):
         # Write result
         FH_log = Logger( log_file )
         FH_log.write( 'Results:\n' )
+        if self.process == "dada2":
+            nb_seq_denoised = get_nb_seq(self.in_R1)
+            FH_log.write( '\tnb seq denoised: ' + str(nb_seq_denoised) + '\n' )
         FH_log.write( '\tnb seq paired-end assembled: ' + str(nb_seq_merged) + '\n' )
         FH_log.close()
 
@@ -373,6 +383,8 @@ class Vsearch(Cmd):
              '--version')
 
         self.output = out_prefix + '.assembled.fastq'
+        self.process = param.process
+        self.in_R1 = in_R1
 
     def get_version(self):
         """
@@ -390,6 +402,9 @@ class Vsearch(Cmd):
         # Write result
         FH_log = Logger( log_file )
         FH_log.write( 'Results:\n' )
+        if self.process == "dada2":
+            nb_seq_denoised = get_nb_seq(self.in_R1)
+            FH_log.write( '\tnb seq denoised: ' + str(nb_seq_denoised) + '\n' )
         FH_log.write( '\tnb seq paired-end assembled: ' + str(nb_seq_merged) + '\n' )
         FH_log.close()
 
@@ -805,12 +820,14 @@ def to_biom_and_fasta(count_file, fasta_file, output_biom, output_fasta, process
     out_fasta_fh = FastaIO( output_fasta, "wt")
     cpt=1
     for record in in_fasta_fh:
+        #sizes=re.split(";",record.id)[1]
         if "FROGS_combined" in record.id:
-            record.id = "Cluster_"+str(cpt)+"_FROGS_combined"
+            record.id = "Cluster_"+str(cpt)+"_FROGS_combined"#+";"+sizes
         else:
-            record.id = "Cluster_"+str(cpt)
+            record.id = "Cluster_"+str(cpt)#+";"+sizes
         out_fasta_fh.write(record)
         cpt+=1
+
     in_fasta_fh.close()
     out_fasta_fh.close()
     
@@ -1313,11 +1330,19 @@ def get_nb_seq( reads_file ):
 
     first_line = FH_input.readline().strip()
     if ";size=" in str(first_line):
-        nb_seq += int(first_line.split()[0].split(';size=')[1])
+        try:
+            nb_seq += int(str(first_line).split()[0].split(';size=')[1])
+        except (TypeError, ValueError) as error:
+            nb_seq += int(str(first_line.decode("utf-8")).split()[0].split(';size=')[1])
         for li in FH_input:
-            if ";size=" in li:
-                li = li.strip()
-                nb_seq += int(li.split()[0].split(';size=')[1])
+            try:
+                if ";size=" in li:
+                    li = li.strip()
+                    nb_seq += int(li.split()[0].split(';size=')[1])
+            except (TypeError, ValueError) as error:
+                if ";size=" in li.decode('utf-8'):
+                    li = li.decode('utf-8').strip()
+                    nb_seq += int(li.split()[0].split(';size=')[1])
     else:
         nb_seq += 1
         for li in FH_input:
@@ -1793,7 +1818,7 @@ def process( args ):
             swarm_log = tmp_files.add( filename_woext + '_swarm_log.txt' )
 
             SortFasta( dereplicated_fasta, sorted_fasta, args.debug ).submit( args.log_file )
-            Logger.static_write(args.log_file, "repalce 100 N tags by 50A-50C in: " + sorted_fasta + " out : "+ replaceN_fasta +"\n")
+            Logger.static_write(args.log_file, "replace 100 N tags by 50A-50C in: " + sorted_fasta + " out : "+ replaceN_fasta +"\n")
             replaceNtags(sorted_fasta, replaceN_fasta)
 
             if args.denoising and args.distance > 1:
@@ -1893,8 +1918,8 @@ def process( args ):
             
             filename_woext = os.path.split(dereplicated_fasta)[1].split('.')[0]
             tmp_fasta = tmp_files.add( filename_woext + '_tmp.fasta' )
-            to_biom_and_fasta(tmp_count, dereplicated_fasta, args.output_biom, tmp_fasta, args.process)
-            SortFasta( tmp_fasta, args.output_fasta, args.debug ).submit( args.log_file )
+            to_biom_and_fasta(tmp_count, dereplicated_fasta, args.output_biom, args.output_fasta, args.process)
+            #SortFasta( tmp_fasta, args.output_fasta, args.debug, size ).submit( args.log_file )
             
         else:
             # Tmp files
