@@ -16,6 +16,7 @@ option_list = list(
   make_option(c("--R1Files"), type="list", default=NULL, help="List of R1 files to be process"),
   make_option(c("--R2Files"), type="list", default=NULL, help="List of R2 files to be process"),
   make_option(c("--pseudopooling"), action="store_true", default=FALSE, help="Perform pseudo-pooling to reduce inconvenients of independent sample processing"),
+  make_option(c("--pooling"), action="store_true", default=FALSE, help="Perform pooling accross all samples to reduce inconvenients of independent sample processing"),
   make_option(c("--sequencer"), type="character", default="illumina", help=""),
   make_option(c("-o", "--outputDir"), type="character", default=".", help="The directory path to write denoised FASTQ files. [default= %default]"),
   make_option(c("-f", "--fileNames"), type="character", default=".", help="Linked R1 and R2 files in the current analysis."),
@@ -250,10 +251,10 @@ if(!is.null(opt$R2Files)){
 ###
 
 ### Dereplicate 
-derepFs <- derepFastq(fnFs, verbose = TRUE)
+derepFs <- derepFastq(fnFs, verbose = FALSE)
 #names(derepFs) <- sample.names
 if(!is.null(opt$R2Files)){
-	derepRs <- derepFastq(fnRs, verbose = TRUE)
+	derepRs <- derepFastq(fnRs, verbose = FALSE)
 	#names(derepRs) <- sample.names
 }
 
@@ -262,6 +263,11 @@ if(opt$pseudopooling){
 	dadaFs <- dada(derepFs, err=errF, multithread=opt$threads, pool="pseudo")
 	if(!is.null(opt$R2Files)){
 		dadaRs <- dada(derepRs, err=errF, multithread=opt$threads, pool="pseudo")
+	}
+}else if(opt$pooling){
+	dadaFs <- dada(derepFs, err=errF, multithread=opt$threads, pool=TRUE)
+	if(!is.null(opt$R2Files)){
+		dadaRs <- dada(derepRs, err=errF, multithread=opt$threads, pool=TRUE)
 	}
 }else{
 	dadaFs <- dada(derepFs, err=errF, multithread=opt$threads)
