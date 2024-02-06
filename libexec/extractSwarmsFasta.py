@@ -67,7 +67,6 @@ def filter_seq( input_fasta, clusters_file, cluster_fasta ):
     FH_in = FastaIO( input_fasta )
     FH_out = FastaIO( cluster_fasta, "wt" )
     for record in FH_in:
-        print((record.description))
         if record.id in cluster_representative:
             record.id = cluster_representative[record.id]
             FH_out.write( record )
