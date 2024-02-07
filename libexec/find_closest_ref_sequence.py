@@ -180,6 +180,9 @@ def find_lowest_same_taxo_rank(taxo_frogs, taxo_picrust, hierarchy = ["Up to Kin
 	taxo_frogs = [taxo_frogs.split(';')[i].lower() for i in range(len(taxo_frogs.split(';')))]
 	taxo_picrust = [taxo_picrust.split(';')[i].lower() for i in range(len(taxo_picrust.split(';')))]
 	for i in range(len(hierarchy)-1, -1, -1):
+		print(i)
+		print(taxo_frogs)
+		print(taxo_picrust)
 		if taxo_frogs[i] == taxo_picrust[i]:
 			return i, hierarchy[i]
 	return 7, "/"
