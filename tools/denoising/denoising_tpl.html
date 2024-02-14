@@ -209,9 +209,9 @@
 				padding: 5px 5px 5px 5px;
 				margin-top: 10px;
 			}
-			#dispersion {
+			/*#dispersion {
 				height: 1000px;
-			}
+			}*/
 			#twofigs{
 				height: 600px;
 			}
@@ -336,7 +336,16 @@
 				background-color: #648a89;
 				background-color: #648a89;
 				cursor:pointer !important;
-			}			 
+			}
+			caption{
+				caption-side: top;
+				text-align: center;
+			}
+			#tooltip-seqdepth th, #tooltip-seqdepth td{
+				text-align: center;
+				font-weight: normal;
+			}
+
         </style>
         <!-- JS -->
 		<script type="text/javascript" src="https://code.jquery.com/jquery-2.1.3.min.js"></script>
@@ -927,7 +936,7 @@
                                 s += '<br/>'+ '<span style="color: ' + point.series.color + '"> ' + point.series.name +' : </span>'+
                                 numberDisplay(point.y) + " " + unity;
                                 if (! is_stacked){
-                                	s += ' ( ' +Number(Math.round(point.y*100/nb + "e+2")  + "e-2")+ '%)'
+                                	s += ' (' +Number(Math.round(point.y*100/nb + "e+2")  + "e-2")+ '%)'
                                 }
                                 sum += point.y;
                                 }
@@ -1093,6 +1102,66 @@
 				$('#dispersion-csv-export').datatableExport({
 					'table_id': "dispersion-table"
 				});
+				
+				
+				
+				var series_cumulative = new Array() ;
+				for( var series_idx = 0 ; series_idx < series.length ; series_idx++ ){
+					series_cumulative.push({
+						'name': series[series_idx]['name'],
+						'data': new Array(),
+						'pointStart': 1
+					});
+					var sum = 0 ;
+					var previous_cumulative_count = 0 ;
+					for( var val_idx = 0 ; val_idx < series[series_idx]['data'].length ; val_idx++ ){
+						var current_count = series[series_idx]['data'][val_idx] * clusters_sizes[val_idx] ;
+						var cumulative_count = previous_cumulative_count + current_count ;
+						series_cumulative[series_idx]['data'].push( [clusters_sizes[val_idx], cumulative_count] );
+						previous_cumulative_count = cumulative_count ;
+					}
+					sum_series[series[series_idx]['name']] = previous_cumulative_count ;
+				}
+				for( var series_idx = 0 ; series_idx < series.length ; series_idx++ ){
+					for( var val_idx = 0 ; val_idx < series[series_idx]['data'].length ; val_idx++ ){
+						var current_prct = (series_cumulative[series_idx]['data'][val_idx][1] / sum_series[series[series_idx]['name']])*100 ;
+						series_cumulative[series_idx]['data'][val_idx][1] = Math.round(current_prct*100)/100 ;
+					}
+				}
+				var seq_by_depth = areaplot_param("Cumulative sequences proportion by cluster size", "Cluster size", "% sequences", null, series_cumulative);
+				console.log(series_cumulative);
+				seq_by_depth['tooltip'] = {
+					formatter:function() {
+						tooltip_head = 'Clusters with size \u2264 ' + numberDisplay(this.x) ;
+						tooltip_body = '' ;
+						for( var i=0 ; i<this.points.length ; i++) {
+							var series = this.points[i].series;
+							var pointIndex = parseInt(series.data.indexOf(this.points[i].point));
+							var nbObs = parseInt(this.points[0].series.data.length);
+							var percCluster = (((pointIndex + 1) / nbObs) * 100).toFixed(2);
+							//tooltip_body += '<tr>' +
+							//	'<td style="color:' + this.points[i].series.color +'">' + this.points[i].series.name + ' : </td>' +
+							//	'<td> ' + this.points[i].point.y + '% </td>' +
+							//	'<td> sequences </td></tr><tr>' +
+							//	'<td>       ' + percCluster + '% </td>' +
+							//	'<td> clusters</td></tr>'
+							tooltip_body += '<tr> '+
+							'<th>Sequences</th><th>Clusters</th></tr>'+
+							'<tr><td>'+this.points[i].point.y + '%'+'</td><td>'+percCluster+ '%'+'</td>'+
+							'</tr>'
+						}
+						//return tooltip_head + '<table class="table"><caption>'+'Clusters with size <= ' + numberDisplay(this.x)+'</caption>' + tooltip_body + '</table>' ;
+						return '<table id="tooltip-seqdepth" class="table table-striped caption-top"><caption><b>'+'Clusters with size \u2264 ' + numberDisplay(this.x)+'</b></caption>' + tooltip_body + '</table>' ;
+					},
+					shared: true,
+					useHTML: true
+				};
+				$('#' + container_id).append( '<h2 class="pb-2 mt-4 mb-2 border-bottom">Sequences distribution</h2>');
+				$('#' + container_id).append( '<div id="sequences-distrib-chart"></div>' );
+				$('#sequences-distrib').append('<div></div>');
+				$('#sequences-distrib-chart').highcharts( seq_by_depth );
+				$('#sequences-distrib-chart').append('<p class="graph-nb">N.B.: Select area to zoom in.</p>');
+				
 			}
 			
 			var sample_table_load = function( container_id ){
@@ -1123,112 +1192,112 @@
 				});
 			}
 			
-			var hierarchical_clustering_load = function( container_id ) {
-				var tree = Node.fromNewick( newick );
-				var leaves_names = tree.getLeavesNames();
-				var leaf_name_length = 0 ;
-				for( var idx = 0 ; idx < leaves_names.length ; idx++ ) {
-					leaf_name_length = Math.max( leaf_name_length, leaves_names[idx].length );
-				}
-				var width = tree.maxDepth() * 95 + (leaf_name_length * 8) ; // nb_link * width_link + text_length 
-				var height = 50 + tree.nbLeaves() * 40 ; //margin_top + nb_terminal_nodes + height_nodes
+			//var hierarchical_clustering_load = function( container_id ) {
+				//var tree = Node.fromNewick( newick );
+				//var leaves_names = tree.getLeavesNames();
+				//var leaf_name_length = 0 ;
+				//for( var idx = 0 ; idx < leaves_names.length ; idx++ ) {
+					//leaf_name_length = Math.max( leaf_name_length, leaves_names[idx].length );
+				//}
+				//var width = tree.maxDepth() * 95 + (leaf_name_length * 8) ; // nb_link * width_link + text_length 
+				//var height = 50 + tree.nbLeaves() * 40 ; //margin_top + nb_terminal_nodes + height_nodes
 
-				// Display tree
-				linkage_data = tree.toJson();
-				d3_tree = null ;
-				diagonal = null ;
-				svg_layout = null ;
-				node_id = 0 ;
+				//// Display tree
+				//linkage_data = tree.toJson();
+				//d3_tree = null ;
+				//diagonal = null ;
+				//svg_layout = null ;
+				//node_id = 0 ;
 
-				d3_tree = d3.layout.cluster()
-					.size([height, width]);
+				//d3_tree = d3.layout.cluster()
+					//.size([height, width]);
 
-				diagonal = d3.svg.diagonal()
-					.projection(function(d) { return [d.y, d.x]; });
-				$('#' + container_id).append('<div style="margin-left:auto;margin-right:auto;"></div>');
-				svg_layout = d3.select('#' + container_id +  ' div').append("svg:svg")
-					.attr("width", width)
-					.attr("height", height)
-					.append("svg:g")
-					.attr("transform", "translate(20,20)");
+				//diagonal = d3.svg.diagonal()
+					//.projection(function(d) { return [d.y, d.x]; });
+				//$('#' + container_id).append('<div style="margin-left:auto;margin-right:auto;"></div>');
+				//svg_layout = d3.select('#' + container_id +  ' div').append("svg:svg")
+					//.attr("width", width)
+					//.attr("height", height)
+					//.append("svg:g")
+					//.attr("transform", "translate(20,20)");
 
-				linkage_data.x0 = height / 2;
-				linkage_data.y0 = 0;
+				//linkage_data.x0 = height / 2;
+				//linkage_data.y0 = 0;
 				
-				update_linkage_nodes(linkage_data);
+				//update_linkage_nodes(linkage_data);
 				
-				// Display warnings
-				var excluded_samples = $.grep(
-					Object.keys(samples_distrib),
-					function(el){ return $.inArray(el, leaves_names) == -1 }
-				);
-				if( excluded_samples.length > 0 ){
-					$('#' + container_id).append( '' +
-						'<div id="hc-warning" class="alert alert-warning alert-dismissible">' +
-						'    <span>' +
-						'        <span class="glyphicon glyphicon-exclamation-sign"></span>' +
-						'        Excluded because they have no sequence: ' +
-						'    </span>' +
-						'    <span>' + excluded_samples.sort().join(", ") + '</span>' +
-						'</div>'
-					);
-				}
+				//// Display warnings
+				//var excluded_samples = $.grep(
+					//Object.keys(samples_distrib),
+					//function(el){ return $.inArray(el, leaves_names) == -1 }
+				//);
+				//if( excluded_samples.length > 0 ){
+					//$('#' + container_id).append( '' +
+						//'<div id="hc-warning" class="alert alert-warning alert-dismissible">' +
+						//'    <span>' +
+						//'        <span class="glyphicon glyphicon-exclamation-sign"></span>' +
+						//'        Excluded because they have no sequence: ' +
+						//'    </span>' +
+						//'    <span>' + excluded_samples.sort().join(", ") + '</span>' +
+						//'</div>'
+					//);
+				//}
 
-				// Display newick
-				$('#' + container_id).append( '' +
-					'<div id="hc-newick">' +
-					'    <span class="badge badge-primary label-badge">Newick</span>' +
-					'    <span>' + newick + '</span>' +
-					'</div>'
-				);
-			}
+				//// Display newick
+				//$('#' + container_id).append( '' +
+					//'<div id="hc-newick">' +
+					//'    <span class="badge badge-primary label-badge">Newick</span>' +
+					//'    <span>' + newick + '</span>' +
+					//'</div>'
+				//);
+			//}
 			
-			var sequence_distrib_load = function( container_id ) {
-				var series_cumulative = new Array() ;
-					for( var series_idx = 0 ; series_idx < series.length ; series_idx++ ){
-						series_cumulative.push({
-							'name': series[series_idx]['name'],
-							'data': new Array(),
-							'pointStart': 1
-						});
-						var sum = 0 ;
-						var previous_cumulative_count = 0 ;
-						for( var val_idx = 0 ; val_idx < series[series_idx]['data'].length ; val_idx++ ){
-							var current_count = series[series_idx]['data'][val_idx] * clusters_sizes[val_idx] ;
-							var cumulative_count = previous_cumulative_count + current_count ;
-							series_cumulative[series_idx]['data'].push( [clusters_sizes[val_idx], cumulative_count] );
-							previous_cumulative_count = cumulative_count ;
-						}
-						sum_series[series[series_idx]['name']] = previous_cumulative_count ;
-					}
-					for( var series_idx = 0 ; series_idx < series.length ; series_idx++ ){
-						for( var val_idx = 0 ; val_idx < series[series_idx]['data'].length ; val_idx++ ){
-							var current_prct = (series_cumulative[series_idx]['data'][val_idx][1] / sum_series[series[series_idx]['name']])*100 ;
-							series_cumulative[series_idx]['data'][val_idx][1] = Math.round(current_prct*100)/100 ;
-						}
-					}
-					var seq_by_depth = areaplot_param("Cumulative sequences proportion by cluster size", "Cluster size", "% sequences", null, series_cumulative);
-					seq_by_depth['tooltip'] = {
-						formatter:function() {
-							tooltip_head = '<b>Clusters with size <= ' + numberDisplay(this.x) + '</b>' ;
-							tooltip_body = '' ;
-							for( var i=0 ; i<this.points.length ; i++) {
-								var pcnt = (this.points[i].point.y / sum_series[this.points[i].series.name]) * 100;
-								tooltip_body += '<tr>' +
-									'<td style="color:' + this.points[i].series.color +'">' + this.points[i].series.name + ' : </td>' +
-									'<td> ' + this.points[i].point.y + '% </td>' +
-									'<td> sequences</td>' +
-								   '</tr>' ;
-							}
-							return tooltip_head + '<table>' + tooltip_body + '</table>' ;
-						},
-						shared: true,
-						useHTML: true
-					};
-					$('#' + container_id).append('<div></div>');
-					$('#' + container_id).highcharts( seq_by_depth );
-					$('#' + container_id).append('<p class="graph-nb">N.B.: Select area to zoom in.</p>');
-			}
+			//var sequence_distrib_load = function( container_id ) {
+				//var series_cumulative = new Array() ;
+					//for( var series_idx = 0 ; series_idx < series.length ; series_idx++ ){
+						//series_cumulative.push({
+							//'name': series[series_idx]['name'],
+							//'data': new Array(),
+							//'pointStart': 1
+						//});
+						//var sum = 0 ;
+						//var previous_cumulative_count = 0 ;
+						//for( var val_idx = 0 ; val_idx < series[series_idx]['data'].length ; val_idx++ ){
+							//var current_count = series[series_idx]['data'][val_idx] * clusters_sizes[val_idx] ;
+							//var cumulative_count = previous_cumulative_count + current_count ;
+							//series_cumulative[series_idx]['data'].push( [clusters_sizes[val_idx], cumulative_count] );
+							//previous_cumulative_count = cumulative_count ;
+						//}
+						//sum_series[series[series_idx]['name']] = previous_cumulative_count ;
+					//}
+					//for( var series_idx = 0 ; series_idx < series.length ; series_idx++ ){
+						//for( var val_idx = 0 ; val_idx < series[series_idx]['data'].length ; val_idx++ ){
+							//var current_prct = (series_cumulative[series_idx]['data'][val_idx][1] / sum_series[series[series_idx]['name']])*100 ;
+							//series_cumulative[series_idx]['data'][val_idx][1] = Math.round(current_prct*100)/100 ;
+						//}
+					//}
+					//var seq_by_depth = areaplot_param("Cumulative sequences proportion by cluster size", "Cluster size", "% sequences", null, series_cumulative);
+					//seq_by_depth['tooltip'] = {
+						//formatter:function() {
+							//tooltip_head = '<b>Clusters with size <= ' + numberDisplay(this.x) + '</b>' ;
+							//tooltip_body = '' ;
+							//for( var i=0 ; i<this.points.length ; i++) {
+								//var pcnt = (this.points[i].point.y / sum_series[this.points[i].series.name]) * 100;
+								//tooltip_body += '<tr>' +
+									//'<td style="color:' + this.points[i].series.color +'">' + this.points[i].series.name + ' : </td>' +
+									//'<td> ' + this.points[i].point.y + '% </td>' +
+									//'<td> sequences</td>' +
+								   //'</tr>' ;
+							//}
+							//return tooltip_head + '<table>' + tooltip_body + '</table>' ;
+						//},
+						//shared: true,
+						//useHTML: true
+					//};
+					//$('#' + container_id).append('<div></div>');
+					//$('#' + container_id).highcharts( seq_by_depth );
+					//$('#' + container_id).append('<p class="graph-nb">N.B.: Select area to zoom in.</p>');
+			//}
             
             ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
             //
@@ -1277,7 +1346,7 @@
 			}];
 			var sum_series = new Array() ;
 			var samples_distrib = ###DATA_SAMPLE### ;
-			var newick = ###NEWICK### ;
+			//var newick = ###NEWICK### ;
             
             
             ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1428,6 +1497,7 @@
                 }
                 
                 $('#filter-summary').highcharts( histogram_param('Summary', total_input, 'Nb sequences', filters_categories.slice(0-filters_categories.length+1), global_series, 'seq', enableStackedLabel) );
+                //sequence_distrib_load( "sequence-distrib" );
             }
 
             /**
@@ -1585,7 +1655,6 @@
 					$(this).tab('show');
 					if( $(this).attr('href') == "#sequence-distrib" && $('#sequence-distrib').hasClass('disabled') ){
 						$('#sequence-distrib').removeClass("disabled");
-						sequence_distrib_load( "sequence-distrib" );
 					//} else if( $(this).attr('href') == "#samples-distrib" && $('#samples-distrib').hasClass('disabled') ){
 					}
 					if( $('#samples-distrib').hasClass('disabled') ){
@@ -1600,6 +1669,7 @@
 					if ( $(this).attr('href') == "#cluster-distrib" && $('#cluster-distrib').hasClass('disabled') ){
 						$('#cluster-distrib').removeClass("disabled");
 						cluster_distrib_load( "cluster-distrib" );
+						//sequence_distrib_load( "sequence-distrib" );
 					}
 					
 				
@@ -1619,7 +1689,7 @@
 			<ul id="mytab" class="nav nav-tabs">
 				<li class="nav-item active"><a class="nav-link active" href="#preprocess">Preprocess</a></li>
 				<li class="nav-item active"><a class="nav-link" href="#cluster-distrib">Clusters distribution</a></li>
-				<li class="nav-item active"><a class="nav-link" href="#sequence-distrib">Sequences distribution</a></li>
+				<!--<li class="nav-item active"><a class="nav-link" href="#sequence-distrib">Sequences distribution</a></li>-->
 				<li class="nav-item active"><a class="nav-link" href="#samples-distrib">Samples distribution</a></li>
 			</ul>
 			
@@ -1630,9 +1700,10 @@
 						<div id="nb-clusters" class="col-sm-6 col-md-4"></div>
 						<div id="nb-sequences" class="col-sm-6 col-md-4"></div>
 						<div class="col-md-2"></div>
+						<!--<div id="sequences-distrib"></div>-->
 					</div>
 				</div>
-				<div id="sequence-distrib" role="tabpanel" class="tab-pane disabled"></div>
+				<!--<div id="sequence-distrib" role="tabpanel" class="tab-pane disabled"></div>-->
 				<div id="samples-distrib" role="tabpanel" class="tab-pane disabled">
 					<div>
 						<h2 class="pb-2 mt-4 mb-2 border-bottom">Sequences count</h2>
