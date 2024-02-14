@@ -41,6 +41,7 @@ else: os.environ['PYTHONPATH'] = LIB_DIR + os.pathsep + os.environ['PYTHONPATH']
 
 from frogsUtils import *
 from frogsSequenceIO import *
+from frogsBiom import Biom, BiomIO
 
 
 ##################################################################################################################################################
@@ -48,6 +49,24 @@ from frogsSequenceIO import *
 # COMMAND LINES
 #
 ##################################################################################################################################################
+class Depths(Cmd):
+    """
+    @summary: Writes by abundance the number of clusters.
+    """
+    def __init__(self, in_biom, out_tsv):
+        """
+        @param in_biom: [str] The processed BIOM path.
+        @param out_tsv: [str] The path of the output.
+        """
+        Cmd.__init__( self,
+                      'biomTools.py',
+                      'Writes by abundance the number of clusters.',
+                      'obsdepth --input-file ' + in_biom + ' --output-file ' + out_tsv,
+                      '--version' )
+
+    def get_version(self):   
+        return Cmd.get_version(self, 'stdout').strip() 
+
 class ParallelChimera(Cmd):
     """
     @summary: Removes PCR chimera by samples.
@@ -112,7 +131,7 @@ def log_append_files( log_file, appended_files ):
     FH_log.write( "\n" )
     FH_log.close()
 
-def write_summary( summary_file, results_chimera ):
+def write_summary( summary_file, results_chimera, depth_file, biom_file):
     """
     @summary: Writes the summary of results.
     @param summary_file: [str] The output file.
@@ -176,6 +195,42 @@ def write_summary( summary_file, results_chimera ):
                     for idx, val in enumerate(line.split("\t")):
                         remove_data[remove_categories[idx]] = int(val)
     log_fh.close()
+    
+    # Get size distribution data
+    clusters_size = list()
+    counts = list()
+    FH_depth = open( depth_file )
+    for line in FH_depth:
+        if not line.startswith('#'):
+            fields = line.strip().split()
+            if fields[1] != "0":
+                clusters_size.append( int(fields[0]) )
+                counts.append( int(fields[1]) )
+    FH_depth.close()
+
+    # Get sample data
+    biom = BiomIO.from_json( biom_file )
+    samples_distrib = dict()
+    for sample_name in biom.get_samples_names():
+        shared_seq = 0
+        shared_observations = 0
+        own_seq = 0
+        own_observations = 0
+        for observation in biom.get_observations_by_sample(sample_name):
+            obs_count_in_spl = biom.get_count( observation['id'], sample_name )
+            if obs_count_in_spl != 0 and obs_count_in_spl == biom.get_observation_count(observation['id']):
+                own_observations += 1
+                own_seq += obs_count_in_spl
+            else:
+                shared_observations += 1
+                shared_seq += obs_count_in_spl
+        samples_distrib[sample_name] = {
+            'shared_seq': shared_seq,
+            'shared_observations': shared_observations,
+            'own_seq': own_seq,
+            'own_observations': own_observations
+        }
+    del biom
 
     # Write
     FH_summary_tpl = open( os.path.join(CURRENT_DIR, "remove_chimera_tpl.html") )
@@ -187,11 +242,16 @@ def write_summary( summary_file, results_chimera ):
             line = line.replace( "###DETECTION_DATA###", json.dumps(detection_data) )
         elif "###REMOVE_DATA###" in line:
             line = line.replace( "###REMOVE_DATA###", json.dumps(remove_data) )
+        elif "###DATA_SAMPLE###" in line:
+            line = line.replace( "###DATA_SAMPLE###", json.dumps(samples_distrib) )
+        elif "###CLUSTERS_SIZES###" in line:
+            line = line.replace( "###CLUSTERS_SIZES###", json.dumps(clusters_size) )
+        elif "###DATA_COUNTS###" in line:
+            line = line.replace( "###DATA_COUNTS###", json.dumps(counts) )
         FH_summary_out.write( line )
 
     FH_summary_out.close()
     FH_summary_tpl.close()
-
 
 ##################################################################################################################################################
 #
@@ -231,7 +291,10 @@ if __name__ == "__main__":
         size_separator = get_size_separator( args.input_fasta )
 
         ParallelChimera( args.input_fasta, args.input_biom, args.non_chimera, args.out_abundance, tmp_chimera_summary, "biom", args.nb_cpus, tmp_log, args.debug, size_separator ).submit( args.log_file )
-        write_summary( args.summary, tmp_chimera_summary )
+        
+        depth_file = tmpFiles.add( "depths.tsv" )
+        Depths(args.out_abundance, depth_file).submit( args.log_file )
+        write_summary( args.summary, tmp_chimera_summary, depth_file, args.out_abundance )
         
         # Append independant log files
         log_append_files( args.log_file, [tmp_log] )
