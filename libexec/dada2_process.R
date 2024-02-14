@@ -56,9 +56,9 @@ getDerep <- function(object, ...) {
   }
 }
 
-writeFASTQsingle <- function(data, file, direction = c("forward", "reverse")) {
+writeFASTQsingle <- function(data, sample_name, file, direction = c("forward", "reverse")) {
   direction <- match.arg(direction)
-  string <- paste0("@", data$id, ";size=", data$abundance, "\n", data[[direction]], "\n+\n", 
+  string <- paste0("@", data$id,"#",sample_name, ";size=", data$abundance, "\n", data[[direction]], "\n+\n", 
                    data[[paste0(direction, "Qual")]])
   writeLines(string, con = file)
 }
@@ -137,8 +137,8 @@ write2FastqFromDada <- function(dadaF, derepF, dadaR, derepR, path)
       file.create(R1_path)
       R2_path <- file.path(path,paste0(sample_name,"_denoised_R2.fastq"))
       file.create(R2_path)
-      writeFASTQsingle(ups, file=R1_path, direction="forward")
-      writeFASTQsingle(ups, file=R2_path, direction="reverse")
+      writeFASTQsingle(ups, sample_name, file=R1_path, direction="forward")
+      writeFASTQsingle(ups, sample_name, file=R2_path, direction="reverse")
       #set up writing
       cat(R1_path, R2_path, file=opt$fileNames, append=TRUE, sep = ",")
       cat("", file=opt$fileNames, append=TRUE, sep = "\n")
@@ -198,7 +198,7 @@ write1FastqFromDada <- function(dadaF, derepF, path){
       ups$forwardQual <- Funqqual
       sample_name <- substr(names(dadaF)[i],1,nchar(names(dadaF)[i])-12)	
       R1_path <- file.path(path,paste0(sample_name,"_denoised_R1.fastq"))
-      writeFASTQsingle(ups, file=R1_path, direction="forward")
+      writeFASTQsingle(ups, sample_name, file=R1_path, direction="forward")
       #set up writing
       cat(R1_path, file=opt$fileNames, append=TRUE, sep = ",")
       cat("", file=opt$fileNames, append=TRUE, sep = "\n")
