@@ -39,7 +39,7 @@ if os.getenv('PYTHONPATH') is None: os.environ['PYTHONPATH'] = LIB_DIR
 else: os.environ['PYTHONPATH'] = LIB_DIR + os.pathsep + os.environ['PYTHONPATH']
 
 from frogsUtils import *
-from frogsBiom import BiomIO
+from frogsBiom import Biom, BiomIO
 from frogsSequenceIO import *
 
 
@@ -48,6 +48,24 @@ from frogsSequenceIO import *
 # COMMAND LINES
 #
 ##################################################################################################################################################
+class Depths(Cmd):
+    """
+    @summary: Writes by abundance the number of clusters.
+    """
+    def __init__(self, in_biom, out_tsv):
+        """
+        @param in_biom: [str] The processed BIOM path.
+        @param out_tsv: [str] The path of the output.
+        """
+        Cmd.__init__( self,
+                      'biomTools.py',
+                      'Writes by abundance the number of clusters.',
+                      'obsdepth --input-file ' + in_biom + ' --output-file ' + out_tsv,
+                      '--version' )
+
+    def get_version(self):   
+        return Cmd.get_version(self, 'stdout').strip() 
+
 class ITSx(Cmd):
     """
     @summary: Use ITSx to identifies ITS sequences and extracts the ITS region
@@ -139,7 +157,7 @@ def log_append_files( log_file, appended_files ):
     FH_log.write( "\n" )
     FH_log.close()
 
-def write_summary( summary_file, input_biom, output_biom ):
+def write_summary( summary_file, input_biom, output_biom, depth_file ):
     """
     @summary: Writes the process summary.
     @param summary_file: [str] The path to the output file.
@@ -198,7 +216,41 @@ def write_summary( summary_file, input_biom, output_biom ):
         samples_results[sample_name]['kept_ab'] = sum ( output_biom_test.get_count( obs['id'], sample_name ) for obs in output_biom_test.get_observations_by_sample(sample_name))
     del out_biom
 
-    # print samples_results
+    # Get size distribution data
+    clusters_size = list()
+    counts = list()
+    FH_depth = open( depth_file )
+    for line in FH_depth:
+        if not line.startswith('#'):
+            fields = line.strip().split()
+            if fields[1] != "0":
+                clusters_size.append( int(fields[0]) )
+                counts.append( int(fields[1]) )
+    FH_depth.close()
+
+    # Get sample data
+    biom = BiomIO.from_json( input_biom )
+    samples_distrib = dict()
+    for sample_name in biom.get_samples_names():
+        shared_seq = 0
+        shared_observations = 0
+        own_seq = 0
+        own_observations = 0
+        for observation in biom.get_observations_by_sample(sample_name):
+            obs_count_in_spl = biom.get_count( observation['id'], sample_name )
+            if obs_count_in_spl != 0 and obs_count_in_spl == biom.get_observation_count(observation['id']):
+                own_observations += 1
+                own_seq += obs_count_in_spl
+            else:
+                shared_observations += 1
+                shared_seq += obs_count_in_spl
+        samples_distrib[sample_name] = {
+            'shared_seq': shared_seq,
+            'shared_observations': shared_observations,
+            'own_seq': own_seq,
+            'own_observations': own_observations
+        }
+    del biom
 
     # Write
     FH_summary_tpl = open( os.path.join(CURRENT_DIR, "itsx_tpl.html") )
@@ -206,6 +258,12 @@ def write_summary( summary_file, input_biom, output_biom ):
     for line in FH_summary_tpl:
         if "###GLOBAL_RESULTS###" in line:
             line = line.replace( "###GLOBAL_RESULTS###", json.dumps(global_results) )
+        elif "###DATA_SAMPLE###" in line:
+            line = line.replace( "###DATA_SAMPLE###", json.dumps(samples_distrib) )
+        elif "###CLUSTERS_SIZES###" in line:
+            line = line.replace( "###CLUSTERS_SIZES###", json.dumps(clusters_size) )
+        elif "###DATA_COUNTS###" in line:
+            line = line.replace( "###DATA_COUNTS###", json.dumps(counts) )
         elif "###SAMPLES_RESULTS###" in line:
             line = line.replace( "###SAMPLES_RESULTS###", json.dumps(samples_results) )
         FH_summary_out.write( line )
@@ -258,7 +316,11 @@ if __name__ == "__main__":
         log_itsx = tmpFiles.add("ITSx.log")
         
         ITSx(args.input_fasta, args.input_biom, args.organism_groups, args.out_fasta, args.out_abundance, args.out_removed, log_itsx, args ).submit( args.log_file )
-        write_summary( args.summary, args.input_biom, args.out_abundance)
+        
+        depth_file = tmpFiles.add( "depths.tsv" )
+        Depths(args.out_abundance, depth_file).submit( args.log_file )
+        
+        write_summary( args.summary, args.input_biom, args.out_abundance, depth_file)
         
         # Append independant log files
         log_append_files( args.log_file, [log_itsx] )
