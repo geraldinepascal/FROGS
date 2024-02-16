@@ -658,23 +658,23 @@
 			  	chart['yAxis']['min'] = 0 ;
 			  	chart['exporting'] = {buttons: {contextButton: { symbol: 'download' }}};
 			  	chart['navigation'] =  {
-        buttonOptions: {
-            theme: {
-                r: 4,
-                fill:'#8EADAC',
-                states: {
-                    hover: {
-                        fill: 'rgb(100, 138, 137)',
-                        stroke:'#8EADAC'
-                    },
-                    select: {
-                        stroke: '#8EADAC',
-                        fill: 'rgb(100, 138, 137)',
-                    }
-                }
-            }
-        }
-    };
+					buttonOptions: {
+						theme: {
+							r: 4,
+							fill:'#8EADAC',
+							states: {
+								hover: {
+									fill: 'rgb(100, 138, 137)',
+									stroke:'#8EADAC'
+								},
+								select: {
+									stroke: '#8EADAC',
+									fill: 'rgb(100, 138, 137)',
+								}
+							}
+						}
+					}
+				};
 			  	return chart ;
 			  };
 
@@ -1687,7 +1687,7 @@
         <!-- Content -->
         <div id="content" class="hidden">
 			<ul id="mytab" class="nav nav-tabs">
-				<li class="nav-item active"><a class="nav-link active" href="#preprocess">Preprocess</a></li>
+				<li class="nav-item active"><a class="nav-link active" href="#preprocess">Denoising</a></li>
 				<li class="nav-item active"><a class="nav-link" href="#cluster-distrib">Clusters distribution</a></li>
 				<!--<li class="nav-item active"><a class="nav-link" href="#sequence-distrib">Sequences distribution</a></li>-->
 				<li class="nav-item active"><a class="nav-link" href="#samples-distrib">Samples distribution</a></li>
