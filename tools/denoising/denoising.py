@@ -2018,7 +2018,7 @@ def process( args ):
 
             sort_fasta_and_count(dereplicated_fasta, tmp_count, args.output_fasta, tmp_count_sorted)
             # Finally generate the BIOM file from sorted FASTA and count files
-            to_biom_and_fasta(tmp_count_sorted, args.output_biom, args.process)
+            to_biom(tmp_count_sorted, args.output_biom, args.process)
 
         depth_file = tmp_files.add( "depths.tsv" )
         Depths(args.output_biom, depth_file).submit( args.log_file )
