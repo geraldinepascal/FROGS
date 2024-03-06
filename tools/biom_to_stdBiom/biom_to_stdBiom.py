@@ -90,16 +90,16 @@ def process( in_biom, out_biom, out_metadata ):
 ##################################################################################################################################################
 if __name__ == "__main__":
     # Manage parameters
-    parser = argparse.ArgumentParser( description='The detailed blast affiliations can trigger problem with tools like Qiime. This script extracts the problematic metadata in a second file and writes a BIOM usable in every tools using BIOM.' )
+    parser = argparse.ArgumentParser( description='The detailed FROGS blast affiliations can trigger problem with tools like Qiime. This script extracts the problematic metadata in a second file and writes a BIOM usable in every tool using BIOM.' )
     parser.add_argument( '-v', '--version', action='version', version=__version__ )
     # Inputs
     group_input = parser.add_argument_group( 'Inputs' )
-    group_input.add_argument( '-b', '--input-biom', required=True, help="The abundance file (format: BIOM)." )
+    group_input.add_argument('--input-biom', required=True, help="The abundance file (format: BIOM)." )
     # Outputs
     group_output = parser.add_argument_group( 'Outputs' )
-    group_output.add_argument( '-o', '--output-biom', default='abundance.std.biom', help='The fully compatible abundance file (format: BIOM). [Default: %(default)s]' )
-    group_output.add_argument( '-m', '--output-metadata', default='blast_informations.std.tsv', help='The blast affiliations informations (format: TSV). [Default: %(default)s]' )
-    group_output.add_argument( '-l', '--log-file', default=sys.stdout, help='This output file will contain several information on executed commands.' )
+    group_output.add_argument('--output-biom', default='abundance.std.biom', help='The fully compatible abundance file (format: BIOM). [Default: %(default)s]' )
+    group_output.add_argument('--output-metadata', default='blast_informations.std.tsv', help='The blast affiliations informations (format: TSV). [Default: %(default)s]' )
+    group_output.add_argument('--log-file', default=sys.stdout, help='This output file will contain several information on executed commands.' )
     args = parser.parse_args()
     prevent_shell_injections(args)
 
