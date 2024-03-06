@@ -762,8 +762,9 @@ def process( args ):
 if __name__ == '__main__':
     # Parameters
     parser = argparse.ArgumentParser(description='Filters an abundance biom file on affiliations metrics')
-    parser.add_argument( '--debug', default=False, action='store_true', help="Keep temporary files to debug program." )
     parser.add_argument( '-v', '--version', action='version', version=__version__ )
+    parser.add_argument( '--debug', default=False, action='store_true', help="Keep temporary files to debug program." )
+    
     parser.add_argument( '--taxonomic-ranks', nargs='+', default=["Domain", "Phylum", "Class", "Order", "Family", "Genus", "Species"], help='The ordered ranks levels used in the metadata taxonomy. [Default: %(default)s]' )
     #     Filters behavior
     group_filter_bh = parser.add_argument_group( 'Filters behavior' )
@@ -791,7 +792,7 @@ if __name__ == '__main__':
     group_output.add_argument('--summary', default="summary.html", help="The HTML file containing the graphs. [Default: %(default)s]")
     group_output.add_argument('--impacted', default="impacted_clusters.tsv", help="The abundance file that summarizes all the clusters impacted (deleted or with affiliations masked). [Default: %(default)s]")
     group_output.add_argument('--impacted-multihit', default="impacted_clusters_multihit.tsv", help="The multihit TSV file associated with impacted ASV. [Default: %(default)s]")
-    group_output.add_argument('--log-file', default=sys.stdout, help='The list of commands executed.')
+    group_output.add_argument('--log-file', default=sys.stdout, help='The list of commands executed. [Default: stdout]')
     args = parser.parse_args()
     prevent_shell_injections(args)
 

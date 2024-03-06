@@ -99,7 +99,7 @@ if __name__ == "__main__":
     group_output = parser.add_argument_group( 'Outputs' )
     group_output.add_argument('--output-biom', default='abundance.std.biom', help='The fully compatible abundance file (format: BIOM). [Default: %(default)s]' )
     group_output.add_argument('--output-metadata', default='blast_informations.std.tsv', help='The blast affiliations informations (format: TSV). [Default: %(default)s]' )
-    group_output.add_argument('--log-file', default=sys.stdout, help='This output file will contain several information on executed commands.' )
+    group_output.add_argument('--log-file', default=sys.stdout, help='This output file will contain several information on executed commands. [Default: stdout]' )
     args = parser.parse_args()
     prevent_shell_injections(args)
 
