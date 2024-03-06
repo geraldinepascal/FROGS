@@ -768,8 +768,8 @@ if __name__ == '__main__':
     #     Filters behavior
     group_filter_bh = parser.add_argument_group( 'Filters behavior' )
     group_exclusion_filter_bh = group_filter_bh.add_mutually_exclusive_group()
-    group_exclusion_filter_bh.add_argument('--mask', default=False, action='store_true', help="If affiliations do not respect one of the filter they are replaced by NA (mutually exclusive with --delete)")
-    group_exclusion_filter_bh.add_argument('--delete', default=False, action='store_true', help="If affiliations do not respect one of the filter the entire ASV is deleted.(mutually exclusive with --mask)")
+    group_exclusion_filter_bh.add_argument('--mask', default=False, action='store_true', help="If affiliations do not respect one of the filter they are replaced by NA (mutually exclusive with --delete) [Default: %(default)s]")
+    group_exclusion_filter_bh.add_argument('--delete', default=False, action='store_true', help="If affiliations do not respect one of the filter the entire ASV is deleted.(mutually exclusive with --mask) [Default: %(default)s]")
     #     Filters
     group_filter = parser.add_argument_group( 'Filters' )
     group_filter_blast_taxa = group_filter.add_mutually_exclusive_group()
