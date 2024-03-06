@@ -91,7 +91,7 @@ def process( in_biom, out_biom, out_metadata ):
 if __name__ == "__main__":
     # Manage parameters
     parser = argparse.ArgumentParser( description='The detailed FROGS blast affiliations can trigger problem with tools like Qiime. This script extracts the problematic metadata in a second file and writes a BIOM usable in every tool using BIOM.' )
-    parser.add_argument( '-v', '--version', action='version', version=__version__ )
+    parser.add_argument('--version', action='version', version=__version__ )
     # Inputs
     group_input = parser.add_argument_group( 'Inputs' )
     group_input.add_argument('--input-biom', required=True, help="The abundance file (format: BIOM)." )

@@ -762,10 +762,10 @@ def process( args ):
 if __name__ == '__main__':
     # Parameters
     parser = argparse.ArgumentParser(description='Filters an abundance biom file on affiliations metrics')
-    parser.add_argument( '-v', '--version', action='version', version=__version__ )
-    parser.add_argument( '--debug', default=False, action='store_true', help="Keep temporary files to debug program." )
+    parser.add_argument('--version', action='version', version=__version__ )
+    parser.add_argument('--debug', default=False, action='store_true', help="Keep temporary files to debug program. [Default: %(default)s]" )
     
-    parser.add_argument( '--taxonomic-ranks', nargs='+', default=["Domain", "Phylum", "Class", "Order", "Family", "Genus", "Species"], help='The ordered ranks levels used in the metadata taxonomy. [Default: %(default)s]' )
+    parser.add_argument('--taxonomic-ranks', nargs='+', default=["Domain", "Phylum", "Class", "Order", "Family", "Genus", "Species"], help='The ordered ranks levels used in the metadata taxonomy. [Default: %(default)s]' )
     #     Filters behavior
     group_filter_bh = parser.add_argument_group( 'Filters behavior' )
     group_exclusion_filter_bh = group_filter_bh.add_mutually_exclusive_group()

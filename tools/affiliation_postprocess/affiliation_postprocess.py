@@ -152,8 +152,8 @@ def process(params):
 if __name__ == "__main__":
     # Manage parameters
     parser = argparse.ArgumentParser(description="Refine affiliations, to manage amplicon included in other sequence, and to deal with surnumerary ASV (ASV with same affiliations.")
-    parser.add_argument( '-v', '--version', action='version', version=__version__)
-    parser.add_argument('--debug', default=False, action='store_true', help="Keep temporary files to debug program.")
+    parser.add_argument('--version', action='version', version=__version__)
+    parser.add_argument('--debug', default=False, action='store_true', help="Keep temporary files to debug program. [Default: %(default)s]")
     
     parser.add_argument('--identity', default=99.0, help="Min percentage identity to agggregate ASV. [Default: %(default)s]")
     parser.add_argument('--coverage', default=99.0, help="Min percentage coverage to agggregate ASV. [Default: %(default)s]")
