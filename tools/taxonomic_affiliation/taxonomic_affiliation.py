@@ -724,6 +724,7 @@ def needleall_parallel_submission( function, reference, inputs_fasta, temp_sams,
 if __name__ == "__main__":
     # Manage parameters
     parser = argparse.ArgumentParser(description="Taxonomic affiliation of each ASV's seed by RDPtools and BLAST.")
+    parser.add_argument( '-v', '--version', action='version', version=__version__)
     parser.add_argument( '-p', '--nb-cpus', type=int, default=1, help="The maximum number of CPUs used. [Default: %(default)s]")
     parser.add_argument( '-m', '--java-mem', type=int, default=2, help="Java memory allocation in Go. [Default: %(default)s]")
     parser.add_argument( '-t', '--taxonomy-ranks', nargs='*', default=["Domain", "Phylum", "Class", "Order", "Family", "Genus", "Species"], help='The ordered ranks levels present in the reference databank. [Default: %(default)s]' )
@@ -737,7 +738,7 @@ if __name__ == "__main__":
     parser.add_argument( '--bootstrap-tag', type=str, default=None, help='The metadata tag used in BIOM file to store the taxonomy bootstraps.' )
     parser.add_argument( '--identity-tag', type=str, default=None, help='The metadata tag used in BIOM file to store the alignment identity.' )
     parser.add_argument( '--coverage-tag', type=str, default=None, help='The metadata tag used in BIOM file to store the alignment observation coverage.' )
-    parser.add_argument( '-v', '--version', action='version', version=__version__)
+    
     # Inputs
     group_input = parser.add_argument_group('Inputs')
     group_input.add_argument('-r', '--reference', required=True, help='Preformated reference file (format: blast-indexed FASTA).')

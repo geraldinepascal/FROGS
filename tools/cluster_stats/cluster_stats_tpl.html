@@ -704,7 +704,6 @@
 					}
 				}
 				var seq_by_depth = areaplot_param("Cumulative sequences proportion by cluster size", "Cluster size", "% sequences", null, series_cumulative);
-				console.log(series_cumulative);
 				seq_by_depth['tooltip'] = {
 					formatter:function() {
 						tooltip_head = 'Clusters with size \u2264 ' + numberDisplay(this.x) ;
@@ -862,7 +861,9 @@
 					} else if( $(this).attr('href') == "#samples-distrib" && $('#samples-distrib').hasClass('disabled') ){
 						$('#samples-distrib').removeClass("disabled");
 						sample_table_load( "samples-distrib-table" );
-						hierarchical_clustering_load( "samples-distrib" );
+						if(newick != null){
+							hierarchical_clustering_load( "samples-distrib" );
+						}
 					}
 				})
 			});
