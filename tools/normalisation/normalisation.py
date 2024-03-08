@@ -238,21 +238,23 @@ def get_sample_resuts( log_file, output_list ):
 if __name__ == "__main__":
     # Manage parameters
     parser = argparse.ArgumentParser(description="Normalisation in BIOM by random sampling.")
-    parser.add_argument('-n', '--num-reads', type=int, help="Number of sampled sequences by sample.")
-    parser.add_argument('--sampling-by-min', default=False, action='store_true', help='Sampling by the number of sequences of the smallest sample.' )
-    parser.add_argument('--delete-samples', default=False, action='store_true', help='Delete samples that have a number of sequences below the selected filter.')
-    parser.add_argument('--debug', default=False, action='store_true', help="Keep temporary files to debug program.")
-    parser.add_argument('-v', '--version', action='version', version=__version__)
+    parser.add_argument('--version', action='version', version=__version__)
+    parser.add_argument('--debug', default=False, action='store_true', help="Keep temporary files to debug program. [Default: %(default)s]")
+    parser.add_argument('--num-reads', type=int, help="Number of sampled sequences by sample.")
+    parser.add_argument('--sampling-by-min', default=False, action='store_true', help='Sampling by the number of sequences of the smallest sample. [Default: %(default)s]' )
+    parser.add_argument('--delete-samples', default=False, action='store_true', help='Delete samples that have a number of sequences below the selected filter. [Default: %(default)s]')
+    
+    
     # Inputs
     group_input = parser.add_argument_group('Inputs')
     group_input.add_argument('-i', '--input-biom', required=True, help='Abundances file to normalise (format: BIOM).')
     group_input.add_argument('-f', '--input-fasta', required=True, help='Sequences file to normalise (format: FASTA).')
     # Outputs
     group_output = parser.add_argument_group('Outputs')
-    group_output.add_argument('-b', '--output-biom', default='normalisation_abundance.biom', help='Normalised abundances (format: BIOM). [Default: %(default)s]')
-    group_output.add_argument('-o', '--output-fasta', default='normalisation.fasta', help='Normalised sequences (format: FASTA). [Default: %(default)s]')
-    group_output.add_argument('-s', '--summary-file', default='normalisation.html', help='The HTML file containing the graphs. [Default: %(default)s]')
-    group_output.add_argument('-l', '--log-file', default=sys.stdout, help='The list of commands executed.')
+    group_output.add_argument('--output-biom', default='normalisation_abundance.biom', help='Normalised abundances (format: BIOM). [Default: %(default)s]')
+    group_output.add_argument('--output-fasta', default='normalisation.fasta', help='Normalised sequences (format: FASTA). [Default: %(default)s]')
+    group_output.add_argument('--summary-file', default='normalisation.html', help='The HTML file containing the graphs. [Default: %(default)s]')
+    group_output.add_argument('--log-file', default=sys.stdout, help='The list of commands executed. [Default: stdout]')
     args = parser.parse_args()
     prevent_shell_injections(args)
 

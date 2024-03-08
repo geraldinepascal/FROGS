@@ -102,16 +102,16 @@ class Tsv2biom(Cmd):
 if __name__ == "__main__":
     # Manage parameters
     parser = argparse.ArgumentParser( description='Converts a TSV file in BIOM file.' )
-    parser.add_argument( '-v', '--version', action='version', version=__version__ )
+    parser.add_argument('--version', action='version', version=__version__ )
     # Inputs
     group_input = parser.add_argument_group( 'Inputs' )
-    group_input.add_argument( '-t', '--input-tsv', required=True, help='This input file contain the abundance and metadata (format: TSV).' )
-    group_input.add_argument( '-m', '--input-multi-affi', default=None, help='This input file will contain information about multiple alignements (format: TSV). Use this option only if your affiliation has been produced by FROGS.' )
+    group_input.add_argument('--input-tsv', required=True, help='This input file contain the abundance and metadata (format: TSV).' )
+    group_input.add_argument('--input-multi-affi', default=None, help='This input file will contain information about multiple alignements (format: TSV). Use this option only if your affiliation has been produced by FROGS. [Default: %(default)s]' )
     # Outputs
     group_output = parser.add_argument_group( 'Outputs' )
-    group_output.add_argument( '-b', '--output-biom', default='abundance.biom', required=True,  help="The output abundance file (format: BIOM)." )
-    group_output.add_argument( '-f', '--output-fasta', help='The output sequences file (format: FASTA). If sequences exist in your input TSV with tag seed_sequence.' )
-    group_output.add_argument( '-l', '--log-file', default=sys.stdout, help='This output file will contain several informations on executed commands.' )
+    group_output.add_argument('--output-biom', default='abundance.biom', help="The output abundance file (format: BIOM). [Default: %(default)s]" )
+    group_output.add_argument('--output-fasta', default=None, help='The output sequences file (format: FASTA). If sequences exist in your input TSV with tag seed_sequence. [Default: %(default)s]' )
+    group_output.add_argument('--log-file', default=sys.stdout, help='This output file will contain several informations on executed commands. [Default: stdout]' )
     args = parser.parse_args()
     prevent_shell_injections(args)
 

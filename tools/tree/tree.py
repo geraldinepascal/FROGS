@@ -252,20 +252,20 @@ if __name__ == "__main__":
    
     # Manage parameters
     parser = argparse.ArgumentParser( description='Phylogenetic tree reconstruction' )
-    parser.add_argument( '--debug', default=False, action='store_true', help="Keep temporary files to debug program." )   
-    parser.add_argument( '-p', '--nb-cpus', type=int, default=1, help="The maximum number of CPUs used. [Default: %(default)s]" )
-    parser.add_argument( '-v', '--version', action='version', version=__version__ )
-
+    parser.add_argument('--version', action='version', version=__version__ )
+    parser.add_argument('--debug', default=False, action='store_true', help="Keep temporary files to debug program." )   
+    parser.add_argument('--nb-cpus', type=int, default=1, help="The maximum number of CPUs used. [Default: %(default)s]" )
+    
     # Inputs
     group_input = parser.add_argument_group( 'Inputs' )
-    group_input.add_argument( '-i', '--input-sequences', required=True, help='Path to input FASTA file of ASV seed sequences. Warning: FROGS Tree is only working on less than 10000 sequences!' )
-    group_input.add_argument( '-b', '--biom-file', help='Path to the abundance BIOM file.' )
+    group_input.add_argument('--input-sequences', required=True, help='Path to input FASTA file of ASV seed sequences. Warning: FROGS Tree is only working on less than 10000 sequences!' )
+    group_input.add_argument('--biom-file', required=True, help='Path to the abundance BIOM file.' )
         
     # output
     group_output = parser.add_argument_group( 'Outputs' )
-    group_output.add_argument( '-o','--out-tree', default='tree.nwk', help="Path to store resulting Newick tree file. (format: nwk) [Default: %(default)s]" )
-    group_output.add_argument('-s','--html', default='tree.html', help="The HTML file containing the graphs. [Default: %(default)s]" )    
-    group_output.add_argument( '-l', '--log-file', default=sys.stdout, help='This output file will contain several informations on executed commands.')
+    group_output.add_argument('--out-tree', default='tree.nwk', help="Path to store resulting Newick tree file. (format: nwk) [Default: %(default)s]" )
+    group_output.add_argument('--html', default='tree.html', help="The HTML file containing the graphs. [Default: %(default)s]" )    
+    group_output.add_argument('--log-file', default=sys.stdout, help='This output file will contain several informations on executed commands. [Default: stdout]')
     args = parser.parse_args()
     prevent_shell_injections(args)
     

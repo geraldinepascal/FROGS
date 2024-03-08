@@ -284,26 +284,27 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         description='Removes PCR chimera.'
     )
-    parser.add_argument( '-p', '--nb-cpus', type=int, default=1, help="The maximum number of CPUs used. [Default: %(default)s]" )
-    parser.add_argument( '--debug', default=False, action='store_true', help="Keep temporary files to debug program." )
-    parser.add_argument( '-v', '--version', action='version', version=__version__ )
+    parser.add_argument('--version', action='version', version=__version__ )
+    parser.add_argument('--debug', default=False, action='store_true', help="Keep temporary files to debug program. [Default: %(default)s]" )
+    parser.add_argument('--nb-cpus', type=int, default=1, help="The maximum number of CPUs used. [Default: %(default)s]" )
+    
     # Params
     group_params = parser.add_argument_group( 'Parameters' )
     group_params.add_argument( '--organism-groups', type=str, nargs="+", default=['F'], help='Reduce ITSx scan to specified organim groups. [Default: %(default)s , which means Fungi only]')
     group_exclusion_params = group_params.add_mutually_exclusive_group(required=True)
-    group_exclusion_params.add_argument( '--region', type=str, default=None, choices=['ITS1','ITS2'], help='Which fungal ITS region is targeted and trimmed: either ITS1 or ITS2. (mutually exclusive with --check-its-only)' )
-    group_exclusion_params.add_argument( '--check-its-only', action='store_true', default=False, help='Check only if sequences seem to be an ITS (mutually exclusive with --region)' )
+    group_exclusion_params.add_argument( '--region', type=str, default=None, choices=['ITS1','ITS2'], help='Which fungal ITS region is targeted and trimmed: either ITS1 or ITS2. (mutually exclusive with --check-its-only) [Default: %(default)s]' )
+    group_exclusion_params.add_argument( '--check-its-only', action='store_true', default=False, help='Check only if sequences seem to be an ITS (mutually exclusive with --region) [Default: %(default)s]' )
     # Inputs
     group_input = parser.add_argument_group( 'Inputs' )
-    group_input.add_argument( '-f', '--input-fasta', required=True, help='The cluster sequences (format: FASTA).' )
-    group_input.add_argument( '-b', '--input-biom', help='The abundance file for clusters by sample (format: BIOM).' )
+    group_input.add_argument('--input-fasta', required=True, help='The cluster sequences (format: FASTA).' )
+    group_input.add_argument('--input-biom', help='The abundance file for clusters by sample (format: BIOM).' )
     # Outputs
     group_output = parser.add_argument_group( 'Outputs' )
-    group_output.add_argument( '-n', '--out-fasta', default='itsx.fasta', help='sequences file out from ITSx (format: FASTA). [Default: %(default)s]')
-    group_output.add_argument( '-a', '--out-abundance', default="itsx_abundance.biom", help='Abundance file without chimera (format: BIOM ). [Default: %(default)s]')
-    group_output.add_argument( '-m', '--out-removed', default='itsx_removed.fasta', help='sequences file removed (format: FASTA). [Default: %(default)s]')
-    group_output.add_argument( '--summary', default="itsx.html", help='The HTML file containing the graphs. [Default: %(default)s]')
-    group_output.add_argument( '-l', '--log-file', default=sys.stdout, help='This output file will contain several informations on executed commands.')
+    group_output.add_argument('--out-fasta', default='itsx.fasta', help='sequences file out from ITSx (format: FASTA). [Default: %(default)s]')
+    group_output.add_argument('--out-abundance', default="itsx_abundance.biom", help='Abundance file without chimera (format: BIOM ). [Default: %(default)s]')
+    group_output.add_argument('--out-removed', default='itsx_removed.fasta', help='sequences file removed (format: FASTA). [Default: %(default)s]')
+    group_output.add_argument('--summary', default="itsx.html", help='The HTML file containing the graphs. [Default: %(default)s]')
+    group_output.add_argument('--log-file', default=sys.stdout, help='This output file will contain several informations on executed commands. [Default: stdout]')
     args = parser.parse_args()
     prevent_shell_injections(args)
 
