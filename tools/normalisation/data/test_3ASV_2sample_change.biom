@@ -1,0 +1,76 @@
+{
+    "rows": [
+        {
+            "id": "Cluster_1", 
+            "metadata": {
+                "seed_id": "ERR619083.M00704:57:000000000-A5HJE:1:1101:12000:2130.1"
+            }
+        }, 
+        {
+            "id": "Cluster_2", 
+            "metadata": {
+                "seed_id": "ERR619083.M00704:57:000000000-A5HJE:1:1101:14982:2858.1"
+            }
+        }, 
+        {
+            "id": "Cluster_3", 
+            "metadata": {
+                "seed_id": "ERR619083.M00704:57:000000000-A5HJE:1:1102:17444:3107.1"
+            }
+        }
+    ], 
+    "matrix_element_type": "int", 
+    "format": "Biological Observation Matrix 1.0.0-dev", 
+    "data": [
+        [
+            0, 
+            0, 
+            16269
+        ], 
+        [
+            0, 
+            1, 
+            10000
+        ], 
+        [
+            1, 
+            0, 
+            5924
+        ], 
+        [
+            1, 
+            1, 
+            1000
+        ], 
+        [
+            2, 
+            0, 
+            1
+        ], 
+        [
+            2, 
+            1, 
+            100
+        ]
+    ], 
+    "generated_by": "swarm", 
+    "matrix_type": "sparse", 
+    "shape": [
+        3, 
+        2
+    ], 
+    "format_url": "http://biom-format.org", 
+    "date": "15-01-09T11:09:52", 
+    "type": "OTU table", 
+    "id": null, 
+    "columns": [
+        {
+            "id": "sampleA_R1", 
+            "metadata": null
+        }, 
+        {
+            "id": "sampleB_R1", 
+            "metadata": null
+        }
+    ]
+}

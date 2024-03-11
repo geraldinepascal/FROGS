@@ -400,6 +400,16 @@ def write_summary( summary_file, input_biom, output_biom, replicate_log, discard
             'Replicates' : line[1]
             }
 
+    # Write replicate groups informations
+    replicate_groups = dict()
+    FH_replicate_log = open(replicate_log)
+    for line in FH_replicate_log:
+        if not line.startswith('#'):
+            line = line.strip().split('\t')
+            replicate_groups[line[0]] = { 
+            'Replicates' : line[1]
+            }
+
     # Global after filters
     out_biom = BiomIO.from_json( output_biom )
     for observation_name in out_biom.get_observations_names():

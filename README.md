@@ -32,9 +32,9 @@ This workflow is focused on:
 
 * [Convenient input data](#convenient-input-data)
 * [Installation](#installation)
-  * [Tools dependancies](#tools-dependancies)
+  * [Tools dependencies](#tools-dependencies)
     * [Use PEAR as read pairs merging software in preprocess](#use-pear-as-read-pairs-merging-software-in-preprocess)
-  * [FROGS and dependancies installation](#frogs-and-dependancies-installation)
+  * [FROGS and dependencies installation](#frogs-and-dependencies-installation)
     * [From bioconda](#from-bioconda)
     * [From source](#from-source)
   * [Check intallation](#check-intallation)
@@ -95,7 +95,7 @@ The amplicons can have a high length variability such as ITS.  The R1 and R2 can
 
 This FROGS repository is for command line user. If you want to install FROGS on Galaxy, please refer to [FROGS-wrappers](https://github.com/geraldinepascal/FROGS-wrappers).
 
-## Tools dependancies
+## Tools dependencies
 
 FROGS is written in Python 3 (with external numpy and Scipy libraries) , uses also home-made scripts written in PERL5 and R 4.
 
@@ -127,7 +127,7 @@ For that you need to:
 - have PEAR in your PATH or in the FROGS libexec directory. We have tested PEAR 0.9.10 version (last version 0.9.11).
 - use `--merge-software pear` option in the preprocess.py command line
 
-## FROGS and dependancies installation
+## FROGS and dependencies installation
 
 ### From conda
 

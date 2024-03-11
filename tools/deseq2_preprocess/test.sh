@@ -24,6 +24,7 @@ mkdir -p $OUT
  --out-Rdata $OUT/deseq2_preprocess_ASV.Rdata \
  --var EnvType 
 
+
 # DESeq2 preprocess with ASV abundances 
 echo ""
 OUT=test/deseq2_func

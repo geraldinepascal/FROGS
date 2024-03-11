@@ -320,6 +320,10 @@ empty_taxa <- taxa_names(data)[which(taxa_sums(data)==0)]
 taxa_to_keep <- taxa_names(data)[which(taxa_sums(data)>0)]
 hplot_input <- prune_taxa(taxa_to_keep, data)
 
+```{r heatmap, fig.width=10, fig.height=8, eval = (nrow(da.abundances_table) > 1)}
+
+da.abundances_table <- da.abundances_table %>% arrange(log2FoldChange)
+y_title <- ifelse(params$analysis == "ASV", "ASV", "Functions")
 if ( length(result_names)==2 || params$mod1 != "None"){
 
     subtitle <- result_names[2]

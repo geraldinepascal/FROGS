@@ -183,16 +183,11 @@ def is_gzip( file ):
     @return: [bool] True if the file is gziped.
     @param file : [str] Path to processed file.
     """
-    is_gzip = None
-    FH_input = gzip.open( file )
-    try:
-        FH_input.readline()
-        is_gzip = True
-    except:
-        is_gzip = False
-    finally:
-        FH_input.close()
-    return is_gzip
+    gzip_magic_number = b'\x1f\x8b'
+    with open( file , 'rb') as FH_input:
+        first_two_bytes = FH_input.read(2)
+
+    return first_two_bytes == gzip_magic_number
 
 def split_barcode_file( barcode_file, barcodes_file_list, global_tmp_files ):
     """
