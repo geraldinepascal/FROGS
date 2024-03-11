@@ -97,7 +97,10 @@ def task_formate_abundances_file( args, hierarchy_tag = "classification"):
 		if li.startswith('#'):
 			continue
 		li = li.strip().split('\t')
-		id_to_hierarchy[li[-1]] = ";".join(li[:-1])
+		hierarchy = "#|#".join(li[:-1])
+		hierarchy = hierarchy.replace(";",",")
+		hierarchy = hierarchy.replace("#|#",";")
+		id_to_hierarchy[li[-1]] = hierarchy
 
 	data = open(args.input_abundances).readlines()
 	new_data = open(args.input_tmp_unstrat, 'wt')
