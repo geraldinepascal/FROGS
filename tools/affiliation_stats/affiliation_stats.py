@@ -365,8 +365,9 @@ def process( args ):
 if __name__ == '__main__':
     # Parameters
     parser = argparse.ArgumentParser(description='Produces several metrics describing ASVs based on their taxonomies and the quality of the affiliations.')
-    parser.add_argument( '-d', '--debug', default=False, action='store_true', help="Keep temporary files to debug program." )
-    parser.add_argument( '-v', '--version', action='version', version=__version__ )
+    parser.add_argument('--version', action='version', version=__version__ )
+    parser.add_argument('--debug', default=False, action='store_true', help="Keep temporary files to debug program. [Default: %(default)s]" )
+    
     parser.add_argument( '--taxonomic-ranks', nargs='*', default=["Domain", "Phylum", "Class", "Order", "Family", "Genus", "Species"], help='The ordered ranks levels used in the metadata taxonomy. [Default: %(default)s]' )
     parser.add_argument( '--rarefaction-ranks', nargs='*', default=["Genus"], help='The ranks that will be evaluated in rarefaction. [Default: %(default)s]' )
     group_exclusion_taxonomy = parser.add_mutually_exclusive_group()
@@ -378,11 +379,11 @@ if __name__ == '__main__':
     parser.add_argument( '--coverage-tag', type=str, default=None, help='The metadata tag used in BIOM file to store the alignment observation coverage.' )
     #     Inputs
     group_input = parser.add_argument_group( 'Inputs' )
-    group_input.add_argument( '-i', '--input-biom', required=True, help="The input abundance file (format: BIOM)." )
+    group_input.add_argument('--input-biom', required=True, help="The input abundance file (format: BIOM)." )
     #     Outputs
     group_output = parser.add_argument_group( 'Outputs' )
-    group_output.add_argument( '-o', '--output-file', default="affiliation_stats.html", help="The HTML file containing the graphs. [Default: %(default)s]" )
-    group_output.add_argument( '-l', '--log-file', default=sys.stdout, help='The list of commands executed.' )
+    group_output.add_argument('--output-file', default="affiliation_stats.html", help="The HTML file containing the graphs. [Default: %(default)s]" )
+    group_output.add_argument('--log-file', default=sys.stdout, help='The list of commands executed. [Default: stdout]' )
     args = parser.parse_args()
     prevent_shell_injections(args)
 

@@ -762,24 +762,25 @@ def process( args ):
 if __name__ == '__main__':
     # Parameters
     parser = argparse.ArgumentParser(description='Filters an abundance biom file on affiliations metrics')
-    parser.add_argument( '--debug', default=False, action='store_true', help="Keep temporary files to debug program." )
-    parser.add_argument( '-v', '--version', action='version', version=__version__ )
-    parser.add_argument( '--taxonomic-ranks', nargs='+', default=["Domain", "Phylum", "Class", "Order", "Family", "Genus", "Species"], help='The ordered ranks levels used in the metadata taxonomy. [Default: %(default)s]' )
+    parser.add_argument('--version', action='version', version=__version__ )
+    parser.add_argument('--debug', default=False, action='store_true', help="Keep temporary files to debug program. [Default: %(default)s]" )
+    
+    parser.add_argument('--taxonomic-ranks', nargs='+', default=["Domain", "Phylum", "Class", "Order", "Family", "Genus", "Species"], help='The ordered ranks levels used in the metadata taxonomy. [Default: %(default)s]' )
     #     Filters behavior
     group_filter_bh = parser.add_argument_group( 'Filters behavior' )
     group_exclusion_filter_bh = group_filter_bh.add_mutually_exclusive_group()
-    group_exclusion_filter_bh.add_argument('-m','--mask', default=False, action='store_true', help="If affiliations do not respect one of the filter they are replaced by NA (mutually exclusive with --delete)")
-    group_exclusion_filter_bh.add_argument('-d','--delete', default=False, action='store_true', help="If affiliations do not respect one of the filter the entire ASV is deleted.(mutually exclusive with --mask)")
+    group_exclusion_filter_bh.add_argument('--mask', default=False, action='store_true', help="If affiliations do not respect one of the filter they are replaced by NA (mutually exclusive with --delete) [Default: %(default)s]")
+    group_exclusion_filter_bh.add_argument('--delete', default=False, action='store_true', help="If affiliations do not respect one of the filter the entire ASV is deleted.(mutually exclusive with --mask) [Default: %(default)s]")
     #     Filters
     group_filter = parser.add_argument_group( 'Filters' )
     group_filter_blast_taxa = group_filter.add_mutually_exclusive_group()
-    group_filter_blast_taxa.add_argument( '--ignore-blast-taxa', type=str, nargs='*', help="Taxon list to masks/delete in Blast affiliations")
-    group_filter_blast_taxa.add_argument( '--keep-blast-taxa', type=str, nargs='*', help="Taxon list to keep in Blast affiliations. All others affiliations will be masks/delete.")
-    group_filter.add_argument( '-b', '--min-rdp-bootstrap', type=str, action=BootstrapParameter, metavar=("TAXONOMIC_LEVEL:MIN_BOOTSTRAP"), help="The minimal RDP bootstrap must be superior to this value (between 0 and 1)." )
-    group_filter.add_argument( '-i', '--min-blast-identity', type=ratioParameter, help="The number corresponding to the blast percentage identity (between 0 and 100)." )
-    group_filter.add_argument( '-c', '--min-blast-coverage', type=ratioParameter, help="The number corresponding to the blast percentage coverage (between 0 and 100)." )
-    group_filter.add_argument( '-e', '--max-blast-evalue', type=float, help="The number corresponding to the blast e value (between 0 and 1).")
-    group_filter.add_argument( '-l', '--min-blast-length', type=int, default=None, required=False, help="The number corresponding to the blast length." )
+    group_filter_blast_taxa.add_argument('--ignore-blast-taxa', type=str, nargs='*', help="Taxon list to masks/delete in Blast affiliations")
+    group_filter_blast_taxa.add_argument('--keep-blast-taxa', type=str, nargs='*', help="Taxon list to keep in Blast affiliations. All others affiliations will be masks/delete.")
+    group_filter.add_argument('--min-rdp-bootstrap', type=str, action=BootstrapParameter, metavar=("TAXONOMIC_LEVEL:MIN_BOOTSTRAP"), help="The minimal RDP bootstrap must be superior to this value (between 0 and 1)." )
+    group_filter.add_argument('--min-blast-identity', type=ratioParameter, help="The number corresponding to the blast percentage identity (between 0 and 100)." )
+    group_filter.add_argument('--min-blast-coverage', type=ratioParameter, help="The number corresponding to the blast percentage coverage (between 0 and 100)." )
+    group_filter.add_argument('--max-blast-evalue', type=float, help="The number corresponding to the blast e value (between 0 and 1).")
+    group_filter.add_argument('--min-blast-length', type=int, default=None, required=False, help="The number corresponding to the blast length." )
     #     Inputs
     group_input = parser.add_argument_group( 'Inputs' )
     group_input.add_argument('--input-biom', required=True, help="The input biom file.")
@@ -791,7 +792,7 @@ if __name__ == '__main__':
     group_output.add_argument('--summary', default="summary.html", help="The HTML file containing the graphs. [Default: %(default)s]")
     group_output.add_argument('--impacted', default="impacted_clusters.tsv", help="The abundance file that summarizes all the clusters impacted (deleted or with affiliations masked). [Default: %(default)s]")
     group_output.add_argument('--impacted-multihit', default="impacted_clusters_multihit.tsv", help="The multihit TSV file associated with impacted ASV. [Default: %(default)s]")
-    group_output.add_argument('--log-file', default=sys.stdout, help='The list of commands executed.')
+    group_output.add_argument('--log-file', default=sys.stdout, help='The list of commands executed. [Default: stdout]')
     args = parser.parse_args()
     prevent_shell_injections(args)
 

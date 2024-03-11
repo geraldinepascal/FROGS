@@ -199,20 +199,21 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         description='Process several metrics on abundance from BIOM file.'
     )
-    parser.add_argument( '--hierarchical-clustering', action='store_true', default=False, help="Perform Hierarchical classification on observation proportions." )
+    parser.add_argument( '-v', '--version', action='version', version=__version__ )
+    parser.add_argument( '--debug', default=False, action='store_true', help="Keep temporary files to debug program." )
+    parser.add_argument( '--hierarchical-clustering', action='store_true', default=False, help="Perform Hierarchical classification on observation proportions. [Default: %(default)s]" )
     parser.add_argument( '--distance-method', type=str, default="braycurtis", help='Used distance method for classify (see http://docs.scipy.org/doc/scipy-0.14.0/reference/generated/generated/scipy.spatial.distance.pdist.html#scipy.spatial.distance.pdist). [Default: %(default)s]',
                          choices=["euclidean", "cityblock", "seuclidean", "sqeuclidean", "cosine", "correlation", "hamming", "jaccard", "chebyshev", "canberra", "braycurtis", "mahalanobis", "yule", "matching", "dice", "kulsinski", "rogerstanimoto", "russellrao", "sokalmichener", "sokalsneath", "wminkowski"] )
     parser.add_argument( '--linkage-method', type=str, default="average", help='Used linkage method for classify (see http://docs.scipy.org/doc/scipy-0.14.0/reference/generated/scipy.cluster.hierarchy.linkage.html). [Default: %(default)s]',
                          choices=["single", "complete", "average", "weighted", "centroid", "median", "ward"] )
-    parser.add_argument( '--debug', default=False, action='store_true', help="Keep temporary files to debug program." )
-    parser.add_argument( '-v', '--version', action='version', version=__version__ )
+    
     # Inputs
     group_input = parser.add_argument_group( 'Inputs' )
-    group_input.add_argument( '-i', '--input-biom', required=True, help='The BIOM file to process.' )
+    group_input.add_argument('--input-biom', required=True, help='The BIOM file to process.' )
     # Outputs
     group_output = parser.add_argument_group( 'Outputs' )
-    group_output.add_argument( '-o', '--output-file', default='cluster_stats.html', help='The HTML file containing the graphs. [Default: %(default)s]')
-    group_output.add_argument( '-l', '--log-file', default=sys.stdout, help='This output file will contain several informations on executed commands.')
+    group_output.add_argument('--output-file', default='cluster_stats.html', help='The HTML file containing the graphs. [Default: %(default)s]')
+    group_output.add_argument( '--log-file', default=sys.stdout, help='This output file will contain several informations on executed commands. [Default: stdout]')
     args = parser.parse_args()
     prevent_shell_injections(args)
 

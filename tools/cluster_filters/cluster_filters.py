@@ -534,17 +534,17 @@ def process( args ):
 if __name__ == '__main__':
     # Parameters
     parser = argparse.ArgumentParser(description='Filters an abundance file')
-    parser.add_argument('-p', '--nb-cpus', type=int, default=1, help="The maximum number of CPUs used. [Default: %(default)s]")
-    parser.add_argument( '--debug', default=False, action='store_true', help="Keep temporary files to debug program." )
-    parser.add_argument( '-v', '--version', action='version', version=__version__ )
+    parser.add_argument('--version', action='version', version=__version__ )
+    parser.add_argument('--debug', default=False, action='store_true', help="Keep temporary files to debug program. [Default: %(default)s]" )
+    parser.add_argument('--nb-cpus', type=int, default=1, help="The maximum number of CPUs used. [Default: %(default)s]")
+    
     #     Filters
     group_filter = parser.add_argument_group( 'Filters' )
     group_filter.add_argument( '--nb-biggest-clusters', type=int, default=None, required=False, help="Number of most abundant clusters you want to keep.") 
-    group_filter.add_argument( '-s', '--min-sample-presence', type=int, help="Keep cluster present in at least this number of samples.") 
-    group_filter.add_argument( '-r', '--min-replicate-presence', type=minAbundParameter, default=None, help="Keep cluster present in at least this proportion of replicates in at least one group (please indicate a proportion between 0 and 1). Replicates must be defined with --replicate_file REPLICATE FILE")
-    group_filter.add_argument( '--replicate_file', help='Replicate file must be specified if --min-replicate-presence is set. First column of the file must indicate the sample name, and the second column the group name of this replicate. Exemple: TEM1_L0001_R   Temoin.')
-    group_filter.add_argument( '-a', '--min-abundance', type=minAbundParameter, default=None, required=False, help="Minimum percentage/number of sequences, comparing to the total number of sequences, of a cluster (between 0 and 1 if percentage desired)." )
-    # group_filter.add_argument( '--abundance-by-sample', type=bool, default=False, action='store_true', help="Abundance threshold is applied by default on the total abundance of cluster. Activate this option if you want to applied the threshold on sample abundances (if float, each cluster must be present in a " )
+    group_filter.add_argument('--min-sample-presence', type=int, help="Keep cluster present in at least this number of samples.") 
+    group_filter.add_argument('--min-replicate-presence', type=minAbundParameter, default=None, help="Keep cluster present in at least this proportion of replicates in at least one group (please indicate a proportion between 0 and 1). Replicates must be defined with --replicate_file REPLICATE FILE")
+    group_filter.add_argument('--replicate_file', help='Replicate file must be specified if --min-replicate-presence is set. First column of the file must indicate the sample name, and the second column the group name of this replicate. Exemple: TEM1_L0001_R   Temoin.')
+    group_filter.add_argument('--min-abundance', type=minAbundParameter, default=None, required=False, help="Minimum percentage/number of sequences, comparing to the total number of sequences, of a cluster (between 0 and 1 if percentage desired)." )
     #     Inputs
     group_input = parser.add_argument_group( 'Inputs' )
     group_input.add_argument('--input-biom', required=True, help="The input BIOM file. (format: BIOM)")
@@ -556,7 +556,7 @@ if __name__ == '__main__':
     group_output.add_argument('--output-fasta', default="cluster_filters.fasta", help="The FASTA output file. (format: FASTA) [Default: %(default)s]")
     group_output.add_argument('--summary', default="cluster_filters.html", help="The HTML file containing the graphs. [Default: %(default)s]")
     group_output.add_argument('--excluded', default="cluster_filters_excluded.tsv", help="The TSV file that summarizes all the clusters discarded. (format: TSV) [Default: %(default)s]")
-    group_output.add_argument('--log-file', default=sys.stdout, help='This output file will contain several information on executed commands.')
+    group_output.add_argument('--log-file', default=sys.stdout, help='This output file will contain several information on executed commands. [Default: stdout]')
     args = parser.parse_args()
     prevent_shell_injections(args)
 
