@@ -263,19 +263,19 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         description='Removes PCR chimera.'
     )
-    parser.add_argument( '-p', '--nb-cpus', type=int, default=1, help="The maximum number of CPUs used. [Default: %(default)s]" )
-    parser.add_argument( '--debug', default=False, action='store_true', help="Keep temporary files to debug program." )
-    parser.add_argument( '-v', '--version', action='version', version=__version__ )
+    parser.add_argument('--version', action='version', version=__version__ )
+    parser.add_argument('--debug', default=False, action='store_true', help="Keep temporary files to debug program. [Default: %(default)s]" )
+    parser.add_argument('--nb-cpus', type=int, default=1, help="The maximum number of CPUs used. [Default: %(default)s]" )
     # Inputs
     group_input = parser.add_argument_group( 'Inputs' )
-    group_input.add_argument( '-f', '--input-fasta', required=True, help='The cluster sequences (format: FASTA).' )
-    group_input.add_argument( '-b', '--input-biom', required=True, help='The abundance file for clusters by sample (format: BIOM).' )
+    group_input.add_argument('--input-fasta', required=True, help='The cluster sequences (format: FASTA).' )
+    group_input.add_argument('--input-biom', required=True, help='The abundance file for clusters by sample (format: BIOM).' )
     # Outputs
     group_output = parser.add_argument_group( 'Outputs' )
-    group_output.add_argument( '-n', '--non-chimera', default='remove_chimera.fasta', help='sequences file without chimera (format: FASTA). [Default: %(default)s]')
-    group_output.add_argument( '-a', '--out-abundance', default='remove_chimera_abundance.biom', help='Abundance file without chimera (format: BIOM). [Default: %(default)s]')
-    group_output.add_argument( '--summary', default="remove_chimera.html", help='The HTML file containing the graphs. [Default: %(default)s]')
-    group_output.add_argument( '-l', '--log-file', default=sys.stdout, help='This output file will contain several informations on executed commands.')
+    group_output.add_argument('--non-chimera', default='remove_chimera.fasta', help='sequences file without chimera (format: FASTA). [Default: %(default)s]')
+    group_output.add_argument('--out-abundance', default='remove_chimera_abundance.biom', help='Abundance file without chimera (format: BIOM). [Default: %(default)s]')
+    group_output.add_argument('--summary', default="remove_chimera.html", help='The HTML file containing the graphs. [Default: %(default)s]')
+    group_output.add_argument('--log-file', default=sys.stdout, help='This output file will contain several informations on executed commands. [Default: stdout]')
     args = parser.parse_args()
     prevent_shell_injections(args)
 
