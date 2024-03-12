@@ -258,13 +258,9 @@ if __name__ == "__main__":
     
     # Inputs
     group_input = parser.add_argument_group( 'Inputs' )
-<<<<<<< HEAD
     group_input.add_argument('--input-sequences', required=True, help='Path to input FASTA file of ASV seed sequences. Warning: FROGS Tree is only working on less than 10000 sequences!' )
     group_input.add_argument('--biom-file', required=True, help='Path to the abundance BIOM file.' )
-=======
-    group_input.add_argument( '-i', '--input-sequences', required=True, help='Path to input FASTA file of ASV seed sequences. Warning: FROGS Tree is only working on less than 10000 sequences!' )
-    group_input.add_argument( '-b', '--biom-file', help='Path to the abundance BIOM file.' )
->>>>>>> dev
+
         
     # output
     group_output = parser.add_argument_group( 'Outputs' )
