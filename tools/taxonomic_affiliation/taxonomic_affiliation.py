@@ -145,7 +145,7 @@ class Blast(Cmd):
         Cmd.__init__( self,
                       "blastn",
                       "blast taxonomic affiliation",
-                      "-num_threads " + str(nb_cpus) + " -task megablast -word_size 38 -max_target_seqs 500 -outfmt '6 qseqid sseqid pident length mismatch gapopen qstart qend sstart send evalue bitscore qlen' -query "+ query_fasta +" -out "+ output_blast +" -db " + ref_fasta,
+                      "-num_threads " + str(nb_cpus) + " -task megablast -word_size 38 -max_target_seqs 500 -outfmt '6 qseqid sseqid pident length mismatch gapopen qstart qend sstart send evalue bitscore qlen slen' -query "+ query_fasta +" -out "+ output_blast +" -db " + ref_fasta,
                       "-version")
 
         # self.output = output_blast

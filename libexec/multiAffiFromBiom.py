@@ -50,7 +50,7 @@ def multiAffiFromBiom( biom, output_tsv ):
     """
     out_fh = open( output_tsv, "wt" )
 #     out_fh.write( "#" + "\t".join(["OTU", "Subject_taxonomy", "Blast_subject", "Prct_identity", "Prct_query_coverage", "e-value", "Alignment_length"]) + "\n" )
-    out_fh.write( "#" + "\t".join(["observation_name", "blast_taxonomy", " blast_subject", "blast_perc_identity", "blast_perc_query_coverage", "blast_evalue", "blast_aln_length"]) + "\n" )
+    out_fh.write( "#" + "\t".join(["observation_name", "blast_taxonomy", " blast_subject", "blast_perc_identity", "blast_perc_query_coverage", "blast_subject_query_coverage", "blast_evalue", "blast_aln_length"]) + "\n" )
     for current_observation in biom.get_observations():
         if issubclass(current_observation['metadata']["blast_affiliations"].__class__, list) and len(current_observation["metadata"]["blast_affiliations"]) > 1:
             for current_aln in current_observation["metadata"]["blast_affiliations"]:
@@ -63,6 +63,7 @@ def multiAffiFromBiom( biom, output_tsv ):
                     str(current_aln["subject"]),
                     str(current_aln["perc_identity"]),
                     str(current_aln["perc_query_coverage"]),
+                    str(current_aln["perc_subject_coverage"]),
                     str(current_aln["evalue"]),
                     str(current_aln["aln_length"])
                 ]
