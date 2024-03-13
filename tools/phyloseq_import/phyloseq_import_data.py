@@ -122,21 +122,22 @@ if __name__ == "__main__":
    
     # Manage parameters
     parser = argparse.ArgumentParser( description='Launch Rmardown script to import data from 3 files: biomfile, samplefile, treefile into a phyloseq object')
-    parser.add_argument( '--debug', default=False, action='store_true', help="Keep temporary files to debug program." )   
     parser.add_argument( '--version', action='version', version=__version__ )
-    parser.add_argument( '-n','--normalisation', default=False, action='store_true', help='To normalise data before analysis. Use this option if you didnt do it in FROGS Abundance normalisation. [Default: %(default)s]')
-    parser.add_argument( '-r','--ranks', type=str, nargs='*', default=['Kingdom', 'Phylum', 'Class', 'Order','Family','Genus', 'Species'], help='The ordered taxonomic ranks levels stored in BIOM. Each rank is separated by one space. [Default: %(default)s]')      
+    parser.add_argument( '--debug', default=False, action='store_true', help="Keep temporary files to debug program. [Default: %(default)s]" )   
+    
+    parser.add_argument('--normalisation', default=False, action='store_true', help='To normalise data before analysis. Use this option if you didnt do it in FROGS Abundance normalisation. [Default: %(default)s]')
+    parser.add_argument('--ranks', type=str, nargs='*', default=['Kingdom', 'Phylum', 'Class', 'Order','Family','Genus', 'Species'], help='The ordered taxonomic ranks levels stored in BIOM. Each rank is separated by one space. [Default: %(default)s]')      
     # Inputs
     group_input = parser.add_argument_group( 'Inputs' )
-    group_input.add_argument( '-b', '--biomfile', required=True, help='path to the abundance BIOM file.' )
-    group_input.add_argument( '-s', '--samplefile', required=True, help='path to sample file (format: TSV).' )
-    group_input.add_argument( '-t', '--treefile', default=None, help='path to tree file from FROGS Tree (format: Newick "nhx" or "nwk" ).' )
+    group_input.add_argument('--biomfile', required=True, help='path to the abundance BIOM file.' )
+    group_input.add_argument('--samplefile', required=True, help='path to sample file (format: TSV).' )
+    group_input.add_argument('--treefile', default=None, help='path to tree file from FROGS Tree (format: Newick "nhx" or "nwk" ).' )
    
     # output
     group_output = parser.add_argument_group( 'Outputs' ) 
     group_output.add_argument('--rdata', default='asv_data.Rdata', help="path to store phyloseq-class object in Rdata file. [Default: %(default)s]" )
-    group_output.add_argument('-o','--html', default='phyloseq_import_summary.nb.html', help="The HTML file containing the graphs. [Default: %(default)s]" )
-    group_output.add_argument( '-l', '--log-file', default=sys.stdout, help='This output file will contain several informations on executed commands.')   
+    group_output.add_argument('--html', default='phyloseq_import_summary.nb.html', help="The HTML file containing the graphs. [Default: %(default)s]" )
+    group_output.add_argument('--log-file', default=sys.stdout, help='This output file will contain several informations on executed commands. [Default: stdout]')   
     args = parser.parse_args()
     prevent_shell_injections(args)
    
