@@ -97,22 +97,23 @@ if __name__ == "__main__":
    
     # Manage parameters
     parser = argparse.ArgumentParser( description='Present the composition of data with package phyloseq' )
-    parser.add_argument( '--debug', default=False, action='store_true', help="Keep temporary files to debug program." )   
     parser.add_argument( '--version', action='version', version=__version__ )
-    parser.add_argument('-v', '--varExp', type=str, required=True, help='The experiment variable used to split plot.' )
-    parser.add_argument('-r1', '--taxaRank1', type=str, required=True, help='Select taxonomic rank name to subset your data. [ex: Kingdom]' )
-    parser.add_argument('-s1', '--taxaSet1', type=str ,nargs='*', required=True, help='Select taxon name among taxaRank1 to subset your data. [ex: Bacteria]' )
-    parser.add_argument('-r2', '--taxaRank2', type=str,required=True, help='Select sub taxonomic rank name to aggregate your data. [ex: Phylum]" ' )
-    parser.add_argument('-n', '--numberOfTaxa', type=int, required=True, help='The number of the most abundant taxa to keep at taxaRank2. [ex: 9]" ' )
+    parser.add_argument( '--debug', default=False, action='store_true', help="Keep temporary files to debug program. [Default: %(default)s]" )   
+    
+    parser.add_argument('--varExp', type=str, required=True, help='The experiment variable used to split plot.' )
+    parser.add_argument('--taxaRank1', type=str, required=True, help='Select taxonomic rank name to subset your data. [ex: Kingdom]' )
+    parser.add_argument('--taxaSet1', type=str ,nargs='*', required=True, help='Select taxon name among taxaRank1 to subset your data. [ex: Bacteria]' )
+    parser.add_argument('--taxaRank2', type=str,required=True, help='Select sub taxonomic rank name to aggregate your data. [ex: Phylum]" ' )
+    parser.add_argument('--numberOfTaxa', type=int, required=True, help='The number of the most abundant taxa to keep at taxaRank2. [ex: 9]" ' )
   
     # Inputs
     group_input = parser.add_argument_group( 'Inputs' )
-    group_input.add_argument('-r','--rdata', required=True, default=None, help="The path of RData file containing a phyloseq object-the result of FROGS Phyloseq Import Data")
+    group_input.add_argument('--rdata', required=True, default=None, help="The path of RData file containing a phyloseq object-the result of FROGS Phyloseq Import Data. [Default: %(default)s]")
 
     # output
     group_output = parser.add_argument_group( 'Outputs' )
-    group_output.add_argument('-o','--html', default='phyloseq_composition.nb.html', help="The HTML file containing the graphs. [Default: %(default)s]" )
-    group_output.add_argument( '-l', '--log-file', default=sys.stdout, help='This output file will contain several information on executed commands.')    
+    group_output.add_argument('--html', default='phyloseq_composition.nb.html', help="The HTML file containing the graphs. [Default: %(default)s]" )
+    group_output.add_argument('--log-file', default=sys.stdout, help='This output file will contain several information on executed commands. [Default: stdout]')    
     args = parser.parse_args()
     prevent_shell_injections(args)   
     # Process 

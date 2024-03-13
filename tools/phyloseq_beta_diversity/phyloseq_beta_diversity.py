@@ -94,18 +94,19 @@ if __name__ == "__main__":
    
     # Manage parameters
     parser = argparse.ArgumentParser( description='To present the data beta diversity with phyloseq.')    
-    parser.add_argument( '--debug', default=False, action='store_true', help="Keep temporary files to debug program." )   
     parser.add_argument( '--version', action='version', version=__version__ )
-    parser.add_argument('-v', '--varExp', type=str, required=True, default=None, help='The experiment variable you want to analyse.')
-    parser.add_argument('-m', '--distance-methods', required=True, type=str, default='bray,cc,unifrac,wunifrac', help='Comma separated values beta diversity methods available in Phyloseq (see https://www.bioconductor.org/packages/devel/bioc/manuals/phyloseq/man/phyloseq.pdf). [Default: %(default)s].')
+    parser.add_argument( '--debug', default=False, action='store_true', help="Keep temporary files to debug program. [Default: %(default)s]" )   
+    
+    parser.add_argument('--varExp', type=str, required=True, default=None, help='The experiment variable you want to analyse. [Default: %(default)s]')
+    parser.add_argument('--distance-methods', required=True, type=str, default='bray,cc,unifrac,wunifrac', help='Comma separated values beta diversity methods available in Phyloseq (see https://www.bioconductor.org/packages/devel/bioc/manuals/phyloseq/man/phyloseq.pdf). [Default: %(default)s].')
     # Inputs
     group_input = parser.add_argument_group( 'Inputs' )
-    group_input.add_argument('-r','--rdata', required=True, default=None, help="The path of RData file containing a phyloseq object-the result of FROGS Phyloseq Import Data" )
+    group_input.add_argument('--rdata', required=True, default=None, help="The path of RData file containing a phyloseq object-the result of FROGS Phyloseq Import Data. [Default: %(default)s]" )
     # output
     group_output = parser.add_argument_group( 'Outputs' )    
     group_output.add_argument('--matrix-outdir', required=True, action="store", type=str, help="Path to output matrix file")       
-    group_output.add_argument('-o','--html', default='phyloseq_beta_diversity.nb.html', help="The HTML file containing the graphs. [Default: %(default)s]" )
-    group_output.add_argument( '-l', '--log-file', default=sys.stdout, help='This output file will contain several informations on executed commands.')    
+    group_output.add_argument('--html', default='phyloseq_beta_diversity.nb.html', help="The HTML file containing the graphs. [Default: %(default)s]" )
+    group_output.add_argument('--log-file', default=sys.stdout, help='This output file will contain several informations on executed commands. [Default: stdout]')    
     args = parser.parse_args()
     prevent_shell_injections(args)   
     
