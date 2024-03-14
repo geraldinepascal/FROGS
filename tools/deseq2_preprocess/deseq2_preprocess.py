@@ -44,10 +44,8 @@ sys.path.append(LIB_DIR)
 if os.getenv('PYTHONPATH') is None: os.environ['PYTHONPATH'] = LIB_DIR
 else: os.environ['PYTHONPATH'] = LIB_DIR + os.pathsep + os.environ['PYTHONPATH']
 
-# LIBR
-# LIBR_DIR = os.path.join(LIB_DIR,"external-lib")
-
 from frogsUtils import *
+from frogsBiom import *
 ##################################################################################################################################################
 #
 # COMMAND LINES
@@ -120,7 +118,7 @@ class PhyloseqImport(Cmd):
 
         Cmd.__init__(self,
                  'phyloseq_import_data.py',
-                 'predict gene copy number per sequence.', 
+                 'create phyloseq object like with function abundances and annotation', 
                  ' -b ' + biom_file + ' -s ' + sample_file + ' --ranks ' + ranks + ' --rdata ' + out_rdata + ' --html ' + out_html + '  2>> ' + log,
                 "--version")
 
@@ -184,6 +182,12 @@ if __name__ == "__main__":
     elif args.analysis == "ASV":
         data=os.path.abspath(args.data)
 
+    # Check for FUNCTION input
+    if args.analysis == "FUNCTION":
+        if args.input_functions is None or args.samplefile is None:
+            parser.error("\n\n#ERROR : --input-functions and --samplefile both required for FROGSFUNC analysis.\n\n")
+
+    # Adapt default output file name
     if args.out_Rdata is None:
         if args.analysis == "ASV":
             args.out_Rdata = "asv_dds.Rdata"
@@ -193,24 +197,38 @@ if __name__ == "__main__":
     out_Rdata=os.path.abspath(args.out_Rdata)
     tmpFiles = TmpFiles(os.path.dirname(out_Rdata))
 
-    # Check for ITS or 18S input
+    # FUNCTION : phyloseq object generation
     if args.analysis == "FUNCTION":
-        if args.input_functions is None or args.samplefile is None:
-            parser.error("\n\n#ERROR : --input-functions and --samplefile both required for FROGSFUNC analysis.\n\n")
-
         tmp_function_abund_tostd = tmpFiles.add( "functions_unstrat_toStdbiom.tsv")
         formate_abundances_file(args.input_functions, tmp_function_abund_tostd)
 
         tmp_function_abundances_biom = tmpFiles.add( "function_abundances.biom")
         Tsv2biom(tmp_function_abund_tostd, tmp_function_abundances_biom).submit( args.log_file)
 
+        # check sample names compatibility between input biom and sample metadata file
+        #       - if more samples in abundance file than in sample_metadata ==> ok supplementary samples will be excluded
+        #       - if more samples in sample_metadata ==> Error 
+        #       - this is the default behavior of phyloseq (and check in phyloseq_import)
+        
+        sample_metadata_list = set()
+        FH_in = open(args.samplefile)
+        FH_in.readline()
+        for line in FH_in:
+            sample_metadata_list.add(line.split()[0]) 
+
+        biom = BiomIO.from_json(tmp_function_abundances_biom)
+        biom_sample_list = set([name for name in biom.get_samples_names()])
+        sample_metadata_spec = sample_metadata_list.difference(biom_sample_list) 
+        sample_biom_spec = biom_sample_list.difference(sample_metadata_list)
+        if len(sample_biom_spec) > 0 :
+            Logger.static_write(args.log_file, "# WARNING : " + str(len(sample_biom_spec)) + " samples from your biom file are not present in your sample metadata file. They will be excluded from further analysis \n\t" + "; ".join(sample_biom_spec) + "\n\n")
+        if len(sample_metadata_spec) > 0 :
+           raise_exception( Exception( "\n\n#ERROR : " + str(len(sample_metadata_spec)) + " among " + str(len(sample_metadata_list)) + " samples from your sample metadata file are not present in your biom file:\n\t" + "; ".join(sample_metadata_spec) + "\nPlease give a sample metadata file that fits your abundance biom file\n\n"))
+
         ranks = " ".join(['Level_4', 'Level_3', 'Level_2', 'Level_1'])
         phyloseq_log = tmpFiles.add( "phyloseq_import.log")
         phyloseq_html = tmpFiles.add( "phyloseq_import.nb.html")
         PhyloseqImport(tmp_function_abundances_biom, args.samplefile, ranks, args.out_Phyloseq, phyloseq_html, phyloseq_log).submit( args.log_file)
-
-    # Process  
-    Logger.static_write(args.log_file, "## Application\nSoftware :" + sys.argv[0] + " (version : " + str(__version__) + ")\nCommand : " + " ".join(sys.argv) + "\n\n")
 
     try:
         R_stderr = tmpFiles.add("R.stderr")
