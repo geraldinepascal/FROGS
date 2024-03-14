@@ -50,13 +50,17 @@ if (opt$analysis == "ASV"){
 	dds <- DESeq2::DESeq(cds, sfType = "poscounts")
 
 }else if (opt$analysis == "FUNCTION"){
+	sampleMetadata <- read.csv(file=opt$samplefile, sep = '\t', header = TRUE, row.names = 1, check.names = FALSE)
+	# sampleMetadata <- sampleMetadata[ colnames(countData), , drop = FALSE]
+	sampleMetadata[,opt$var] <- as.factor(sampleMetadata[,opt$var])
+	
 	inputFunction <- read.csv(file=opt$inputFunction, sep = '\t', header = TRUE, row.names = 3, check.names = FALSE)
 	countData <- as.matrix(inputFunction[, c(4:ncol(inputFunction)) ])
 	countData <- round(countData, 0)
+	# select only samples with metadata
+	countData <- countData[,rownames(sampleMetadata)]
 	countData <- countData[!(rowSums(countData) == 0), !(colSums(countData) == 0)]
-	sampleMetadata <- read.csv(file=opt$samplefile, sep = '\t', header = TRUE, row.names = 1, check.names = FALSE)
-	sampleMetadata <- sampleMetadata[ colnames(countData), , drop = FALSE]
-	sampleMetadata[,opt$var] <- as.factor(sampleMetadata[,opt$var])
+		# add log to check which samples / function have been removed.
 
 	cds <- DESeq2::DESeqDataSetFromMatrix(countData, sampleMetadata, as.formula(paste("~",opt$var)))
 	dds <- DESeq2::DESeq(cds)
