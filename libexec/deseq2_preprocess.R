@@ -56,6 +56,7 @@ if (opt$analysis == "ASV"){
 	countData <- countData[!(rowSums(countData) == 0), !(colSums(countData) == 0)]
 	sampleMetadata <- read.csv(file=opt$samplefile, sep = '\t', header = TRUE, row.names = 1, check.names = FALSE)
 	sampleMetadata <- sampleMetadata[ colnames(countData), , drop = FALSE]
+	sampleMetadata[,opt$var] <- as.factor(sampleMetadata[,opt$var])
 
 	cds <- DESeq2::DESeqDataSetFromMatrix(countData, sampleMetadata, as.formula(paste("~",opt$var)))
 	dds <- DESeq2::DESeq(cds)
