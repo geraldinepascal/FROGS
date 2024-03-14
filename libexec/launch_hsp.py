@@ -255,9 +255,8 @@ if __name__ == "__main__":
             HspMarker(args.input_marker_table, args.input_tree, args.hsp_method, args.output_marker, tmp_hsp_marker).submit(args.log_file)
 
         if args.to_launch == "function":
-            tmp_files=TmpFiles(os.path.split(args.output_dir)[0])
+            tmp_files=TmpFiles(args.output_dir)
             tmp_hsp_function = tmp_files.add( 'tmp_hsp_function.log' )
-
             # if args.functions is not None:
             if args.marker_type == "16S":
                 suffix_name = "_copynumbers_predicted.tsv"
@@ -269,7 +268,7 @@ if __name__ == "__main__":
                     for i in range(len(args.functions)):
                         function_cur = args.functions[i]
                         output_cur = functions_outputs[i]
-                        log_cur = logs_hsp[i] 
+                        log_cur = logs_hsp[i]
                         process_hsp_function(function_cur, args.input_function_table, args.input_tree, args.hsp_method, output_cur, log_cur)
 
                 else:

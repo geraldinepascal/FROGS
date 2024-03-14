@@ -57,13 +57,16 @@ class HspFunction(Cmd):
 	"""
 	@summary: Predict number of marker copies (16S, 18S or ITS) for each cluster sequence (i.e ASV).
 	"""
-	def __init__(self, tree, marker_type, marker_file, function_table, functions, hsp_method, output_dir, nb_cpus, log_file):
+	def __init__(self, tree, marker_type, marker_file, function_table, functions, hsp_method, output_dir, nb_cpus, log_file, is_debug):
 		"""
 		@param observed_marker_table: [str] Path to marker table file if marker studied is not 16S.
 		@param in_tree: [str] Path to resulting tree file with inserted clusters sequences from frogsfunc_placeseqs.
 		@param hsp_method: [str] HSP method to use.
 		@param output: [str] PICRUSt2 marker output file.
 		"""
+		debug = ""
+		if is_debug:
+			debug = " --debug "
 		if marker_type != "16S":
 			opt = ' --input-function-table ' + function_table
 		elif function_table is None:
@@ -72,7 +75,7 @@ class HspFunction(Cmd):
 		Cmd.__init__(self,
 				 'launch_hsp.py',
 				 'predict gene copy number per sequence.', 
-				 ' function --input-tree ' + tree + ' --marker-type ' + marker_type + opt + ' --marker-file ' + marker_file + ' --hsp-method ' + hsp_method + ' --output-dir ' + output_dir + ' --nb-cpus ' + str(nb_cpus) + '  --log-file ' + log_file,
+				  debug + ' function --input-tree ' + tree + ' --marker-type ' + marker_type + opt + ' --marker-file ' + marker_file + ' --hsp-method ' + hsp_method + ' --output-dir ' + output_dir + ' --nb-cpus ' + str(nb_cpus) + '  --log-file ' + log_file,
 				"--version")
 
 		self.log_file = log_file
@@ -576,7 +579,7 @@ if __name__ == "__main__":
 
 		in_functions = " ".join(functions)
 		tmp_hsp_function = tmp_files.add( 'tmp_hsp_function.log' )
-		HspFunction(args.input_tree, args.marker_type, args.input_marker, args.input_function_table, in_functions, args.hsp_method, output_dir, args.nb_cpus, tmp_hsp_function).submit(args.log_file)
+		HspFunction(args.input_tree, args.marker_type, args.input_marker, args.input_function_table, in_functions, args.hsp_method, output_dir, args.nb_cpus, tmp_hsp_function, args.debug).submit(args.log_file)
 		FH_in = open(tmp_hsp_function)
 		for line in FH_in:
 			if line.startswith('## Software :'):

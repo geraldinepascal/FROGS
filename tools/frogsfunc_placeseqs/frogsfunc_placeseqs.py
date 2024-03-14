@@ -164,13 +164,16 @@ class HspMarker(Cmd):
 	"""
 	@summary: Predict number of marker copies (16S, 18S or ITS) for each cluster sequence (i.e ASV).
 	"""
-	def __init__(self, tree, marker_type, marker_table, hsp_method, biom_file, output, log):
+	def __init__(self, tree, marker_type, marker_table, hsp_method, biom_file, output, log, is_debug):
 		"""
 		@param observed_marker_table: [str] Path to marker table file if marker studied is not 16S.
 		@param in_tree: [str] Path to resulting tree file with inserted clusters sequences from frogsfunc_placeseqs.
 		@param hsp_method: [str] HSP method to use.
 		@param output: [str] PICRUSt2 marker output file.
 		"""
+		debug = ""
+		if is_debug:
+			debug = " --debug "
 		if marker_type != "16S":
 			opt = ' --input-marker-table ' + marker_table
 		else:
@@ -179,7 +182,7 @@ class HspMarker(Cmd):
 		Cmd.__init__(self,
 				 'launch_hsp.py',
 				 'predict marker copy number per sequence.', 
-				 ' marker --input-tree ' + tree + ' --marker-type ' + marker_type + opt + ' --hsp-method ' + hsp_method + ' -o ' + output + '  2> ' + log,
+				  debug + ' marker --input-tree ' + tree + ' --marker-type ' + marker_type + opt + ' --hsp-method ' + hsp_method + ' -o ' + output + '  2> ' + log,
 				"--version")
 
 		self.output = output
@@ -412,7 +415,7 @@ if __name__ == "__main__":
 			raise_exception( Exception ("\n\n#ERROR : --input-marker-table required when studied marker is not 16S!\n\n"))
 
 		tmp_hsp_marker = tmp_files.add( 'tmp_hsp_marker.log' )
-		HspMarker(args.output_tree, category, args.input_marker_table, args.hsp_method, args.output_biom, args.output_marker, tmp_hsp_marker).submit(args.log_file)
+		HspMarker(args.output_tree, category, args.input_marker_table, args.hsp_method, args.output_biom, args.output_marker, tmp_hsp_marker, args.debug).submit(args.log_file)
 
 		tmp_find_closest_ref = tmp_files.add( 'tmp_find_closest_ref.log' )
 		FindClosestsRefSequences(args.output_tree, args.output_biom, args.output_fasta, ref_aln, args.output_biom, args.closests_ref, tmp_find_closest_ref).submit(args.log_file)
