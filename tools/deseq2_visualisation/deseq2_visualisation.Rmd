@@ -299,11 +299,11 @@ DESeq2::plotMA(results, ylim = c(-10,10),
 
 ## Heatmap plot
 
-```{r echo = FALSE, eval = (nrow(da.abundances_table) == 0)}
-cat("There are no differentially abundant ASVs or FUNCTIONs. Please use a higher threshold for the adjusted p-value or consider a different comparison.")
+```{r echo = FALSE, eval = (nrow(da.abundances_table) <= 1)}
+cat("There is not engough (0 or 1) differentially abundant ASVs or FUNCTIONs to produce heatmap plot.")
 ```
 
-```{r heatmap, fig.width=10, fig.height=8, eval = (nrow(da.abundances_table) > 0)}
+```{r heatmap, fig.width=10, fig.height=8, eval = (nrow(da.abundances_table) > 1)}
 
 da.abundances_table <- da.abundances_table %>% arrange(log2FoldChange)
 y_title <- ifelse(params$analysis == "ASV", "ASV", "Functions")
@@ -320,10 +320,6 @@ empty_taxa <- taxa_names(data)[which(taxa_sums(data)==0)]
 taxa_to_keep <- taxa_names(data)[which(taxa_sums(data)>0)]
 hplot_input <- prune_taxa(taxa_to_keep, data)
 
-```{r heatmap, fig.width=10, fig.height=8, eval = (nrow(da.abundances_table) > 1)}
-
-da.abundances_table <- da.abundances_table %>% arrange(log2FoldChange)
-y_title <- ifelse(params$analysis == "ASV", "ASV", "Functions")
 if ( length(result_names)==2 || params$mod1 != "None"){
 
     subtitle <- result_names[2]

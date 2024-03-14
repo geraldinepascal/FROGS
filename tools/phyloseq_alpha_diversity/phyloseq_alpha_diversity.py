@@ -94,20 +94,21 @@ if __name__ == "__main__":
    
     # Manage parameters
     parser = argparse.ArgumentParser( description='To compute and present the data alpha diversity with plot_richness of Phyloseq.' )
-    parser.add_argument( '--debug', default=False, action='store_true', help="Keep temporary files to debug program." )   
-    parser.add_argument( '--version', action='version', version=__version__ )
-    parser.add_argument('-v', '--varExp', type=str, required=True, default=None, help='The experiment variable used to aggregate sample diversities.' )
-    parser.add_argument('-m', '--alpha-measures', type=str, nargs="*", default=['Observed','Chao1','Shannon','InvSimpson'], help='The indices of alpha diversity. Available indices : Observed, Chao1, Shannon, InvSimpson, Simpson, ACE, Fisher. [Default: %(default)s]')
+    parser.add_argument('--version', action='version', version=__version__ )
+    parser.add_argument('--debug', default=False, action='store_true', help="Keep temporary files to debug program. [Default: %(default)s]" )   
+    
+    parser.add_argument('--varExp', type=str, required=True, default=None, help='The experiment variable used to aggregate sample diversities. [Default: %(default)s]' )
+    parser.add_argument('--alpha-measures', type=str, nargs="*", default=['Observed','Chao1','Shannon','InvSimpson'], help='The indices of alpha diversity. Available indices : Observed, Chao1, Shannon, InvSimpson, Simpson, ACE, Fisher. [Default: %(default)s]')
   
     # Inputs
     group_input = parser.add_argument_group( 'Inputs' )
-    group_input.add_argument('-r','--rdata', required=True, default=None, help="The path of RData file containing a phyloseq object-the result of FROGS Phyloseq Import Data" )
+    group_input.add_argument('--rdata', required=True, default=None, help="The path of RData file containing a phyloseq object-the result of FROGS Phyloseq Import Data. [Default: %(default)s]" )
 
     # output
     group_output = parser.add_argument_group( 'Outputs' )
-    group_output.add_argument('-o','--html', default='phyloseq_alpha_diversity.nb.html', help="The HTML file containing the graphs. [Default: %(default)s]" )
-    group_output.add_argument('-a','--alpha-out', default='phyloseq_alpha_diversity.tsv', help="The path to store resulting data file containing alpha diversity table. [Default: %(default)s]" )    
-    group_output.add_argument( '-l', '--log-file', default=sys.stdout, help="This output file will contain several informations on executed commands.")    
+    group_output.add_argument('--html', default='phyloseq_alpha_diversity.nb.html', help="The HTML file containing the graphs. [Default: %(default)s]" )
+    group_output.add_argument('--alpha-out', default='phyloseq_alpha_diversity.tsv', help="The path to store resulting data file containing alpha diversity table. [Default: %(default)s]" )    
+    group_output.add_argument('--log-file', default=sys.stdout, help="This output file will contain several informations on executed commands. [Default: stdout]")    
     args = parser.parse_args()
     prevent_shell_injections(args)   
     # Process 
