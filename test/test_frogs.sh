@@ -247,7 +247,7 @@ fi
 
 echo "Step normalisation `date`"
 normalisation.py \
- -n 25000 \
+ --num-reads 25000 \
  --delete-samples \
  --input-biom $out_dir/08-affiliation_postprocessed.biom \
  --input-fasta $out_dir/08-affiliation_postprocessed.fasta \
@@ -279,7 +279,7 @@ fi
 
 # to reduce computing time for the others step
 normalisation.py \
- -n 100 \
+ --num-reads 100 \
  --input-biom $out_dir/08-affiliation_postprocessed.biom \
  --input-fasta $out_dir/08-affiliation_postprocessed.fasta \
  --output-biom $out_dir/09-normalisation.biom \
