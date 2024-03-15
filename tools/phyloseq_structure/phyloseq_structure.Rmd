@@ -116,6 +116,9 @@ p2 <- plot_samples(data, ord, color = params$varExp) +
                       ggtitle(paste(params$method,"")) +
                       theme(plot.title = element_text(hjust = 0.5))
 
+# reorder samples as in p1
+p2$data[params$varExp] <- factor(p2$data[, params$varExp], levels = levels(p1$data[,params$varExp]))
+
 ggplotly(p2, tooltip = c("colour", "label"))
 ```
 </h1>
