@@ -119,7 +119,7 @@ class PhyloseqImport(Cmd):
         Cmd.__init__(self,
                  'phyloseq_import_data.py',
                  'create phyloseq object like with function abundances and annotation', 
-                 ' -b ' + biom_file + ' -s ' + sample_file + ' --ranks ' + ranks + ' --rdata ' + out_rdata + ' --html ' + out_html + '  2>> ' + log,
+                 ' --biomfile ' + biom_file + ' --samplefile ' + sample_file + ' --ranks ' + ranks + ' --rdata ' + out_rdata + ' --html ' + out_html + '  2>> ' + log,
                 "--version")
 
     def get_version(self):
