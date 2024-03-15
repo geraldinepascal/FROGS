@@ -19,7 +19,7 @@
 __author__ = 'Plateforme bioinformatique Toulouse and SIGENAE'
 __copyright__ = 'Copyright (C) 2015 INRA'
 __license__ = 'GNU General Public License'
-__version__ = '4.1.0'
+__version__ = '5.0.0'
 __email__ = 'frogs-support@inrae.fr'
 __status__ = 'prod'
 
@@ -299,10 +299,10 @@ def summarise_results( summary_file, barcode_file, log_file ):
 if __name__ == "__main__":
     # Manage parameters
     parser = argparse.ArgumentParser( 
-        description='Split by samples the reads in function of inner barcode.'
+        description='Divide the reads into samples based on their internal barcode.'
     )
     parser.add_argument('--version', action='version', version=__version__ )
-    parser.add_argument('--debug', default=False, action='store_true', help="Keep temporary files to debug program." )
+    parser.add_argument('--debug', default=False, action='store_true', help="Keep temporary files to debug program. [Default: %(default)s]" )
     
     parser.add_argument('--mismatches', type=int, default=0, help="Number of mismatches allowed in barcode. [Default: %(default)s]")
     parser.add_argument('--end', type=str, default="bol", help="barcode is at the begining of the forward end (bol) or of the reverse (eol) or both (both). [Default: %(default)s]")
