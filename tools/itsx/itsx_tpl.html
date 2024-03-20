@@ -23,11 +23,32 @@
 		<link rel="stylesheet" href="https://cdn.datatables.net/1.10.19/css/dataTables.bootstrap4.min.css"></link>
 		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.1.1/css/bootstrap.css"></link>
 		<link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
-		
-    
-    
 
 		<style type="text/css">
+			:root {
+				--frogsColor: #8EADAC; 
+				--frogsColorHover: #648a89;
+				--frogsColorShadow: #555;
+				--frogsColor2: #DE9F73;
+				--frogsColorZoomHighCharts: rgb(222,159,115,0.25);
+			}
+			/*
+			:root {
+				--frogsColor: #98c1d9; 
+				--frogsColorHover: #3d5a80;
+				--frogsColorShadow: #293241;
+				--frogsColor2: #ee6c4d;
+			}*/
+			.frogsversion{
+				position: absolute;
+				right: 5%;
+				color: var(--frogsColor);
+				font-style: italic;
+				font-size: smaller;
+			}
+			.frogsversion > a{
+				border: none !important;
+			}
 			#js-alert {
 				width: 90%;
 				margin-right: auto;
@@ -47,13 +68,13 @@
 			.page-item.active .page-link {
 				z-index: 1;
 				color: #fff;
-				background-color: #8EADAC;
-				border-color: #8EADAC;
+				background-color: var(--frogsColor);
+				border-color: var(--frogsColor);
 			}
 			.btn {
 				color: #fff;
-				border:#8EADAC;
-				background-color: #8EADAC;
+				border: var(--frogsColor);
+				background-color: var(--frogsColor);
 			}
 			.btn:focus, .btn:active {
 				outline: none !important;
@@ -61,8 +82,8 @@
 			}
 			.btn:hover{
 				color: #fff;
-				border:#648a89;
-				background-color: #648a89;
+				border: var(--frogsColorHover);
+				background-color: var(--frogsColorHover);
 			}
 			.pb-2, .py-2 {
 				padding-bottom: 1.5rem !important;
@@ -76,51 +97,50 @@
 			}
 			.nav-tabs .nav-link.active, .nav-tabs .nav-item.show .nav-link{
 				color: #fff;
-				background-color: #8EADAF;
-				border-color: #dee2e6 #dee2e6 #fff;
+				background-color: var(--frogsColor);
 			}
 			ul.nav-tabs {
 				margin-bottom: 30px;
 			}
 			a {
-				color: #8EAEAF;
+				color: var(--frogsColor);
 			}
 			a:hover{
-				color:#648a89;
+				color: var(--frogsColorHover);
 			}
 			.page-link{
-				color: #8EAEAF;
+				color: var(--frogsColor);
 			}
 			.page-link:hover{
 				
 			}
 			.page-link:not(:disabled):not(.disabled) {
-				color: #8EAEAF;
+				color: var(--frogsColor);
 			}
 			.page-item.active .page-link {
 				color: #fff;
 			}
 			.highcharts-button > path{
 				stroke:#fff !important;
-				fill:#8EADAC !important;
+				fill: var(--frogsColor) !important;
 			}
 			g.highcharts-button{
 				cursor:pointer !important;
 			}
 			g.highcharts-button:hover{
 				color: #fff;
-				border:#648a89;
-				background-color: #648a89;
-				background-color: #648a89;
+				border: var(--frogsColorHover);
+				background-color: var(--frogsColorHover);
+				background-color: var(--frogsColorHover);
 				cursor:pointer !important;
 			}
 			.circle {
 				border-style: solid;
 				border-width: 3px;
 				border-radius: 50px;
-				box-shadow: 2px 2px 2px #555;
-				border-color: #648a89;
-				background: radial-gradient( #8EADAC, #648a89);
+				box-shadow: 2px 2px 2px var(--frogsColorShadow);
+				border-color: var(--frogsColorHover);
+				background: radial-gradient( var(--frogsColor), var(--frogsColorHover));
 				color: white;
 				padding: 10px;
 				width: 180px;
@@ -185,7 +205,6 @@
 			 * Licensed under the MIT (https://www.opensource.org/licenses/mit-license.php) license.
 			 */
 			function HTMLtable(e){var t,r,n=e,a=";";this.deleteColumns=function(e){for(var a=n.getElementsByTagName("tr"),o=0;o<a.length;o++){s=0;var i=a[o].getElementsByTagName("td");0==i.length&&(i=a[o].getElementsByTagName("th"));for(var v=0,s=0;s<t[1];s++)if(!r[o][s]){var f=i[v].getAttribute("colspan");if(null!=f)for(var m=0;f>m;m++){if(in_array(s+m,e)){var u=i[v].getAttribute("colspan");u-1==0?i[v].removeAttribute("colspan"):i[v].setAttribute("colspan",u-1)}if(null==i[v].getAttribute("colspan")){var h=i[v];a[o].removeChild(h),v--}}else if(in_array(s,e)){var h=i[v];a[o].removeChild(h),v--}v++}}l(),g()},this.filter=function(e,a){var l=new RegExp(e),g=new Array;null!=a&&a||(g.c0=!0);for(var o=n.getElementsByTagName("tr"),i=0;i<o.length;i++){f=0;var v=o[i].getElementsByTagName("td");if(0!=v.length)for(var s=0,f=0;f<t[1];f++)r[i][f]||(l.test(v[s].innerHTML)&&(g["c"+f]=!0),s++)}for(var m=new Array,u=0;u<t[1];u++)void 0===g["c"+u]&&m.push(u);this.deleteColumns(m)},this.getModel=function(){return n};var l=function(){for(var e=0,r=0,a=n.getElementsByTagName("tr"),l=0;l<a.length;l++){var g=0;e++;var o=a[l].getElementsByTagName("td");0==o.length&&(o=a[l].getElementsByTagName("th"));for(var i=0;i<o.length;i++){var v=o[i].getAttribute("colspan");g+=null==v?1:parseInt(v)}g>r&&(r=g)}t=new Array(2),t[0]=e,t[1]=r},g=function(){r=new Array(t[0]);for(var e=0;e<t[0];e++){r[e]=new Array(t[1]);for(var a=0;a<t[1];a++)r[e][a]=!1}for(var l=n.getElementsByTagName("tr"),g=0;g<l.length;g++){v=0;var o=l[g].getElementsByTagName("td");0==o.length&&(o=l[g].getElementsByTagName("th"));for(var i=0,v=0;v<t[1];v++)if(!r[g][v]){var s=0,f=0,m=o[i].getAttribute("rowspan");null!=m&&(s=parseInt(m)-1);var u=o[i].getAttribute("colspan");null!=u&&(f=parseInt(u)-1);for(var h=s;h>=0;h--)for(var y=f;y>=0;y--)(0!=h||0!=y)&&(r[g+h][v+y]=!0);i++}}};this.replace=function(e,a,l){var g=new RegExp(e);null==a&&(a=""),null==l&&(l="");for(var o=n.getElementsByTagName("tr"),i=0;i<o.length;i++){f=0;var v=o[i].getElementsByTagName("td");if(0!=v.length)for(var s=0,f=0;f<t[1];f++)if(!r[i][f]){var m=g.exec(v[s].innerHTML);null!=m&&(void 0===m[1]&&(m[1]=""),v[s].innerHTML=a+m[1]+l),s++}}},this.toCSV=function(){for(var e="",l=n.getElementsByTagName("tr"),g=0;g<l.length;g++){var o=l[g].getElementsByTagName("td");0==o.length&&(o=l[g].getElementsByTagName("th"));for(var i=0,v=0;v<t[1];v++)r[g][v]||(e+=o[i].innerHTML,i++),e+=a;e=e.substr(0,e.length-1)+"\n"}return e},l(),g()}var in_array=function(e,t){for(var r in t)if(t[r]==e)return!0;return!1};
-			
 			/*
 			 * dataTableExtractor.plugin.js 0.1.0 - datatableExport Library
 			 *
@@ -196,6 +215,30 @@
 		</script>		
 		
 		<script type="text/javascript">
+			/**
+			Colors
+			*/
+			var root = document.documentElement;
+			var style = getComputedStyle(root);
+			var frogsColor = style.getPropertyValue('--frogsColor');
+			var frogsColor2 = style.getPropertyValue('--frogsColor2');
+			var frogsColorZoomHighCharts = style.getPropertyValue('--frogsColorZoomHighCharts');
+			var frogsColorHover = style.getPropertyValue('--frogsColorHover');
+			/**
+			 Data from HTML
+			*/
+			var global_results = ###GLOBAL_RESULTS### ; 
+			var by_samples_results = ###SAMPLES_RESULTS### ;
+			var series = [{
+				'name': "All",
+				'data': ###DATA_COUNTS###
+			}];
+			var sum_series = new Array() ;
+			var clusters_sizes = ###CLUSTERS_SIZES### ;
+			var samples_distrib = ###DATA_SAMPLE### ;
+			var frogs_version = ###FROGS_VERSION### ;
+			var frogs_tool = ###FROGS_TOOL### ;
+			
 			/**
 			 * Returns the string representation of the number. 
 			 * @param pValue {Float} The number to process.
@@ -315,7 +358,7 @@
 			 	chart['chart'] = { 
 			 		type: 'area',
 			 		zoomType:"x",
-			 		selectionMarkerFill: "rgb(222,159,115,0.25)"
+			 		selectionMarkerFill: frogsColorZoomHighCharts
 			 	};
 			 	chart['xAxis']['tickInterval'] = Math.max(1, parseInt(x_max/10));
 				chart['plotOptions'] = {
@@ -339,29 +382,29 @@
 			   * @return {Hash} Parameters to use in Highchart's constructor.
 			   */
 			  var boxplot_param = function(pTitle, pXTitle, pYTitle, pXCategories, pData) {
-			  	var chart = chartplot( pTitle, null, pYTitle, pXCategories, pData );
-			  	chart['chart'] = { type: 'boxplot', zoomType: 'y',selectionMarkerFill: "rgb(222,159,115,0.25)" };
-			  	chart['yAxis']['min'] = 0 ;
-			  	chart['exporting'] = {buttons: {contextButton: { symbol: 'download' }}};
-			  	chart['navigation'] =  {
+				var chart = chartplot( pTitle, null, pYTitle, pXCategories, pData );
+				chart['chart'] = { type: 'boxplot', zoomType: 'y',selectionMarkerFill: frogsColorZoomHighCharts };
+				chart['yAxis']['min'] = 0 ;
+				chart['exporting'] = {buttons: {contextButton: { symbol: 'download' }}};
+				chart['navigation'] =  {
 					buttonOptions: {
 						theme: {
 							r: 4,
-							fill:'#8EADAC',
+							fill: frogsColor,
 							states: {
 								hover: {
 									fill: 'rgb(100, 138, 137)',
-									stroke:'#8EADAC'
+									stroke: frogsColor
 								},
 								select: {
-									stroke: '#8EADAC',
+									stroke: frogsColor,
 									fill: 'rgb(100, 138, 137)',
 								}
 							}
 						}
 					}
 				};
-			  	return chart ;
+				return chart ;
 			  };
 			
 			var pie_param = function( pTitle, pData, unity ) {
@@ -395,7 +438,7 @@
 			var global_filters_load = function(){
 				// Radializes colors
 				Highcharts.setOptions({
-					 colors : ['#8EADAC', '#DE9F73'] ,
+					 colors : [frogsColor, frogsColor2] ,
 					});
 					Highcharts.SVGRenderer.prototype.symbols.download = function (x, y, w, h) {
 					var path = [
@@ -460,47 +503,7 @@
 					'table_id': "details-table"
 				});
 			}
-			///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-			//
-			// Data
-			//
-			///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 			
-			var global_results = ###GLOBAL_RESULTS### ; 
-			/* Example: 
-				{
-					'nb_clstr_kept': 100,
-					'nb_clstr_ini': 300,
-					'nb_seq_kept': 100,
-					'nb_seq_ini': 100000
-				}
-			*/
-			var by_samples_results = ###SAMPLES_RESULTS### ;
-			/* Example:
-				{
-					'sampleA':{
-						'filtered':{
-							'filterA': 10,
-							'filterB': 20
-						},
-						'initial': 75,
-						'kept': 50
-					},
-					'sampleB':{
-						'filtered':{
-							'filterB': 20,
-						},
-						'initial': 110,
-						'kept': 90
-					}
-				}
-			*/
-			
-			var series = [{
-				'name': "All",
-				'data': ###DATA_COUNTS###
-			}];
-			var sum_series = new Array() ;
 			
 			var get_dispersion = function( values, counts ) { 
 				var dispersion = new Array();
@@ -540,7 +543,7 @@
 			var cluster_distrib_load = function( container_id ) {
 				// Radializes colors
 				Highcharts.setOptions({
-					 colors : ['#8EADAC', '#DE9F73'] ,
+					 colors : [frogsColor, frogsColor2] ,
 					});
 					Highcharts.SVGRenderer.prototype.symbols.download = function (x, y, w, h) {
 					var path = [
@@ -559,19 +562,7 @@
 					];
 					return path;
 				};
-				/* Radial gradient ?*/
-				/*
-			    Highcharts.getOptions().colors = Highcharts.map(Highcharts.getOptions().colors, function (color) {
-			        return {
-			            radialGradient: { cx: 0.5, cy: 0.3, r: 0.7 },
-			            stops: [
-			                [0, color],
-			                [1, Highcharts.Color(color).brighten(-0.1).get('rgb')] // darken
-			            ]
-			        };
-			    });
-			    */
-			    var clusters_sizes = ###CLUSTERS_SIZES### ;
+				
 				var dispersion = get_dispersion( clusters_sizes, series[0]['data'] );
 				
 				// Nb clusters and nb sequences
@@ -647,7 +638,6 @@
 					dom: 	"<'#dispersion-csv-export'><'row'<'col-sm-5'l><'col-sm-7'f>>" +
 							"<'row'<'col-sm-12'tr>>" +
 							"<'row'<'col-sm-5'i><'col-sm-7'p>>"
-					//"sDom": '<"top"<"#dispersion-csv-export"><"clear">lf>rt<"bottom"ip><"clear">'
 				});
 				$('#dispersion-csv-export').addClass( 'dataTables_filter' );
 				$('#dispersion-csv-export').html( '<button class="btn"><span class="fa fa-download" aria-hidden="true"> CSV</span></button>' );
@@ -681,7 +671,6 @@
 					}
 				}
 				var seq_by_depth = areaplot_param("Cumulative sequences proportion by ASV size", "ASV size", "% sequences", null, series_cumulative);
-				console.log(series_cumulative);
 				seq_by_depth['tooltip'] = {
 					formatter:function() {
 						tooltip_head = 'ASVs with size \u2264 ' + numberDisplay(this.x) ;
@@ -691,18 +680,11 @@
 							var pointIndex = parseInt(series.data.indexOf(this.points[i].point));
 							var nbObs = parseInt(this.points[0].series.data.length);
 							var percCluster = (((pointIndex + 1) / nbObs) * 100).toFixed(2);
-							//tooltip_body += '<tr>' +
-							//	'<td style="color:' + this.points[i].series.color +'">' + this.points[i].series.name + ' : </td>' +
-							//	'<td> ' + this.points[i].point.y + '% </td>' +
-							//	'<td> sequences </td></tr><tr>' +
-							//	'<td>       ' + percCluster + '% </td>' +
-							//	'<td> clusters</td></tr>'
 							tooltip_body += '<tr> '+
 							'<th>Sequences</th><th>ASVs</th></tr>'+
 							'<tr><td>'+this.points[i].point.y + '%'+'</td><td>'+percCluster+ '%'+'</td>'+
 							'</tr>'
 						}
-						//return tooltip_head + '<table class="table"><caption>'+'Clusters with size <= ' + numberDisplay(this.x)+'</caption>' + tooltip_body + '</table>' ;
 						return '<table id="tooltip-seqdepth" class="table table-striped caption-top"><caption><b>'+'ASVs with size \u2264 ' + numberDisplay(this.x)+'</b></caption>' + tooltip_body + '</table>' ;
 					},
 					shared: true,
@@ -717,7 +699,7 @@
 			}
 			
 			var sample_table_load = function( container_id ){
-				var samples_distrib = ###DATA_SAMPLE### ;
+				
 
 				var table_data = new Array();
 				for( sample in samples_distrib ){
@@ -737,7 +719,6 @@
 					dom: 	"<'#samples-csv-export'><'row'<'col-sm-5'l><'col-sm-7'f>>" +
 							"<'row'<'col-sm-12'tr>>" +
 							"<'row'<'col-sm-5'i><'col-sm-7'p>>"
-					//"sDom": '<"top"<"#samples-csv-export"><"clear">lf>rt<"bottom"ip><"clear">'
 				});
 				$('#samples-csv-export').addClass( 'dataTables_filter' );
 				$('#samples-csv-export').html( '<button class="btn"><span class="fa fa-download" aria-hidden="true"> CSV</span></button>' );
@@ -753,6 +734,7 @@
 			//
 			///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 			$(function() {
+				$(".frogsversion > a").text("Generated with FROGS "+frogs_tool+" "+frogs_version);
 				// Remove alert
 				$('#js-alert').remove();
 				$('#content').removeClass("hidden");
@@ -764,17 +746,13 @@
 				// Add tab listener
 				$('.nav-tabs a').click(function (e) {
 					e.preventDefault();
-					console.log(this);
-					console.log($(this));
 					$(this).tab('show');
 					if( $(this).attr('href') == "#sequence-distrib" && $('#sequence-distrib').hasClass('disabled') ){
 						$('#sequence-distrib').removeClass("disabled");
-					//} else if( $(this).attr('href') == "#samples-distrib" && $('#samples-distrib').hasClass('disabled') ){
 					}
 					if( $('#samples-distrib').hasClass('disabled') ){
 						$('#samples-distrib').removeClass("disabled");
 						sample_table_load( "samples-distrib-table" );
-						//hierarchical_clustering_load( "samples-distrib-hc" );
 					}
 					if( $(this).attr('href') == "#summary" && $('#summary').hasClass('disabled') ){
 						$('#summary').removeClass("disabled");
@@ -784,12 +762,8 @@
 					if ( $(this).attr('href') == "#cluster-distrib" && $('#cluster-distrib').hasClass('disabled') ){
 						$('#cluster-distrib').removeClass("disabled");
 						cluster_distrib_load( "cluster-distrib" );
-						//sequence_distrib_load( "sequence-distrib" );
 					}
-					
-				
 				})
-				
 			});
 		</script>
 
@@ -806,8 +780,8 @@
 			<ul id="mytab" class="nav nav-tabs">
 				<li class="nav-item active"><a class="nav-link active" href="#summary">Summary</a></li>
 				<li class="nav-item active"><a class="nav-link" href="#cluster-distrib">Clusters distribution</a></li>
-				<!--<li class="nav-item active"><a class="nav-link" href="#sequence-distrib">Sequences distribution</a></li>-->
 				<li class="nav-item active"><a class="nav-link" href="#samples-distrib">Samples distribution</a></li>
+				<li class="nav-item frogsversion"><a class="nav-link"></a></li>
 			</ul>
 			
 			<div id="tab-content" class="tab-content">
@@ -830,19 +804,13 @@
 						<div id="nb-clusters" class="col-sm-6 col-md-4"></div>
 						<div id="nb-sequences" class="col-sm-6 col-md-4"></div>
 						<div class="col-md-2"></div>
-						<!--<div id="sequences-distrib"></div>-->
 					</div>
 				</div>
-				<!--<div id="sequence-distrib" role="tabpanel" class="tab-pane disabled"></div>-->
 				<div id="samples-distrib" role="tabpanel" class="tab-pane disabled">
 					<div>
 						<h2 class="pb-2 mt-4 mb-2 border-bottom">Sequences count</h2>
 						<div id="samples-distrib-table"></div>
 					</div>
-					<!--<div>
-						<h2 class="pb-2 mt-4 mb-2 border-bottom">Hierarchical clustering</h2>
-						<div id="samples-distrib-hc"></div>
-					</div>-->
 				</div>
             </div>
         </div>

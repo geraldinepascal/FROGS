@@ -19,7 +19,7 @@
 __author__ = 'Olivier Rue - Migale MaIAGE Jouy-en-Josas - Maria Bernard - Sigenae Jouy en Josas'
 __copyright__ = 'Copyright (C) 2015 INRA'
 __license__ = 'GNU General Public License'
-__version__ = '4.1.0'
+__version__ = '5.0.0'
 __email__ = 'frogs-support@inrae.fr'
 __status__ = 'prod'
 
@@ -266,6 +266,10 @@ def write_summary( summary_file, input_biom, output_biom, depth_file ):
             line = line.replace( "###DATA_COUNTS###", json.dumps(counts) )
         elif "###SAMPLES_RESULTS###" in line:
             line = line.replace( "###SAMPLES_RESULTS###", json.dumps(samples_results) )
+        elif "###FROGS_VERSION###" in line:
+            line = line.replace( "###FROGS_VERSION###", "\""+str(__version__)+"\"" )
+        elif "###FROGS_TOOL###" in line:
+            line = line.replace( "###FROGS_TOOL###", "\""+ os.path.basename(__file__)+"\"" )
         FH_summary_out.write( line )
 
     FH_summary_out.close()
