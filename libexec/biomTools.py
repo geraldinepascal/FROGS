@@ -216,7 +216,6 @@ def rarefaction( input_biom, interval=10000, ranks=None, taxonomy_key="taxonomy"
         expected_nb_iter = int(sample_count/interval)
         for current_nb_iter in range(expected_nb_iter):
             selected_observations = biom.random_obs_extract_by_sample(sample, interval)
-            print(len(selected_observations))
             for current_selected in selected_observations:
                 taxonomy = list()
                 if taxonomy_key in current_selected['observation']["metadata"] and current_selected['observation']["metadata"][taxonomy_key] is not None:
