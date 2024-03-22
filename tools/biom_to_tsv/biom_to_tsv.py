@@ -62,6 +62,11 @@ class Biom2tsv(Cmd):
         # Check the metadata
         biom = BiomIO.from_json( in_biom )
         obs = biom.rows[0]
+        # Check if blast_perc_subject_coverage is set
+        is_set_perc_subject_coverage = False
+        if "blast_affiliations" in obs["metadata"]:
+            if "perc_subject_coverage" in obs["metadata"]["blast_affiliations"][0]:
+                is_set_perc_subject_coverage = True
         conversion_tags = ""
         if biom.has_observation_metadata( 'comment' ) :
             conversion_tags += "'comment' "
@@ -75,7 +80,8 @@ class Biom2tsv(Cmd):
             conversion_tags += "'@blast_subject' "
             conversion_tags += "'@blast_perc_identity' "
             conversion_tags += "'@blast_perc_query_coverage' "
-            conversion_tags += "'@blast_perc_subject_coverage' "
+            if is_set_perc_subject_coverage:
+                conversion_tags += "'@blast_perc_subject_coverage' "
             conversion_tags += "'@blast_evalue' "
             conversion_tags += "'@blast_aln_length' "
         if biom.has_observation_metadata( 'seed_id' ):
@@ -121,8 +127,19 @@ class Biom2multiAffi(Cmd):
         @param in_biom: [str] Path to BIOM file.
         @param out_tsv: [str] Path to output TSV file.
         """
+        biom = BiomIO.from_json( in_biom )
+        obs = biom.rows[0]
+        # Check if blast_perc_subject_coverage is set
+        is_set_perc_subject_coverage = False
+        if "blast_affiliations" in obs["metadata"]:
+            if "perc_subject_coverage" in obs["metadata"]["blast_affiliations"][0]:
+                is_set_perc_subject_coverage = True
+        
         if headerOnly:
-            header_list = ["observation_name", "blast_taxonomy", "blast_subject", "blast_perc_identity", "blast_perc_query_coverage", "blast_subject_coverage", "blast_evalue", "blast_aln_length"]
+            if is_set_perc_subject_coverage:
+                header_list = ["observation_name", "blast_taxonomy", "blast_subject", "blast_perc_identity", "blast_perc_query_coverage", "blast_perc_subject_coverage", "blast_evalue", "blast_aln_length"]
+            else:
+                header_list = ["observation_name", "blast_taxonomy", "blast_subject", "blast_perc_identity", "blast_perc_query_coverage", "blast_evalue", "blast_aln_length"]
             Cmd.__init__( self,
                           'echo',
                           'Print biom blast multiAffiliation as TSV header file',
@@ -160,7 +177,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
     prevent_shell_injections(args)
 
-    # Process
+    # Process    
     Logger.static_write(args.log_file, "## Application\nSoftware :" + sys.argv[0] + " (version : " + str(__version__) + ")\nCommand : " + " ".join(sys.argv) + "\n\n")
     Biom2tsv( args.output_tsv, args.input_biom, args.header, args.input_fasta ).submit( args.log_file )
     

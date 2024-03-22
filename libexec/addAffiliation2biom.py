@@ -179,16 +179,33 @@ def get_bests_blast_affi( blast_files, taxonomy_by_subject ):
                 taxonomy = ';'.join(taxonomy_by_subject[subject_id])
                 if not taxonomy in blast_annot[query_id]['alignments']:
                     blast_annot[query_id]['alignments'][taxonomy] = list()
-                blast_annot[query_id]['alignments'][taxonomy].append({
-                    'subject': subject_id,
-                    'taxonomy': taxonomy_by_subject[subject_id],
-                    'evalue': parts[10],
-                    'aln_length': int(parts[3]),
-                    'perc_identity': float(parts[2]),
-                    # (end - start + 1) / qlen *100
-                    'perc_query_coverage': (int(parts[7]) - int(parts[6]) + 1) / float(parts[12]) * 100,
-                    'perc_subject_coverage': (int(parts[7]) - int(parts[6]) + 1) / float(parts[13]) * 100
-                })
+                try:
+                   slen = float(parts[13])
+                   if slen == 0:
+                       perc_subject_coverage = 0
+                   else:
+                       perc_subject_coverage = (int(parts[7]) - int(parts[6]) + 1) / float(parts[13]) * 100
+                   blast_annot[query_id]['alignments'][taxonomy].append({
+                        'subject': subject_id,
+                        'taxonomy': taxonomy_by_subject[subject_id],
+                        'evalue': parts[10],
+                        'aln_length': int(parts[3]),
+                        'perc_identity': float(parts[2]),
+                         # (end - start + 1) / qlen *100
+                        'perc_query_coverage': (int(parts[7]) - int(parts[6]) + 1) / float(parts[12]) * 100,
+                        'perc_subject_coverage': perc_subject_coverage
+                     })
+                except IndexError:
+                    blast_annot[query_id]['alignments'][taxonomy].append({
+                       'subject': subject_id,
+                       'taxonomy': taxonomy_by_subject[subject_id],
+                       'evalue': parts[10],
+                       'aln_length': int(parts[3]),
+                       'perc_identity': float(parts[2]),
+                        # (end - start + 1) / qlen *100
+                       'perc_query_coverage': (int(parts[7]) - int(parts[6]) + 1) / float(parts[12]) * 100
+                    })
+
         FH_blast.close()
     return blast_annot
 

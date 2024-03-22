@@ -133,7 +133,8 @@ def process(params):
                         FH_out.write(a)
                 temp_dict.clear()
             OTU_list.append(qseqid)
-        aln=qseqid+"\t"+sseqid+"\t"+pident+"\t"+str(length)+"\t"+mismatch+"\t"+str(gapopen)+"\t"+qstart+"\t"+qend+"\t"+sstart+"\t"+send+"\t"+evalue+"\t"+bitscore+"\t"+qlen+"\n"
+        slen="0"
+        aln=qseqid+"\t"+sseqid+"\t"+pident+"\t"+str(length)+"\t"+mismatch+"\t"+str(gapopen)+"\t"+qstart+"\t"+qend+"\t"+sstart+"\t"+send+"\t"+evalue+"\t"+bitscore+"\t"+qlen+"\t"+slen+"\n"
         temp_dict[aln]=float(bitscore)
     
     # write last OTUs alignment
