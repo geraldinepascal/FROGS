@@ -19,7 +19,7 @@
 __author__ = 'Maria Bernard INRA - SIGENAE AND Frederic Escudie - Plateforme bioinformatique Toulouse'
 __copyright__ = 'Copyright (C) 2015 INRA'
 __license__ = 'GNU General Public License'
-__version__ = '4.1.0'
+__version__ = '5.0.0'
 __email__ = 'frogs-support@inrae.fr'
 __status__ = 'prod'
 
@@ -554,6 +554,10 @@ def summarise_results( summary_file, biom_file, tree_count_file, tree_ids_file, 
             line = line.replace( "###SAMPLES_DATA###", json.dumps(samples_results) )
         elif "###TAXONOMY_RANKS###" in line:
             line = line.replace( "###TAXONOMY_RANKS###", json.dumps(args.taxonomy_ranks) )
+        elif "###FROGS_VERSION###" in line:
+            line = line.replace( "###FROGS_VERSION###", "\""+str(__version__)+"\"" )
+        elif "###FROGS_TOOL###" in line:
+            line = line.replace( "###FROGS_TOOL###", "\""+ os.path.basename(__file__)+"\"" )
         FH_summary_out.write( line )
     FH_summary_out.close()
     FH_summary_tpl.close()

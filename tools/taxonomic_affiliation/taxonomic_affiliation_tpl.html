@@ -34,6 +34,23 @@
 			#sunburst-graph{margin-left:auto;margin-right:auto}.jDistrib-walk-rank{height:100%;margin-right:2px;padding:8px;float:left;border-top-right-radius:7px;border-bottom-right-radius:7px;cursor:pointer;box-shadow:1px 1px 1px #555}.jDistrib-walk-rank-size{margin-left:5px;padding:4px;background-color:#FFF;color:#648a89;border-radius:9px;text-align:center;font-size:10px;font-family:sans-serif}.jDistrib-root-label{font-weight:700;cursor:pointer}.jDistrib-arc-label{cursor:pointer}.jDistrib-arc{cursor:pointer;stroke:#fff;fill-rule:evenodd}.jDistrib-tooltip{position:absolute;padding:10px;font:12px sans-serif;background:#8EADAC;border:0;border-radius:8px;pointer-events:none}.jDistrib-empty-details{color:#fff;background-color:#8EADAC;padding:15px;margin-bottom:20px;border:1px solid transparent;border-radius:4px}.jDistrib-table-details>tbody>tr:nth-of-type(2n+1){background-color:#F5F5F5}.jDistrib-table-details{border:1px solid #DDD;border-radius:8px;border-spacing:1px;border-collapse:separate}.jDistrib-table-details td,th{padding:2px 8px}.jDistrib-table-details .number{text-align:right}.jDistrib-export-toggle{height:30px;width:30px;padding:1px}.jDistrib-export-toggle div{background-color:#636363;border-radius:2px;height:3px;margin-top:2px;margin-bottom:2px}
 		</style>
 		<style type="text/css">
+			:root {
+				--frogsColor: #8EADAC; 
+				--frogsColorHover: #648a89;
+				--frogsColorShadow: #555;
+				--frogsColor2: #DE9F73;
+				--frogsColorZoomHighCharts: rgb(222,159,115,0.25);
+			}
+			.frogsversion{
+				position: absolute;
+				right: 5%;
+				color: var(--frogsColor);
+				font-style: italic;
+				font-size: smaller;
+			}
+			.frogsversion > a{
+				border: none !important;
+			}
             #js-alert {
                 width: 90%;
                 margin-right: auto;
@@ -454,61 +471,74 @@
 			var ExtendedNode=function(e,t,n,r){if(this.name=e,this.parent=t,this.children=new Array,null!=n)for(var a=0;a<n.length;a++)this.addChild(n[a]);this.metadata=new Array,null!=r&&(this.metadata=r)};ExtendedNode.prototype.hasChild=function(e){if(null==e)return this.children.length>0;for(var t=!1,n=0;n<this.children.length&&!t;n++)e==this.children[n]&&(t=!0);return t},ExtendedNode.prototype.getChild=function(e){if(!this.hasChild(e))throw this.name+" doesn't have child named '"+e+"'.";return this.children[e]},ExtendedNode.prototype.getParent=function(){return this.parent},ExtendedNode.prototype.getNodeByDepth=function(e){var t=new Array;if(0==e)t.push(this);else if(this.hasChild())for(var n=0;n<this.children.length;n++)for(var r=this.children[n].getNodeByDepth(e-1),a=0;a<r.length;a++)t.push(r[a]);return t},ExtendedNode.prototype.addChild=function(e){null==e.parent&&(e.parent=this),this.children.push(e)},ExtendedNode.fromNewick=function(e){for(var t=new Array,n=0;n<e.length;n++){var r=e[n];if("("==r)t.push("(");else if(")"==r){for(var a=new ExtendedNode(null,null,null,null);"("!=t[t.length-1];)a.addChild(t.pop());t.pop(),t.push(a)}else if(","==r);else if(";"==r);else if(" "==r);else if(":"==r)if("{"==e[n+1]){for(metadata_json="{",n++,nb_open=1,nb_closed=0;nb_open!=nb_closed;)n++,metadata_json+=e[n],"{"==e[n]?nb_open++:"}"==e[n]&&nb_closed++;t[t.length-1].metadata=JSON.parse(metadata_json)}else{for(var h="";","!=e[n+1]&&")"!=e[n+1]&&";"!=e[n+1];)n++,h+=e[n];t[t.length-1].metadata.dist=h}else{var i=null;0!=n&&(i=e[n-1]),'"'==r?(stop_markers=['"'],n++):stop_markers=[",",")",":",";"];for(var d=e[n];-1==stop_markers.indexOf(e[n+1]);)n++,d+=e[n];if(-1!=stop_markers.indexOf('"')&&n++,")"==i)t[t.length-1].name=d;else{var l=new ExtendedNode(d,null,null,null);t.push(l)}}}return t[0]},ExtendedNode.prototype.keepOnlySamples=function(e){var t=!1;if(this.hasChild()){for(var n=new Array,r=0;r<this.children.length;r++)this.children[r].keepOnlySamples(e)&&n.push(r);for(var a=0,h=0;h<n.length;h++)this.children.splice(n[h]-a,1),a++;0==this.children.length&&(t=!0)}else{for(var i=!1,d={},l=0;l<e.length;l++)this.metadata.hasOwnProperty(e[l])&&(d[e[l]]=this.metadata[e[l]],i=!0);i?this.metadata=d:t=!0}return t},ExtendedNode.prototype.toJson=function(){var e={name:null!=this.name?this.name:"",metadata:this.metadata};if(this.hasChild()){for(var t=new Array,n=0;n<this.children.length;n++)t.push(this.children[n].toJson());e.children=t}var r=Object.keys(this.metadata);if(0!=r.length){for(var a=0,h=0;h<r.length;h++)a+=this.metadata[r[h]];e.size=a}return e};
 		</script>
 		<script type="text/javascript">
-			
+			/**
+			Colors
+			*/
+			var root = document.documentElement;
+			var style = getComputedStyle(root);
+			var frogsColor = style.getPropertyValue('--frogsColor');
+			var frogsColor2 = style.getPropertyValue('--frogsColor2');
+			var frogsColorZoomHighCharts = style.getPropertyValue('--frogsColorZoomHighCharts');
+			var frogsColorHover = style.getPropertyValue('--frogsColorHover');
+			/**
+			 Data from HTML
+			*/
+			var frogs_version = ###FROGS_VERSION### ;
+			var frogs_tool = ###FROGS_TOOL### ;
 			var global_results = ###GLOBAL_DATA### ;
-				var sample_results = ###SAMPLES_DATA### ;
-				var taxonomy_ranks = ###TAXONOMY_RANKS### ;
-				
-				var samples_names = ###SAMPLES_NAMES### ;
-				/* Example:
-					["Surface-01", "Surface-02", "Surface-03", "Middle-01", "Middle-02", "Middle-03"]
-				*/
-				var tree_distribution = ###TREE_DISTRIBUTION### ;
-				/* This string is in newick extended format. The metadata is the count by sample (each sample is referenced by is index position in "samples_names"). */
-				var rarefaction = ###DATA_RAREFACTION### ;
-				/* Example:
-					{
-						"Surface-01": {
-							"nb_seq": 7115, 
-							"Genus": [108, 164, 196, 226, 252, 252, 252],
-							"Species": [108, 164, 196, 227, 253, 268, 287],
-							"Family": [85, 119, 133, 146, 154, 163, 169]
-						},
-						"Surface-02": {
-						...
+			var sample_results = ###SAMPLES_DATA### ;
+			var taxonomy_ranks = ###TAXONOMY_RANKS### ;
+			
+			var samples_names = ###SAMPLES_NAMES### ;
+			/* Example:
+				["Surface-01", "Surface-02", "Surface-03", "Middle-01", "Middle-02", "Middle-03"]
+			*/
+			var tree_distribution = ###TREE_DISTRIBUTION### ;
+			/* This string is in newick extended format. The metadata is the count by sample (each sample is referenced by is index position in "samples_names"). */
+			var rarefaction = ###DATA_RAREFACTION### ;
+			/* Example:
+				{
+					"Surface-01": {
+						"nb_seq": 7115, 
+						"Genus": [108, 164, 196, 226, 252, 252, 252],
+						"Species": [108, 164, 196, 227, 253, 268, 287],
+						"Family": [85, 119, 133, 146, 154, 163, 169]
+					},
+					"Surface-02": {
+					...
+				}
+			*/	
+			var rarefaction_step = ###RAREFACTION_STEP_SIZE### ;
+			/* Example:
+				1000
+			*/
+			var rarefaction_ranks = ###RAREFACTION_RANKS### ;
+			/* Example:
+				["Family", "Genus", "Species"]
+			*/
+			var alignment_scores = ###ALIGNMENT_SCORES### ;
+			/* Example:
+				[
+					[100, 100, { "clstr": 53, "seq": 20500 }],
+					[99, 100, { "clstr": 35, "seq": 18000 }],
+					[90, 95, { "clstr": 1, "seq": 10 }],
+				]
+			*/
+			var bootstrap_scores = ###BOOTSTRAP_SCORES### ;
+			/* Example:
+				{
+					"Phylum": {
+						"80": { "clstr": 1, "seq":100 },
+						"90": {	"clstr": 2,	"seq":400 },
+						"100": { "clstr": 50, "seq":20000 },
+					},
+					"Genus":{
+						"80":{ "clstr": 1, "seq":100 },
+						"90":{ "clstr": 2, "seq":400 },
+						"100":{ "clstr": 50, "seq":20000 },
 					}
-				*/	
-				var rarefaction_step = ###RAREFACTION_STEP_SIZE### ;
-				/* Example:
-					1000
-				*/
-				var rarefaction_ranks = ###RAREFACTION_RANKS### ;
-				/* Example:
-					["Family", "Genus", "Species"]
-				*/
-				var alignment_scores = ###ALIGNMENT_SCORES### ;
-				/* Example:
-					[
-						[100, 100, { "clstr": 53, "seq": 20500 }],
-						[99, 100, { "clstr": 35, "seq": 18000 }],
-						[90, 95, { "clstr": 1, "seq": 10 }],
-					]
-				*/
-				var bootstrap_scores = ###BOOTSTRAP_SCORES### ;
-				/* Example:
-					{
-						"Phylum": {
-							"80": { "clstr": 1, "seq":100 },
-							"90": {	"clstr": 2,	"seq":400 },
-							"100": { "clstr": 50, "seq":20000 },
-						},
-						"Genus":{
-							"80":{ "clstr": 1, "seq":100 },
-							"90":{ "clstr": 2, "seq":400 },
-							"100":{ "clstr": 50, "seq":20000 },
-						}
-					}
-				*/
+				}
+			*/
 			
 			Highcharts.SVGRenderer.prototype.symbols.download = function (x, y, w, h) {
 				var path = [
@@ -1451,7 +1481,7 @@
 			}
 			
 			$(function() {
-				
+				$(".frogsversion > a").text("FROGS "+frogs_tool+" "+frogs_version);
 				summaryLoad();
 				console.log(bootstrap_scores);
 				// Hide tab if no data
@@ -1513,6 +1543,7 @@
 				<li class="nav-item" id="taxonomy"-nav-tav><a class="nav-link" href="#tax-distrib">Taxonomy distribution</a></li>
 				<li class="nav-item" id="bootstrap-nav-tab"><a class="nav-link" href="#bootstrap-distrib">Bootstrap distribution</a></li>
 				<li class="nav-item" id="alignment-nav-tab"><a class="nav-link" href="#alignment-distrib">Alignment distribution</a></li>
+				<li class="nav-item frogsversion"><a class="nav-link"></a></li>
 			</ul>
 			
 			<div class="tab-content">
