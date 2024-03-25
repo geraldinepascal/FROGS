@@ -19,7 +19,7 @@
 __author__ = 'Maria Bernard INRA - SIGENAE '
 __copyright__ = 'Copyright (C) 2015 INRA'
 __license__ = 'GNU General Public License'
-__version__ = '4.1.0'
+__version__ = '5.0.0'
 __email__ = 'frogs-support@inrae.fr'
 __status__ = 'prod'
 
@@ -186,6 +186,10 @@ def summarise_results( summary_file, is_delete_samples, num_reads, biom_subsampl
             line = line.replace( "###REMOVE_DATA###", json.dumps(summary_info) )
         elif "###TITLE###" in line:
             line = line.replace( "###TITLE###", title )
+        elif "###FROGS_VERSION###" in line:
+            line = line.replace( "###FROGS_VERSION###", "\""+str(__version__)+"\"" )
+        elif "###FROGS_TOOL###" in line:
+            line = line.replace( "###FROGS_TOOL###", "\""+ os.path.basename(__file__)+"\"" )
         FH_summary_out.write( line )
 
     FH_summary_out.close()

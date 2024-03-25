@@ -25,6 +25,23 @@
 		<link rel="stylesheet" href="https://cdn.datatables.net/1.10.19/css/dataTables.bootstrap4.min.css"></link>
 		<link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
 		<style type="text/css">
+			:root {
+				--frogsColor: #8EADAC; 
+				--frogsColorHover: #648a89;
+				--frogsColorShadow: #555;
+				--frogsColor2: #DE9F73;
+				--frogsColorZoomHighCharts: rgb(222,159,115,0.25);
+			}
+			.frogsversion{
+				position: absolute;
+				right: 5%;
+				color: var(--frogsColor);
+				font-style: italic;
+				font-size: smaller;
+			}
+			.frogsversion > a{
+				border: none !important;
+			}
 			#js-alert {
 				width: 90%;
 				margin-right: auto;
@@ -51,24 +68,23 @@
 			.page-item.active .page-link {
 				z-index: 1;
 				color: #fff;
-				background-color: #8EADAC;
-				border-color: #8EADAC;
+				background-color: var(--frogsColor);
+				border-color: var(--frogsColor);
 			}
 			
 			.btn {
 				color: #fff;
-				border:#8EADAC;
-				background-color: #8EADAC;
+				border: var(--frogsColor);
+				background-color: var(--frogsColor);
 			}
 			.btn:focus, .btn:active {
 				outline: none !important;
 				box-shadow: none !important;
 			}
-			.btn:hover:enabled{
+			.btn:hover{
 				color: #fff;
-				border:#648a89;
-				background-color: #648a89;
-				cursor:pointer !important;
+				border: var(--frogsColorHover);
+				background-color: var(--frogsColorHover);
 			}
 			
 			.pb-2, .py-2 {
@@ -83,14 +99,13 @@
 			}
 			.nav-tabs .nav-link.active, .nav-tabs .nav-item.show .nav-link{
 				color: #fff;
-				background-color: #8EADAF;
-				border-color: #dee2e6 #dee2e6 #fff;
+				background-color: var(--frogsColor);
 			}
 			a {
-				color: #8EAEAF;
+				color: var(--frogsColor);
 			}
 			a:hover{
-				color:#648a89;
+				color:var(--frogsColorHover);
 			}
 			
 			/* ##### THEME FOR CHECKBOXES ##### */
@@ -119,19 +134,19 @@
 				left: 0;
 				height: 25px;
 				width: 25px;
-				background-color: #8EADAC;
+				background-color: var(--frogsColor);
 				border-radius: 5px;
 				opacity:0.65;
 			}
 
 			/* On mouse-over, add a grey background color */
 			.container:hover input ~ .checkmark {
-				background-color: #648a89;
+				background-color: var(--frogsColorHover);
 			}
 
 			/* When the checkbox is checked, add a blue background */
 			.container input:checked ~ .checkmark {
-				background-color: #8EADAC;
+				background-color: var(--frogsColor);
 				opacity:1;
 			}
 
@@ -162,16 +177,15 @@
 			/* ##### END THEME CHECKBOXES ##### */
 			.highcharts-button > path{
 				stroke:#fff !important;
-				fill:#8EADAC !important;
+				fill: var(--frogsColor) !important;
 			}
 			g.highcharts-button{
 				cursor:pointer !important;
 			}
 			g.highcharts-button:hover{
 				color: #fff;
-				border:#648a89;
-				background-color: #648a89;
-				background-color: #648a89;
+				border: var(--frogsColorHover);
+				background-color: var(--frogsColorHover);
 				cursor:pointer !important;
 			}
 			
@@ -232,6 +246,27 @@
 			!function(t){t.fn.datatableExport=function(a){var e={anchor_id:t(this).attr("id"),table_id:null,csv_separator:";",omitted_columns:[]},n=t.extend(e,a);if(void 0==n.anchor_id)throw"The datatableExport plugin must be called on an element with id.";if(null==n.table_id)throw"You must set the table_id parameter in datatableExport plugin.";if(!t("#"+n.table_id))throw"The datatable '#"+n.table_id+"' cannot be retieve in DOM.";return this.each(function(){var a=t(this);a.on("click",function(){t.fn.datatableExport.csv(n.anchor_id,n.table_id,n.csv_separator,n.omitted_columns)})})},t.fn.datatableExport.cleanCellMarkup=function(a,e){t.parseHTML(e);t("#"+a).append('<div class="hidden data-tmp">'+e+"</div>"),t("#"+a+" .data-tmp").find("input").each(function(){var a="";a=t(this).is(":checkbox")?t(this).is(":checked")?"true":"false":t(this).val(),t(this).replaceWith(a)});var n=t("#"+a+" .data-tmp").text();return t("#"+a+" .data-tmp").remove(),n},t.fn.datatableExport.csv=function(a,e,n,i){var l="",r=t("#"+e).DataTable(),d=t("#"+e+" thead")[0],o=new HTMLtable(d.cloneNode(!0));o.deleteColumns(i),l+=o.toCSV();var c=r.rows().data();t.each(c,function(e,n){for(var r="",d=0;d<n.length;d++)-1==t.inArray(d,i)&&(r+='"'+t.fn.datatableExport.cleanCellMarkup(a,n[d])+'";');""!=r&&(r=r.slice(0,-1)),l+=r+"\n"}),t("#"+a+"-extract-csv").length||t("#"+a).append('<a id="'+a+'-extract-csv" href="data:text/csv;charset=UTF-8,'+encodeURI(l)+'" download="data.csv" style="display:none;"></a>'),t("#"+a+"-extract-csv")[0].click()}}(jQuery);
 		</script>	
 		<script type="text/javascript">
+			
+			/**
+			Colors
+			*/
+			var root = document.documentElement;
+			var style = getComputedStyle(root);
+			var frogsColor = style.getPropertyValue('--frogsColor');
+			var frogsColor2 = style.getPropertyValue('--frogsColor2');
+			var frogsColorZoomHighCharts = style.getPropertyValue('--frogsColorZoomHighCharts');
+			var frogsColorHover = style.getPropertyValue('--frogsColorHover');
+			/**
+			 Data from HTML
+			*/
+			var categories = ###DATA_CATEGORIES### ;
+			var del_categories = ###DELETE_CATEGORIES### ;
+			var series_by_sample = ###DATA_SERIES### ;
+			var del_by_sample = ###DELETE_SERIES### ;
+			var remove_info = ###REMOVE_DATA### ;
+			var frogs_version = ###FROGS_VERSION### ;
+			var frogs_tool = ###FROGS_TOOL### ;
+			
 			/**
 			 * Returns the string representation of the number. 
 			 * @param pValue {Float} The number to process.
@@ -268,15 +303,15 @@
 						buttonOptions: {
 							theme: {
 								r: 4,
-								fill:'#8EADAC',
+								fill: frogsColor,
 								states: {
 									hover: {
-										fill: 'rgb(100, 138, 137)',
-										stroke:'#8EADAC'
+										fill: frogsColorHover,
+										stroke: frogsColor
 									},
 									select: {
-										stroke: '#8EADAC',
-										fill: 'rgb(100, 138, 137)',
+										stroke: frogsColor,
+										fill: frogsColorHover,
 									}
 								}
 							}
@@ -363,19 +398,15 @@
 
 			
 			$(function() {
-				var categories = ###DATA_CATEGORIES### ;
-				var del_categories = ###DELETE_CATEGORIES### ;
-				var series_by_sample = ###DATA_SERIES### ;
-				var del_by_sample = ###DELETE_SERIES### ;
-				var remove_info = ###REMOVE_DATA### ;
-
+				$(".frogsversion > a").text("FROGS "+frogs_tool+" "+frogs_version);
+				
 				// Remove alert
 				$('#js-alert').remove();
 				$('#content').removeClass("hidden");
 
 				// Radializes colors
 				Highcharts.setOptions({
-					 colors : ['#8EADAC', '#DE9F73'] ,
+					 colors : [frogsColor, frogsColor2] ,
 					 lang: {thousandsSep: ','}
 					});
 					Highcharts.SVGRenderer.prototype.symbols.download = function (x, y, w, h) {
@@ -478,6 +509,9 @@
 			If you try to view this data on galaxy please contact your administrator to authorise javascript or download the file to view.
 		</p>
 		<div id="content" class="hidden">
+			<ul id="mytab" class="nav nav-tabs">
+				<li class="nav-item frogsversion"><a class="nav-link"></a></li>
+			</ul>
 				<div id="filter-summary">
 	        		<h2 class="pb-2 mt-4 mb-2 border-bottom">Normalisation summary
 
