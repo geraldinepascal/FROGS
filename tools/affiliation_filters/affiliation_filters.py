@@ -278,7 +278,7 @@ def update_blast_metadata(metadata_dict, kept_affiliaitons):
 
     # return impacting status
     if metadata_dict['blast_taxonomy'] is None :
-        metadata_dict['blast_affiliations'] = None  # instead of empty list
+        metadata_dict['blast_affiliations'] = []
         return True
     else:
         return False
@@ -454,7 +454,7 @@ def filter_biom(in_biom_file, impacted_file, output_file, params):
         metadata_out = copy.deepcopy(observation['metadata'])
         if len(out_blast_affiliations) > 0:
             filter_on_blastCriteria = update_blast_metadata(metadata_out, out_blast_affiliations)
-        
+
         # keep impacting criteria only if filter_on_blastCriteria is True
         if not filter_on_blastCriteria : 
             for impact in impacted_dict:
@@ -655,7 +655,7 @@ def write_summary( summary_file, input_biom, output_biom, discards, params ):
                         taxon_lost['RDP'][i].remove(';'.join(rdp_taxonomy[:i+1]))
 
         # track lost blast taxon
-        if out_biom.get_observation_metadata(observation_name)['blast_affiliations'] is not None:
+        if len(out_biom.get_observation_metadata(observation_name)['blast_affiliations'])>0:
             for blast_affi in out_biom.get_observation_metadata(observation_name)['blast_affiliations'] :
                 blast_taxonomy = blast_affi['taxonomy']
                 if issubclass(blast_taxonomy.__class__,str):
