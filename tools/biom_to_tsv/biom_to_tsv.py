@@ -65,8 +65,9 @@ class Biom2tsv(Cmd):
         # Check if blast_perc_subject_coverage is set
         is_set_perc_subject_coverage = False
         if "blast_affiliations" in obs["metadata"]:
-            if "perc_subject_coverage" in obs["metadata"]["blast_affiliations"][0]:
-                is_set_perc_subject_coverage = True
+            if len(obs["metadata"]["blast_affiliations"]) > 0 :
+                if "perc_subject_coverage" in obs["metadata"]["blast_affiliations"][0]:
+                    is_set_perc_subject_coverage = True
         conversion_tags = ""
         if biom.has_observation_metadata( 'comment' ) :
             conversion_tags += "'comment' "
@@ -132,8 +133,9 @@ class Biom2multiAffi(Cmd):
         # Check if blast_perc_subject_coverage is set
         is_set_perc_subject_coverage = False
         if "blast_affiliations" in obs["metadata"]:
-            if "perc_subject_coverage" in obs["metadata"]["blast_affiliations"][0]:
-                is_set_perc_subject_coverage = True
+            if len(obs["metadata"]["blast_affiliations"]) > 0 :
+                if "perc_subject_coverage" in obs["metadata"]["blast_affiliations"][0]:
+                    is_set_perc_subject_coverage = True
         
         if headerOnly:
             if is_set_perc_subject_coverage:
