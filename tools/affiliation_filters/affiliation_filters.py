@@ -19,7 +19,7 @@
 __author__ = 'Katia Vidal - Team NED Toulouse AND Frederic Escudie - Plateforme bioinformatique Toulouse AND Maria Bernard - Sigenae Jouy en Josas'
 __copyright__ = 'Copyright (C) 2020 INRAE'
 __license__ = 'GNU General Public License'
-__version__ = '4.1.0'
+__version__ = '5.0.0'
 __email__ = 'frogs-support@inrae.fr'
 __status__ = 'prod'
 
@@ -708,6 +708,10 @@ def write_summary( summary_file, input_biom, output_biom, discards, params ):
             line = line.replace( "###FILTERS_RESULTS###", json.dumps(list(filters_results.values())) )
         elif "Draw a Venn to see which ASVs had been deleted by the filters chosen (Maximum 6 options): " in line and params.mask:
             line = "Draw a Venn to see which ASVs had its taxonomy masked by the filters chosen (Maximum 6 options): "
+        elif "###FROGS_VERSION###" in line:
+            line = line.replace( "###FROGS_VERSION###", "\""+str(__version__)+"\"" )
+        elif "###FROGS_TOOL###" in line:
+            line = line.replace( "###FROGS_TOOL###", "\""+ os.path.basename(__file__)+"\"" )
         FH_summary_out.write( line )
 
     FH_summary_out.close()
