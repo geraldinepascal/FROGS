@@ -25,6 +25,23 @@
 		<link rel="stylesheet" href="https://cdn.datatables.net/1.10.19/css/dataTables.bootstrap4.min.css"></link>
 		<link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
 		<style type="text/css">
+			:root {
+				--frogsColor: #8EADAC; 
+				--frogsColorHover: #648a89;
+				--frogsColorShadow: #555;
+				--frogsColor2: #DE9F73;
+				--frogsColorZoomHighCharts: rgb(222,159,115,0.25);
+			}
+			.frogsversion{
+				position: absolute;
+				right: 5%;
+				color: var(--frogsColor);
+				font-style: italic;
+				font-size: smaller;
+			}
+			.frogsversion > a{
+				border: none !important;
+			}
 			#js-alert {
 				width: 90%;
 				margin-right: auto;
@@ -69,7 +86,7 @@
 				left: -10px;
 			}
 			.badge-primary{
-				background-color:#8EADAC;
+				background-color: var(--frogsColor);
 			}
 			.graph-nb {
 				color: #95959C;
@@ -81,8 +98,8 @@
 				border-width: 3px;
 				border-radius: 50px;
 				box-shadow: 2px 2px 2px #555;
-				border-color: #648a89;
-				background: radial-gradient( #8EADAC, #648a89);
+				border-color: var(--frogsColorHover);
+				background: radial-gradient( var(--frogsColor), var(--frogsColorHover));
 				color: white;
 				padding: 10px;
 				width: 180px;
@@ -102,12 +119,12 @@
 			}
 			.d3-node-dot {
 				fill: #fff;
-				stroke: #8EADAC;
+				stroke: var(--frogsColor);
 				stroke-width: 3px;
 			}
 			.d3-collapsed-node {
-				fill: #8EADAC;
-				stroke: #648a89;
+				fill: var(--frogsColor);
+				stroke: var(--frogsColorHover);
 				stroke-width: 3px;
 			}
 			.d3-node text {
@@ -115,19 +132,19 @@
 			}
 			.d3-link {
 				fill: none;
-				stroke: #648a89;
+				stroke: var(--frogsColorHover);
 				stroke-width: 2px;
 			}
 			.page-item.active .page-link {
 				z-index: 1;
 				color: #fff;
-				background-color: #8EADAC;
-				border-color: #8EADAC;
+				background-color: var(--frogsColor);
+				border-color: var(--frogsColor);
 			}
 			.btn {
 				color: #fff;
-				border:#8EADAC;
-				background-color: #8EADAC;
+				border: var(--frogsColor);
+				background-color: var(--frogsColor);
 			}
 			.btn:focus, .btn:active {
 				outline: none !important;
@@ -135,8 +152,8 @@
 			}
 			.btn:hover{
 				color: #fff;
-				border:#648a89;
-				background-color: #648a89;
+				border: var(--frogsColorHover);
+				background-color: var(--frogsColorHover);
 			}
 			.pb-2, .py-2 {
 				padding-bottom: 1.5rem !important;
@@ -150,39 +167,39 @@
 			}
 			.nav-tabs .nav-link.active, .nav-tabs .nav-item.show .nav-link{
 				color: #fff;
-				background-color: #8EADAF;
+				background-color: var(--frogsColor);
 				border-color: #dee2e6 #dee2e6 #fff;
 			}
 			a {
-				color: #8EAEAF;
+				color: var(--frogsColor);
 			}
 			a:hover{
-				color:#648a89;
+				color: var(--frogsColorHover);
 			}
 			.page-link{
-				color: #8EAEAF;
+				color: var(--frogsColor);
 			}
 			.page-link:hover{
 				
 			}
 			.page-link:not(:disabled):not(.disabled) {
-				color: #8EAEAF;
+				color: var(--frogsColor);
 			}
 			.page-item.active .page-link {
 				color: #fff;
 			}
 			.highcharts-button > path{
 				stroke:#fff !important;
-				fill:#8EADAC !important;
+				fill: var(--frogsColor) !important;
 			}
 			g.highcharts-button{
 				cursor:pointer !important;
 			}
 			g.highcharts-button:hover{
 				color: #fff;
-				border:#648a89;
-				background-color: #648a89;
-				background-color: #648a89;
+				border: var(--frogsColorHover);
+				background-color: var(--frogsColorHover);
+				background-color: var(--frogsColorHover);
 				cursor:pointer !important;
 			}
 		</style>
@@ -232,6 +249,30 @@
 			!function(t){t.fn.datatableExport=function(a){var e={anchor_id:t(this).attr("id"),table_id:null,csv_separator:";",omitted_columns:[]},n=t.extend(e,a);if(!t(this).length)throw"The element where the datatableExport is called does not exist.";if(void 0==n.anchor_id)throw"The datatableExport plugin must be called on an element with id.";if(null==n.table_id)throw"You must set the table_id parameter in datatableExport plugin.";if(!t("#"+n.table_id))throw"The datatable '#"+n.table_id+"' cannot be retieve in DOM.";return this.each(function(){var a=t(this);a.on("click",function(){t.fn.datatableExport.csv(n.anchor_id,n.table_id,n.csv_separator,n.omitted_columns)})})},t.fn.datatableExport.cleanCellMarkup=function(a,e){t.parseHTML(e);t("#"+a).append('<div class="hidden data-tmp">'+e+"</div>"),t("#"+a+" .data-tmp").find("input").each(function(){var a="";a=t(this).is(":checkbox")?t(this).is(":checked")?"true":"false":t(this).val(),t(this).replaceWith(a)});var n=t("#"+a+" .data-tmp").text();return t("#"+a+" .data-tmp").remove(),n},t.fn.datatableExport.csv=function(a,e,n,i){var l="",r=t("#"+e).DataTable(),d=t("#"+e+" thead")[0],o=new HTMLtable(d.cloneNode(!0));o.deleteColumns(i),l+=o.toCSV();var c=r.rows().data();t.each(c,function(e,n){for(var r="",d=0;d<n.length;d++)-1==t.inArray(d,i)&&(r+='"'+t.fn.datatableExport.cleanCellMarkup(a,n[d])+'";');""!=r&&(r=r.slice(0,-1)),l+=r+"\n"}),t("#"+a+"-extract-csv").length||t("#"+a).append('<a id="'+a+'-extract-csv" href="data:text/csv;charset=UTF-8,'+encodeURI(l)+'" download="data.csv" style="display:none;"></a>'),t("#"+a+"-extract-csv")[0].click()}}(jQuery);
 		</script>
 		<script type="text/javascript">
+			
+			/**
+			Colors
+			*/
+			var root = document.documentElement;
+			var style = getComputedStyle(root);
+			var frogsColor = style.getPropertyValue('--frogsColor');
+			var frogsColor2 = style.getPropertyValue('--frogsColor2');
+			var frogsColorZoomHighCharts = style.getPropertyValue('--frogsColorZoomHighCharts');
+			var frogsColorHover = style.getPropertyValue('--frogsColorHover');
+			/**
+			 Data from HTML
+			*/
+			var clusters_sizes = ###CLUSTERS_SIZES### ;
+			var series = [{
+				'name': "All",
+				'data': ###DATA_COUNTS###
+			}];
+			var sum_series = new Array() ;
+			var samples_distrib = ###DATA_SAMPLE### ;
+			var newick = ###NEWICK### ;
+			var frogs_version = ###FROGS_VERSION### ;
+			var frogs_tool = ###FROGS_TOOL### ;
+			
 			//HC global var
 			var linkage_data = null ;
 			var d3_tree = null ;
@@ -457,14 +498,14 @@
 					buttonOptions: {
 						theme: {
 							r: 4,
-							fill:'#8EADAC',
+							fill: frogsColor,
 							states: {
 								hover: {
 									fill: 'rgb(100, 138, 137)',
-									stroke:'#8EADAC'
+									stroke: frogsColor
 								},
 								select: {
-									stroke: '#8EADAC',
+									stroke: frogsColor,
 									fill: 'rgb(100, 138, 137)',
 								}
 							}
@@ -578,7 +619,7 @@
 			var cluster_distrib_load = function( container_id ) {
 				// Radializes colors
 				Highcharts.setOptions({
-					 colors : ['#8EADAC', '#DE9F73'] ,
+					 colors : [frogsColor, '#DE9F73'] ,
 					});
 					Highcharts.SVGRenderer.prototype.symbols.download = function (x, y, w, h) {
 					var path = [
@@ -822,28 +863,13 @@
 				);
 			}
 
-			
-			///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-			//
-			// Data
-			//
-			///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-			var clusters_sizes = ###CLUSTERS_SIZES### ;
-			var series = [{
-				'name': "All",
-				'data': ###DATA_COUNTS###
-			}];
-			var sum_series = new Array() ;
-			var samples_distrib = ###DATA_SAMPLE### ;
-			var newick = ###NEWICK### ;
-
-
 			///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 			//
 			// Main
 			//
 			///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-			$(function() {			
+			$(function() {
+				$(".frogsversion > a").text("FROGS "+frogs_tool+" "+frogs_version);	
 				// Remove alert
 				$('#js-alert').remove();
 				$('#content').removeClass("hidden");
@@ -878,8 +904,8 @@
 		<div id="content" class="hidden">
 			<ul class="nav nav-tabs">
 				<li class="nav-item active"><a class="nav-link active" href="#cluster-distrib">Clusters distribution</a></li>
-				<!--<li class="nav-item active"><a class="nav-link" href="#sequence-distrib">Sequences distribution</a></li>-->
 				<li class="nav-item active"><a class="nav-link" href="#samples-distrib">Samples distribution</a></li>
+				<li class="nav-item frogsversion"><a class="nav-link"></a></li>
 			</ul>
 			<div class="tab-content">
 				<div id="cluster-distrib" role="tabpanel" class="tab-pane active">
