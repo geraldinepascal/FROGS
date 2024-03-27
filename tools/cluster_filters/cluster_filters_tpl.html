@@ -24,6 +24,23 @@
 		<link rel="stylesheet" href="https://cdn.datatables.net/1.10.19/css/dataTables.bootstrap4.min.css"></link>
 		<link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
 		<style type="text/css">
+			:root {
+				--frogsColor: #8EADAC; 
+				--frogsColorHover: #648a89;
+				--frogsColorShadow: #555;
+				--frogsColor2: #DE9F73;
+				--frogsColorZoomHighCharts: rgb(222,159,115,0.25);
+			}
+			.frogsversion{
+				position: absolute;
+				right: 5%;
+				color: var(--frogsColor);
+				font-style: italic;
+				font-size: smaller;
+			}
+			.frogsversion > a{
+				border: none !important;
+			}
 			#js-alert {
 				width: 90%;
 				margin-right: auto;
@@ -64,13 +81,13 @@
 			.page-item.active .page-link {
 				z-index: 1;
 				color: #fff;
-				background-color: #8EADAC;
-				border-color: #8EADAC;
+				background-color: var(--frogsColor);
+				border-color: var(--frogsColor);
 			}
 			.btn {
 				color: #fff;
-				border:#8EADAC;
-				background-color: #8EADAC;
+				border: var(--frogsColor);
+				background-color: var(--frogsColor);
 			}
 			.btn:focus, .btn:active {
 				outline: none !important;
@@ -80,8 +97,8 @@
 			
 			.btn {
 				color: #fff;
-				border:#8EADAC;
-				background-color: #8EADAC;
+				border: var(--frogsColor);
+				background-color: var(--frogsColor);
 			}
 			.btn:focus, .btn:active {
 				outline: none !important;
@@ -89,8 +106,8 @@
 			}
 			.btn:hover:enabled{
 				color: #fff;
-				border:#648a89;
-				background-color: #648a89;
+				border: var(--frogsColorHover);
+				background-color: var(--frogsColorHover);
 				cursor:pointer !important;
 			}
 			
@@ -106,14 +123,14 @@
 			}
 			.nav-tabs .nav-link.active, .nav-tabs .nav-item.show .nav-link{
 				color: #fff;
-				background-color: #8EADAF;
+				background-color: var(--frogsColor);
 				border-color: #dee2e6 #dee2e6 #fff;
 			}
 			a {
 				color: #8EAEAF;
 			}
 			a:hover{
-				color:#648a89;
+				color: var(--frogsColorHover);
 			}
 			
 			/* ##### THEME FOR CHECKBOXES ##### */
@@ -142,19 +159,19 @@
 				left: 0;
 				height: 25px;
 				width: 25px;
-				background-color: #8EADAC;
+				background-color: var(--frogsColor);
 				border-radius: 5px;
 				opacity:0.65;
 			}
 
 			/* On mouse-over, add a grey background color */
 			.container:hover input ~ .checkmark {
-				background-color: #648a89;
+				background-color: var(--frogsColorHover);
 			}
 
 			/* When the checkbox is checked, add a blue background */
 			.container input:checked ~ .checkmark {
-				background-color: #8EADAC;
+				background-color: var(--frogsColor);
 				opacity:1;
 			}
 
@@ -185,25 +202,24 @@
 			/* ##### END THEME CHECKBOXES ##### */
 			.highcharts-button > path{
 				stroke:#fff !important;
-				fill:#8EADAC !important;
+				fill: var(--frogsColor) !important;
 			}
 			g.highcharts-button{
 				cursor:pointer !important;
 			}
 			g.highcharts-button:hover{
 				color: #fff;
-				border:#648a89;
-				background-color: #648a89;
-				background-color: #648a89;
+				border: var(--frogsColorHover);
+				background-color: var(--frogsColorHover);
 				cursor:pointer !important;
 			}
 			.circle {
 				border-style: solid;
 				border-width: 3px;
 				border-radius: 50px;
-				box-shadow: 2px 2px 2px #555;
-				border-color: #648a89;
-				background: radial-gradient( #8EADAC, #648a89);
+				box-shadow: 2px 2px 2px var(--frogsColorShadow);
+				border-color: var(--frogsColorHover);
+				background: radial-gradient( var(--frogsColor), var(--frogsColorHover));
 				color: white;
 				padding: 10px;
 				width: 180px;
@@ -277,6 +293,74 @@
 		</script>		
 		
 		<script type="text/javascript">
+			/**
+			Colors
+			*/
+			var root = document.documentElement;
+			var style = getComputedStyle(root);
+			var frogsColor = style.getPropertyValue('--frogsColor');
+			var frogsColor2 = style.getPropertyValue('--frogsColor2');
+			var frogsColorZoomHighCharts = style.getPropertyValue('--frogsColorZoomHighCharts');
+			var frogsColorHover = style.getPropertyValue('--frogsColorHover');
+			/**
+			 Data from HTML
+			*/
+			var frogs_version = ###FROGS_VERSION### ;
+			var frogs_tool = ###FROGS_TOOL### ;
+			var processed_filters = ###PORCESSED_FILTERS### ;
+			/* Example:
+				['filterA', 'filterB', 'filterC']
+			*/
+			var global_results = ###GLOBAL_RESULTS### ; 
+			/* Example: 
+				{
+					'nb_clstr_kept': 100,
+					'nb_clstr_ini': 300,
+					'nb_seq_kept': 100,
+					'nb_seq_ini': 100000
+				}
+			*/
+			var by_samples_results = ###SAMPLES_RESULTS### ;
+			/* Example:
+				{
+					'sampleA':{
+						'filtered':{
+							'filterA': 10,
+							'filterB': 20
+						},
+						'initial': 75,
+						'kept': 50
+					},
+					'sampleB':{
+						'filtered':{
+							'filterB': 20,
+						},
+						'initial': 110,
+						'kept': 90
+					}
+				}
+			*/
+			var replicate_groups = ###REPLICATE_GROUPS### ;
+
+
+			var by_filters_results = ###FILTERS_RESULTS### ;
+			/* Example:
+				[
+					{'filters':['filterA'], 'count': 10},
+					{'filters':['filterB'], 'count': 20}replicate_groups,
+					{'filters':['filterC'], 'count': 30},
+					{'filters':['filterA', 'filterB'], 'count': 1},
+					{'filters':['filterA', 'filterC'], 'count': 2},
+					{'filters':['filterB', 'filterC'], 'count': 3},
+					{'filters':['filterA', 'filterB', 'filterC'], 'count': 4}
+				];
+			*/
+			
+			var series = [{
+				'name': "All",
+				'data': ###DATA_COUNTS###
+			}];
+			var sum_series = new Array() ;
 			/**
 			 * Returns the string representation of the number. 
 			 * @param pValue {Float} The number to process.
@@ -358,14 +442,14 @@
 							buttonOptions: {
 								theme: {
 									r: 4,
-									fill:'#8EADAC',
+									fill: frogsColor,
 									states: {
 										hover: {
 											fill: 'rgb(100, 138, 137)',
-											stroke:'#8EADAC'
+											stroke: frogsColor
 										},
 										select: {
-											stroke: '#8EADAC',
+											stroke: frogsColor,
 											fill: 'rgb(100, 138, 137)',
 										}
 									}
@@ -407,7 +491,7 @@
 			 	chart['chart'] = { 
 			 		type: 'area',
 			 		zoomType:"x",
-			 		selectionMarkerFill: "rgb(222,159,115,0.25)"
+			 		selectionMarkerFill: frogsColorZoomHighCharts
 			 	};
 			 	chart['xAxis']['tickInterval'] = Math.max(1, parseInt(x_max/10));
 				chart['plotOptions'] = {
@@ -432,21 +516,21 @@
 			   */
 			  var boxplot_param = function(pTitle, pXTitle, pYTitle, pXCategories, pData) {
 			  	var chart = chartplot( pTitle, null, pYTitle, pXCategories, pData );
-			  	chart['chart'] = { type: 'boxplot', zoomType: 'y',selectionMarkerFill: "rgb(222,159,115,0.25)" };
+			  	chart['chart'] = { type: 'boxplot', zoomType: 'y',selectionMarkerFill: frogsColorZoomHighCharts };
 			  	chart['yAxis']['min'] = 0 ;
 			  	chart['exporting'] = {buttons: {contextButton: { symbol: 'download' }}};
 			  	chart['navigation'] =  {
 					buttonOptions: {
 						theme: {
 							r: 4,
-							fill:'#8EADAC',
+							fill: frogsColor,
 							states: {
 								hover: {
 									fill: 'rgb(100, 138, 137)',
-									stroke:'#8EADAC'
+									stroke: frogsColor
 								},
 								select: {
-									stroke: '#8EADAC',
+									stroke: frogsColor,
 									fill: 'rgb(100, 138, 137)',
 								}
 							}
@@ -489,7 +573,7 @@
 			var global_filters_load = function(){
 				// Radializes colors
 				Highcharts.setOptions({
-					 colors : ['#8EADAC', '#DE9F73'] ,
+					 colors : [frogsColor, frogsColor2] ,
 					});
 					Highcharts.SVGRenderer.prototype.symbols.download = function (x, y, w, h) {
 					var path = [
@@ -662,66 +746,6 @@
 					'table_id': "details-table"
 				});
 			}
-
-			///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-			//
-			// Data
-			//
-			///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-			var processed_filters = ###PORCESSED_FILTERS### ;
-			/* Example:
-				['filterA', 'filterB', 'filterC']
-			*/
-			var global_results = ###GLOBAL_RESULTS### ; 
-			/* Example: 
-				{
-					'nb_clstr_kept': 100,
-					'nb_clstr_ini': 300,
-					'nb_seq_kept': 100,
-					'nb_seq_ini': 100000
-				}
-			*/
-			var by_samples_results = ###SAMPLES_RESULTS### ;
-			/* Example:
-				{
-					'sampleA':{
-						'filtered':{
-							'filterA': 10,
-							'filterB': 20
-						},
-						'initial': 75,
-						'kept': 50
-					},
-					'sampleB':{
-						'filtered':{
-							'filterB': 20,
-						},
-						'initial': 110,
-						'kept': 90
-					}
-				}
-			*/
-			var replicate_groups = ###REPLICATE_GROUPS### ;
-
-
-			var by_filters_results = ###FILTERS_RESULTS### ;
-			/* Example:
-				[
-					{'filters':['filterA'], 'count': 10},
-					{'filters':['filterB'], 'count': 20}replicate_groups,
-					{'filters':['filterC'], 'count': 30},
-					{'filters':['filterA', 'filterB'], 'count': 1},
-					{'filters':['filterA', 'filterC'], 'count': 2},
-					{'filters':['filterB', 'filterC'], 'count': 3},
-					{'filters':['filterA', 'filterB', 'filterC'], 'count': 4}
-				];
-			*/
-			
-			var series = [{
-				'name': "All",
-				'data': ###DATA_COUNTS###
-			}];
-			var sum_series = new Array() ;
 			
 			var get_dispersion = function( values, counts ) { 
 				var dispersion = new Array();
@@ -761,7 +785,7 @@
 			var cluster_distrib_load = function( container_id ) {
 				// Radializes colors
 				Highcharts.setOptions({
-					 colors : ['#8EADAC', '#DE9F73'] ,
+					 colors : [frogsColor, frogsColor2] ,
 					});
 					Highcharts.SVGRenderer.prototype.symbols.download = function (x, y, w, h) {
 					var path = [
@@ -912,18 +936,11 @@
 							var pointIndex = parseInt(series.data.indexOf(this.points[i].point));
 							var nbObs = parseInt(this.points[0].series.data.length);
 							var percCluster = (((pointIndex + 1) / nbObs) * 100).toFixed(2);
-							//tooltip_body += '<tr>' +
-							//	'<td style="color:' + this.points[i].series.color +'">' + this.points[i].series.name + ' : </td>' +
-							//	'<td> ' + this.points[i].point.y + '% </td>' +
-							//	'<td> sequences </td></tr><tr>' +
-							//	'<td>       ' + percCluster + '% </td>' +
-							//	'<td> clusters</td></tr>'
 							tooltip_body += '<tr> '+
 							'<th>Sequences</th><th>ASVs</th></tr>'+
 							'<tr><td>'+this.points[i].point.y + '%'+'</td><td>'+percCluster+ '%'+'</td>'+
 							'</tr>'
 						}
-						//return tooltip_head + '<table class="table"><caption>'+'Clusters with size <= ' + numberDisplay(this.x)+'</caption>' + tooltip_body + '</table>' ;
 						return '<table id="tooltip-seqdepth" class="table table-striped caption-top"><caption><b>'+'ASVs with size \u2264 ' + numberDisplay(this.x)+'</b></caption>' + tooltip_body + '</table>' ;
 					},
 					shared: true,
@@ -958,7 +975,6 @@
 					dom: 	"<'#samples-csv-export'><'row'<'col-sm-5'l><'col-sm-7'f>>" +
 							"<'row'<'col-sm-12'tr>>" +
 							"<'row'<'col-sm-5'i><'col-sm-7'p>>"
-					//"sDom": '<"top"<"#samples-csv-export"><"clear">lf>rt<"bottom"ip><"clear">'
 				});
 				$('#samples-csv-export').addClass( 'dataTables_filter' );
 				$('#samples-csv-export').html( '<button class="btn"><span class="fa fa-download" aria-hidden="true"> CSV</span></button>' );
@@ -973,6 +989,7 @@
 			//
 			///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 			$(function() {
+				$(".frogsversion > a").text("FROGS "+frogs_tool+" "+frogs_version);
 				// Remove alert
 				$('#js-alert').remove();
 				$('#content').removeClass("hidden");
@@ -1030,6 +1047,7 @@
 				<li class="nav-item" id="view-by-replicates-nav"><a class="nav-link" href="#view-by-replicates">Replicate Groups</a></li>
 				<li class="nav-item active"><a class="nav-link" href="#cluster-distrib">ASVs distribution</a></li>
 				<li class="nav-item active"><a class="nav-link" href="#samples-distrib">Samples distribution</a></li>
+				<li class="nav-item frogsversion"><a class="nav-link"></a></li>
 			</ul>
 
 			<div id="tab-content" class="tab-content">
@@ -1069,19 +1087,13 @@
 						<div id="nb-clusters" class="col-sm-6 col-md-4"></div>
 						<div id="nb-sequences" class="col-sm-6 col-md-4"></div>
 						<div class="col-md-2"></div>
-						<!--<div id="sequences-distrib"></div>-->
 					</div>
 				</div>
-				<!--<div id="sequence-distrib" role="tabpanel" class="tab-pane disabled"></div>-->
 				<div id="samples-distrib" role="tabpanel" class="tab-pane disabled">
 					<div>
 						<h2 class="pb-2 mt-4 mb-2 border-bottom">Sequences count</h2>
 						<div id="samples-distrib-table"></div>
 					</div>
-					<!--<div>
-						<h2 class="pb-2 mt-4 mb-2 border-bottom">Hierarchical clustering</h2>
-						<div id="samples-distrib-hc"></div>
-					</div>-->
 				</div>
             </div>
         </div>
