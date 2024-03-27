@@ -18,7 +18,7 @@
 __author__ = ' Ta Thi Ngan & Maria Bernard INRA - SIGENAE '
 __copyright__ = 'Copyright (C) 2017 INRA'
 __license__ = 'GNU General Public License'
-__version__ = '4.1.0'
+__version__ = '5.0.0'
 __email__ = 'frogs-support@inrae.fr'
 __status__ = 'prod'
 
@@ -238,6 +238,10 @@ def write_summary( summary_file, fasta_in, align_out, biomfile, treefile):
         elif '<div id="ASVs-fail" style="display:none;">' in line:
             if summary_info['otu_removed']!=0:
                 line = line.replace( 'style="display:none;"', '' )
+        elif "###FROGS_VERSION###" in line:
+            line = line.replace( "###FROGS_VERSION###", "\""+str(__version__)+"\"" )
+        elif "###FROGS_TOOL###" in line:
+            line = line.replace( "###FROGS_TOOL###", "\""+ os.path.basename(__file__)+"\"" )
         FH_summary_out.write(line)
     FH_summary_out.close()
     FH_summary_tpl.close()
