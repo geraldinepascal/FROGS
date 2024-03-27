@@ -26,7 +26,7 @@ mkdir -p $OUT
 --min-abundance 4296 \
 --contaminant data/phi.fa \
 --nb-biggest-clusters 5 \
---replicate_file data/replicates_file.tsv -r 1 
+--replicate_file data/replicates_file.tsv --min-replicate-presence 1 
 
 
 # External BIOM without affiliation
