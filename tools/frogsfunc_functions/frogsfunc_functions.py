@@ -19,9 +19,9 @@
 __author__ = ' Moussa Samb & Vincent Darbot & Geraldine Pascal - GENPHYSE '
 __copyright__ = 'Copyright (C) 2022 INRAE'
 __license__ = 'GNU General Public License'
-__version__ = '4.1.0'
+__version__ = '5.0.0'
 __email__ = 'frogs@toulouse.inrae.fr'
-__status__ = 'dev'
+__status__ = 'prod'
 
 import os
 import sys
@@ -476,6 +476,10 @@ def write_summary(in_biom, function_file, nsti_file, excluded, tree_count_file, 
 			line = line.replace( "###TREE_DISTRIBUTION###", json.dumps(newick_tree) )
 		elif "###STARPLOT_SERIES###" in line:
 			line = line.replace( "###STARPLOT_SERIES###", json.dumps(starplot_series) )
+		elif "###FROGS_VERSION###" in line:
+			line = line.replace( "###FROGS_VERSION###", "\""+str(__version__)+"\"" )
+		elif "###FROGS_TOOL###" in line:
+			line = line.replace( "###FROGS_TOOL###", "\""+ os.path.basename(__file__)+"\"" )
 		FH_summary_out.write( line )
 
 	FH_summary_out.close()
@@ -504,7 +508,7 @@ if __name__ == "__main__":
 	group_input_16S = parser.add_argument_group( '16S ' )
 	group_input_16S.add_argument('--functions', type=str, default='EC', help="Specifies which function databases should be used (%(default)s). Available indices : 'EC', 'KO', 'COG', 'PFAM', 'TIGRFAM', 'PHENO'. EC is used by default because necessary for frogsfunc_pathways. At least EC or KO is required. To run the command with several functions, separate the functions with commas (ex: -i EC,PFAM). [Default: %(default)s]")
 	group_input_other = parser.add_argument_group( 'ITS and 18S ' )
-	group_input_other.add_argument('--input-function-table', required=True, help="The path to input functions table describing directly observed functions, in tab-delimited format.(ex $PICRUSt2_PATH/default_files/fungi/ec_ITS_counts.txt.gz).")
+	group_input_other.add_argument('--input-function-table', help="The path to input functions table describing directly observed functions, in tab-delimited format.(ex $PICRUSt2_PATH/default_files/fungi/ec_ITS_counts.txt.gz).")
     
 	group_input.add_argument('--hsp-method', default='mp', choices=['mp', 'emp_prob', 'pic', 'scp', 'subtree_average'], help='HSP method to use. mp: predict discrete traits using max parsimony. emp_prob: predict discrete traits based on empirical state probabilities across tips. subtree_average: predict continuous traits using subtree averaging. pic: predict continuous traits with phylogentic independent contrast. scp: reconstruct continuous traits using squared-change parsimony [Default: %(default)s].')
 	group_input.add_argument('--max-nsti', type=float, default=2.0, help='Sequences with NSTI values above this value will be excluded [Default: %(default)s].')
