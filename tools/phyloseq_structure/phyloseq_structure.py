@@ -18,7 +18,7 @@
 __author__ = 'Ta Thi Ngan & Maria Bernard INRA - SIGENAE'
 __copyright__ = 'Copyright (C) 2017 INRA'
 __license__ = 'GNU General Public License'
-__version__ = '4.1.0'
+__version__ = '5.0.0'
 __email__ = 'frogs-support@inrae.fr'
 __status__ = 'prod'
 
@@ -74,7 +74,7 @@ class Rscript(Cmd):
                       'Rscript',
                       'Run 1 code Rmarkdown',
                        '-e "rmarkdown::render(' + "'" + rmd + "',output_file='" + html + \
-                       "', params=list(phyloseq='" + phyloseq + "', varExp='" + varExp + "',method='" + method + "',distance='" + distance + "', libdir ='" + LIBR_DIR + "'), intermediates_dir='" + os.path.dirname(html) + "')" + '" 2> ' + rmd_stderr,
+                       "', params=list(phyloseq='" + phyloseq + "', varExp='" + varExp + "',method='" + method + "',distance='" + distance + "', libdir ='" + LIBR_DIR + "', version='"+ str(__version__) + "'), intermediates_dir='" + os.path.dirname(html) + "')" + '" 2> ' + rmd_stderr,
                        "-e '(sessionInfo()[[1]][13])[[1]][1]; paste(\"Rmarkdown version: \",packageVersion(\"rmarkdown\")) ; library(phyloseq); paste(\"Phyloseq version: \",packageVersion(\"phyloseq\"))'")
     def get_version(self):
         """
