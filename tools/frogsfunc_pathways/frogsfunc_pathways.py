@@ -19,9 +19,9 @@
 __author__ = ' Moussa Samb & Vincent Darbot & Geraldine Pascal - GENPHYSE '
 __copyright__ = 'Copyright (C) 2022 INRAE'
 __license__ = 'GNU General Public License'
-__version__ = '4.1.0'
+__version__ = '5.0.0'
 __email__ = 'frogs@toulouse.inrae.fr'
-__status__ = 'dev'
+__status__ = 'prod'
 
 import os
 import sys
@@ -301,6 +301,10 @@ def write_summary(strat_file, tree_count_file, tree_ids_file, summary_file):
 			line = line.replace( "###DATA_SAMPLE###", json.dumps(samples_distrib) )
 		elif "###TREE_DISTRIBUTION###" in line:
 			line = line.replace( "###TREE_DISTRIBUTION###", json.dumps(newick_tree) )
+		elif "###FROGS_VERSION###" in line:
+			line = line.replace( "###FROGS_VERSION###", "\""+str(__version__)+"\"" )
+		elif "###FROGS_TOOL###" in line:
+			line = line.replace( "###FROGS_TOOL###", "\""+ os.path.basename(__file__)+"\"" )
 		FH_summary_out.write( line )
 
 	FH_summary_out.close()
