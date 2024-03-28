@@ -10,8 +10,8 @@ then
 fi
 
 ./frogsfunc_placeseqs.py \
-    -i data/frogsfunc.fasta \
-    -b data/frogsfunc.biom \
+    --input-fasta data/frogsfunc.fasta \
+    --input-biom data/frogsfunc.biom \
     --placement-tool sepp \
     --output-tree test/25-frogsfunc_placeseqs_tree.nwk \
     --excluded test/25-frogsfunc_placeseqs_excluded.txt \
