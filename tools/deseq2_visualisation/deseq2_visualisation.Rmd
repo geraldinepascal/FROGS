@@ -1,5 +1,5 @@
 ---
-title: "FROGSSTAT DESeq2: Visualisation (version 4.1.0)"
+title: "FROGSSTAT DESeq2: Visualisation (version `r params$version`)"
 output: 
   html_notebook:
     code_folding: hide
@@ -35,6 +35,8 @@ params:
   svg_file_under:
     value: x
   libdir:
+    value: x
+  version:
     value: x
 ---
 

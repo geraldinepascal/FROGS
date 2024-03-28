@@ -18,7 +18,7 @@
 __author__ = ' Ta Thi Ngan SIGENAE / Mahendra Mariadassou plateforme MIGALE'
 __copyright__ = 'Copyright (C) 2017 INRA'
 __license__ = 'GNU General Public License'
-__version__ = '4.1.0'
+__version__ = '5.0.0'
 __email__ = 'frogs@toulouse.inrae.fr'
 __status__ = 'prod'
 
@@ -85,7 +85,7 @@ class Rscript(Cmd):
         Cmd.__init__( self,
                       'Rscript',
                       'Run deseq2_visualisation.Rmd',
-                       '-e "rmarkdown::render(' + "'" + rmd + "', output_file='" + html + "', params=list(abundance_data='" + abundance_data + "', analysis='" + analysis + "', dds='" + dds + "', var='" + var+"', mod1='" + mod1 + "', mod2='" + mod2 + "', padj_th=" + str(padj) + ", libdir ='" + LIB_DIR + "'" + opt + "), intermediates_dir='" + os.path.dirname(html) +"')" + '" 2> ' + err ,
+                       '-e "rmarkdown::render(' + "'" + rmd + "', output_file='" + html + "', params=list(abundance_data='" + abundance_data + "', analysis='" + analysis + "', dds='" + dds + "', var='" + var+"', mod1='" + mod1 + "', mod2='" + mod2 + "', padj_th=" + str(padj) + ", libdir ='" + LIB_DIR + "'" + ", version='"+ str(__version__) + "'" + opt + "), intermediates_dir='" + os.path.dirname(html) +"')" + '" 2> ' + err ,
                       "-e '(sessionInfo()[[1]][13])[[1]][1]; library(DESeq2); paste(\"DESeq2 version: \",packageVersion(\"DESeq2\"))'")
                       
     def get_version(self):
