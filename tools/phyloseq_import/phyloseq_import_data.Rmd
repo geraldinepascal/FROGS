@@ -1,5 +1,5 @@
 ---
-title: "FROGS Phyloseq: Import Data (version 4.1.0)"
+title: "FROGS Phyloseq: Import Data (version `r params$version`)"
 output: 
   html_notebook:
     code_folding: hide
@@ -24,6 +24,8 @@ params:
     value: x
   # Path to the phyloseq-extend R functions : https://github.com/mahendra-mariadassou/phyloseq-extended, typically stored in FROGS/lib/external-lib
   libdir:
+    value: x
+  version:
     value: x
 ---
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
