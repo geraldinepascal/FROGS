@@ -1,5 +1,5 @@
 ---
-title: "FROGS Phyloseq: Alpha Diversity Visualisation (version 4.1.0)"
+title: "FROGS Phyloseq: Alpha Diversity Visualisation (version `r params$version`)"
 output: 
   html_notebook:
     code_folding: hide
@@ -13,6 +13,8 @@ params:
    fileAlpha:
       value: x
    libdir:
+      value: x
+   version:
       value: x
 ---
 
