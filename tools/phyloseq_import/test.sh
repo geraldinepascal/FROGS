@@ -14,15 +14,15 @@ fi
 # without normalisation and default ranks
 mkdir -p test/
 ./phyloseq_import_data.py  \
-	-n \
-	-b data/chaillou.biom \
-	-s data/sample_data.tsv \
-	-t data/tree.nwk \
-	--rdata test/phylo_import.Rdata -o test/phylo_import.nb.html -l test/phylo_import.log
+	--normalisation \
+	--biomfile data/chaillou.biom \
+	--samplefile data/sample_data.tsv \
+	--treefile data/tree.nwk \
+	--rdata test/phylo_import.Rdata --html test/phylo_import.nb.html --log-file test/phylo_import.log
 
 # on unstandardized biom
 ./phyloseq_import_data.py  \
-	-n \
-	-b data/frogs.biom \
-	-s data/frogs_sample_data.tsv \
-	--rdata test/frogs_import.Rdata -o test/frogs_import.nb.html -l test/frogs_import.log
+	--normalisation \
+	--biomfile data/frogs.biom \
+	--samplefile data/frogs_sample_data.tsv \
+	--rdata test/frogs_import.Rdata --html test/frogs_import.nb.html --log-file test/frogs_import.log
