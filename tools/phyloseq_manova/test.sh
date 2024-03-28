@@ -14,4 +14,4 @@ fi
                    --varExp "EnvType + FoodType" \
                    --distance-matrix data/Unifrac.tsv \
                    --html test/phylo_manova.nb.html \
-                   -l test/phylo_manova.log
+                   --log-file test/phylo_manova.log

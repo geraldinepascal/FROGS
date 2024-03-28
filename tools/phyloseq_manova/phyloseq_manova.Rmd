@@ -1,5 +1,5 @@
 ---
-title: "FROGS Phyloseq: Multivariate Analysis of Variance (version 4.1.0)"
+title: "FROGS Phyloseq: Multivariate Analysis of Variance (version `r params$version`)"
 output:
   html_notebook:
     code_folding : hide
@@ -11,6 +11,8 @@ params:
    distance:
       value: x
    libdir:
+      value: x
+   version:
       value: x
 ---
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
