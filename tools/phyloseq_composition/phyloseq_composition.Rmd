@@ -1,5 +1,5 @@
 ---
-title: "FROGS Phyloseq: Visualise Data Composition (version 4.1.0)"
+title: "FROGS Phyloseq: Visualise Data Composition (version `r params$version`)"
 output:
   html_notebook:
     code_folding : hide
@@ -17,6 +17,8 @@ params:
   numberOfTaxa:
     value: x
   libdir:
+    value: x
+  version:
     value: x
 ---
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
