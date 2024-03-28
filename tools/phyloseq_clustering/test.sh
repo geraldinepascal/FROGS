@@ -15,4 +15,4 @@ fi
     --varExp EnvType \
     --distance-matrix data/Unifrac.tsv \
     --html test/phylo_clustering.nb.html \
-    -l test/phylo_clustering.log
+    --log-file test/phylo_clustering.log
