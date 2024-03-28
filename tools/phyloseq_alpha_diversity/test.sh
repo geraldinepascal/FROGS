@@ -10,6 +10,6 @@ else
 	mkdir test
 fi 
 
-./phyloseq_alpha_diversity.py -r data/data.Rdata \
-	-v EnvType -m Observed Chao1 Shannon  \
-	-l test/phylo_alpha.log -o test/phylo_alpha.nb.html -a test/phylo_alpha.tsv --debug
+./phyloseq_alpha_diversity.py --rdata data/data.Rdata \
+	--varExp EnvType --alpha-measures Observed Chao1 Shannon  \
+	--log-file test/phylo_alpha.log --html test/phylo_alpha.nb.html --alpha-out test/phylo_alpha.tsv --debug
