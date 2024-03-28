@@ -27,6 +27,23 @@
 		<link rel="stylesheet" href="https://cdn.datatables.net/1.10.19/css/dataTables.bootstrap4.min.css"></link>
 		<link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet"></link>
         <style type="text/css">
+			:root {
+				--frogsColor: #8EADAC; 
+				--frogsColorHover: #648a89;
+				--frogsColorShadow: #555;
+				--frogsColor2: #DE9F73;
+				--frogsColorZoomHighCharts: rgb(222,159,115,0.25);
+			}
+			.frogsversion{
+				position: absolute;
+				right: 5%;
+				color: var(--frogsColor);
+				font-style: italic;
+				font-size: smaller;
+			}
+			.frogsversion > a{
+				border: none !important;
+			}
             #js-alert {
                 width: 90%;
                 margin-right: auto;
@@ -49,15 +66,15 @@
 			.page-item.active .page-link {
 				z-index: 1;
 				color: #fff;
-				background-color: #8EADAC;
-				border-color: #8EADAC;
+				background-color: var(--frogsColor);
+				border-color: var(--frogsColor);
 				outline: none !important;
 				box-shadow: none !important;
 			}
 			.btn {
 				color: #fff;
-				border:#8EADAC;
-				background-color: #8EADAC;
+				border: var(--frogsColor);
+				background-color: var(--frogsColor);
 			}
 			.btn:focus, .btn:active {
 				outline: none !important;
@@ -65,8 +82,8 @@
 			}
 			.btn:hover:enabled{
 				color: #fff;
-				border:#648a89;
-				background-color: #648a89;
+				border: var(--frogsColorHover);
+				background-color: var(--frogsColorHover);
 				cursor:pointer !important;
 			}
 			.pb-2, .py-2 {
@@ -105,14 +122,14 @@
 				left: 0;
 				height: 20px;
 				width: 20px;
-				background-color: #8EADAC;
+				background-color: var(--frogsColor);
 				border-radius: 5px;
 				opacity:0.65;
 			}
 
 			/* On mouse-over, add a grey background color */
 			.container:hover input ~ .checkmark {
-				background-color: #648a89;
+				background-color: var(--frogsColorHover);
 			}
 
 			/* Create the checkmark/indicator (hidden when not checked) */
@@ -141,29 +158,18 @@
 			}
 			.highcharts-button > path{
 				stroke:#fff !important;
-				fill:#8EADAC !important;
+				fill: var(--frogsColor) !important;
 			}
 			g.highcharts-button{
 				cursor:pointer !important;
 			}
 			g.highcharts-button:hover{
 				color: #fff;
-				border:#648a89;
-				background-color: #648a89;
-				background-color: #648a89;
+				border: var(--frogsColorHover);
+				background-color: var(--frogsColorHover);
+				background-color: var(--frogsColorHover);
 				cursor:pointer !important;
 			}
-			<!--
-			.selectpicker{
-				 	background-color:rgb(100, 138, 137,0.25);
-				 	border-color:#8EADAC;
-			}
-			.selectpicker:hover{
-				 	background-color:rgb(100, 138, 137,0.25);
-				 	border-color:#8EADAC;
-			}
-			-->
-			
 			option:active, option:hover {
 			  outline: none !important;
 			}
@@ -221,7 +227,7 @@
 				left: -10px;
 			}
 			.badge-primary{
-				background-color:#8EADAC;
+				background-color: var(--frogsColor);
 			}
 			.graph-nb {
 				color: #95959C;
@@ -232,9 +238,9 @@
 				border-style: solid;
 				border-width: 3px;
 				border-radius: 50px;
-				box-shadow: 2px 2px 2px #555;
-				border-color: #648a89;
-				background: radial-gradient( #8EADAC, #648a89);
+				box-shadow: 2px 2px 2px var(--frogsColorShadow);
+				border-color: var(--frogsColorHover);
+				background: radial-gradient( var(--frogsColor), var(--frogsColorHover));
 				color: white;
 				padding: 10px;
 				width: 180px;
@@ -254,12 +260,12 @@
 			}
 			.d3-node-dot {
 				fill: #fff;
-				stroke: #8EADAC;
+				stroke: var(--frogsColor);
 				stroke-width: 3px;
 			}
 			.d3-collapsed-node {
-				fill: #8EADAC;
-				stroke: #648a89;
+				fill: var(--frogsColor);
+				stroke: var(--frogsColorHover);
 				stroke-width: 3px;
 			}
 			.d3-node text {
@@ -267,19 +273,19 @@
 			}
 			.d3-link {
 				fill: none;
-				stroke: #648a89;
+				stroke: var(--frogsColorHover);
 				stroke-width: 2px;
 			}
 			.page-item.active .page-link {
 				z-index: 1;
 				color: #fff;
-				background-color: #8EADAC;
-				border-color: #8EADAC;
+				background-color: var(--frogsColor);
+				border-color: var(--frogsColor);
 			}
 			.btn {
 				color: #fff;
-				border:#8EADAC;
-				background-color: #8EADAC;
+				border: var(--frogsColor);
+				background-color: var(--frogsColor);
 			}
 			.btn:focus, .btn:active {
 				outline: none !important;
@@ -287,8 +293,8 @@
 			}
 			.btn:hover{
 				color: #fff;
-				border:#648a89;
-				background-color: #648a89;
+				border: var(--frogsColorHover);
+				background-color: var(--frogsColorHover);
 			}
 			.pb-2, .py-2 {
 				padding-bottom: 1.5rem !important;
@@ -302,17 +308,17 @@
 			}
 			.nav-tabs .nav-link.active, .nav-tabs .nav-item.show .nav-link{
 				color: #fff;
-				background-color: #8EADAF;
+				background-color: var(--frogsColor);
 				border-color: #dee2e6 #dee2e6 #fff;
 			}
 			a {
-				color: #8EAEAF;
+				color: var(--frogsColor);
 			}
 			a:hover{
-				color:#648a89;
+				color: var(--frogsColorHover);
 			}
 			.page-link{
-				color: #8EAEAF;
+				color: var(--frogsColor);
 			}
 			.page-link:hover{
 				
@@ -325,16 +331,16 @@
 			}
 			.highcharts-button > path{
 				stroke:#fff !important;
-				fill:#8EADAC !important;
+				fill: var(--frogsColor) !important;
 			}
 			g.highcharts-button{
 				cursor:pointer !important;
 			}
 			g.highcharts-button:hover{
 				color: #fff;
-				border:#648a89;
-				background-color: #648a89;
-				background-color: #648a89;
+				border: var(--frogsColorHover);
+				background-color: var(--frogsColorHover);
+				background-color: var(--frogsColorHover);
 				cursor:pointer !important;
 			}
 			caption{
@@ -398,6 +404,65 @@
 		</script>	
         
         <script type="text/javascript">
+			/**
+			Colors
+			*/
+			var root = document.documentElement;
+			var style = getComputedStyle(root);
+			var frogsColor = style.getPropertyValue('--frogsColor');
+			var frogsColor2 = style.getPropertyValue('--frogsColor2');
+			var frogsColorZoomHighCharts = style.getPropertyValue('--frogsColorZoomHighCharts');
+			var frogsColorHover = style.getPropertyValue('--frogsColorHover');
+			/**
+			 Data from HTML
+			*/
+			var frogs_version = ###FROGS_VERSION### ;
+			var frogs_tool = ###FROGS_TOOL### ;
+			
+			var filters_categories = ###FILTERS_CATEGORIES### ;
+            /* Example:
+                ["before process", "paired-end assembled", "with 5' primer", "with 3' primer", "with expected length", "without N"] ;
+            */
+
+            var filters_by_sample = ###FILTERS_DATA### ;
+            /* Example:
+            var filters_by_sample = {
+            	"artificial combined": {
+            		"sampleA": {"with expected length": 1, "with 3' primer": 1, "with 5' primer": 2, "without N": 1, "paired-end assembled": 3}, 
+            		"sampleB": {"with expected length": 0, "with 3' primer": 0, "with 5' primer": 0, "without N": 0, "paired-end assembled": 0}
+            	}, 
+            	"before process": {"sampleA": 1003, "sampleB": 1000}, 
+            	"merged": {
+            		"sampleA": {"with expected length": 997, "with 3' primer": 997, "with 5' primer": 997, "without N": 997, "paired-end assembled": 1000},
+            		"sampleB": {"with expected length": 997, "with 3' primer": 997, "with 5' primer": 997, "without N": 997, "paired-end assembled": 1000}
+            	}
+            } ;
+            */
+
+            var before_lengths_by_sample = ###BEFORE_LENGTHS_DATA### ;
+            /* Example:
+                {
+                  sampleA": {"414": 446, "415": 54, "410": 99, "411": 4, "412": 46, "413": 347, "409": 4}, 
+                  "sampleB": {"414": 446, "415": 54, "410": 99, "411": 4, "412": 46, "413": 347, "409": 4}
+                }
+            */
+
+            var after_lengths_by_sample = ###AFTER_LENGTHS_DATA### ;
+            /* Example:
+                {
+                  "sampleA": {"381": 4, "382": 57, "383": 45, "384": 17, "385": 245, "386": 370, "387": 233, "388": 26}, 
+                  "sampleB": {"381": 4, "382": 57, "383": 45, "384": 17, "385": 245, "386": 370, "387": 233, "388": 26}
+                }
+            */
+            var clusters_sizes = ###CLUSTERS_SIZES### ;
+			var series = [{
+				'name': "All",
+				'data': ###DATA_COUNTS###
+			}];
+			var sum_series = new Array() ;
+			var samples_distrib = ###DATA_SAMPLE### ;
+			//var newick = ###NEWICK### ;
+			
 			//HC global var
 			var linkage_data = null ;
 			var d3_tree = null ;
@@ -550,7 +615,7 @@
                 return new_val ;
             }
             Highcharts.setOptions({
-					 colors : ['#8EADAC', '#DE9F73','#7cb5ec','#434348','#90ed7d','#f7a35c','#8085e9','#f15c80','#e4d354','#2b908f','#f45b5b','#91e8e1'],
+					 colors : [frogsColor, frogsColor2,'#7cb5ec','#434348','#90ed7d','#f7a35c','#8085e9','#f15c80','#e4d354','#2b908f','#f45b5b','#91e8e1'],
 					 lang: {thousandsSep: ','}
 					});
 			
@@ -654,21 +719,21 @@
 			   */
 			  var boxplot_param = function(pTitle, pXTitle, pYTitle, pXCategories, pData) {
 			  	var chart = chartplot( pTitle, null, pYTitle, pXCategories, pData );
-			  	chart['chart'] = { type: 'boxplot', zoomType: 'y',selectionMarkerFill: "rgb(222,159,115,0.25)" };
+			  	chart['chart'] = { type: 'boxplot', zoomType: 'y',selectionMarkerFill: frogsColorZoomHighCharts };
 			  	chart['yAxis']['min'] = 0 ;
 			  	chart['exporting'] = {buttons: {contextButton: { symbol: 'download' }}};
 			  	chart['navigation'] =  {
 					buttonOptions: {
 						theme: {
 							r: 4,
-							fill:'#8EADAC',
+							fill: frogsColor,
 							states: {
 								hover: {
 									fill: 'rgb(100, 138, 137)',
-									stroke:'#8EADAC'
+									stroke: frogsColor
 								},
 								select: {
-									stroke: '#8EADAC',
+									stroke: frogsColor,
 									fill: 'rgb(100, 138, 137)',
 								}
 							}
@@ -698,7 +763,7 @@
 			 	chart['chart'] = { 
 			 		type: 'area',
 			 		zoomType:"x",
-			 		selectionMarkerFill: "rgb(222,159,115,0.25)"
+			 		selectionMarkerFill: frogsColorZoomHighCharts
 			 	};
 			 	chart['xAxis']['tickInterval'] = Math.max(1, parseInt(x_max/10));
 				chart['plotOptions'] = {
@@ -788,7 +853,7 @@
                     chart: {
                         type: 'line',
                         zoomType: 'x',
-                        selectionMarkerFill: "rgb(222,159,115,0.25)"
+                        selectionMarkerFill: frogsColorZoomHighCharts
                     },
                     title: {
                         text: pTitle
@@ -810,14 +875,14 @@
 						buttonOptions: {
 							theme: {
 								r: 4,
-								fill:'#8EADAC',
+								fill: frogsColor,
 								states: {
 									hover: {
 										fill: 'rgb(100, 138, 137)',
-										stroke:'#8EADAC'
+										stroke: frogsColor
 									},
 									select: {
-										stroke: '#8EADAC',
+										stroke: frogsColor,
 										fill: 'rgb(100, 138, 137)',
 									}
 								}
@@ -874,14 +939,14 @@
 						buttonOptions: {
 							theme: {
 								r: 4,
-								fill:'#8EADAC',
+								fill: frogsColor,
 								states: {
 									hover: {
 										fill: 'rgb(100, 138, 137)',
-										stroke:'#8EADAC'
+										stroke: frogsColor
 									},
 									select: {
-										stroke: '#8EADAC',
+										stroke: frogsColor,
 										fill: 'rgb(100, 138, 137)',
 									}
 								}
@@ -988,7 +1053,7 @@
 			var cluster_distrib_load = function( container_id ) {
 				// Radializes colors
 				Highcharts.setOptions({
-					 colors : ['#8EADAC', '#DE9F73'] ,
+					 colors : [frogsColor, frogsColor2] ,
 					});
 					Highcharts.SVGRenderer.prototype.symbols.download = function (x, y, w, h) {
 					var path = [
@@ -1192,168 +1257,6 @@
 				});
 			}
 			
-			//var hierarchical_clustering_load = function( container_id ) {
-				//var tree = Node.fromNewick( newick );
-				//var leaves_names = tree.getLeavesNames();
-				//var leaf_name_length = 0 ;
-				//for( var idx = 0 ; idx < leaves_names.length ; idx++ ) {
-					//leaf_name_length = Math.max( leaf_name_length, leaves_names[idx].length );
-				//}
-				//var width = tree.maxDepth() * 95 + (leaf_name_length * 8) ; // nb_link * width_link + text_length 
-				//var height = 50 + tree.nbLeaves() * 40 ; //margin_top + nb_terminal_nodes + height_nodes
-
-				//// Display tree
-				//linkage_data = tree.toJson();
-				//d3_tree = null ;
-				//diagonal = null ;
-				//svg_layout = null ;
-				//node_id = 0 ;
-
-				//d3_tree = d3.layout.cluster()
-					//.size([height, width]);
-
-				//diagonal = d3.svg.diagonal()
-					//.projection(function(d) { return [d.y, d.x]; });
-				//$('#' + container_id).append('<div style="margin-left:auto;margin-right:auto;"></div>');
-				//svg_layout = d3.select('#' + container_id +  ' div').append("svg:svg")
-					//.attr("width", width)
-					//.attr("height", height)
-					//.append("svg:g")
-					//.attr("transform", "translate(20,20)");
-
-				//linkage_data.x0 = height / 2;
-				//linkage_data.y0 = 0;
-				
-				//update_linkage_nodes(linkage_data);
-				
-				//// Display warnings
-				//var excluded_samples = $.grep(
-					//Object.keys(samples_distrib),
-					//function(el){ return $.inArray(el, leaves_names) == -1 }
-				//);
-				//if( excluded_samples.length > 0 ){
-					//$('#' + container_id).append( '' +
-						//'<div id="hc-warning" class="alert alert-warning alert-dismissible">' +
-						//'    <span>' +
-						//'        <span class="glyphicon glyphicon-exclamation-sign"></span>' +
-						//'        Excluded because they have no sequence: ' +
-						//'    </span>' +
-						//'    <span>' + excluded_samples.sort().join(", ") + '</span>' +
-						//'</div>'
-					//);
-				//}
-
-				//// Display newick
-				//$('#' + container_id).append( '' +
-					//'<div id="hc-newick">' +
-					//'    <span class="badge badge-primary label-badge">Newick</span>' +
-					//'    <span>' + newick + '</span>' +
-					//'</div>'
-				//);
-			//}
-			
-			//var sequence_distrib_load = function( container_id ) {
-				//var series_cumulative = new Array() ;
-					//for( var series_idx = 0 ; series_idx < series.length ; series_idx++ ){
-						//series_cumulative.push({
-							//'name': series[series_idx]['name'],
-							//'data': new Array(),
-							//'pointStart': 1
-						//});
-						//var sum = 0 ;
-						//var previous_cumulative_count = 0 ;
-						//for( var val_idx = 0 ; val_idx < series[series_idx]['data'].length ; val_idx++ ){
-							//var current_count = series[series_idx]['data'][val_idx] * clusters_sizes[val_idx] ;
-							//var cumulative_count = previous_cumulative_count + current_count ;
-							//series_cumulative[series_idx]['data'].push( [clusters_sizes[val_idx], cumulative_count] );
-							//previous_cumulative_count = cumulative_count ;
-						//}
-						//sum_series[series[series_idx]['name']] = previous_cumulative_count ;
-					//}
-					//for( var series_idx = 0 ; series_idx < series.length ; series_idx++ ){
-						//for( var val_idx = 0 ; val_idx < series[series_idx]['data'].length ; val_idx++ ){
-							//var current_prct = (series_cumulative[series_idx]['data'][val_idx][1] / sum_series[series[series_idx]['name']])*100 ;
-							//series_cumulative[series_idx]['data'][val_idx][1] = Math.round(current_prct*100)/100 ;
-						//}
-					//}
-					//var seq_by_depth = areaplot_param("Cumulative sequences proportion by cluster size", "Cluster size", "% sequences", null, series_cumulative);
-					//seq_by_depth['tooltip'] = {
-						//formatter:function() {
-							//tooltip_head = '<b>Clusters with size <= ' + numberDisplay(this.x) + '</b>' ;
-							//tooltip_body = '' ;
-							//for( var i=0 ; i<this.points.length ; i++) {
-								//var pcnt = (this.points[i].point.y / sum_series[this.points[i].series.name]) * 100;
-								//tooltip_body += '<tr>' +
-									//'<td style="color:' + this.points[i].series.color +'">' + this.points[i].series.name + ' : </td>' +
-									//'<td> ' + this.points[i].point.y + '% </td>' +
-									//'<td> sequences</td>' +
-								   //'</tr>' ;
-							//}
-							//return tooltip_head + '<table>' + tooltip_body + '</table>' ;
-						//},
-						//shared: true,
-						//useHTML: true
-					//};
-					//$('#' + container_id).append('<div></div>');
-					//$('#' + container_id).highcharts( seq_by_depth );
-					//$('#' + container_id).append('<p class="graph-nb">N.B.: Select area to zoom in.</p>');
-			//}
-            
-            ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-            //
-            // Data
-            //
-            ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-            var filters_categories = ###FILTERS_CATEGORIES### ;
-            /* Example:
-                ["before process", "paired-end assembled", "with 5' primer", "with 3' primer", "with expected length", "without N"] ;
-            */
-
-            var filters_by_sample = ###FILTERS_DATA### ;
-            /* Example:
-            var filters_by_sample = {
-            	"artificial combined": {
-            		"sampleA": {"with expected length": 1, "with 3' primer": 1, "with 5' primer": 2, "without N": 1, "paired-end assembled": 3}, 
-            		"sampleB": {"with expected length": 0, "with 3' primer": 0, "with 5' primer": 0, "without N": 0, "paired-end assembled": 0}
-            	}, 
-            	"before process": {"sampleA": 1003, "sampleB": 1000}, 
-            	"merged": {
-            		"sampleA": {"with expected length": 997, "with 3' primer": 997, "with 5' primer": 997, "without N": 997, "paired-end assembled": 1000},
-            		"sampleB": {"with expected length": 997, "with 3' primer": 997, "with 5' primer": 997, "without N": 997, "paired-end assembled": 1000}
-            	}
-            } ;
-            */
-
-            var before_lengths_by_sample = ###BEFORE_LENGTHS_DATA### ;
-            /* Example:
-                {
-                  sampleA": {"414": 446, "415": 54, "410": 99, "411": 4, "412": 46, "413": 347, "409": 4}, 
-                  "sampleB": {"414": 446, "415": 54, "410": 99, "411": 4, "412": 46, "413": 347, "409": 4}
-                }
-            */
-
-            var after_lengths_by_sample = ###AFTER_LENGTHS_DATA### ;
-            /* Example:
-                {
-                  "sampleA": {"381": 4, "382": 57, "383": 45, "384": 17, "385": 245, "386": 370, "387": 233, "388": 26}, 
-                  "sampleB": {"381": 4, "382": 57, "383": 45, "384": 17, "385": 245, "386": 370, "387": 233, "388": 26}
-                }
-            */
-            var clusters_sizes = ###CLUSTERS_SIZES### ;
-			var series = [{
-				'name': "All",
-				'data': ###DATA_COUNTS###
-			}];
-			var sum_series = new Array() ;
-			var samples_distrib = ###DATA_SAMPLE### ;
-			//var newick = ###NEWICK### ;
-            
-            
-            ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-            //
-            // Main
-            //
-            ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
             /**
              * Disables/enables buttons in datatable.
              */
@@ -1625,29 +1528,13 @@
             }
 
             $(function() {
+				$(".frogsversion > a").text("FROGS "+frogs_tool+" "+frogs_version);
                 // Remove alert
                 $('#js-alert').remove();
                 $('#content').removeClass("hidden");
                 
                 // Display summary
                 summaryLoad();
-                /*if(!clusters_sizes){
-					//$("ul").find("li:not(:first)").remove();
-					$("#mytab").remove();
-					$("#content").prepend('<h2 class="pb-2-first mt-4 mb-2 border-bottom" style="margin-top: 1rem">Preprocess summary</h2>')
-					
-				} TO REMOVE */
-                
-                                
-                /*$("select").addClass("selectpicker");
-                $(".dataTables_length select").selectpicker({
-					style: 'btn-info',
-					size: 2,
-					width : '60px'
-				});
-				$('.selectpicker').selectpicker('refresh');
-				//$('select').selectpicker('refresh');
-				*/
 				
 				// Add tab listener
 				$('.nav-tabs a').click(function (e) {
@@ -1655,12 +1542,10 @@
 					$(this).tab('show');
 					if( $(this).attr('href') == "#sequence-distrib" && $('#sequence-distrib').hasClass('disabled') ){
 						$('#sequence-distrib').removeClass("disabled");
-					//} else if( $(this).attr('href') == "#samples-distrib" && $('#samples-distrib').hasClass('disabled') ){
 					}
 					if( $('#samples-distrib').hasClass('disabled') ){
 						$('#samples-distrib').removeClass("disabled");
 						sample_table_load( "samples-distrib-table" );
-						//hierarchical_clustering_load( "samples-distrib-hc" );
 					}
 					if( $(this).attr('href') == "#preprocess" && $('#preprocess').hasClass('disabled') ){
 						$('#preprocess').removeClass("disabled");
@@ -1669,7 +1554,6 @@
 					if ( $(this).attr('href') == "#cluster-distrib" && $('#cluster-distrib').hasClass('disabled') ){
 						$('#cluster-distrib').removeClass("disabled");
 						cluster_distrib_load( "cluster-distrib" );
-						//sequence_distrib_load( "sequence-distrib" );
 					}
 					
 				
@@ -1689,8 +1573,8 @@
 			<ul id="mytab" class="nav nav-tabs">
 				<li class="nav-item active"><a class="nav-link active" href="#preprocess">Denoising</a></li>
 				<li class="nav-item active"><a class="nav-link" href="#cluster-distrib">Clusters distribution</a></li>
-				<!--<li class="nav-item active"><a class="nav-link" href="#sequence-distrib">Sequences distribution</a></li>-->
 				<li class="nav-item active"><a class="nav-link" href="#samples-distrib">Samples distribution</a></li>
+				<li class="nav-item frogsversion"><a class="nav-link"></a></li>
 			</ul>
 			
 			<div class="tab-content">
@@ -1700,23 +1584,16 @@
 						<div id="nb-clusters" class="col-sm-6 col-md-4"></div>
 						<div id="nb-sequences" class="col-sm-6 col-md-4"></div>
 						<div class="col-md-2"></div>
-						<!--<div id="sequences-distrib"></div>-->
 					</div>
 				</div>
-				<!--<div id="sequence-distrib" role="tabpanel" class="tab-pane disabled"></div>-->
 				<div id="samples-distrib" role="tabpanel" class="tab-pane disabled">
 					<div>
 						<h2 class="pb-2 mt-4 mb-2 border-bottom">Sequences count</h2>
 						<div id="samples-distrib-table"></div>
 					</div>
-					<!--<div>
-						<h2 class="pb-2 mt-4 mb-2 border-bottom">Hierarchical clustering</h2>
-						<div id="samples-distrib-hc"></div>
-					</div>-->
 				</div>
 				
 				<div id="preprocess" role="tabpanel" class="tab-pane active">
-					<!--<h2 class="pb-2-first mt-4 mb-2 border-bottom" style="margin-top: 1rem">Preprocess summary</h2>-->
 					<div id="filter-summary"></div>
 					
 					<div id="filter-log">

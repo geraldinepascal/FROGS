@@ -16,12 +16,12 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-__author__ = 'Olivier Rué & Vincent Darbot - FROGS team'
-__copyright__ = 'Copyright (C) 2023 INRAE'
+__author__ = 'Olivier Rué - Migale and BioInfOmics - Jouy-en-Josas'
+__copyright__ = 'Copyright (C) 2024 INRAE'
 __license__ = 'GNU General Public License'
-__version__ = '5.0'
+__version__ = '5.0.0'
 __email__ = 'frogs-support@inrae.fr'
-__status__ = 'dev'
+__status__ = 'prod'
 
 import re
 import os
@@ -108,7 +108,7 @@ class Swarm2Biom(Cmd):
         Cmd.__init__( self,
                       'swarm2biom.py',
                       'Converts swarm output to abundance file (format BIOM).',
-                      "--clusters-file " + in_swarms + " --count-file " + in_count + " --output-file " + out_biom,
+                      "--clusters-file " + in_swarms + " --count-file " + in_count + " --output-file " + out_biom, 
                       '--version' )
     
     def get_version(self):
@@ -834,11 +834,12 @@ def to_biom(count_file, output_biom, process):
     @param output_biom : [str] path to the output biom file.
     @param process: [str] process used to generate sequences to transform to biom and fasta.
     """
+
     if process == "dada2":
-        biom = Biom( generated_by='dada2', matrix_type="sparse" )
+        biom = Biom( generated_by='dada2', matrix_type="sparse")
     else: # only dereplication
-        biom = Biom( generated_by='frogs', matrix_type="sparse" )
-    
+        biom = Biom( generated_by='frogs', matrix_type="sparse")
+
     # Preclusters count by sample
     preclusters_count = dict()
     count_fh = open( count_file )
@@ -1127,6 +1128,10 @@ def summarise_results( samples_names, lengths_files, biom_file, depth_file, clas
             line = line.replace( "###BEFORE_LENGTHS_DATA###", json.dumps(before_lengths_by_sample) )
         elif "###AFTER_LENGTHS_DATA###" in line:
             line = line.replace( "###AFTER_LENGTHS_DATA###", json.dumps(after_lengths_by_sample) )
+        elif "###FROGS_VERSION###" in line:
+            line = line.replace( "###FROGS_VERSION###", "\""+str(__version__)+"\"" )
+        elif "###FROGS_TOOL###" in line:
+            line = line.replace( "###FROGS_TOOL###", "\""+ os.path.basename(__file__)+"\"" )
         FH_summary_out.write( line )
     FH_summary_out.close()
     FH_summary_tpl.close()
@@ -1308,18 +1313,13 @@ def samples_from_tar( archive, contiged, global_tmp_files, R1_files, R2_files, s
 def is_gzip( file ):
     """
     @return: [bool] True if the file is gziped.
-    @param file: [str] Path to processed file.
+    @param file : [str] Path to processed file.
     """
-    is_gzip = None
-    FH_input = gzip.open( file )
-    try:
-        FH_input.readline()
-        is_gzip = True
-    except:
-        is_gzip = False
-    finally:
-        FH_input.close()
-    return is_gzip
+    gzip_magic_number = b'\x1f\x8b'
+    with open( file , 'rb') as FH_input:
+        first_two_bytes = FH_input.read(2)
+
+    return first_two_bytes == gzip_magic_number
 
 def get_nb_seq( reads_file ):
     """
@@ -1877,7 +1877,7 @@ def process( args ):
                 # convert cluster composition in read composition ==> final swarm composition
                 agregate_composition(denoising_compo, swarms_file, args.output_compo)
 
-            Swarm2Biom( args.output_compo, tmp_count, args.output_biom ).submit( args.log_file )
+            Swarm2Biom( args.output_compo, tmp_count, args.output_biom).submit( args.log_file )
             ExtractSwarmsFasta( final_sorted_fasta, swarms_file, swarms_seeds ).submit( args.log_file )
             Logger.static_write(args.log_file, "replace 50A-50C  tags by N. in: " + swarms_seeds + " out : "+ args.output_fasta +"\n")
             addNtags(swarms_seeds, args.output_fasta)
@@ -2045,14 +2045,14 @@ def process( args ):
 if __name__ == "__main__":
     # Manage parameters
     parser = argparse.ArgumentParser( description='Pre-process reads and denoise or cluster them.' )
-    parser.add_argument( '-v', '--version', action='version', version=__version__ )
+    parser.add_argument('--version', action='version', version=__version__ )
     subparsers = parser.add_subparsers()
     parser_illumina = subparsers.add_parser( 'illumina', help='Illumina sequencers.', usage='''
   For samples archive:
     denoising.py illumina
       --input-archive ARCHIVE_FILE
       --already-contiged
-      --R1-size R1_SIZE [--R2-size R2_SIZE]
+      --R1-size R1_SIZE [--R2-size R2_SIZE]sequencer
       --without-primers | --five-prim-primer FIVE_PRIM_PRIMER --three-prim-primer THREE_PRIM_PRIMER
       --min-amplicon-size MIN_AMPLICON_SIZE
       --max-amplicon-size MAX_AMPLICON_SIZE
@@ -2060,9 +2060,9 @@ if __name__ == "__main__":
       [--denoising] [--distance DISTANCE] [--fastidious] | [--sample-inference {pseudo-pooling, independent, pooling}]
       [--mismatch-rate RATE ] [--quality-scale SCALE ] [--merge-software {vsearch,flash,pear}] [--expected-amplicon-size] 
       [--keep-unmerged]
-      [-p NB_CPUS] [--debug] [-v]
-      [-b BIOM_FILE] [--output-fasta FASTA_FILE]
-      [-s SUMMARY_FILE] [-l LOG_FILE]
+      [--nb-cpus NB_CPUS] [--debug] [--version]
+      [--output-biom BIOM_FILE] [--output-fasta FASTA_FILE]
+      [--summary SUMMARY_FILE] [--log-file LOG_FILE]
       
   For samples files:
     denoising.py illumina
@@ -2077,48 +2077,48 @@ if __name__ == "__main__":
       [--denoising] [--distance DISTANCE] [--fastidious] | [--sample-inference {pseudo-pooling, independent, pooling}]
       [--mismatch-rate RATE ] [--quality-scale SCALE ] [--merge-software {vsearch,flash,pear}] [--expected-amplicon-size] 
       [--keep-unmerged]
-      [-p NB_CPUS] [--debug] [-v]
-      [-b BIOM_FILE] [--output-fasta FASTA_FILE]
-      [-s SUMMARY_FILE] [-l LOG_FILE]
+      [--nb-cpus NB_CPUS] [--debug] [--version]
+      [--output-biom BIOM_FILE] [--output-fasta FASTA_FILE]
+      [--summary SUMMARY_FILE] [--log-file LOG_FILE]
 
 ''')
     #     Illumina parameters
-    parser_illumina.add_argument( '--process', default="swarm", choices=["swarm","dada2","preprocess-only"], help='Choose between performing only dereplication and using swarm or dada2 to build ASVs [Default: %(default)s]' )
-    parser_illumina.add_argument( '--merge-software', default="vsearch", choices=["vsearch","flash","pear"], help='Software used to merge paired reads' )
-    parser_illumina.add_argument( '--keep-unmerged', default=False, action='store_true', help='In case of uncontiged paired reads, keep unmerged, and artificially combined them with 100 Ns. [Default: %(default)s]' )
-    parser_illumina.add_argument( '--min-amplicon-size', type=int, required=True, help='The minimum size for the amplicons (with primers).' )
-    parser_illumina.add_argument( '--max-amplicon-size', type=int, required=True, help='The maximum size for the amplicons (with primers).' )
-    parser_illumina.add_argument( '--expected-amplicon-size', type=int, help='The expected size for the majority of the amplicons (with primers), if using Flash as read pair merge software.' )
-    parser_illumina.add_argument( '--five-prim-primer', type=str, help="The 5' primer sequence (wildcards are accepted)." )
-    parser_illumina.add_argument( '--three-prim-primer', type=str, help="The 3' primer sequence (wildcards are accepted)." )
-    parser_illumina.add_argument( '--without-primers', action='store_true', default=False, help="Use this option when you use custom sequencing primers and these primers are the PCR primers. In this case the reads do not contain the PCR primers. [Default: %(default)s]" )
-    parser_illumina.add_argument( '--R1-size', type=int, help='The read1 size.' )
-    parser_illumina.add_argument( '--R2-size', type=int, help='The read2 size.' )
-    parser_illumina.add_argument( '--mismatch-rate', type=float, default=0.1, help='Maximum mismatch rate in overlap region. [Default: %(default)s; must be expressed as decimal, between 0 and 1]' )
-    parser_illumina.add_argument( '--quality-scale', type=str, default="33", choices=["33", "64"], help='The phred base quality scale, either 33 or 64 if using Vsearch as read pair merge software [Default: %(default)s]' )
-    parser_illumina.add_argument( '--already-contiged', action='store_true', default=False, help='The archive contains 1 file by sample : Reads 1 and Reads 2 are already contiged by pair. [Default: %(default)s]' )
+    parser_illumina.add_argument('--process', default="swarm", choices=["swarm","dada2","preprocess-only"], help='Choose between performing only dereplication and using swarm or dada2 to build ASVs [Default: %(default)s]' )
+    parser_illumina.add_argument('--merge-software', default="vsearch", choices=["vsearch","flash","pear"], help='Software used to merge paired reads' )
+    parser_illumina.add_argument('--keep-unmerged', default=False, action='store_true', help='In case of uncontiged paired reads, keep unmerged, and artificially combined them with 100 Ns. [Default: %(default)s]' )
+    parser_illumina.add_argument('--min-amplicon-size', type=int, required=True, help='The minimum size for the amplicons (with primers).' )
+    parser_illumina.add_argument('--max-amplicon-size', type=int, required=True, help='The maximum size for the amplicons (with primers).' )
+    parser_illumina.add_argument('--expected-amplicon-size', type=int, help='The expected size for the majority of the amplicons (with primers), if using Flash as read pair merge software.' )
+    parser_illumina.add_argument('--five-prim-primer', type=str, help="The 5' primer sequence (wildcards are accepted)." )
+    parser_illumina.add_argument('--three-prim-primer', type=str, help="The 3' primer sequence (wildcards are accepted)." )
+    parser_illumina.add_argument('--without-primers', action='store_true', default=False, help="Use this option when you use custom sequencing primers and these primers are the PCR primers. In this case the reads do not contain the PCR primers. [Default: %(default)s]" )
+    parser_illumina.add_argument('--R1-size', type=int, help='The read1 size.' )
+    parser_illumina.add_argument('--R2-size', type=int, help='The read2 size.' )
+    parser_illumina.add_argument('--mismatch-rate', type=float, default=0.1, help='Maximum mismatch rate in overlap region. [Default: %(default)s; must be expressed as decimal, between 0 and 1]' )
+    parser_illumina.add_argument('--quality-scale', type=str, default="33", choices=["33", "64"], help='The phred base quality scale, either 33 or 64 if using Vsearch as read pair merge software [Default: %(default)s]' )
+    parser_illumina.add_argument('--already-contiged', action='store_true', default=False, help='The archive contains 1 file by sample : Reads 1 and Reads 2 are already contiged by pair. [Default: %(default)s]' )
     group_clustering = parser_illumina.add_argument_group( 'Clustering options' )
-    group_clustering.add_argument( '-n', '--denoising', default=False, action='store_true',  help="denoise data by clustering read with distance=1 before perform real clustering. It is mutually exclusive with --fastidious. [Default: %(default)s]" )
-    group_clustering.add_argument( '-d', '--distance', type=int, default=1, help="Maximum distance between sequences in each aggregation step. RECOMMENDED : d=1 in combination with --fastidious option [Default: %(default)s]" )
-    group_clustering.add_argument( '--fastidious', default=False, action='store_true',  help="use the fastidious option of swarm to refine cluster. RECOMMENDED in combination with a distance equal to 1 (-d). it is only usable with d=1 and mutually exclusive with --denoising. [Default: %(default)s]" )
-    group_clustering.add_argument( '--output-compo', default='clustering_swarms_composition.tsv', help='This output file will contain the composition of each cluster (format: TSV). One Line is a cluster ; each column is a sequence ID. [Default: %(default)s]')
+    group_clustering.add_argument('--denoising', default=False, action='store_true',  help="denoise data by clustering read with distance=1 before perform real clustering. It is mutually exclusive with --fastidious. [Default: %(default)s]" )
+    group_clustering.add_argument('--distance', type=int, default=1, help="Maximum distance between sequences in each aggregation step. RECOMMENDED : d=1 in combination with --fastidious option [Default: %(default)s]" )
+    group_clustering.add_argument('--fastidious', default=False, action='store_true',  help="use the fastidious option of swarm to refine cluster. RECOMMENDED in combination with a distance equal to 1 (-d). it is only usable with d=1 and mutually exclusive with --denoising. [Default: %(default)s]" )
+    group_clustering.add_argument('--output-compo', default='clustering_swarms_composition.tsv', help='This output file will contain the composition of each cluster (format: TSV). One Line is a cluster ; each column is a sequence ID. [Default: %(default)s]')
     group_denoising = parser_illumina.add_argument_group( 'Denoising options' )
-    group_denoising.add_argument( '--sample-inference', default="pseudo-pooling", choices=["pseudo-pooling", "independent", "pooling"],  help="Independent, pseudo-pooling of full pooling for dada2 samples processing. [Default: %(default)s]" )
-    parser_illumina.add_argument( '-p', '--nb-cpus', type=int, default=1, help="The maximum number of CPUs used. [Default: %(default)s]" )
-    parser_illumina.add_argument( '--debug', default=False, action='store_true', help="Keep temporary files to debug program. [Default: %(default)s]" )
+    group_denoising.add_argument('--sample-inference', default="pseudo-pooling", choices=["pseudo-pooling", "independent", "pooling"],  help="Independent, pseudo-pooling of full pooling for dada2 samples processing. [Default: %(default)s]" )
+    parser_illumina.add_argument('--nb-cpus', type=int, default=1, help="The maximum number of CPUs used. [Default: %(default)s]" )
+    parser_illumina.add_argument('--debug', default=False, action='store_true', help="Keep temporary files to debug program. [Default: %(default)s]" )
     #     Illumina inputs
     group_illumina_input = parser_illumina.add_argument_group( 'Inputs' )
-    group_illumina_input.add_argument( '--samples-names', type=spl_name_type, nargs='+', default=None, help='The sample name for each R1/R2-files.' )
-    group_illumina_input.add_argument( '--input-archive', default=None, help='The tar file containing R1 file and R2 file for each sample.' )
-    group_illumina_input.add_argument( '--input-R1', required=None, nargs='+', help='The R1 sequence file for each sample (format: fastq).' )
-    group_illumina_input.add_argument( '--input-R2', required=None, nargs='+', help='The R2 sequence file for each sample (format: fastq).' )
+    group_illumina_input.add_argument('--samples-names', type=spl_name_type, nargs='+', default=None, help='The sample name for each R1/R2-files.' )
+    group_illumina_input.add_argument('--input-archive', default=None, help='The tar file containing R1 file and R2 file for each sample.' )
+    group_illumina_input.add_argument('--input-R1', required=None, nargs='+', help='The R1 sequence file for each sample (format: fastq).' )
+    group_illumina_input.add_argument('--input-R2', required=None, nargs='+', help='The R2 sequence file for each sample (format: fastq).' )
     group_illumina_input.set_defaults( sequencer='illumina' )
     #     Illumina outputs
     group_illumina_output = parser_illumina.add_argument_group( 'Outputs' )
-    group_illumina_output.add_argument( '-b', '--output-biom', default='denoising_abundance.biom', help='This output file will contain the abundance by sample for each cluster or ASV (format: BIOM). [Default: %(default)s]')
-    group_illumina_output.add_argument( '--output-fasta', default='sequences.fasta', help='This output file will contain the sequence for each cluster or ASV (format: FASTA). [Default: %(default)s]')
-    group_illumina_output.add_argument( '-s', '--summary', default='denoising.html', help='The HTML file containing the graphs. [Default: %(default)s]')
-    group_illumina_output.add_argument( '-l', '--log-file', default=sys.stdout, help='This output file will contain several information on executed commands.')
+    group_illumina_output.add_argument('--output-biom', default='denoising_abundance.biom', help='This output file will contain the abundance by sample for each cluster or ASV (format: BIOM). [Default: %(default)s]')
+    group_illumina_output.add_argument('--output-fasta', default='sequences.fasta', help='This output file will contain the sequence for each cluster or ASV (format: FASTA). [Default: %(default)s]')
+    group_illumina_output.add_argument('--summary', default='denoising.html', help='The HTML file containing the graphs. [Default: %(default)s]')
+    group_illumina_output.add_argument('--log-file', default=sys.stdout, help='This output file will contain several information on executed commands.')
 
 
     parser_longreads = subparsers.add_parser( 'longreads', help='longreads sequencers.', usage='''
@@ -2129,19 +2129,19 @@ if __name__ == "__main__":
     [--process {swarm, dada2, preprocess-only}]
     [--denoising] [--distance DISTANCE] [--fastidious] | [--sample-inference {pseudo-pooling, independent, pooling}]
     --without-primers | --five-prim-primer FIVE_PRIM_PRIMER --three-prim-primer THREE_PRIM_PRIMER
-    [-p NB_CPUS] [--debug] [-v]
+    [--nb-cpus NB_CPUS] [--debug] [--version]
     [--process PROCESS]
-    [-b BIOM_FILE] [--output-fasta FASTA_FILE]
-    [-s SUMMARY_FILE] [-l LOG_FILE]
+    [--output-biom BIOM_FILE] [--output-fasta FASTA_FILE]
+    [--summary SUMMARY_FILE] [--log-file LOG_FILE]
 ''')
     #     Long-reads parameters
-    parser_longreads.add_argument( '--process', default="swarm", choices=["swarm","preprocess-only", "dada2"], help='Choose between performing only dereplication and using swarm or dada2 to build ASVs [Default: %(default)s]' )
-    parser_longreads.add_argument( '--min-amplicon-size', type=int, required=True, help='The minimum size for the amplicons (with primers).' )
-    parser_longreads.add_argument( '--max-amplicon-size', type=int, required=True, help='The maximum size for the amplicons (with primers).' )
-    parser_longreads.add_argument( '--five-prim-primer', type=str, help="The 5' primer sequence (wildcards are accepted)." )
-    parser_longreads.add_argument( '--three-prim-primer', type=str, help="The 3' primer sequence (wildcards are accepted)." )
-    parser_longreads.add_argument( '--without-primers', action='store_true', default=False, help="Use this option when you use custom sequencing primers and these primers are the PCR primers. In this case the reads do not contain the PCR primers. [Default: %(default)s]" )
-    parser_longreads.add_argument( '-p', '--nb-cpus', type=int, default=1, help="The maximum number of CPUs used. [Default: %(default)s]" )
+    parser_longreads.add_argument('--process', default="swarm", choices=["swarm","preprocess-only", "dada2"], help='Choose between performing only dereplication and using swarm or dada2 to build ASVs [Default: %(default)s]' )
+    parser_longreads.add_argument('--min-amplicon-size', type=int, required=True, help='The minimum size for the amplicons (with primers).' )
+    parser_longreads.add_argument('--max-amplicon-size', type=int, required=True, help='The maximum size for the amplicons (with primers).' )
+    parser_longreads.add_argument('--five-prim-primer', type=str, help="The 5' primer sequence (wildcards are accepted)." )
+    parser_longreads.add_argument('--three-prim-primer', type=str, help="The 3' primer sequence (wildcards are accepted)." )
+    parser_longreads.add_argument('--without-primers', action='store_true', default=False, help="Use this option when you use custom sequencing primers and these primers are the PCR primers. In this case the reads do not contain the PCR primers. [Default: %(default)s]" )
+    parser_longreads.add_argument('--nb-cpus', type=int, default=1, help="The maximum number of CPUs used. [Default: %(default)s]" )
     parser_longreads.add_argument( '--debug', default=False, action='store_true', help="Keep temporary files to debug program. [Default: %(default)s]" )
     # Long-reads inputs
     group_longreads_input = parser_longreads.add_argument_group('Inputs')
@@ -2149,20 +2149,20 @@ if __name__ == "__main__":
                                   help='The tar file containing R1 file and R2 file for each sample (format: tar).')
     group_longreads_input.add_argument('--samples-names', type=spl_name_type,
                                   nargs='+', default=None, help='The sample name for each R1/R2-files.')
-    group_longreads_input.add_argument( '--input-R1', required=None, nargs='+', help='The R1 sequence file for each sample (format: fastq). Required for single-ends OR paired-ends data.' )
+    group_longreads_input.add_argument('--input-R1', required=None, nargs='+', help='The R1 sequence file for each sample (format: fastq). Required for single-ends OR paired-ends data.' )
     group_clustering_longreads = parser_longreads.add_argument_group( 'Clustering options' )
-    group_clustering_longreads.add_argument( '-n', '--denoising', default=False, action='store_true',  help="denoise data by clustering read with distance=1 before perform real clustering. It is mutually exclusive with --fastidious. [Default: %(default)s]" )
-    group_clustering_longreads.add_argument( '-d', '--distance', type=int, default=1, help="Maximum distance between sequences in each aggregation step. RECOMMENDED : d=1 in combination with --fastidious option [Default: %(default)s]" )
-    group_clustering_longreads.add_argument( '--fastidious', default=False, action='store_true',  help="use the fastidious option of swarm to refine cluster. RECOMMENDED in combination with a distance equal to 1 (-d). it is only usable with d=1 and mutually exclusive with --denoising. [Default: %(default)s]" )
-    group_clustering_longreads.add_argument( '--output-compo', default='clustering_swarms_composition.tsv', help='This output file will contain the composition of each cluster (format: TSV). One Line is a cluster ; each column is a sequence ID. [Default: %(default)s]')
+    group_clustering_longreads.add_argument('--denoising', default=False, action='store_true',  help="denoise data by clustering read with distance=1 before perform real clustering. It is mutually exclusive with --fastidious. [Default: %(default)s]" )
+    group_clustering_longreads.add_argument('--distance', type=int, default=1, help="Maximum distance between sequences in each aggregation step. RECOMMENDED : d=1 in combination with --fastidious option [Default: %(default)s]" )
+    group_clustering_longreads.add_argument('--fastidious', default=False, action='store_true',  help="use the fastidious option of swarm to refine cluster. RECOMMENDED in combination with a distance equal to 1 (-d). it is only usable with d=1 and mutually exclusive with --denoising. [Default: %(default)s]" )
+    group_clustering_longreads.add_argument('--output-compo', default='clustering_swarms_composition.tsv', help='This output file will contain the composition of each cluster (format: TSV). One Line is a cluster ; each column is a sequence ID. [Default: %(default)s]')
     group_denoising_longreads = parser_longreads.add_argument_group( 'Denoising options' )
-    group_denoising_longreads.add_argument( '--sample-inference', default="pseudo-pooling", choices=["pseudo-pooling", "independent", "pooling"],  help="Independent, pseudo-pooling of full pooling for dada2 samples processing. [Default: %(default)s]" )
+    group_denoising_longreads.add_argument('--sample-inference', default="pseudo-pooling", choices=["pseudo-pooling", "independent", "pooling"],  help="Independent, pseudo-pooling of full pooling for dada2 samples processing. [Default: %(default)s]" )
     # Long-reads outputs
     group_longreads_output = parser_longreads.add_argument_group( 'Outputs' )
-    group_longreads_output.add_argument( '-s', '--summary', default='denoising.html', help='The HTML file containing the graphs. [Default: %(default)s]')
-    group_longreads_output.add_argument( '-l', '--log-file', default=sys.stdout, help='This output file will contain several information on executed commands.')
-    group_longreads_output.add_argument( '-b', '--output-biom', default='denoising_abundance.biom', help='This output file will contain the abundance by sample for each cluster or ASV (format: BIOM). [Default: %(default)s]')
-    group_longreads_output.add_argument( '--output-fasta', default='sequences.fasta', help='This output file will contain the sequence for each cluster or ASV (format: FASTA). [Default: %(default)s]')
+    group_longreads_output.add_argument('--summary', default='denoising.html', help='The HTML file containing the graphs. [Default: %(default)s]')
+    group_longreads_output.add_argument('--log-file', default=sys.stdout, help='This output file will contain several information on executed commands.')
+    group_longreads_output.add_argument('--output-biom', default='denoising_abundance.biom', help='This output file will contain the abundance by sample for each cluster or ASV (format: BIOM). [Default: %(default)s]')
+    group_longreads_output.add_argument('--output-fasta', default='sequences.fasta', help='This output file will contain the sequence for each cluster or ASV (format: FASTA). [Default: %(default)s]')
     parser_longreads.set_defaults( sequencer='longreads', already_contiged=True, keep_unmerged=False )
 
     # 454
@@ -2174,36 +2174,36 @@ if __name__ == "__main__":
     --five-prim-primer FIVE_PRIM_PRIMER
     --three-prim-primer THREE_PRIM_PRIMER
     [--process PROCESS]
-    [-p NB_CPUS] [--debug] [-v]
-    [-b BIOM_FILE] [--output-fasta FASTA_FILE]
-    [-s SUMMARY_FILE] [-l LOG_FILE]
+    [--nb-cpus NB_CPUS] [--debug] [--version]
+    [--output-biom BIOM_FILE] [--output-fasta FASTA_FILE]
+    [--summary SUMMARY_FILE] [--log-file LOG_FILE]
 ''')
-    parser_454.add_argument( '--min-amplicon-size', type=int, required=True, help='The minimum size for the amplicons (with primers).' )
-    parser_454.add_argument( '--max-amplicon-size', type=int, required=True, help='The maximum size for the amplicons (with primers).' )
-    parser_454.add_argument( '--five-prim-primer', type=str, required=True, help="The 5' primer sequence (wildcards are accepted)." )
-    parser_454.add_argument( '--three-prim-primer', type=str, required=True, help="The 3' primer sequence (wildcards are accepted)." )
-    parser_454.add_argument( '--process', default="swarm", choices=["swarm","preprocess-only"], help='Choose between performing only dereplication and using swarm to build ASVs [Default: %(default)s]' )
-    parser_454.add_argument( '-p', '--nb-cpus', type=int, default=1, help="The maximum number of CPUs used. [Default: %(default)s]" )
-    parser_454.add_argument( '--debug', default=False, action='store_true', help="Keep temporary files to debug program. [Default: %(default)s]" )
+    parser_454.add_argument('--min-amplicon-size', type=int, required=True, help='The minimum size for the amplicons (with primers).' )
+    parser_454.add_argument('--max-amplicon-size', type=int, required=True, help='The maximum size for the amplicons (with primers).' )
+    parser_454.add_argument('--five-prim-primer', type=str, required=True, help="The 5' primer sequence (wildcards are accepted)." )
+    parser_454.add_argument('--three-prim-primer', type=str, required=True, help="The 3' primer sequence (wildcards are accepted)." )
+    parser_454.add_argument('--process', default="swarm", choices=["swarm","preprocess-only"], help='Choose between performing only dereplication and using swarm to build ASVs [Default: %(default)s]' )
+    parser_454.add_argument('--nb-cpus', type=int, default=1, help="The maximum number of CPUs used. [Default: %(default)s]" )
+    parser_454.add_argument('--debug', default=False, action='store_true', help="Keep temporary files to debug program. [Default: %(default)s]" )
     #     454 inputs
     group_454_input = parser_454.add_argument_group( 'Inputs' )
-    group_454_input.add_argument( '--samples-names', type=spl_name_type, nargs='+', default=None, help='The sample name for each R1/R2-files.' )
-    group_454_input.add_argument( '--input-archive', default=None, help='The tar file containing R1 file and R2 file for each sample (format: tar).' )
-    group_454_input.add_argument( '--input-R1', required=None, nargs='+', help='The sequence file for each sample (format: fastq).' )
+    group_454_input.add_argument('--samples-names', type=spl_name_type, nargs='+', default=None, help='The sample name for each R1/R2-files.' )
+    group_454_input.add_argument('--input-archive', default=None, help='The tar file containing R1 file and R2 file for each sample (format: tar).' )
+    group_454_input.add_argument('--input-R1', required=None, nargs='+', help='The sequence file for each sample (format: fastq).' )
     group_454_input.set_defaults( sequencer='454' )
     group_clustering = parser_454.add_argument_group( 'Clustering options' )
-    group_clustering.add_argument( '-n', '--denoising', default=False, action='store_true',  help="denoise data by clustering read with distance=1 before perform real clustering. It is mutually exclusive with --fastidious. [Default: %(default)s]" )
-    group_clustering.add_argument( '-d', '--distance', type=int, default=1, help="Maximum distance between sequences in each aggregation step. RECOMMENDED : d=1 in combination with --fastidious option [Default: %(default)s]" )
-    group_clustering.add_argument( '--fastidious', default=False, action='store_true',  help="use the fastidious option of swarm to refine cluster. RECOMMENDED in combination with a distance equal to 1 (-d). it is only usable with d=1 and mutually exclusive with --denoising. [Default: %(default)s]" )
-    group_clustering.add_argument( '--output-compo', default='clustering_swarms_composition.tsv', help='This output file will contain the composition of each cluster (format: TSV). One Line is a cluster ; each column is a sequence ID. [Default: %(default)s]')
+    group_clustering.add_argument('--denoising', default=False, action='store_true',  help="denoise data by clustering read with distance=1 before perform real clustering. It is mutually exclusive with --fastidious. [Default: %(default)s]" )
+    group_clustering.add_argument('--distance', type=int, default=1, help="Maximum distance between sequences in each aggregation step. RECOMMENDED : d=1 in combination with --fastidious option [Default: %(default)s]" )
+    group_clustering.add_argument('--fastidious', default=False, action='store_true',  help="use the fastidious option of swarm to refine cluster. RECOMMENDED in combination with a distance equal to 1 (-d). it is only usable with d=1 and mutually exclusive with --denoising. [Default: %(default)s]" )
+    group_clustering.add_argument('--output-compo', default='clustering_swarms_composition.tsv', help='This output file will contain the composition of each cluster (format: TSV). One Line is a cluster ; each column is a sequence ID. [Default: %(default)s]')
     group_denoising = parser_454.add_argument_group( 'Denoising options' )
-    group_denoising.add_argument( '--sample-inference', default="pseudo-pooling", choices=["pseudo-pooling", "independent", "pooling"],  help="Independent, pseudo-pooling of full pooling for dada2 samples processing. [Default: %(default)s]" )
+    group_denoising.add_argument('--sample-inference', default="pseudo-pooling", choices=["pseudo-pooling", "independent", "pooling"],  help="Independent, pseudo-pooling of full pooling for dada2 samples processing. [Default: %(default)s]" )
     #     454 outputs
     group_454_output = parser_454.add_argument_group( 'Outputs' )
-    group_454_output.add_argument( '-b', '--output-biom', default='abundance.biom', help='This output file will contain the abundance by sample for each cluster or ASV (format: BIOM). [Default: %(default)s]')
+    group_454_output.add_argument('--output-biom', default='abundance.biom', help='This output file will contain the abundance by sample for each cluster or ASV (format: BIOM). [Default: %(default)s]')
     group_454_output.add_argument( '--output-fasta', default='sequences.fasta', help='This output file will contain the sequence for each cluster or ASV (format: FASTA). [Default: %(default)s]')
-    group_454_output.add_argument( '-s', '--summary', default='denoising.html', help='The HTML file containing the graphs. [Default: %(default)s]')
-    group_454_output.add_argument( '-l', '--log-file', default=sys.stdout, help='This output file will contain several information on executed commands.')
+    group_454_output.add_argument('--summary', default='denoising.html', help='The HTML file containing the graphs. [Default: %(default)s]')
+    group_454_output.add_argument('--log-file', default=sys.stdout, help='This output file will contain several information on executed commands.')
     parser_454.set_defaults( sequencer='454', already_contiged=True, keep_unmerged=False )
 
 
