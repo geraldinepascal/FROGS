@@ -3,9 +3,9 @@
 author = 'Olivier Rué'
 copyright = 'Copyright (C) 2023 INRAE'
 license = 'GNU General Public License'
-version = '1.0'
 email = 'frogs-support@inrae.fr'
-status = 'dev'
+version = '5.0.0'
+status = 'prod'
 
 ############## IMPORT
 
@@ -68,7 +68,7 @@ is.list.of <- function(x, ctype) {
   else return(all(sapply(x, is, ctype)))
 }
 
-write2FastqFromDada <- function(dadaF, derepF, dadaR, derepR, path)
+write2FastqFromDada <- function(sample_names, dadaF, derepF, dadaR, derepR, path)
 {
   if (is(dadaF, "dada")){ 
     dadaF <- list(dadaF)
@@ -132,7 +132,8 @@ write2FastqFromDada <- function(dadaF, derepF, dadaR, derepR, path)
       ups$reverse <- Runqseq
       ups$forwardQual <- Funqqual
       ups$reverseQual <- Runqqual
-      sample_name <- substr(names(dadaF)[i],1,nchar(names(dadaF)[i])-12)
+      #sample_name <- substr(names(dadaF)[i],1,nchar(names(dadaF)[i])-12)
+      sample_name <- sample_names[i]
       R1_path <- file.path(path,paste0(sample_name,"_denoised_R1.fastq"))
       file.create(R1_path)
       R2_path <- file.path(path,paste0(sample_name,"_denoised_R2.fastq"))
@@ -146,7 +147,7 @@ write2FastqFromDada <- function(dadaF, derepF, dadaR, derepR, path)
   })
 }
 
-write1FastqFromDada <- function(dadaF, derepF, path){
+write1FastqFromDada <- function(sample_names, dadaF, derepF, path){
   if (is(dadaF, "dada")) 
     dadaF <- list(dadaF)
   if (is(derepF, "derep")) 
@@ -196,7 +197,7 @@ write1FastqFromDada <- function(dadaF, derepF, path){
       ups$id <- 1:nrow(ups)
       ups$forward <- Funqseq
       ups$forwardQual <- Funqqual
-      sample_name <- substr(names(dadaF)[i],1,nchar(names(dadaF)[i])-12)	
+      sample_name <- sample_names[i]
       R1_path <- file.path(path,paste0(sample_name,"_denoised_R1.fastq"))
       writeFASTQsingle(ups, sample_name, file=R1_path, direction="forward")
       #set up writing
@@ -233,6 +234,7 @@ if(!is.null(opt$R2Files)){
 get.sample.name <- function(fname) paste(strsplit(basename(fname), "_R1.fastq.gz")[[1]][1],collapse="_")
 # get sample names
 sample.names <- unname(sapply(fnFs, get.sample.name))
+
 if (opt$debug) saveRDS(sample.names,"samples.rds")
 
 ### Learn the Error Rates
@@ -255,7 +257,6 @@ derepFs <- derepFastq(fnFs, verbose = FALSE)
 #names(derepFs) <- sample.names
 if(!is.null(opt$R2Files)){
 	derepRs <- derepFastq(fnRs, verbose = FALSE)
-	#names(derepRs) <- sample.names
 }
 
 ### Sample Inference
@@ -286,8 +287,8 @@ if (opt$debug){
 }
 
 if(!is.null(opt$R2Files)){
-	write2FastqFromDada(dadaFs, derepFs, dadaRs, derepRs, path=opt$outputDir)
+	write2FastqFromDada(sample.names, dadaFs, derepFs, dadaRs, derepRs, path=opt$outputDir)
 }else{
-	write1FastqFromDada(dadaFs, derepFs, path=opt$outputDir)
+	write1FastqFromDada(sample.names, dadaFs, derepFs, path=opt$outputDir)
 }
 
