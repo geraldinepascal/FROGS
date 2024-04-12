@@ -533,7 +533,7 @@ def process( args ):
         depth_file = tmpFiles.add( "depths.tsv" )
         Depths(args.output_biom, depth_file).submit( args.log_file )
         
-        write_summary( args.summary, args.input_biom, args.output_biom, replicate_groups_log, discards, depth_file )
+        write_summary( args.html, args.input_biom, args.output_biom, replicate_groups_log, discards, depth_file )
 
     finally:
         if not args.debug : 
@@ -568,7 +568,7 @@ if __name__ == '__main__':
     group_output = parser.add_argument_group( 'Outputs' )
     group_output.add_argument('--output-biom', default="cluster_filters_abundance.biom", help="The BIOM file output. (format: BIOM) [Default: %(default)s]")
     group_output.add_argument('--output-fasta', default="cluster_filters.fasta", help="The FASTA output file. (format: FASTA) [Default: %(default)s]")
-    group_output.add_argument('--summary', default="cluster_filters.html", help="The HTML file containing the graphs. [Default: %(default)s]")
+    group_output.add_argument('--html', default="cluster_filters.html", help="The HTML file containing the graphs. [Default: %(default)s]")
     group_output.add_argument('--excluded', default="cluster_filters_excluded.tsv", help="The TSV file that summarizes all the clusters discarded. (format: TSV) [Default: %(default)s]")
     group_output.add_argument('--log-file', default=sys.stdout, help='This output file will contain several information on executed commands. [Default: stdout]')
     args = parser.parse_args()
