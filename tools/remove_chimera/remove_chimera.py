@@ -276,29 +276,29 @@ if __name__ == "__main__":
     group_input.add_argument('--input-biom', required=True, help='The abundance file for clusters by sample (format: BIOM).' )
     # Outputs
     group_output = parser.add_argument_group( 'Outputs' )
-    group_output.add_argument('--non-chimera', default='remove_chimera.fasta', help='sequences file without chimera (format: FASTA). [Default: %(default)s]')
-    group_output.add_argument('--out-abundance', default='remove_chimera_abundance.biom', help='Abundance file without chimera (format: BIOM). [Default: %(default)s]')
-    group_output.add_argument('--summary', default="remove_chimera.html", help='The HTML file containing the graphs. [Default: %(default)s]')
+    group_output.add_argument('--output-fasta', default='remove_chimera.fasta', help='sequences file without chimera (format: FASTA). [Default: %(default)s]')
+    group_output.add_argument('--output-biom', default='remove_chimera_abundance.biom', help='Abundance file without chimera (format: BIOM). [Default: %(default)s]')
+    group_output.add_argument('--html', default="remove_chimera.html", help='The HTML file containing the graphs. [Default: %(default)s]')
     group_output.add_argument('--log-file', default=sys.stdout, help='This output file will contain several informations on executed commands. [Default: stdout]')
     args = parser.parse_args()
     prevent_shell_injections(args)
 
     # Temporary files
-    tmpFiles = TmpFiles( os.path.split(args.non_chimera)[0] )
+    tmpFiles = TmpFiles( os.path.split(args.output_fasta)[0] )
 
     # Process
     try:
         Logger.static_write(args.log_file, "## Application\nSoftware :" + sys.argv[0] + " (version : " + str(__version__) + ")\nCommand : " + " ".join(sys.argv) + "\n\n")
 
-        tmp_chimera_summary = tmpFiles.add(os.path.basename(args.non_chimera) + "_summary.tsv")
-        tmp_log  = tmpFiles.add(os.path.basename(args.non_chimera) + "_tmp.log")
+        tmp_chimera_summary = tmpFiles.add(os.path.basename(args.output_fasta) + "_summary.tsv")
+        tmp_log  = tmpFiles.add(os.path.basename(args.output_fasta) + "_tmp.log")
         size_separator = get_size_separator( args.input_fasta )
 
-        ParallelChimera( args.input_fasta, args.input_biom, args.non_chimera, args.out_abundance, tmp_chimera_summary, "biom", args.nb_cpus, tmp_log, args.debug, size_separator ).submit( args.log_file )
+        ParallelChimera( args.input_fasta, args.input_biom, args.output_fasta, args.output_biom, tmp_chimera_summary, "biom", args.nb_cpus, tmp_log, args.debug, size_separator ).submit( args.log_file )
         
         depth_file = tmpFiles.add( "depths.tsv" )
-        Depths(args.out_abundance, depth_file).submit( args.log_file )
-        write_summary( args.summary, tmp_chimera_summary, depth_file, args.out_abundance )
+        Depths(args.output_biom, depth_file).submit( args.log_file )
+        write_summary( args.html, tmp_chimera_summary, depth_file, args.output_biom )
         
         # Append independant log files
         log_append_files( args.log_file, [tmp_log] )
