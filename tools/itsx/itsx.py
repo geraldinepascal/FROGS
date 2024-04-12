@@ -304,28 +304,28 @@ if __name__ == "__main__":
     group_input.add_argument('--input-biom', help='The abundance file for clusters by sample (format: BIOM).' )
     # Outputs
     group_output = parser.add_argument_group( 'Outputs' )
-    group_output.add_argument('--out-fasta', default='itsx.fasta', help='sequences file out from ITSx (format: FASTA). [Default: %(default)s]')
-    group_output.add_argument('--out-abundance', default="itsx_abundance.biom", help='Abundance file without chimera (format: BIOM ). [Default: %(default)s]')
-    group_output.add_argument('--out-removed', default='itsx_removed.fasta', help='sequences file removed (format: FASTA). [Default: %(default)s]')
-    group_output.add_argument('--summary', default="itsx.html", help='The HTML file containing the graphs. [Default: %(default)s]')
+    group_output.add_argument('--output-fasta', default='itsx.fasta', help='sequences file out from ITSx (format: FASTA). [Default: %(default)s]')
+    group_output.add_argument('--output-biom', default="itsx_abundance.biom", help='Abundance file without chimera (format: BIOM ). [Default: %(default)s]')
+    group_output.add_argument('--output-removed-sequences', default='itsx_removed.fasta', help='sequences file removed (format: FASTA). [Default: %(default)s]')
+    group_output.add_argument('--html', default="itsx.html", help='The HTML file containing the graphs. [Default: %(default)s]')
     group_output.add_argument('--log-file', default=sys.stdout, help='This output file will contain several informations on executed commands. [Default: stdout]')
     args = parser.parse_args()
     prevent_shell_injections(args)
 
     # Temporary files
-    tmpFiles = TmpFiles( os.path.split(args.out_fasta)[0] )
+    tmpFiles = TmpFiles( os.path.split(args.output_fasta)[0] )
     
     # Process
     try:
         Logger.static_write(args.log_file, "## Application\nSoftware :" + sys.argv[0] + " (version : " + str(__version__) + ")\nCommand : " + " ".join(sys.argv) + "\n\n")
         log_itsx = tmpFiles.add("ITSx.log")
         
-        ITSx(args.input_fasta, args.input_biom, args.organism_groups, args.out_fasta, args.out_abundance, args.out_removed, log_itsx, args ).submit( args.log_file )
+        ITSx(args.input_fasta, args.input_biom, args.organism_groups, args.output_fasta, args.output_biom, args.output_removed_sequences, log_itsx, args ).submit( args.log_file )
         
         depth_file = tmpFiles.add( "depths.tsv" )
-        Depths(args.out_abundance, depth_file).submit( args.log_file )
+        Depths(args.output_biom, depth_file).submit( args.log_file )
         
-        write_summary( args.summary, args.input_biom, args.out_abundance, depth_file)
+        write_summary( args.html, args.input_biom, args.output_biom, depth_file)
         
         # Append independant log files
         log_append_files( args.log_file, [log_itsx] )
