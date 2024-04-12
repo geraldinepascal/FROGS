@@ -262,20 +262,20 @@ if __name__ == "__main__":
     
     # Inputs
     group_input = parser.add_argument_group( 'Inputs' )
-    group_input.add_argument('--input-sequences', required=True, help='Path to input FASTA file of ASV seed sequences. Warning: FROGS Tree is only working on less than 10000 sequences!' )
-    group_input.add_argument('--biom-file', required=True, help='Path to the abundance BIOM file.' )
+    group_input.add_argument('--input-fasta', required=True, help='Path to input FASTA file of ASV seed sequences. Warning: FROGS Tree is only working on less than 10000 sequences!' )
+    group_input.add_argument('--input-biom', required=True, help='Path to the abundance BIOM file.' )
         
     # output
     group_output = parser.add_argument_group( 'Outputs' )
-    group_output.add_argument('--out-tree', default='tree.nwk', help="Path to store resulting Newick tree file. (format: nwk) [Default: %(default)s]" )
+    group_output.add_argument('--output-tree', default='tree.nwk', help="Path to store resulting Newick tree file. (format: nwk) [Default: %(default)s]" )
     group_output.add_argument('--html', default='tree.html', help="The HTML file containing the graphs. [Default: %(default)s]" )    
     group_output.add_argument('--log-file', default=sys.stdout, help='This output file will contain several informations on executed commands. [Default: stdout]')
     args = parser.parse_args()
     prevent_shell_injections(args)
     
     ### Temporary files
-    tmpFiles=TmpFiles(os.path.split(args.out_tree)[0])
-    filename_prefix = ".".join(os.path.split(args.input_sequences)[1].split('.')[:-1])
+    tmpFiles=TmpFiles(os.path.split(args.output_tree)[0])
+    filename_prefix = ".".join(os.path.split(args.input_fasta)[1].split('.')[:-1])
     
     # alignment temporary files
     stderr = tmpFiles.add("mafft.stderr")
@@ -290,8 +290,8 @@ if __name__ == "__main__":
     # Process 
     try:        
         Logger.static_write(args.log_file, "## Application\nSoftware :" + sys.argv[0] + " (version : " + str(__version__) + ")\nCommand : " + " ".join(sys.argv) + "\n\n")
-        nb_seq = get_fasta_nb_seq(args.input_sequences)
-        biom = BiomIO.from_json(args.biom_file)
+        nb_seq = get_fasta_nb_seq(args.input_fasta)
+        biom = BiomIO.from_json(args.input_biom)
         if nb_seq > len(biom.rows):
             raise_exception( Exception("\n\n#ERROR : Your fasta input file contains more ASV than your biom file.\n\n"))
         Logger.static_write(args.log_file, "Number of input ASVs sequences: " + str(nb_seq) + "\n\n")
@@ -299,17 +299,17 @@ if __name__ == "__main__":
             raise_exception( Exception( "\n\n#ERROR : FROGS Tree is only working on less than 10 000 sequences!\n\n" ))
         
         # alignment step
-        mafftMet=get_methods_mafft(args.input_sequences)
-        Mafft(mafftMet, args.input_sequences, align, args.nb_cpus, stderr).submit( args.log_file )
+        mafftMet=get_methods_mafft(args.input_fasta)
+        Mafft(mafftMet, args.input_fasta, align, args.nb_cpus, stderr).submit( args.log_file )
 
         # tree contruction step
         FastTree(align, fasttree, fasttree_stderr).submit( args.log_file )
 
         # rooting tree step
-        RootTree(fasttree, args.out_tree).submit(args.log_file)
+        RootTree(fasttree, args.output_tree).submit(args.log_file)
 
         # summarize resultats in HTML output 
-        write_summary( args.html, args.input_sequences, align_out, args.biom_file, args.out_tree)
+        write_summary( args.html, args.input_fasta, align_out, args.input_biom, args.output_tree)
     finally:
         if not args.debug:
             tmpFiles.deleteAll()
