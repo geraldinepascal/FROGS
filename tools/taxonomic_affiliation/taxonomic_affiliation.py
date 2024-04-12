@@ -753,7 +753,7 @@ if __name__ == "__main__":
     # Outputs
     group_output = parser.add_argument_group('Outputs')
     group_output.add_argument('--output-biom', default='affiliation_abundance.biom', help='BIOM file with added affiliation annotations from blast/needleall and/or RDPtools. [Default: %(default)s]')
-    group_output.add_argument('--summary', default='taxonomic_affiliation.html', help='The HTML file containing the graphs. [Default: %(default)s]')
+    group_output.add_argument('--html', default='taxonomic_affiliation.html', help='The HTML file containing the graphs. [Default: %(default)s]')
     group_output.add_argument('--log-file', default=sys.stdout, help='The list of commands executed. [Default: stdout]')
     args = parser.parse_args()
     prevent_shell_injections(args)
@@ -893,7 +893,7 @@ if __name__ == "__main__":
         tree_ids_file = tmpFiles.add( "taxCount_ids.tsv" )
         TaxonomyTree(args.output_biom, "blast_taxonomy", tree_count_file, tree_ids_file).submit( args.log_file )
         
-        summarise_results( args.summary, args.output_biom, tree_count_file, tree_ids_file, rarefaction_files, rarefaction_ranks, args )
+        summarise_results( args.html, args.output_biom, tree_count_file, tree_ids_file, rarefaction_files, rarefaction_ranks, args )
 
     finally:
         if not args.debug:
