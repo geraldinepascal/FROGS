@@ -216,12 +216,12 @@ if __name__ == "__main__":
     group_input.add_argument('--input-biom', required=True, help='The BIOM file to process.' )
     # Outputs
     group_output = parser.add_argument_group( 'Outputs' )
-    group_output.add_argument('--output-file', default='cluster_stats.html', help='The HTML file containing the graphs. [Default: %(default)s]')
+    group_output.add_argument('--html', default='cluster_stats.html', help='The HTML file containing the graphs. [Default: %(default)s]')
     group_output.add_argument( '--log-file', default=sys.stdout, help='This output file will contain several informations on executed commands. [Default: stdout]')
     args = parser.parse_args()
     prevent_shell_injections(args)
 
-    tmp_files = TmpFiles( os.path.split(args.output_file)[0] )
+    tmp_files = TmpFiles( os.path.split(args.html)[0] )
 
     # Process
     try:
@@ -234,9 +234,9 @@ if __name__ == "__main__":
         depth_file = tmp_files.add( "depths.tsv" )
         Depths(args.input_biom, depth_file).submit( args.log_file )
         if args.hierarchical_clustering:
-            write_summary( args.output_file, args.input_biom, depth_file, classif_file )
+            write_summary( args.html, args.input_biom, depth_file, classif_file )
         else:
-            write_summary( args.output_file, args.input_biom, depth_file, None )
+            write_summary( args.html, args.input_biom, depth_file, None )
 
         
     # Remove temporary files
