@@ -251,13 +251,13 @@ if __name__ == "__main__":
     
     # Inputs
     group_input = parser.add_argument_group('Inputs')
-    group_input.add_argument('-i', '--input-biom', required=True, help='Abundances file to normalise (format: BIOM).')
-    group_input.add_argument('-f', '--input-fasta', required=True, help='Sequences file to normalise (format: FASTA).')
+    group_input.add_argument('--input-biom', required=True, help='Abundances file to normalise (format: BIOM).')
+    group_input.add_argument('--input-fasta', required=True, help='Sequences file to normalise (format: FASTA).')
     # Outputs
     group_output = parser.add_argument_group('Outputs')
     group_output.add_argument('--output-biom', default='normalisation_abundance.biom', help='Normalised abundances (format: BIOM). [Default: %(default)s]')
     group_output.add_argument('--output-fasta', default='normalisation.fasta', help='Normalised sequences (format: FASTA). [Default: %(default)s]')
-    group_output.add_argument('--summary-file', default='normalisation.html', help='The HTML file containing the graphs. [Default: %(default)s]')
+    group_output.add_argument('--html', default='normalisation.html', help='The HTML file containing the graphs. [Default: %(default)s]')
     group_output.add_argument('--log-file', default=sys.stdout, help='The list of commands executed. [Default: stdout]')
     args = parser.parse_args()
     prevent_shell_injections(args)
@@ -281,7 +281,7 @@ if __name__ == "__main__":
         tmp_fastaUpdate = tmp_files.add( 'tmp_fasta_update.log' )
         BIOM_FASTA_update(args.output_biom, args.input_fasta, args.output_fasta, tmp_fastaUpdate).submit(args.log_file)
         Logger.static_write(args.log_file,'\n#Summarise\n\tstart: ' + time.strftime("%d %b %Y %H:%M:%S", time.localtime()) + '\n' )
-        summarise_results( args.summary_file, args.delete_samples, args.num_reads, tmp_subsampling )
+        summarise_results( args.html, args.delete_samples, args.num_reads, tmp_subsampling )
         Logger.static_write(args.log_file,'\tend: ' + time.strftime("%d %b %Y %H:%M:%S", time.localtime()) + '\n\n' )
         Logger.static_write(args.log_file,'Application end: ' + time.strftime("%d %b %Y %H:%M:%S", time.localtime()) + '\n' )
     # Remove temporary files
