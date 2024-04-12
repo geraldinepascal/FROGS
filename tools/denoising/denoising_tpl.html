@@ -619,21 +619,7 @@
 					 lang: {thousandsSep: ','}
 					});
 			
-			/**
-			 * Returns the string representation of the number. 
-			 * @param pValue {Float} The number to process.
-			 * @return {String} The string representation (example: 12856892.11111 => 12,856,892.11).
-			 */
-		    var numberDisplay = function( pValue ){
-		    	var new_val = "" ;
-		    	if( ("" + pValue + "").indexOf(".") != -1 ){
-		    		new_val = pValue.toFixed(2).replace(/(\d)(?=(\d{3})+\b)/g, '$1,');
-		    	} else {
-		    		new_val = pValue.toFixed().replace(/(\d)(?=(\d{3})+\b)/g, '$1,');
-		    	}
-		        return new_val ;
-		    }
-		    
+					    
 			/**
 			 * Returns the HTML table representation of the data. 
 			 * @param pTitle {String} The title of the table.
@@ -786,7 +772,7 @@
 			  * @param pData {Array} The HightChart series.
 			  * @return {Hash} Parameters to use in Highchart's constructor.
 			  */
-			 var lineplot_param = function(pTitle, pXTitle, pYTitle, pXCategories, pData) {
+			 /*var lineplot_param = function(pTitle, pXTitle, pYTitle, pXCategories, pData) {
 			 	var chart = chartplot( pTitle, pXTitle, pYTitle, pXCategories, pData );
 			 	chart['chart'] = { 
 			 		type: 'line'
@@ -802,7 +788,7 @@
 					}
 				};
 			 	return chart ;
-			 }
+			 }*/
 
 			var get_dispersion = function( values, counts ) { 
 				var dispersion = new Array();
@@ -869,6 +855,14 @@
                             text: pYTitle
                         }
                     },
+                    plotOptions: {
+						series: {
+							marker: {
+								enabled: true,
+								radius: 2
+							}
+						}
+					},
                     exporting:{buttons: {contextButton: { symbol: 'download' }}},
                     buttons: {contextButton: {menuItems: ['downloadPNG', 'downloadSVG']}},
                     navigation: {
