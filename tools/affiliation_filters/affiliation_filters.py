@@ -745,7 +745,7 @@ def process( args ):
             BIOM_to_TSV(args.input_biom, args.input_fasta, args.impacted, args.impacted_multihit,impacted_biom2tsv_log, True).submit(args.log_file)
 
         # write summary
-        write_summary( args.summary, args.input_biom, args.output_biom, impacted_dict, args )
+        write_summary( args.html, args.input_biom, args.output_biom, impacted_dict, args )
 
         # if params.delete, update fasta
         if args.delete:
@@ -793,7 +793,7 @@ if __name__ == '__main__':
     group_output = parser.add_argument_group( 'Outputs' )
     group_output.add_argument('--output-biom', default="affiliation-filtered.biom", help="The Biom file output. [Default: %(default)s]")
     group_output.add_argument('--output-fasta', default="affiliation-filtered.fasta", help="The fasta output file. [Default: %(default)s]")
-    group_output.add_argument('--summary', default="summary.html", help="The HTML file containing the graphs. [Default: %(default)s]")
+    group_output.add_argument('--html', default="summary.html", help="The HTML file containing the graphs. [Default: %(default)s]")
     group_output.add_argument('--impacted', default="impacted_clusters.tsv", help="The abundance file that summarizes all the clusters impacted (deleted or with affiliations masked). [Default: %(default)s]")
     group_output.add_argument('--impacted-multihit', default="impacted_clusters_multihit.tsv", help="The multihit TSV file associated with impacted ASV. [Default: %(default)s]")
     group_output.add_argument('--log-file', default=sys.stdout, help='The list of commands executed. [Default: stdout]')
