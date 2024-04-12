@@ -323,7 +323,7 @@ def write_summary( summary_file, input_biom, tree_count_file, tree_ids_file, rar
     FH_summary_tpl.close()
 
 def process( args ):
-    tmp_files = TmpFiles( os.path.split(args.output_file)[0] )
+    tmp_files = TmpFiles( os.path.split(args.html)[0] )
 
     try:
         # Add temp taxonomy if multiple and without consensus
@@ -355,7 +355,7 @@ def process( args ):
         TaxonomyTree(tmp_biom, used_taxonomy_tag, tree_count_file, tree_ids_file).submit( args.log_file )
 
         # Writes summary
-        write_summary( args.output_file, args.input_biom, tree_count_file, tree_ids_file, rarefaction_files, args )
+        write_summary( args.html, args.input_biom, tree_count_file, tree_ids_file, rarefaction_files, args )
     finally:
         if not args.debug:
             tmp_files.deleteAll()
@@ -386,7 +386,7 @@ if __name__ == '__main__':
     group_input.add_argument('--input-biom', required=True, help="The input abundance file (format: BIOM)." )
     #     Outputs
     group_output = parser.add_argument_group( 'Outputs' )
-    group_output.add_argument('--output-file', default="affiliation_stats.html", help="The HTML file containing the graphs. [Default: %(default)s]" )
+    group_output.add_argument('--html', default="affiliation_stats.html", help="The HTML file containing the graphs. [Default: %(default)s]" )
     group_output.add_argument('--log-file', default=sys.stdout, help='The list of commands executed. [Default: stdout]' )
     args = parser.parse_args()
     prevent_shell_injections(args)
