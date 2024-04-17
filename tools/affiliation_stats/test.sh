@@ -13,7 +13,7 @@ fi
 echo "# Blast consensus tax"
 ./affiliation_stats.py \
   --input-biom data/set500_B_affiliation.biom \
-  --output-file test/affiliations_metrics1.html \
+  --html test/affiliations_metrics1.html \
   --log-file test/log1.txt \
   --tax-consensus-tag "blast_taxonomy" \
   --identity-tag "perc_identity" \
@@ -25,7 +25,7 @@ echo "# Blast consensus tax"
 echo "# RDP"
 ./affiliation_stats.py \
   --input-biom data/set500_B_affiliation.biom \
-  --output-file test/affiliations_metrics3.html \
+  --html test/affiliations_metrics3.html \
   --log-file test/log3.txt \
   --taxonomy-tag "rdp_taxonomy" \
   --bootstrap-tag "rdp_bootstrap" \

@@ -19,7 +19,7 @@ mkdir -p $OUT
 ./affiliation_filters.py \
 --input-biom data/fake_affiliation.biom --input-fasta data/fake_affiliation.fasta \
 --output-biom $OUT/filtered_ASV_deleted.biom --output-fasta $OUT/filtered_ASV_deleted.fasta \
---summary $OUT/summary_ASV_deleted.html --impacted $OUT/impacted_ASV_deleted.tsv --impacted-multihit $OUT/impacted_ASV_deleted_multihit.tsv \
+--html $OUT/summary_ASV_deleted.html --impacted $OUT/impacted_ASV_deleted.tsv --impacted-multihit $OUT/impacted_ASV_deleted_multihit.tsv \
 --log-file $OUT/delete_log.txt \
 --min-rdp-bootstrap Species:0.8 \
 --min-blast-length 402 \
@@ -36,7 +36,7 @@ mkdir -p $OUT
 ./affiliation_filters.py \
 --input-biom data/fake_affiliation.biom --input-fasta data/fake_affiliation.fasta \
 --output-biom $OUT/filtered_ASV_masked.biom --output-fasta $OUT/filtered_ASV_masked.fasta \
---summary $OUT/summary_ASV_masked.html --impacted $OUT/impacted_ASV_masked.tsv --impacted-multihit $OUT/impacted_ASV_masked_multihit.tsv \
+--html $OUT/summary_ASV_masked.html --impacted $OUT/impacted_ASV_masked.tsv --impacted-multihit $OUT/impacted_ASV_masked_multihit.tsv \
 --log-file $OUT/mask_log.txt \
 --min-rdp-bootstrap Species:0.8 \
 --min-blast-length 402 \
@@ -54,7 +54,7 @@ mkdir -p $OUT
 ./affiliation_filters.py \
 --input-biom data/fake_affiliation.biom --input-fasta data/fake_affiliation.fasta \
 --output-biom $OUT/filtered_ASV_deleted.biom --output-fasta $OUT/filtered_ASV_deleted.fasta \
---summary $OUT/summary_ASV_deleted.html --impacted $OUT/impacted_ASV_deleted.tsv --impacted-multihit $OUT/impacted_ASV_deleted_multihit.tsv \
+--html $OUT/summary_ASV_deleted.html --impacted $OUT/impacted_ASV_deleted.tsv --impacted-multihit $OUT/impacted_ASV_deleted_multihit.tsv \
 --log-file $OUT/delete_log.txt \
 --ignore-blast-taxa "Methylovulum miyakonense" "subsp." "unknown species" \
 --delete
@@ -65,7 +65,7 @@ echo $OUT "masking mode"
 ./affiliation_filters.py \
 --input-biom data/fake_affiliation.biom --input-fasta data/fake_affiliation.fasta \
 --output-biom $OUT/filtered_ASV_masked.biom --output-fasta $OUT/filtered_ASV_masked.fasta \
---summary $OUT/summary_ASV_masked.html --impacted $OUT/impacted_ASV_masked.tsv --impacted-multihit $OUT/impacted_ASV_masked_multihit.tsv \
+--html $OUT/summary_ASV_masked.html --impacted $OUT/impacted_ASV_masked.tsv --impacted-multihit $OUT/impacted_ASV_masked_multihit.tsv \
 --log-file $OUT/mask_log.txt \
 --ignore-blast-taxa "Methylovulum miyakonense" "subsp." "unknown species" \
 --mask
@@ -78,7 +78,7 @@ echo $OUT "deleting mode"
 ./affiliation_filters.py \
 --input-biom data/fake_affiliation.biom --input-fasta data/fake_affiliation.fasta \
 --output-biom $OUT/filtered_ASV_deleted.biom --output-fasta $OUT/filtered_ASV_deleted.fasta \
---summary $OUT/summary_ASV_deleted.html --impacted $OUT/impacted_ASV_deleted.tsv --impacted-multihit $OUT/impacted_ASV_deleted_multihit.tsv \
+--html $OUT/summary_ASV_deleted.html --impacted $OUT/impacted_ASV_deleted.tsv --impacted-multihit $OUT/impacted_ASV_deleted_multihit.tsv \
 --log-file $OUT/del_log.txt \
 --delete \
 --taxonomic-ranks Domain Phylum Class Order Family Genus Species \
@@ -95,7 +95,7 @@ echo $OUT "masking mode"
 ./affiliation_filters.py \
 --input-biom data/fake_affiliation.biom --input-fasta data/fake_affiliation.fasta \
 --output-biom $OUT/filtered_ASV_masked.biom --output-fasta $OUT/filtered_ASV_masked.fasta \
---summary $OUT/summary_ASV_masked.html --impacted $OUT/impacted_ASV_masked.tsv --impacted-multihit $OUT/impacted_ASV_masked_multihit.tsv \
+--html $OUT/summary_ASV_masked.html --impacted $OUT/impacted_ASV_masked.tsv --impacted-multihit $OUT/impacted_ASV_masked_multihit.tsv \
 --log-file $OUT/mask_log.txt \
 --mask \
 --taxonomic-ranks Domain Phylum Class Order Family Genus Species \
@@ -114,7 +114,7 @@ echo $OUT "delete mode"
 ./affiliation_filters.py \
 --input-biom data/without_affiliation.biom --input-fasta data/without_affiliation.fasta \
 --output-biom $OUT/filtered_ASV_masked.biom --output-fasta $OUT/filtered_ASV_masked.fasta \
---summary $OUT/summary_ASV_without_affi_deleted.html --impacted $OUT/summary_ASV_without_affi_deleted.tsv --impacted-multihit $OUT/summary_ASV_without_affi_deleted.tsv \
+--html $OUT/summary_ASV_without_affi_deleted.html --impacted $OUT/summary_ASV_without_affi_deleted.tsv --impacted-multihit $OUT/summary_ASV_without_affi_deleted.tsv \
 --log-file $OUT/summary_ASV_without_affi_deleted.txt \
 --delete \
 --min-blast-length 40 \

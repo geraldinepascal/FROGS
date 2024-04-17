@@ -14,9 +14,9 @@ fi
 echo "ITSx ITS1 trimming"
 ./itsx.py --input-fasta data/input.fasta --input-biom data/input.biom \
     --region ITS1 \
-    --out-abundance test/itsx.biom --summary test/itsx.html --log-file test/itsx.log --out-fasta test/itsx.fasta --out-removed test/removed.fasta
+    --output-biom test/itsx.biom --html test/itsx.html --log-file test/itsx.log --output-fasta test/itsx.fasta --output-removed test/removed.fasta
 
 echo "ITSx ckeck ITS only"
 ./itsx.py --input-fasta data/input.fasta --input-biom data/input.biom \
     --check-its-only --organism-groups F A \
-    --out-abundance test/itsx.biom --summary test/itsx2.html --log-file test/itsx2.log --out-fasta test/itsx2.fasta --out-removed test/removed2.fasta 
+    --output-biom test/itsx.biom --html test/itsx2.html --log-file test/itsx2.log --output-fasta test/itsx2.fasta --output-removed test/removed2.fasta 

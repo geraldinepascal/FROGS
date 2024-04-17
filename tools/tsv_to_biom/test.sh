@@ -10,8 +10,8 @@ then
 fi
 
 # Without affiliation without sequences
-./tsv_to_biom.py -t data/swarm_abundance.tsv \
-				 -b test/swarm_abundance.biom \
+./tsv_to_biom.py --input-tsv data/swarm_abundance.tsv \
+				 --output-biom test/swarm_abundance.biom \
 				 --log-file test/swarm_abundance.log
 
 # Without affiliation without sequences (check error)
@@ -21,16 +21,16 @@ fi
 #				 --log-file test/swarm_abundance.log
 
 # Without affiliation with sequences
-./tsv_to_biom.py -t data/swarm_fasta_abundance.tsv \
-				 -b test/swarm_fasta_abundance.biom \
-				 -f test/swarm_fasta_abundance.fasta \
+./tsv_to_biom.py --input-tsv data/swarm_fasta_abundance.tsv \
+				 --output-biom test/swarm_fasta_abundance.biom \
+				 --output-fasta test/swarm_fasta_abundance.fasta \
 				 --log-file test/swarm_fasta_abundance.log 
 
 # With affiliation with sequences with multihit
-./tsv_to_biom.py -t data/affiliation_modifie.tsv \
-                 -m data/affiliation_multihit.tsv \
-				 -b test/affiliation.biom \
-				 -f test/affiliation.fasta \
+./tsv_to_biom.py --input-tsv data/affiliation_modifie.tsv \
+                 --input-multi-affi data/affiliation_multihit.tsv \
+				 --output-biom test/affiliation.biom \
+				 --output-fasta test/affiliation.fasta \
 				 --log-file test/affiliation.log 
 
 # Real dataset

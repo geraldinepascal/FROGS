@@ -16,25 +16,25 @@ echo "#Blast alignment affiliation methods only"
 ./taxonomic_affiliation.py --nb-cpus 4 --reference data/db.fasta \
                      --input-biom data/swarm.biom --input-fasta data/swarm.fasta \
                      --output-biom test/Blast_affiliation.biom \
-                     --summary test/Blast_affiliation.html --log-file test/Blast_affiliation.log
+                     --html test/Blast_affiliation.html --log-file test/Blast_affiliation.log
 
 #Blast and RDP
 echo "#Blast alignment and RDP kmer affiliation methods"
 ./taxonomic_affiliation.py --reference data/db.fasta --rdp\
                      --input-biom data/swarm.biom --input-fasta data/swarm.fasta \
                      --output-biom test/Blast_RDP_affiliation.biom \
-                     --summary test/Blast_RDP_summary.html --log-file test/Blast_RDP_aff.log
+                     --html test/Blast_RDP_summary.html --log-file test/Blast_RDP_aff.log
 
 #Blast/Needle
 echo "#Blast and Needleall alignment affiliation methods only"
 ./taxonomic_affiliation.py --nb-cpus 4 --reference data/ITS1_dataset/Unite_reduced_ITS.fasta \
                      --input-biom data/ITS1_dataset/filters_modified.biom --input-fasta data/ITS1_dataset/filters_modified.fasta \
                      --output-biom test/Blast_Needle_affiliation.biom \
-                     --summary test/Blast_Needle_affiliation.html --log-file test/Blast_Needle_affiliation.log
+                     --html test/Blast_Needle_affiliation.html --log-file test/Blast_Needle_affiliation.log
 
 #Blast/Needle & RDP
 echo "#Blast and Needleall alignment and RDP kmer affiliation methods"
 ./taxonomic_affiliation.py --nb-cpus 4 --rdp --reference data/ITS1_dataset/Unite_reduced_ITS.fasta \
                      --input-biom data/ITS1_dataset/filters_modified.biom --input-fasta data/ITS1_dataset/filters_modified.fasta \
                      --output-biom test/Blast_Needle_affiliation.biom \
-                     --summary test/Blast_Needle_RDP_affiliation.html --log-file test/Blast_Needle_RDP_affiliation.log
+                     --html test/Blast_Needle_RDP_affiliation.html --log-file test/Blast_Needle_RDP_affiliation.log

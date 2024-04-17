@@ -22,10 +22,10 @@ fi
 #                         -s test/test_aff_M/summary.html -l test/test_aff_M/log.txt
 
 ./normalisation.py \
- -n 1000 \
- -i data/non_chimera_500sp.biom \
- -f data/non_chimera_500sp.fasta \
- -b test/test_aff_N1000.biom \
- -o test/test_aff_N1000.fasta \
- -s test/summary.html \
- -l test/log.txt
+ --num-reads 1000 \
+ --input-biom data/non_chimera_500sp.biom \
+ --input-fasta data/non_chimera_500sp.fasta \
+ --output-biom test/test_aff_N1000.biom \
+ --output-fasta test/test_aff_N1000.fasta \
+ --html test/summary.html \
+ --log-file test/log.txt

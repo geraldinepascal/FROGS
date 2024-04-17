@@ -12,5 +12,5 @@ fi
 # Input BIOM
 ./remove_chimera.py \
                     --input-fasta data/swarm_seed_sequences.fasta --input-biom data/swarm_abundance.biom \
-                    --non-chimera test/non_chimera.fasta --out-abundance test/abundance.biom --summary test/summary.html --log-file test/log.txt \
+                    --output-fasta test/non_chimera.fasta --output-biom test/abundance.biom --html test/summary.html --log-file test/log.txt \
                     --nb-cpus 2
