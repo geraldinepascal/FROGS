@@ -96,7 +96,7 @@ class AggregateOTU(Cmd) :
             opt += ' --taxon-ignored ' + ' '.join(['\"' + t + '\"' for t in ignored_list]) + ''
         Cmd.__init__( self,
                       'aggregate_affiliated_otus.py',
-                      'Aggregate OTU that share taxonomic affiliation with at least I% identity and C% coverage',
+                      'Aggregate OTU that share taxonomic affiliation with at least '+str(identity)+'% identity and '+str(coverage)+'% coverage',
                       ' -b ' + input_biom + ' -f ' + input_fasta + opt + ' --identity ' + str(identity) + ' --coverage ' + str(coverage) \
                       + ' --output-biom ' + output_biom +' --output-compo ' +  output_compo + ' --output-fasta ' + output_fasta + " --log-file " + log,
                       '--version' )
