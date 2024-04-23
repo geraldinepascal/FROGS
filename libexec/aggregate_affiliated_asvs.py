@@ -78,36 +78,36 @@ def process(params):
     if not biom_in.has_metadata("blast_affiliations"):
         raise_exception( Exception("\n\n#ERROR : Your input biom file, "+ os.path.basename(params.input_biom) + ", does not contain any blast_affiliations metadata.\n\n"))
 
-    biom_out = Biom( generated_by='FROGS_aggregate_affiliated_otu', matrix_type="sparse" )
+    biom_out = Biom( generated_by='FROGS_aggregate_affiliated_asv', matrix_type="sparse" )
 
     # add samples in biom_out
     for sample_name in biom_in.get_samples_names():
         biom_out.add_sample( sample_name )
 
-    # parse biom from most abondant OTU to less abondant one
+    # parse biom from most abondant ASV to less abondant one
     # save taxonomy
-    # add OTU to biom_out if taxonomy is with poor %id or %cov or taxonomy not already saved
-    # aggregate OTU to previous one if %id or %cov is big enough and share taxonomy with previous one
+    # add ASV to biom_out if taxonomy is with poor %id or %cov or taxonomy not already saved
+    # aggregate ASV to previous one if %id or %cov is big enough and share taxonomy with previous one
 
     # compute observation sum
-    otu_sums = {}
-    for otu_name,count_sum in biom_in.get_observations_counts():
-        otu_sums[otu_name] = count_sum
+    asv_sums = {}
+    for asv_name,count_sum in biom_in.get_observations_counts():
+        asv_sums[asv_name] = count_sum
 
     # save "confident" taxonomy
-    otu_by_tax = dict()
-    # save aggregated_otu_composition
-    aggregated_otu = OrderedDict()
-    otu_in = 0
-    otu_out = 0
-    otu_aggregated = 0
+    asv_by_tax = dict()
+    # save aggregated_asv_composition
+    aggregated_asv = OrderedDict()
+    asv_in = 0
+    asv_out = 0
+    asv_aggregated = 0
 
-    # parse otu from most abondant to less ones
-    for otu_name in sorted(otu_sums, key=lambda i: int(otu_sums[i]), reverse = True):
-        otu_in += 1
-        observation = biom_in.get_observations_by_name(otu_name)
+    # parse asv from most abondant to less ones
+    for asv_name in sorted(asv_sums, key=lambda i: int(asv_sums[i]), reverse = True):
+        asv_in += 1
+        observation = biom_in.get_observations_by_name(asv_name)
 
-        # is this OTU poorly affiliated
+        # is this ASV poorly affiliated
         min_id = 100
         min_cov = 100
         tax = list()
@@ -125,65 +125,65 @@ def process(params):
             if percent_cov < min_cov : 
                 min_cov = percent_cov
 
-        # Add otu because of poor affiliations stat
+        # Add asv because of poor affiliations stat
         if min_id < params.identity or min_cov < params.coverage :
-            otu_out += 1
-            biom_out.add_observation( otu_name, observation["metadata"] )
+            asv_out += 1
+            biom_out.add_observation( asv_name, observation["metadata"] )
             for sample_name in biom_in.get_samples_names():
-                count = biom_in.get_count(otu_name,sample_name)
-                biom_out.add_count(otu_name, sample_name, count)
-            aggregated_otu[otu_name] = list()
+                count = biom_in.get_count(asv_name,sample_name)
+                biom_out.add_count(asv_name, sample_name, count)
+            aggregated_asv[asv_name] = list()
         # for confident taxonomy
         else:
             # check if all taxonomies are new
             is_new_tax = True
-            equivalent_otu_name = ""
+            equivalent_asv_name = ""
 
             for taxonomy in tax:
                 if isinstance(taxonomy,list):
                     taxonomy = ";".join(taxonomy)
-                if taxonomy in otu_by_tax:
+                if taxonomy in asv_by_tax:
                     is_new_tax = False
-                    if equivalent_otu_name == "":
-                        equivalent_otu_name = otu_by_tax[taxonomy]
-                    elif otu_by_tax[taxonomy] != equivalent_otu_name:
-                        Logger.static_write(params.log_file, '\tWarning: observation ' + otu_name + ' shares taxonomy ( '+ taxonomy +' with an other OTU : ' + otu_by_tax[taxonomy] + ', first detected OTU will be kept : ' + equivalent_otu_name + '\n' )
+                    if equivalent_asv_name == "":
+                        equivalent_asv_name = asv_by_tax[taxonomy]
+                    elif asv_by_tax[taxonomy] != equivalent_asv_name:
+                        Logger.static_write(params.log_file, '\tWarning: observation ' + asv_name + ' shares taxonomy ( '+ taxonomy +' with an other ASV : ' + asv_by_tax[taxonomy] + ', first detected ASV will be kept : ' + equivalent_asv_name + '\n' )
 
-            # if new tax, add OTU and save taxonomies
+            # if new tax, add ASV and save taxonomies
             if is_new_tax:
-                otu_out += 1
-                biom_out.add_observation( otu_name, observation["metadata"] )
+                asv_out += 1
+                biom_out.add_observation( asv_name, observation["metadata"] )
                 for sample_name in biom_in.get_samples_names():
-                    count = biom_in.get_count(otu_name, sample_name)
+                    count = biom_in.get_count(asv_name, sample_name)
                     if count > 0 :
-                        biom_out.add_count(otu_name, sample_name, count)
-                aggregated_otu[otu_name] = list()
+                        biom_out.add_count(asv_name, sample_name, count)
+                aggregated_asv[asv_name] = list()
                 for taxonomy in tax:
                     if isinstance(taxonomy,list):
                         taxonomy = ";".join(taxonomy)
-                    otu_by_tax[taxonomy] = otu_name
-            # else aggregation of OTU
+                    asv_by_tax[taxonomy] = asv_name
+            # else aggregation of ASV
             else:
-                otu_aggregated += 1
-                equivalent_otu = biom_out.get_observations_by_name(equivalent_otu_name)
+                asv_aggregated += 1
+                equivalent_asv = biom_out.get_observations_by_name(equivalent_asv_name)
                 # add blast_affiliations
-                aggregated_blast_affi = equivalent_otu["metadata"]["blast_affiliations"] + observation["metadata"]["blast_affiliations"]
-                biom_out.add_metadata( equivalent_otu_name, "blast_affiliations", aggregated_blast_affi , subject_type="observation", erase_warning=False)
+                aggregated_blast_affi = equivalent_asv["metadata"]["blast_affiliations"] + observation["metadata"]["blast_affiliations"]
+                biom_out.add_metadata( equivalent_asv_name, "blast_affiliations", aggregated_blast_affi , subject_type="observation", erase_warning=False)
                 # update consensus tax
                 consensus_tax = get_tax_consensus([ affi["taxonomy"] for affi in aggregated_blast_affi ])
-                biom_out.add_metadata( equivalent_otu_name, "blast_taxonomy", consensus_tax , subject_type="observation", erase_warning=False)
+                biom_out.add_metadata( equivalent_asv_name, "blast_taxonomy", consensus_tax , subject_type="observation", erase_warning=False)
                 # update counts
                 for sample_name in biom_in.get_samples_names():
-                    count = biom_out.get_count(equivalent_otu_name, sample_name) + biom_in.get_count(otu_name,sample_name)
-                    biom_out.change_count(equivalent_otu_name, sample_name, count)
+                    count = biom_out.get_count(equivalent_asv_name, sample_name) + biom_in.get_count(asv_name,sample_name)
+                    biom_out.change_count(equivalent_asv_name, sample_name, count)
                 # save aggregated composition
-                aggregated_otu[equivalent_otu_name].append(otu_name)
+                aggregated_asv[equivalent_asv_name].append(asv_name)
                 # update known taxonomies
                 for taxonomy in tax:
                     if isinstance(taxonomy,list):
                         taxonomy = ";".join(taxonomy)
-                    if not taxonomy in otu_by_tax:
-                        otu_by_tax[taxonomy] = equivalent_otu_name
+                    if not taxonomy in asv_by_tax:
+                        asv_by_tax[taxonomy] = equivalent_asv_name
 
     # write biom output file
     BiomIO.write( params.output_biom, biom_out )
@@ -192,42 +192,42 @@ def process(params):
     FH_in = FastaIO(params.input_fasta)
     FH_out = FastaIO(params.output_fasta, "wt")
     for record in FH_in:
-        if record.id in aggregated_otu:
+        if record.id in aggregated_asv:
             FH_out.write(record)
     FH_in.close()
     FH_out.close()
 
-    # write otu composition
+    # write asv composition
     FH_compo = open(params.output_compo, "wt")
-    for OTU in aggregated_otu:
-        FH_compo.write(OTU + " " + " ".join(aggregated_otu[OTU]) + "\n")
+    for ASV in aggregated_asv:
+        FH_compo.write(ASV + " " + " ".join(aggregated_asv[ASV]) + "\n")
     FH_compo.close()
 
     # simple log stat
-    Logger.static_write(params.log_file, "# nb OTU in : "+str(otu_in) + "\n")
-    Logger.static_write(params.log_file, "# nb OTU out : "+str(otu_out) + "\n")
-    Logger.static_write(params.log_file, "# nb OTU aggregated : "+str(otu_aggregated) + "\n")
+    Logger.static_write(params.log_file, "# nb ASV in : "+str(asv_in) + "\n")
+    Logger.static_write(params.log_file, "# nb ASV out : "+str(asv_out) + "\n")
+    Logger.static_write(params.log_file, "# nb ASV aggregated : "+str(asv_aggregated) + "\n")
 
 ###################################################################################################################
 ###                                             MAIN                                                            ###
 ###################################################################################################################
 if __name__ == "__main__":
     # Manage parameters
-    parser = argparse.ArgumentParser(description="Refine affiliations by aggregating OTU that share taxonomic affiliation with at least I% identity and C% coverage")
-    parser.add_argument( '-i', '--identity', default=99.0, type=float, help="Min percentage identity to agggregate OTU. [Default: %(default)s]")
-    parser.add_argument( '-c', '--coverage', default=99.0, type=float, help="Min percentage coverage to agggregate OTU. [Default: %(default)s]")
-    parser.add_argument( '-t', '--taxon-ignored', type=str, nargs='*', help="Taxon list to ignore when OTUs agggregation")
+    parser = argparse.ArgumentParser(description="Refine affiliations by aggregating ASV that share taxonomic affiliation with at least I% identity and C% coverage")
+    parser.add_argument( '-i', '--identity', default=99.0, type=float, help="Min percentage identity to agggregate ASV. [Default: %(default)s]")
+    parser.add_argument( '-c', '--coverage', default=99.0, type=float, help="Min percentage coverage to agggregate ASV. [Default: %(default)s]")
+    parser.add_argument( '-t', '--taxon-ignored', type=str, nargs='*', help="Taxon list to ignore when ASVs agggregation")
     parser.add_argument( '-d', '--debug', default=False, action='store_true', help="Keep temporary files to debug program.")
     parser.add_argument( '-v', '--version', action='version', version=__version__)
     # Inputs
     group_input = parser.add_argument_group('Inputs')
     group_input.add_argument('-b', '--input-biom', required=True, help='Abundance table with affiliations metadata from the taxonomic_affiliation tool (format: BIOM).')
-    group_input.add_argument('-f', '--input-fasta', required=True, help='OTU seed sequence file (format: Fasta).')
+    group_input.add_argument('-f', '--input-fasta', required=True, help='ASV seed sequence file (format: Fasta).')
     # Outputs
     group_output = parser.add_argument_group('Outputs')
     group_output.add_argument('--output-biom', default='refined_affiliation.biom', help='File whith refind affiliation annotations. [Default: %(default)s]')
-    group_output.add_argument('--output-compo', default='aggregated_otu_composition.tsv', help='Aggregated OTU composition [Default: %(default)s]')
-    group_output.add_argument('--output-fasta', default='refined_affiliation.fasta', help='Updated OTU fasta file [Default: %(default)s]')
+    group_output.add_argument('--output-compo', default='aggregated_asv_composition.tsv', help='Aggregated ASV composition [Default: %(default)s]')
+    group_output.add_argument('--output-fasta', default='refined_affiliation.fasta', help='Updated ASV fasta file [Default: %(default)s]')
     group_output.add_argument('--log-file', default=sys.stdout, help='The list of commands executed.')
     args = parser.parse_args()
     prevent_shell_injections(args)
