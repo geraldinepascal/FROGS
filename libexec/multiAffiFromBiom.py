@@ -56,7 +56,6 @@ def multiAffiFromBiom( in_biom, output_tsv ):
             if "perc_subject_coverage" in obs["metadata"]["blast_affiliations"][0]:
                 is_set_perc_subject_coverage = True
     out_fh = open( output_tsv, "wt" )
-#     out_fh.write( "#" + "\t".join(["OTU", "Subject_taxonomy", "Blast_subject", "Prct_identity", "Prct_query_coverage", "e-value", "Alignment_length"]) + "\n" )
     if is_set_perc_subject_coverage:
         out_fh.write( "#" + "\t".join(["observation_name", "blast_taxonomy", " blast_subject", "blast_perc_identity", "blast_perc_query_coverage", "blast_perc_subject_coverage", "blast_evalue", "blast_aln_length"]) + "\n" )
     else:

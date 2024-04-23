@@ -13,9 +13,9 @@ library(optparse)
 
 ############## OPTPARSE
 option_list = list(
-	make_option(c("-a", "--analysis"), type="character", default=NULL, help='Type of data to perform the differential analysis. OTU: DESeq2 is run on the OTUs abundances table. FUNCTION: DESeq2 is run on FROGSFUNC function abundances table (frogsfunc_functions_unstrat.tsv from FROGSFUNC function step).'),
+	make_option(c("-a", "--analysis"), type="character", default=NULL, help='Type of data to perform the differential analysis. ASV: DESeq2 is run on the ASVs abundances table. FUNCTION: DESeq2 is run on FROGSFUNC function abundances table (frogsfunc_functions_unstrat.tsv from FROGSFUNC function step).'),
 	make_option(c("-i", "--inRdata"), type="character", default=NULL, help="The path of RData file containing a phyloseq object, result of FROGS Phyloseq Import Data (required)"),
-	make_option(c("-v", "--var"), type="character", default=NULL, help="Experimental variable suspected to have an impact on OTUs abundances."),
+	make_option(c("-v", "--var"), type="character", default=NULL, help="Experimental variable suspected to have an impact on ASVs abundances."),
 	make_option(c("-f", "--inputFunction"), type="character", default=NULL, help='Input file of metagenome function predictions abundance. Required. (default: %(default)s).'),
 	make_option(c("-s", "--samplefile"), type="character", default=NULL, help="path to sample file (format: TSV)."),
 	make_option(c("-o", "--outRdata"), type="character", default="DESeq2_preprocess.Rdata", help="The path to store resulting dataframe of DESeq2.[default= %default]"),

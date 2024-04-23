@@ -288,15 +288,15 @@
 			var frogs_version = ###FROGS_VERSION### ;
 			var frogs_tool = ###FROGS_TOOL### ;
 			
-			// var summary = {"otu_removed": 4, "abundance_removed": 22025, "abundance_kept": 233756, "otu_kept": 48} ;	
+			// var summary = {"asv_removed": 4, "abundance_removed": 22025, "abundance_kept": 233756, "asv_kept": 48} ;	
 			var summary = ###SUMMARY### ;
 			// var removed_details_categories = ["Taxonomic Information", "Abundance Number", "% with abundance total", "Sequence length"] ;
 			var removed_details_categories = ###REMOVED_DETAILS_CATEGORIES### ;
 			// var removed_details_data = [
-			// 	{"data": ["k__Bacteria;p__Tenericutes;c__Mollicutes;o__Mycoplasmatales;f__Mycoplasmataceae;g__Candidatus Lumbricincola;s__NA", 200, 0.07819189071901353, 558], "name": "otu_01778"}, 
-			// 	{"data": ["k__Bacteria;p__Firmicutes;c__Bacilli;o__Lactobacillales;f__Carnobacteriaceae;g__Carnobacterium;s__Funditum", 459, 0.17945038920013606, 506], "name": "otu_00186"}, 
-			// 	{"data": ["k__Bacteria;p__Proteobacteria;c__Gammaproteobacteria;o__Vibrionales;f__Vibrionaceae;g__Photobacterium;s__Aquimaris", 1044, 0.4081616695532506, 538], "name": "otu_01097"}, 
-			// 	{"data": ["k__Bacteria;p__CK-1C4-19;c__NA;o__NA;f__NA;g__NA;s__NA", 20322, 7.9450780159589645, 501], "name": "otu_01918"}
+			// 	{"data": ["k__Bacteria;p__Tenericutes;c__Mollicutes;o__Mycoplasmatales;f__Mycoplasmataceae;g__Candidatus Lumbricincola;s__NA", 200, 0.07819189071901353, 558], "name": "asv_01778"}, 
+			// 	{"data": ["k__Bacteria;p__Firmicutes;c__Bacilli;o__Lactobacillales;f__Carnobacteriaceae;g__Carnobacterium;s__Funditum", 459, 0.17945038920013606, 506], "name": "asv_00186"}, 
+			// 	{"data": ["k__Bacteria;p__Proteobacteria;c__Gammaproteobacteria;o__Vibrionales;f__Vibrionaceae;g__Photobacterium;s__Aquimaris", 1044, 0.4081616695532506, 538], "name": "asv_01097"}, 
+			// 	{"data": ["k__Bacteria;p__CK-1C4-19;c__NA;o__NA;f__NA;g__NA;s__NA", 20322, 7.9450780159589645, 501], "name": "asv_01918"}
 			// ] ;
 			var removed_details_data = ###REMOVED_DETAILS_DATA### ;
 			
@@ -460,11 +460,11 @@
 				$('#content').removeClass("hidden");
 				
 			 	// Display summary
-				var nb_otu = [
-					['In Tree', summary['otu_kept']],
-					['Out of Tree', summary['otu_removed']]
+				var nb_asv = [
+					['In Tree', summary['asv_kept']],
+					['Out of Tree', summary['asv_removed']]
 				];
-				$('#nb-otu').highcharts( pie_param('ASVs', nb_otu, 'ASVs') );
+				$('#nb-asv').highcharts( pie_param('ASVs', nb_asv, 'ASVs') );
 				var nb_abundance = [
   					['In Tree', summary['abundance_kept']],
   					['Out of Tree', summary['abundance_removed']]
@@ -532,7 +532,7 @@
 			</ul>
             <h2 class="pb-2 mt-4 mb-2 border-bottom">Summary</h2>
             <div class="row">
-                <div id="nb-otu" class="col-md-6"></div>
+                <div id="nb-asv" class="col-md-6"></div>
                 <div id="nb-abundance" class="col-md-6"></div>
             </div>
             <div id="ASVs-fail" style="display:none;">

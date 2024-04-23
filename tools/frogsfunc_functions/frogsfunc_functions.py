@@ -98,7 +98,7 @@ class MetagenomePipeline(Cmd):
 		@param min_samples [int] Minimum number of samples that an ASV needs to be identfied within.
 		@param strat_out: [boolean] if strat_out, output table stratified by sequences as well.
 		@param function_abund: [str] Output file for function predictions abundance.
-		@param otu_norm: [str] Output file with abundance normalized per marker copies number.
+		@param asv_norm: [str] Output file with abundance normalized per marker copies number.
 		@param weighted: [str] Output file with the mean of nsti value per sample.
 		@param contrib: [str] Stratified output that reports contributions to community-wide abundances.
 		"""
@@ -118,14 +118,14 @@ class ParseMetagenomePipeline(Cmd):
 	"""
 	@summary: Parse results of PICRUSt2 metageome_pipeline.py software to rerieve additional informations (i.g. databases functions links)
 	"""
-	def __init__(self, in_dir, out_abund, otu_norm_file , out_weighted, strat_out, out_contrib, log):
+	def __init__(self, in_dir, out_abund, asv_norm_file , out_weighted, strat_out, out_contrib, log):
 		opt = ''
 		if strat_out:
 			opt += " --output-contrib " + out_contrib
 		Cmd.__init__( self,
 					  'frogsFuncUtils.py',
 					  'Parse metagenome_pipeline.py outputs.',
-					  "parse-metagenome --input-dir " + in_dir + " --output-abund " + out_abund + " --output-seqtab " + otu_norm_file  + " --output-weighted " + out_weighted + opt + " 2>> " + log,
+					  "parse-metagenome --input-dir " + in_dir + " --output-abund " + out_abund + " --output-seqtab " + asv_norm_file  + " --output-weighted " + out_weighted + opt + " 2>> " + log,
 					  '--version' )
 
 	def get_version(self):
@@ -256,7 +256,7 @@ class TaxonomyTree(Cmd):
 #
 ##################################################################################################################################################
 
-def otus_filter(in_biom, nsti_file, min_blast_identity, min_blast_coverage, max_nsti, excluded_file):
+def asvs_filter(in_biom, nsti_file, min_blast_identity, min_blast_coverage, max_nsti, excluded_file):
 	"""
 	@summary: Removes sequences from biom file that does not pass the selected blast threshold.
 	@param in biom: Biom file from frogsfunc_placeseqs step.
@@ -385,28 +385,28 @@ def write_summary(in_biom, function_file, nsti_file, excluded, tree_count_file, 
 	@param tree_ids_file: [str] file that link id to its sample.
 	@param summary_file: [str] path to the output html file.
 	"""
-	# to summary OTUs number && abundances number
+	# to summary ASVs number && abundances number
 	summary_info = {
 	   'nb_kept' : 0,
 	   'nb_removed' : 0,
 	   'abundance_kept' : 0,
 	   'abundance_removed' : 0
 	}
-	number_otu_all = 0
+	number_asv_all = 0
 	number_abundance_all = 0
 
 	biom=BiomIO.from_json(in_biom)
-	for otu in biom.get_observations_names():
-		number_otu_all +=1
-		number_abundance_all += biom.get_observation_count(otu)
+	for asv in biom.get_observations_names():
+		number_asv_all +=1
+		number_abundance_all += biom.get_observation_count(asv)
 	excluded_clusters = open( excluded ).readlines()
 	if not excluded_clusters[0].startswith('#No excluded ASV'):
 		#[1:] for skip header
-		for otu in excluded_clusters[1:]:
+		for asv in excluded_clusters[1:]:
 			summary_info['nb_removed'] +=1
-			summary_info['abundance_removed'] += biom.get_observation_count(otu.strip().split('\t')[0])
+			summary_info['abundance_removed'] += biom.get_observation_count(asv.strip().split('\t')[0])
 
-	summary_info['nb_kept'] = number_otu_all - summary_info['nb_removed']
+	summary_info['nb_kept'] = number_asv_all - summary_info['nb_removed']
 	summary_info['abundance_kept'] = number_abundance_all - summary_info['abundance_removed']
 
 	samples_distrib = dict()
@@ -429,7 +429,7 @@ def write_summary(in_biom, function_file, nsti_file, excluded, tree_count_file, 
 	FH_tree_ids.close()
 
 	# function abundances table
-	infos_otus = list()
+	infos_asvs = list()
 	details_categorys =["Function", "Description" ,"Observation_sum"]
 
 	abund = open(function_file).readlines()
@@ -445,7 +445,7 @@ def write_summary(in_biom, function_file, nsti_file, excluded, tree_count_file, 
 			sample = abund[0].strip().split('\t')[i+3]
 			li[i+2] = round(float(li[i+3]),1)
 
-		infos_otus.append({
+		infos_asvs.append({
 			'name': li[2],
 			'data': list(map(str,li[3:]))
 			})
@@ -463,7 +463,7 @@ def write_summary(in_biom, function_file, nsti_file, excluded, tree_count_file, 
 		if "###DETECTION_CATEGORIES###" in line:
 			line = line.replace( "###DETECTION_CATEGORIES###", json.dumps(details_categorys) )
 		elif "###DETECTION_DATA###" in line:
-			line = line.replace( "###DETECTION_DATA###", json.dumps(infos_otus) )
+			line = line.replace( "###DETECTION_DATA###", json.dumps(infos_asvs) )
 		elif "###REMOVE_DATA###" in line:
 			line = line.replace( "###REMOVE_DATA###", json.dumps(summary_info) )
 		elif "###TAXONOMIC_RANKS###" in line:
@@ -519,9 +519,9 @@ if __name__ == "__main__":
 	#Outputs
 	group_output = parser.add_argument_group( 'Outputs')
 	group_output.add_argument('--output-function-abund', default='frogsfunc_functions_unstrat.tsv', help='Output file for function prediction abundances. [Default: %(default)s].')
-	group_output.add_argument('--output-otu-norm', default='frogsfunc_functions_marker_norm.tsv', help='Output file with asv abundances normalized by marker copies number. [Default: %(default)s]')
+	group_output.add_argument('--output-asv-norm', default='frogsfunc_functions_marker_norm.tsv', help='Output file with asv abundances normalized by marker copies number. [Default: %(default)s]')
 	group_output.add_argument('--output-weighted', default='frogsfunc_functions_weighted_nsti.tsv', help='Output file with the mean of nsti value per sample (format: TSV). [Default: %(default)s]' )
-	group_output.add_argument('--output-contrib', default=None, help=' Stratified output that reports asv contributions to community-wide function abundances (ex pred_function_otu_contrib.tsv). [Default: %(default)s]')
+	group_output.add_argument('--output-contrib', default=None, help=' Stratified output that reports asv contributions to community-wide function abundances (ex pred_function_asv_contrib.tsv). [Default: %(default)s]')
 	group_output.add_argument('--output-biom', default='frogsfunc_function.biom', help='Biom file without excluded ASVs (NSTI, blast perc identity or blast perc coverage thresholds). (format: BIOM) [Default: %(default)s]')
 	group_output.add_argument('--output-fasta', default='frogsfunc_function.fasta', help='Fasta file without excluded ASVs (NSTI, blast perc identity or blast perc coverage thresholds). (format: FASTA). [Default: %(default)s]')
 	group_output.add_argument('--output-excluded', default='frogsfunc_functions_excluded.txt', help='List of ASVs with NSTI values above NSTI threshold ( --max_NSTI NSTI ).[Default: %(default)s]')
@@ -570,7 +570,7 @@ if __name__ == "__main__":
 			tmp_biom_blast_thresh = tmp_files.add( 'tmp_biom_blast_thresh' )
 			tmp_excluded = tmp_files.add( 'tmp_excluded' )
 ## ecrire ligne loger.static write sur l'exclusion des parametres en question
-			excluded_infos = otus_filter(args.input_biom, args.input_marker, args.min_blast_ident, args.min_blast_cov, args.max_nsti, args.output_excluded)
+			excluded_infos = asvs_filter(args.input_biom, args.input_marker, args.min_blast_ident, args.min_blast_cov, args.max_nsti, args.output_excluded)
 
 			RemoveSeqsBiomFasta(args.input_fasta, args.input_biom, args.output_fasta, args.output_biom, args.output_excluded).submit(args.log_file)
 			tmp_biom_to_tsv = tmp_files.add( 'tmp_biom_to_tsv' )
@@ -615,7 +615,7 @@ if __name__ == "__main__":
 			ext = os.path.splitext(function_basename_ext)[1]
 			output_function_abund = output_dir + "/" + function_basename + "_" + database + ext
 			tmp_parse = tmp_files.add( 'tmp_parse_metagenome.log' )
-			ParseMetagenomePipeline(output_dir, output_function_abund, args.output_otu_norm, args.output_weighted, args.strat_out, output_strat_abund, tmp_parse).submit( args.log_file)
+			ParseMetagenomePipeline(output_dir, output_function_abund, args.output_asv_norm, args.output_weighted, args.strat_out, output_strat_abund, tmp_parse).submit( args.log_file)
 				
 			tmp_function_unstrat = tmp_files.add( "functions_unstrat.tmp")
 			tmp_formate_abundances = tmp_files.add( 'tmp_formate_abundances.log' )

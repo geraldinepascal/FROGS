@@ -320,7 +320,7 @@ if __name__ == "__main__":
 	parser = argparse.ArgumentParser( description='Infer the presence and abundances of pathways based on gene family abundances in a sample.' )
 	parser.add_argument('--version', action='version', version=__version__)
 	parser.add_argument('--debug', default=False, action='store_true', help="Keep temporary files to debug program. [Default: %(default)s]" )
-	parser.add_argument('--per-sequence-contrib', default=False, action='store_true', help='If stratified option is activated, a new table is built. It will contain the abundances of each function of each OTU in each sample. (in contrast to the default stratified output, which is the contribution to the community-wide pathway abundances.) Options --per-sequence-abun and --per-sequence-function need to be set when this option is used. [Default: %(default)s] ')
+	parser.add_argument('--per-sequence-contrib', default=False, action='store_true', help='If stratified option is activated, a new table is built. It will contain the abundances of each function of each ASV in each sample. (in contrast to the default stratified output, which is the contribution to the community-wide pathway abundances.) Options --per-sequence-abun and --per-sequence-function need to be set when this option is used. [Default: %(default)s] ')
 	# Inputs
 	group_input = parser.add_argument_group( 'Inputs' )
 	group_input.add_argument('--input-file', required=True, type=str, help='Input TSV function abundances table from FROGSFUNC_step3_function (unstratified table : frogsfunc_functions_unstrat.tsv).')

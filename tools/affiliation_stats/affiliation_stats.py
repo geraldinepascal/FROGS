@@ -65,7 +65,7 @@ class Rarefaction(Cmd):
         # Out files management
         out_basename_pattern = "rarefaction_rank_##RANK##.tsv"
         out_files = list()
-        out_files.append( tmp_files_manager.add(out_basename_pattern.replace('##RANK##', 'otu')) )
+        out_files.append( tmp_files_manager.add(out_basename_pattern.replace('##RANK##', 'asv')) )
 
         for rank in rarefaction_levels:
             out_files.append( tmp_files_manager.add(out_basename_pattern.replace('##RANK##', str(rank))) )

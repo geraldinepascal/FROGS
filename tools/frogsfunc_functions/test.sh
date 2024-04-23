@@ -18,7 +18,7 @@ fi
     --input-marker data/25-frogsfunc_marker.tsv \
     --input-tree data/25-frogsfunc_placeseqs_tree.nwk \
     --output-function-abund test/26-frogsfunc_functions_unstrat.tsv \
-    --output-otu-norm test/26-frogsfunc_functions_marker_norm.tsv \
+    --output-asv-norm test/26-frogsfunc_functions_marker_norm.tsv \
     --output-weighted test/26-frogsfunc_functions_weighted_nsti.tsv \
     --output-excluded test/26-frogsfunc_functions_excluded.txt \
     --output-contrib test/26-frogsfunc_functions_strat.tsv \

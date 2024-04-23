@@ -17,7 +17,7 @@ def generate_ipath_input( file ):
     out_str = str()
     with open(file) as FH_in:
         for li in FH_in:
-            if li.startswith("OTU"):
+            if li.startswith("ASV"):
                 continue
             else:
                 li = li.strip().split(' ')

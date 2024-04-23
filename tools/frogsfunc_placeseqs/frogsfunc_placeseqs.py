@@ -258,18 +258,18 @@ def write_summary(in_fasta, excluded_file, biomfile, closest_ref_file, category,
 	   'abundance_kept' : 0,
 	   'abundance_removed' : 0	   
 	}
-	number_otu_all = 0
+	number_asv_all = 0
 	number_abundance_all = 0
 
 	details_categorys =["Nb sequences","FROGS Taxonomy","PICRUSt2 closest ID (JGI)","PICRUSt2 closest reference name","PICRUSt2 closest taxonomy","NSTI", "NSTI Confidence" ,"Lowest same taxonomic rank between FROGS and PICRUSt2","Comment"]
-	infos_otus = list()
+	infos_asvs = list()
 	biom=BiomIO.from_json(biomfile)
-	list_otu_all = list()
+	list_asv_all = list()
 	# record nb ASV and abundance
-	for otu in FastaIO(in_fasta):
-		list_otu_all.append(otu.id)
-		number_otu_all +=1
-		number_abundance_all += biom.get_observation_count(otu.id)
+	for asv in FastaIO(in_fasta):
+		list_asv_all.append(asv.id)
+		number_asv_all +=1
+		number_abundance_all += biom.get_observation_count(asv.id)
 
 	if category == "16S":
 		START_IMG_LINK = "<a href='https://img.jgi.doe.gov/cgi-bin/m/main.cgi?section=TaxonDetail&page=taxonDetail&taxon_oid="
@@ -302,7 +302,7 @@ def write_summary(in_fasta, excluded_file, biomfile, closest_ref_file, category,
 
 		picrust_id_cur = li[3]
 		li[3] = START_IMG_LINK + picrust_id_cur + "'target=\"_blank\">" + picrust_id_cur + '</a>'
-		infos_otus.append({
+		infos_asvs.append({
 			'name': li[0],
 			'data': list(li[1:-1])
 			})
@@ -319,7 +319,7 @@ def write_summary(in_fasta, excluded_file, biomfile, closest_ref_file, category,
 	abundances_size = sorted(abundances_size)
 	total_abundances = abundances_size[-1]
 	proportions = [ rounding( i / total_abundances * 100 ) for i in abundances_size]
-	# record details about removed OTU
+	# record details about removed ASV
 	FH_excluded = open(excluded_file, 'rt').readlines()
 	for li in FH_excluded:
 		if not li.startswith('#No excluded ASV.'):
@@ -327,7 +327,7 @@ def write_summary(in_fasta, excluded_file, biomfile, closest_ref_file, category,
 			summary_info['nb_removed'] +=1
 			summary_info['abundance_removed'] += biom.get_observation_count(cluster)
 
-	summary_info['nb_kept'] = number_otu_all - summary_info['nb_removed']
+	summary_info['nb_kept'] = number_asv_all - summary_info['nb_removed']
 	summary_info['abundance_kept'] = number_abundance_all - summary_info['abundance_removed']
 
 	FH_summary_tpl = open( os.path.join(CURRENT_DIR, "frogsfunc_placeseqs_tpl.html") )
@@ -337,7 +337,7 @@ def write_summary(in_fasta, excluded_file, biomfile, closest_ref_file, category,
 		if "###DETECTION_CATEGORIES###" in line:
 			line = line.replace( "###DETECTION_CATEGORIES###", json.dumps(details_categorys) )
 		elif "###DETECTION_DATA###" in line:
-			line = line.replace( "###DETECTION_DATA###", json.dumps(infos_otus) )
+			line = line.replace( "###DETECTION_DATA###", json.dumps(infos_asvs) )
 		elif "###REMOVE_DATA###" in line:
 			line = line.replace( "###REMOVE_DATA###", json.dumps(summary_info) )
 		elif "###CLUSTERS_SIZES###" in line:
@@ -380,7 +380,7 @@ if __name__ == "__main__":
 	group_output.add_argument('--excluded', default='frogsfunc_placeseqs_excluded.txt', help='List of sequences not inserted in the tree. [Default: %(default)s]')
 	group_output.add_argument('--output-fasta', default='frogsfunc_placeseqs.fasta', help='Fasta file without non insert sequences. (format: FASTA). [Default: %(default)s]')
 	group_output.add_argument('--output-biom', default='frogsfunc_placeseqs.biom', help='Biom file without non insert sequences. (format: BIOM) [Default: %(default)s]')
-	group_output.add_argument('--closests-ref', default='frogsfunc_placeseqs_closests_ref_sequences.txt', help='Informations about Clusters (i.e OTUs) and PICRUSt2 closest reference from cluster sequences (identifiants, taxonomies, phylogenetic distance from reference, nucleotidics sequences). [Default: %(default)s]')
+	group_output.add_argument('--closests-ref', default='frogsfunc_placeseqs_closests_ref_sequences.txt', help='Informations about Clusters (i.e ASVs) and PICRUSt2 closest reference from cluster sequences (identifiants, taxonomies, phylogenetic distance from reference, nucleotidics sequences). [Default: %(default)s]')
 	group_output.add_argument('--summary', default='frogsfunc_placeseqs_summary.html', help="Path to store resulting html file. [Default: %(default)s]" )
 	group_output.add_argument('--output-marker', default="frogsfunc_marker.tsv", type=str, help='Output table of predicted marker gene copy numbers per studied sequence in input tree. If the extension \".gz\" is added the table will automatically be gzipped. [Default: %(default)s]')	
 	group_output.add_argument('--log-file', default=sys.stdout, help='List of commands executed. [Default: stdout]')

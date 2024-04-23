@@ -112,26 +112,26 @@ def write_log(in_biom, num_reads, out_biom, log):
 
     for sample_name in initial_biom.get_samples_names():
         if sample_name in new_biom.get_samples_names():
-            nb_otu_before = len([ i for i in initial_biom.get_sample_obs(sample_name) if i >0 ])
+            nb_asv_before = len([ i for i in initial_biom.get_sample_obs(sample_name) if i >0 ])
             nb_seqs_before = sum([ i for i in initial_biom.get_sample_obs(sample_name) if i >0 ])
             tot_seqs_before += nb_seqs_before
-            nb_otu_after = len([ i for i in new_biom.get_sample_obs(sample_name) if i > 0])
+            nb_asv_after = len([ i for i in new_biom.get_sample_obs(sample_name) if i > 0])
             tot_seqs_after += sum([ i for i in new_biom.get_sample_obs(sample_name) if i >0 ])
             if sampling_by_min is True or nb_seqs_before >= num_reads:
-                FH_log.write("Sample name: "+sample_name+"\n\tnb initials ASV: "+str(nb_otu_before)+"\n\tnb normalised ASV: "+str(nb_otu_after)+"\n")
+                FH_log.write("Sample name: "+sample_name+"\n\tnb initials ASV: "+str(nb_asv_before)+"\n\tnb normalised ASV: "+str(nb_asv_after)+"\n")
             else:
                 FH_log.write("Below threshold sample: "+sample_name+"\n\tnb sequences: "+str(initial_biom.get_sample_count(sample_name))+"\n")
-                FH_log.write("Sample name: "+sample_name+"\n\tnb initials ASV: "+str(nb_otu_before)+"\n\tnb normalised ASV: "+str(nb_otu_after)+"\n")
+                FH_log.write("Sample name: "+sample_name+"\n\tnb initials ASV: "+str(nb_asv_before)+"\n\tnb normalised ASV: "+str(nb_asv_after)+"\n")
         else:
             tot_seqs_before += sum([ i for i in initial_biom.get_sample_obs(sample_name) if i >0 ])
             FH_log.write("Below threshold sample: "+sample_name+"\n\tnb sequences: "+str(initial_biom.get_sample_count(sample_name))+"\n")
             Logger.static_write(args.log_file,"WARNING: Deleted sample: "+str(sample_name) + " (Only " + str(initial_biom.get_sample_count(sample_name)) + " sequences).\n")
 
-    nb_initial_otu=len(initial_biom.rows)
-    nb_new_otu=len(new_biom.rows)
+    nb_initial_asv=len(initial_biom.rows)
+    nb_new_asv=len(new_biom.rows)
     nb_seqs_removed = tot_seqs_before - tot_seqs_after
-    nb_otus_removed = nb_initial_otu - nb_new_otu
-    FH_log.write("Sample name: all samples\n\tnb sequences kept: "+str(tot_seqs_after)+"\n\tnb sequences removed: "+str(nb_seqs_removed)+"\n\tnb ASV kept: "+str(nb_new_otu)+"\n\tnb ASV removed: "+str(nb_otus_removed)+"\n")
+    nb_asvs_removed = nb_initial_asv - nb_new_asv
+    FH_log.write("Sample name: all samples\n\tnb sequences kept: "+str(tot_seqs_after)+"\n\tnb sequences removed: "+str(nb_seqs_removed)+"\n\tnb ASV kept: "+str(nb_new_asv)+"\n\tnb ASV removed: "+str(nb_asvs_removed)+"\n")
     FH_log.close()
 
 def summarise_results( summary_file, is_delete_samples, num_reads, biom_subsample_log ):

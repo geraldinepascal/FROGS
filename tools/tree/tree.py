@@ -161,20 +161,20 @@ def write_summary( summary_file, fasta_in, align_out, biomfile, treefile):
     """
     # to summary ASVs number && abundances number               
     summary_info = {
-       'otu_kept' : 0,
-       'otu_removed' : 0,
+       'asv_kept' : 0,
+       'asv_removed' : 0,
        'abundance_kept' : 0,
        'abundance_removed' : 0       
     }
-    number_otu_all = 0
+    number_asv_all = 0
     number_abundance_all = 0
     # to detail removed ASV
     removed_details_categories =["Taxonomic Information", "Abundance Number", "% with abundance total", "Sequence length"]
     removed_details_data =[]
     
     # to build one metadata for tree view
-    dic_otu={}
-    list_otu_all=list()
+    dic_asv={}
+    list_asv_all=list()
     list_out_tree=[]
 
     biom=BiomIO.from_json(biomfile)
@@ -182,43 +182,43 @@ def write_summary( summary_file, fasta_in, align_out, biomfile, treefile):
     newick = treefile.read().strip()
 
     # record nb ASV and abundance
-    for otu in FastaIO(fasta_in):
-        list_otu_all.append(otu.id)
-        number_otu_all +=1
-        number_abundance_all += biom.get_observation_count(otu.id)
+    for asv in FastaIO(fasta_in):
+        list_asv_all.append(asv.id)
+        number_asv_all +=1
+        number_abundance_all += biom.get_observation_count(asv.id)
 
     # record details about removed ASV
     if align_out is not None:
-        for otu in FastaIO(align_out):
-            summary_info['otu_removed'] +=1
-            summary_info['abundance_removed'] += biom.get_observation_count(otu.id)
+        for asv in FastaIO(align_out):
+            summary_info['asv_removed'] +=1
+            summary_info['abundance_removed'] += biom.get_observation_count(asv.id)
             
             # to built one table of ASVs out of phylogenetic tree
             taxonomy=""
             if biom.has_metadata("taxonomy"):
-                taxonomy = ";".join(biom.get_observation_metadata(otu.id)["taxonomy"]) if issubclass(biom.get_observation_metadata(otu.id)["taxonomy"].__class__,list) else str(biom.get_observation_metadata(otu.id)["taxonomy"])
+                taxonomy = ";".join(biom.get_observation_metadata(asv.id)["taxonomy"]) if issubclass(biom.get_observation_metadata(asv.id)["taxonomy"].__class__,list) else str(biom.get_observation_metadata(asv.id)["taxonomy"])
             elif biom.has_metadata("blast_taxonomy"): 
-                taxonomy = ";".join(biom.get_observation_metadata(otu.id)["blast_taxonomy"]) if issubclass(biom.get_observation_metadata(otu.id)["blast_taxonomy"].__class__,list) else str(biom.get_observation_metadata(otu.id)["blast_taxonomy"])
-            abundance=biom.get_observation_count(otu.id)
+                taxonomy = ";".join(biom.get_observation_metadata(asv.id)["blast_taxonomy"]) if issubclass(biom.get_observation_metadata(asv.id)["blast_taxonomy"].__class__,list) else str(biom.get_observation_metadata(asv.id)["blast_taxonomy"])
+            abundance=biom.get_observation_count(asv.id)
             percent_abundance=abundance*100/(float(number_abundance_all))
-            length=len(otu.string)
-            info={"name": otu.id, "data": [taxonomy, abundance, percent_abundance, length]}
+            length=len(asv.string)
+            info={"name": asv.id, "data": [taxonomy, abundance, percent_abundance, length]}
             removed_details_data.append(info)
-            list_out_tree.append(otu.id)
+            list_out_tree.append(asv.id)
 
     # improve tree view by adding taxonomy information
-    list_in_tree=[item for item in list_otu_all if item not in list_out_tree]  
-    for otu in list_in_tree:
+    list_in_tree=[item for item in list_asv_all if item not in list_out_tree]  
+    for asv in list_in_tree:
         tax=None
         if biom.has_metadata("taxonomy"):
-            tax=" ".join(biom.get_observation_metadata(otu)["taxonomy"]) if issubclass(biom.get_observation_metadata(otu)["taxonomy"].__class__, list) else str(biom.get_observation_metadata(otu)["taxonomy"])
+            tax=" ".join(biom.get_observation_metadata(asv)["taxonomy"]) if issubclass(biom.get_observation_metadata(asv)["taxonomy"].__class__, list) else str(biom.get_observation_metadata(asv)["taxonomy"])
         elif biom.has_metadata("blast_taxonomy"):
-            tax=" ".join(biom.get_observation_metadata(otu)["blast_taxonomy"]) if issubclass(biom.get_observation_metadata(otu)["blast_taxonomy"].__class__, list) else str(biom.get_observation_metadata(otu)["blast_taxonomy"])
+            tax=" ".join(biom.get_observation_metadata(asv)["blast_taxonomy"]) if issubclass(biom.get_observation_metadata(asv)["blast_taxonomy"].__class__, list) else str(biom.get_observation_metadata(asv)["blast_taxonomy"])
         if tax :
-            newick=newick.replace(otu + ":", otu + " " + tax + ":")
+            newick=newick.replace(asv + ":", asv + " " + tax + ":")
     
     # finalize summary
-    summary_info['otu_kept'] = number_otu_all - summary_info['otu_removed']
+    summary_info['asv_kept'] = number_asv_all - summary_info['asv_removed']
     summary_info['abundance_kept'] = number_abundance_all - summary_info['abundance_removed']
     
     # Write
@@ -226,7 +226,7 @@ def write_summary( summary_file, fasta_in, align_out, biomfile, treefile):
     FH_summary_out = open( summary_file, "wt" )
     for line in FH_summary_tpl:
         if "###HEIGHT###" in line:
-            line = line.replace( "###HEIGHT###", json.dumps(summary_info['otu_kept']*11+166))
+            line = line.replace( "###HEIGHT###", json.dumps(summary_info['asv_kept']*11+166))
         if "###NEWICK###" in line:
             line = line.replace( "###NEWICK###", newick)
         if "##REMOVED_DETAILS_CATEGORIES###" in line:
@@ -236,7 +236,7 @@ def write_summary( summary_file, fasta_in, align_out, biomfile, treefile):
         elif "###SUMMARY###" in line:
             line = line.replace( "###SUMMARY###", json.dumps(summary_info) )
         elif '<div id="ASVs-fail" style="display:none;">' in line:
-            if summary_info['otu_removed']!=0:
+            if summary_info['asv_removed']!=0:
                 line = line.replace( 'style="display:none;"', '' )
         elif "###FROGS_VERSION###" in line:
             line = line.replace( "###FROGS_VERSION###", "\""+str(__version__)+"\"" )
