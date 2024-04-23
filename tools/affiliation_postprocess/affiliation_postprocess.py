@@ -75,19 +75,19 @@ class SelectInclusiv(Cmd):
     def get_version(self):   
         return Cmd.get_version(self, 'stdout').strip()
 
-class AggregateOTU(Cmd) : 
+class AggregateASV(Cmd) : 
     """
-    @summary : aggregate OTU that share at least one taxonomic affiliation
+    @summary : aggregate ASV that share at least one taxonomic affiliation
     """
     def __init__(self, input_biom, input_fasta, identity, coverage, ignored_list, output_biom, output_compo, output_fasta, log):
         """
         @param input_biom : [str] Path to biom file to treat
         @param input_fasta : [str] Path to fasta file to treat
-        @param identity : [float] min percentage identity of taxonomic affiliations to merge OTU
-        @param coverage : [float] min percentage coverage of taxonomic affiliations to merge OTU
-        @param ignored_list : [str] list of taxon ignored for OTU aggregation
+        @param identity : [float] min percentage identity of taxonomic affiliations to merge ASV
+        @param coverage : [float] min percentage coverage of taxonomic affiliations to merge ASV
+        @param ignored_list : [str] list of taxon ignored for ASV aggregation
         @param output_biom : [str] Path to the resulting biom file
-        @param output_compo : [str] Path to the resulting TSV file, containing aggregated OTU composition
+        @param output_compo : [str] Path to the resulting TSV file, containing aggregated ASV composition
         @param output_fasta : [str] Path to the resulting fasta file
         @param log : [str] Path to excution log file
         """
@@ -95,8 +95,8 @@ class AggregateOTU(Cmd) :
         if ignored_list:
             opt += ' --taxon-ignored ' + ' '.join(['\"' + t + '\"' for t in ignored_list]) + ''
         Cmd.__init__( self,
-                      'aggregate_affiliated_otus.py',
-                      'Aggregate OTU that share taxonomic affiliation with at least '+str(identity)+'% identity and '+str(coverage)+'% coverage',
+                      'aggregate_affiliated_asvs.py',
+                      'Aggregate ASVs that share taxonomic affiliation with at least '+str(identity)+'% identity and '+str(coverage)+'% coverage',
                       ' -b ' + input_biom + ' -f ' + input_fasta + opt + ' --identity ' + str(identity) + ' --coverage ' + str(coverage) \
                       + ' --output-biom ' + output_biom +' --output-compo ' +  output_compo + ' --output-fasta ' + output_fasta + " --log-file " + log,
                       '--version' )
@@ -122,8 +122,8 @@ class AggregateOTU(Cmd) :
 def process(params):
     """
     @summary : refine affiliation by:
-        - keep the smallest ITS amplicon refence for OTU multiaffiliated, these OTU are most likely inclusive ITS
-        - agggregate OTU that share the same affiliation based on threshold on %coverage and %id
+        - keep the smallest ITS amplicon refence for ASV multiaffiliated, these ASV are most likely inclusive ITS
+        - agggregate ASV that share the same affiliation based on threshold on %coverage and %id
     """
     tmpFiles = TmpFiles( os.path.split(args.output_biom)[0] )
     if params.reference:
@@ -139,8 +139,8 @@ def process(params):
             select_inclusiv_cmd.submit(params.log_file)
             input_biom = smallest_its_biom
 
-        # aggregate OTU
-        aggregate_cmd = AggregateOTU(input_biom, params.input_fasta, params.identity, params.coverage, params.taxon_ignored, params.output_biom, params.output_compo, params.output_fasta, aggregate_tmp_log)
+        # aggregate ASV
+        aggregate_cmd = AggregateASV(input_biom, params.input_fasta, params.identity, params.coverage, params.taxon_ignored, params.output_biom, params.output_compo, params.output_fasta, aggregate_tmp_log)
         aggregate_cmd.submit(params.log_file)
     finally:
         if not args.debug:
@@ -167,8 +167,8 @@ if __name__ == "__main__":
     # Outputs
     group_output = parser.add_argument_group('Outputs')
     group_output.add_argument('--output-biom', default='affiliation_postprocess_abundance.biom', help='BIOM file whith refind affiliation annotations. (format: BIOM) [Default: %(default)s]')
-    group_output.add_argument('--output-compo', default='affiliation_postprocess_otu_composition.tsv', help='Aggregated ASV composition (format: TSV) [Default: %(default)s]')
-    group_output.add_argument('--output-fasta', default='affiliation_postprocess_OTU.fasta', help='Updated ASV FASTA file (format: FASTA) [Default: %(default)s]')
+    group_output.add_argument('--output-compo', default='affiliation_postprocess_asv_composition.tsv', help='Aggregated ASV composition (format: TSV) [Default: %(default)s]')
+    group_output.add_argument('--output-fasta', default='affiliation_postprocess_ASV.fasta', help='Updated ASV FASTA file (format: FASTA) [Default: %(default)s]')
     group_output.add_argument('--log-file', default=sys.stdout, help='The list of commands executed. [Default: stdout]')
     args = parser.parse_args()
     prevent_shell_injections(args)

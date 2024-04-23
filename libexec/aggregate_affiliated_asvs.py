@@ -114,10 +114,12 @@ def process(params):
         for affiliation in observation["metadata"]["blast_affiliations"] : 
             if params.taxon_ignored and any(t in ";".join(affiliation["taxonomy"]) for t in params.taxon_ignored):
                 continue
+            if affiliation["perc_identity"] == "no data" or affiliation["perc_query_coverage"] == "no data": # Check if it is not an unaffiliated ASV
+                continue
             if not affiliation["taxonomy"] in tax:
                 tax.append(affiliation["taxonomy"])
-            percent_id = affiliation["perc_identity"]
-            percent_cov = affiliation["perc_query_coverage"]
+            percent_id = float(affiliation["perc_identity"])
+            percent_cov = float(affiliation["perc_query_coverage"])
             if percent_id < min_id : 
                 min_id = percent_id
             if percent_cov < min_cov : 
