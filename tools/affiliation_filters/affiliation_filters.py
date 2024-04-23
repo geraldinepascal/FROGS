@@ -187,7 +187,9 @@ def impacted_blast_affi_on_blastMetrics( observation, tag, cmp_operator, thresho
     cmp_func = valid_operators[cmp_operator]
     blast_affiliations_out = dict()
     for idx,blast_affi in enumerate(observation['metadata']['blast_affiliations']):
-        if cmp_func(float(blast_affi[tag]), threshold):
+        if blast_affi[tag] == "no data":
+            sys.exit("\nError: " + observation["id"]+ " has a taxonomy but some of its metrics have 'no data'!\nHave you modified it manually? Please correct it.\n\n" + str(observation)+"\n\n")
+        elif cmp_func(float(str(blast_affi[tag]).replace(',', '.')), threshold):
             blast_affiliations_out[idx] = blast_affi
 
     return blast_affiliations_out
@@ -861,13 +863,13 @@ if __name__ == '__main__':
     if args.keep_blast_taxa is not None:
         checkBlastTaxa(args.keep_blast_taxa)       
 
-    for observation in in_biom.get_observations():
-        taxonomy = observation['metadata']['blast_taxonomy']
-        if taxonomy == None or len(taxonomy) == 0:
-                print('\n\n#WARNING: you declare that taxonomies are defined on ' + str(len(args.taxonomic_ranks)) + ' ranks but your biom file contains taxonomy defined on ' + str(len(taxonomy)) + ', at least for ' + observation['id'] + '\n')
-                print('Those clusters will be delete if --delete mode activated\n')
-                break
-    del in_biom
+    #for observation in in_biom.get_observations():
+    #    taxonomy = observation['metadata']['blast_taxonomy']
+    #    if taxonomy == None or len(taxonomy) == 0:
+    #            print('\n\n#WARNING: you declare that taxonomies are defined on ' + str(len(args.taxonomic_ranks)) + ' ranks but your biom file contains taxonomy defined on ' + str(len(taxonomy)) + ', at least for ' + observation['id'] + '\n')
+    #            print('Those clusters will be delete if --delete mode activated\n')
+    #            break
+    #del in_biom
 
     if args.delete and (not args.input_fasta or not args.output_fasta):
         raise_exception(Exception("\n\n#ERROR : In deletion mode, you must specify an input and output_fasta file\n\n"))
