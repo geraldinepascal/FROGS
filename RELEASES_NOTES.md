@@ -32,11 +32,12 @@
   * Hierarchical clustering no more done by default (option --hierarchical-clustering added)
 * FROGS cluster filters
   * FROGS cluster stats tool integrated automatically in the HTML report
+* FROGS phyloseq structure: use the same colors for samples in all ordination plots
 
 ### Bugs fixed
 * Standardization of empty affiliations in BIOM files (empty list instead of None)
   * impacts FROGS affiliation filters, FROGS biom to tsv, FROGS tsv to biom, FROGS cluster filters, FROGS taxnomic affiliation, libexec/biomTools.py
-* Phyloseq import: allow files beginning with digits
+* Phyloseq import and DESeq preprocess: allow files beginning with digits
 * Phyloseq import: remove empty samples and gives the information in the HTML report
 * DESeq preprocess: check samples names consistency between function abundance tsv file and sample_metadata
 * DESeq visualization
@@ -47,6 +48,7 @@
 * libexec/launch_hsp.py: correct path for tmp files
 * ASV without affiliation is deleted if a threshold on a blast metric is set in affiliation_filters.py
 * Affiliation_filters: Error message and exit if an ASV with a taxonomy has missing metrics (no data) because of a manual update
+* FROGSfunc functions: correction of the location of temporary files 
 
 
 # v4.1.0 [2023-03]
