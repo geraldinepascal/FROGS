@@ -1,5 +1,9 @@
 ---
 title: "FROGSSTAT DESeq2: Visualisation (version `r params$version`)"
+author: "Ta Thi Ngan - SIGENAE/GABI & Mahendra Mariadassou - MaIAGE"
+copyright: "Copyright (C) 2024 INRAE"
+license: "GNU General Public License"
+version: "5.0.0"
 output: 
   html_notebook:
     code_folding: hide
@@ -40,7 +44,10 @@ params:
     value: x
 ---
 
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<meta name="author" content="Ta Thi Ngan - SIGENAE/GABI & Mahendra Mariadassou - MaIAGE" />
+<meta name="version" content="5.0.0" />
+<meta name="copyright" content="Copyright (C) 2024 INRAE" />
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)

@@ -1,28 +1,12 @@
 <!DOCTYPE html>
-<!--
-# Copyright (C) 2015 INRA
-#
-# This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <https://www.gnu.org/licenses/>.
--->
+
 <html>
     <head>
         <title>FROGS denoising</title>
         <meta charset="UTF-8">
-        <meta name="version" content="3.2.3">
-        <!-- CSS -->
-        
-        
+        <meta name="author" content="Olivier Rué - Migale/MaIAGE & Frédéric Escudié - Genotoul/MIAT & Maria Bernard - SIGENAE/GABI">
+        <meta name="version" content="5.0.0">
+        <meta name="copyright" content="Copyright (C) 2024 INRAE" />
 		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.1.1/css/bootstrap.css"></link>
 		<link rel="stylesheet" href="https://cdn.datatables.net/1.10.19/css/dataTables.bootstrap4.min.css"></link>
 		<link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet"></link>
@@ -96,7 +80,6 @@
 				margin-bottom: 2rem !important;
 				margin-top: 1rem !important;
 			}
-			/* ##### THEME FOR CHECKBOXES ##### */
 			.container {
 				position: relative;
 				padding-left: 0px;
@@ -107,15 +90,11 @@
 				-ms-user-select: none;
 				user-select: none;
 			}
-
-			/* Hide the browser's default checkbox */
 			.container input {
 				position: absolute;
 				opacity: 0;
 				cursor: pointer;
 			}
-
-			/* Create a custom checkbox */
 			.checkmark {
 				position: absolute;
 				top: 0;
@@ -126,25 +105,17 @@
 				border-radius: 5px;
 				opacity:0.65;
 			}
-
-			/* On mouse-over, add a grey background color */
 			.container:hover input ~ .checkmark {
 				background-color: var(--frogsColorHover);
 			}
-
-			/* Create the checkmark/indicator (hidden when not checked) */
 			.checkmark:after {
 				content: "";
 				position: absolute;
 				display: none;
 			}
-
-			/* Show the checkmark when checked */
 			.container input:checked ~ .checkmark:after {
 				display: block;
 			}
-
-			/* Style the checkmark/indicator */
 			.container .checkmark:after {
 				left: 7px;
 				top: 3px;
@@ -173,13 +144,10 @@
 			option:active, option:hover {
 			  outline: none !important;
 			}
-
-			/* make it red instead (with with same width and style) */
 			option:active, option:hover {
 			  box-shadow:red !important;
 			  outline-color: red !important;
 			}
-						
 			#js-alert {
 				width: 90%;
 				margin-right: auto;
@@ -215,9 +183,6 @@
 				padding: 5px 5px 5px 5px;
 				margin-top: 10px;
 			}
-			/*#dispersion {
-				height: 1000px;
-			}*/
 			#twofigs{
 				height: 600px;
 			}

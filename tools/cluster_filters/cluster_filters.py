@@ -1,28 +1,11 @@
 #!/usr/bin/env python3
-#
-# Copyright (C) 2018 INRA
-#
-# This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.
-#
 
-__author__ = 'Katia Vidal - Team NED Toulouse AND Frederic Escudie - Plateforme bioinformatique Toulouse AND Maria Bernard - Sigenae Jouy en Josas'
-__copyright__ = 'Copyright (C) 2020 INRAE'
+__author__ = 'Katia Vidal - GENPHYSE & Frédéric Escudié - Genotoul/MIAT & Maria Bernard - SIGENAE/GABI'
+__copyright__ = 'Copyright (C) 2024 INRAE'
 __license__ = 'GNU General Public License'
 __version__ = '5.0.0'
 __email__ = 'frogs-support@inrae.fr'
 __status__ = 'prod'
-
 
 import os
 import sys
