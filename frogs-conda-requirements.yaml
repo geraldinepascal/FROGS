@@ -3,7 +3,7 @@ channels:
   - bioconda
 dependencies:
 # bioconda
-  - frogs =4.1.0
+  - frogs =5.0.0
   - emboss =6.6.0
   - flash =1.2.11
   # need to be >=2.8
@@ -30,16 +30,3 @@ dependencies:
   - r-plotly =4.9.3
   - r-gridextra =2.3
   - r-reticulate
-
-## packages included in previous package (possibly in multiple previous package)
-#   r-essentials includes:
-    # pandoc
-    # r-rmarkdown
-    # r-dplyr
-    # r-codetools
-#   bioconductor-phyloseq includes:
-    # r-ggplot2 
-    # r-vegan
-    # r-ape
-    # r-scales
-    # r-reshape2
