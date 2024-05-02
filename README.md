@@ -6,7 +6,7 @@
 
 Visit our web site : http://frogs.toulouse.inrae.fr/
 
-[![Release](https://img.shields.io/badge/release-4.1.0-blue.svg)![Date](https://img.shields.io/badge/date-March%202023-red.svg)](https://github.com/geraldinepascal/FROGS-wrappers/releases) [<img src="[https://e7.pngegg.com/pngimages/277/213/png-clipart-deezer-round-logo-tech-companies-thumbnail.png](https://cdn.icon-icons.com/icons2/70/PNG/512/deezer_14086.png)" width="5%" style="display: block; margin: auto;"/>](https://www.deezer.com/fr/playlist/5233843102?utm_source=deezer&utm_content=playlist-5233843102&utm_term=18632989_1545296531&utm_medium=web)
+[![Release](https://img.shields.io/badge/release-4.1.0-blue.svg)![Date](https://img.shields.io/badge/date-March%202023-red.svg)](https://github.com/geraldinepascal/FROGS-wrappers/releases) [<img src="https://cdn.icon-icons.com/icons2/70/PNG/512/deezer_14086.png" width="2%" style="display: block; margin: auto;"/>](https://www.deezer.com/fr/playlist/5233843102?utm_source=deezer&utm_content=playlist-5233843102&utm_term=18632989_1545296531&utm_medium=web)
 
 
 
