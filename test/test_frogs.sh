@@ -29,88 +29,69 @@ then
 	exit 1;
 fi
 
-echo "Step preprocess : Flash `date`"
+echo "Step denoising 16S vsearch `date`":
 
-preprocess.py illumina \
- --min-amplicon-size 44 --max-amplicon-size 490 \
- --five-prim-primer GGCGVACGGGTGAGTAA --three-prim-primer GTGCCAGCNGCNGCGG \
- --R1-size 267 --R2-size 266 --expected-amplicon-size 420 --merge-software flash \
- --nb-cpus $nb_cpu --mismatch-rate 0.15 --keep-unmerged \
- --input-archive data/test_dataset.tar.gz \
- --output-dereplicated $out_dir/01-prepro-flash.fasta \
- --output-count $out_dir/01-prepro-flash.tsv \
- --summary $out_dir/01-prepro-flash.html \
- --log-file $out_dir/01-prepro-flash.log
- 
-if [ $? -ne 0 ]
-then
-	echo "Error in preprocess : Flash" >&2
-	exit 1;
-fi
 
-echo "Step preprocess : Vsearch `date`"
-
-preprocess.py illumina \
+denoising.py illumina \
+ --process swarm \
  --min-amplicon-size 44 --max-amplicon-size 490 \
  --five-prim-primer GGCGVACGGGTGAGTAA --three-prim-primer GTGCCAGCNGCNGCGG \
  --R1-size 267 --R2-size 266 --merge-software vsearch \
- --nb-cpus $nb_cpu --mismatch-rate 0.15 --keep-unmerged \
+ --nb-cpus $nb_cpu --mismatch-rate 0.15 \
  --input-archive data/test_dataset.tar.gz \
- --output-dereplicated $out_dir/01-prepro-vsearch.fasta \
- --output-count $out_dir/01-prepro-vsearch.tsv \
- --summary $out_dir/01-prepro-vsearch.html \
- --log-file $out_dir/01-prepro-vsearch.log 
- 
-if [ $? -ne 0 ]
-then
-	echo "Error in preprocess : Vsearch" >&2
-	exit 1;
-fi
+ --output-fasta $out_dir/01-denoising-swarm-vsearch.fasta \
+ --output-biom $out_dir/01-denoising-swarm-vsearch.biom \
+ --html $out_dir/01-denoising-swarm-vsearch.html \
+ --log-file $out_dir/01-denoising-swarm-vsearch.log 
 
-echo "Step clustering `date`"
+echo "Step denoising 16S pear `date`":
 
-clustering.py \
- --distance 1 \
- --fastidious \
- --input-fasta $out_dir/01-prepro-vsearch.fasta \
- --input-count $out_dir/01-prepro-vsearch.tsv \
- --output-biom $out_dir/02-clustering_fastidious.biom \
- --output-fasta $out_dir/02-clustering_fastidious.fasta \
- --output-compo $out_dir/02-clustering_fastidious_compo.tsv \
- --log-file $out_dir/02-clustering_fastidious.log \
- --nb-cpus $nb_cpu
+denoising.py illumina \
+ --process swarm \
+ --min-amplicon-size 44 --max-amplicon-size 490 \
+ --five-prim-primer GGCGVACGGGTGAGTAA --three-prim-primer GTGCCAGCNGCNGCGG \
+ --R1-size 267 --R2-size 266 --merge-software pear \
+ --nb-cpus $nb_cpu --mismatch-rate 0.15 \
+ --input-archive data/test_dataset.tar.gz \
+ --output-fasta $out_dir/01-denoising-swarm-pear.fasta \
+ --output-biom $out_dir/01-denoising-swarm-pear.biom \
+ --html $out_dir/01-denoising-swarm-pear.html \
+ --log-file $out_dir/01-denoising-swarm-pear.log 
 
-if [ $? -ne 0 ]
-then
-	echo "Error in clustering fastidious" >&2
-	exit 1;
-fi
+echo "Step denoising: dada2 keep-unmerged `date`"
 
-clustering.py \
- --distance 3 \
- --denoising \
- --input-fasta $out_dir/01-prepro-vsearch.fasta \
- --input-count $out_dir/01-prepro-vsearch.tsv \
- --output-biom $out_dir/02-clustering_denoising.biom \
- --output-fasta $out_dir/02-clustering_denoising.fasta \
- --output-compo $out_dir/02-clustering_denoising_compo.tsv \
- --log-file $out_dir/02-clustering_denoising.log \
- --nb-cpus $nb_cpu
+denoising.py illumina  \
+ --process dada2 --keep-unmerged \
+ --input-archive data/verysmallITS.tar.gz \
+ --min-amplicon-size 50 --max-amplicon-size 1000 --merge-software vsearch \
+ --five-prim-primer TAGACTCGTCAHCGATGAAGAACGYRG --three-prim-primer GCATATCAATAAGCGSAGGAA \
+ --R1-size 300 --R2-size 300  --nb-cpus $nb_cpu \
+ --output-fasta $out_dir/01-denoising-dada2-clusters.fasta \
+ --output-biom $out_dir/01-denoising-dada2-clusters.biom \
+ --html $out_dir/01-denoising-dada2.html \
+ --log-file $out_dir/01-denoising-dada2.log
 
-if [ $? -ne 0 ]
-then
-    echo "Error in clustering denoising" >&2
-    exit 1;
-fi
+echo "Step denoising: preprocess only `date`"
+
+denoising.py illumina  \
+ --process preprocess-only \
+ --input-archive data/verysmallITS.tar.gz \
+ --min-amplicon-size 50 --max-amplicon-size 1000 --merge-software vsearch \
+ --five-prim-primer TAGACTCGTCAHCGATGAAGAACGYRG --three-prim-primer GCATATCAATAAGCGSAGGAA \
+ --R1-size 300 --R2-size 300  --nb-cpus $nb_cpu \
+ --output-fasta $out_dir/01-prepro-only-clusters.fasta \
+ --output-biom $out_dir/01-prepro-only-clusters.biom \
+ --html $out_dir/01-prepro-only.html \
+ --log-file $out_dir/01-prepro-only.log
 
 echo "Step remove_chimera `date`"
 
 remove_chimera.py \
- --input-fasta $out_dir/02-clustering_fastidious.fasta \
- --input-biom $out_dir/02-clustering_fastidious.biom \
- --non-chimera $out_dir/03-chimera.fasta \
- --out-abundance $out_dir/03-chimera.biom \
- --summary $out_dir/03-chimera.html \
+ --input-fasta $out_dir/01-denoising-swarm-vsearch.fasta \
+ --input-biom $out_dir/01-denoising-swarm-vsearch.biom \
+ --output-fasta $out_dir/03-chimera.fasta \
+ --output-biom $out_dir/03-chimera.biom \
+ --html $out_dir/03-chimera.html \
  --log-file $out_dir/03-chimera.log \
  --nb-cpus $nb_cpu
  
@@ -135,7 +116,7 @@ cluster_filters.py \
  --output-fasta $out_dir/04-filters.fasta \
  --output-biom $out_dir/04-filters.biom \
  --excluded $out_dir/04-filters.excluded \
- --summary $out_dir/04-filters.html \
+ --html $out_dir/04-filters.html \
  --log-file $out_dir/04-filters.log 
 
 if [ $? -ne 0 ]
@@ -150,11 +131,11 @@ itsx.py \
  --input-fasta $out_dir/04-filters.fasta \
  --input-biom $out_dir/04-filters.biom \
  --region ITS1 --nb-cpus $nb_cpu \
- --out-abundance $out_dir/05-itsx.biom \
- --summary $out_dir/05-itsx.html \
+ --output-biom $out_dir/05-itsx.biom \
+ --html $out_dir/05-itsx.html \
  --log-file $out_dir/05-itsx.log \
- --out-fasta $out_dir/05-itsx.fasta \
- --out-removed $out_dir/05-itsx-excluded.fasta
+ --output-fasta $out_dir/05-itsx.fasta \
+ --output-removed-sequences $out_dir/05-itsx-excluded.fasta
 
 if [ $? -ne 0 ]
 then
@@ -169,7 +150,7 @@ taxonomic_affiliation.py \
  --input-fasta $out_dir/04-filters.fasta \
  --input-biom $out_dir/04-filters.biom \
  --output-biom $out_dir/06-affiliation.biom \
- --summary $out_dir/06-affiliation.html \
+ --html $out_dir/06-affiliation.html \
  --log-file $out_dir/06-affiliation.log \
  --nb-cpus $nb_cpu --java-mem $java_mem \
  --rdp
@@ -187,7 +168,7 @@ affiliation_filters.py \
 --input-biom $out_dir/06-affiliation.biom \
 --input-fasta $out_dir/04-filters.fasta \
 --output-biom $out_dir/07-affiliation_masked.biom \
---summary $out_dir/07-affiliation_masked.html \
+--html $out_dir/07-affiliation_masked.html \
 --impacted $out_dir/07-impacted_OTU_masked.tsv \
 --impacted-multihit $out_dir/07-impacted_OTU_masked_multihit.tsv \
 --log-file $out_dir/07-affiliation_filter_maskMode.log \
@@ -214,7 +195,7 @@ affiliation_filters.py \
 --input-fasta $out_dir/04-filters.fasta \
 --output-biom $out_dir/07-affiliation_deleted.biom \
 --output-fasta $out_dir/07-affiliation_deleted.fasta \
---summary $out_dir/07-affiliation_deleted.html \
+--html $out_dir/07-affiliation_deleted.html \
 --impacted $out_dir/07-impacted_OTU_deleted.tsv \
 --impacted-multihit $out_dir/07-impacted_OTU_deleted_multihit.tsv \
 --log-file $out_dir/07-affiliation_filter_delMode.log \
@@ -253,13 +234,13 @@ fi
 
 echo "Step normalisation `date`"
 normalisation.py \
- -n 25000 \
+ --num-reads 25000 \
  --delete-samples \
  --input-biom $out_dir/08-affiliation_postprocessed.biom \
  --input-fasta $out_dir/08-affiliation_postprocessed.fasta \
  --output-biom $out_dir/09-normalisation_25K_delS.biom \
  --output-fasta $out_dir/09-normalisation_25K_delS.fasta \
- --summary $out_dir/09-normalisation_25K_delS.html \
+ --html $out_dir/09-normalisation_25K_delS.html \
  --log-file $out_dir/09-normalisation_25K_delS.log
  
 if [ $? -ne 0 ]
@@ -274,7 +255,7 @@ normalisation.py \
  --input-fasta $out_dir/08-affiliation_postprocessed.fasta \
  --output-biom $out_dir/09-normalisation_by_min.biom \
  --output-fasta $out_dir/09-normalisation_by_min.fasta \
- --summary $out_dir/09-normalisation_by_min.html \
+ --html $out_dir/09-normalisation_by_min.html \
  --log-file $out_dir/09-normalisation_by_min.log
  
 if [ $? -ne 0 ]
@@ -285,12 +266,12 @@ fi
 
 # to reduce computing time for the others step
 normalisation.py \
- -n 100 \
+ --num-reads 100 \
  --input-biom $out_dir/08-affiliation_postprocessed.biom \
  --input-fasta $out_dir/08-affiliation_postprocessed.fasta \
  --output-biom $out_dir/09-normalisation.biom \
  --output-fasta $out_dir/09-normalisation.fasta \
- --summary $out_dir/09-normalisation.html \
+ --html $out_dir/09-normalisation.html \
  --log-file $out_dir/09-normalisation.log
  
 if [ $? -ne 0 ]
@@ -303,7 +284,7 @@ echo "Step cluster_stats `date`"
 
 cluster_stats.py \
  --input-biom $out_dir/09-normalisation.biom \
- --output-file $out_dir/10-clustersStat.html \
+ --html $out_dir/10-clustersStat.html \
  --log-file $out_dir/10-clustersStat.log
 
 if [ $? -ne 0 ]
@@ -317,7 +298,7 @@ echo "Step affiliation_stats `date`"
 
 affiliation_stats.py \
  --input-biom $out_dir/09-normalisation.biom \
- --output-file $out_dir/11-affiliationsStat.html \
+ --html $out_dir/11-affiliationsStat.html \
  --log-file $out_dir/11-affiliationsStat.log \
  --tax-consensus-tag "blast_taxonomy" \
  --identity-tag "perc_identity" \
@@ -383,9 +364,9 @@ echo "Step tree `date`"
 
 tree.py \
  --nb-cpus $nb_cpu \
- --input-sequences $out_dir/09-normalisation.fasta \
- --biom-file $out_dir/09-normalisation.biom \
- --out-tree $out_dir/15-tree-mafft.nwk \
+ --input-fasta $out_dir/09-normalisation.fasta \
+ --input-biom $out_dir/09-normalisation.biom \
+ --output-tree $out_dir/15-tree-mafft.nwk \
  --html $out_dir/15-tree-mafft.html \
  --log-file $out_dir/15-tree-mafft.log
 

@@ -1,32 +1,16 @@
 #!/usr/bin/env python3
-#
-# Copyright (C) 2018 INRA
-#
-# This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.
-#
 
-__author__ = 'Plateforme bioinformatique Toulouse and SIGENAE'
-__copyright__ = 'Copyright (C) 2015 INRA'
+__author__ = 'Frédéric Escudié - Genotoul/MIAT & Maria Bernard - SIGENAE/GABI'
+__copyright__ = 'Copyright (C) 2024 INRAE'
 __license__ = 'GNU General Public License'
-__version__ = '4.1.0'
+__version__ = '5.0.0'
 __email__ = 'frogs-support@inrae.fr'
 __status__ = 'prod'
 
 import os
 import sys
 import gzip
-import time
+import time	
 import tarfile
 import argparse
 
@@ -183,16 +167,11 @@ def is_gzip( file ):
     @return: [bool] True if the file is gziped.
     @param file : [str] Path to processed file.
     """
-    is_gzip = None
-    FH_input = gzip.open( file )
-    try:
-        FH_input.readline()
-        is_gzip = True
-    except:
-        is_gzip = False
-    finally:
-        FH_input.close()
-    return is_gzip
+    gzip_magic_number = b'\x1f\x8b'
+    with open( file , 'rb') as FH_input:
+        first_two_bytes = FH_input.read(2)
+
+    return first_two_bytes == gzip_magic_number
 
 def split_barcode_file( barcode_file, barcodes_file_list, global_tmp_files ):
     """
@@ -304,12 +283,14 @@ def summarise_results( summary_file, barcode_file, log_file ):
 if __name__ == "__main__":
     # Manage parameters
     parser = argparse.ArgumentParser( 
-        description='Split by samples the reads in function of inner barcode.'
+        description='Divide the reads into samples based on their internal barcode.'
     )
-    parser.add_argument('-m', '--mismatches', type=int, default=0, help="Number of mismatches allowed in barcode. [Default: %(default)s]")
-    parser.add_argument('-e', '--end', type=str, default="bol", help="barcode is at the begining of the forward end (bol) or of the reverse (eol) or both (both). [Default: %(default)s]")
-    parser.add_argument( '--debug', default=False, action='store_true', help="Keep temporary files to debug program." )
-    parser.add_argument( '-v', '--version', action='version', version=__version__ )
+    parser.add_argument('--version', action='version', version=__version__ )
+    parser.add_argument('--debug', default=False, action='store_true', help="Keep temporary files to debug program. [Default: %(default)s]" )
+    
+    parser.add_argument('--mismatches', type=int, default=0, help="Number of mismatches allowed in barcode. [Default: %(default)s]")
+    parser.add_argument('--end', type=str, default="bol", help="barcode is at the begining of the forward end (bol) or of the reverse (eol) or both (both). [Default: %(default)s]")
+    
     # Inputs
     group_input = parser.add_argument_group( 'Inputs' )
     group_input.add_argument( '--input-R1', required=True, help='The R1 sequence file with all samples (format: fastq).' )
@@ -317,10 +298,10 @@ if __name__ == "__main__":
     group_input.add_argument( '--input-barcode', help='This file describes barcodes and samples (one line by sample). Line format : SAMPLE_NAME<TAB>BARCODE or SAMPLE_NAME<TAB>BARCODE_FW<TAB>BARCODE_RV.' )
     group_output = parser.add_argument_group( 'Outputs' )
     # Outputs
-    group_output.add_argument( '--output-demultiplexed', default="demultiplexed_read.tar.gz", help='The tar file containing R1 files and R2 files for each sample (format: tar). [Default: %(default)s]' )
-    group_output.add_argument( '--output-excluded', default="undemultiplexed_read.tar.gz", help='The tar file containing R1 files and R2 files not demultiplexed  (format: tar). [Default: %(default)s]' )
-    group_output.add_argument( '-s', '--summary', default='demultiplex_summary.tsv', help='TSV file with summary of filters results  (format: TSV). [Default: %(default)s]')
-    group_output.add_argument( '-l', '--log-file', default=sys.stdout, help='This output file will contain several informations on executed commands.')
+    group_output.add_argument('--output-demultiplexed', default="demultiplexed_read.tar.gz", help='The tar file containing R1 files and R2 files for each sample (format: tar). [Default: %(default)s]' )
+    group_output.add_argument('--output-excluded', default="undemultiplexed_read.tar.gz", help='The tar file containing R1 files and R2 files not demultiplexed  (format: tar). [Default: %(default)s]' )
+    group_output.add_argument('--summary', default='demultiplex_summary.tsv', help='TSV file with summary of filters results  (format: TSV). [Default: %(default)s]')
+    group_output.add_argument('--log-file', default=sys.stdout, help='This output file will contain several informations on executed commands. [Default: stdout]')
     args = parser.parse_args()
     prevent_shell_injections(args)
 

@@ -1,24 +1,9 @@
 #!/usr/bin/env python3
-#
-# Copyright (C) 2018 INRA
-#
-# This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.
-#
-__author__ = 'Ta Thi Ngan & Maria Bernard INRA - SIGENAE'
-__copyright__ = 'Copyright (C) 2017 INRA'
+
+__author__ = 'Ta Thi Ngan - SIGENAE/GABI & Maria Bernard - SIGENAE/GABI'
+__copyright__ = 'Copyright (C) 2024 INRAE'
 __license__ = 'GNU General Public License'
-__version__ = '4.1.0'
+__version__ = '5.0.0'
 __email__ = 'frogs-support@inrae.fr'
 __status__ = 'prod'
 
@@ -74,7 +59,7 @@ class Rscript(Cmd):
                       'Rscript',
                       'Run 1 code Rmarkdown',
                        '-e "rmarkdown::render(' + "'" + rmd + "',output_file='" + html + \
-                       "', params=list(phyloseq='" + phyloseq + "', varExp='" + varExp + "',distance='" + distance + "', libdir ='" + LIBR_DIR + "'), intermediates_dir='" + os.path.dirname(html) + "')" + '" 2> ' + rmd_stderr,
+                       "', params=list(phyloseq='" + phyloseq + "', varExp='" + varExp + "',distance='" + distance + "', libdir ='" + LIBR_DIR + "', version='"+ str(__version__) + "'), intermediates_dir='" + os.path.dirname(html) + "')" + '" 2> ' + rmd_stderr,
                        "-e '(sessionInfo()[[1]][13])[[1]][1]; paste(\"Rmarkdown version: \",packageVersion(\"rmarkdown\")) ; library(phyloseq); paste(\"Phyloseq version: \",packageVersion(\"phyloseq\"))'")
     def get_version(self):
         """
@@ -93,18 +78,19 @@ if __name__ == "__main__":
    
     # Manage parameters
     parser = argparse.ArgumentParser( description='Clustering of samples using different linkage method.' )
-    parser.add_argument( '--debug', default=False, action='store_true', help="Keep temporary files to debug program." )   
-    parser.add_argument( '--version', action='version', version=__version__ )
-    parser.add_argument('-v', '--varExp', type=str, required=True, default=None, help='The experiment variable you want to analyse.')
+    parser.add_argument('--version', action='version', version=__version__)
+    parser.add_argument('--debug', default=False, action='store_true', help="Keep temporary files to debug program. [Default: %(default)s]" )   
+    
+    parser.add_argument('--varExp', type=str, required=True, default=None, help='The experiment variable you want to analyse. [Default: %(default)s]')
     # Inputs
     group_input = parser.add_argument_group( 'Inputs' )
-    group_input.add_argument('-r','--rdata', required=True, default=None, help="The path of RData file containing a phyloseq object-the result of FROGS Phyloseq Import Data" )
-    group_input.add_argument('-d','--distance-matrix', required=True, default=None, help="The path of data file containing beta diversity distance matrix. These file is the result of FROGS Phyloseq Beta Diversity." ) 
+    group_input.add_argument('--rdata', required=True, default=None, help="The path of RData file containing a phyloseq object-the result of FROGS Phyloseq Import Data. [Default: %(default)s]" )
+    group_input.add_argument('--distance-matrix', required=True, default=None, help="The path of data file containing beta diversity distance matrix. These file is the result of FROGS Phyloseq Beta Diversity. [Default: %(default)s]" ) 
 
     # output
     group_output = parser.add_argument_group( 'Outputs' )
-    group_output.add_argument('-o','--html', default='phyloseq_clustering.nb.html', help="The HTML file containing the graphs. [Default: %(default)s]" )   
-    group_output.add_argument( '-l', '--log-file', default=sys.stdout, help='This output file will contain several informations on executed commands.')    
+    group_output.add_argument('--html', default='phyloseq_clustering.nb.html', help="The HTML file containing the graphs. [Default: %(default)s]" )   
+    group_output.add_argument('--log-file', default=sys.stdout, help='This output file will contain several informations on executed commands. [Default: stdout]')    
     args = parser.parse_args()
     prevent_shell_injections(args)   
     # Process 

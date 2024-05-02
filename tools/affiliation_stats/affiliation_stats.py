@@ -1,28 +1,11 @@
 #!/usr/bin/env python3
-#
-# Copyright (C) 2018 INRA
-#
-# This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.
-#
 
-__author__ = 'Frederic Escudie - Plateforme bioinformatique Toulouse'
-__copyright__ = 'Copyright (C) 2015 INRA'
+__author__ = 'Frédéric Escudié - Genotoul/MIAT'
+__copyright__ = 'Copyright (C) 2024 INRAE'
 __license__ = 'GNU General Public License'
-__version__ = '4.1.0'
+__version__ = '5.0.0'
 __email__ = 'frogs-support@inrae.fr'
 __status__ = 'prod'
-
 
 import os
 import sys
@@ -65,7 +48,7 @@ class Rarefaction(Cmd):
         # Out files management
         out_basename_pattern = "rarefaction_rank_##RANK##.tsv"
         out_files = list()
-        out_files.append( tmp_files_manager.add(out_basename_pattern.replace('##RANK##', 'otu')) )
+        out_files.append( tmp_files_manager.add(out_basename_pattern.replace('##RANK##', 'asv')) )
 
         for rank in rarefaction_levels:
             out_files.append( tmp_files_manager.add(out_basename_pattern.replace('##RANK##', str(rank))) )
@@ -314,12 +297,16 @@ def write_summary( summary_file, input_biom, tree_count_file, tree_ids_file, rar
             line = line.replace( "###ALIGNMENT_SCORES###", json.dumps(aln_results) )
         elif "###BOOTSTRAP_SCORES###" in line:
             line = line.replace( "###BOOTSTRAP_SCORES###", json.dumps(bootstrap_results) )
+        elif "###FROGS_VERSION###" in line:
+            line = line.replace( "###FROGS_VERSION###", "\""+str(__version__)+"\"" )
+        elif "###FROGS_TOOL###" in line:
+            line = line.replace( "###FROGS_TOOL###", "\""+ os.path.basename(__file__)+"\"" )
         FH_summary_out.write( line )
     FH_summary_out.close()
     FH_summary_tpl.close()
 
 def process( args ):
-    tmp_files = TmpFiles( os.path.split(args.output_file)[0] )
+    tmp_files = TmpFiles( os.path.split(args.html)[0] )
 
     try:
         # Add temp taxonomy if multiple and without consensus
@@ -351,7 +338,7 @@ def process( args ):
         TaxonomyTree(tmp_biom, used_taxonomy_tag, tree_count_file, tree_ids_file).submit( args.log_file )
 
         # Writes summary
-        write_summary( args.output_file, args.input_biom, tree_count_file, tree_ids_file, rarefaction_files, args )
+        write_summary( args.html, args.input_biom, tree_count_file, tree_ids_file, rarefaction_files, args )
     finally:
         if not args.debug:
             tmp_files.deleteAll()
@@ -365,8 +352,9 @@ def process( args ):
 if __name__ == '__main__':
     # Parameters
     parser = argparse.ArgumentParser(description='Produces several metrics describing ASVs based on their taxonomies and the quality of the affiliations.')
-    parser.add_argument( '-d', '--debug', default=False, action='store_true', help="Keep temporary files to debug program." )
-    parser.add_argument( '-v', '--version', action='version', version=__version__ )
+    parser.add_argument('--version', action='version', version=__version__ )
+    parser.add_argument('--debug', default=False, action='store_true', help="Keep temporary files to debug program. [Default: %(default)s]" )
+    
     parser.add_argument( '--taxonomic-ranks', nargs='*', default=["Domain", "Phylum", "Class", "Order", "Family", "Genus", "Species"], help='The ordered ranks levels used in the metadata taxonomy. [Default: %(default)s]' )
     parser.add_argument( '--rarefaction-ranks', nargs='*', default=["Genus"], help='The ranks that will be evaluated in rarefaction. [Default: %(default)s]' )
     group_exclusion_taxonomy = parser.add_mutually_exclusive_group()
@@ -378,11 +366,11 @@ if __name__ == '__main__':
     parser.add_argument( '--coverage-tag', type=str, default=None, help='The metadata tag used in BIOM file to store the alignment observation coverage.' )
     #     Inputs
     group_input = parser.add_argument_group( 'Inputs' )
-    group_input.add_argument( '-i', '--input-biom', required=True, help="The input abundance file (format: BIOM)." )
+    group_input.add_argument('--input-biom', required=True, help="The input abundance file (format: BIOM)." )
     #     Outputs
     group_output = parser.add_argument_group( 'Outputs' )
-    group_output.add_argument( '-o', '--output-file', default="affiliation_stats.html", help="The HTML file containing the graphs. [Default: %(default)s]" )
-    group_output.add_argument( '-l', '--log-file', default=sys.stdout, help='The list of commands executed.' )
+    group_output.add_argument('--html', default="affiliation_stats.html", help="The HTML file containing the graphs. [Default: %(default)s]" )
+    group_output.add_argument('--log-file', default=sys.stdout, help='The list of commands executed. [Default: stdout]' )
     args = parser.parse_args()
     prevent_shell_injections(args)
 

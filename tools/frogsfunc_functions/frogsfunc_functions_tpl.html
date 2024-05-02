@@ -1,25 +1,12 @@
 <!DOCTYPE html>
-<!--
-# Copyright (C) 2015 INRA
-#
-# This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.
--->
+
 <html>
 	<head>
-		<title>FrogsFunc functions (Step2)</title>
+		<title>FrogsFunc functions</title>
 		<meta charset="UTF-8">
-		<meta name="version" content="4.1.0">
+		<meta name="author" content="Moussa Samb - GENPHYSE & Vincent Darbot - GENPHYSE & Geraldine Pascal - GENPHYSE">
+        <meta name="version" content="5.0.0">
+        <meta name="copyright" content="Copyright (C) 2024 INRAE" />
 		<!-- CSS -->
 		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.1.1/css/bootstrap.css"></link>
 		<link rel="stylesheet" href="https://cdn.datatables.net/1.10.19/css/dataTables.bootstrap4.min.css"></link>
@@ -34,6 +21,23 @@
 			#sunburst-graph{margin-left:auto;margin-right:auto}.jDistrib-walk-rank{height:100%;margin-right:2px;padding:8px;float:left;border-top-right-radius:7px;border-bottom-right-radius:7px;cursor:pointer;box-shadow:1px 1px 1px #555}.jDistrib-walk-rank-size{margin-left:5px;padding:4px;background-color:#FFF;color:#648a89;border-radius:9px;text-align:center;font-size:10px;font-family:sans-serif}.jDistrib-root-label{font-weight:700;cursor:pointer}.jDistrib-arc-label{cursor:pointer}.jDistrib-arc{cursor:pointer;stroke:#fff;fill-rule:evenodd}.jDistrib-tooltip{position:absolute;padding:10px;font:12px sans-serif;background:#8EADAC;border:0;border-radius:8px;pointer-events:none}.jDistrib-empty-details{color:#fff;background-color:#8EADAC;padding:15px;margin-bottom:20px;border:1px solid transparent;border-radius:4px}.jDistrib-table-details>tbody>tr:nth-of-type(2n+1){background-color:#F5F5F5}.jDistrib-table-details{border:1px solid #DDD;border-radius:8px;border-spacing:1px;border-collapse:separate}.jDistrib-table-details td,th{padding:2px 8px}.jDistrib-table-details .number{text-align:right}.jDistrib-export-toggle{height:30px;width:30px;padding:1px}.jDistrib-export-toggle div{background-color:#636363;border-radius:2px;height:3px;margin-top:2px;margin-bottom:2px}
 		</style>
 		<style type="text/css">
+			:root {
+				--frogsColor: #8EADAC; 
+				--frogsColorHover: #648a89;
+				--frogsColorShadow: #555;
+				--frogsColor2: #DE9F73;
+				--frogsColorZoomHighCharts: rgb(222,159,115,0.25);
+			}
+			.frogsversion{
+				position: absolute;
+				right: 5%;
+				color: var(--frogsColor);
+				font-style: italic;
+				font-size: smaller;
+			}
+			.frogsversion > a{
+				border: none !important;
+			}
 			#js-alert {
 				width: 90%;
 				margin-right: auto;
@@ -53,13 +57,13 @@
 			.page-item.active .page-link {
 				z-index: 1;
 				color: #fff;
-				background-color: #8EADAC;
-				border-color: #8EADAC;
+				background-color: var(--frogsColor);
+				border-color: var(--frogsColor);
 			}
 			.btn {
 				color: #fff;
-				border:#8EADAC;
-				background-color: #8EADAC;
+				border: var(--frogsColor);
+				background-color: var(--frogsColor);
 			}
 			.btn:focus, .btn:active {
 				outline: none !important;
@@ -67,8 +71,8 @@
 			}
 			.btn:hover{
 				color: #fff;
-				border:#648a89;
-				background-color: #648a89;
+				border: var(--frogsColorHover);
+				background-color: var(--frogsColorHover);
 			}
 			.pb-2, .py-2 {
 				padding-bottom: 1.5rem !important;
@@ -82,39 +86,38 @@
 			}
 			.nav-tabs .nav-link.active, .nav-tabs .nav-item.show .nav-link{
 				color: #fff;
-				background-color: #8EADAF;
+				background-color: var(--frogsColor);
 				border-color: #dee2e6 #dee2e6 #fff;
 			}
 			a {
-				color: #8EAEAF;
+				color: var(--frogsColor);
 			}
 			a:hover{
-				color:#648a89;
+				color: var(--frogsColorHover);
 			}
 			.page-link{
-				color: #8EAEAF;
+				color: var(--frogsColor);
 			}
 			.page-link:hover{
 				
 			}
 			.page-link:not(:disabled):not(.disabled) {
-				color: #8EAEAF;
+				color: var(--frogsColor);
 			}
 			.page-item.active .page-link {
 				color: #fff;
 			}
 			.highcharts-button > path{
 				stroke:#fff !important;
-				fill:#8EADAC !important;
+				fill: var(--frogsColor) !important;
 			}
 			g.highcharts-button{
 				cursor:pointer !important;
 			}
 			g.highcharts-button:hover{
 				color: #fff;
-				border:#648a89;
-				background-color: #648a89;
-				background-color: #648a89;
+				border: var(--frogsColorHover);
+				background-color: var(--frogsColorHover);
 				cursor:pointer !important;
 			}
 			#sunburst-detail table {
@@ -189,6 +192,36 @@
 			var jDistrib={pg_selector:{sunburst:null,walktrace:null,menu:null,detail:null},access:{graph:null,tooltip:null},graph:{sunburst:{padding:30,width:null,height:null,_radius:null,_arc:null,_x:null,_y:null},labels:{padding:7,font_size:15},colors:{set:["#7cb5ec","#434348","#90ed7d","#f7a35c","#8085e9","#f15c80","#e4d354","#2b908f","#f45b5b","#91e8e1"],neutral:"#dadaeb",radialization:15,start_depth:1}},tree:{current_root:null,root_size:0}},cJDistrib=function(t,e){Object.deepExtend(jDistrib,e),null==jDistrib.pg_selector.menu||d3.select(jDistrib.pg_selector.menu).empty()||_setMenu(),null==jDistrib.pg_selector.detail||d3.select(jDistrib.pg_selector.detail).empty()||(jQuery(jDistrib.pg_selector.sunburst).on("jd.walk",function(){clearDetails()}),jQuery(jDistrib.pg_selector.sunburst).on("jd.displayDetails",function(t,e){displayDetails(e)})),null==jDistrib.pg_selector.walktrace||d3.select(jDistrib.pg_selector.walktrace).empty()||jQuery(jDistrib.pg_selector.sunburst).on("jd.walk",function(t,e){walkTraceUpdate(e)}),_setSVG(),_load(t),walkTo(jDistrib.tree.current_root,0)},_setSVG=function(){var t=d3.select(jDistrib.pg_selector.sunburst).append("svg").attr("width",jDistrib.graph.sunburst.width).attr("height",jDistrib.graph.sunburst.height).append("g").attr("transform","translate("+jDistrib.graph.sunburst.width/2+","+jDistrib.graph.sunburst.height/2+")");jDistrib.access.graph=t,jDistrib.graph._radius=Math.min(jDistrib.graph.sunburst.width,jDistrib.graph.sunburst.height)/2-jDistrib.graph.sunburst.padding,(jDistrib.graph.sunburst.padding>=jDistrib.graph.sunburst.width+10||jDistrib.graph.sunburst.padding>=jDistrib.graph.sunburst.height+10)&&(jDistrib.graph._radius=Math.min(jDistrib.graph.sunburst.width,jDistrib.graph.sunburst.height)/2),jDistrib.graph._x=d3.scale.linear().range([0,2*Math.PI]),jDistrib.graph._y=d3.scale.pow().exponent(1.3).domain([0,1]).range([0,jDistrib.graph._radius]),jDistrib.graph._arc=d3.svg.arc().startAngle(function(t){return getStartAngle(t)}).endAngle(function(t){return getEndAngle(t)}).innerRadius(function(t){return getInnerRadius(t)}).outerRadius(function(t){return getOuterRadius(t)}),jDistrib.access.tooltip=d3.select(jDistrib.pg_selector.sunburst).append("div").attr("class","jDistrib-tooltip").style("opacity",0)},_load=function(t){jDistrib.tree.current_root=t,jDistrib.tree.root_size=getSize(t);var e=d3.layout.partition().value(function(t){return t.size});addID(t,0),addDepth(t,0);d3.select(jDistrib.pg_selector.sunburst+" g").datum(t).selectAll("path").data(e.nodes).enter().append("path").attr("d",jDistrib.graph._arc).attr("class","jDistrib-arc").attr("id",function(t){return"sb-arc-"+t.sunburst_id}).on("click",click).on("dblclick",dblclick).on("mousemove",hover).on("mouseout",function(){hideTooltip()}).each(stash),getColorsByFirstNodes(t);changeColorDepth(jDistrib.graph.colors.start_depth)},hover=function(t){displayTooltip(t)},click=function(t){jQuery(jDistrib.pg_selector.sunburst).trigger("jd.displayDetails",[t])},dblclick=function(t){walkTo(t)};Object.deepExtend=function(t,e){for(var r in e)"object"==typeof e[r]&&null!==e[r]?(t[r]=t[r]||{},arguments.callee(t[r],e[r])):t[r]=e[r];return t};var getStartAngle=function(t){return Math.max(0,Math.min(2*Math.PI,jDistrib.graph._x(t.x)))},getEndAngle=function(t){return Math.max(0,Math.min(2*Math.PI,jDistrib.graph._x(t.x+t.dx)))},getInnerRadius=function(t){return Math.max(0,t.y?jDistrib.graph._y(t.y):t.y)},getOuterRadius=function(t){return Math.max(0,jDistrib.graph._y(t.y+t.dy))},stash=function(t){t.x0=t.x,t.dx0=t.dx},brancheSizes=function(t){var e=new Array,r=t;for(e.unshift({name:r.name,size:getSize(r),node:r});r.hasOwnProperty("parent")&&null!=r.parent;)r=r.parent,e.unshift({name:r.name,size:getSize(r),node:r});return e},sunburstUpdate=function(t,e){e=null==e?1e3:e,removeLabels(),d3.selectAll(jDistrib.pg_selector.sunburst+" path").transition().duration(e).attrTween("d",arcTweenZoom(t)),setTimeout(function(){addLabels()},e)},walkTo=function(t,e){jQuery(jDistrib.pg_selector.sunburst).trigger("jd.walk",[t]),jDistrib.tree.current_root=t,sunburstUpdate(t,e)},arcTweenData=function(t,e){function r(e){var r=i(e);return t.x0=r.x,t.dx0=r.dx,jDistrib.graph._arc(r)}var i=d3.interpolate({x:t.x0,dx:t.dx0},t);if(0==e){var n=d3.interpolate(x.domain(),[jDistrib.tree.current_root.x,jDistrib.tree.current_root.x+jDistrib.tree.current_root.dx]);return function(t){return x.domain(n(t)),r(t)}}return r},arcTweenZoom=function(t){var e=d3.interpolate(jDistrib.graph._x.domain(),[t.x,t.x+t.dx]),r=d3.interpolate(jDistrib.graph._y.domain(),[t.y,1]),i=d3.interpolate(jDistrib.graph._y.range(),[t.y?20:0,jDistrib.graph._radius]);return function(t,n){return n?function(){return jDistrib.graph._arc(t)}:function(n){return jDistrib.graph._x.domain(e(n)),jDistrib.graph._y.domain(r(n)).range(i(n)),jDistrib.graph._arc(t)}}},colorComponentToHexa=function(t){var e=t.toString(16);return e.length<2&&(e="0"+e),e},RGBToHexa=function(t,e,r){return colorComponentToHexa(t)+colorComponentToHexa(e)+colorComponentToHexa(r)},hexa2RGB=function(t){return[parseInt(t.substring(0,2),16),parseInt(t.substring(2,4),16),parseInt(t.substring(4,6),16)]},colorToWhite=function(t,e){var r=new Array;if(0===t.indexOf("#"))r=hexa2RGB(t.substr(1));else if(0===t.indexOf("rgb(")){r=t.substr(4,t.length-1).split(",");for(var i=0;3>i;i++)r[i]=parseInt(r[i])}for(var n="#",i=0;3>i;i++)n+=colorComponentToHexa(Math.min(255,r[i]+e));return n},getNodeByDepthSorted=function(t,e){var r=new Array;if(t.depth==e)r.push(t);else if(t.depth<e&&t.hasOwnProperty("children")&&0!=t.children.length)for(var i=t.children.sort(function(t,e){return getSize(e)-getSize(t)}),n=0;n<i.length;n++)for(var s=getNodeByDepth(i[n],e),a=0;a<s.length;a++)r.push(s[a]);return r},getColorsByFirstNodes=function(t){for(var e=getNodeByDepthSorted(t,t.depth+jDistrib.graph.colors.start_depth),r=new Array,i=0;i<e.length;i++)r["sb-arc-"+e[i].sunburst_id]=jDistrib.graph.colors.set[i%jDistrib.graph.colors.set.length];return r},getColorToApply=function(t,e){return t.depth<jDistrib.graph.colors.start_depth?jDistrib.graph.colors.neutral:t.depth==jDistrib.graph.colors.start_depth?e["sb-arc-"+t.sunburst_id]:colorToWhite(d3.select("#sb-arc-"+t.parent.sunburst_id).style("fill"),jDistrib.graph.colors.radialization)},getNodeByDepth=function(t,e){var r=new Array;if(t.depth==e)r.push(t);else if(t.depth<e&&t.hasOwnProperty("children")&&0!=t.children.length)for(var i=0;i<t.children.length;i++)for(var n=getNodeByDepth(t.children[i],e),s=0;s<n.length;s++)r.push(n[s]);return r},addDepth=function(t,e){if(t.depth=e,t.hasOwnProperty("children")&&0!=t.children.length)for(var r=0;r<t.children.length;r++)addDepth(t.children[r],e+1)},addID=function(t,e){if(e+=1,t.sunburst_id=e,t.hasOwnProperty("children")&&0!=t.children.length)for(var r=0;r<t.children.length;r++)e=addID(t.children[r],e);return e},getSize=function(t){if(t.hasOwnProperty("size"))return t.size;if(t.hasOwnProperty("children")&&0!=t.children.length){for(var e=0,r=0;r<t.children.length;r++)e+=getSize(t.children[r]);return e}},getRoot=function(t){for(var e=t;e.hasOwnProperty("parent")&&null!=e.parent;)e=e.parent;return e},addLabels=function(){0!=jDistrib.tree.current_root.depth&&d3.select(jDistrib.pg_selector.sunburst+" g").append("text").text(jDistrib.tree.current_root.depth).attr("class","jDistrib-root-label").attr("text-anchor","middle").attr("x",0).attr("y",0).on("dblclick",function(){walkTo(jDistrib.tree.current_root.parent)}),d3.selectAll(jDistrib.pg_selector.sunburst+" path").each(function(t){if(t==jDistrib.tree.current_root||isChildOf(t,jDistrib.tree.current_root)){var e=getEndAngle(t)-getStartAngle(t),r=getInnerRadius(t),i=Math.sin(e/2)*r*2,n=getOuterRadius(t)-r,s=r+(getOuterRadius(t)-r)/2,a=s*e;a>=n?setLabelArcMode(t,a,n):setLabelLineMode(t,n,i,r,e)}})},setLabelArcMode=function(t,e,r){if(r>=jDistrib.graph.labels.font_size){var i=d3.select(jDistrib.pg_selector.sunburst+" g"),n=t.name;"root"==t.name&&(n=""),i.append("text").text(n).attr("id","evaluate-size").attr("white-space","nowrap").attr("visibility","hidden").style("font-size",jDistrib.graph.labels.font_size+"px");var s=d3.select("#evaluate-size")[0][0].getBBox().width+jDistrib.graph.labels.padding;if(jDistrib.graph.labels.padding>e-3)n="";else for(;s>e-3;)n=n.substring(0,n.length-1),d3.select("#evaluate-size").text(n),s=d3.select("#evaluate-size")[0][0].getBBox().width+jDistrib.graph.labels.padding;d3.select("#evaluate-size").remove(),0!=n.length&&n.length<t.name.length&&(n=n.length>1?n.substring(0,n.length-1)+".":""),n.length>0&&i.append("text").attr("class","jDistrib-arc-label").attr("dy",(getOuterRadius(t)-getInnerRadius(t))/2).style("font-size",jDistrib.graph.labels.font_size+"px").attr("text-rendering","optimizeLegibility").append("textPath").attr("xlink:href",function(){return"#sb-arc-"+t.sunburst_id}).attr("startOffset",jDistrib.graph.labels.padding).text(function(){return n}).on("click",function(){click(t)}).on("dblclick",function(){walkTo(t)}).on("mousemove",function(){displayTooltip(t)}).on("mouseout",function(){hideTooltip()})}},setLabelLineMode=function(t,e,r,i,n){var s=d3.select(jDistrib.pg_selector.sunburst+" g"),a=!1;if(n>=Math.PI&&2*i>jDistrib.graph.labels.font_size?a=!0:r>jDistrib.graph.labels.font_size&&(a=!0),a){var l=t.name;if("root"==t.name&&(l=""),t.hasOwnProperty("children")&&0!=t.children.length){s.append("text").text(l).attr("id","evaluate-size").attr("white-space","nowrap").attr("visibility","hidden").style("font-size",jDistrib.graph.labels.font_size+"px");var o=d3.select("#evaluate-size")[0][0].getBBox().width+jDistrib.graph.labels.padding;if(jDistrib.graph.labels.padding>e-3)l="";else for(;o>e-3;)l=l.substring(0,l.length-1),d3.select("#evaluate-size").text(l),o=d3.select("#evaluate-size")[0][0].getBBox().width+jDistrib.graph.labels.padding;d3.select("#evaluate-size").remove(),0!=l.length&&l.length<t.name.length&&(l=l.length>1?l.substring(0,l.length-1)+".":"")}l.length>0&&s.append("text").text(function(){return l}).attr("class","jDistrib-arc-label").style("font-size",jDistrib.graph.labels.font_size+"px").attr("dy",".35em").attr("text-anchor",function(){return jDistrib.graph._x(t.x+t.dx/2)>Math.PI?"end":"start"}).attr("transform",function(){var e=180*jDistrib.graph._x(t.x+t.dx/2)/Math.PI-90;return"rotate("+e+")translate("+(jDistrib.graph._y(t.y)+jDistrib.graph.labels.padding)+")rotate("+(e>90?-180:0)+")"}).on("click",function(){click(t)}).on("dblclick",function(){walkTo(t)}).on("mousemove",function(){displayTooltip(t)}).on("mouseout",function(){hideTooltip()})}},removeLabels=function(){d3.selectAll(jDistrib.pg_selector.sunburst+" .jDistrib-arc-label").remove(),d3.selectAll(jDistrib.pg_selector.sunburst+" .jDistrib-root-label").remove()},isChildOf=function(t,e){return t.depth<=e.depth?!1:t.depth-1==e.depth?t.parent==e:isChildOf(t.parent,e)},hideTooltip=function(){jDistrib.access.tooltip.transition().duration(500).style("opacity",0)},displayTooltip=function(t){jDistrib.access.tooltip.html(getTooltipContent(t)).style("left",d3.event.layerX+5+"px").style("top",d3.event.layerY-30+"px"),jDistrib.access.tooltip.transition().duration(200).style("opacity",.9)},getTooltipContent=function(t){return 0==jDistrib.tree.current_root.depth?t.name+": <b>"+(getSize(t)/jDistrib.tree.root_size*100).toFixed(3)+"%</b>":t.name+":<br />Total <b>"+(getSize(t)/jDistrib.tree.root_size*100).toFixed(3)+"%</b><br />"+jDistrib.tree.current_root.name+" <b>"+(getSize(t)/getSize(jDistrib.tree.current_root)*100).toFixed(3)+"%</b>"},walkTraceUpdate=function(t){var e=brancheSizes(t),r=d3.select(jDistrib.pg_selector.walktrace);r.selectAll(".jDistrib-walk-path").remove();for(var i=r.append("div").attr("class","jDistrib-walk-path"),n=0;n<e.length;n++){var s=i.append("div").attr("class","jDistrib-walk-rank").attr("style","background-color:#8EADAC;color:#fff");s.append("span").attr("class","jDistrib-walk-rank-name").html(e[n].name),0!=n&&s.append("span").attr("class","jDistrib-walk-rank-size").html((parseInt(e[n].size)/parseInt(e[n-1].size)*100).toFixed(1)),s.data([e[n].node]),s.on("click",function(){walkTo(d3.select(this)[0][0].__data__)})}i.append("div").attr("style","clear:both")},_setMenu=function(){d3.select(jDistrib.pg_selector.menu).append("label").attr("for","in-label-size").text("Font size: "),d3.select(jDistrib.pg_selector.menu).append("input").attr("id","in-label-size").attr("type","number").attr("min",1).attr("value",jDistrib.graph.labels.font_size).on("change",function(){d3.select("#in-color-depth")[0][0].value<1&&(d3.select("#in-color-depth")[0][0].value=1),changeLabelSize(d3.select("#in-label-size")[0][0].value)});var t=7;d3.select(jDistrib.pg_selector.menu).append("label").attr("for","in-color-depth").text("Colors start depth: "),d3.select(jDistrib.pg_selector.menu).append("input").attr("id","in-color-depth").attr("type","number").attr("min",1).attr("max",t).attr("value",jDistrib.graph.colors.start_depth).on("change",function(){d3.select("#in-color-depth")[0][0].value<1?d3.select("#in-color-depth")[0][0].value=1:d3.select("#in-color-depth")[0][0].value>t&&(d3.select("#in-color-depth")[0][0].value=t),changeColorDepth(d3.select("#in-color-depth")[0][0].value)})},changeLabelSize=function(t){jDistrib.graph.labels.font_size=t,removeLabels(),addLabels()},changeColorDepth=function(t){jDistrib.graph.colors.start_depth=t;var e=getColorsByFirstNodes(getRoot(jDistrib.tree.current_root));d3.select(jDistrib.pg_selector.sunburst+" g").selectAll("path").style("fill",function(t){return getColorToApply(t,e)})},clearDetails=function(){d3.select(jDistrib.pg_selector.detail).html(""),d3.select(jDistrib.pg_selector.detail).append("div").attr("class","jDistrib-empty-details").text("Click on an element to see more details.")},displayDetails=function(t){for(var e=brancheSizes(t),r="",i=0;i<e.length;i++){var n="";n+="<td>"+e[i].name+"</td>",n+='<td class="number">'+e[i].size+"</td>",0!=i?(n+='<td class="number">'+(parseInt(e[i].size)/parseInt(e[0].size)*100).toFixed(3)+"</td>",n+='<td class="number">'+(parseInt(e[i].size)/parseInt(e[i-1].size)*100).toFixed(3)+"</td>"):(n+="<td></td>",n+="<td></td>"),r+="<tr>"+n+"</tr>"}d3.select(jDistrib.pg_selector.detail).html('<table class="jDistrib-table-details">	<thead>		<tr>			<th>Name</th>			<th>Size</th>			<th>Global %</th>			<th>Parent %</th>		</tr>	</thead>	<tbody>'+r+"</tbody></table><p>"+t.name+" nb children: "+(void 0==t.children?0:t.children.length)+"</p>")},exportSVG=function(){console.log("export"),d3.select(jDistrib.pg_selector.sunburst+" .jDistrib-data-export").empty()&&d3.select(jDistrib.pg_selector.sunburst).append("a").attr("class","jDistrib-data-export").attr("href","").attr("download","").attr("style","display:none;");var t=d3.select(jDistrib.pg_selector.sunburst+" svg");console.log(t[0][0]),xml=(new XMLSerializer).serializeToString(t[0][0]),svg_data="data:application/octet-stream;base64,"+btoa(xml),d3.select(jDistrib.pg_selector.sunburst+" .jDistrib-data-export").attr("href",svg_data).attr("download","jDistribChart.svg"),jQuery(jDistrib.pg_selector.sunburst+" .jDistrib-data-export")[0].click()};
 		</script>
 		<script type="text/javascript">
+			/**
+			Colors
+			*/
+			var root = document.documentElement;
+			var style = getComputedStyle(root);
+			var frogsColor = style.getPropertyValue('--frogsColor');
+			var frogsColor2 = style.getPropertyValue('--frogsColor2');
+			var frogsColorZoomHighCharts = style.getPropertyValue('--frogsColorZoomHighCharts');
+			var frogsColorHover = style.getPropertyValue('--frogsColorHover');
+			/**
+			 Data from HTML
+			*/
+			var frogs_version = ###FROGS_VERSION### ;
+			var frogs_tool = ###FROGS_TOOL### ;
+			var detection_categories = ###DETECTION_CATEGORIES### ;
+			var detection_series = ###DETECTION_DATA### ;
+			var starplot_series = ###STARPLOT_SERIES### ;
+			var remove_info = ###REMOVE_DATA### ;
+			var taxonomic_ranks = ###TAXONOMIC_RANKS### ;
+				/* Example:
+					["LevelA", "LevelB", "LevelC", "Pathway"]
+				*/
+			var samples_names = ###SAMPLES_NAMES### ;
+				/* Example:
+				["Surface-01", "Surface-02", "Surface-03", "Middle-01", "Middle-02", "Middle-03"]
+				*/
+			var samples_distrib = ###DATA_SAMPLE### ;
+			var tree_distribution = ###TREE_DISTRIBUTION### ;
+				/* This string is in newick extended format. The metadata is the count by sample (each sample is referenced by is index position in "samples_names"). */
+			
 			/**
 			 * Returns the string representation of the number. 
 			 * @param pValue {Float} The number to process.
@@ -270,14 +303,14 @@
 						buttonOptions: {
 							theme: {
 								r: 4,
-								fill:'#8EADAC',
+								fill: frogsColor,
 								states: {
 									hover: {
 										fill: 'rgb(100, 138, 137)',
-										stroke:'#8EADAC'
+										stroke: frogsColor
 									},
 									select: {
-										stroke: '#8EADAC',
+										stroke: frogsColor,
 										fill: 'rgb(100, 138, 137)',
 									}
 								}
@@ -471,32 +504,18 @@
 			};
 
 
-			var detection_categories = ###DETECTION_CATEGORIES### ;
-			var detection_series = ###DETECTION_DATA### ;
-			var starplot_series = ###STARPLOT_SERIES### ;
-			var remove_info = ###REMOVE_DATA### ;
-			var taxonomic_ranks = ###TAXONOMIC_RANKS### ;
-				/* Example:
-					["LevelA", "LevelB", "LevelC", "Pathway"]
-				*/
-			var samples_names = ###SAMPLES_NAMES### ;
-				/* Example:
-				["Surface-01", "Surface-02", "Surface-03", "Middle-01", "Middle-02", "Middle-03"]
-				*/
-			var samples_distrib = ###DATA_SAMPLE### ;
-			var tree_distribution = ###TREE_DISTRIBUTION### ;
-				/* This string is in newick extended format. The metadata is the count by sample (each sample is referenced by is index position in "samples_names"). */
+			
 
 
 			$(function() {
-
+				$(".frogsversion > a").text("FROGS "+frogs_tool+" "+frogs_version);
 				// Remove alert
 				$('#js-alert').remove();
 				$('#content').removeClass("hidden");
 				
 				// Radializes colors
 				Highcharts.setOptions({
-					 colors : ['#8EADAC', '#DE9F73'] ,
+					 colors : [frogsColor, frogsColor2] ,
 					 lang: {thousandsSep: ','}
 					});
 					Highcharts.SVGRenderer.prototype.symbols.download = function (x, y, w, h) {
@@ -663,6 +682,9 @@
 		
 		<!-- Content -->
 		<div id="content" class="hidden">
+			<ul id="mytab" class="nav nav-tabs">
+				<li class="nav-item frogsversion"><a class="nav-link"></a></li>
+			</ul>
 				<div id="filter-summary">
 	        		<h2 class="pb-2 mt-4 mb-2 border-bottom">Metagenome functional profile summary
 					</h2>

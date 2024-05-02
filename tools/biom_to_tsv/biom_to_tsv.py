@@ -1,25 +1,9 @@
 #!/usr/bin/env python3
-#
-# Copyright (C) 2018 INRA
-#
-# This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.
-#
 
-__author__ = 'Frederic Escudie - Plateforme bioinformatique Toulouse and Maria Bernard - Sigenae Jouy en Josas'
-__copyright__ = 'Copyright (C) 2015 INRA'
+__author__ = 'Frédéric Escudié - Genotoul/MIAT & Maria Bernard - SIGENAE/GABI'
+__copyright__ = 'Copyright (C) 2024 INRAE'
 __license__ = 'GNU General Public License'
-__version__ = '4.1.0'
+__version__ = '5.0.0'
 __email__ = 'frogs-support@inrae.fr'
 __status__ = 'prod'
 
@@ -62,6 +46,12 @@ class Biom2tsv(Cmd):
         # Check the metadata
         biom = BiomIO.from_json( in_biom )
         obs = biom.rows[0]
+        # Check if blast_perc_subject_coverage is set
+        is_set_perc_subject_coverage = False
+        if "blast_affiliations" in obs["metadata"]:
+            if len(obs["metadata"]["blast_affiliations"]) > 0 :
+                if "perc_subject_coverage" in obs["metadata"]["blast_affiliations"][0]:
+                    is_set_perc_subject_coverage = True
         conversion_tags = ""
         if biom.has_observation_metadata( 'comment' ) :
             conversion_tags += "'comment' "
@@ -75,6 +65,8 @@ class Biom2tsv(Cmd):
             conversion_tags += "'@blast_subject' "
             conversion_tags += "'@blast_perc_identity' "
             conversion_tags += "'@blast_perc_query_coverage' "
+            if is_set_perc_subject_coverage:
+                conversion_tags += "'@blast_perc_subject_coverage' "
             conversion_tags += "'@blast_evalue' "
             conversion_tags += "'@blast_aln_length' "
         if biom.has_observation_metadata( 'seed_id' ):
@@ -120,8 +112,20 @@ class Biom2multiAffi(Cmd):
         @param in_biom: [str] Path to BIOM file.
         @param out_tsv: [str] Path to output TSV file.
         """
+        biom = BiomIO.from_json( in_biom )
+        obs = biom.rows[0]
+        # Check if blast_perc_subject_coverage is set
+        is_set_perc_subject_coverage = False
+        if "blast_affiliations" in obs["metadata"]:
+            if len(obs["metadata"]["blast_affiliations"]) > 0 :
+                if "perc_subject_coverage" in obs["metadata"]["blast_affiliations"][0]:
+                    is_set_perc_subject_coverage = True
+        
         if headerOnly:
-            header_list = ["observation_name", "blast_taxonomy", " blast_subject", "blast_perc_identity", "blast_perc_query_coverage", "blast_evalue", "blast_aln_length"]
+            if is_set_perc_subject_coverage:
+                header_list = ["observation_name", "blast_taxonomy", "blast_subject", "blast_perc_identity", "blast_perc_query_coverage", "blast_perc_subject_coverage", "blast_evalue", "blast_aln_length"]
+            else:
+                header_list = ["observation_name", "blast_taxonomy", "blast_subject", "blast_perc_identity", "blast_perc_query_coverage", "blast_evalue", "blast_aln_length"]
             Cmd.__init__( self,
                           'echo',
                           'Print biom blast multiAffiliation as TSV header file',
@@ -145,21 +149,21 @@ class Biom2multiAffi(Cmd):
 if __name__ == "__main__":
     # Manage parameters
     parser = argparse.ArgumentParser( description='Converts a BIOM file in TSV file.' )
-    parser.add_argument( '-v', '--version', action='version', version=__version__ )
-    parser.add_argument( '--header', default=False, action='store_true', help="Print header only" )
+    parser.add_argument('--version', action='version', version=__version__ )
+    parser.add_argument('--header', default=False, action='store_true', help="Print header only" )
     # Inputs
     group_input = parser.add_argument_group( 'Inputs' )
-    group_input.add_argument( '-b', '--input-biom', required=True, help="The abundance file (format: BIOM)." )
-    group_input.add_argument( '-f', '--input-fasta', help='The sequences file (format: FASTA). If you use this option the sequences will be add in TSV.' )
+    group_input.add_argument('--input-biom', required=True, help="The abundance file (format: BIOM)." )
+    group_input.add_argument('--input-fasta', help='The sequences file (format: FASTA). If you use this option the sequences will be add in TSV.' )
     # Outputs
     group_output = parser.add_argument_group( 'Outputs' )
-    group_output.add_argument( '-t', '--output-tsv', default='abundance.tsv', help='This output file will contain the abundance and metadata (format: TSV). [Default: %(default)s]' )
-    group_output.add_argument( '-m', '--output-multi-affi', default='multihits.tsv', help='This output file will contain information about multiple alignements (format: TSV). Use this option only if your affiliation has been produced by FROGS. [Default: %(default)s]' )
-    group_output.add_argument( '-l', '--log-file', default=sys.stdout, help='This output file will contain several informations on executed commands.' )
+    group_output.add_argument('--output-tsv', default='abundance.tsv', help='This output file will contain the abundance and metadata (format: TSV). [Default: %(default)s]' )
+    group_output.add_argument('--output-multi-affi', default='multihits.tsv', help='This output file will contain information about multiple alignements (format: TSV). Use this option only if your affiliation has been produced by FROGS. [Default: %(default)s]' )
+    group_output.add_argument('--log-file', default=sys.stdout, help='This output file will contain several informations on executed commands. [Default: stdout]' )
     args = parser.parse_args()
     prevent_shell_injections(args)
 
-    # Process
+    # Process    
     Logger.static_write(args.log_file, "## Application\nSoftware :" + sys.argv[0] + " (version : " + str(__version__) + ")\nCommand : " + " ".join(sys.argv) + "\n\n")
     Biom2tsv( args.output_tsv, args.input_biom, args.header, args.input_fasta ).submit( args.log_file )
     

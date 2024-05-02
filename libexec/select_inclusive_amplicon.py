@@ -160,9 +160,9 @@ def process(params) :
                 biom_out.add_count( observation['id'], sample_name, biom_in.get_count(observation['id'], sample_name))    
 
     # simple log stat
-    Logger.static_write(params.log_file, "# nb OTU : "+str(nb_obs) + "\n")
-    Logger.static_write(params.log_file, "# nb OTU with multiaffiliations : "+str(nb_obs_multi_affi) + "\n")
-    Logger.static_write(params.log_file, "# nb OTU with multiaffiliations resolved : "+str(nb_obs_multi_affi_resolved) + "\n")
+    Logger.static_write(params.log_file, "# nb ASV : "+str(nb_obs) + "\n")
+    Logger.static_write(params.log_file, "# nb ASV with multiaffiliations : "+str(nb_obs_multi_affi) + "\n")
+    Logger.static_write(params.log_file, "# nb ASV with multiaffiliations resolved : "+str(nb_obs_multi_affi_resolved) + "\n")
     Logger.static_write(params.log_file, "# nb multiaffiliations removed : "+str(nb_multi_affi_removed) + "\n")
 
     BiomIO.write( params.output_biom, biom_out )

@@ -270,7 +270,7 @@ if __name__ == "__main__":
     parser.add_argument( '-v', '--version', action='version', version=__version__ )
     group_reco = parser.add_argument_group( 'Recommended options' )
     group_reco.add_argument( '-d', '--distance', type=int, default=1, help="Maximum distance between sequences in each aggregation step. RECOMMENDED : d=1 in combination with --fastidious option [Default: %(default)s]" )
-    group_reco.add_argument( '--fastidious', default=False, action='store_true',  help="use the fastidious option of swarm to refine OTU. RECOMMENDED in combination with a distance equal to 1 (-d). it is only usable with d=1 and mutually exclusive with --denoising." )
+    group_reco.add_argument( '--fastidious', default=False, action='store_true',  help="use the fastidious option of swarm to refine ASV. RECOMMENDED in combination with a distance equal to 1 (-d). it is only usable with d=1 and mutually exclusive with --denoising." )
     group_clustering = parser.add_argument_group( 'other clustering option' )
     group_clustering.add_argument( '-n', '--denoising', default=False, action='store_true',  help="denoise data by clustering read with distance=1 before perform real clustering. It is mutually exclusive with --fastidious." )
     # Inputs

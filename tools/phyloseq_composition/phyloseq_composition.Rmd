@@ -1,5 +1,9 @@
 ---
-title: "FROGS Phyloseq: Visualise Data Composition (version 4.1.0)"
+title: "FROGS Phyloseq: Visualise Data Composition (version `r params$version`)"
+author: "Ta Thi Ngan - SIGENAE/GABI & Maria Bernard - SIGENAE/GABI"
+copyright: "Copyright (C) 2024 INRAE"
+license: "GNU General Public License"
+version: "5.0.0"
 output:
   html_notebook:
     code_folding : hide
@@ -18,8 +22,13 @@ params:
     value: x
   libdir:
     value: x
+  version:
+    value: x
 ---
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<meta name="author" content="Ta Thi Ngan - SIGENAE/GABI & Maria Bernard - SIGENAE/GABI" />
+<meta name="version" content="5.0.0" />
+<meta name="copyright" content="Copyright (C) 2024 INRAE" />
 
 <style type="text/css">
 code.r{ /* Code block */

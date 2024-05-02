@@ -19,7 +19,7 @@
 __author__ = 'Frederic Escudie - Plateforme bioinformatique Toulouse - Maria Bernard - Sigenae Jouy en Josas'
 __copyright__ = 'Copyright (C) 2015 INRA'
 __license__ = 'GNU General Public License'
-__version__ = '0.7.2'
+__version__ = '0.8.2'
 __email__ = 'frogs-support@inrae.fr'
 __status__ = 'prod'
 
@@ -123,24 +123,6 @@ def get_obs_from_biom( in_biom ):
     for observation_name in biom.get_observations_names():
         observ_dict[observation_name] = biom.get_observation_count(observation_name)
     del biom
-    return observ_dict
-
-def get_obs_from_count( in_count ):
-    """
-    @summary: Returns the counts by observation from a COUNT file.
-    @param in_count: Path to the COUNT.
-    @return: [dict] Returns the counts by observation.
-    """
-    observ_dict = dict()
-    in_count_fh = open(in_count)
-    header = in_count_fh.readline()
-    for line in in_count_fh:
-        line_fields = line.strip().split()
-        observation_sum = 0
-        for count in line_fields[1:]:
-            observation_sum += int(count)
-        observ_dict[line_fields[0]] = observation_sum
-    in_count_fh.close()
     return observ_dict
 
 def submit_cmd( cmd, stdout_path, stderr_path):
@@ -266,104 +248,6 @@ def remove_chimera_biom( samples, chimera_files, in_biom_file, out_biom_file, le
     BiomIO.write(out_biom_file, biom)
     FH_log.close()
 
-def remove_chimera_count( samples, chimera_files, in_count_file, out_count_file, lenient_filter, global_report, bySample_report, log_file ):
-    """
-    @summary: Removes the chimera observation from TSV.
-    @param samples: [list] samples name list
-    @param chimera_files : [list] samples chimera files
-    @param in_count_file: [str] The path to the COUNT file to filter.
-    @param out_count_file: [str] The path to the COUNT after filter.
-    @param lenient_filter: [bool] True: removes one sequence in all samples
-                           only if it is detected as chimera in all samples
-                           where it is present. With False removes one
-                           sequence in all samples if it is detected as chimera
-                           in at least one sample.
-    @param global_report: [dict] This dictionary is update with the global
-                          number of removed observations, the global removed
-                          abundance, ...
-    @param bySample_report: [dict] This dictionary is update for add by sample the
-                            number of removed observations, the removed
-                            abundance, ...
-    @param log_file : [path] Path to general log output file
-    """
-    FH_log = Logger(log_file)
-    FH_log.write("Removes the chimera observation from TSV.\n")
-    chimera = dict()
-    # Retrieve chimera
-    for idx, sample_name in enumerate(samples):
-        chimera_fh = open( chimera_files[idx] )
-        for line in chimera_fh:
-            observation_name = line.strip()
-            if observation_name not in chimera:
-                chimera[observation_name] = dict()
-            chimera[observation_name][sample_name] = True
-        chimera_fh.close()
-
-    # Remove chimera
-    in_count_fh = open( in_count_file )
-    out_count_fh = open( out_count_file, "wt" )
-    samples_pos = dict()
-    #    header
-    header = in_count_fh.readline()
-    out_count_fh.write(header)
-    for idx, sample_name in enumerate(header.strip().split()[1:]):
-        samples_pos[sample_name] = idx
-        if sample_name not in bySample_report:
-            bySample_report[sample_name] = {
-                'nb_kept': 0,
-                'kept_abundance': 0,
-                'nb_removed': 0,
-                'removed_abundance': 0,
-                'removed_max_abundance': 0
-            }
-    #    body
-    for line in in_count_fh:
-        line_fields = line.strip().split()
-        observation_name = line_fields[0]
-        observation_counts = [int(sample_count) for sample_count in line_fields[1:]]
-        if observation_name not in chimera:
-            out_count_fh.write( line )
-            global_report['nb_kept'] += 1
-            global_report['abundance_kept'] += sum(observation_counts)
-            # By sample metrics
-            for sample_name in list(samples_pos.keys()):
-                sample_count = int(observation_counts[samples_pos[sample_name]])
-                if sample_count > 0:
-                    bySample_report[sample_name]['nb_kept'] += 1
-                    bySample_report[sample_name]['kept_abundance'] += sample_count
-        else: # is chimera in at least one sample
-            is_always_chimera = True
-            for sample_name in list(samples_pos.keys()):
-                if sample_name not in chimera[observation_name] and int(observation_counts[samples_pos[sample_name]]) != 0:
-                    is_always_chimera = False
-            if not is_always_chimera: # is not chimera in all samples where it is find
-                global_report['nb_ambiguous'] += 1
-                global_report['abundance_ambiguous'] += sum(observation_counts)
-                FH_log.write( "'" + observation_name + "' is not interpreted as chimera in all samples where it is present.\n")
-            if is_always_chimera or not lenient_filter:
-                global_report['nb_removed'] += 1
-                global_report['abundance_removed'] += sum(observation_counts)
-                # By sample metrics
-                for sample_name in list(samples_pos.keys()):
-                    sample_count = int(observation_counts[samples_pos[sample_name]])
-                    if sample_count > 0:
-                        bySample_report[sample_name]['nb_removed'] += 1
-                        bySample_report[sample_name]['removed_abundance'] += sample_count
-                        bySample_report[sample_name]['removed_max_abundance'] = max(bySample_report[sample_name]['removed_max_abundance'], sample_count)
-            else:
-                global_report['nb_kept'] += 1
-                global_report['abundance_kept'] += sum(observation_counts)
-                out_count_fh.write( line )
-                # By sample metrics
-                for sample_name in list(samples_pos.keys()):
-                    sample_count = int(observation_counts[samples_pos[sample_name]])
-                    if sample_count > 0:
-                        bySample_report[sample_name]['nb_kept'] += 1
-                        bySample_report[sample_name]['kept_abundance'] += sample_count
-
-    in_count_fh.close()
-    out_count_fh.close()
-    FH_log.close()
 
 def chimera( sample_names, input_fasta, input_abund, outputs_fasta, outputs_chimera, log_chimera, user_size_separator ):
     for idx in range(len(sample_names)):
@@ -473,12 +357,7 @@ def main_process(args):
     tmp_files = TmpFiles(os.path.split(args.non_chimera)[0])
 
     try:
-        if args.out_abundance is None:
-            args.out_abundance = "count.tsv"
-            if args.biom is not None:
-                args.out_abundance = "abundance.biom"
 
-        count_table = args.count
         if args.biom is not None:
             count_table = tmp_files.add("tmp_count.tsv")
             biom = BiomIO.from_json( args.biom )
@@ -538,12 +417,8 @@ def main_process(args):
                               'abundance_ambiguous': 0}
         log_remove_spl = {}
 
-        if args.biom is not None:
-            remove_chimera_biom( samples, chimera_files, args.biom, args.out_abundance, args.lenient_filter, log_remove_global, log_remove_spl, args.log_file )
-            remove_chimera_fasta( args.sequences, args.non_chimera, get_obs_from_biom(args.out_abundance), args.size_separator )
-        else:
-            remove_chimera_count( samples, chimera_files, args.count, args.out_abundance, args.lenient_filter, log_remove_global, log_remove_spl, args.log_file )
-            remove_chimera_fasta( args.sequences, args.non_chimera, get_obs_from_count(args.out_abundance), args.size_separator )
+        remove_chimera_biom( samples, chimera_files, args.biom, args.out_abundance, args.lenient_filter, log_remove_global, log_remove_spl, args.log_file )
+        remove_chimera_fasta( args.sequences, args.non_chimera, get_obs_from_biom(args.out_abundance), args.size_separator )
 
         # Summary
         write_summary( samples, sample_logs, log_remove_global, log_remove_spl, args.summary )
@@ -585,12 +460,10 @@ if __name__ == "__main__":
     parser.add_argument( '-v', '--version', action='version', version=__version__ + " [vsearch " + get_vsearch_version() + "]" )
     group_input = parser.add_argument_group( 'Inputs' ) # Inputs
     group_input.add_argument( '-s', '--sequences', required=True, help='The cluster sequences.' )
-    group_exclusion_abundance = group_input.add_mutually_exclusive_group()
-    group_exclusion_abundance.add_argument( '-b', '--biom', help='The abundance file for clusters by sample (format: BIOM).' )
-    group_exclusion_abundance.add_argument( '-c', '--count', help='The abundance file for clusters by sample (format: count).' )
+    group_input.add_argument( '-b', '--biom', required=True, help='The abundance file for clusters by sample (format: BIOM).' )
     group_output = parser.add_argument_group( 'Outputs' ) # Outputs
     group_output.add_argument( '-n', '--non-chimera', default='non_chimera.fasta', help='Fasta without chimera. [Default: %(default)s]' )
-    group_output.add_argument( '-a', '--out-abundance', default=None, help='Abundance file without chimera.' )
+    group_output.add_argument( '-a', '--out-abundance', default='non_chimera_abundance.biom', help='Abundance file without chimera. [Default: %(default)s]' )
     group_output.add_argument( '--summary', default='summary.tsv', help='Summary file. [Default: %(default)s]' )
     group_output.add_argument( '--log-file', default=sys.stdout, help='This output file will contain several information on executed commands.' )
     args = parser.parse_args()

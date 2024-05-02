@@ -1,25 +1,9 @@
 #!/usr/bin/env python3
-#
-# Copyright (C) 2018 INRA
-#
-# This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.
-#
 
-__author__ = 'Olivier Rue - Migale MaIAGE Jouy-en-Josas - Maria Bernard - Sigenae Jouy en Josas'
-__copyright__ = 'Copyright (C) 2015 INRA'
+__author__ = 'Olivier Rué - Migale/MaIAGE & Maria Bernard - SIGENAE/GABI'
+__copyright__ = 'Copyright (C) 2024 INRAE'
 __license__ = 'GNU General Public License'
-__version__ = '4.1.0'
+__version__ = '5.0.0'
 __email__ = 'frogs-support@inrae.fr'
 __status__ = 'prod'
 
@@ -39,7 +23,7 @@ if os.getenv('PYTHONPATH') is None: os.environ['PYTHONPATH'] = LIB_DIR
 else: os.environ['PYTHONPATH'] = LIB_DIR + os.pathsep + os.environ['PYTHONPATH']
 
 from frogsUtils import *
-from frogsBiom import BiomIO
+from frogsBiom import Biom, BiomIO
 from frogsSequenceIO import *
 
 
@@ -48,6 +32,24 @@ from frogsSequenceIO import *
 # COMMAND LINES
 #
 ##################################################################################################################################################
+class Depths(Cmd):
+    """
+    @summary: Writes by abundance the number of clusters.
+    """
+    def __init__(self, in_biom, out_tsv):
+        """
+        @param in_biom: [str] The processed BIOM path.
+        @param out_tsv: [str] The path of the output.
+        """
+        Cmd.__init__( self,
+                      'biomTools.py',
+                      'Writes by abundance the number of clusters.',
+                      'obsdepth --input-file ' + in_biom + ' --output-file ' + out_tsv,
+                      '--version' )
+
+    def get_version(self):   
+        return Cmd.get_version(self, 'stdout').strip() 
+
 class ITSx(Cmd):
     """
     @summary: Use ITSx to identifies ITS sequences and extracts the ITS region
@@ -139,7 +141,7 @@ def log_append_files( log_file, appended_files ):
     FH_log.write( "\n" )
     FH_log.close()
 
-def write_summary( summary_file, input_biom, output_biom ):
+def write_summary( summary_file, input_biom, output_biom, depth_file ):
     """
     @summary: Writes the process summary.
     @param summary_file: [str] The path to the output file.
@@ -198,7 +200,41 @@ def write_summary( summary_file, input_biom, output_biom ):
         samples_results[sample_name]['kept_ab'] = sum ( output_biom_test.get_count( obs['id'], sample_name ) for obs in output_biom_test.get_observations_by_sample(sample_name))
     del out_biom
 
-    # print samples_results
+    # Get size distribution data
+    clusters_size = list()
+    counts = list()
+    FH_depth = open( depth_file )
+    for line in FH_depth:
+        if not line.startswith('#'):
+            fields = line.strip().split()
+            if fields[1] != "0":
+                clusters_size.append( int(fields[0]) )
+                counts.append( int(fields[1]) )
+    FH_depth.close()
+
+    # Get sample data
+    biom = BiomIO.from_json( input_biom )
+    samples_distrib = dict()
+    for sample_name in biom.get_samples_names():
+        shared_seq = 0
+        shared_observations = 0
+        own_seq = 0
+        own_observations = 0
+        for observation in biom.get_observations_by_sample(sample_name):
+            obs_count_in_spl = biom.get_count( observation['id'], sample_name )
+            if obs_count_in_spl != 0 and obs_count_in_spl == biom.get_observation_count(observation['id']):
+                own_observations += 1
+                own_seq += obs_count_in_spl
+            else:
+                shared_observations += 1
+                shared_seq += obs_count_in_spl
+        samples_distrib[sample_name] = {
+            'shared_seq': shared_seq,
+            'shared_observations': shared_observations,
+            'own_seq': own_seq,
+            'own_observations': own_observations
+        }
+    del biom
 
     # Write
     FH_summary_tpl = open( os.path.join(CURRENT_DIR, "itsx_tpl.html") )
@@ -206,8 +242,18 @@ def write_summary( summary_file, input_biom, output_biom ):
     for line in FH_summary_tpl:
         if "###GLOBAL_RESULTS###" in line:
             line = line.replace( "###GLOBAL_RESULTS###", json.dumps(global_results) )
+        elif "###DATA_SAMPLE###" in line:
+            line = line.replace( "###DATA_SAMPLE###", json.dumps(samples_distrib) )
+        elif "###CLUSTERS_SIZES###" in line:
+            line = line.replace( "###CLUSTERS_SIZES###", json.dumps(clusters_size) )
+        elif "###DATA_COUNTS###" in line:
+            line = line.replace( "###DATA_COUNTS###", json.dumps(counts) )
         elif "###SAMPLES_RESULTS###" in line:
             line = line.replace( "###SAMPLES_RESULTS###", json.dumps(samples_results) )
+        elif "###FROGS_VERSION###" in line:
+            line = line.replace( "###FROGS_VERSION###", "\""+str(__version__)+"\"" )
+        elif "###FROGS_TOOL###" in line:
+            line = line.replace( "###FROGS_TOOL###", "\""+ os.path.basename(__file__)+"\"" )
         FH_summary_out.write( line )
 
     FH_summary_out.close()
@@ -226,39 +272,44 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         description='Removes PCR chimera.'
     )
-    parser.add_argument( '-p', '--nb-cpus', type=int, default=1, help="The maximum number of CPUs used. [Default: %(default)s]" )
-    parser.add_argument( '--debug', default=False, action='store_true', help="Keep temporary files to debug program." )
-    parser.add_argument( '-v', '--version', action='version', version=__version__ )
+    parser.add_argument('--version', action='version', version=__version__ )
+    parser.add_argument('--debug', default=False, action='store_true', help="Keep temporary files to debug program. [Default: %(default)s]" )
+    parser.add_argument('--nb-cpus', type=int, default=1, help="The maximum number of CPUs used. [Default: %(default)s]" )
+    
     # Params
     group_params = parser.add_argument_group( 'Parameters' )
     group_params.add_argument( '--organism-groups', type=str, nargs="+", default=['F'], help='Reduce ITSx scan to specified organim groups. [Default: %(default)s , which means Fungi only]')
     group_exclusion_params = group_params.add_mutually_exclusive_group(required=True)
-    group_exclusion_params.add_argument( '--region', type=str, default=None, choices=['ITS1','ITS2'], help='Which fungal ITS region is targeted and trimmed: either ITS1 or ITS2. (mutually exclusive with --check-its-only)' )
-    group_exclusion_params.add_argument( '--check-its-only', action='store_true', default=False, help='Check only if sequences seem to be an ITS (mutually exclusive with --region)' )
+    group_exclusion_params.add_argument( '--region', type=str, default=None, choices=['ITS1','ITS2'], help='Which fungal ITS region is targeted and trimmed: either ITS1 or ITS2. (mutually exclusive with --check-its-only) [Default: %(default)s]' )
+    group_exclusion_params.add_argument( '--check-its-only', action='store_true', default=False, help='Check only if sequences seem to be an ITS (mutually exclusive with --region) [Default: %(default)s]' )
     # Inputs
     group_input = parser.add_argument_group( 'Inputs' )
-    group_input.add_argument( '-f', '--input-fasta', required=True, help='The cluster sequences (format: FASTA).' )
-    group_input.add_argument( '-b', '--input-biom', help='The abundance file for clusters by sample (format: BIOM).' )
+    group_input.add_argument('--input-fasta', required=True, help='The cluster sequences (format: FASTA).' )
+    group_input.add_argument('--input-biom', help='The abundance file for clusters by sample (format: BIOM).' )
     # Outputs
     group_output = parser.add_argument_group( 'Outputs' )
-    group_output.add_argument( '-n', '--out-fasta', default='itsx.fasta', help='sequences file out from ITSx (format: FASTA). [Default: %(default)s]')
-    group_output.add_argument( '-a', '--out-abundance', default="itsx_abundance.biom", help='Abundance file without chimera (format: BIOM ). [Default: %(default)s]')
-    group_output.add_argument( '-m', '--out-removed', default='itsx_removed.fasta', help='sequences file removed (format: FASTA). [Default: %(default)s]')
-    group_output.add_argument( '--summary', default="itsx.html", help='The HTML file containing the graphs. [Default: %(default)s]')
-    group_output.add_argument( '-l', '--log-file', default=sys.stdout, help='This output file will contain several informations on executed commands.')
+    group_output.add_argument('--output-fasta', default='itsx.fasta', help='sequences file out from ITSx (format: FASTA). [Default: %(default)s]')
+    group_output.add_argument('--output-biom', default="itsx_abundance.biom", help='Abundance file without chimera (format: BIOM ). [Default: %(default)s]')
+    group_output.add_argument('--output-removed-sequences', default='itsx_removed.fasta', help='sequences file removed (format: FASTA). [Default: %(default)s]')
+    group_output.add_argument('--html', default="itsx.html", help='The HTML file containing the graphs. [Default: %(default)s]')
+    group_output.add_argument('--log-file', default=sys.stdout, help='This output file will contain several informations on executed commands. [Default: stdout]')
     args = parser.parse_args()
     prevent_shell_injections(args)
 
     # Temporary files
-    tmpFiles = TmpFiles( os.path.split(args.out_fasta)[0] )
+    tmpFiles = TmpFiles( os.path.split(args.output_fasta)[0] )
     
     # Process
     try:
         Logger.static_write(args.log_file, "## Application\nSoftware :" + sys.argv[0] + " (version : " + str(__version__) + ")\nCommand : " + " ".join(sys.argv) + "\n\n")
         log_itsx = tmpFiles.add("ITSx.log")
         
-        ITSx(args.input_fasta, args.input_biom, args.organism_groups, args.out_fasta, args.out_abundance, args.out_removed, log_itsx, args ).submit( args.log_file )
-        write_summary( args.summary, args.input_biom, args.out_abundance)
+        ITSx(args.input_fasta, args.input_biom, args.organism_groups, args.output_fasta, args.output_biom, args.output_removed_sequences, log_itsx, args ).submit( args.log_file )
+        
+        depth_file = tmpFiles.add( "depths.tsv" )
+        Depths(args.output_biom, depth_file).submit( args.log_file )
+        
+        write_summary( args.html, args.input_biom, args.output_biom, depth_file)
         
         # Append independant log files
         log_append_files( args.log_file, [log_itsx] )

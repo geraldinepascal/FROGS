@@ -79,7 +79,7 @@ def remove_excluded_biom(input_biom, output_biom, excluded_seqs):
 ##################################################################################################################################################
 if __name__ == "__main__":
 	# Manage parameters
-	parser = argparse.ArgumentParser(description="Remove OTUs from fasta and biom files, based on excluded sequences list file.")
+	parser = argparse.ArgumentParser(description="Remove ASVs from fasta and biom files, based on excluded sequences list file.")
 	parser.add_argument( '-v', '--version', action='version', version=__version__ )
 
 	# Inputs

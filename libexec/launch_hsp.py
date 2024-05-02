@@ -54,7 +54,7 @@ from frogsBiom import BiomIO
 
 class HspMarker(Cmd):
     """
-    @summary: Predict number of marker copies (16S, 18S or ITS) for each cluster sequence (i.e OTU).
+    @summary: Predict number of marker copies (16S, 18S or ITS) for each cluster sequence (i.e ASV).
     """
     def __init__(self, observed_marker_table, in_tree, hsp_method, output, log):
         """
@@ -216,7 +216,7 @@ if __name__ == "__main__":
     # Inputs
     parser_marker = subparsers.add_parser('marker', help='Predict marker copy number per ASV sequence.')
     parser_marker.add_argument('-m', '--marker-type', required=True, choices=['16S','ITS','18S'], help='Marker gene to be analyzed.')
-    parser_marker.add_argument('-t', '--input-tree', required=True, type=str, help='frogsfunc_placeseqs output tree in newick format containing both studied sequences (i.e. ASVs or OTUs) and reference sequences.')
+    parser_marker.add_argument('-t', '--input-tree', required=True, type=str, help='frogsfunc_placeseqs output tree in newick format containing both studied sequences (i.e. ASVs) and reference sequences.')
     parser_marker.add_argument('--hsp-method', default='mp', choices=['mp', 'emp_prob', 'pic', 'scp', 'subtree_average'], help='HSP method to use. mp: predict discrete traits using max parsimony. emp_prob: predict discrete traits based on empirical state probabilities across tips. subtree_average: predict continuous traits using subtree averaging. pic: predict continuous traits with phylogentic independent contrast. scp: reconstruct continuous traits using squared-change parsimony (default: %(default)s).')
     group_input_marker_other = parser_marker.add_argument_group( 'ITS and 18S ' )
     group_input_marker_other.add_argument('--input-marker-table',help="The input marker table describing directly observed traits (e.g. sequenced genomes) in tab-delimited format. (ex $PICRUSt2_PATH/default_files/fungi/ITS_counts.txt.gz). Required.")
@@ -229,7 +229,7 @@ if __name__ == "__main__":
     parser_function.add_argument('-p', '--nb-cpus', type=int, default=1, help="The maximum number of CPUs used. [Default: %(default)s]" )
     parser_function.add_argument('-m', '--marker-type', required=True, choices=['16S','ITS','18S'], help='Marker gene to be analyzed.')
     parser_function.add_argument('-i', '--marker-file', required=True, type=str, help='Table of predicted marker gene copy numbers (frogsfunc_placeseqs output : frogsfunc_marker.tsv).')
-    parser_function.add_argument('-t', '--input-tree', required=True, type=str, help='frogsfunc_placeseqs output tree in newick format containing both studied sequences (i.e. ASVs or OTUs) and reference sequences.')
+    parser_function.add_argument('-t', '--input-tree', required=True, type=str, help='frogsfunc_placeseqs output tree in newick format containing both studied sequences (i.e. ASVs) and reference sequences.')
     parser_function.add_argument('--hsp-method', default='mp', choices=['mp', 'emp_prob', 'pic', 'scp', 'subtree_average'], help='HSP method to use. mp: predict discrete traits using max parsimony. emp_prob: predict discrete traits based on empirical state probabilities across tips. subtree_average: predict continuous traits using subtree averaging. pic: predict continuous traits with phylogentic independent contrast. scp: reconstruct continuous traits using squared-change parsimony (default: %(default)s).')
     group_input_16S = parser_function.add_argument_group( '16S' )
     group_input_16S.add_argument('-f', '--functions', default=["EC"], nargs='+', choices=['EC', 'KO', 'COG', 'PFAM', 'TIGRFAM','PHENO'], help="Specifies which function databases should be used (%(default)s). EC is used by default because necessary for frogsfunc_pathways. At least EC or KO is required. To run the command with several functions, separate the functions with spaces (ex: -i EC PFAM).")
@@ -255,9 +255,8 @@ if __name__ == "__main__":
             HspMarker(args.input_marker_table, args.input_tree, args.hsp_method, args.output_marker, tmp_hsp_marker).submit(args.log_file)
 
         if args.to_launch == "function":
-            tmp_files=TmpFiles(os.path.split(args.output_dir)[0])
+            tmp_files=TmpFiles(args.output_dir)
             tmp_hsp_function = tmp_files.add( 'tmp_hsp_function.log' )
-
             # if args.functions is not None:
             if args.marker_type == "16S":
                 suffix_name = "_copynumbers_predicted.tsv"
@@ -269,7 +268,7 @@ if __name__ == "__main__":
                     for i in range(len(args.functions)):
                         function_cur = args.functions[i]
                         output_cur = functions_outputs[i]
-                        log_cur = logs_hsp[i] 
+                        log_cur = logs_hsp[i]
                         process_hsp_function(function_cur, args.input_function_table, args.input_tree, args.hsp_method, output_cur, log_cur)
 
                 else:

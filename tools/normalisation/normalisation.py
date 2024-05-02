@@ -1,25 +1,9 @@
 #!/usr/bin/env python3
-#
-# Copyright (C) 2018 INRA
-#
-# This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.
-#
 
-__author__ = 'Maria Bernard INRA - SIGENAE '
-__copyright__ = 'Copyright (C) 2015 INRA'
+__author__ = 'Maria Bernard - SIGENAE/GABI'
+__copyright__ = 'Copyright (C) 2024 INRAE'
 __license__ = 'GNU General Public License'
-__version__ = '4.1.0'
+__version__ = '5.0.0'
 __email__ = 'frogs-support@inrae.fr'
 __status__ = 'prod'
 
@@ -112,26 +96,26 @@ def write_log(in_biom, num_reads, out_biom, log):
 
     for sample_name in initial_biom.get_samples_names():
         if sample_name in new_biom.get_samples_names():
-            nb_otu_before = len([ i for i in initial_biom.get_sample_obs(sample_name) if i >0 ])
+            nb_asv_before = len([ i for i in initial_biom.get_sample_obs(sample_name) if i >0 ])
             nb_seqs_before = sum([ i for i in initial_biom.get_sample_obs(sample_name) if i >0 ])
             tot_seqs_before += nb_seqs_before
-            nb_otu_after = len([ i for i in new_biom.get_sample_obs(sample_name) if i > 0])
+            nb_asv_after = len([ i for i in new_biom.get_sample_obs(sample_name) if i > 0])
             tot_seqs_after += sum([ i for i in new_biom.get_sample_obs(sample_name) if i >0 ])
             if sampling_by_min is True or nb_seqs_before >= num_reads:
-                FH_log.write("Sample name: "+sample_name+"\n\tnb initials ASV: "+str(nb_otu_before)+"\n\tnb normalised ASV: "+str(nb_otu_after)+"\n")
+                FH_log.write("Sample name: "+sample_name+"\n\tnb initials ASV: "+str(nb_asv_before)+"\n\tnb normalised ASV: "+str(nb_asv_after)+"\n")
             else:
                 FH_log.write("Below threshold sample: "+sample_name+"\n\tnb sequences: "+str(initial_biom.get_sample_count(sample_name))+"\n")
-                FH_log.write("Sample name: "+sample_name+"\n\tnb initials ASV: "+str(nb_otu_before)+"\n\tnb normalised ASV: "+str(nb_otu_after)+"\n")
+                FH_log.write("Sample name: "+sample_name+"\n\tnb initials ASV: "+str(nb_asv_before)+"\n\tnb normalised ASV: "+str(nb_asv_after)+"\n")
         else:
             tot_seqs_before += sum([ i for i in initial_biom.get_sample_obs(sample_name) if i >0 ])
             FH_log.write("Below threshold sample: "+sample_name+"\n\tnb sequences: "+str(initial_biom.get_sample_count(sample_name))+"\n")
             Logger.static_write(args.log_file,"WARNING: Deleted sample: "+str(sample_name) + " (Only " + str(initial_biom.get_sample_count(sample_name)) + " sequences).\n")
 
-    nb_initial_otu=len(initial_biom.rows)
-    nb_new_otu=len(new_biom.rows)
+    nb_initial_asv=len(initial_biom.rows)
+    nb_new_asv=len(new_biom.rows)
     nb_seqs_removed = tot_seqs_before - tot_seqs_after
-    nb_otus_removed = nb_initial_otu - nb_new_otu
-    FH_log.write("Sample name: all samples\n\tnb sequences kept: "+str(tot_seqs_after)+"\n\tnb sequences removed: "+str(nb_seqs_removed)+"\n\tnb ASV kept: "+str(nb_new_otu)+"\n\tnb ASV removed: "+str(nb_otus_removed)+"\n")
+    nb_asvs_removed = nb_initial_asv - nb_new_asv
+    FH_log.write("Sample name: all samples\n\tnb sequences kept: "+str(tot_seqs_after)+"\n\tnb sequences removed: "+str(nb_seqs_removed)+"\n\tnb ASV kept: "+str(nb_new_asv)+"\n\tnb ASV removed: "+str(nb_asvs_removed)+"\n")
     FH_log.close()
 
 def summarise_results( summary_file, is_delete_samples, num_reads, biom_subsample_log ):
@@ -186,6 +170,10 @@ def summarise_results( summary_file, is_delete_samples, num_reads, biom_subsampl
             line = line.replace( "###REMOVE_DATA###", json.dumps(summary_info) )
         elif "###TITLE###" in line:
             line = line.replace( "###TITLE###", title )
+        elif "###FROGS_VERSION###" in line:
+            line = line.replace( "###FROGS_VERSION###", "\""+str(__version__)+"\"" )
+        elif "###FROGS_TOOL###" in line:
+            line = line.replace( "###FROGS_TOOL###", "\""+ os.path.basename(__file__)+"\"" )
         FH_summary_out.write( line )
 
     FH_summary_out.close()
@@ -238,21 +226,23 @@ def get_sample_resuts( log_file, output_list ):
 if __name__ == "__main__":
     # Manage parameters
     parser = argparse.ArgumentParser(description="Normalisation in BIOM by random sampling.")
-    parser.add_argument('-n', '--num-reads', type=int, help="Number of sampled sequences by sample.")
-    parser.add_argument('--sampling-by-min', default=False, action='store_true', help='Sampling by the number of sequences of the smallest sample.' )
-    parser.add_argument('--delete-samples', default=False, action='store_true', help='Delete samples that have a number of sequences below the selected filter.')
-    parser.add_argument('--debug', default=False, action='store_true', help="Keep temporary files to debug program.")
-    parser.add_argument('-v', '--version', action='version', version=__version__)
+    parser.add_argument('--version', action='version', version=__version__)
+    parser.add_argument('--debug', default=False, action='store_true', help="Keep temporary files to debug program. [Default: %(default)s]")
+    parser.add_argument('--num-reads', type=int, help="Number of sampled sequences by sample.")
+    parser.add_argument('--sampling-by-min', default=False, action='store_true', help='Sampling by the number of sequences of the smallest sample. [Default: %(default)s]' )
+    parser.add_argument('--delete-samples', default=False, action='store_true', help='Delete samples that have a number of sequences below the selected filter. [Default: %(default)s]')
+    
+    
     # Inputs
     group_input = parser.add_argument_group('Inputs')
-    group_input.add_argument('-i', '--input-biom', required=True, help='Abundances file to normalise (format: BIOM).')
-    group_input.add_argument('-f', '--input-fasta', required=True, help='Sequences file to normalise (format: FASTA).')
+    group_input.add_argument('--input-biom', required=True, help='Abundances file to normalise (format: BIOM).')
+    group_input.add_argument('--input-fasta', required=True, help='Sequences file to normalise (format: FASTA).')
     # Outputs
     group_output = parser.add_argument_group('Outputs')
-    group_output.add_argument('-b', '--output-biom', default='normalisation_abundance.biom', help='Normalised abundances (format: BIOM). [Default: %(default)s]')
-    group_output.add_argument('-o', '--output-fasta', default='normalisation.fasta', help='Normalised sequences (format: FASTA). [Default: %(default)s]')
-    group_output.add_argument('-s', '--summary-file', default='normalisation.html', help='The HTML file containing the graphs. [Default: %(default)s]')
-    group_output.add_argument('-l', '--log-file', default=sys.stdout, help='The list of commands executed.')
+    group_output.add_argument('--output-biom', default='normalisation_abundance.biom', help='Normalised abundances (format: BIOM). [Default: %(default)s]')
+    group_output.add_argument('--output-fasta', default='normalisation.fasta', help='Normalised sequences (format: FASTA). [Default: %(default)s]')
+    group_output.add_argument('--html', default='normalisation.html', help='The HTML file containing the graphs. [Default: %(default)s]')
+    group_output.add_argument('--log-file', default=sys.stdout, help='The list of commands executed. [Default: stdout]')
     args = parser.parse_args()
     prevent_shell_injections(args)
 
@@ -275,7 +265,7 @@ if __name__ == "__main__":
         tmp_fastaUpdate = tmp_files.add( 'tmp_fasta_update.log' )
         BIOM_FASTA_update(args.output_biom, args.input_fasta, args.output_fasta, tmp_fastaUpdate).submit(args.log_file)
         Logger.static_write(args.log_file,'\n#Summarise\n\tstart: ' + time.strftime("%d %b %Y %H:%M:%S", time.localtime()) + '\n' )
-        summarise_results( args.summary_file, args.delete_samples, args.num_reads, tmp_subsampling )
+        summarise_results( args.html, args.delete_samples, args.num_reads, tmp_subsampling )
         Logger.static_write(args.log_file,'\tend: ' + time.strftime("%d %b %Y %H:%M:%S", time.localtime()) + '\n\n' )
         Logger.static_write(args.log_file,'Application end: ' + time.strftime("%d %b %Y %H:%M:%S", time.localtime()) + '\n' )
     # Remove temporary files

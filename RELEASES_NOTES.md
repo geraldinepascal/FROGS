@@ -1,3 +1,56 @@
+# v5.0.0 [2024-06]
+
+### Tool added
+* **FROGS denoising**: new tools replacing FROGS preprocess and FROGS clustering, allowing to perform the preprocess step and to chose between swarm and dada2 to produce ASVs.
+
+### Tools removed
+* **FROGS preprocess**: its functionality is integrated in the new FROGS denoising tool
+* **FROGS clustering**: its functionality is integrated in the new FROGS denoising tool
+
+### Global changes
+* remove short version of parameters and standardization of parameter names
+* add version and tool name in HTML reports
+* add subject length information (slen) and related perc_subject_coverage in BIOM metadata for each affiliation
+* remove and rename remaining tools/code with OTU term  
+  
+### Functions added
+* FROGS denoising:
+  * add dada2 tool for Illumina paired-end data and PacBio long-reads data
+  * add the possibility to perform a dereplication only instead of a clustering or denoising process
+  * FROGS cluster stats tool integrated automatically in the HTML report
+* FROGS demultiplex:
+  * speed-up the way to check if file is gzipped
+* FROGS taxonomic affiliation:
+  * FROGS affiliation stats tool integrated automatically in the HTML report
+  * Add subject length in BIOM
+* FROGS remove chimera:
+  * No more possibility to give a count matrix as input file
+  * FROGS cluster stats tool integrated automatically in the HTML report
+* FROGS itsx
+  * FROGS cluster stats tool integrated automatically in the HTML report
+* FROGS cluster stats
+  * Hierarchical clustering no more done by default (option --hierarchical-clustering added)
+* FROGS cluster filters
+  * FROGS cluster stats tool integrated automatically in the HTML report
+* FROGS phyloseq structure: use the same colors for samples in all ordination plots
+
+### Bugs fixed
+* Standardization of empty affiliations in BIOM files (empty list instead of None)
+  * impacts FROGS affiliation filters, FROGS biom to tsv, FROGS tsv to biom, FROGS cluster filters, FROGS taxnomic affiliation, libexec/biomTools.py
+* Phyloseq import and DESeq preprocess: allow files beginning with digits
+* Phyloseq import: remove empty samples and gives the information in the HTML report
+* DESeq preprocess: check samples names consistency between function abundance tsv file and sample_metadata
+* DESeq visualization
+  * remove empty samples and taxa before plotting the heatmap
+  * correct heatmap where there is only one ASV or Function differentially expressed
+  * correct ipath3 associated color (higher = darker) and reduce width difference
+  * correct associated color of LFC>0 or LFC<0 in ipath3 images
+* libexec/launch_hsp.py: correct path for tmp files
+* ASV without affiliation is deleted if a threshold on a blast metric is set in affiliation_filters.py
+* Affiliation_filters: Error message and exit if an ASV with a taxonomy has missing metrics (no data) because of a manual update
+* FROGSfunc functions: correction of the location of temporary files 
+
+
 # v4.1.0 [2023-03]
 
 ### Tools modified:
@@ -81,7 +134,7 @@ Indeed we may update dependencies versions without changing anything to the FROG
 
 # v3.2.2 [2021-04]
 
-### Modifications
+### ModificationsClustering
 
 * Preprocess: use maxdiffpct instead of maxdiffs in vsearch fastq_mergepairs command line, and recommand 2.17.0 version. 
 * DESeq2 : 

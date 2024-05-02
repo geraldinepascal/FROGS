@@ -64,8 +64,8 @@ def store_multihits(input_multihits):
     header_line = header_line.replace("#","").replace('"','').strip().split()
 
     for colname in header_line:
-        if colname not in ["observation_name", "blast_taxonomy", "blast_subject", "blast_perc_identity", "blast_perc_query_coverage", "blast_evalue", "blast_aln_length"] :
-            raise_exception( Exception("\n\n#ERROR : "+colname+" is not a valid FROGS TSV column name.\nPlease restore the default column names: "+", ".join(["observation_name", "blast_taxonomy", " blast_subject", "blast_perc_identity", "blast_perc_query_coverage", "blast_evalue", "blast_aln_length"])+"\n\n"))
+        if colname not in ["observation_name", "blast_taxonomy", "blast_subject", "blast_perc_identity", "blast_perc_query_coverage", "blast_perc_subject_coverage", "blast_evalue", "blast_aln_length"] :
+            raise_exception( Exception("\n\n#ERROR : "+colname+" is not a valid FROGS TSV column name.\nPlease restore the default column names: "+", ".join(["observation_name", "blast_taxonomy", " blast_subject", "blast_perc_identity", "blast_perc_query_coverage", "blast_perc_subject_coverage", "blast_evalue", "blast_aln_length"])+"\n\n"))
 
     for line in FH_in.readlines():
         line = line.strip().replace('"','').split("\t")
@@ -202,9 +202,9 @@ def tsv_to_biom( input_tsv, multi_hit_dict, fields, samples_names, output_biom, 
             # recover metadata
             if idx in metadata_index:
                 if metadata_index[idx]=="observation_name" :
-                    cluster_name = val
+                    cluster_name = val.rstrip()
                 else:
-                    metadata_dict[metadata_index[idx]] = val
+                    metadata_dict[metadata_index[idx]] = val.rstrip()
             # recover samples count
             elif idx in sample_index and int(float(val)) > 0:
                 count_by_sample[sample_index[idx]] = int(float(val))

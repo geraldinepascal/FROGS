@@ -87,7 +87,7 @@ def update_tree_for_sample( biom, tree, sample_name, taxonomy_key, sample_id=Non
     sample_key = sample_name if sample_id is None else str(sample_id)
     for observation in biom.get_observations_by_sample( sample_name ):
         current_node = tree
-        if taxonomy_key in observation["metadata"] and observation["metadata"][taxonomy_key] is not None and observation["metadata"][taxonomy_key] != 'unknown':
+        if taxonomy_key in observation["metadata"] and len(observation["metadata"][taxonomy_key]) > 0 and observation["metadata"][taxonomy_key] != 'unknown':
             # Get taxonomy
             taxonomy = biom.get_observation_taxonomy( observation["id"], taxonomy_key )
             # Add taxon in tree
@@ -167,10 +167,10 @@ def sampling_by_sample( input_biom, output_biom, sampling_by_min, delete_samples
 ####################################################################################################################
 def task_rarefaction( args ):
     rarefaction_data = rarefaction( args.input_file, args.step_size, args.ranks, args.taxonomy_key)
-    otu_rank = args.ranks[-1]+1
-    rarefaction_data = rarefaction_otu(args.input_file, otu_rank, rarefaction_data, args.step_size)
-    output_file = args.output_file_pattern.replace('##RANK##', 'otu')
-    write_output( output_file, rarefaction_data[otu_rank], args.step_size )
+    asv_rank = args.ranks[-1]+1
+    rarefaction_data = rarefaction_asv(args.input_file, asv_rank, rarefaction_data, args.step_size)
+    output_file = args.output_file_pattern.replace('##RANK##', 'asv')
+    write_output( output_file, rarefaction_data[asv_rank], args.step_size )
     for current_rank in args.ranks:
         output_file = args.output_file_pattern.replace('##RANK##', str(current_rank))
         write_output( output_file, rarefaction_data[current_rank], args.step_size )
@@ -216,10 +216,9 @@ def rarefaction( input_biom, interval=10000, ranks=None, taxonomy_key="taxonomy"
         expected_nb_iter = int(sample_count/interval)
         for current_nb_iter in range(expected_nb_iter):
             selected_observations = biom.random_obs_extract_by_sample(sample, interval)
-            print(len(selected_observations))
             for current_selected in selected_observations:
                 taxonomy = list()
-                if taxonomy_key in current_selected['observation']["metadata"] and current_selected['observation']["metadata"][taxonomy_key] is not None:
+                if taxonomy_key in current_selected['observation']["metadata"] and len(current_selected['observation']["metadata"][taxonomy_key]) > 0:
                     taxonomy = biom.get_observation_taxonomy( current_selected['observation']["id"], taxonomy_key )
                 for idx, taxon in enumerate(taxonomy):
                     if taxon.lower().startswith("unknown"):
@@ -233,19 +232,19 @@ def rarefaction( input_biom, interval=10000, ranks=None, taxonomy_key="taxonomy"
                 sample_rarefaction[current_rank][sample].append( str(len(taxa[current_rank])) )
     return sample_rarefaction
 
-def rarefaction_otu( input_biom, otu_rank, sample_rarefaction, interval=10000 ):
+def rarefaction_asv( input_biom, asv_rank, sample_rarefaction, interval=10000 ):
     """
-    @summary: Add rarefaction by OTUs by samples to rarefactions data.
+    @summary: Add rarefaction by ASVs by samples to rarefactions data.
     @param input_biom: [str] Path to the biom file processed.
     @param sample_rarefaction: [dict] Rarefaction data obtained with rarefaction() function.
     @param interval: [int] Size of first sampling.
     """
     biom = BiomIO.from_json( input_biom )
-    sample_rarefaction[otu_rank] = dict()
+    sample_rarefaction[asv_rank] = dict()
     for sample in biom.get_samples_names():
         taxa = dict()
-        taxa[otu_rank] = dict()
-        sample_rarefaction[otu_rank][sample] = list()
+        taxa[asv_rank] = dict()
+        sample_rarefaction[asv_rank][sample] = list()
         sample_count = biom.get_sample_count( sample )
         expected_nb_iter = int(sample_count/interval)
 
@@ -253,8 +252,8 @@ def rarefaction_otu( input_biom, otu_rank, sample_rarefaction, interval=10000 ):
             selected_observations = biom.random_obs_extract_by_sample(sample, interval)
             for current_selected in selected_observations:
                 cluster = current_selected['observation']["id"]
-                taxa[otu_rank][cluster] = True
-            sample_rarefaction[otu_rank][sample].append(str(len(taxa[otu_rank])))
+                taxa[asv_rank][cluster] = True
+            sample_rarefaction[asv_rank][sample].append(str(len(taxa[asv_rank])))
     return sample_rarefaction
 
 def write_output( output_path, rarefaction_data, interval, joiner="\t" ):
@@ -389,10 +388,10 @@ def samples_hclassification( input_biom, output_newick, distance_method, linkage
             excluded_samples.append( current_sample['id'] )
         else:
             processed_samples.append( current_sample['id'] )
-            OTUs_norm = list()
+            ASVs_norm = list()
             for row_idx in range(len(biom.rows)):
-                OTUs_norm.append( biom.data.nb_at(row_idx, col_idx)/float(sum_on_sample) )
-            data_array.append( OTUs_norm )
+                ASVs_norm.append( biom.data.nb_at(row_idx, col_idx)/float(sum_on_sample) )
+            data_array.append( ASVs_norm )
     nb_samples = len(biom.columns)
     del biom
 

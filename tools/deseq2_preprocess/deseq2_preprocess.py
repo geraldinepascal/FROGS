@@ -1,24 +1,9 @@
 #!/usr/bin/env python3
-#
-# Copyright (C) 2017 INRA
-#
-# This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.
-#
-__author__ = ' Ta Thi Ngan & Maria Bernard SIGENAE / Mahendra Mariadassou plateforme Migale '
-__copyright__ = 'Copyright (C) 2017 INRA'
+
+__author__ = ' Ta Thi Ngan - SIGENAE/GABI & Maria Bernard - SIGENAE/GABI & Mahendra Mariadassou - MaIAGE'
+__copyright__ = 'Copyright (C) 2024 INRAE'
 __license__ = 'GNU General Public License'
-__version__ = '4.1.0'
+__version__ = '5.0.0'
 __email__ = 'frogs-support@inrae.fr'
 __status__ = 'prod'
 
@@ -44,10 +29,8 @@ sys.path.append(LIB_DIR)
 if os.getenv('PYTHONPATH') is None: os.environ['PYTHONPATH'] = LIB_DIR
 else: os.environ['PYTHONPATH'] = LIB_DIR + os.pathsep + os.environ['PYTHONPATH']
 
-# LIBR
-# LIBR_DIR = os.path.join(LIB_DIR,"external-lib")
-
 from frogsUtils import *
+from frogsBiom import *
 ##################################################################################################################################################
 #
 # COMMAND LINES
@@ -120,8 +103,8 @@ class PhyloseqImport(Cmd):
 
         Cmd.__init__(self,
                  'phyloseq_import_data.py',
-                 'predict gene copy number per sequence.', 
-                 ' -b ' + biom_file + ' -s ' + sample_file + ' --ranks ' + ranks + ' --rdata ' + out_rdata + ' --html ' + out_html + '  2>> ' + log,
+                 'create phyloseq object like with function abundances and annotation', 
+                 ' --biomfile ' + biom_file + ' --samplefile ' + sample_file + ' --ranks ' + ranks + ' --rdata ' + out_rdata + ' --html ' + out_html + '  2>> ' + log,
                 "--version")
 
     def get_version(self):
@@ -153,27 +136,29 @@ if __name__ == "__main__":
    
     # Manage parameters
     parser = argparse.ArgumentParser( description='Launch Rscript to generate dataframe of DESEq2 from a phyloseq object in RData file')
-    parser.add_argument( '--debug', default=False, action='store_true', help="Keep temporary files to debug program." )   
     parser.add_argument( '--version', action='version', version=__version__ )
-    parser.add_argument('-v', '--var', type=str, required=True, help='Experimental variable suspected to have an impact on abundances. \
+    parser.add_argument( '--debug', default=False, action='store_true', help="Keep temporary files to debug program." )   
+    parser.add_argument('--var', type=str, required=True, help='Experimental variable suspected to have an impact on abundances. \
         You may precise complexe string such as variables with confounding effect (ex: Treatment+Gender or Treatmet*Gender)' )   
     # Inputs
     group_input = parser.add_argument_group( 'Inputs' )
-    group_input.add_argument('-a', '--analysis', required=True, choices=['ASV', 'FUNCTION'], help='Type of data to perform the differential analysis. ASV: DESeq2 is run on the ASVs abundances table. FUNCTION: DESeq2 is run on FROGSFUNC function abundances table (frogsfunc_functions_unstrat.tsv from FROGSFUNC function step).')
+    group_input.add_argument('--analysis', required=True, choices=['ASV', 'FUNCTION'], help='Type of data to perform the differential analysis. ASV: DESeq2 is run on the ASVs abundances table. FUNCTION: DESeq2 is run on FROGSFUNC function abundances table (frogsfunc_functions_unstrat.tsv from FROGSFUNC function step).')
 
     group_input_asv_table = parser.add_argument_group( ' ASV ' )
-    group_input_asv_table.add_argument('-d','--data', default=None, help="The path of RData file containing a phyloseq object, result of FROGS Phyloseq Import Data. Required.")
+    group_input_asv_table.add_argument('--data', default=None, help="The path of RData file containing a phyloseq object, result of FROGS Phyloseq Import Data. Required.")
 
     group_input_function_table = parser.add_argument_group( ' FUNCTION ' )
-    group_input_function_table.add_argument('-f', '--input-functions', default=None, help='Input file of metagenome function prediction abundances (frogsfunc_functions_unstrat.tsv from FROGSFUNC function step). Required. (default: %(default)s).')
-    group_input_function_table.add_argument('-s', '--samplefile', default=None, help='path to sample file (format: TSV). Required.' )
+    group_input_function_table.add_argument('--input-functions', default=None, help='Input file of metagenome function prediction abundances (frogsfunc_functions_unstrat.tsv from FROGSFUNC function step). Required. [Default: %(default)s].')
+    group_input_function_table.add_argument('--samplefile', default=None, help='path to sample file (format: TSV). Required.' )
     group_input_function_table.add_argument('--out-Phyloseq', default='function_data.Rdata', help="path to store phyloseq-class object in Rdata file. [Default: %(default)s]" )
     # output
     group_output = parser.add_argument_group( 'Outputs' )
-    group_output.add_argument('-o','--out-Rdata', default=None, help="The path to store resulting dataframe of DESeq2. [Default: %(default)s]" )
-    group_output.add_argument('-l', '--log-file', default=sys.stdout, help='This output file will contain several information on executed commands.')
+    group_output.add_argument('--out-Rdata', default=None, help="The path to store resulting dataframe of DESeq2. [Default: %(default)s]" )
+    group_output.add_argument('--log-file', default=sys.stdout, help='This output file will contain several information on executed commands. [Default: stdout]')
     args = parser.parse_args()
     prevent_shell_injections(args)
+    
+    Logger.static_write(args.log_file, "## Application\nSoftware :" + sys.argv[0] + " (version : " + str(__version__) + ")\nCommand : " + " ".join(sys.argv) + "\n\n")
 
     # Check for ASV input
     data = args.data
@@ -182,6 +167,12 @@ if __name__ == "__main__":
     elif args.analysis == "ASV":
         data=os.path.abspath(args.data)
 
+    # Check for FUNCTION input
+    if args.analysis == "FUNCTION":
+        if args.input_functions is None or args.samplefile is None:
+            parser.error("\n\n#ERROR : --input-functions and --samplefile both required for FROGSFUNC analysis.\n\n")
+
+    # Adapt default output file name
     if args.out_Rdata is None:
         if args.analysis == "ASV":
             args.out_Rdata = "asv_dds.Rdata"
@@ -191,24 +182,38 @@ if __name__ == "__main__":
     out_Rdata=os.path.abspath(args.out_Rdata)
     tmpFiles = TmpFiles(os.path.dirname(out_Rdata))
 
-    # Check for ITS or 18S input
+    # FUNCTION : phyloseq object generation
     if args.analysis == "FUNCTION":
-        if args.input_functions is None or args.samplefile is None:
-            parser.error("\n\n#ERROR : --input-functions and --samplefile both required for FROGSFUNC analysis.\n\n")
-
         tmp_function_abund_tostd = tmpFiles.add( "functions_unstrat_toStdbiom.tsv")
         formate_abundances_file(args.input_functions, tmp_function_abund_tostd)
 
         tmp_function_abundances_biom = tmpFiles.add( "function_abundances.biom")
         Tsv2biom(tmp_function_abund_tostd, tmp_function_abundances_biom).submit( args.log_file)
 
+        # check sample names compatibility between input biom and sample metadata file
+        #       - if more samples in abundance file than in sample_metadata ==> ok supplementary samples will be excluded
+        #       - if more samples in sample_metadata ==> Error 
+        #       - this is the default behavior of phyloseq (and check in phyloseq_import)
+        
+        sample_metadata_list = set()
+        FH_in = open(args.samplefile)
+        FH_in.readline()
+        for line in FH_in:
+            sample_metadata_list.add(line.split()[0]) 
+
+        biom = BiomIO.from_json(tmp_function_abundances_biom)
+        biom_sample_list = set([name for name in biom.get_samples_names()])
+        sample_metadata_spec = sample_metadata_list.difference(biom_sample_list) 
+        sample_biom_spec = biom_sample_list.difference(sample_metadata_list)
+        if len(sample_biom_spec) > 0 :
+            Logger.static_write(args.log_file, "# WARNING : " + str(len(sample_biom_spec)) + " samples from your biom file are not present in your sample metadata file. They will be excluded from further analysis \n\t" + "; ".join(sample_biom_spec) + "\n\n")
+        if len(sample_metadata_spec) > 0 :
+           raise_exception( Exception( "\n\n#ERROR : " + str(len(sample_metadata_spec)) + " among " + str(len(sample_metadata_list)) + " samples from your sample metadata file are not present in your biom file:\n\t" + "; ".join(sample_metadata_spec) + "\nPlease give a sample metadata file that fits your abundance biom file\n\n"))
+
         ranks = " ".join(['Level_4', 'Level_3', 'Level_2', 'Level_1'])
         phyloseq_log = tmpFiles.add( "phyloseq_import.log")
         phyloseq_html = tmpFiles.add( "phyloseq_import.nb.html")
         PhyloseqImport(tmp_function_abundances_biom, args.samplefile, ranks, args.out_Phyloseq, phyloseq_html, phyloseq_log).submit( args.log_file)
-
-    # Process  
-    Logger.static_write(args.log_file, "## Application\nSoftware :" + sys.argv[0] + " (version : " + str(__version__) + ")\nCommand : " + " ".join(sys.argv) + "\n\n")
 
     try:
         R_stderr = tmpFiles.add("R.stderr")

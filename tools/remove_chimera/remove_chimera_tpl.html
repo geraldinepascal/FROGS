@@ -1,30 +1,41 @@
 <!DOCTYPE html>
-<!--
-# Copyright (C) 2015 INRA
-#
-# This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.
--->
+
 <html>
 	<head>
 		<title>FROGS Remove Chimera</title>
-		<meta charset="UTF-8">
-		<meta name="version" content="4.1.0">
+		<meta charset="UTF-8" />
+		<meta name="author" content="Frederic Escudie - Genotoul/MIAT & Maria Bernard - SIGENAE/GABI" />
+        <meta name="version" content="5.0.0" />
+        <meta name="copyright" content="Copyright (C) 2024 INRAE" />
 		<!-- CSS -->
 		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.1.1/css/bootstrap.css"></link>
 		<link rel="stylesheet" href="https://cdn.datatables.net/1.10.19/css/dataTables.bootstrap4.min.css"></link>
 		<link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
 		<style type="text/css">
+			:root {
+				--frogsColor: #8EADAC; 
+				--frogsColorHover: #648a89;
+				--frogsColorShadow: #555;
+				--frogsColor2: #DE9F73;
+				--frogsColorZoomHighCharts: rgb(222,159,115,0.25);
+			}
+			/*
+			:root {
+				--frogsColor: #98c1d9; 
+				--frogsColorHover: #3d5a80;
+				--frogsColorShadow: #293241;
+				--frogsColor2: #ee6c4d;
+			}*/
+			.frogsversion{
+				position: absolute;
+				right: 5%;
+				color: var(--frogsColor);
+				font-style: italic;
+				font-size: smaller;
+			}
+			.frogsversion > a{
+				border: none !important;
+			}
 			#js-alert {
 				width: 90%;
 				margin-right: auto;
@@ -44,13 +55,13 @@
 			.page-item.active .page-link {
 				z-index: 1;
 				color: #fff;
-				background-color: #8EADAC;
-				border-color: #8EADAC;
+				background-color: var(--frogsColor);
+				border-color: var(--frogsColor);
 			}
 			.btn {
 				color: #fff;
-				border:#8EADAC;
-				background-color: #8EADAC;
+				border: var(--frogsColor);
+				background-color: var(--frogsColor);
 			}
 			.btn:focus, .btn:active {
 				outline: none !important;
@@ -58,8 +69,8 @@
 			}
 			.btn:hover{
 				color: #fff;
-				border:#648a89;
-				background-color: #648a89;
+				border: var(--frogsColorHover);
+				background-color: var(--frogsColorHover);
 			}
 			.pb-2, .py-2 {
 				padding-bottom: 1.5rem !important;
@@ -73,45 +84,68 @@
 			}
 			.nav-tabs .nav-link.active, .nav-tabs .nav-item.show .nav-link{
 				color: #fff;
-				background-color: #8EADAF;
-				border-color: #dee2e6 #dee2e6 #fff;
+				background-color: var(--frogsColor);
+			}
+			ul.nav-tabs {
+				margin-bottom: 30px;
 			}
 			a {
-				color: #8EAEAF;
+				color: var(--frogsColor);
 			}
 			a:hover{
-				color:#648a89;
+				color:var(--frogsColorHover);
 			}
 			.page-link{
-				color: #8EAEAF;
+				color: var(--frogsColor);
 			}
 			.page-link:hover{
 				
 			}
 			.page-link:not(:disabled):not(.disabled) {
-				color: #8EAEAF;
+				color: var(--frogsColor);
 			}
 			.page-item.active .page-link {
 				color: #fff;
 			}
 			.highcharts-button > path{
 				stroke:#fff !important;
-				fill:#8EADAC !important;
+				fill: var(--frogsColor) !important;
 			}
 			g.highcharts-button{
 				cursor:pointer !important;
 			}
 			g.highcharts-button:hover{
 				color: #fff;
-				border:#648a89;
-				background-color: #648a89;
-				background-color: #648a89;
+				border:var(--frogsColorHover);
+				background-color: var(--frogsColorHover);
 				cursor:pointer !important;
+			}
+			.circle {
+				border-style: solid;
+				border-width: 3px;
+				border-radius: 50px;
+				box-shadow: 2px 2px 2px var(--frogsColorShadow);
+				border-color: var(--frogsColorHover);
+				background: radial-gradient( var(--frogsColor), var(--frogsColorHover));
+				color: white;
+				padding: 10px;
+				width: 180px;
+				height: 98px;
+				line-height: 30px;
+				text-align: center;
+				margin-left: auto;
+				margin-right: auto;
+				margin-bottom: 10px;
+				vertical-align: middle;
+			}
+			.circle-value {
+				font-weight: bold;
 			}
 		</style>
 		<!-- JS -->
 		<script type="text/javascript" src="https://code.jquery.com/jquery-2.1.3.min.js"></script>
 		<script type="text/javascript" src="https://code.highcharts.com/8.2.0/highcharts.js"></script>
+		<script type="text/javascript" src="https://code.highcharts.com/8.2.0/highcharts-more.js"></script>
 		<script type="text/javascript" src="https://code.highcharts.com/8.2.0/modules/exporting.js"></script>
 		<script type="text/javascript" src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
 		<script type="text/javascript" src="https://cdn.datatables.net/1.10.19/js/dataTables.bootstrap4.min.js"></script>
@@ -134,6 +168,31 @@
 			!function(t){t.fn.datatableExport=function(a){var e={anchor_id:t(this).attr("id"),table_id:null,csv_separator:";",omitted_columns:[]},n=t.extend(e,a);if(!t(this).length)throw"The element where the datatableExport is called does not exist.";if(void 0==n.anchor_id)throw"The datatableExport plugin must be called on an element with id.";if(null==n.table_id)throw"You must set the table_id parameter in datatableExport plugin.";if(!t("#"+n.table_id))throw"The datatable '#"+n.table_id+"' cannot be retieve in DOM.";return this.each(function(){var a=t(this);a.on("click",function(){t.fn.datatableExport.csv(n.anchor_id,n.table_id,n.csv_separator,n.omitted_columns)})})},t.fn.datatableExport.cleanCellMarkup=function(a,e){t.parseHTML(e);t("#"+a).append('<div class="hidden data-tmp">'+e+"</div>"),t("#"+a+" .data-tmp").find("input").each(function(){var a="";a=t(this).is(":checkbox")?t(this).is(":checked")?"true":"false":t(this).val(),t(this).replaceWith(a)});var n=t("#"+a+" .data-tmp").text();return t("#"+a+" .data-tmp").remove(),n},t.fn.datatableExport.csv=function(a,e,n,i){var l="",r=t("#"+e).DataTable(),d=t("#"+e+" thead")[0],o=new HTMLtable(d.cloneNode(!0));o.deleteColumns(i),l+=o.toCSV();var c=r.rows().data();t.each(c,function(e,n){for(var r="",d=0;d<n.length;d++)-1==t.inArray(d,i)&&(r+='"'+t.fn.datatableExport.cleanCellMarkup(a,n[d])+'";');""!=r&&(r=r.slice(0,-1)),l+=r+"\n"}),t("#"+a+"-extract-csv").length||t("#"+a).append('<a id="'+a+'-extract-csv" href="data:text/csv;charset=UTF-8,'+encodeURI(l)+'" download="data.csv" style="display:none;"></a>'),t("#"+a+"-extract-csv")[0].click()}}(jQuery);
 		</script>
 		<script type="text/javascript">
+			/**
+			Colors
+			*/
+			var root = document.documentElement;
+			var style = getComputedStyle(root);
+			var frogsColor = style.getPropertyValue('--frogsColor');
+			var frogsColor2 = style.getPropertyValue('--frogsColor2');
+			var frogsColorZoomHighCharts = style.getPropertyValue('--frogsColorZoomHighCharts');
+			var frogsColorHover = style.getPropertyValue('--frogsColorHover');
+			/**
+			 Data from HTML
+			*/
+			var detection_categories = ###DETECTION_CATEGORIES### ;
+			var detection_series = ###DETECTION_DATA### ;
+			var remove_info = ###REMOVE_DATA### ;
+			var frogs_version = ###FROGS_VERSION### ;
+			var frogs_tool = ###FROGS_TOOL### ;
+			
+			var series = [{
+				'name': "All",
+				'data': ###DATA_COUNTS###
+			}];
+			var sum_series = new Array() ;
+			
+			
 			/**
 			 * Returns the string representation of the number. 
 			 * @param pValue {Float} The number to process.
@@ -183,6 +242,40 @@
 
 				return '<table class="table table-striped table-bordered">\n' + table_header + table_body + "</table>\n" ;
 			}
+			
+			/**
+			  * Returns hash use to init HightChart area. 
+			  * @param pTitle {String} The title of the chart.
+			  * @param pXTitle {String} The xAxis title.
+			  * @param pYTitle {String} The yAxis title.
+			  * @param pXCategories {Array} x scale labels.
+			  * @param pData {Array} The HightChart series.
+			  * @return {Hash} Parameters to use in Highchart's constructor.
+			  */
+			var areaplot_param = function(pTitle, pXTitle, pYTitle, pXCategories, pData) {
+				var x_max = 0 ;
+				for( var series_idx = 0 ; series_idx < pData.length ; series_idx++ ){
+					for( var val_idx = 0 ; val_idx < pData[series_idx].length ; val_idx++ ){
+						x_max = Math.max(parseInt(pData[series_idx][val_idx][0]), parseInt(x_max));
+					}
+				}
+			 	var chart = chartplot( pTitle, pXTitle, pYTitle, pXCategories, pData );
+			 	chart['chart'] = { 
+			 		type: 'area',
+			 		zoomType:"x",
+			 		selectionMarkerFill: frogsColorZoomHighCharts
+			 	};
+			 	chart['xAxis']['tickInterval'] = Math.max(1, parseInt(x_max/10));
+				chart['plotOptions'] = {
+					area: {
+						marker: {
+							enabled: true,
+							symbol: 'circle',radius:4,
+						}
+					}
+				};
+			 	return chart ;
+			 }
 			 
 			 /**
 			  * Returns hash use to init HightChart object (without 'type'). 
@@ -194,7 +287,7 @@
 			  * @return {Hash} The hash.
 			  * @warning This method use HightChart xAxis.categories.
 			  */
-			 var chartplot = function( pTitle, pXTitle, pYTitle, pXCategories, pData ) {
+			var chartplot = function( pTitle, pXTitle, pYTitle, pXCategories, pData ) {
 			 	var chart = {
 			 	        title: {
 			 	            text: pTitle
@@ -215,15 +308,15 @@
 						buttonOptions: {
 							theme: {
 								r: 4,
-								fill:'#8EADAC',
+								fill: frogsColor,
 								states: {
 									hover: {
-										fill: 'rgb(100, 138, 137)',
-										stroke:'#8EADAC'
+										fill: frogsColorHover,
+										stroke: frogsColor
 									},
 									select: {
-										stroke: '#8EADAC',
-										fill: 'rgb(100, 138, 137)',
+										stroke: frogsColor,
+										fill: frogsColorHover,
 									}
 								}
 							}
@@ -243,6 +336,71 @@
 			 	}
 			 	return chart ;
 			 }
+			
+			var sample_table_load = function( container_id ){
+				var samples_distrib = ###DATA_SAMPLE### ;
+
+				var table_data = new Array();
+				for( sample in samples_distrib ){
+					table_data.push([
+					  sample,
+					  samples_distrib[sample]['shared_observations'] + samples_distrib[sample]['own_observations'],
+					  samples_distrib[sample]['shared_observations'],
+					  samples_distrib[sample]['own_observations'],
+					  samples_distrib[sample]['shared_seq'] + samples_distrib[sample]['own_seq'],
+					  samples_distrib[sample]['shared_seq'],
+					  samples_distrib[sample]['own_seq'],
+					])
+				}
+				$('#' + container_id).html( table("Samples information", ["Sample", "Total clusters", "Shared clusters", "Own clusters", "Total sequences", "Shared sequences", "Own sequences"], table_data) );
+				$('#' + container_id + ' table').prop( 'id', 'samples-table' );
+				$('#' + container_id + ' table').DataTable({
+					dom: 	"<'#samples-csv-export'><'row'<'col-sm-5'l><'col-sm-7'f>>" +
+							"<'row'<'col-sm-12'tr>>" +
+							"<'row'<'col-sm-5'i><'col-sm-7'p>>"
+					//"sDom": '<"top"<"#samples-csv-export"><"clear">lf>rt<"bottom"ip><"clear">'
+				});
+				$('#samples-csv-export').addClass( 'dataTables_filter' );
+				$('#samples-csv-export').html( '<button class="btn"><span class="fa fa-download" aria-hidden="true"> CSV</span></button>' );
+				$('#samples-csv-export').datatableExport({
+					'table_id': "samples-table"
+				});
+			}
+			
+			/**
+			   * Returns hash use to init HightChart boxplot. 
+			   * @param pTitle {String} The title of the chart.
+			   * @param pXTitle {String} The xAxis title.
+			   * @param pYTitle {String} The yAxis title.
+			   * @param pXCategories {Array} x scale labels.
+			   * @param pData {Array} The HightChart series.
+			   * @return {Hash} Parameters to use in Highchart's constructor.
+			   */
+			var boxplot_param = function(pTitle, pXTitle, pYTitle, pXCategories, pData) {
+				var chart = chartplot( pTitle, null, pYTitle, pXCategories, pData );
+				chart['chart'] = { type: 'boxplot', zoomType: 'y',selectionMarkerFill: frogsColorZoomHighCharts };
+				chart['yAxis']['min'] = 0 ;
+				chart['exporting'] = {buttons: {contextButton: { symbol: 'download' }}};
+				chart['navigation'] =  {
+					buttonOptions: {
+						theme: {
+							r: 4,
+							fill: frogsColor,
+							states: {
+								hover: {
+									fill: 'rgb(100, 138, 137)',
+									stroke: frogsColor
+								},
+								select: {
+									stroke: frogsColor,
+									fill: 'rgb(100, 138, 137)',
+								}
+							}
+						}
+					}
+				};
+				return chart ;
+			};
 			
 			var pie_param = function( pTitle, pData, unity ) {
 				var series = [{
@@ -272,20 +430,214 @@
 		        };
 				return plot ;
 			};
-
+			
+			
+			
+			var get_dispersion = function( values, counts ) { 
+				var dispersion = new Array();
 				
-			$(function() {
-				var detection_categories = ###DETECTION_CATEGORIES### ;
-				var detection_series = ###DETECTION_DATA### ;
-				var remove_info = ###REMOVE_DATA### ;
+				// Unstack list
+		        unstacked_list = new Array();
+		        for( var idx = 0 ; idx < values.length ; idx++ ){
+		            for( var nb_add = 0 ; nb_add < counts[idx] ; nb_add++ ){
+		            	unstacked_list.push( values[idx] );
+		        	}
+		        }
 
+				// Process metrics
+				var nb_elt = unstacked_list.length ;
+				dispersion['min'] = unstacked_list[0] ;
+				dispersion['max'] = unstacked_list[nb_elt - 1];
+				if( nb_elt % 2 == 0 ) {
+					dispersion['median'] = unstacked_list[(nb_elt/2) -1] ;
+				} else {
+					dispersion['median'] = (unstacked_list[parseInt((nb_elt/2) -1)] + unstacked_list[parseInt(nb_elt/2)])/2 ;
+				}
+				// Deciles
+				for( var idx = 1 ; idx <= 9 ; idx++ ){
+					if( idx != 5 ) {
+						dispersion[idx + '_decile'] = unstacked_list[Math.floor(idx*(nb_elt/10) + 0.5) -1] ;
+					} else {
+						dispersion['5_decile'] = dispersion['median'] ;
+					}
+				}
+				// Quartiles
+				dispersion['lower_quartile'] = unstacked_list[Math.floor((nb_elt/4) + 0.5) -1] ;
+				dispersion['upper_quartile'] = unstacked_list[Math.floor((3*(nb_elt/4)) + 0.5) -1] ;
+				
+				return dispersion ;
+	        };
+
+
+			var cluster_distrib_load = function( container_id ) {
+				// Radializes colors
+				Highcharts.setOptions({
+					 colors : [frogsColor, frogsColor2] ,
+					});
+					Highcharts.SVGRenderer.prototype.symbols.download = function (x, y, w, h) {
+					var path = [
+						// Arrow stem
+						'M', x + w * 0.5, y,
+						'L', x + w * 0.5, y + h * 0.7,
+						// Arrow head
+						'M', x + w * 0.3, y + h * 0.5,
+						'L', x + w * 0.5, y + h * 0.7,
+						'L', x + w * 0.7, y + h * 0.5,
+						// Box
+						'M', x, y + h * 0.9,
+						'L', x, y + h,
+						'L', x + w, y + h,
+						'L', x + w, y + h * 0.9
+					];
+					return path;
+				};
+				
+			    var clusters_sizes = ###CLUSTERS_SIZES### ;
+				var dispersion = get_dispersion( clusters_sizes, series[0]['data'] );
+				
+				// Nb clusters and nb sequences
+				var nb_clusters = 0 ;
+				var nb_sequences = 0 ;
+				for( var clusters_sizes_idx = 0 ; clusters_sizes_idx < clusters_sizes.length ; clusters_sizes_idx++ ){
+					nb_clusters += series[0]['data'][clusters_sizes_idx] ;
+					nb_sequences += ( series[0]['data'][clusters_sizes_idx] * clusters_sizes[clusters_sizes_idx] );
+				}
+				$('#nb-clusters').append( '' +
+					'<div class="circle">' +
+					'	<span class="circle-title">Clusters</span>' +
+					'	<br />' +
+					'	<span class="circle-value">' + numberDisplay(nb_clusters) + '</span>' +
+					'</div>'
+				);
+				$('#nb-sequences').append( '' +
+					'<div class="circle">' +
+					'	<span class="circle-title">Sequences</span>' +
+					'	<br />' +
+					'	<span class="circle-value">' + numberDisplay(nb_sequences) + '</span>' +
+					'</div>'
+				);
+				
+				// Boxplot
+				var boxplot_series = [{
+					'name': "Cluster size",
+					'data': [[dispersion['min'],
+					          dispersion['lower_quartile'],
+					          dispersion['median'],
+					          dispersion['upper_quartile'],
+					          dispersion['max']]]
+				}];
+				$('#' + container_id).append( '<div id="dispersion"></div>' );
+				$('#dispersion').append( '<h2 class="pb-2 mt-4 mb-2 border-bottom">Clusters size summary</h2>');
+				$('#dispersion').append( '<p>The cluster size is the sum of the abundances of the sequences grouped in a cluster.</p>');
+				$('#dispersion').append('<div id="twofigs" class="row"></div>');
+				$('#twofigs').append( '<div class="col-12 col-md-8"" style="height:100%;">' );
+				$('#dispersion div').last().highcharts( boxplot_param("Clusters size distribution", null, "Cluster size", ["All"], boxplot_series) );
+
+				// Deciles
+				var decile_data = [
+					["Min", dispersion['min']],
+					[1, dispersion['1_decile']],
+					[2, dispersion['2_decile']],
+					[3, dispersion['3_decile']],
+					[4, dispersion['4_decile']],
+					["Median", dispersion['5_decile']],
+					[6, dispersion['6_decile']],
+					[7, dispersion['7_decile']],
+					[8, dispersion['8_decile']],
+					[9, dispersion['9_decile']],
+					["Max", dispersion['max']]
+				];
+				$('#twofigs').append( '<div class="col-12 col-md-4"">' );
+				$('#dispersion div').last().append( table("Clusters size distribution (decile)", ["Decile", "Value"], decile_data) );
+				
+				// Details
+				var cluster_sum = 0 ;
+				for( var idx=0 ; idx < clusters_sizes.length ; idx++ ){
+					cluster_sum += series[0]['data'][idx] ;
+				}
+				var distrib_data = new Array();
+				for( var idx=0 ; idx < clusters_sizes.length ; idx++ ){
+					var cluster_prct = Math.round((series[0]['data'][idx]/cluster_sum)*10000)/100 ;
+					distrib_data.push([ clusters_sizes[idx], series[0]['data'][idx], cluster_prct ]);
+				}
+				$('#dispersion').append( '<h2 class="pb-2 mt-4 mb-2 border-bottom">Clusters size details</h2>');
+				$('#dispersion').append( '<div class="col-md-12"></div>' );
+				//$('#dispersion div').last().append( '<h1 class="page-header">Clusters size details<h1/>' );
+				$('#dispersion div').last().append( table("Clusters size", ["Cluster size", "Number of cluster", "% of all clusters"], distrib_data) );
+				$('#dispersion table').last().prop( 'id', 'dispersion-table' );
+				$('#' + container_id + ' table').last().DataTable({
+					dom: 	"<'#dispersion-csv-export'><'row'<'col-sm-5'l><'col-sm-7'f>>" +
+							"<'row'<'col-sm-12'tr>>" +
+							"<'row'<'col-sm-5'i><'col-sm-7'p>>"
+					//"sDom": '<"top"<"#dispersion-csv-export"><"clear">lf>rt<"bottom"ip><"clear">'
+				});
+				$('#dispersion-csv-export').addClass( 'dataTables_filter' );
+				$('#dispersion-csv-export').html( '<button class="btn"><span class="fa fa-download" aria-hidden="true"> CSV</span></button>' );
+				$('#dispersion-csv-export').datatableExport({
+					'table_id': "dispersion-table"
+				});
+				
+				
+				
+				var series_cumulative = new Array() ;
+				for( var series_idx = 0 ; series_idx < series.length ; series_idx++ ){
+					series_cumulative.push({
+						'name': series[series_idx]['name'],
+						'data': new Array(),
+						'pointStart': 1
+					});
+					var sum = 0 ;
+					var previous_cumulative_count = 0 ;
+					for( var val_idx = 0 ; val_idx < series[series_idx]['data'].length ; val_idx++ ){
+						var current_count = series[series_idx]['data'][val_idx] * clusters_sizes[val_idx] ;
+						var cumulative_count = previous_cumulative_count + current_count ;
+						series_cumulative[series_idx]['data'].push( [clusters_sizes[val_idx], cumulative_count] );
+						previous_cumulative_count = cumulative_count ;
+					}
+					sum_series[series[series_idx]['name']] = previous_cumulative_count ;
+				}
+				for( var series_idx = 0 ; series_idx < series.length ; series_idx++ ){
+					for( var val_idx = 0 ; val_idx < series[series_idx]['data'].length ; val_idx++ ){
+						var current_prct = (series_cumulative[series_idx]['data'][val_idx][1] / sum_series[series[series_idx]['name']])*100 ;
+						series_cumulative[series_idx]['data'][val_idx][1] = Math.round(current_prct*100)/100 ;
+					}
+				}
+				var seq_by_depth = areaplot_param("Cumulative sequences proportion by cluster size", "Cluster size", "% sequences", null, series_cumulative);
+				seq_by_depth['tooltip'] = {
+					formatter:function() {
+						tooltip_head = 'Clusters with size \u2264 ' + numberDisplay(this.x) ;
+						tooltip_body = '' ;
+						for( var i=0 ; i<this.points.length ; i++) {
+							var series = this.points[i].series;
+							var pointIndex = parseInt(series.data.indexOf(this.points[i].point));
+							var nbObs = parseInt(this.points[0].series.data.length);
+							var percCluster = (((pointIndex + 1) / nbObs) * 100).toFixed(2);
+							tooltip_body += '<tr> '+
+							'<th>Sequences</th><th>Clusters</th></tr>'+
+							'<tr><td>'+this.points[i].point.y + '%'+'</td><td>'+percCluster+ '%'+'</td>'+
+							'</tr>'
+						}
+						return '<table id="tooltip-seqdepth" class="table table-striped caption-top"><caption><b>'+'Clusters with size \u2264 ' + numberDisplay(this.x)+'</b></caption>' + tooltip_body + '</table>' ;
+					},
+					shared: true,
+					useHTML: true
+				};
+				$('#' + container_id).append( '<h2 class="pb-2 mt-4 mb-2 border-bottom">Sequences distribution</h2>');
+				$('#' + container_id).append( '<div id="sequences-distrib-chart"></div>' );
+				$('#sequences-distrib').append('<div></div>');
+				$('#sequences-distrib-chart').highcharts( seq_by_depth );
+				$('#sequences-distrib-chart').append('<p class="graph-nb">N.B.: Select area to zoom in.</p>');
+				
+			}
+			
+			var summaryLoad = function(){
 				// Remove alert
 				$('#js-alert').remove();
 				$('#content').removeClass("hidden");
 				
 				// Radializes colors
 				Highcharts.setOptions({
-					 colors : ['#8EADAC', '#DE9F73'] ,
+					 colors : [frogsColor, frogsColor2] ,
 					 lang: {thousandsSep: ','}
 					});
 					Highcharts.SVGRenderer.prototype.symbols.download = function (x, y, w, h) {
@@ -350,6 +702,33 @@
 				$('#details-csv-export').datatableExport({
 					'table_id': "details-table"
 				});
+			}
+			
+
+			$(function() {
+				$(".frogsversion > a").text("FROGS "+frogs_tool+" "+frogs_version);
+				summaryLoad();
+				
+				// Add tab listener
+				$('.nav-tabs a').click(function (e) {
+					e.preventDefault();
+					$(this).tab('show');
+					if( $(this).attr('href') == "#sequence-distrib" && $('#sequence-distrib').hasClass('disabled') ){
+						$('#sequence-distrib').removeClass("disabled");
+					}
+					if( $('#samples-distrib').hasClass('disabled') ){
+						$('#samples-distrib').removeClass("disabled");
+						sample_table_load( "samples-distrib-table" );
+					}
+					if( $(this).attr('href') == "#summary" && $('#summary').hasClass('disabled') ){
+						$('#summary').removeClass("disabled");
+						summaryLoad()
+					}
+					if ( $(this).attr('href') == "#cluster-distrib" && $('#cluster-distrib').hasClass('disabled') ){
+						$('#cluster-distrib').removeClass("disabled");
+						cluster_distrib_load( "cluster-distrib" );
+					}
+				})
 			});
 		</script>
 	</head>
@@ -357,21 +736,44 @@
 		<!-- Alert -->
 		<p id="js-alert" class="alert alert-warning">
 			javascript is needed to display data.<br />
-			If you try to view this data on galaxy please contact your administrator to authorise javascript or download the file to view.
+			If you are trying to view this data on galaxy, please contact your administrator to enable javascript or download the file for viewing.
 		</p>
 		
 		<!-- Content -->
 		<div id="content" class="hidden">
-			<div id="filter-summary">
-        		<h2 class="pb-2 mt-4 mb-2 border-bottom">Remove summary</h2>
-        		<div class="row">
-	        		<div id="nb-filtered" class="col-md-6"></div> 
-	        		<div id="abundance-filtered" class="col-md-6"></div>
-        		</div>
-			</div>
-			<div id="filter-log">
-				<h2 class="pb-2 mt-4 mb-2 border-bottom">Chimera detection by sample</h2>
-				<p>Chimera are first detected by sample, and finally only clusters always detected as chimera in all samples including thoses clusters are removed.</p>
+			<ul id="mytab" class="nav nav-tabs">
+				<li class="nav-item active"><a class="nav-link active" href="#summary">Summary</a></li>
+				<li class="nav-item active"><a class="nav-link" href="#cluster-distrib">Clusters distribution</a></li>
+				<li class="nav-item active"><a class="nav-link" href="#samples-distrib">Samples distribution</a></li>
+				<li class="nav-item frogsversion"><a class="nav-link"></a></li>
+			</ul>
+			<div class="tab-content">
+				<div id="summary" role="tabpanel" class="tab-pane active">
+					<div id="filter-summary">
+						<div class="row">
+							<div id="nb-filtered" class="col-md-6"></div> 
+							<div id="abundance-filtered" class="col-md-6"></div>
+						</div>
+					</div>
+					<div id="filter-log">
+						<h2 class="pb-2 mt-4 mb-2 border-bottom">Chimera detection by sample</h2>
+						<p>Chimera are first detected by sample, and finally only clusters always detected as chimera in all samples including thoses clusters are removed.</p>
+					</div>
+				</div>
+				<div id="cluster-distrib" role="tabpanel" class="tab-pane disabled">
+					<div class="row">
+						<div class="col-md-2"></div>
+						<div id="nb-clusters" class="col-sm-6 col-md-4"></div>
+						<div id="nb-sequences" class="col-sm-6 col-md-4"></div>
+						<div class="col-md-2"></div>
+					</div>
+				</div>
+				<div id="samples-distrib" role="tabpanel" class="tab-pane disabled">
+					<div>
+						<h2 class="pb-2 mt-4 mb-2 border-bottom">Sequences count</h2>
+						<div id="samples-distrib-table"></div>
+					</div>
+				</div>
 			</div>
 		</div>
 	</body>

@@ -61,7 +61,7 @@ def process(params):
     """
     ref_length = dict()
     get_ref_length(params.reference,ref_length)
-    OTU_list=list()
+    ASV_list=list()
     temp_dict=dict()
     FH_in = open(params.needle)
     FH_out = open(params.blast_like,"wt" )
@@ -125,18 +125,19 @@ def process(params):
         #pident=str(round((cig_dict["M"]- int(mismatch))*100.00/len(l[9]),2))
 
         # write best alignement
-        if not qseqid in OTU_list:
+        if not qseqid in ASV_list:
             if len(temp_dict) > 0:
                 max_score = max(temp_dict.values())
                 for a in temp_dict:
                     if temp_dict[a] == max_score:
                         FH_out.write(a)
                 temp_dict.clear()
-            OTU_list.append(qseqid)
-        aln=qseqid+"\t"+sseqid+"\t"+pident+"\t"+str(length)+"\t"+mismatch+"\t"+str(gapopen)+"\t"+qstart+"\t"+qend+"\t"+sstart+"\t"+send+"\t"+evalue+"\t"+bitscore+"\t"+qlen+"\n"
+            ASV_list.append(qseqid)
+        slen="0"
+        aln=qseqid+"\t"+sseqid+"\t"+pident+"\t"+str(length)+"\t"+mismatch+"\t"+str(gapopen)+"\t"+qstart+"\t"+qend+"\t"+sstart+"\t"+send+"\t"+evalue+"\t"+bitscore+"\t"+qlen+"\t"+slen+"\n"
         temp_dict[aln]=float(bitscore)
     
-    # write last OTUs alignment
+    # write last ASVs alignment
     max_score = max(temp_dict.values())
     for a in temp_dict:
         if temp_dict[a] == max_score:

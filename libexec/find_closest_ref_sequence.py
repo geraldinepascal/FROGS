@@ -61,6 +61,8 @@ class MegaBlastAligner:
     def score(self):
         query = self.query
         target = self.target
+        query = query.upper()
+        target = target.upper()
         # Calculate the score matrix
         m = len(query)
         n = len(target)
@@ -142,6 +144,10 @@ def rounding(nb):
 		start = re.compile("[0-9][.][0-9]{1,2}")
 		end = re.compile("e-[0-9]+")
 		return float("".join(start.findall(str(nb))+end.findall(str(nb))))
+
+	# Cas support où le NSTI est égal à 0.05 :
+	elif re.search("[0][.][0]+[0-9]{1}", str(nb)):
+		return nb
 
 	elif re.search("[0][.][0]+",str(nb)):
 		motif = re.compile("[0][.][0]+[0-9]{2}")
@@ -235,16 +241,15 @@ def find_closest_ref_sequences(tree, biom, biom_path, ID_to_taxo, ref_seqs, clus
 	max_nsti = 0
 	FH_out = open(output,'wt')
 	header = "\t".join(["#ASV","Nb sequences", "FROGS Taxonomy",\
-		"PICRUSt2 closest ID","PICRUSt2 closest reference name","PICRUSt2 closest taxonomy",\
-		"NSTI", "NSTI Confidence" ,"FROGS and PICRUSt2 lowest same taxonomic rank",\
-		 "Comment", "ASV sequence", "PICRUSt2 closest reference sequence",\
-		"%id", "%cov", "score"])
+					"PICRUSt2 closest ID","PICRUSt2 closest reference name","PICRUSt2 closest taxonomy",\
+					"NSTI", "NSTI Confidence" ,"FROGS and PICRUSt2 lowest same taxonomic rank",\
+					"Comment", "ASV sequence", "PICRUSt2 closest reference sequence",\
+					"%id", "%cov", "score"])
 	FH_out.write(header+"\n")
 
 	for observation_name in biom.get_observations_names():
 		count = str(biom.get_observation_count(observation_name))
 		node = tree.search_nodes(name=observation_name)[0]
-		frogs_taxo = 'NA'
 		affis_picrust = 'NA'
 		ref_leaf_id = ''
 		ref_leaf_taxo = ''
@@ -253,6 +258,7 @@ def find_closest_ref_sequences(tree, biom, biom_path, ID_to_taxo, ref_seqs, clus
 		blast_id = ''
 		blast_cov = ''
 		blast_score = ''
+		frogs_taxo = 'NA'
 
 		leaf_to_dist = dict()
 		for sister_group in node.get_sisters():
@@ -268,24 +274,31 @@ def find_closest_ref_sequences(tree, biom, biom_path, ID_to_taxo, ref_seqs, clus
 			ref_leaf_taxo = ID_to_taxo[best_leaf][1]
 			affis_picrust = ID_to_taxo[best_leaf][1].replace(' ','_')
 			rank_level = 7
+
 			found_same_taxo = False
 
-			if ( not biom.get_observation_metadata(observation_name)["blast_taxonomy"] is None or not len(biom.get_observation_metadata(observation_name)["blast_taxonomy"]) == 0 ) and not found_same_taxo:
-				for affi in biom.get_observation_metadata(observation_name)["blast_affiliations"]:
-					cur_frogs_taxo = ";".join(affi["taxonomy"])
-					if '__' in cur_frogs_taxo:
-						cur_frogs_taxo = ";".join(["".join(af.split('__')[1:]) for af in cur_frogs_taxo.split(';')])
-					clean_cur_frogs_taxo = cur_frogs_taxo.replace(' ','_')
-					cur_rank_level, cur_lowest_same_rank = find_lowest_same_taxo_rank(clean_cur_frogs_taxo, affis_picrust)
+			if not biom.has_metadata("blast_taxonomy"):
+				cur_rank_level, cur_lowest_same_rank = "NA", "/"
+				frogs_taxo = "No blast_taxonomy metadata in biom file"
 
-					if cur_rank_level < rank_level:
-						rank_level = cur_rank_level
-						lowest_same_rank = cur_lowest_same_rank
-						frogs_taxo = cur_frogs_taxo
 
-						if is_same_taxonomies(frogs_taxo, affis_picrust):
-							found_same_taxo = True
-							comment = "identical taxonomy"
+			else:
+				if not len(biom.get_observation_metadata(observation_name)["blast_taxonomy"]) == 0 and not found_same_taxo:
+					for affi in biom.get_observation_metadata(observation_name)["blast_affiliations"]:
+						cur_frogs_taxo = ";".join(affi["taxonomy"])
+						if '__' in cur_frogs_taxo:
+							cur_frogs_taxo = ";".join(["".join(af.split('__')[1:]) for af in cur_frogs_taxo.split(';')])
+						clean_cur_frogs_taxo = cur_frogs_taxo.replace(' ','_')
+						cur_rank_level, cur_lowest_same_rank = find_lowest_same_taxo_rank(clean_cur_frogs_taxo, affis_picrust)
+
+						if cur_rank_level < rank_level:
+							rank_level = cur_rank_level
+							lowest_same_rank = cur_lowest_same_rank
+							frogs_taxo = cur_frogs_taxo
+
+							if is_same_taxonomies(frogs_taxo, affis_picrust):
+								found_same_taxo = True
+								comment = "identical taxonomy"
 
 		biom.add_metadata(observation_name, "picrust2_affiliations", affis_picrust, "observation", erase_warning = False)
 
@@ -315,9 +328,10 @@ def find_closest_ref_sequences(tree, biom, biom_path, ID_to_taxo, ref_seqs, clus
 			max_nsti = rounding(nsti)
 
 		FH_out.write("\t".join([observation_name, count, frogs_taxo, best_leaf,\
-		ref_leaf_id, ref_leaf_taxo, str(rounding(nsti)),\
-		confidence, lowest_same_rank, comment, cluster_to_seq[observation_name], ref_seqs[best_leaf],\
-		blast_id, blast_cov, blast_score])+'\n')
+			ref_leaf_id, ref_leaf_taxo, str(rounding(nsti)),\
+			confidence, lowest_same_rank, comment, cluster_to_seq[observation_name], ref_seqs[best_leaf],\
+			blast_id, blast_cov, blast_score])+'\n')
+
 	BiomIO.write(biom_path, biom)
 	return max_nsti
 

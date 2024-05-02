@@ -1,24 +1,9 @@
 #!/usr/bin/env python3
-#
-# Copyright (C) 2018 INRA
-#
-# This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-__author__ = ' Ta Thi Ngan & Maria Bernard INRA - SIGENAE '
-__copyright__ = 'Copyright (C) 2017 INRA'
+__author__ = 'Ta Thi Ngan - SIGENAE/GABI & Maria Bernard - SIGENAE/GABI'
+__copyright__ = 'Copyright (C) 2024 INRAE'
 __license__ = 'GNU General Public License'
-__version__ = '4.1.0'
+__version__ = '5.0.0'
 __email__ = 'frogs-support@inrae.fr'
 __status__ = 'prod'
 
@@ -161,20 +146,20 @@ def write_summary( summary_file, fasta_in, align_out, biomfile, treefile):
     """
     # to summary ASVs number && abundances number               
     summary_info = {
-       'otu_kept' : 0,
-       'otu_removed' : 0,
+       'asv_kept' : 0,
+       'asv_removed' : 0,
        'abundance_kept' : 0,
        'abundance_removed' : 0       
     }
-    number_otu_all = 0
+    number_asv_all = 0
     number_abundance_all = 0
     # to detail removed ASV
     removed_details_categories =["Taxonomic Information", "Abundance Number", "% with abundance total", "Sequence length"]
     removed_details_data =[]
     
     # to build one metadata for tree view
-    dic_otu={}
-    list_otu_all=list()
+    dic_asv={}
+    list_asv_all=list()
     list_out_tree=[]
 
     biom=BiomIO.from_json(biomfile)
@@ -182,43 +167,43 @@ def write_summary( summary_file, fasta_in, align_out, biomfile, treefile):
     newick = treefile.read().strip()
 
     # record nb ASV and abundance
-    for otu in FastaIO(fasta_in):
-        list_otu_all.append(otu.id)
-        number_otu_all +=1
-        number_abundance_all += biom.get_observation_count(otu.id)
+    for asv in FastaIO(fasta_in):
+        list_asv_all.append(asv.id)
+        number_asv_all +=1
+        number_abundance_all += biom.get_observation_count(asv.id)
 
     # record details about removed ASV
     if align_out is not None:
-        for otu in FastaIO(align_out):
-            summary_info['otu_removed'] +=1
-            summary_info['abundance_removed'] += biom.get_observation_count(otu.id)
+        for asv in FastaIO(align_out):
+            summary_info['asv_removed'] +=1
+            summary_info['abundance_removed'] += biom.get_observation_count(asv.id)
             
             # to built one table of ASVs out of phylogenetic tree
             taxonomy=""
             if biom.has_metadata("taxonomy"):
-                taxonomy = ";".join(biom.get_observation_metadata(otu.id)["taxonomy"]) if issubclass(biom.get_observation_metadata(otu.id)["taxonomy"].__class__,list) else str(biom.get_observation_metadata(otu.id)["taxonomy"])
+                taxonomy = ";".join(biom.get_observation_metadata(asv.id)["taxonomy"]) if issubclass(biom.get_observation_metadata(asv.id)["taxonomy"].__class__,list) else str(biom.get_observation_metadata(asv.id)["taxonomy"])
             elif biom.has_metadata("blast_taxonomy"): 
-                taxonomy = ";".join(biom.get_observation_metadata(otu.id)["blast_taxonomy"]) if issubclass(biom.get_observation_metadata(otu.id)["blast_taxonomy"].__class__,list) else str(biom.get_observation_metadata(otu.id)["blast_taxonomy"])
-            abundance=biom.get_observation_count(otu.id)
+                taxonomy = ";".join(biom.get_observation_metadata(asv.id)["blast_taxonomy"]) if issubclass(biom.get_observation_metadata(asv.id)["blast_taxonomy"].__class__,list) else str(biom.get_observation_metadata(asv.id)["blast_taxonomy"])
+            abundance=biom.get_observation_count(asv.id)
             percent_abundance=abundance*100/(float(number_abundance_all))
-            length=len(otu.string)
-            info={"name": otu.id, "data": [taxonomy, abundance, percent_abundance, length]}
+            length=len(asv.string)
+            info={"name": asv.id, "data": [taxonomy, abundance, percent_abundance, length]}
             removed_details_data.append(info)
-            list_out_tree.append(otu.id)
+            list_out_tree.append(asv.id)
 
     # improve tree view by adding taxonomy information
-    list_in_tree=[item for item in list_otu_all if item not in list_out_tree]  
-    for otu in list_in_tree:
+    list_in_tree=[item for item in list_asv_all if item not in list_out_tree]  
+    for asv in list_in_tree:
         tax=None
         if biom.has_metadata("taxonomy"):
-            tax=" ".join(biom.get_observation_metadata(otu)["taxonomy"]) if issubclass(biom.get_observation_metadata(otu)["taxonomy"].__class__, list) else str(biom.get_observation_metadata(otu)["taxonomy"])
+            tax=" ".join(biom.get_observation_metadata(asv)["taxonomy"]) if issubclass(biom.get_observation_metadata(asv)["taxonomy"].__class__, list) else str(biom.get_observation_metadata(asv)["taxonomy"])
         elif biom.has_metadata("blast_taxonomy"):
-            tax=" ".join(biom.get_observation_metadata(otu)["blast_taxonomy"]) if issubclass(biom.get_observation_metadata(otu)["blast_taxonomy"].__class__, list) else str(biom.get_observation_metadata(otu)["blast_taxonomy"])
+            tax=" ".join(biom.get_observation_metadata(asv)["blast_taxonomy"]) if issubclass(biom.get_observation_metadata(asv)["blast_taxonomy"].__class__, list) else str(biom.get_observation_metadata(asv)["blast_taxonomy"])
         if tax :
-            newick=newick.replace(otu + ":", otu + " " + tax + ":")
+            newick=newick.replace(asv + ":", asv + " " + tax + ":")
     
     # finalize summary
-    summary_info['otu_kept'] = number_otu_all - summary_info['otu_removed']
+    summary_info['asv_kept'] = number_asv_all - summary_info['asv_removed']
     summary_info['abundance_kept'] = number_abundance_all - summary_info['abundance_removed']
     
     # Write
@@ -226,7 +211,7 @@ def write_summary( summary_file, fasta_in, align_out, biomfile, treefile):
     FH_summary_out = open( summary_file, "wt" )
     for line in FH_summary_tpl:
         if "###HEIGHT###" in line:
-            line = line.replace( "###HEIGHT###", json.dumps(summary_info['otu_kept']*11+166))
+            line = line.replace( "###HEIGHT###", json.dumps(summary_info['asv_kept']*11+166))
         if "###NEWICK###" in line:
             line = line.replace( "###NEWICK###", newick)
         if "##REMOVED_DETAILS_CATEGORIES###" in line:
@@ -236,8 +221,12 @@ def write_summary( summary_file, fasta_in, align_out, biomfile, treefile):
         elif "###SUMMARY###" in line:
             line = line.replace( "###SUMMARY###", json.dumps(summary_info) )
         elif '<div id="ASVs-fail" style="display:none;">' in line:
-            if summary_info['otu_removed']!=0:
+            if summary_info['asv_removed']!=0:
                 line = line.replace( 'style="display:none;"', '' )
+        elif "###FROGS_VERSION###" in line:
+            line = line.replace( "###FROGS_VERSION###", "\""+str(__version__)+"\"" )
+        elif "###FROGS_TOOL###" in line:
+            line = line.replace( "###FROGS_TOOL###", "\""+ os.path.basename(__file__)+"\"" )
         FH_summary_out.write(line)
     FH_summary_out.close()
     FH_summary_tpl.close()
@@ -252,26 +241,26 @@ if __name__ == "__main__":
    
     # Manage parameters
     parser = argparse.ArgumentParser( description='Phylogenetic tree reconstruction' )
-    parser.add_argument( '--debug', default=False, action='store_true', help="Keep temporary files to debug program." )   
-    parser.add_argument( '-p', '--nb-cpus', type=int, default=1, help="The maximum number of CPUs used. [Default: %(default)s]" )
-    parser.add_argument( '-v', '--version', action='version', version=__version__ )
-
+    parser.add_argument('--version', action='version', version=__version__ )
+    parser.add_argument('--debug', default=False, action='store_true', help="Keep temporary files to debug program." )   
+    parser.add_argument('--nb-cpus', type=int, default=1, help="The maximum number of CPUs used. [Default: %(default)s]" )
+    
     # Inputs
     group_input = parser.add_argument_group( 'Inputs' )
-    group_input.add_argument( '-i', '--input-sequences', required=True, help='Path to input FASTA file of ASV seed sequences. Warning: FROGS Tree is only working on less than 10000 sequences!' )
-    group_input.add_argument( '-b', '--biom-file', help='Path to the abundance BIOM file.' )
+    group_input.add_argument('--input-fasta', required=True, help='Path to input FASTA file of ASV seed sequences. Warning: FROGS Tree is only working on less than 10000 sequences!' )
+    group_input.add_argument('--input-biom', required=True, help='Path to the abundance BIOM file.' )
         
     # output
     group_output = parser.add_argument_group( 'Outputs' )
-    group_output.add_argument( '-o','--out-tree', default='tree.nwk', help="Path to store resulting Newick tree file. (format: nwk) [Default: %(default)s]" )
-    group_output.add_argument('-s','--html', default='tree.html', help="The HTML file containing the graphs. [Default: %(default)s]" )    
-    group_output.add_argument( '-l', '--log-file', default=sys.stdout, help='This output file will contain several informations on executed commands.')
+    group_output.add_argument('--output-tree', default='tree.nwk', help="Path to store resulting Newick tree file. (format: nwk) [Default: %(default)s]" )
+    group_output.add_argument('--html', default='tree.html', help="The HTML file containing the graphs. [Default: %(default)s]" )    
+    group_output.add_argument('--log-file', default=sys.stdout, help='This output file will contain several informations on executed commands. [Default: stdout]')
     args = parser.parse_args()
     prevent_shell_injections(args)
     
     ### Temporary files
-    tmpFiles=TmpFiles(os.path.split(args.out_tree)[0])
-    filename_prefix = ".".join(os.path.split(args.input_sequences)[1].split('.')[:-1])
+    tmpFiles=TmpFiles(os.path.split(args.output_tree)[0])
+    filename_prefix = ".".join(os.path.split(args.input_fasta)[1].split('.')[:-1])
     
     # alignment temporary files
     stderr = tmpFiles.add("mafft.stderr")
@@ -286,8 +275,8 @@ if __name__ == "__main__":
     # Process 
     try:        
         Logger.static_write(args.log_file, "## Application\nSoftware :" + sys.argv[0] + " (version : " + str(__version__) + ")\nCommand : " + " ".join(sys.argv) + "\n\n")
-        nb_seq = get_fasta_nb_seq(args.input_sequences)
-        biom = BiomIO.from_json(args.biom_file)
+        nb_seq = get_fasta_nb_seq(args.input_fasta)
+        biom = BiomIO.from_json(args.input_biom)
         if nb_seq > len(biom.rows):
             raise_exception( Exception("\n\n#ERROR : Your fasta input file contains more ASV than your biom file.\n\n"))
         Logger.static_write(args.log_file, "Number of input ASVs sequences: " + str(nb_seq) + "\n\n")
@@ -295,17 +284,17 @@ if __name__ == "__main__":
             raise_exception( Exception( "\n\n#ERROR : FROGS Tree is only working on less than 10 000 sequences!\n\n" ))
         
         # alignment step
-        mafftMet=get_methods_mafft(args.input_sequences)
-        Mafft(mafftMet, args.input_sequences, align, args.nb_cpus, stderr).submit( args.log_file )
+        mafftMet=get_methods_mafft(args.input_fasta)
+        Mafft(mafftMet, args.input_fasta, align, args.nb_cpus, stderr).submit( args.log_file )
 
         # tree contruction step
         FastTree(align, fasttree, fasttree_stderr).submit( args.log_file )
 
         # rooting tree step
-        RootTree(fasttree, args.out_tree).submit(args.log_file)
+        RootTree(fasttree, args.output_tree).submit(args.log_file)
 
         # summarize resultats in HTML output 
-        write_summary( args.html, args.input_sequences, align_out, args.biom_file, args.out_tree)
+        write_summary( args.html, args.input_fasta, align_out, args.input_biom, args.output_tree)
     finally:
         if not args.debug:
             tmpFiles.deleteAll()

@@ -1,25 +1,9 @@
 #!/usr/bin/env python3
-#
-# Copyright (C) 2018 INRA
-#
-# This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.
-#
 
-__author__ = 'Katia Vidal - Team NED Toulouse AND Frederic Escudie - Plateforme bioinformatique Toulouse AND Maria Bernard - Sigenae Jouy en Josas'
-__copyright__ = 'Copyright (C) 2020 INRAE'
+__author__ = 'Katia Vidal - GENPHYSE & Frédéric Escudié - Genotoul/MIAT & Maria Bernard - SIGENAE/GABI'
+__copyright__ = 'Copyright (C) 2024 INRAE'
 __license__ = 'GNU General Public License'
-__version__ = '4.1.0'
+__version__ = '5.0.0'
 __email__ = 'frogs-support@inrae.fr'
 __status__ = 'prod'
 
@@ -187,7 +171,9 @@ def impacted_blast_affi_on_blastMetrics( observation, tag, cmp_operator, thresho
     cmp_func = valid_operators[cmp_operator]
     blast_affiliations_out = dict()
     for idx,blast_affi in enumerate(observation['metadata']['blast_affiliations']):
-        if cmp_func(float(blast_affi[tag]), threshold):
+        if blast_affi[tag] == "no data":
+            sys.exit("\nError: " + observation["id"]+ " has a taxonomy but some of its metrics have 'no data'!\nHave you modified it manually? Please correct it.\n\n" + str(observation)+"\n\n")
+        elif cmp_func(float(str(blast_affi[tag]).replace(',', '.')), threshold):
             blast_affiliations_out[idx] = blast_affi
 
     return blast_affiliations_out
@@ -278,7 +264,7 @@ def update_blast_metadata(metadata_dict, kept_affiliaitons):
 
     # return impacting status
     if metadata_dict['blast_taxonomy'] is None :
-        metadata_dict['blast_affiliations'] = None  # instead of empty list
+        metadata_dict['blast_affiliations'] = []
         return True
     else:
         return False
@@ -454,7 +440,7 @@ def filter_biom(in_biom_file, impacted_file, output_file, params):
         metadata_out = copy.deepcopy(observation['metadata'])
         if len(out_blast_affiliations) > 0:
             filter_on_blastCriteria = update_blast_metadata(metadata_out, out_blast_affiliations)
-        
+
         # keep impacting criteria only if filter_on_blastCriteria is True
         if not filter_on_blastCriteria : 
             for impact in impacted_dict:
@@ -655,7 +641,7 @@ def write_summary( summary_file, input_biom, output_biom, discards, params ):
                         taxon_lost['RDP'][i].remove(';'.join(rdp_taxonomy[:i+1]))
 
         # track lost blast taxon
-        if out_biom.get_observation_metadata(observation_name)['blast_affiliations'] is not None:
+        if len(out_biom.get_observation_metadata(observation_name)['blast_affiliations'])>0:
             for blast_affi in out_biom.get_observation_metadata(observation_name)['blast_affiliations'] :
                 blast_taxonomy = blast_affi['taxonomy']
                 if issubclass(blast_taxonomy.__class__,str):
@@ -708,6 +694,10 @@ def write_summary( summary_file, input_biom, output_biom, discards, params ):
             line = line.replace( "###FILTERS_RESULTS###", json.dumps(list(filters_results.values())) )
         elif "Draw a Venn to see which ASVs had been deleted by the filters chosen (Maximum 6 options): " in line and params.mask:
             line = "Draw a Venn to see which ASVs had its taxonomy masked by the filters chosen (Maximum 6 options): "
+        elif "###FROGS_VERSION###" in line:
+            line = line.replace( "###FROGS_VERSION###", "\""+str(__version__)+"\"" )
+        elif "###FROGS_TOOL###" in line:
+            line = line.replace( "###FROGS_TOOL###", "\""+ os.path.basename(__file__)+"\"" )
         FH_summary_out.write( line )
 
     FH_summary_out.close()
@@ -741,7 +731,7 @@ def process( args ):
             BIOM_to_TSV(args.input_biom, args.input_fasta, args.impacted, args.impacted_multihit,impacted_biom2tsv_log, True).submit(args.log_file)
 
         # write summary
-        write_summary( args.summary, args.input_biom, args.output_biom, impacted_dict, args )
+        write_summary( args.html, args.input_biom, args.output_biom, impacted_dict, args )
 
         # if params.delete, update fasta
         if args.delete:
@@ -762,24 +752,25 @@ def process( args ):
 if __name__ == '__main__':
     # Parameters
     parser = argparse.ArgumentParser(description='Filters an abundance biom file on affiliations metrics')
-    parser.add_argument( '--debug', default=False, action='store_true', help="Keep temporary files to debug program." )
-    parser.add_argument( '-v', '--version', action='version', version=__version__ )
-    parser.add_argument( '--taxonomic-ranks', nargs='+', default=["Domain", "Phylum", "Class", "Order", "Family", "Genus", "Species"], help='The ordered ranks levels used in the metadata taxonomy. [Default: %(default)s]' )
+    parser.add_argument('--version', action='version', version=__version__ )
+    parser.add_argument('--debug', default=False, action='store_true', help="Keep temporary files to debug program. [Default: %(default)s]" )
+    
+    parser.add_argument('--taxonomic-ranks', nargs='+', default=["Domain", "Phylum", "Class", "Order", "Family", "Genus", "Species"], help='The ordered ranks levels used in the metadata taxonomy. [Default: %(default)s]' )
     #     Filters behavior
     group_filter_bh = parser.add_argument_group( 'Filters behavior' )
     group_exclusion_filter_bh = group_filter_bh.add_mutually_exclusive_group()
-    group_exclusion_filter_bh.add_argument('-m','--mask', default=False, action='store_true', help="If affiliations do not respect one of the filter they are replaced by NA (mutually exclusive with --delete)")
-    group_exclusion_filter_bh.add_argument('-d','--delete', default=False, action='store_true', help="If affiliations do not respect one of the filter the entire ASV is deleted.(mutually exclusive with --mask)")
+    group_exclusion_filter_bh.add_argument('--mask', default=False, action='store_true', help="If affiliations do not respect one of the filter they are replaced by NA (mutually exclusive with --delete) [Default: %(default)s]")
+    group_exclusion_filter_bh.add_argument('--delete', default=False, action='store_true', help="If affiliations do not respect one of the filter the entire ASV is deleted.(mutually exclusive with --mask) [Default: %(default)s]")
     #     Filters
     group_filter = parser.add_argument_group( 'Filters' )
     group_filter_blast_taxa = group_filter.add_mutually_exclusive_group()
-    group_filter_blast_taxa.add_argument( '--ignore-blast-taxa', type=str, nargs='*', help="Taxon list to masks/delete in Blast affiliations")
-    group_filter_blast_taxa.add_argument( '--keep-blast-taxa', type=str, nargs='*', help="Taxon list to keep in Blast affiliations. All others affiliations will be masks/delete.")
-    group_filter.add_argument( '-b', '--min-rdp-bootstrap', type=str, action=BootstrapParameter, metavar=("TAXONOMIC_LEVEL:MIN_BOOTSTRAP"), help="The minimal RDP bootstrap must be superior to this value (between 0 and 1)." )
-    group_filter.add_argument( '-i', '--min-blast-identity', type=ratioParameter, help="The number corresponding to the blast percentage identity (between 0 and 100)." )
-    group_filter.add_argument( '-c', '--min-blast-coverage', type=ratioParameter, help="The number corresponding to the blast percentage coverage (between 0 and 100)." )
-    group_filter.add_argument( '-e', '--max-blast-evalue', type=float, help="The number corresponding to the blast e value (between 0 and 1).")
-    group_filter.add_argument( '-l', '--min-blast-length', type=int, default=None, required=False, help="The number corresponding to the blast length." )
+    group_filter_blast_taxa.add_argument('--ignore-blast-taxa', type=str, nargs='*', help="Taxon list to masks/delete in Blast affiliations")
+    group_filter_blast_taxa.add_argument('--keep-blast-taxa', type=str, nargs='*', help="Taxon list to keep in Blast affiliations. All others affiliations will be masks/delete.")
+    group_filter.add_argument('--min-rdp-bootstrap', type=str, action=BootstrapParameter, metavar=("TAXONOMIC_LEVEL:MIN_BOOTSTRAP"), help="The minimal RDP bootstrap must be superior to this value (between 0 and 1)." )
+    group_filter.add_argument('--min-blast-identity', type=ratioParameter, help="The number corresponding to the blast percentage identity (between 0 and 100)." )
+    group_filter.add_argument('--min-blast-coverage', type=ratioParameter, help="The number corresponding to the blast percentage coverage (between 0 and 100)." )
+    group_filter.add_argument('--max-blast-evalue', type=float, help="The number corresponding to the blast e value (between 0 and 1).")
+    group_filter.add_argument('--min-blast-length', type=int, default=None, required=False, help="The number corresponding to the blast length." )
     #     Inputs
     group_input = parser.add_argument_group( 'Inputs' )
     group_input.add_argument('--input-biom', required=True, help="The input biom file.")
@@ -788,10 +779,10 @@ if __name__ == '__main__':
     group_output = parser.add_argument_group( 'Outputs' )
     group_output.add_argument('--output-biom', default="affiliation-filtered.biom", help="The Biom file output. [Default: %(default)s]")
     group_output.add_argument('--output-fasta', default="affiliation-filtered.fasta", help="The fasta output file. [Default: %(default)s]")
-    group_output.add_argument('--summary', default="summary.html", help="The HTML file containing the graphs. [Default: %(default)s]")
+    group_output.add_argument('--html', default="summary.html", help="The HTML file containing the graphs. [Default: %(default)s]")
     group_output.add_argument('--impacted', default="impacted_clusters.tsv", help="The abundance file that summarizes all the clusters impacted (deleted or with affiliations masked). [Default: %(default)s]")
     group_output.add_argument('--impacted-multihit', default="impacted_clusters_multihit.tsv", help="The multihit TSV file associated with impacted ASV. [Default: %(default)s]")
-    group_output.add_argument('--log-file', default=sys.stdout, help='The list of commands executed.')
+    group_output.add_argument('--log-file', default=sys.stdout, help='The list of commands executed. [Default: stdout]')
     args = parser.parse_args()
     prevent_shell_injections(args)
 
@@ -856,13 +847,13 @@ if __name__ == '__main__':
     if args.keep_blast_taxa is not None:
         checkBlastTaxa(args.keep_blast_taxa)       
 
-    for observation in in_biom.get_observations():
-        taxonomy = observation['metadata']['blast_taxonomy']
-        if taxonomy == None or len(taxonomy) == 0:
-                print('\n\n#WARNING: you declare that taxonomies are defined on ' + str(len(args.taxonomic_ranks)) + ' ranks but your biom file contains taxonomy defined on ' + str(len(taxonomy)) + ', at least for ' + observation['id'] + '\n')
-                print('Those clusters will be delete if --delete mode activated\n')
-                break
-    del in_biom
+    #for observation in in_biom.get_observations():
+    #    taxonomy = observation['metadata']['blast_taxonomy']
+    #    if taxonomy == None or len(taxonomy) == 0:
+    #            print('\n\n#WARNING: you declare that taxonomies are defined on ' + str(len(args.taxonomic_ranks)) + ' ranks but your biom file contains taxonomy defined on ' + str(len(taxonomy)) + ', at least for ' + observation['id'] + '\n')
+    #            print('Those clusters will be delete if --delete mode activated\n')
+    #            break
+    #del in_biom
 
     if args.delete and (not args.input_fasta or not args.output_fasta):
         raise_exception(Exception("\n\n#ERROR : In deletion mode, you must specify an input and output_fasta file\n\n"))

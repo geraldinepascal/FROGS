@@ -1,31 +1,15 @@
 #!/usr/bin/env python3
-#
-# Copyright (C) 2017 INRA
-#
-# This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.
-#
-__author__ = ' Ta Thi Ngan SIGENAE / Mahendra Mariadassou plateforme MIGALE'
-__copyright__ = 'Copyright (C) 2017 INRA'
+
+__author__ = 'Ta Thi Ngan - SIGENAE/GABI & Mahendra Mariadassou - MaIAGE'
+__copyright__ = 'Copyright (C) 2024 INRAE'
 __license__ = 'GNU General Public License'
-__version__ = '4.1.0'
+__version__ = '5.0.0'
 __email__ = 'frogs@toulouse.inrae.fr'
 __status__ = 'prod'
 
 import os
 import sys
 import argparse
-
 
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
 FROGS_DIR=""
@@ -85,7 +69,7 @@ class Rscript(Cmd):
         Cmd.__init__( self,
                       'Rscript',
                       'Run deseq2_visualisation.Rmd',
-                       '-e "rmarkdown::render(' + "'" + rmd + "', output_file='" + html + "', params=list(abundance_data='" + abundance_data + "', analysis='" + analysis + "', dds='" + dds + "', var='" + var+"', mod1='" + mod1 + "', mod2='" + mod2 + "', padj_th=" + str(padj) + ", libdir ='" + LIB_DIR + "'" + opt + "), intermediates_dir='" + os.path.dirname(html) +"')" + '" 2> ' + err ,
+                       '-e "rmarkdown::render(' + "'" + rmd + "', output_file='" + html + "', params=list(abundance_data='" + abundance_data + "', analysis='" + analysis + "', dds='" + dds + "', var='" + var+"', mod1='" + mod1 + "', mod2='" + mod2 + "', padj_th=" + str(padj) + ", libdir ='" + LIB_DIR + "'" + ", version='"+ str(__version__) + "'" + opt + "), intermediates_dir='" + os.path.dirname(html) +"')" + '" 2> ' + err ,
                       "-e '(sessionInfo()[[1]][13])[[1]][1]; library(DESeq2); paste(\"DESeq2 version: \",packageVersion(\"DESeq2\"))'")
                       
     def get_version(self):
@@ -105,25 +89,26 @@ if __name__ == "__main__":
    
     # Manage parameters
     parser = argparse.ArgumentParser( description='Launch Rmarkdown to visualise differential abundance analysis.')
-    parser.add_argument( '--debug', default=False, action='store_true', help="Keep temporary files to debug program." )   
     parser.add_argument( '--version', action='version', version=__version__ )
-    parser.add_argument('-v', '--var', type=str, required=True, help='variable that you want to test.' )
-    parser.add_argument('-m1', '--mod1', type=str, default="None", help='one value of the tested variable you want to compare (if more than 2 value in your experiement variable analyzed.)' )
-    parser.add_argument('-m2', '--mod2', type=str, default="None", help='second value of the tested variable you want to compare.(if more than 2 value in your experiement variable analyzed.)' )
-    parser.add_argument('-pa', '--padj', type=float, default=0.05, help='the adjusted p-value threshold to defined ASV as differentially abundant. [Default: %(default)s]' )
-    parser.add_argument('-a', '--analysis', default="ASV", required=True, choices=['ASV', 'FUNCTION'], help='Type of data to perform the differential analysis. ASV: DESeq2 is run on the ASVs abundances table. FUNC: DESeq2 is run on FROGSFUNC function abundances table (frogsfunc_functions_unstrat.tsv from FROGSFUNC function step).')
+    parser.add_argument( '--debug', default=False, action='store_true', help="Keep temporary files to debug program." )   
+    
+    parser.add_argument('--var', type=str, required=True, help='variable that you want to test.' )
+    parser.add_argument('--mod1', type=str, default="None", help='one value of the tested variable you want to compare (if more than 2 value in your experiement variable analyzed.) [Default: %(default)s]' )
+    parser.add_argument('--mod2', type=str, default="None", help='second value of the tested variable you want to compare.(if more than 2 value in your experiement variable analyzed.) [Default: %(default)s]' )
+    parser.add_argument('--padj', type=float, default=0.05, help='the adjusted p-value threshold to defined ASV as differentially abundant. [Default: %(default)s]' )
+    parser.add_argument('--analysis', default="ASV", required=True, choices=['ASV', 'FUNCTION'], help='Type of data to perform the differential analysis. ASV: DESeq2 is run on the ASVs abundances table. FUNC: DESeq2 is run on FROGSFUNC function abundances table (frogsfunc_functions_unstrat.tsv from FROGSFUNC function step). [Default: %(default)s]')
 
     # Inputs
     group_input = parser.add_argument_group( 'Inputs' )
-    group_input.add_argument('-p','--abundanceData', required=True, help="The path to the RData file containing the ASV/FUNCTION abundances table. (result of FROGS Phyloseq Import Data)")
-    group_input.add_argument('-d','--dds', required=True, help="The path to the Rdata file containing the DESeq dds object (result of FROGS DESeq2 Preprocess)")   
+    group_input.add_argument('--abundanceData', required=True, help="The path to the RData file containing the ASV/FUNCTION abundances table. (result of FROGS Phyloseq Import Data)")
+    group_input.add_argument('--dds', required=True, help="The path to the Rdata file containing the DESeq dds object (result of FROGS DESeq2 Preprocess)")   
     
     # output
     group_output = parser.add_argument_group( 'Outputs' )
-    group_output.add_argument('--ipath-over', default=None, help="The tsv file of over abundants functions (FUNCTION analysis only)" )
-    group_output.add_argument('--ipath-under', default=None, help="The tsv file of under abundants functions (FUNCTION analysis only)" )
-    group_output.add_argument('-o','--html', default='DESeq2_visualisation.html', help="The HTML file containing the graphs. [Default: %(default)s]" )
-    group_output.add_argument('-l', '--log-file', default=sys.stdout, help='This output file will contain several informations on executed commands.')
+    group_output.add_argument('--ipath-over', default=None, help="The tsv file of over abundants functions (FUNCTION analysis only) [Default: %(default)s]" )
+    group_output.add_argument('--ipath-under', default=None, help="The tsv file of under abundants functions (FUNCTION analysis only) [Default: %(default)s]" )
+    group_output.add_argument('--html', default='DESeq2_visualisation.html', help="The HTML file containing the graphs. [Default: %(default)s]" )
+    group_output.add_argument('--log-file', default=sys.stdout, help='This output file will contain several informations on executed commands. [Default: stdout]')
     args = parser.parse_args()
     prevent_shell_injections(args)
     output_dir = os.path.dirname(os.path.abspath(args.html))

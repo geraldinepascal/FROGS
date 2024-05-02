@@ -1,25 +1,12 @@
 <!DOCTYPE html>
-<!--
-# Copyright (C) 2015 INRA
-#
-# This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.
--->
+
 <html>
 	<head>
 		<title>FROGS Affiliations stat</title>
 		<meta charset="UTF-8">
-		<meta name="version" content="4.1.0">
+		<meta name="author" content="Frédéric Escudié - Genotoul/MIAT">
+        <meta name="version" content="5.0.0">
+        <meta name="copyright" content="Copyright (C) 2024 INRAE" />
 		<!-- CSS -->
 		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.1.1/css/bootstrap.css"></link>
 		<link rel="stylesheet" href="https://cdn.datatables.net/1.10.19/css/dataTables.bootstrap4.min.css"></link>
@@ -34,6 +21,23 @@
 			#sunburst-graph{margin-left:auto;margin-right:auto}.jDistrib-walk-rank{height:100%;margin-right:2px;padding:8px;float:left;border-top-right-radius:7px;border-bottom-right-radius:7px;cursor:pointer;box-shadow:1px 1px 1px #555}.jDistrib-walk-rank-size{margin-left:5px;padding:4px;background-color:#FFF;color:#648a89;border-radius:9px;text-align:center;font-size:10px;font-family:sans-serif}.jDistrib-root-label{font-weight:700;cursor:pointer}.jDistrib-arc-label{cursor:pointer}.jDistrib-arc{cursor:pointer;stroke:#fff;fill-rule:evenodd}.jDistrib-tooltip{position:absolute;padding:10px;font:12px sans-serif;background:#8EADAC;border:0;border-radius:8px;pointer-events:none}.jDistrib-empty-details{color:#fff;background-color:#8EADAC;padding:15px;margin-bottom:20px;border:1px solid transparent;border-radius:4px}.jDistrib-table-details>tbody>tr:nth-of-type(2n+1){background-color:#F5F5F5}.jDistrib-table-details{border:1px solid #DDD;border-radius:8px;border-spacing:1px;border-collapse:separate}.jDistrib-table-details td,th{padding:2px 8px}.jDistrib-table-details .number{text-align:right}.jDistrib-export-toggle{height:30px;width:30px;padding:1px}.jDistrib-export-toggle div{background-color:#636363;border-radius:2px;height:3px;margin-top:2px;margin-bottom:2px}
 		</style>
 		<style type="text/css">
+			:root {
+				--frogsColor: #8EADAC; 
+				--frogsColorHover: #648a89;
+				--frogsColorShadow: #555;
+				--frogsColor2: #DE9F73;
+				--frogsColorZoomHighCharts: rgb(222,159,115,0.25);
+			}
+			.frogsversion{
+				position: absolute;
+				right: 5%;
+				color: var(--frogsColor);
+				font-style: italic;
+				font-size: smaller;
+			}
+			.frogsversion > a{
+				border: none !important;
+			}
 			#js-alert {
 				width: 90%;
 				margin-right: auto;
@@ -81,7 +85,7 @@
 				font-weight: 400;
 				line-height: 1.42857;
 				box-shadow: 0px 1px 1px rgba(0, 0, 0, 0.075);
-				color: #555;
+				color: var(--frogsColorShadow);
 				background-color: #FFF;
 				background-image: none;
 				border: 1px solid #CCC;
@@ -102,13 +106,13 @@
 			.page-item.active .page-link {
 				z-index: 1;
 				color: #fff;
-				background-color: #8EADAC;
-				border-color: #8EADAC;
+				background-color: var(--frogsColor);
+				border-color: var(--frogsColor);
 			}
 			.btn {
 				color: #fff;
-				border:#8EADAC;
-				background-color: #8EADAC;
+				border: var(--frogsColor);
+				background-color: var(--frogsColor);
 			}
 			.btn:focus, .btn:active {
 				outline: none !important;
@@ -116,8 +120,8 @@
 			}
 			.btn:hover{
 				color: #fff;
-				border:#648a89;
-				background-color: #648a89;
+				border: var(--frogsColorHover);
+				background-color: var(--frogsColorHover);
 			}
 			.pb-2, .py-2 {
 				padding-bottom: 1.5rem !important;
@@ -131,23 +135,23 @@
 			}
 			.nav-tabs .nav-link.active, .nav-tabs .nav-item.show .nav-link{
 				color: #fff;
-				background-color: #8EADAF;
+				background-color: var(--frogsColor);
 				border-color: #dee2e6 #dee2e6 #fff;
 			}
 			a {
-				color: #8EAEAF;
+				color: var(--frogsColor);
 			}
 			a:hover{
-				color:#648a89;
+				color: var(--frogsColorHover);
 			}
 			.page-link{
-				color: #8EAEAF;
+				color: var(--frogsColor);
 			}
 			.page-link:hover{
 				
 			}
 			.page-link:not(:disabled):not(.disabled) {
-				color: #8EAEAF;
+				color: var(--frogsColor);
 			}
 			.page-item.active .page-link {
 				color: #fff;
@@ -178,19 +182,19 @@
 				left: 0;
 				height: 20px;
 				width: 20px;
-				background-color: #8EADAC;
+				background-color: var(--frogsColor);
 				border-radius: 5px;
 				opacity:0.65;
 			}
 
 			/* On mouse-over, add a grey background color */
 			.container:hover input ~ .checkmark {
-				background-color: #648a89;
+				background-color: var(--frogsColorHover);
 			}
 
 			/* When the checkbox is checked, add a blue background */
 			.container input:checked ~ .checkmark {
-				background-color: #8EADAC;
+				background-color: var(--frogsColor);
 				opacity:1;
 			}
 
@@ -221,16 +225,16 @@
 			/* ##### END THEME CHECKBOXES ##### */
 			.highcharts-button > path{
 				stroke:#fff !important;
-				fill:#8EADAC !important;
+				fill: var(--frogsColor) !important;
 			}
 			g.highcharts-button{
 				cursor:pointer !important;
 			}
 			g.highcharts-button:hover{
 				color: #fff;
-				border:#648a89;
-				background-color: #648a89;
-				background-color: #648a89;
+				border: var(--frogsColorHover);
+				background-color: var(--frogsColorHover);
+				background-color: var(--frogsColorHover);
 				cursor:pointer !important;
 			}
 		</style>
@@ -294,6 +298,75 @@
 		</script>
 		
 		<script type="text/javascript">
+			
+			/**
+			Colors
+			*/
+			var root = document.documentElement;
+			var style = getComputedStyle(root);
+			var frogsColor = style.getPropertyValue('--frogsColor');
+			var frogsColor2 = style.getPropertyValue('--frogsColor2');
+			var frogsColorZoomHighCharts = style.getPropertyValue('--frogsColorZoomHighCharts');
+			var frogsColorHover = style.getPropertyValue('--frogsColorHover');
+			/**
+			 Data from HTML
+			*/
+			var taxonomic_ranks = ###TAXONOMIC_RANKS### ;
+			/* Example:
+				["Domain", "Phylum", "Class", "Order", "Family", "Genus", "Species"]
+			*/
+			var samples_names = ###SAMPLES_NAMES### ;
+			/* Example:
+				["Surface-01", "Surface-02", "Surface-03", "Middle-01", "Middle-02", "Middle-03"]
+			*/
+			var tree_distribution = ###TREE_DISTRIBUTION### ;
+			/* This string is in newick extended format. The metadata is the count by sample (each sample is referenced by is index position in "samples_names"). */
+			var rarefaction = ###DATA_RAREFACTION### ;
+			/* Example:
+				{
+					"Surface-01": {
+						"nb_seq": 7115, 
+						"Genus": [108, 164, 196, 226, 252, 252, 252],
+						"Species": [108, 164, 196, 227, 253, 268, 287],
+						"Family": [85, 119, 133, 146, 154, 163, 169]
+					},
+					"Surface-02": {
+					...
+				}
+			*/	
+			var rarefaction_step = ###RAREFACTION_STEP_SIZE### ;
+			/* Example:
+				1000
+			*/
+			var rarefaction_ranks = ###RAREFACTION_RANKS### ;
+			/* Example:
+				["Family", "Genus", "Species"]
+			*/
+			var alignment_scores = ###ALIGNMENT_SCORES### ;
+			/* Example:
+				[
+					[100, 100, { "clstr": 53, "seq": 20500 }],
+					[99, 100, { "clstr": 35, "seq": 18000 }],
+					[90, 95, { "clstr": 1, "seq": 10 }],
+				]
+			*/
+			var bootstrap_scores = ###BOOTSTRAP_SCORES### ;
+			/* Example:
+				{
+					"Phylum": {
+						"80": { "clstr": 1, "seq":100 },
+						"90": {	"clstr": 2,	"seq":400 },
+						"100": { "clstr": 50, "seq":20000 },
+					},
+					"Genus":{
+						"80":{ "clstr": 1, "seq":100 },
+						"90":{ "clstr": 2, "seq":400 },
+						"100":{ "clstr": 50, "seq":20000 },
+					}
+				}
+			*/
+			var frogs_version = ###FROGS_VERSION### ;
+			var frogs_tool = ###FROGS_TOOL### ;
 			/**
 			 * Returns the string representation of the number. 
 			 * @param pValue {Float} The number to process.
@@ -310,7 +383,7 @@
 		    }
 			// Radializes colors
 				Highcharts.setOptions({
-					 colors : ['#8EADAC', '#DE9F73', '#428bca', '#993399', '#DBD75E', '#DB5E8A', '#B6DB5E', "#7EC0D9", "#a64d12", '#e4d354','#2b908f','#434348'], 
+					 colors : [frogsColor, frogsColor2, '#428bca', '#993399', '#DBD75E', '#DB5E8A', '#B6DB5E', "#7EC0D9", "#a64d12", '#e4d354','#2b908f','#434348'], 
 					});
 					Highcharts.SVGRenderer.prototype.symbols.download = function (x, y, w, h) {
 					var path = [
@@ -368,15 +441,15 @@
 						buttonOptions: {
 							theme: {
 								r: 4,
-								fill:'#8EADAC',
+								fill: frogsColor,
 								states: {
 									hover: {
-										fill: 'rgb(100, 138, 137)',
-										stroke:'#8EADAC'
+										fill: frogsColor,
+										stroke: frogsColor
 									},
 									select: {
-										stroke: '#8EADAC',
-										fill: 'rgb(100, 138, 137)',
+										stroke: frogsColor,
+										fill: frogsColor,
 									}
 								}
 							}
@@ -416,22 +489,22 @@
 				chart['chart'] = { 
 					type: 'line',
                     zoomType: 'x',
-                    selectionMarkerFill: "rgb(222,159,115,0.25)",
+                    selectionMarkerFill: frogsColorZoomHighCharts,
                     exporting:{buttons: {contextButton: { symbol: 'download' }}},
 					buttons: {contextButton: {menuItems: ['downloadPNG', 'downloadSVG']}},
 					navigation: {
 						buttonOptions: {
 							theme: {
 								r: 4,
-								fill:'#8EADAC',
+								fill: frogsColor,
 								states: {
 									hover: {
-										fill: 'rgb(100, 138, 137)',
-										stroke:'#8EADAC'
+										fill: frogsColor,
+										stroke: frogsColor
 									},
 									select: {
-										stroke: '#8EADAC',
-										fill: 'rgb(100, 138, 137)',
+										stroke: frogsColor,
+										fill: frogsColor,
 									}
 								}
 							}
@@ -479,15 +552,15 @@
 						buttonOptions: {
 							theme: {
 								r: 4,
-								fill:'#8EADAC',
+								fill: frogsColor,
 								states: {
 									hover: {
-										fill: 'rgb(100, 138, 137)',
-										stroke:'#8EADAC'
+										fill: frogsColor,
+										stroke: frogsColor
 									},
 									select: {
-										stroke: '#8EADAC',
-										fill: 'rgb(100, 138, 137)',
+										stroke: frogsColor,
+										fill: frogsColor
 									}
 								}
 							}
@@ -631,15 +704,15 @@
 						buttonOptions: {
 							theme: {
 								r: 4,
-								fill:'#8EADAC',
+								fill: frogsColor,
 								states: {
 									hover: {
-										fill: 'rgb(100, 138, 137)',
-										stroke:'#8EADAC'
+										fill: frogsColor,
+										stroke: frogsColor
 									},
 									select: {
-										stroke: '#8EADAC',
-										fill: 'rgb(100, 138, 137)',
+										stroke: frogsColor,
+										fill: frogsColor
 									}
 								}
 							}
@@ -1003,67 +1076,6 @@
 				});
 			}
 			
-			
-			
-			///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-			//
-			// Data
-			//
-			///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-			var taxonomic_ranks = ###TAXONOMIC_RANKS### ;
-			/* Example:
-				["Domain", "Phylum", "Class", "Order", "Family", "Genus", "Species"]
-			*/
-			var samples_names = ###SAMPLES_NAMES### ;
-			/* Example:
-				["Surface-01", "Surface-02", "Surface-03", "Middle-01", "Middle-02", "Middle-03"]
-			*/
-			var tree_distribution = ###TREE_DISTRIBUTION### ;
-			/* This string is in newick extended format. The metadata is the count by sample (each sample is referenced by is index position in "samples_names"). */
-			var rarefaction = ###DATA_RAREFACTION### ;
-			/* Example:
-				{
-					"Surface-01": {
-						"nb_seq": 7115, 
-						"Genus": [108, 164, 196, 226, 252, 252, 252],
-						"Species": [108, 164, 196, 227, 253, 268, 287],
-						"Family": [85, 119, 133, 146, 154, 163, 169]
-					},
-					"Surface-02": {
-					...
-				}
-			*/	
-			var rarefaction_step = ###RAREFACTION_STEP_SIZE### ;
-			/* Example:
-				1000
-			*/
-			var rarefaction_ranks = ###RAREFACTION_RANKS### ;
-			/* Example:
-				["Family", "Genus", "Species"]
-			*/
-			var alignment_scores = ###ALIGNMENT_SCORES### ;
-			/* Example:
-				[
-					[100, 100, { "clstr": 53, "seq": 20500 }],
-					[99, 100, { "clstr": 35, "seq": 18000 }],
-					[90, 95, { "clstr": 1, "seq": 10 }],
-				]
-			*/
-			var bootstrap_scores = ###BOOTSTRAP_SCORES### ;
-			/* Example:
-				{
-					"Phylum": {
-						"80": { "clstr": 1, "seq":100 },
-						"90": {	"clstr": 2,	"seq":400 },
-						"100": { "clstr": 50, "seq":20000 },
-					},
-					"Genus":{
-						"80":{ "clstr": 1, "seq":100 },
-						"90":{ "clstr": 2, "seq":400 },
-						"100":{ "clstr": 50, "seq":20000 },
-					}
-				}
-			*/
 
 
 			///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1071,7 +1083,8 @@
 			// Main
 			//
 			///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-			$(function() {			
+			$(function() {
+				$(".frogsversion > a").text("FROGS "+frogs_tool+" "+frogs_version);
 				// Remove alert
 				$('#js-alert').remove();
 				$('#content').removeClass("hidden");
@@ -1118,6 +1131,7 @@
 				<li class="nav-item active"><a class="nav-link active" href="#tax-distrib">Taxonomy distribution</a></li>
 				<li class="nav-item" id="bootstrap-nav-tab"><a class="nav-link" href="#bootstrap-distrib">Bootstrap distribution</a></li>
 				<li class="nav-item" id="alignment-nav-tab"><a class="nav-link" href="#alignment-distrib">Alignment distribution</a></li>
+				<li class="nav-item frogsversion"><a class="nav-link"></a></li>
 			</ul>
 			<div id="tab-content" class="tab-content">
 				<div id="tax-distrib" role="tabpanel" class="tab-pane active">

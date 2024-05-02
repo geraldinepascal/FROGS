@@ -42,30 +42,51 @@ from frogsUtils import *
 # FUNCTIONS
 #
 ##################################################################################################################################################
-def multiAffiFromBiom( biom, output_tsv ):
+def multiAffiFromBiom( in_biom, output_tsv ):
     """
     @summary: Extracts multi-affiliations data from a FROGS BIOM file.
     @param input_biom: [Biom] The BIOM object.
     @param output_tsv: [str] Path to the output file (format : TSV).
     """
+    obs = in_biom.rows[0]
+    # Check if blast_perc_subject_coverage is set
+    is_set_perc_subject_coverage = False
+    if "blast_affiliations" in obs["metadata"]:
+        if len(obs["metadata"]["blast_affiliations"]) > 0 :
+            if "perc_subject_coverage" in obs["metadata"]["blast_affiliations"][0]:
+                is_set_perc_subject_coverage = True
     out_fh = open( output_tsv, "wt" )
-#     out_fh.write( "#" + "\t".join(["OTU", "Subject_taxonomy", "Blast_subject", "Prct_identity", "Prct_query_coverage", "e-value", "Alignment_length"]) + "\n" )
-    out_fh.write( "#" + "\t".join(["observation_name", "blast_taxonomy", " blast_subject", "blast_perc_identity", "blast_perc_query_coverage", "blast_evalue", "blast_aln_length"]) + "\n" )
+    if is_set_perc_subject_coverage:
+        out_fh.write( "#" + "\t".join(["observation_name", "blast_taxonomy", " blast_subject", "blast_perc_identity", "blast_perc_query_coverage", "blast_perc_subject_coverage", "blast_evalue", "blast_aln_length"]) + "\n" )
+    else:
+        out_fh.write( "#" + "\t".join(["observation_name", "blast_taxonomy", " blast_subject", "blast_perc_identity", "blast_perc_query_coverage", "blast_evalue", "blast_aln_length"]) + "\n" )
     for current_observation in biom.get_observations():
         if issubclass(current_observation['metadata']["blast_affiliations"].__class__, list) and len(current_observation["metadata"]["blast_affiliations"]) > 1:
             for current_aln in current_observation["metadata"]["blast_affiliations"]:
                 taxonomy = current_aln["taxonomy"]
                 if isinstance(taxonomy, list) or isinstance(taxonomy, tuple):
                     taxonomy = ";".join( current_aln["taxonomy"] )
-                line_parts = [
-                    current_observation["id"],
-                    taxonomy,
-                    str(current_aln["subject"]),
-                    str(current_aln["perc_identity"]),
-                    str(current_aln["perc_query_coverage"]),
-                    str(current_aln["evalue"]),
-                    str(current_aln["aln_length"])
-                ]
+                if is_set_perc_subject_coverage:
+                    line_parts = [
+                        current_observation["id"],
+                        taxonomy,
+                        str(current_aln["subject"]),
+                        str(current_aln["perc_identity"]),
+                        str(current_aln["perc_query_coverage"]),
+                        str(current_aln["perc_subject_coverage"]),
+                        str(current_aln["evalue"]),
+                        str(current_aln["aln_length"])
+                    ]
+                else:
+                    line_parts = [
+                        current_observation["id"],
+                        taxonomy,
+                        str(current_aln["subject"]),
+                        str(current_aln["perc_identity"]),
+                        str(current_aln["perc_query_coverage"]),
+                        str(current_aln["evalue"]),
+                        str(current_aln["aln_length"])
+                    ]
                 out_fh.write( "\t".join(line_parts) + "\n" )
     out_fh.close()
 

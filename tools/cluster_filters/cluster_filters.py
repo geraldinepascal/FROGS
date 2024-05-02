@@ -1,28 +1,11 @@
 #!/usr/bin/env python3
-#
-# Copyright (C) 2018 INRA
-#
-# This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.
-#
 
-__author__ = 'Katia Vidal - Team NED Toulouse AND Frederic Escudie - Plateforme bioinformatique Toulouse AND Maria Bernard - Sigenae Jouy en Josas'
-__copyright__ = 'Copyright (C) 2020 INRAE'
+__author__ = 'Katia Vidal - GENPHYSE & Frédéric Escudié - Genotoul/MIAT & Maria Bernard - SIGENAE/GABI'
+__copyright__ = 'Copyright (C) 2024 INRAE'
 __license__ = 'GNU General Public License'
-__version__ = '4.1.0'
+__version__ = '5.0.0'
 __email__ = 'frogs-support@inrae.fr'
 __status__ = 'prod'
-
 
 import os
 import sys
@@ -42,7 +25,7 @@ if os.getenv('PYTHONPATH') is None: os.environ['PYTHONPATH'] = LIB_DIR
 else: os.environ['PYTHONPATH'] = LIB_DIR + os.pathsep + os.environ['PYTHONPATH']
 
 from frogsUtils import *
-from frogsBiom import BiomIO
+from frogsBiom import Biom, BiomIO
 from frogsSequenceIO import *
 
 
@@ -51,6 +34,24 @@ from frogsSequenceIO import *
 # COMMAND LINES
 #
 ##################################################################################################################################################
+class Depths(Cmd):
+    """
+    @summary: Writes by abundance the number of clusters.
+    """
+    def __init__(self, in_biom, out_tsv):
+        """
+        @param in_biom: [str] The processed BIOM path.
+        @param out_tsv: [str] The path of the output.
+        """
+        Cmd.__init__( self,
+                      'biomTools.py',
+                      'Writes by abundance the number of clusters.',
+                      'obsdepth --input-file ' + in_biom + ' --output-file ' + out_tsv,
+                      '--version' )
+
+    def get_version(self):   
+        return Cmd.get_version(self, 'stdout').strip() 
+
 class UpdateFasta(Cmd):
     """
     @summary: Updates fasta file based on sequence in biom file
@@ -279,7 +280,7 @@ def write_exclusion( discards, excluded_file ):
             FH_excluded.write( "\t".join(discards_line_fields)  + "\n" )
     FH_excluded.close()
 
-def write_summary( summary_file, input_biom, output_biom, replicate_log, discards ):
+def write_summary( summary_file, input_biom, output_biom, replicate_log, discards, depth_file ):
     """
     @summary: Writes the process summary.
     @param summary_file: [str] The path to the output file.
@@ -335,6 +336,52 @@ def write_summary( summary_file, input_biom, output_biom, replicate_log, discard
                     samples_results[sample['id']]['filtered'][filter] = 0
                 samples_results[sample['id']]['filtered'][filter] += 1
     del in_biom
+    
+    # Get size distribution data
+    clusters_size = list()
+    counts = list()
+    FH_depth = open( depth_file )
+    for line in FH_depth:
+        if not line.startswith('#'):
+            fields = line.strip().split()
+            if fields[1] != "0":
+                clusters_size.append( int(fields[0]) )
+                counts.append( int(fields[1]) )
+    FH_depth.close()
+
+    # Get sample data
+    biom = BiomIO.from_json( input_biom )
+    samples_distrib = dict()
+    for sample_name in biom.get_samples_names():
+        shared_seq = 0
+        shared_observations = 0
+        own_seq = 0
+        own_observations = 0
+        for observation in biom.get_observations_by_sample(sample_name):
+            obs_count_in_spl = biom.get_count( observation['id'], sample_name )
+            if obs_count_in_spl != 0 and obs_count_in_spl == biom.get_observation_count(observation['id']):
+                own_observations += 1
+                own_seq += obs_count_in_spl
+            else:
+                shared_observations += 1
+                shared_seq += obs_count_in_spl
+        samples_distrib[sample_name] = {
+            'shared_seq': shared_seq,
+            'shared_observations': shared_observations,
+            'own_seq': own_seq,
+            'own_observations': own_observations
+        }
+    del biom
+
+    # Write replicate groups informations
+    replicate_groups = dict()
+    FH_replicate_log = open(replicate_log)
+    for line in FH_replicate_log:
+        if not line.startswith('#'):
+            line = line.strip().split('\t')
+            replicate_groups[line[0]] = { 
+            'Replicates' : line[1]
+            }
 
     # Write replicate groups informations
     replicate_groups = dict()
@@ -369,6 +416,16 @@ def write_summary( summary_file, input_biom, output_biom, replicate_log, discard
             line = line.replace( "###REPLICATE_GROUPS###", json.dumps(replicate_groups) )
         elif "###FILTERS_RESULTS###" in line:
             line = line.replace( "###FILTERS_RESULTS###", json.dumps(list(filters_results.values())) )
+        elif "###DATA_SAMPLE###" in line:
+            line = line.replace( "###DATA_SAMPLE###", json.dumps(samples_distrib) )
+        elif "###CLUSTERS_SIZES###" in line:
+            line = line.replace( "###CLUSTERS_SIZES###", json.dumps(clusters_size) )
+        elif "###DATA_COUNTS###" in line:
+            line = line.replace( "###DATA_COUNTS###", json.dumps(counts) )
+        elif "###FROGS_VERSION###" in line:
+            line = line.replace( "###FROGS_VERSION###", "\""+str(__version__)+"\"" )
+        elif "###FROGS_TOOL###" in line:
+            line = line.replace( "###FROGS_TOOL###", "\""+ os.path.basename(__file__)+"\"" )
         FH_summary_out.write( line )
 
     FH_summary_out.close()
@@ -455,7 +512,11 @@ def process( args ):
         update_fasta_log = tmpFiles.add( "update_fasta_log.txt" )
         UpdateFasta( args.output_biom, args.input_fasta, args.output_fasta, update_fasta_log ).submit( args.log_file )
         write_exclusion( discards, args.excluded )
-        write_summary( args.summary, args.input_biom, args.output_biom, replicate_groups_log, discards )
+        
+        depth_file = tmpFiles.add( "depths.tsv" )
+        Depths(args.output_biom, depth_file).submit( args.log_file )
+        
+        write_summary( args.html, args.input_biom, args.output_biom, replicate_groups_log, discards, depth_file )
 
     finally:
         if not args.debug : 
@@ -470,17 +531,17 @@ def process( args ):
 if __name__ == '__main__':
     # Parameters
     parser = argparse.ArgumentParser(description='Filters an abundance file')
-    parser.add_argument('-p', '--nb-cpus', type=int, default=1, help="The maximum number of CPUs used. [Default: %(default)s]")
-    parser.add_argument( '--debug', default=False, action='store_true', help="Keep temporary files to debug program." )
-    parser.add_argument( '-v', '--version', action='version', version=__version__ )
+    parser.add_argument('--version', action='version', version=__version__ )
+    parser.add_argument('--debug', default=False, action='store_true', help="Keep temporary files to debug program. [Default: %(default)s]" )
+    parser.add_argument('--nb-cpus', type=int, default=1, help="The maximum number of CPUs used. [Default: %(default)s]")
+    
     #     Filters
     group_filter = parser.add_argument_group( 'Filters' )
     group_filter.add_argument( '--nb-biggest-clusters', type=int, default=None, required=False, help="Number of most abundant clusters you want to keep.") 
-    group_filter.add_argument( '-s', '--min-sample-presence', type=int, help="Keep cluster present in at least this number of samples.") 
-    group_filter.add_argument( '-r', '--min-replicate-presence', type=minAbundParameter, default=None, help="Keep cluster present in at least this proportion of replicates in at least one group (please indicate a proportion between 0 and 1). Replicates must be defined with --replicate_file REPLICATE FILE")
-    group_filter.add_argument( '--replicate_file', help='Replicate file must be specified if --min-replicate-presence is set. First column of the file must indicate the sample name, and the second column the group name of this replicate. Exemple: TEM1_L0001_R   Temoin.')
-    group_filter.add_argument( '-a', '--min-abundance', type=minAbundParameter, default=None, required=False, help="Minimum percentage/number of sequences, comparing to the total number of sequences, of a cluster (between 0 and 1 if percentage desired)." )
-    # group_filter.add_argument( '--abundance-by-sample', type=bool, default=False, action='store_true', help="Abundance threshold is applied by default on the total abundance of cluster. Activate this option if you want to applied the threshold on sample abundances (if float, each cluster must be present in a " )
+    group_filter.add_argument('--min-sample-presence', type=int, help="Keep cluster present in at least this number of samples.") 
+    group_filter.add_argument('--min-replicate-presence', type=minAbundParameter, default=None, help="Keep cluster present in at least this proportion of replicates in at least one group (please indicate a proportion between 0 and 1). Replicates must be defined with --replicate_file REPLICATE FILE")
+    group_filter.add_argument('--replicate_file', help='Replicate file must be specified if --min-replicate-presence is set. First column of the file must indicate the sample name, and the second column the group name of this replicate. Exemple: TEM1_L0001_R   Temoin.')
+    group_filter.add_argument('--min-abundance', type=minAbundParameter, default=None, required=False, help="Minimum percentage/number of sequences, comparing to the total number of sequences, of a cluster (between 0 and 1 if percentage desired)." )
     #     Inputs
     group_input = parser.add_argument_group( 'Inputs' )
     group_input.add_argument('--input-biom', required=True, help="The input BIOM file. (format: BIOM)")
@@ -490,9 +551,9 @@ if __name__ == '__main__':
     group_output = parser.add_argument_group( 'Outputs' )
     group_output.add_argument('--output-biom', default="cluster_filters_abundance.biom", help="The BIOM file output. (format: BIOM) [Default: %(default)s]")
     group_output.add_argument('--output-fasta', default="cluster_filters.fasta", help="The FASTA output file. (format: FASTA) [Default: %(default)s]")
-    group_output.add_argument('--summary', default="cluster_filters.html", help="The HTML file containing the graphs. [Default: %(default)s]")
+    group_output.add_argument('--html', default="cluster_filters.html", help="The HTML file containing the graphs. [Default: %(default)s]")
     group_output.add_argument('--excluded', default="cluster_filters_excluded.tsv", help="The TSV file that summarizes all the clusters discarded. (format: TSV) [Default: %(default)s]")
-    group_output.add_argument('--log-file', default=sys.stdout, help='This output file will contain several information on executed commands.')
+    group_output.add_argument('--log-file', default=sys.stdout, help='This output file will contain several information on executed commands. [Default: stdout]')
     args = parser.parse_args()
     prevent_shell_injections(args)
 

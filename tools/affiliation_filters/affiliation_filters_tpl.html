@@ -1,29 +1,34 @@
 <!DOCTYPE html>
-<!--
-# Copyright (C) 2015 INRA
-#
-# This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.
--->
+
 <html>
 	<head>
 		<title>FROGS Affiliation Filters</title>
 		<meta charset="UTF-8">
-		<meta name="version" content="4.1.0">
+		<meta name="author" content="Katia Vidal - GENPHYSE & Frédéric Escudié - Genotoul/MIAT & Maria Bernard - SIGENAE/GABI">
+        <meta name="version" content="5.0.0">
+        <meta name="copyright" content="Copyright (C) 2024 INRAE" />
 		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.1.1/css/bootstrap.css"></link>
 		<link rel="stylesheet" href="https://cdn.datatables.net/1.10.19/css/dataTables.bootstrap4.min.css"></link>
 		<link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
 		<style type="text/css">
+			:root {
+				--frogsColor: #8EADAC; 
+				--frogsColorHover: #648a89;
+				--frogsColorShadow: #555;
+				--frogsColor2: #DE9F73;
+				--frogsColor3: #ad8e9f;
+				--frogsColorZoomHighCharts: rgb(222,159,115,0.25);
+			}
+			.frogsversion{
+				position: absolute;
+				right: 5%;
+				color: var(--frogsColor);
+				font-style: italic;
+				font-size: smaller;
+			}
+			.frogsversion > a{
+				border: none !important;
+			}
 			#js-alert {
 				width: 90%;
 				margin-right: auto;
@@ -64,13 +69,13 @@
 			.page-item.active .page-link {
 				z-index: 1;
 				color: #fff;
-				background-color: #8EADAC;
-				border-color: #8EADAC;
+				background-color: var(--frogsColor);
+				border-color: var(--frogsColor);
 			}
 			.btn {
 				color: #fff;
-				border:#8EADAC;
-				background-color: #8EADAC;
+				border: var(--frogsColor);
+				background-color: var(--frogsColor);
 			}
 			.btn:focus, .btn:active {
 				outline: none !important;
@@ -80,8 +85,8 @@
 			
 			.btn {
 				color: #fff;
-				border:#8EADAC;
-				background-color: #8EADAC;
+				border: var(--frogsColor);
+				background-color: var(--frogsColor);
 			}
 			.btn:focus, .btn:active {
 				outline: none !important;
@@ -89,8 +94,8 @@
 			}
 			.btn:hover:enabled{
 				color: #fff;
-				border:#648a89;
-				background-color: #648a89;
+				border: var(--frogsColorHover);
+				background-color: var(--frogsColorHover);
 				cursor:pointer !important;
 			}
 			
@@ -106,14 +111,14 @@
 			}
 			.nav-tabs .nav-link.active, .nav-tabs .nav-item.show .nav-link{
 				color: #fff;
-				background-color: #8EADAF;
+				background-color: var(--frogsColor);
 				border-color: #dee2e6 #dee2e6 #fff;
 			}
 			a {
-				color: #8EAEAF;
+				color: var(--frogsColor);
 			}
 			a:hover{
-				color:#648a89;
+				color: var(--frogsColorHover);
 			}
 			
 			/* ##### THEME FOR CHECKBOXES ##### */
@@ -142,19 +147,19 @@
 				left: 0;
 				height: 25px;
 				width: 25px;
-				background-color: #8EADAC;
+				background-color: var(--frogsColor);
 				border-radius: 5px;
 				opacity:0.65;
 			}
 
 			/* On mouse-over, add a grey background color */
 			.container:hover input ~ .checkmark {
-				background-color: #648a89;
+				background-color: var(--frogsColorHover);
 			}
 
 			/* When the checkbox is checked, add a blue background */
 			.container input:checked ~ .checkmark {
-				background-color: #8EADAC;
+				background-color: var(--frogsColor);
 				opacity:1;
 			}
 
@@ -185,16 +190,15 @@
 			/* ##### END THEME CHECKBOXES ##### */
 			.highcharts-button > path{
 				stroke:#fff !important;
-				fill:#8EADAC !important;
+				fill: var(--frogsColor) !important;
 			}
 			g.highcharts-button{
 				cursor:pointer !important;
 			}
 			g.highcharts-button:hover{
 				color: #fff;
-				border:#648a89;
-				background-color: #648a89;
-				background-color: #648a89;
+				border: var(--frogsColorHover);
+				background-color: var(--frogsColorHover);
 				cursor:pointer !important;
 			}
 		</style>
@@ -255,6 +259,101 @@
 		</script>		
 		
 		<script type="text/javascript">
+			/**
+			Colors
+			*/
+			var root = document.documentElement;
+			var style = getComputedStyle(root);
+			var frogsColor = style.getPropertyValue('--frogsColor');
+			var frogsColor2 = style.getPropertyValue('--frogsColor2');
+			var frogsColor3 = style.getPropertyValue('--frogsColor3');
+			var frogsColorZoomHighCharts = style.getPropertyValue('--frogsColorZoomHighCharts');
+			var frogsColorHover = style.getPropertyValue('--frogsColorHover');
+			/**
+			 Data from HTML
+			*/
+			var processed_filters = ###PROCESSED_FILTERS### ;
+			/* Example:
+				['filterA', 'filterB', 'filterC']
+			*/
+
+			var mode = ###MODE###;
+			/*Example: Removed or Masked
+				"Removed"
+			*/
+			var global_results = ###GLOBAL_RESULTS### ; 
+			/* Example: 
+				{
+					"cluster": {
+						"Kept": 0, "Modified": 1, Removed": 2
+					}, 
+					"sequence": {
+						"Kept": 0, "Modified": 6892, "Init": 29759, "Removed": 22867
+					}
+				}
+			*/
+			var global_taxon_list = ###GLOBAL_TAXON_LIST### ;
+			/*Example
+			["Domain", "Phylum", "Class", "Order", "Family", "Genus", "Species"] ;
+			*/
+			var global_taxon_lost = ###GLOBAL_TAXON_LOST### ;
+			/* Example:
+			 {
+			 	"blast": {
+			 		"Domain": 0, 
+			 		"Phylum": 0, 
+			 		"Class": 0, 
+			 		"Order": 1, 
+			 		"Family": 3, 
+			 		"Genus": 4, 
+			 		"Species": 6
+			 	}, 
+			 	"rdp": {
+			 		"Domain": 0, 
+			 		"Phylum": 2, 
+			 		"Class": 3, 
+			 		"Order": 6, 
+			 		"Family": 8, 
+			 		"Genus": 9, 
+			 		"Species": 9
+			 	}
+			 } ;
+			 */
+			var by_samples_results = ###SAMPLES_RESULTS### ;
+			/* Example:
+				{
+					'sampleA':{
+						'filtered':{
+							'filterA': 10,
+							'filterB': 20
+						},
+						'initial': 75,
+						'kept': 50
+					},
+					'sampleB':{
+						'filtered':{
+							'filterB': 20,
+						},
+						'initial': 110,
+						'kept': 90
+					}
+				}
+			*/
+			var by_filters_results = ###FILTERS_RESULTS### ;
+			/* Example:
+				[
+					{'filters':['filterA'], 'count': 10},
+					{'filters':['filterB'], 'count': 20},
+					{'filters':['filterC'], 'count': 30},
+					{'filters':['filterA', 'filterB'], 'count': 1},
+					{'filters':['filterA', 'filterC'], 'count': 2},
+					{'filters':['filterB', 'filterC'], 'count': 3},
+					{'filters':['filterA', 'filterB', 'filterC'], 'count': 4}
+				];
+			*/
+			var frogs_version = ###FROGS_VERSION### ;
+			var frogs_tool = ###FROGS_TOOL### ;
+			
 			/**
 			 * Returns the string representation of the number. 
 			 * @param pValue {Float} The number to process.
@@ -336,15 +435,15 @@
 							buttonOptions: {
 								theme: {
 									r: 4,
-									fill:'#8EADAC',
+									fill: frogsColor,
 									states: {
 										hover: {
-											fill: 'rgb(100, 138, 137)',
-											stroke:'#8EADAC'
+											fill: frogsColorHover,
+											stroke: frogsColor
 										},
 										select: {
-											stroke: '#8EADAC',
-											fill: 'rgb(100, 138, 137)',
+											stroke: frogsColor,
+											fill: frogsColorHover,
 										}
 									}
 								}
@@ -397,7 +496,7 @@
 			var global_filters_load = function(){
 				// Radializes colors
 				Highcharts.setOptions({
-					 colors : ['#8EADAC', '#DE9F73', '#ad8e9f'] ,
+					 colors : [frogsColor, frogsColor2, frogsColor3] ,
 					});
 					Highcharts.SVGRenderer.prototype.symbols.download = function (x, y, w, h) {
 					var path = [
@@ -576,85 +675,7 @@
 			// Data
 			//
 			///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-			var processed_filters = ###PROCESSED_FILTERS### ;
-			/* Example:
-				['filterA', 'filterB', 'filterC']
-			*/
-
-			var mode = ###MODE###;
-			/*Example: Removed or Masked
-				"Removed"
-			*/
-			var global_results = ###GLOBAL_RESULTS### ; 
-			/* Example: 
-				{
-					"cluster": {
-						"Kept": 0, "Modified": 1, Removed": 2
-					}, 
-					"sequence": {
-						"Kept": 0, "Modified": 6892, "Init": 29759, "Removed": 22867
-					}
-				}
-			*/
-			var global_taxon_list = ###GLOBAL_TAXON_LIST### ;
-			/*Example
-			["Domain", "Phylum", "Class", "Order", "Family", "Genus", "Species"] ;
-			*/
-			var global_taxon_lost = ###GLOBAL_TAXON_LOST### ;
-			/* Example:
-			 {
-			 	"blast": {
-			 		"Domain": 0, 
-			 		"Phylum": 0, 
-			 		"Class": 0, 
-			 		"Order": 1, 
-			 		"Family": 3, 
-			 		"Genus": 4, 
-			 		"Species": 6
-			 	}, 
-			 	"rdp": {
-			 		"Domain": 0, 
-			 		"Phylum": 2, 
-			 		"Class": 3, 
-			 		"Order": 6, 
-			 		"Family": 8, 
-			 		"Genus": 9, 
-			 		"Species": 9
-			 	}
-			 } ;
-			 */
-			var by_samples_results = ###SAMPLES_RESULTS### ;
-			/* Example:
-				{
-					'sampleA':{
-						'filtered':{
-							'filterA': 10,
-							'filterB': 20
-						},
-						'initial': 75,
-						'kept': 50
-					},
-					'sampleB':{
-						'filtered':{
-							'filterB': 20,
-						},
-						'initial': 110,
-						'kept': 90
-					}
-				}
-			*/
-			var by_filters_results = ###FILTERS_RESULTS### ;
-			/* Example:
-				[
-					{'filters':['filterA'], 'count': 10},
-					{'filters':['filterB'], 'count': 20},
-					{'filters':['filterC'], 'count': 30},
-					{'filters':['filterA', 'filterB'], 'count': 1},
-					{'filters':['filterA', 'filterC'], 'count': 2},
-					{'filters':['filterB', 'filterC'], 'count': 3},
-					{'filters':['filterA', 'filterB', 'filterC'], 'count': 4}
-				];
-			*/
+			
 			
 			///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 			//
@@ -662,6 +683,7 @@
 			//
 			///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 			$(function() {
+				$(".frogsversion > a").text("FROGS "+frogs_tool+" "+frogs_version);
 				// Remove alert
 				$('#js-alert').remove();
 				$('#content').removeClass("hidden");
@@ -695,6 +717,7 @@
         	<ul class="nav nav-tabs">
 				<li class="nav-item active"><a class="nav-link active" href="#view-by-filters">Filters by ASVs</a></li>
 				<li class="nav-item"><a class="nav-link" href="#view-by-samples">Filters by samples</a></li>
+				<li class="nav-item frogsversion"><a class="nav-link"></a></li>
 			</ul>
 
 			<div id="tab-content" class="tab-content">

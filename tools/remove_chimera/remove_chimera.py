@@ -1,25 +1,9 @@
 #!/usr/bin/env python3
-#
-# Copyright (C) 2018 INRA
-#
-# This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.
-#
 
-__author__ = 'Frederic Escudie - Plateforme bioinformatique Toulouse - Maria Bernard - Sigenae Jouy en Josas'
-__copyright__ = 'Copyright (C) 2015 INRA'
+__author__ = 'Frederic Escudie - Genotoul/MIAT & Maria Bernard - SIGENAE/GABI'
+__copyright__ = 'Copyright (C) 2024 INRAE'
 __license__ = 'GNU General Public License'
-__version__ = '4.1.0'
+__version__ = '5.0.0'
 __email__ = 'frogs-support@inrae.fr'
 __status__ = 'prod'
 
@@ -41,6 +25,7 @@ else: os.environ['PYTHONPATH'] = LIB_DIR + os.pathsep + os.environ['PYTHONPATH']
 
 from frogsUtils import *
 from frogsSequenceIO import *
+from frogsBiom import Biom, BiomIO
 
 
 ##################################################################################################################################################
@@ -48,6 +33,24 @@ from frogsSequenceIO import *
 # COMMAND LINES
 #
 ##################################################################################################################################################
+class Depths(Cmd):
+    """
+    @summary: Writes by abundance the number of clusters.
+    """
+    def __init__(self, in_biom, out_tsv):
+        """
+        @param in_biom: [str] The processed BIOM path.
+        @param out_tsv: [str] The path of the output.
+        """
+        Cmd.__init__( self,
+                      'biomTools.py',
+                      'Writes by abundance the number of clusters.',
+                      'obsdepth --input-file ' + in_biom + ' --output-file ' + out_tsv,
+                      '--version' )
+
+    def get_version(self):   
+        return Cmd.get_version(self, 'stdout').strip() 
+
 class ParallelChimera(Cmd):
     """
     @summary: Removes PCR chimera by samples.
@@ -112,7 +115,7 @@ def log_append_files( log_file, appended_files ):
     FH_log.write( "\n" )
     FH_log.close()
 
-def write_summary( summary_file, results_chimera ):
+def write_summary( summary_file, results_chimera, depth_file, biom_file):
     """
     @summary: Writes the summary of results.
     @param summary_file: [str] The output file.
@@ -176,6 +179,42 @@ def write_summary( summary_file, results_chimera ):
                     for idx, val in enumerate(line.split("\t")):
                         remove_data[remove_categories[idx]] = int(val)
     log_fh.close()
+    
+    # Get size distribution data
+    clusters_size = list()
+    counts = list()
+    FH_depth = open( depth_file )
+    for line in FH_depth:
+        if not line.startswith('#'):
+            fields = line.strip().split()
+            if fields[1] != "0":
+                clusters_size.append( int(fields[0]) )
+                counts.append( int(fields[1]) )
+    FH_depth.close()
+
+    # Get sample data
+    biom = BiomIO.from_json( biom_file )
+    samples_distrib = dict()
+    for sample_name in biom.get_samples_names():
+        shared_seq = 0
+        shared_observations = 0
+        own_seq = 0
+        own_observations = 0
+        for observation in biom.get_observations_by_sample(sample_name):
+            obs_count_in_spl = biom.get_count( observation['id'], sample_name )
+            if obs_count_in_spl != 0 and obs_count_in_spl == biom.get_observation_count(observation['id']):
+                own_observations += 1
+                own_seq += obs_count_in_spl
+            else:
+                shared_observations += 1
+                shared_seq += obs_count_in_spl
+        samples_distrib[sample_name] = {
+            'shared_seq': shared_seq,
+            'shared_observations': shared_observations,
+            'own_seq': own_seq,
+            'own_observations': own_observations
+        }
+    del biom
 
     # Write
     FH_summary_tpl = open( os.path.join(CURRENT_DIR, "remove_chimera_tpl.html") )
@@ -187,11 +226,20 @@ def write_summary( summary_file, results_chimera ):
             line = line.replace( "###DETECTION_DATA###", json.dumps(detection_data) )
         elif "###REMOVE_DATA###" in line:
             line = line.replace( "###REMOVE_DATA###", json.dumps(remove_data) )
+        elif "###DATA_SAMPLE###" in line:
+            line = line.replace( "###DATA_SAMPLE###", json.dumps(samples_distrib) )
+        elif "###CLUSTERS_SIZES###" in line:
+            line = line.replace( "###CLUSTERS_SIZES###", json.dumps(clusters_size) )
+        elif "###DATA_COUNTS###" in line:
+            line = line.replace( "###DATA_COUNTS###", json.dumps(counts) )
+        elif "###FROGS_VERSION###" in line:
+            line = line.replace( "###FROGS_VERSION###", "\""+str(__version__)+"\"" )
+        elif "###FROGS_TOOL###" in line:
+            line = line.replace( "###FROGS_TOOL###", "\""+ os.path.basename(__file__)+"\"" )
         FH_summary_out.write( line )
 
     FH_summary_out.close()
     FH_summary_tpl.close()
-
 
 ##################################################################################################################################################
 #
@@ -203,43 +251,38 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         description='Removes PCR chimera.'
     )
-    parser.add_argument( '-p', '--nb-cpus', type=int, default=1, help="The maximum number of CPUs used. [Default: %(default)s]" )
-    parser.add_argument( '--debug', default=False, action='store_true', help="Keep temporary files to debug program." )
-    parser.add_argument( '-v', '--version', action='version', version=__version__ )
+    parser.add_argument('--version', action='version', version=__version__ )
+    parser.add_argument('--debug', default=False, action='store_true', help="Keep temporary files to debug program. [Default: %(default)s]" )
+    parser.add_argument('--nb-cpus', type=int, default=1, help="The maximum number of CPUs used. [Default: %(default)s]" )
     # Inputs
     group_input = parser.add_argument_group( 'Inputs' )
-    group_input.add_argument( '-f', '--input-fasta', required=True, help='The cluster sequences (format: FASTA).' )
-    group_exclusion_abundance = group_input.add_mutually_exclusive_group()
-    group_exclusion_abundance.add_argument( '-b', '--input-biom', help='The abundance file for clusters by sample (format: BIOM).' )
-    group_exclusion_abundance.add_argument( '-c', '--input-count', help='The counts file for clusters by sample (format: TSV).' )
+    group_input.add_argument('--input-fasta', required=True, help='The cluster sequences (format: FASTA).' )
+    group_input.add_argument('--input-biom', required=True, help='The abundance file for clusters by sample (format: BIOM).' )
     # Outputs
     group_output = parser.add_argument_group( 'Outputs' )
-    group_output.add_argument( '-n', '--non-chimera', default='remove_chimera.fasta', help='sequences file without chimera (format: FASTA). [Default: %(default)s]')
-    group_output.add_argument( '-a', '--out-abundance', default=None, help='Abundance file without chimera (format: BIOM or TSV). [Default: remove_chimera_abundance.biom or remove_chimera_abundance.tsv]')
-    group_output.add_argument( '--summary', default="remove_chimera.html", help='The HTML file containing the graphs. [Default: %(default)s]')
-    group_output.add_argument( '-l', '--log-file', default=sys.stdout, help='This output file will contain several informations on executed commands.')
+    group_output.add_argument('--output-fasta', default='remove_chimera.fasta', help='sequences file without chimera (format: FASTA). [Default: %(default)s]')
+    group_output.add_argument('--output-biom', default='remove_chimera_abundance.biom', help='Abundance file without chimera (format: BIOM). [Default: %(default)s]')
+    group_output.add_argument('--html', default="remove_chimera.html", help='The HTML file containing the graphs. [Default: %(default)s]')
+    group_output.add_argument('--log-file', default=sys.stdout, help='This output file will contain several informations on executed commands. [Default: stdout]')
     args = parser.parse_args()
     prevent_shell_injections(args)
 
     # Temporary files
-    tmpFiles = TmpFiles( os.path.split(args.non_chimera)[0] )
+    tmpFiles = TmpFiles( os.path.split(args.output_fasta)[0] )
 
     # Process
     try:
         Logger.static_write(args.log_file, "## Application\nSoftware :" + sys.argv[0] + " (version : " + str(__version__) + ")\nCommand : " + " ".join(sys.argv) + "\n\n")
 
-        tmp_chimera_summary = tmpFiles.add(os.path.basename(args.non_chimera) + "_summary.tsv")
-        tmp_log  = tmpFiles.add(os.path.basename(args.non_chimera) + "_tmp.log")
+        tmp_chimera_summary = tmpFiles.add(os.path.basename(args.output_fasta) + "_summary.tsv")
+        tmp_log  = tmpFiles.add(os.path.basename(args.output_fasta) + "_tmp.log")
         size_separator = get_size_separator( args.input_fasta )
-        if args.input_count is None:
-            if args.out_abundance == None:
-                args.out_abundance = "remove_chimera_abundance.biom"
-            ParallelChimera( args.input_fasta, args.input_biom, args.non_chimera, args.out_abundance, tmp_chimera_summary, "biom", args.nb_cpus, tmp_log, args.debug, size_separator ).submit( args.log_file )
-        else:
-            if args.out_abundance == None:
-                args.out_abundance = "remove_chimera_abundance.tsv"
-            ParallelChimera( args.input_fasta, args.input_count, args.non_chimera, args.out_abundance, tmp_chimera_summary, "count", args.nb_cpus, tmp_log, args.debug, size_separator ).submit( args.log_file )
-        write_summary( args.summary, tmp_chimera_summary )
+
+        ParallelChimera( args.input_fasta, args.input_biom, args.output_fasta, args.output_biom, tmp_chimera_summary, "biom", args.nb_cpus, tmp_log, args.debug, size_separator ).submit( args.log_file )
+        
+        depth_file = tmpFiles.add( "depths.tsv" )
+        Depths(args.output_biom, depth_file).submit( args.log_file )
+        write_summary( args.html, tmp_chimera_summary, depth_file, args.output_biom )
         
         # Append independant log files
         log_append_files( args.log_file, [tmp_log] )

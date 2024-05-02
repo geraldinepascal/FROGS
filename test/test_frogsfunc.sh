@@ -44,7 +44,7 @@ frogsfunc_functions.py \
  --marker-type 16S \
  --input-marker $out_dir/25-frogsfunc_marker.tsv \
  --output-function-abund $out_dir/26-frogsfunc_functions_unstrat.tsv \
- --output-otu-norm $out_dir/26-frogsfunc_functions_marker_norm.tsv \
+ --output-asv-norm $out_dir/26-frogsfunc_functions_marker_norm.tsv \
  --output-weighted $out_dir/26-frogsfunc_functions_weighted_nsti.tsv \
  --output-excluded $out_dir/26-frogsfunc_functions_excluded.txt \
  --output-fasta $out_dir/26-frogsfunc_function.fasta \

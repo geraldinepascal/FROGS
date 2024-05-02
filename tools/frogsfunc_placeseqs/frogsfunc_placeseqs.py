@@ -1,27 +1,11 @@
 #!/usr/bin/env python3
-#
-# Copyright (C) 2022 INRAE
-#
-# This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.
-#
 
-__author__ = ' Moussa Samb & Vincent Darbot & Geraldine Pascal GENPHYSE '
-__copyright__ = 'Copyright (C) 2022 INRAE'
+__author__ = 'Moussa Samb - GENPHYSE & Vincent Darbot - GENPHYSE & Geraldine Pascal - GENPHYSE'
+__copyright__ = 'Copyright (C) 2024 INRAE'
 __license__ = 'GNU General Public License'
-__version__ = '4.1.0'
+__version__ = '5.0.0'
 __email__ = 'frogs@toulouse.inrae.fr'
-__status__ = 'dev'
+__status__ = 'prod'
 
 import os
 import re
@@ -164,13 +148,16 @@ class HspMarker(Cmd):
 	"""
 	@summary: Predict number of marker copies (16S, 18S or ITS) for each cluster sequence (i.e ASV).
 	"""
-	def __init__(self, tree, marker_type, marker_table, hsp_method, biom_file, output, log):
+	def __init__(self, tree, marker_type, marker_table, hsp_method, biom_file, output, log, is_debug):
 		"""
 		@param observed_marker_table: [str] Path to marker table file if marker studied is not 16S.
 		@param in_tree: [str] Path to resulting tree file with inserted clusters sequences from frogsfunc_placeseqs.
 		@param hsp_method: [str] HSP method to use.
 		@param output: [str] PICRUSt2 marker output file.
 		"""
+		debug = ""
+		if is_debug:
+			debug = " --debug "
 		if marker_type != "16S":
 			opt = ' --input-marker-table ' + marker_table
 		else:
@@ -179,7 +166,7 @@ class HspMarker(Cmd):
 		Cmd.__init__(self,
 				 'launch_hsp.py',
 				 'predict marker copy number per sequence.', 
-				 ' marker --input-tree ' + tree + ' --marker-type ' + marker_type + opt + ' --hsp-method ' + hsp_method + ' -o ' + output + '  2> ' + log,
+				  debug + ' marker --input-tree ' + tree + ' --marker-type ' + marker_type + opt + ' --hsp-method ' + hsp_method + ' -o ' + output + '  2> ' + log,
 				"--version")
 
 		self.output = output
@@ -255,18 +242,18 @@ def write_summary(in_fasta, excluded_file, biomfile, closest_ref_file, category,
 	   'abundance_kept' : 0,
 	   'abundance_removed' : 0	   
 	}
-	number_otu_all = 0
+	number_asv_all = 0
 	number_abundance_all = 0
 
 	details_categorys =["Nb sequences","FROGS Taxonomy","PICRUSt2 closest ID (JGI)","PICRUSt2 closest reference name","PICRUSt2 closest taxonomy","NSTI", "NSTI Confidence" ,"Lowest same taxonomic rank between FROGS and PICRUSt2","Comment"]
-	infos_otus = list()
+	infos_asvs = list()
 	biom=BiomIO.from_json(biomfile)
-	list_otu_all = list()
+	list_asv_all = list()
 	# record nb ASV and abundance
-	for otu in FastaIO(in_fasta):
-		list_otu_all.append(otu.id)
-		number_otu_all +=1
-		number_abundance_all += biom.get_observation_count(otu.id)
+	for asv in FastaIO(in_fasta):
+		list_asv_all.append(asv.id)
+		number_asv_all +=1
+		number_abundance_all += biom.get_observation_count(asv.id)
 
 	if category == "16S":
 		START_IMG_LINK = "<a href='https://img.jgi.doe.gov/cgi-bin/m/main.cgi?section=TaxonDetail&page=taxonDetail&taxon_oid="
@@ -299,7 +286,7 @@ def write_summary(in_fasta, excluded_file, biomfile, closest_ref_file, category,
 
 		picrust_id_cur = li[3]
 		li[3] = START_IMG_LINK + picrust_id_cur + "'target=\"_blank\">" + picrust_id_cur + '</a>'
-		infos_otus.append({
+		infos_asvs.append({
 			'name': li[0],
 			'data': list(li[1:-1])
 			})
@@ -316,7 +303,7 @@ def write_summary(in_fasta, excluded_file, biomfile, closest_ref_file, category,
 	abundances_size = sorted(abundances_size)
 	total_abundances = abundances_size[-1]
 	proportions = [ rounding( i / total_abundances * 100 ) for i in abundances_size]
-	# record details about removed OTU
+	# record details about removed ASV
 	FH_excluded = open(excluded_file, 'rt').readlines()
 	for li in FH_excluded:
 		if not li.startswith('#No excluded ASV.'):
@@ -324,7 +311,7 @@ def write_summary(in_fasta, excluded_file, biomfile, closest_ref_file, category,
 			summary_info['nb_removed'] +=1
 			summary_info['abundance_removed'] += biom.get_observation_count(cluster)
 
-	summary_info['nb_kept'] = number_otu_all - summary_info['nb_removed']
+	summary_info['nb_kept'] = number_asv_all - summary_info['nb_removed']
 	summary_info['abundance_kept'] = number_abundance_all - summary_info['abundance_removed']
 
 	FH_summary_tpl = open( os.path.join(CURRENT_DIR, "frogsfunc_placeseqs_tpl.html") )
@@ -334,7 +321,7 @@ def write_summary(in_fasta, excluded_file, biomfile, closest_ref_file, category,
 		if "###DETECTION_CATEGORIES###" in line:
 			line = line.replace( "###DETECTION_CATEGORIES###", json.dumps(details_categorys) )
 		elif "###DETECTION_DATA###" in line:
-			line = line.replace( "###DETECTION_DATA###", json.dumps(infos_otus) )
+			line = line.replace( "###DETECTION_DATA###", json.dumps(infos_asvs) )
 		elif "###REMOVE_DATA###" in line:
 			line = line.replace( "###REMOVE_DATA###", json.dumps(summary_info) )
 		elif "###CLUSTERS_SIZES###" in line:
@@ -343,6 +330,10 @@ def write_summary(in_fasta, excluded_file, biomfile, closest_ref_file, category,
 			line = line.replace( "###ABUNDANCES_SIZES###", json.dumps( abundances_size) )
 		elif "###STEP_NSTI###" in line:
 			line = line.replace( "###STEP_NSTI###", json.dumps(step_nsti) )
+		elif "###FROGS_VERSION###" in line:
+			line = line.replace( "###FROGS_VERSION###", "\""+str(__version__)+"\"" )
+		elif "###FROGS_TOOL###" in line:
+			line = line.replace( "###FROGS_TOOL###", "\""+ os.path.basename(__file__)+"\"" )
 		FH_summary_out.write( line )
 
 	FH_summary_out.close()
@@ -356,27 +347,27 @@ def write_summary(in_fasta, excluded_file, biomfile, closest_ref_file, category,
 if __name__ == "__main__":
 	# Manage parameters
 	parser = argparse.ArgumentParser(description="place studies sequences (i.e. ASVs) into a reference tree.")
-	parser.add_argument('-v', '--version', action='version', version=__version__)
-	parser.add_argument( '--debug', default=False, action='store_true', help="Keep temporary files to debug program." )
+	parser.add_argument('--version', action='version', version=__version__)
+	parser.add_argument('--debug', default=False, action='store_true', help="Keep temporary files to debug program. [Default: %(default)s]" )
 	# Inputs
 	group_input = parser.add_argument_group('Inputs')
-	group_input.add_argument('-i', '--input-fasta', required=True, help="Input fasta file of unaligned studies sequences.")
-	group_input.add_argument('-b', '--input-biom', required=True, help='Input biom file of unaligned studies sequences.')
-	group_input.add_argument('-r', '--ref-dir', help='If marker studied is not 16S, this is the directory containing reference sequence files (for ITS, see: $PICRUST2_PATH/default_files/fungi/fungi_ITS')
-	group_input.add_argument('-p', '--placement-tool', default='epa-ng', choices=["epa-ng", "sepp"], help='Tool to place sequences into reference tree. Note that epa-ng is more sensitiv but very memory and computing power intensive. Warning : sepp is not usable for ITS and 18S analysis [Default: %(default)s]')
-	group_input.add_argument('--min-align', type=restricted_float, default=0.8, help='Proportion of the total length of an input query sequence that must align with reference sequences. Any sequences with lengths below this value after making an alignment with reference sequences will be excluded from the placement and all subsequent steps. (default: %(default)s).')
-	group_input.add_argument('--input-marker-table',help="The input marker table describing directly observed traits (e.g. sequenced genomes) in tab-delimited format. (ex $PICRUSt2_PATH/default_files/fungi/ITS_counts.txt.gz). Required.")	
-	group_input.add_argument('--hsp-method', default='mp', choices=['mp', 'emp_prob', 'pic', 'scp', 'subtree_average'], help='HSP method to use. mp: predict discrete traits using max parsimony. emp_prob: predict discrete traits based on empirical state probabilities across tips. subtree_average: predict continuous traits using subtree averaging. pic: predict continuous traits with phylogentic independent contrast. scp: reconstruct continuous traits using squared-change parsimony (default: %(default)s).')   
+	group_input.add_argument('--input-fasta', required=True, help="Input fasta file of unaligned studies sequences.")
+	group_input.add_argument('--input-biom', required=True, help='Input biom file of unaligned studies sequences.')
+	group_input.add_argument('--ref-dir', help='If marker studied is not 16S, this is the directory containing reference sequence files (for ITS, see: $PICRUST2_PATH/default_files/fungi/fungi_ITS')
+	group_input.add_argument('--placement-tool', default='epa-ng', choices=["epa-ng", "sepp"], help='Tool to place sequences into reference tree. Note that epa-ng is more sensitiv but very memory and computing power intensive. Warning : sepp is not usable for ITS and 18S analysis [Default: %(default)s]')
+	group_input.add_argument('--min-align', type=restricted_float, default=0.8, help='Proportion of the total length of an input query sequence that must align with reference sequences. Any sequences with lengths below this value after making an alignment with reference sequences will be excluded from the placement and all subsequent steps. [Default: %(default)s].')
+	group_input.add_argument('--input-marker-table',help="The input marker table describing directly observed traits (e.g. sequenced genomes) in tab-delimited format. (ex $PICRUSt2_PATH/default_files/fungi/ITS_counts.txt.gz).")	
+	group_input.add_argument('--hsp-method', default='mp', choices=['mp', 'emp_prob', 'pic', 'scp', 'subtree_average'], help='HSP method to use. mp: predict discrete traits using max parsimony. emp_prob: predict discrete traits based on empirical state probabilities across tips. subtree_average: predict continuous traits using subtree averaging. pic: predict continuous traits with phylogentic independent contrast. scp: reconstruct continuous traits using squared-change parsimony [Default: %(default)s].')   
 	# Outputs
 	group_output = parser.add_argument_group('Outputs')
-	group_output.add_argument('-o', '--output-tree', default='frogsfunc_placeseqs_tree.nwk', help='Reference tree output with insert sequences (format: newick). [Default: %(default)s]')
-	group_output.add_argument('-e', '--excluded', default='frogsfunc_placeseqs_excluded.txt', help='List of sequences not inserted in the tree. [Default: %(default)s]')
-	group_output.add_argument('-s', '--output-fasta', default='frogsfunc_placeseqs.fasta', help='Fasta file without non insert sequences. (format: FASTA). [Default: %(default)s]')
-	group_output.add_argument('-m', '--output-biom', default='frogsfunc_placeseqs.biom', help='Biom file without non insert sequences. (format: BIOM) [Default: %(default)s]')
-	group_output.add_argument('-c', '--closests-ref', default='frogsfunc_placeseqs_closests_ref_sequences.txt', help='Informations about Clusters (i.e OTUs) and PICRUSt2 closest reference from cluster sequences (identifiants, taxonomies, phylogenetic distance from reference, nucleotidics sequences). [Default: %(default)s]')
-	group_output.add_argument('-l', '--log-file', default=sys.stdout, help='List of commands executed.')
-	group_output.add_argument('-t', '--summary', default='frogsfunc_placeseqs_summary.html', help="Path to store resulting html file. [Default: %(default)s]" )
-	group_output.add_argument('-om', '--output-marker', default="frogsfunc_marker.tsv", type=str, help='Output table of predicted marker gene copy numbers per studied sequence in input tree. If the extension \".gz\" is added the table will automatically be gzipped.[Default: %(default)s]')	
+	group_output.add_argument('--output-tree', default='frogsfunc_placeseqs_tree.nwk', help='Reference tree output with insert sequences (format: newick). [Default: %(default)s]')
+	group_output.add_argument('--excluded', default='frogsfunc_placeseqs_excluded.txt', help='List of sequences not inserted in the tree. [Default: %(default)s]')
+	group_output.add_argument('--output-fasta', default='frogsfunc_placeseqs.fasta', help='Fasta file without non insert sequences. (format: FASTA). [Default: %(default)s]')
+	group_output.add_argument('--output-biom', default='frogsfunc_placeseqs.biom', help='Biom file without non insert sequences. (format: BIOM) [Default: %(default)s]')
+	group_output.add_argument('--closests-ref', default='frogsfunc_placeseqs_closests_ref_sequences.txt', help='Informations about Clusters (i.e ASVs) and PICRUSt2 closest reference from cluster sequences (identifiants, taxonomies, phylogenetic distance from reference, nucleotidics sequences). [Default: %(default)s]')
+	group_output.add_argument('--summary', default='frogsfunc_placeseqs_summary.html', help="Path to store resulting html file. [Default: %(default)s]" )
+	group_output.add_argument('--output-marker', default="frogsfunc_marker.tsv", type=str, help='Output table of predicted marker gene copy numbers per studied sequence in input tree. If the extension \".gz\" is added the table will automatically be gzipped. [Default: %(default)s]')	
+	group_output.add_argument('--log-file', default=sys.stdout, help='List of commands executed. [Default: stdout]')
 	args = parser.parse_args()
 	prevent_shell_injections(args)
 
@@ -412,7 +403,7 @@ if __name__ == "__main__":
 			raise_exception( Exception ("\n\n#ERROR : --input-marker-table required when studied marker is not 16S!\n\n"))
 
 		tmp_hsp_marker = tmp_files.add( 'tmp_hsp_marker.log' )
-		HspMarker(args.output_tree, category, args.input_marker_table, args.hsp_method, args.output_biom, args.output_marker, tmp_hsp_marker).submit(args.log_file)
+		HspMarker(args.output_tree, category, args.input_marker_table, args.hsp_method, args.output_biom, args.output_marker, tmp_hsp_marker, args.debug).submit(args.log_file)
 
 		tmp_find_closest_ref = tmp_files.add( 'tmp_find_closest_ref.log' )
 		FindClosestsRefSequences(args.output_tree, args.output_biom, args.output_fasta, ref_aln, args.output_biom, args.closests_ref, tmp_find_closest_ref).submit(args.log_file)

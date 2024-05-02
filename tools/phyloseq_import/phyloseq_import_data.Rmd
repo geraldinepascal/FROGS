@@ -1,5 +1,9 @@
 ---
-title: "FROGS Phyloseq: Import Data (version 4.1.0)"
+title: "FROGS Phyloseq: Import Data (version `r params$version`)"
+author: "Ta Thi Ngan - SIGENAE/GABI & Maria Bernard - SIGENAE/GABI"
+copyright: "Copyright (C) 2024 INRAE"
+license: "GNU General Public License"
+version: "5.0.0"
 output: 
   html_notebook:
     code_folding: hide
@@ -25,8 +29,14 @@ params:
   # Path to the phyloseq-extend R functions : https://github.com/mahendra-mariadassou/phyloseq-extended, typically stored in FROGS/lib/external-lib
   libdir:
     value: x
+  version:
+    value: x
 ---
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<meta name="author" content="Ta Thi Ngan - SIGENAE/GABI & Maria Bernard - SIGENAE/GABI" />
+<meta name="version" content="5.0.0" />
+<meta name="copyright" content="Copyright (C) 2024 INRAE" />
+
 <style type="text/css">
 .button {
     background-color: #2a7ecc; /* Blue */
@@ -90,7 +100,7 @@ library(ape)
 ## Import data
 biomfile <- params$biomfile
 data     <- import_biom(biomfile)
-sampledata <- read.csv(params$samplefile, sep = "\t", row.names = 1)
+sampledata <- read.csv(params$samplefile, sep = "\t", row.names = 1, check.names = FALSE)
 
 # if taxonomy starts with k__ it means that its Greengenes like format
 # import need to be done using parse_taxonomy_greengenes function
@@ -126,6 +136,10 @@ empty_samples <- sample_names(data)[which(sample_sums(data)==0)]
 sample_to_keep <- sample_names(data)[which(sample_sums(data)>0)]
 data <- prune_samples(sample_to_keep, data)
 
+empty_taxa <- taxa_names(data)[which(taxa_sums(data)==0)]
+taxa_to_keep <- taxa_names(data)[which(taxa_sums(data)>0)]
+data <- prune_taxa(taxa_to_keep, data)
+
 ## abundance normalisation
 if(params$normalisation){ data <- rarefy_even_depth(data, rngseed = 1121983)}
 
@@ -138,6 +152,7 @@ save(data, file=params$outputRdata)
 ```{r summary}
 data
 if(length(empty_samples) > 0) {cat(paste('Remove empty samples: ', paste(empty_samples, collapse=",")))}
+if(length(empty_taxa) > 0) {cat(paste('Remove empty taxa: ', paste(empty_taxa, collapse=",")))}
 if(params$normalisation){cat(paste('Number of sequences in each sample after normalisation: ', head(sample_sums(data))[[1]]))}
 ```
 
