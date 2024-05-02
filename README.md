@@ -12,7 +12,7 @@ Visit our web site : http://frogs.toulouse.inrae.fr/
 
 # Description
 
-FROGS is a CLI workflow designed to produce an ASV count matrix from high depth sequencing amplicon data.
+FROGS is a CLI workflow designed to produce and analysis an ASV count matrix from high depth sequencing amplicon data.
 
 FROGS-wrappers allow to add FROGS on a Galaxy instance. (see https://github.com/geraldinepascal/FROGS-wrappers)
 
