@@ -19,7 +19,7 @@ FROGS-wrappers allow to add FROGS on a Galaxy instance. (see https://github.com/
 This workflow is focused on:
 
 - User-friendliness with lots of rich graphic outputs and the integration in Galaxy thanks to FROGS-wrappers.
-- Dealing with **Illumina**, **IonTorrent**, **454**, **PacBio** and **IonTorrent** sequencing technology reads.
+- Dealing with **Illumina**, **IonTorrent**, **454**, **PacBio** and **Oxford Nanopore** sequencing technology reads.
 - Dealing of non overlapping pair of sequences from long amplicon like ITS, or RPB2.
 - Accuracy with a clustering without global similarity threshold or a denoising process, the management of separated PCRs in the chimera removal step, and the management of multi-affiliations.
 - Access to general statistics on microbial communities and differential abundance analysis.
