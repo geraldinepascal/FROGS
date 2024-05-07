@@ -87,18 +87,20 @@ def update_tree_for_sample( biom, tree, sample_name, taxonomy_key, sample_id=Non
     sample_key = sample_name if sample_id is None else str(sample_id)
     for observation in biom.get_observations_by_sample( sample_name ):
         current_node = tree
-        if taxonomy_key in observation["metadata"] and len(observation["metadata"][taxonomy_key]) > 0 and observation["metadata"][taxonomy_key] != 'unknown':
-            # Get taxonomy
-            taxonomy = biom.get_observation_taxonomy( observation["id"], taxonomy_key )
-            # Add taxon in tree
-            for taxon in taxonomy:
-                if not current_node.has_child( taxon ):
-                    current_node.add_child( Node(taxon) )
-                current_node = current_node.get_child( taxon )
-            # Add sample count in node
-            if sample_key not in current_node.metadata:
-                current_node.metadata[sample_key] = 0
-            current_node.metadata[sample_key] += biom.get_count( observation["id"], sample_name )
+        if taxonomy_key in observation["metadata"]:
+            if observation["metadata"][taxonomy_key] is not None:
+                if len(observation["metadata"][taxonomy_key]) > 0 and observation["metadata"][taxonomy_key] != 'unknown':
+                    # Get taxonomy
+                    taxonomy = biom.get_observation_taxonomy( observation["id"], taxonomy_key )
+                    # Add taxon in tree
+                    for taxon in taxonomy:
+                        if not current_node.has_child( taxon ):
+                            current_node.add_child( Node(taxon) )
+                        current_node = current_node.get_child( taxon )
+                    # Add sample count in node
+                    if sample_key not in current_node.metadata:
+                        current_node.metadata[sample_key] = 0
+                    current_node.metadata[sample_key] += biom.get_count( observation["id"], sample_name )
     return tree
 
 
@@ -218,8 +220,10 @@ def rarefaction( input_biom, interval=10000, ranks=None, taxonomy_key="taxonomy"
             selected_observations = biom.random_obs_extract_by_sample(sample, interval)
             for current_selected in selected_observations:
                 taxonomy = list()
-                if taxonomy_key in current_selected['observation']["metadata"] and len(current_selected['observation']["metadata"][taxonomy_key]) > 0:
-                    taxonomy = biom.get_observation_taxonomy( current_selected['observation']["id"], taxonomy_key )
+                if taxonomy_key in current_selected['observation']["metadata"] :
+                    if current_selected['observation']["metadata"][taxonomy_key] is not None:
+                        if len(current_selected['observation']["metadata"][taxonomy_key]) > 0:
+                            taxonomy = biom.get_observation_taxonomy( current_selected['observation']["id"], taxonomy_key )
                 for idx, taxon in enumerate(taxonomy):
                     if taxon.lower().startswith("unknown"):
                         taxonomy[idx] = "unknown"
