@@ -3,7 +3,7 @@
 nb_cpu=2
 java_mem=1
 out_dir=res_4.1.0_to_check
-expected_dir=frogs_4.0.1
+expected_dir=/projet/tmp/res_to_check/
 run_programs=true	## if true lance les python sinon, fait uniquement les comparatifs de résultats
 
 ## Set ENV
@@ -50,111 +50,77 @@ then
 	echo "difference in clustering: 02-clustering_fastidious.biom " >&2
 fi
 
-echo "Step preprocess : Flash `date`"
+echo "Step denoising : Vsearch & swarm `date`"
+
 
 if $run_programs
 then
-preprocess.py illumina \
+denoising.py illumina \
+     --process swarm \
 	 --min-amplicon-size 44 --max-amplicon-size 490 \
-	 --five-prim-primer GGCGVACGGGTGAGTAA --three-prim-primer GTGCCAGCNGCNGCGG \
-	 --R1-size 267 --R2-size 266 --expected-amplicon-size 420 --merge-software flash \
-	 --nb-cpus $nb_cpu --mismatch-rate 0.15 --keep-unmerged \
+     --five-prim-primer GGCGVACGGGTGAGTAA --three-prim-primer GTGCCAGCNGCNGCGG \
+     --R1-size 267 --R2-size 266 --merge-software vsearch \
+     --nb-cpus $nb_cpu --mismatch-rate 0.15 \
 	 --input-archive data/test_dataset.tar.gz \
-	 --output-dereplicated $out_dir/01-prepro-flash.fasta \
-	 --output-count $out_dir/01-prepro-flash.tsv \
-	 --summary $out_dir/01-prepro-flash.html \
-	 --log-file $out_dir/01-prepro-flash.log
+	 --output-fasta $out_dir/01-denoising-swarm-vsearch.fasta \
+	 --output-biom $out_dir/01-denoising-swarm-vsearch.biom \
+	 --html $out_dir/01-denoising-swarm-vsearch.html \
+	 --log-file $out_dir/01-denoising-swarm-vsearch.log 
 	 
 	if [ $? -ne 0 ]
 	then
-		echo "Error in preprocess : Flash" >&2
+		echo "Error in densoising : Vsearch & Swarm" >&2
 		exit 1;
 	fi
 fi
 
-if diff_line $out_dir/01-prepro-flash.fasta $expected_dir/01-prepro-flash.fasta 0
+if diff_line $out_dir/01-denoising-swarm-vsearch.fasta $expected_dir/01-denoising-swarm-vsearch.fasta 0
 then
-	echo "difference in preprocess, Flash: 01-prepro-flash.fasta" >&2
+	echo "difference in denoising, swarm & vsearch: 01-denoising-swarm-vsearch.fasta" >&2
 fi
 
-if diff_line $out_dir/01-prepro-flash.tsv $expected_dir/01-prepro-flash.tsv 0
-then
-	echo "difference in preprocess, Flash: 01-prepro-flash.tsv " >&2
-fi
+echo "Step denoising : dada2 keep-unmerged `date`"
 
-echo "Step preprocess : Vsearch `date`"
+denoising.py illumina  \
+ --process dada2 --keep-unmerged \
+ --input-archive data/verysmallITS.tar.gz \
+ --min-amplicon-size 50 --max-amplicon-size 1000 --merge-software vsearch \
+ --five-prim-primer TAGACTCGTCAHCGATGAAGAACGYRG --three-prim-primer GCATATCAATAAGCGSAGGAA \
+ --R1-size 300 --R2-size 300  --nb-cpus $nb_cpu \
+ --output-fasta $out_dir/01-denoising-dada2-clusters.fasta \
+ --output-biom $out_dir/01-denoising-dada2-clusters.biom \
+ --html $out_dir/01-denoising-dada2.html \
+ --log-file $out_dir/01-denoising-dada2.log
 
 if $run_programs
 then
-preprocess.py illumina \
-	 --min-amplicon-size 44 --max-amplicon-size 490 \
-	 --five-prim-primer GGCGVACGGGTGAGTAA --three-prim-primer GTGCCAGCNGCNGCGG \
-	 --R1-size 267 --R2-size 266 --merge-software vsearch \
-	 --nb-cpus $nb_cpu --mismatch-rate 0.15 --keep-unmerged \
-	 --input-archive data/test_dataset.tar.gz \
-	 --output-dereplicated $out_dir/01-prepro-vsearch.fasta \
-	 --output-count $out_dir/01-prepro-vsearch.tsv \
-	 --summary $out_dir/01-prepro-vsearch.html \
-	 --log-file $out_dir/01-prepro-vsearch.log 
-	 
+denoising.py illumina \
+	--process dada2 --keep-unmerged \
+	--input-archive data/verysmallITS.tar.gz \
+	--min-amplicon-size 50 --max-amplicon-size 1000 --merge-software vsearch \
+	--five-prim-primer TAGACTCGTCAHCGATGAAGAACGYRG --three-prim-primer GCATATCAATAAGCGSAGGAA \
+	--R1-size 300 --R2-size 300  --nb-cpus $nb_cpu \
+	--output-fasta $out_dir/01-denoising-dada2-clusters.fasta \
+	--output-biom $out_dir/01-denoising-dada2-clusters.biom \
+	--html $out_dir/01-denoising-dada2.html \
+	--log-file $out_dir/01-denoising-dada2.log
+	
 	if [ $? -ne 0 ]
 	then
-		echo "Error in preprocess : Vsearch" >&2
+		echo "Error in denoising : DADA2 & vsearch" >&2
 		exit 1;
 	fi
 fi
 
  
-if diff_line $out_dir/01-prepro-vsearch.fasta $expected_dir/01-prepro-vsearch.fasta 0
+if diff_line $out_dir/01-denoising-dada2-clusters.fasta $expected_dir/01-denoising-dada2-clusters.fasta 0
 then
-	echo "difference in preprocess, Vsearch: 01-prepro-vsearch.fasta" >&2
+	echo "difference in denoising dada2 & vsearch: 01-denoising-dada2-clusters.fasta" >&2
 fi
 
-if diff_line $out_dir/01-prepro-vsearch.tsv $expected_dir/01-prepro-vsearch.tsv 0
+if diff_size $out_dir/01-denoising-dada2-clusters.biom $expected_dir/01-denoising-dada2-clusters.biom 1
 then
-	echo "difference in preprocess, Vsearch: 01-prepro-vsearch.tsv " >&2
-fi
-
-if diff_line $out_dir/01-prepro-vsearch.html $expected_dir/01-prepro-vsearch.html 0
-then
-	echo "difference in preprocess, Vsearch: 01-prepro-vsearch.html " >&2
-fi
-
-echo "Step clustering fastidious `date`"
-
-if $run_programs
-then
-clustering.py \
-	 --distance 1 \
-	 --fastidious \
-	 --input-fasta $expected_dir/01-prepro-vsearch.fasta \
-	 --input-count $expected_dir/01-prepro-vsearch.tsv \
-	 --output-biom $out_dir/02-clustering_fastidious.biom \
-	 --output-fasta $out_dir/02-clustering_fastidious.fasta \
-	 --output-compo $out_dir/02-clustering_fastidious_compo.tsv \
-	 --log-file $out_dir/02-clustering_fastidious.log \
-	 --nb-cpus $nb_cpu
-
-	if [ $? -ne 0 ]
-	then
-		echo "Error in clustering fastidious" >&2
-		exit 1;
-	fi
-fi
-
-if diff_line $out_dir/02-clustering_fastidious.fasta $expected_dir/02-clustering_fastidious.fasta 0
-then
-	echo "difference in clustering: 02-clustering_fastidious.fasta " >&2
-fi
-
-if diff_size $out_dir/02-clustering_fastidious.biom $expected_dir/02-clustering_fastidious.biom 1
-then
-	echo "difference in clustering: 02-clustering_fastidious.biom " >&2
-fi
-
-if diff_line $out_dir/02-clustering_fastidious_compo.tsv $expected_dir/02-clustering_fastidious_compo.tsv 0
-then
-	echo "difference in clustering: 02-clustering_fastidious_compo.tsv " >&2
+	echo "difference in denoising dada2 & vsearch: 01-denoising-dada2-clusters.biom " >&2
 fi
 
 echo "Step remove_chimera `date`"
@@ -162,13 +128,13 @@ echo "Step remove_chimera `date`"
 if $run_programs
 then
 remove_chimera.py \
-	 --input-fasta $expected_dir/02-clustering_fastidious.fasta \
-	 --input-biom $expected_dir/02-clustering_fastidious.biom \
-	 --non-chimera $out_dir/03-chimera.fasta \
-	 --out-abundance $out_dir/03-chimera.biom \
-	 --summary $out_dir/03-chimera.html \
-	 --log-file $out_dir/03-chimera.log \
-	 --nb-cpus $nb_cpu
+	 --input-fasta $out_dir/01-denoising-swarm-vsearch.fasta \
+	 --input-biom $out_dir/01-denoising-swarm-vsearch.biom \
+     --output-fasta $out_dir/03-chimera.fasta \
+     --output-biom $out_dir/03-chimera.biom \
+     --html $out_dir/03-chimera.html \
+     --log-file $out_dir/03-chimera.log \
+     --nb-cpus $nb_cpu
 	 
 	if [ $? -ne 0 ]
 	then
@@ -192,22 +158,24 @@ then
 	echo "difference in remove_chimera: 03-chimera.html " >&2
 fi
 
-echo "Step otu filters `date`"
+echo "Step cluster filters `date`"
 
 if $run_programs
 then
 cluster_filters.py \
 	 --min-abundance 0.00005 \
-	 --min-sample-presence 3 \
-	 --contaminant data/phi.fa \
-	 --nb-cpus $nb_cpu \
-	 --input-biom $expected_dir/03-chimera.biom \
-	 --input-fasta $expected_dir/03-chimera.fasta \
-	 --output-fasta $out_dir/04-filters.fasta \
-	 --output-biom $out_dir/04-filters.biom \
-	 --excluded $out_dir/04-filters.excluded \
-	 --summary $out_dir/04-filters.html \
-	 --log-file $out_dir/04-filters.log 
+	--min-sample-presence 3 \
+	--contaminant data/phi.fa \
+	--nb-cpus $nb_cpu \
+	--input-biom $out_dir/03-chimera.biom \
+	--input-fasta $out_dir/03-chimera.fasta \
+	--replicate_file data/replicates_file.tsv \
+	--min-replicate-presence 0.5 \
+	--output-fasta $out_dir/04-filters.fasta \
+	--output-biom $out_dir/04-filters.biom \
+	--excluded $out_dir/04-filters.excluded \
+	--html $out_dir/04-filters.html \
+	--log-file $out_dir/04-filters.log 
 
 	if [ $? -ne 0 ]
 	then
@@ -240,14 +208,14 @@ echo "Step ITSx `date`"
 if $run_programs
 then
 itsx.py \
-	 --input-fasta $expected_dir/04-filters.fasta \
-	 --input-biom $expected_dir/04-filters.biom \
-	 --region ITS1 --nb-cpus $nb_cpu \
-	 --out-abundance $out_dir/05-itsx.biom \
-	 --summary $out_dir/05-itsx.html \
-	 --log-file $out_dir/05-itsx.log \
-	 --out-fasta $out_dir/05-itsx.fasta \
-	 --out-removed $out_dir/05-itsx-excluded.fasta
+	  --input-fasta $out_dir/04-filters.fasta \
+	--input-biom $out_dir/04-filters.biom \
+	--region ITS1 --nb-cpus $nb_cpu \
+	--output-biom $out_dir/05-itsx.biom \
+	--html $out_dir/05-itsx.html \
+	--log-file $out_dir/05-itsx.log \
+	--output-fasta $out_dir/05-itsx.fasta \
+	--output-removed-sequences $out_dir/05-itsx-excluded.fasta
 
 	if [ $? -ne 0 ]
 	then
@@ -285,14 +253,14 @@ taxonomic_affiliation.py \
 	 --input-fasta $expected_dir/04-filters.fasta \
 	 --input-biom $expected_dir/04-filters.biom \
 	 --output-biom $out_dir/06-affiliation.biom \
-	 --summary $out_dir/06-affiliation.html \
+	 --html $out_dir/06-affiliation.html \
 	 --log-file $out_dir/06-affiliation.log \
 	 --nb-cpus $nb_cpu --java-mem $java_mem \
 	 --rdp
 
 	if [ $? -ne 0 ]
 	then
-		echo "Error in affiliation_OTU" >&2
+		echo "Error in taxonomic affiliation" >&2
 		exit 1;
 	fi
 fi
@@ -315,7 +283,7 @@ affiliation_filters.py \
 	--input-biom $expected_dir/06-affiliation.biom \
 	--input-fasta $expected_dir/04-filters.fasta \
 	--output-biom $out_dir/07-affiliation_masked.biom \
-	--summary $out_dir/07-affiliation_masked.html \
+	--html $out_dir/07-affiliation_masked.html \
 	--impacted $out_dir/07-impacted_OTU_masked.tsv \
 	--impacted-multihit $out_dir/07-impacted_OTU_masked_multihit.tsv \
 	--log-file $out_dir/07-affiliation_filter_maskMode.log \
@@ -364,7 +332,7 @@ affiliation_filters.py \
 	--input-fasta $expected_dir/04-filters.fasta \
 	--output-biom $out_dir/07-affiliation_deleted.biom \
 	--output-fasta $out_dir/07-affiliation_deleted.fasta \
-	--summary $out_dir/07-affiliation_deleted.html \
+	--html $out_dir/07-affiliation_deleted.html \
 	--impacted $out_dir/07-impacted_OTU_deleted.tsv \
 	--impacted-multihit $out_dir/07-impacted_OTU_deleted_multihit.tsv \
 	--log-file $out_dir/07-affiliation_filter_delMode.log \
@@ -450,14 +418,14 @@ if $run_programs
 then
 
 normalisation.py \
-	 -n 25000 \
-	 --delete-samples \
-	 --input-biom $out_dir/08-affiliation_postprocessed.biom \
-	 --input-fasta $out_dir/08-affiliation_postprocessed.fasta \
-	 --output-biom $out_dir/09-normalisation_25K_delS.biom \
-	 --output-fasta $out_dir/09-normalisation_25K_delS.fasta \
-	 --summary $out_dir/09-normalisation_25K_delS.html \
-	 --log-file $out_dir/09-normalisation_25K_delS.log
+	 --num-reads 25000 \
+	--delete-samples \
+	--input-biom $out_dir/08-affiliation_postprocessed.biom \
+	--input-fasta $out_dir/08-affiliation_postprocessed.fasta \
+	--output-biom $out_dir/09-normalisation_25K_delS.biom \
+	--output-fasta $out_dir/09-normalisation_25K_delS.fasta \
+	--html $out_dir/09-normalisation_25K_delS.html \
+	--log-file $out_dir/09-normalisation_25K_delS.log
 	 
 	if [ $? -ne 0 ]
 	then
@@ -467,12 +435,12 @@ normalisation.py \
 
 normalisation.py \
 	 --sampling-by-min \
-	 --input-biom $out_dir/08-affiliation_postprocessed.biom \
-	 --input-fasta $out_dir/08-affiliation_postprocessed.fasta \
-	 --output-biom $out_dir/09-normalisation_by_min.biom \
-	 --output-fasta $out_dir/09-normalisation_by_min.fasta \
-	 --summary $out_dir/09-normalisation_by_min.html \
-	 --log-file $out_dir/09-normalisation_by_min.log
+	--input-biom $out_dir/08-affiliation_postprocessed.biom \
+	--input-fasta $out_dir/08-affiliation_postprocessed.fasta \
+	--output-biom $out_dir/09-normalisation_by_min.biom \
+	--output-fasta $out_dir/09-normalisation_by_min.fasta \
+	--html $out_dir/09-normalisation_by_min.html \
+	--log-file $out_dir/09-normalisation_by_min.log
 	 
 	if [ $? -ne 0 ]
 	then
@@ -482,13 +450,13 @@ normalisation.py \
 
 	# to reduce computing time for the others step
 normalisation.py \
-	 -n 100 \
-	 --input-biom $expected_dir/08-affiliation_postprocessed.biom \
-	 --input-fasta $expected_dir/08-affiliation_postprocessed.fasta \
-	 --output-biom $out_dir/09-normalisation.biom \
-	 --output-fasta $out_dir/09-normalisation.fasta \
-	 --summary $out_dir/09-normalisation.html \
-	 --log-file $out_dir/09-normalisation.log
+	 --num-reads 100 \
+	--input-biom $out_dir/08-affiliation_postprocessed.biom \
+	--input-fasta $out_dir/08-affiliation_postprocessed.fasta \
+	--output-biom $out_dir/09-normalisation.biom \
+	--output-fasta $out_dir/09-normalisation.fasta \
+	--html $out_dir/09-normalisation.html \
+	--log-file $out_dir/09-normalisation.log
 	 
 	if [ $? -ne 0 ]
 	then
@@ -569,7 +537,7 @@ if $run_programs
 then
 cluster_stats.py \
 	 --input-biom $expected_dir/09-normalisation.biom \
-	 --output-file $out_dir/10-clustersStat.html \
+	 --html $out_dir/10-clustersStat.html \
 	 --log-file $out_dir/10-clustersStat.log
 
 	if [ $? -ne 0 ]
@@ -589,15 +557,15 @@ echo "Step affiliation_stats `date`"
 if $run_programs
 then
 affiliation_stats.py \
-	 --input-biom $expected_dir/09-normalisation.biom \
-	 --output-file $out_dir/11-affiliationsStat.html \
-	 --log-file $out_dir/11-affiliationsStat.log \
-	 --tax-consensus-tag "blast_taxonomy" \
-	 --identity-tag "perc_identity" \
-	 --coverage-tag "perc_query_coverage" \
-	 --multiple-tag "blast_affiliations" \
-	 --rarefaction-ranks Family Genus Species \
-	 --taxonomic-ranks Domain Phylum Class Order Family Genus Species ## this is the default value of this option
+	 --input-biom $out_dir/09-normalisation.biom \
+	--html $out_dir/11-affiliationsStat.html \
+	--log-file $out_dir/11-affiliationsStat.log \
+	--tax-consensus-tag "blast_taxonomy" \
+	--identity-tag "perc_identity" \
+	--coverage-tag "perc_query_coverage" \
+	--multiple-tag "blast_affiliations" \
+	--rarefaction-ranks Family Genus Species \
+	--taxonomic-ranks Domain Phylum Class Order Family Genus Species # this is the default value of this option
 
 	if [ $? -ne 0 ]
 	then
@@ -706,11 +674,11 @@ if $run_programs
 then
 tree.py \
 	 --nb-cpus $nb_cpu \
-	 --input-sequences $expected_dir/09-normalisation.fasta \
-	 --biom-file $expected_dir/09-normalisation.biom \
-	 --out-tree $out_dir/15-tree-mafft.nwk \
+	 --input-fasta $out_dir/09-normalisation.fasta \
+	 --input-biom $out_dir/09-normalisation.biom \
+	 --output-tree $out_dir/15-tree-mafft.nwk \
 	 --html $out_dir/15-tree-mafft.html \
-	 --log-file $out_dir/15-tree-mafft.log --debug
+	 --log-file $out_dir/15-tree-mafft.log
 
 	if [ $? -ne 0 ]
 	then
@@ -925,12 +893,12 @@ then
 fi
 
 echo "Step deseq2_preprocess `date`"
-echo "DESeq2 otu abundances"
+echo "DESeq2 ASV abundances"
 if $run_programs
 then
 deseq2_preprocess.py \
 	 --data $out_dir/16-phylo_import.Rdata \
-	 --analysis OTU \
+	 --analysis ASV \
 	 --log-file $out_dir/23-deseq2_preprocess_otu.log \
 	 --out-Rdata $out_dir/23-deseq2_preprocess_otu.Rdata \
 	 --var EnvType
@@ -953,7 +921,7 @@ then
 deseq2_preprocess.py \
 	 --samplefile data/sample_metadata.tsv \
 	 --input-functions data/frogsfunc_functions_unstrat_EC.tsv \
-	 --analysis FUNC \
+	 --analysis FUNCTION \
 	 --log-file $out_dir/23-deseq2_preprocess_func.log \
 	 --out-Rdata $out_dir/23-deseq2_preprocess_func.Rdata \
 	 --out-Phyloseq $out_dir/23-phyloseq_functions.Rdata \
@@ -977,7 +945,7 @@ if $run_programs
 then
 deseq2_visualisation.py \
 	 --abundanceData $out_dir/16-phylo_import.Rdata \
-	 --analysis OTU \
+	 --analysis ASV \
 	 --dds $out_dir/23-deseq2_preprocess_otu.Rdata \
 	 --log-file $out_dir/24-deseq2_visualisation_otu.log \
 	 --html $out_dir/24-deseq2_visualisation_otu.nb.html \
@@ -1014,7 +982,7 @@ if $run_programs
 then
 deseq2_visualisation.py \
 	--abundanceData $out_dir/23-phyloseq_functions.Rdata \
-	--analysis FUNC \
+	--analysis FUNCTION \
 	--dds $out_dir/23-deseq2_preprocess_func.Rdata \
 	--log-file $out_dir/24-deseq2_visualisation_func.log \
 	--html $out_dir/24-deseq2_visualisation_func.nb.html \
