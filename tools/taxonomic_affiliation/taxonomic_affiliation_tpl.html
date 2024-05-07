@@ -1458,7 +1458,6 @@
 			$(function() {
 				$(".frogsversion > a").text("FROGS "+frogs_tool+" "+frogs_version);
 				summaryLoad();
-				console.log(bootstrap_scores);
 				// Hide tab if no data
 				if( alignment_scores == null ){
 					$('#alignment-nav-tab').remove();
@@ -1482,17 +1481,14 @@
 					else if ($(this).attr('href') == "#tax-distrib" && $('#tax-distrib').prop('disabled',true)  ) {
 						taxBySample_load( "tax-distrib" );
 						$('#tax-distrib').prop("disabled",true);
-						console.log("TAXONOMY");
 					}
 					
 					else if( $(this).attr('href') == "#bootstrap-distrib" && $('#bootstrap-distrib').prop('disabled',true)  ) {
 						$('#bootstrap').prop("disabled",true);
 						bootstrap_score_load( "bootstrap-barplot" );
-						console.log("BOOTSTRAP");
 					} else if( $(this).attr('href') == "#alignment-distrib" && $('#alignment-distrib').prop('disabled',true)  ) {
 						$('#alignment').prop("disabled",true);
 						alignment_score_load( "alignment-heatmap" );
-						console.log("ALIGNMENT");
 					}
 					
 				
@@ -1515,10 +1511,10 @@
 		<div id="content" class="hidden">
 			<ul id="mytab" class="nav nav-tabs">
 				<li class="nav-item active"><a class="nav-link active" href="#global-summary">Summary</a></li>
-				<li class="nav-item" id="taxonomy"-nav-tav><a class="nav-link" href="#tax-distrib">Taxonomy distribution</a></li>
+				<li class="nav-item" id="taxonomy-nav-tav"><a class="nav-link" href="#tax-distrib">Taxonomy distribution</a></li>
 				<li class="nav-item" id="bootstrap-nav-tab"><a class="nav-link" href="#bootstrap-distrib">Bootstrap distribution</a></li>
 				<li class="nav-item" id="alignment-nav-tab"><a class="nav-link" href="#alignment-distrib">Alignment distribution</a></li>
-				<li class="nav-item frogsversion"><a class="nav-link"></a></li>
+				<li class="nav-item frogsversion"><a style="display: block; padding: 0.5rem 1rem;"></a></li>
 			</ul>
 			
 			<div class="tab-content">
