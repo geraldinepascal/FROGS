@@ -510,7 +510,7 @@ if __name__ == "__main__":
 	group_output.add_argument('--output-fasta', default='frogsfunc_function.fasta', help='Fasta file without excluded ASVs (NSTI, blast perc identity or blast perc coverage thresholds). (format: FASTA). [Default: %(default)s]')
 	group_output.add_argument('--output-excluded', default='frogsfunc_functions_excluded.txt', help='List of ASVs with NSTI values above NSTI threshold ( --max_NSTI NSTI ).[Default: %(default)s]')
 	group_output.add_argument('--log-file', default=sys.stdout, help='List of commands executed. [Default: stdout]')
-	group_output.add_argument('--summary', default='frogsfunc_functions_summary.html', help="Path to store resulting html file. [Default: %(default)s]" )
+	group_output.add_argument('--html', default='frogsfunc_functions_summary.html', help="Path to store resulting html file. [Default: %(default)s]" )
 	args = parser.parse_args()
 	prevent_shell_injections(args)
 	args_dict = vars(args)
@@ -541,8 +541,8 @@ if __name__ == "__main__":
 			parser.error('--min-blast-cov must be between 0.0 and 1.0.')
 	###
 
-	tmp_files=TmpFiles(os.path.split(args.summary)[0])
-	tmp_files_picrust =  TmpFiles(os.path.split(args.summary)[0])
+	tmp_files=TmpFiles(os.path.split(args.html)[0])
+	tmp_files_picrust =  TmpFiles(os.path.split(args.html)[0])
 
 	HIERARCHY_RANKS = ["Level1", "Level2", "Level3", "Function_id"]
 	try:
@@ -630,7 +630,7 @@ if __name__ == "__main__":
 		hierarchy_tag = "classification"
 		TaxonomyTree(tmp_biom, hierarchy_tag, tree_count_file, tree_ids_file).submit( args.log_file )
 
-		write_summary(args.input_biom, function_file_sunburst, args.output_weighted, args.output_excluded, tree_count_file, tree_ids_file, args.output_biom, args.summary)
+		write_summary(args.input_biom, function_file_sunburst, args.output_weighted, args.output_excluded, tree_count_file, tree_ids_file, args.output_biom, args.html)
 	finally:
 		if not args.debug:
 			tmp_files.deleteAll()

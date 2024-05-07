@@ -24,6 +24,6 @@ fi
     --output-contrib test/26-frogsfunc_functions_strat.tsv \
     --output-fasta test/26-frogsfunc_function.fasta \
     --output-biom test/26-frogsfunc_function.biom \
-    --summary test/26-frogsfunc_functions_summary.html
+    --html test/26-frogsfunc_functions_summary.html
 
 

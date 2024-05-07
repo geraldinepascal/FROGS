@@ -365,7 +365,7 @@ if __name__ == "__main__":
 	group_output.add_argument('--output-fasta', default='frogsfunc_placeseqs.fasta', help='Fasta file without non insert sequences. (format: FASTA). [Default: %(default)s]')
 	group_output.add_argument('--output-biom', default='frogsfunc_placeseqs.biom', help='Biom file without non insert sequences. (format: BIOM) [Default: %(default)s]')
 	group_output.add_argument('--closests-ref', default='frogsfunc_placeseqs_closests_ref_sequences.txt', help='Informations about Clusters (i.e ASVs) and PICRUSt2 closest reference from cluster sequences (identifiants, taxonomies, phylogenetic distance from reference, nucleotidics sequences). [Default: %(default)s]')
-	group_output.add_argument('--summary', default='frogsfunc_placeseqs_summary.html', help="Path to store resulting html file. [Default: %(default)s]" )
+	group_output.add_argument('--html', default='frogsfunc_placeseqs_summary.html', help="Path to store resulting html file. [Default: %(default)s]" )
 	group_output.add_argument('--output-marker', default="frogsfunc_marker.tsv", type=str, help='Output table of predicted marker gene copy numbers per studied sequence in input tree. If the extension \".gz\" is added the table will automatically be gzipped. [Default: %(default)s]')	
 	group_output.add_argument('--log-file', default=sys.stdout, help='List of commands executed. [Default: stdout]')
 	args = parser.parse_args()
@@ -408,7 +408,7 @@ if __name__ == "__main__":
 		tmp_find_closest_ref = tmp_files.add( 'tmp_find_closest_ref.log' )
 		FindClosestsRefSequences(args.output_tree, args.output_biom, args.output_fasta, ref_aln, args.output_biom, args.closests_ref, tmp_find_closest_ref).submit(args.log_file)
 		tmp_depth_nsti = tmp_files.add( 'depth_nsti.txt' )
-		write_summary(tmp_fasta, args.excluded, args.input_biom, args.closests_ref, category, tmp_find_closest_ref, tmp_depth_nsti, args.summary)
+		write_summary(tmp_fasta, args.excluded, args.input_biom, args.closests_ref, category, tmp_find_closest_ref, tmp_depth_nsti, args.html)
 
 	finally:
 		if not args.debug:

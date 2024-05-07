@@ -21,4 +21,4 @@ fi
     --output-pathways-contrib test/27-frogsfunc_pathways_strat.tsv \
     --output-pathways-predictions test/27-frogsfunc_pathways_predictions.tsv \
     --output-pathways-abund-per-seq test/27-frogsfunc_pathways_unstrat_per_seq.tsv \
-    --summary test/27-frogsfunc_pathways_summary.html
+    --html test/27-frogsfunc_pathways_summary.html

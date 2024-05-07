@@ -19,4 +19,4 @@ fi
     --output-biom test/25-frogsfunc_placeseqs.biom \
     --closests-ref test/25-frogsfunc_placeseqs_closests_ref_sequences.txt \
     --output-marker test/25-frogsfunc_marker.tsv \
-    --summary test/25-frogsfunc_placeseqs_summary.html
+    --html test/25-frogsfunc_placeseqs_summary.html
