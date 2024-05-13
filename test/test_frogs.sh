@@ -515,7 +515,7 @@ fi
 
 echo "Step deseq2_visualisation `date`"
 
-echo "DESeq2 otu abundances"
+echo "DESeq2 ASV abundances"
 ../app/deseq2_visualisation.py \
  --abundanceData $out_dir/16-phylo_import.Rdata \
  --analysis ASV \
