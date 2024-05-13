@@ -1,6 +1,5 @@
 ---
 title: "FROGS Phyloseq: Beta Diversity Visualisation (version `r params$version`)"
-author: "Ta Thi Ngan - SIGENAE/GABI & Maria Bernard - SIGENAE/GABI"
 copyright: "Copyright (C) 2024 INRAE"
 license: "GNU General Public License"
 version: "5.0.0"
