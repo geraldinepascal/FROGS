@@ -25,14 +25,39 @@ params:
 <meta name="copyright" content="Copyright (C) 2024 INRAE" />
 
 <style type="text/css">
-code.r{ /* Code block */
-  font-size: 11px;
+:root {
+			--frogsColor: #388697; 
+			--frogsColorHover: rgb(12,10,62,0.8);
+			--frogsColorShadow: #6c5b64;
+			--frogsColor2: #FA8883;
+			--frogsColor3: #EFC7C2;
+			--frogsColor4: #737f75;
+			--frogsColorZoomHighCharts: rgb(191,211,193,0.25);
+			--frogsButtonColor: rgb(12,10,62,0.6);
+			--frogsButtonBorderColor: rgb(12,10,62,0.25);
+		}
+h1{
+	color: var(--frogsColor);
 }
-pre { /* Code block */
-  font-size: 11px
+h2{
+	color: var(--frogsColor);
+}
+a {
+	color: var(--frogsColor);
+}
+a:hover{
+	color: var(--frogsColorHover);
+}
+.nav-pills > li.active > a, .nav-pills > li.active > a:focus{
+	color: #fff;
+	background-color: var(--frogsColor);
+	border-color: #dee2e6 #dee2e6 #fff;
+}
+.nav-pills > li.active > a:hover {
+	background-color: var(--frogsColorHover);
 }
 .button {
-    background-color: #2a7ecc; /* Blue */
+    background-color: var(--frogsButtonColor)
     border          : none;
     color           : white;
     padding         : 5px 10px;
@@ -52,7 +77,14 @@ h4 {
     margin-left  : 0;
     margin-right : 0;
     font-weight  : bold;
-    color        : #2a7ecc;
+    color        : var(--frogsColor);
+}
+code.r{ /* Code block */
+  font-size: 11px;
+}
+pre{
+  font-size: 11px ;
+  background-color: rgba(191, 211, 193, 0.25) !important;
 }
 </style>
 

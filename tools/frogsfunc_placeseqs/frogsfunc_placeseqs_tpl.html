@@ -15,11 +15,15 @@
 		<link href="https://cdn.datatables.net/select/1.3.3/css/select.dataTables.min.css" rel="stylesheet">
 		<style type="text/css">
 			:root {
-				--frogsColor: #8EADAC; 
-				--frogsColorHover: #648a89;
-				--frogsColorShadow: #555;
-				--frogsColor2: #DE9F73;
+				--frogsColor: #694F5D; 
+				--frogsColorHover: #87727d;
+				--frogsColorShadow: #6c5b64;
+				--frogsColor2: #BFD3C1;
+				--frogsColor3: #EFC7C2;
 				--frogsColorZoomHighCharts: rgb(222,159,115,0.25);
+			}
+			h2{
+				color: var(--frogsColor);
 			}
 			.frogsversion{
 				position: absolute;
@@ -89,13 +93,7 @@
 				color: var(--frogsColorHover);
 			}
 			.page-link{
-				color: var(--frogsColor);
-			}
-			.page-link:hover{
-				
-			}
-			.page-link:not(:disabled):not(.disabled) {
-				color: var(--frogsColor);
+				color: var(--frogsColorButton);
 			}
 			.page-item.active .page-link {
 				color: #fff;
@@ -294,12 +292,12 @@
 								fill: frogsColor,
 								states: {
 									hover: {
-										fill: 'rgb(100, 138, 137)',
+										fill: frogsColorHover,
 										stroke: frogsColor
 									},
 									select: {
 										stroke: frogsColor,
-										fill: 'rgb(100, 138, 137)',
+										fill: frogsColorHover,
 									}
 								}
 							}
