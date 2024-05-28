@@ -14,7 +14,7 @@
 		<link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
 		<link href="https://cdn.datatables.net/select/1.3.3/css/select.dataTables.min.css" rel="stylesheet">
 		<style type="text/css">
-			:root {
+			/*:root {
 				--frogsColor: #694F5D; 
 				--frogsColorHover: #87727d;
 				--frogsColorShadow: #6c5b64;
@@ -115,6 +115,254 @@
 			tbody > tr.selected, table.dataTable tbody > tr > .selected {
 				background-color: var(--frogsColor) !important;
 			}
+			*/
+			:root {
+				--frogsColor: #388697; 
+				--frogsColorHover: rgb(12,10,62,0.8);
+				--frogsColorShadow: #6c5b64;
+				--frogsColor2: #FA8883;
+				--frogsColor3: #EFC7C2;
+				--frogsColor4: #737f75;
+				--frogsColorZoomHighCharts: rgb(191,211,193,0.25);
+				--frogsButtonColor: rgb(12,10,62,0.6);
+				--frogsButtonBorderColor: rgb(12,10,62,0.8);
+			}
+			/* Tables */
+			.table-striped tbody tr:nth-of-type(2n+1) {
+			  background-color: rgba(249,86,79, 0.1);
+			}
+			.container {
+				position: relative;
+				padding-left: 35px;
+				margin-bottom: 15px;
+				cursor: pointer;
+				-webkit-user-select: none;
+				-moz-user-select: none;
+				-ms-user-select: none;
+				user-select: none;
+			}
+			.container input {
+				position: absolute;
+				opacity: 0;
+				cursor: pointer;
+			}
+			.page-link{
+				color: var(--frogsColor);
+			}
+			.page-link:hover{
+				color: var(--frogsColorHover);
+			}
+			
+			/* Titles */
+			h2{
+				color: var(--frogsColor);
+			}
+			.pb-2, .py-2 {
+				padding-bottom: 1.5rem !important;
+				margin-bottom: 2rem !important;
+				margin-top: 4rem !important;
+			}
+			.pb-2-first{
+				padding-bottom: 1.5rem !important;
+				margin-bottom: 2rem !important;
+				margin-top: 1rem !important;
+			}
+			
+			/* Header */
+			.frogsversion{
+				position: absolute;
+				right: 5%;
+				color: var(--frogsColor);
+				font-style: italic;
+				font-size: smaller;
+			}
+			.frogsversion > a{
+				border: none !important;
+			}
+			ul.nav-tabs {
+				margin-bottom: 30px;
+			}
+			.nav-tabs .nav-link.active, .nav-tabs .nav-item.show .nav-link{
+				color: #fff;
+				background-color: var(--frogsColor);
+				border-color: #dee2e6 #dee2e6 #fff;
+			}
+			
+			/* Buttons */
+			.btn {
+				color: #fff;
+				border:  var(--frogsButtonBorderColor);
+				background-color: var(--frogsButtonColor);
+			}
+			.btn:focus, .btn:active {
+				outline: none !important;
+				box-shadow: none !important;
+			}
+			.btn:hover:enabled{
+				color: #fff;
+				border: var(--frogsButtonBorderColor);
+				background-color: var(--frogsColorHover);
+				cursor:pointer !important;
+			}
+			.heatmap-button-container {
+				width: 200px;
+				margin-left: auto;
+				margin-right: auto;
+			}
+			
+			/* Global */
+			#dispersion {
+                 margin: auto;
+			}
+			#twofigs{
+                 height: 600px;
+			}
+			#content {
+                width: 90%;
+                margin-right: auto;
+                margin-left: auto;
+            }
+            #js-alert {
+                width: 90%;
+                margin-right: auto;
+                margin-left: auto;
+            }
+            a {
+				color: var(--frogsColor);
+			}
+			a:hover{
+				color: var(--frogsColorHover);
+			}
+			.page-item.active .page-link {
+				z-index: 1;
+				color: #fff;
+				background-color: var(--frogsButtonColor);
+				border-color: var(--frogsButtonColor);
+				outline: none !important;
+				box-shadow: none !important;
+			}
+			
+			/* Checkmarks in tables */
+			.checkmark {
+				position: absolute;
+				top: 0;
+				left: 0;
+				height: 20px;
+				width: 20px;
+				background-color: var(--frogsButtonColor);
+				border-radius: 5px;
+				opacity:0.65;
+			}
+			.container:hover input ~ .checkmark {
+				background-color: var(--frogsColorHover);
+			}
+			.checkmark:after {
+				content: "";
+				position: absolute;
+				display: none;
+			}
+			.container input:checked ~ .checkmark:after {
+				display: block;
+			}
+			.container .checkmark:after {
+				left: 7px;
+				top: 3px;
+				width: 6px;
+				height: 10px;
+				border: solid white;
+				border-width: 0 3px 3px 0;
+				-webkit-transform: rotate(45deg);
+				-ms-transform: rotate(45deg);
+				transform: rotate(45deg);
+			}
+			
+			/* Highcharts buttons */
+			.highcharts-button > path{
+				stroke:#fff !important;
+				fill: var(--frogsButtonColor) !important;
+			}
+			g.highcharts-button{
+				cursor:pointer !important;
+			}
+			g.highcharts-button:hover{
+				color: #fff;
+				border: var(--frogsColorHover);
+				background-color: var(--frogsColorHover);
+				cursor:pointer !important;
+			}
+			.highcharts-button > path{
+				stroke:#fff !important;
+				fill: var(--frogsColor) !important;
+			}
+			g.highcharts-button{
+				cursor:pointer !important;
+			}
+			g.highcharts-button:hover{
+				color: #fff;
+				border: var(--frogsColorHover);
+				background-color: var(--frogsColorHover);
+				background-color: var(--frogsColorHover);
+				cursor:pointer !important;
+			}
+			
+			/* Circles */
+			.circle {
+				border-style: solid;
+				border-width: 3px;
+				border-radius: 50px;
+				box-shadow: 2px 2px 2px var(--frogsColorShadow);
+				border-color: var(--frogsColor2);
+				background: var(--frogsColor2);
+				color: #FFF;
+				padding: 10px;
+				width: 180px;
+				height: 98px;
+				line-height: 30px;
+				text-align: center;
+				margin-left: auto;
+				margin-right: auto;
+				margin-bottom: 10px;
+				vertical-align: middle;
+			}
+			.circle-value {
+				font-weight: bold;
+			}
+			
+			/* Venn */
+			#venn-filters {
+				padding: 10px;
+				background-color: #FFF;
+				background-clip: padding-box;
+				border: 1px solid rgba(0, 0, 0, 0.15);
+				border-radius: 4px;
+				box-shadow: 0px 6px 12px rgba(0, 0, 0, 0.176);
+				margin-right: auto;
+				margin-left: auto;
+				margin-bottom: 30px;
+			}
+			#byFilters-jvenn {
+				margin-right: auto;
+				margin-left: auto;
+			}
+			#venn-filters ul {
+				list-style-type: none;
+			}
+			
+			/* Sunburst */
+			#sunburst-detail table {
+				margin-left: auto;
+				margin-right: auto;
+			}	
+			#sunburst-detail p {
+				text-align: center;
+			}
+			#sunburst-menu input {
+				margin-right: 10px;
+			}
+			#display-global-sunburst {
+				margin-bottom: 40px;
+			}
+			
 			div.dtsp-panesContainer div.dtsp-searchPanes div.dtsp-searchPane div.dtsp-selected {
 				border: 2px solid #e1e5e8;
 			}
