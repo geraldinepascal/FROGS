@@ -17,15 +17,19 @@
 				--frogsColorHover: rgb(12,10,62,0.8);
 				--frogsColorShadow: #6c5b64;
 				--frogsColor2: #FA8883;
-				--frogsColor3: #EFC7C2;
+				--frogsColor3: #ffef99;
 				--frogsColor4: #737f75;
 				--frogsColorZoomHighCharts: rgb(191,211,193,0.25);
 				--frogsButtonColor: rgb(12,10,62,0.6);
-				--frogsButtonBorderColor: rgb(12,10,62,0.8);
+				--frogsButtonBorderColor: rgb(12,10,62,0.6);
+				--frogsOddTable: rgba(249,86,79, 0.1);
+				--frogsCircleFontColor: #FFF;
+				--frogsCircleBackgroundColor: #FA8883;
+				--frogsCircleBorderColor: #FA8883;
 			}
 			/* Tables */
 			.table-striped tbody tr:nth-of-type(2n+1) {
-			  background-color: rgba(249,86,79, 0.1);
+			  background-color: var(--frogsOddTable);
 			}
 			.container {
 				position: relative;
@@ -43,7 +47,7 @@
 				cursor: pointer;
 			}
 			.page-link{
-				color: var(--frogsButtonColor);
+				color: var(--frogsColor);
 			}
 			.page-link:hover{
 				color: var(--frogsColorHover);
@@ -71,9 +75,11 @@
 				color: var(--frogsColor);
 				font-style: italic;
 				font-size: smaller;
+				padding:8px;
 			}
 			.frogsversion > a{
 				border: none !important;
+				display: inline-block;
 			}
 			ul.nav-tabs {
 				margin-bottom: 30px;
@@ -186,6 +192,10 @@
 				background-color: var(--frogsColorHover);
 				cursor:pointer !important;
 			}
+			.highcharts-button > path{
+				stroke:#fff !important;
+				fill: var(--frogsColor) !important;
+			}
 			g.highcharts-button{
 				cursor:pointer !important;
 			}
@@ -203,9 +213,9 @@
 				border-width: 3px;
 				border-radius: 50px;
 				box-shadow: 2px 2px 2px var(--frogsColorShadow);
-				border-color: var(--frogsColor2);
-				background: var(--frogsColor2);
-				color: #FFF;
+				border-color: var(--frogsCircleBorderColor);
+				background: var(--frogsCircleBackgroundColor);
+				color: var(--frogsCircleFontColor);
 				padding: 10px;
 				width: 180px;
 				height: 98px;
@@ -325,6 +335,211 @@
 			var frogsColorZoomHighCharts = style.getPropertyValue('--frogsColorZoomHighCharts');
 			var frogsColorHover = style.getPropertyValue('--frogsColorHover');
 			var frogsButtonColor = style.getPropertyValue('--frogsButtonColor');
+			var frogsCircleFontColor = style.getPropertyValue('--frogsCircleFontColor');
+				
+			Highcharts.setOptions({
+					 //colors : [frogsColor2, frogsColor],
+					 colors: [
+							"#769576", // Vert clair
+							"#D9A6A6", // Rose pâle
+							"#C0C099", // Jaune pâle
+							"#567330", // Vert olive
+							"#B0B061", // Jaune clair
+							"#94A1B2", // Bleu clair
+							"#B04D4D", // Rouge clair
+							"#E6A320", // Or
+							"#E67A5A", // Saumon clair
+							"#819CA5"  // Bleu clair
+						],
+					 lang: {thousandsSep: ','}
+					});
+			
+			function update_pie_plots(mainColor, secondColor, buttonColor, buttonColorHover){
+				try{
+					var chart = $('#abundance-filtered').highcharts();
+					chart.update({'colors':[mainColor,secondColor]});
+					chart.update({navigation:{
+						buttonOptions: {
+								theme: {
+									r: 4,
+									fill: buttonColor,
+									states: {
+										hover: {
+											fill: buttonColorHover,
+											stroke:buttonColor
+										},
+										select: {
+											stroke: buttonColor,
+											fill: buttonColorHover,
+										}
+									}
+								}
+							}
+						}
+					});
+					var chart = $('#nb-filtered').highcharts();
+					chart.update({'colors':[mainColor,secondColor]});
+					chart.update({navigation:{
+						buttonOptions: {
+								theme: {
+									r: 4,
+									fill: buttonColor,
+									states: {
+										hover: {
+											fill: buttonColorHover,
+											stroke:buttonColor
+										},
+										select: {
+											stroke: buttonColor,
+											fill: buttonColorHover,
+										}
+									}
+								}
+							}
+						}
+					});
+				} catch(err){}
+			}
+			
+			
+			function update_theme(val){
+				if(val == "Coral" ){
+					/*
+					:root {
+						--frogsColor: #388697; 
+						--frogsColorHover: rgb(12,10,62,0.8);
+						--frogsColorShadow: #6c5b64;
+						--frogsColor2: #FA8883;
+						--frogsColor3: #EFC7C2;
+						--frogsColor4: #737f75;
+						--frogsColorZoomHighCharts: rgb(191,211,193,0.25);
+						--frogsButtonColor: rgb(105,79,93,0.6);
+						--frogsButtonBorderColor: rgb(12,10,62,0.6);
+						--frogsOddTable: rgba(249,86,79, 0.1);
+						--frogsCircleFontColor: #FFF;
+						--frogsCircleBackgroundColor: #FA8883;
+						--frogsCircleBorderColor: #FA8883;
+					}
+					*/
+					document.documentElement.style.setProperty('--frogsColor', "#388697");
+					document.documentElement.style.setProperty('--frogsColorHover', "rgb(12,10,62,0.8)");
+					document.documentElement.style.setProperty('--frogsColorShadow', "#6c5b64");
+					document.documentElement.style.setProperty('--frogsColor2', "#FA8883");
+					document.documentElement.style.setProperty('--frogsColor3', "#ffef99");
+					document.documentElement.style.setProperty('--frogsColor4', "#737f75");
+					document.documentElement.style.setProperty('--frogsColorZoomHighCharts', "rgb(191,211,193,0.25)");
+					document.documentElement.style.setProperty('--frogsButtonColor', "rgb(12,10,62,0.6)");
+					document.documentElement.style.setProperty('--frogsButtonBorderColor', "rgb(12,10,62,0.8)");
+					document.documentElement.style.setProperty('--frogsOddTable', "rgba(249,86,79, 0.1)");
+					document.documentElement.style.setProperty('--frogsCircleFontColor', "#FFF");
+					document.documentElement.style.setProperty('--frogsCircleBackgroundColor',"#FA8883");
+					document.documentElement.style.setProperty('--frogsCircleBorderColor',"#FA8883");
+					
+					var root = document.documentElement;
+					var style = getComputedStyle(root);
+					var frogsColor = style.getPropertyValue('--frogsColor');
+					var frogsColor2 = style.getPropertyValue('--frogsColor2');
+					var frogsColor3 = style.getPropertyValue('--frogsColor3');
+					var frogsColor4 = style.getPropertyValue('--frogsColor4');
+					var frogsColorZoomHighCharts = style.getPropertyValue('--frogsColorZoomHighCharts');
+					var frogsColorHover = style.getPropertyValue('--frogsColorHover');
+					var frogsButtonColor = style.getPropertyValue('--frogsButtonColor');
+					var frogsCircleFontColor = style.getPropertyValue('--frogsCircleFontColor');
+					var frogsColorShadow = style.getPropertyValue('--frogsColorShadow');
+					
+					update_pie_plots(frogsColor2, frogsColor, frogsButtonColor, frogsColorHover);
+					
+				}else if(val == "Plum" ){
+					/*
+					:root {
+						--frogsColor: #694F5D; 
+						--frogsColorHover: rgb(105,79,93,0.8);
+						--frogsColorShadow: #6c5b64;
+						--frogsColor2: #BFD3C1;
+						--frogsColor3: #EFC7C2;
+						--frogsColor4: #737f75;
+						--frogsColorZoomHighCharts: rgb(222,159,115,0.25);
+						--frogsButtonColor: rgb(105,79,93,0.6);
+						--frogsButtonBorderColor: rgb(105,79,93,0.8);
+						--frogsOddTable: #f2f2f2;
+						--frogsCircleFontColor: #694F5D;
+						--frogsCircleBackgroundColor: #BFD3C1;
+						--frogsCircleBorderColor: #BFD3C1;
+					}*/
+					document.documentElement.style.setProperty('--frogsColor', "#694F5D");
+					document.documentElement.style.setProperty('--frogsColorHover', "rgb(105,79,93,0.8)");
+					document.documentElement.style.setProperty('--frogsColorShadow', "#6c5b64");
+					document.documentElement.style.setProperty('--frogsColor2', "#BFD3C1");
+					document.documentElement.style.setProperty('--frogsColor3', "#4f5d69");
+					document.documentElement.style.setProperty('--frogsColor4', "#737f75");
+					document.documentElement.style.setProperty('--frogsColorZoomHighCharts', "rgb(222,159,115,0.25)");
+					document.documentElement.style.setProperty('--frogsButtonColor', "rgb(105,79,93,0.6)");
+					document.documentElement.style.setProperty('--frogsButtonBorderColor', "rgb(105,79,93,0.8)");
+					document.documentElement.style.setProperty('--frogsOddTable', "#f2f2f2");
+					document.documentElement.style.setProperty('--frogsCircleFontColor', "#694F5D");
+					document.documentElement.style.setProperty('--frogsCircleBackgroundColor',"#BFD3C1");
+					document.documentElement.style.setProperty('--frogsCircleBorderColor',"#BFD3C1");
+					
+					var root = document.documentElement;
+					var style = getComputedStyle(root);
+					var frogsColor = style.getPropertyValue('--frogsColor');
+					var frogsColor2 = style.getPropertyValue('--frogsColor2');
+					var frogsColor3 = style.getPropertyValue('--frogsColor3');
+					var frogsColor4 = style.getPropertyValue('--frogsColor4');
+					var frogsColorZoomHighCharts = style.getPropertyValue('--frogsColorZoomHighCharts');
+					var frogsColorHover = style.getPropertyValue('--frogsColorHover');
+					var frogsButtonColor = style.getPropertyValue('--frogsButtonColor');
+					var frogsCircleFontColor = style.getPropertyValue('--frogsCircleFontColor');
+					var frogsColorShadow = style.getPropertyValue('--frogsColorShadow');
+					
+					update_pie_plots(frogsColor2, frogsColor, frogsButtonColor, frogsColorHover);
+					
+				}else if(val == "FROGS4" ){
+					/*
+					:root {
+						--frogsColor: #8eadac; 
+						--frogsColorHover: #648a89;
+						--frogsColorShadow: #648a89;
+						--frogsColor2: #de9f73;
+						--frogsColor3: #ad8e9f;
+						--frogsColor4: #a2a32f;
+						--frogsColorZoomHighCharts: rgb(100, 138, 137, 0.25);
+						--frogsButtonColor: #8EADAC;
+						--frogsButtonBorderColor: #8EADAC;
+						--frogsOddTable: #f2f2f2;
+						--frogsCircleFontColor: #FFF;
+						--frogsCircleBackgroundColor: #8eadac;
+						--frogsCircleBorderColor: #648a89;
+					}*/
+					document.documentElement.style.setProperty('--frogsColor', "#8eadac");
+					document.documentElement.style.setProperty('--frogsColorHover', "#648a89");
+					document.documentElement.style.setProperty('--frogsColorShadow', "#648a89");
+					document.documentElement.style.setProperty('--frogsColor2', "#de9f73");
+					document.documentElement.style.setProperty('--frogsColor3', "#ad8e9f");
+					document.documentElement.style.setProperty('--frogsColor4', "#a2a32f");
+					document.documentElement.style.setProperty('--frogsColorZoomHighCharts', "rgb(100, 138, 137, 0.25)");
+					document.documentElement.style.setProperty('--frogsButtonColor', "#8EADAC");
+					document.documentElement.style.setProperty('--frogsButtonBorderColor', "#8EADAC");
+					document.documentElement.style.setProperty('--frogsOddTable', "#f2f2f2");
+					document.documentElement.style.setProperty('--frogsCircleFontColor', "#FFF");
+					document.documentElement.style.setProperty('--frogsCircleBackgroundColor',"#8eadac");
+					document.documentElement.style.setProperty('--frogsCircleBorderColor',"#648a89");
+					
+					var root = document.documentElement;
+					var style = getComputedStyle(root);
+					var frogsColor = style.getPropertyValue('--frogsColor');
+					var frogsColor2 = style.getPropertyValue('--frogsColor2');
+					var frogsColor3 = style.getPropertyValue('--frogsColor3');
+					var frogsColor4 = style.getPropertyValue('--frogsColor4');
+					var frogsColorZoomHighCharts = style.getPropertyValue('--frogsColorZoomHighCharts');
+					var frogsColorHover = style.getPropertyValue('--frogsColorHover');
+					var frogsButtonColor = style.getPropertyValue('--frogsButtonColor');
+					var frogsCircleFontColor = style.getPropertyValue('--frogsCircleFontColor');
+					var frogsColorShadow = style.getPropertyValue('--frogsColorShadow');
+					
+					update_pie_plots(frogsColor2, frogsColor, frogsButtonColor, frogsColorHover);
+				 }
+			}
 			/**
 			 Data from HTML
 			*/
@@ -366,7 +581,7 @@
 			 	        credits: {
 			 	        	enabled: false
 			 	        },
-			 	        exporting:{buttons: {contextButton: { symbol: 'download' }}},
+			 	    exporting:{buttons: {contextButton: { symbol: 'download' }}},
                     buttons: {contextButton: {menuItems: ['downloadPNG', 'downloadSVG']}},
                     navigation: {
 						buttonOptions: {
@@ -411,6 +626,7 @@
 				plot['tooltip'] = {
 		            pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
 		        };
+		        plot['exporting'] = {buttons: {contextButton: { symbol: 'download' }}};
 				plot['plotOptions'] = {
 		            pie: {
 		                allowPointSelect: true,
@@ -467,17 +683,18 @@
 
 			
 			$(function() {
-				$(".frogsversion > a").text("FROGS "+frogs_tool+" "+frogs_version);
+				$(".frogsversion > div > a").text("FROGS "+frogs_tool+" "+frogs_version);
 				
 				// Remove alert
 				$('#js-alert').remove();
 				$('#content').removeClass("hidden");
 
 				// Radializes colors
+				/*
 				Highcharts.setOptions({
 					 colors : [frogsColor, frogsColor2] ,
 					 lang: {thousandsSep: ','}
-					});
+					});*/
 					Highcharts.SVGRenderer.prototype.symbols.download = function (x, y, w, h) {
 					var path = [
 						// Arrow stem
@@ -495,7 +712,9 @@
 					];
 					return path;
 				};
+				
 				/* Radial gradient ?*/
+				/*
 			    Highcharts.getOptions().colors = Highcharts.map(Highcharts.getOptions().colors, function (color) {
 			        return {
 			            radialGradient: { cx: 0.5, cy: 0.3, r: 0.7 },
@@ -505,7 +724,7 @@
 			            ]
 			        };
 			    });
-				
+				*/
 			 	// Display chimera remove data
 				var nb_filtered_data = [
 					['Kept', remove_info['nb_kept']],
@@ -569,6 +788,7 @@
 				$('#details-csv-export').datatableExport({
 					'table_id': "details-table"
 				});
+				update_pie_plots(frogsColor2, frogsColor, frogsButtonColor, frogsColorHover);
 			});
 		</script>
 	</head>
@@ -579,7 +799,17 @@
 		</p>
 		<div id="content" class="hidden">
 			<ul id="mytab" class="nav nav-tabs">
-				<li class="nav-item frogsversion"><a style="display: block; padding: 0.5rem 1rem;"></a></li>
+				<li class="nav-item frogsversion">
+					<div class="container">
+						<select id="themechoice" class="form-select" onchange="update_theme($(this).val())" style="font-size: smaller;" aria-label="Default select example">
+							<option selected disabled>Switch theme</option>
+							<option value="Plum">Plum</option>
+							<option value="Coral">Coral</option>
+							<option value="FROGS4">FROGS4</option>
+						</select>
+						<a style="padding: 0.5rem 1rem;"></a>
+					</div>
+				</li>
 			</ul>
 				<div id="filter-summary">
 	        		<h2 class="pb-2 mt-4 mb-2 border-bottom">Normalisation summary
