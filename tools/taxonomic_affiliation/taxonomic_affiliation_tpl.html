@@ -461,6 +461,32 @@
 					} catch(err){}
 			}
 			
+			function update_bootstrap_plot(mainColor, secondColor, buttonColor, buttonColorHover){
+				try{
+				var chart = $('#bootstrap-barplot').highcharts();
+				chart.update({navigation:{
+							buttonOptions: {
+									theme: {
+										r: 4,
+										fill: buttonColor,
+										states: {
+											hover: {
+												fill: buttonColorHover,
+												stroke:buttonColor
+											},
+											select: {
+												stroke: buttonColor,
+												fill: buttonColorHover,
+											}
+										}
+									}
+								}
+							}
+						});
+				
+				}catch(err){}
+			}
+			
 			function update_multi_aff_plot(mainColor, secondColor, buttonColor, buttonColorHover){
 				try{
 						var chart = $('#clstr-multi-affi').highcharts()
@@ -561,8 +587,9 @@
 					
 					update_heamap(frogsColor, frogsButtonColor, frogsColorHover);
 					update_rarefaction_plot(frogsColor, frogsColor2, frogsButtonColor, frogsColorHover);
-					update_pie_plots(frogsColor, frogsColor2, frogsButtonColor, frogsColorHover);
+					update_pie_plots(frogsColor2, frogsColor, frogsButtonColor, frogsColorHover);
 					update_multi_aff_plot(frogsColor2, frogsColor, frogsButtonColor, frogsColorHover);
+					update_bootstrap_plot(frogsColor2, frogsColor, frogsButtonColor, frogsColorHover);
 					
 				}else if(val == "Plum" ){
 					/*
@@ -609,8 +636,9 @@
 					
 					update_heamap(frogsColor, frogsButtonColor, frogsColorHover);
 					update_rarefaction_plot(frogsColor, frogsColor2, frogsButtonColor, frogsColorHover);
-					update_pie_plots(frogsColor, frogsColor2, frogsButtonColor, frogsColorHover);
+					update_pie_plots(frogsColor2, frogsColor, frogsButtonColor, frogsColorHover);
 					update_multi_aff_plot(frogsColor2, frogsColor, frogsButtonColor, frogsColorHover);
+					update_bootstrap_plot(frogsColor2, frogsColor, frogsButtonColor, frogsColorHover);
 					
 				}else if(val == "FROGS4" ){
 					/*
@@ -658,7 +686,8 @@
 					update_heamap(frogsColor, frogsButtonColor, frogsColorHover);
 					update_rarefaction_plot(frogsColor, frogsColor2, frogsButtonColor, frogsColorHover);
 					update_pie_plots(frogsColor, frogsColor2, frogsButtonColor, frogsColorHover);
-					update_multi_aff_plot(frogsColor2, frogsColor, frogsButtonColor, frogsColorHover);
+					update_multi_aff_plot(frogsColor, frogsColor2, frogsButtonColor, frogsColorHover);
+					update_bootstrap_plot(frogsColor2, frogsColor, frogsButtonColor, frogsColorHover);
 				 }
 			}
 			/**
@@ -1024,7 +1053,7 @@
 							text: pTitle
 						},
 						colors : [
-                            frogsColor, frogsColor2
+                            frogsColor2, frogsColor
                     	] ,
                     	exporting:{buttons: {contextButton: { symbol: 'download' }}},
 						buttons: {contextButton: {menuItems: ['downloadPNG', 'downloadSVG']}},
@@ -1697,9 +1726,11 @@
 					else if( $(this).attr('href') == "#bootstrap-distrib" && $('#bootstrap-distrib').prop('disabled',true)  ) {
 						$('#bootstrap').prop("disabled",true);
 						bootstrap_score_load( "bootstrap-barplot" );
+						update_bootstrap_plot(frogsColor2, frogsColor, frogsButtonColor, frogsColorHover);
 					} else if( $(this).attr('href') == "#alignment-distrib" && $('#alignment-distrib').prop('disabled',true)  ) {
 						$('#alignment').prop("disabled",true);
 						alignment_score_load( "alignment-heatmap" );
+						update_heamap(frogsColor, frogsButtonColor, frogsColorHover);
 					}
 					
 				
@@ -1708,6 +1739,22 @@
 				// Remove alert
 				$('#js-alert').remove();
 				$('#content').removeClass("hidden");
+				
+				$('#themechoice').change(function() {
+					var $select = $(this);
+					var selectedIndex = $select.prop('selectedIndex');
+					
+					// Activer toutes les options
+					$select.find('option').prop('disabled', false);
+
+					// Désactiver l'option sélectionnée
+					if (selectedIndex > 0) { // Ignorer l'option "Switch theme"
+						$select.find('option').eq(selectedIndex).prop('disabled', true);
+					}
+
+					// Réinitialiser la sélection à "Switch theme"
+					$select.prop('selectedIndex', 0);
+				});
 				
 				
 			});
@@ -1730,7 +1777,7 @@
 						<select id="themechoice" class="form-select" onchange="update_theme($(this).val())" style="font-size: smaller;" aria-label="Default select example">
 							<option selected disabled>Switch theme</option>
 							<option value="Plum">Plum</option>
-							<option value="Coral">Coral</option>
+							<option value="Coral" disabled>Coral</option>
 							<option value="FROGS4">FROGS4</option>
 						</select>
 						<a style="padding: 0.5rem 1rem;"></a>

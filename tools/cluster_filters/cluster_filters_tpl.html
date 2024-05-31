@@ -381,10 +381,10 @@
 				} catch(err){}
 			}
 			
-			function update_pie_plots_three(mainColor, secondColor, thirdColor, buttonColor, buttonColorHover){
+			function update_pie_plots(mainColor, secondColor, buttonColor, buttonColorHover){
 				try{
 					var chart = $('#abundance-filtered').highcharts();
-					chart.update({'colors':[mainColor,secondColor, thirdColor]});
+					chart.update({'colors':[mainColor,secondColor]});
 					chart.update({navigation:{
 						buttonOptions: {
 								theme: {
@@ -405,7 +405,7 @@
 						}
 					});
 					var chart = $('#nb-filtered').highcharts();
-					chart.update({'colors':[mainColor,secondColor, thirdColor]});
+					chart.update({'colors':[mainColor,secondColor]});
 					chart.update({navigation:{
 						buttonOptions: {
 								theme: {
@@ -502,7 +502,7 @@
 					var frogsCircleFontColor = style.getPropertyValue('--frogsCircleFontColor');
 					var frogsColorShadow = style.getPropertyValue('--frogsColorShadow');
 					
-					update_pie_plots_three(frogsColor2, frogsColor, frogsColor3, frogsButtonColor, frogsColorHover);
+					update_pie_plots(frogsColor2, frogsColor, frogsButtonColor, frogsColorHover);
 					update_boxplot(frogsColor, frogsButtonColor, frogsColorHover);
 					update_area(frogsColor, frogsButtonColor, frogsColorHover);
 					update_circles(frogsColor2, frogsColor2);
@@ -550,7 +550,7 @@
 					var frogsCircleFontColor = style.getPropertyValue('--frogsCircleFontColor');
 					var frogsColorShadow = style.getPropertyValue('--frogsColorShadow');
 					
-					update_pie_plots_three(frogsColor2, frogsColor, frogsColor3, frogsButtonColor, frogsColorHover);
+					update_pie_plots(frogsColor2, frogsColor, frogsButtonColor, frogsColorHover);
 					update_boxplot(frogsColor, frogsButtonColor, frogsColorHover);
 					update_area(frogsColor, frogsButtonColor, frogsColorHover);
 					update_circles(frogsColor2, frogsColor2);
@@ -598,7 +598,7 @@
 					var frogsCircleFontColor = style.getPropertyValue('--frogsCircleFontColor');
 					var frogsColorShadow = style.getPropertyValue('--frogsColorShadow');
 					
-					update_pie_plots_three(frogsColor2, frogsColor, frogsColor3, frogsButtonColor, frogsColorHover);
+					update_pie_plots(frogsColor, frogsColor2, frogsButtonColor, frogsColorHover);
 					update_boxplot(frogsColor, frogsButtonColor, frogsColorHover);
 					update_area(frogsColor, frogsButtonColor, frogsColorHover);
 					update_circles(frogsColor, frogsColorHover);
@@ -875,7 +875,7 @@
 			var global_filters_load = function(){
 				// Radializes colors
 				Highcharts.setOptions({
-					 colors : [frogsColor, frogsColor2] ,
+					 colors : [frogsColor2, frogsColor] ,
 					});
 					Highcharts.SVGRenderer.prototype.symbols.download = function (x, y, w, h) {
 					var path = [
@@ -1095,7 +1095,7 @@
 			var cluster_distrib_load = function( container_id ) {
 				// Radializes colors
 				Highcharts.setOptions({
-					 colors : [frogsColor, frogsColor2] ,
+					 colors : [frogsColor2, frogsColor] ,
 					});
 					Highcharts.SVGRenderer.prototype.symbols.download = function (x, y, w, h) {
 					var path = [
@@ -1337,7 +1337,22 @@
 						$('#view-by-replicates').removeClass('disabled')
 						replicate_groups_load( "replicate-log" );
 					}
-				})
+				});
+				$('#themechoice').change(function() {
+					var $select = $(this);
+					var selectedIndex = $select.prop('selectedIndex');
+					
+					// Activer toutes les options
+					$select.find('option').prop('disabled', false);
+
+					// Désactiver l'option sélectionnée
+					if (selectedIndex > 0) { // Ignorer l'option "Switch theme"
+						$select.find('option').eq(selectedIndex).prop('disabled', true);
+					}
+
+					// Réinitialiser la sélection à "Switch theme"
+					$select.prop('selectedIndex', 0);
+				});
 			});
 		</script>
 
@@ -1362,7 +1377,7 @@
 						<select id="themechoice" class="form-select" onchange="update_theme($(this).val())" style="font-size: smaller;" aria-label="Default select example">
 							<option selected disabled>Switch theme</option>
 							<option value="Plum">Plum</option>
-							<option value="Coral">Coral</option>
+							<option value="Coral" disabled>Coral</option>
 							<option value="FROGS4">FROGS4</option>
 						</select>
 						<a style="padding: 0.5rem 1rem;"></a>

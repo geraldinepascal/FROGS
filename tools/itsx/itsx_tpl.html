@@ -603,7 +603,7 @@
 					update_boxplot(frogsColor, frogsButtonColor, frogsColorHover);
 					update_area(frogsColor, frogsButtonColor, frogsColorHover);
 					update_circles(frogsColor, frogsColorHover);
-					update_pie_plots(frogsColor2, frogsColor, frogsButtonColor, frogsColorHover);
+					update_pie_plots(frogsColor, frogsColor2, frogsButtonColor, frogsColorHover);
 				 }
 			}
 			/**
@@ -1149,7 +1149,23 @@
 						$('#cluster-distrib').removeClass("disabled");
 						cluster_distrib_load( "cluster-distrib" );
 					}
-				})
+				});
+				
+				$('#themechoice').change(function() {
+					var $select = $(this);
+					var selectedIndex = $select.prop('selectedIndex');
+					
+					// Activer toutes les options
+					$select.find('option').prop('disabled', false);
+
+					// Désactiver l'option sélectionnée
+					if (selectedIndex > 0) { // Ignorer l'option "Switch theme"
+						$select.find('option').eq(selectedIndex).prop('disabled', true);
+					}
+
+					// Réinitialiser la sélection à "Switch theme"
+					$select.prop('selectedIndex', 0);
+				});
 			});
 		</script>
 
@@ -1172,7 +1188,7 @@
 						<select id="themechoice" class="form-select" onchange="update_theme($(this).val())" style="font-size: smaller;" aria-label="Default select example">
 							<option selected disabled>Switch theme</option>
 							<option value="Plum">Plum</option>
-							<option value="Coral">Coral</option>
+							<option value="Coral" disabled>Coral</option>
 							<option value="FROGS4">FROGS4</option>
 						</select>
 						<a style="padding: 0.5rem 1rem;"></a>
