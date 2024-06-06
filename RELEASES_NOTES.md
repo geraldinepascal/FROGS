@@ -12,6 +12,7 @@
 * add version and tool name in HTML reports
 * add subject length information (slen) and related perc_subject_coverage in BIOM metadata for each affiliation
 * remove and rename remaining tools/code with OTU term  
+* possibility to swith color theme in HTML reports
   
 ### Functions added
 * FROGS denoising:
