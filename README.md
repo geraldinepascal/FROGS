@@ -1,32 +1,31 @@
 <p align="center">
- <a href="http://frogs.toulouse.inra.fr/">
+ <a href="http://frogs.toulouse.inrae.fr/">
   <img src="FROGS_logo.png" align="center" width="20%" style="display: block; margin: auto;"/>
  </a>
 </p>
 
 Visit our web site : http://frogs.toulouse.inrae.fr/
 
-[![Release](https://img.shields.io/badge/release-4.1.0-blue.svg)![Date](https://img.shields.io/badge/date-March%202023-red.svg)](https://github.com/geraldinepascal/FROGS-wrappers/releases) [<img src="https://www.podcastscience.fm/wp-content/uploads/2017/12/deezer.png" width="5%" style="display: block; margin: auto;"/>](https://www.deezer.com/fr/playlist/5233843102?utm_source=deezer&utm_content=playlist-5233843102&utm_term=18632989_1545296531&utm_medium=web)
+[![Release](https://img.shields.io/badge/release-4.1.0-blue.svg)![Date](https://img.shields.io/badge/date-March%202023-red.svg)](https://github.com/geraldinepascal/FROGS-wrappers/releases) [<img src="https://cdn.icon-icons.com/icons2/70/PNG/512/deezer_14086.png" width="2%" style="display: block; margin: auto;"/>](https://www.deezer.com/fr/playlist/5233843102?utm_source=deezer&utm_content=playlist-5233843102&utm_term=18632989_1545296531&utm_medium=web)
 
 
 
 # Description
 
-FROGS is a CLI workflow designed to produce an ASV count matrix from high depth sequencing amplicon data.
+FROGS is a CLI workflow designed to produce and analysis an ASV count matrix from high depth sequencing amplicon data.
 
 FROGS-wrappers allow to add FROGS on a Galaxy instance. (see https://github.com/geraldinepascal/FROGS-wrappers)
 
 This workflow is focused on:
 
 - User-friendliness with lots of rich graphic outputs and the integration in Galaxy thanks to FROGS-wrappers.
-- Accuracy with a clustering without global similarity threshold, the management of separated PCRs in the chimera removal step, and the management of multi-affiliations.
+- Dealing with **Illumina**, **IonTorrent**, **454**, **PacBio** and **Oxford Nanopore** sequencing technology reads.
 - Dealing of non overlapping pair of sequences from long amplicon like ITS, or RPB2.
+- Accuracy with a clustering without global similarity threshold or a denoising process, the management of separated PCRs in the chimera removal step, and the management of multi-affiliations.
 - Access to general statistics on microbial communities and differential abundance analysis.
 - Prediction of functionnal annotation and metabolic pathways.
 - Speed with fast algorithms parallelisation and easy to use.
 - Scalability with algorithms designed to support the data growth.
-
-
 
 # Table of content
 
@@ -103,17 +102,18 @@ FROGS relies on different specific tools for each of the analysis steps.
 
 | FROGS Tools |Dependancy  | version tested |
 | ----------- | :--------: | -------------: |
-| Preprocess and Remove_chimera |        [vsearch](https://github.com/torognes/vsearch)        | 2.17.0 |
-| Preprocess                    | [flash](https://sourceforge.net/projects/flashpage/files/) (optional) |               1.2.11 |
-| Preprocess                    |       [cutadapt](https://github.com/marcelm/cutadapt) (need to be >=2.8)       |            3.1 |
-| Clustering                    |          [swarm](https://github.com/torognes/swarm) (need to be >=2.1)          |            3.0.0 |
+| Denoising and Remove_chimera |        [vsearch](https://github.com/torognes/vsearch)        | 2.17.0 |
+| Denoising                    | [flash](https://sourceforge.net/projects/flashpage/files/) (optional) |               1.2.11 |
+| Denoising                    |       [cutadapt](https://github.com/marcelm/cutadapt) (need to be >=2.8)       |            2.10 |
+| Denoising                    |          [swarm](https://github.com/torognes/swarm) (need to be >=2.1)          |            3.0.0 |
+| Denoising                    |          [DADA2](https://benjjneb.github.io/dada2/index.html)     |            1.22.0 |
 | ITSx                          |        [ITSx](http://microbiology.se/software/itsx/)         |  1.1.2 |
-| Taxonomic_affiliation               | [NCBI BLAST+](http://blast.ncbi.nlm.nih.gov/Blast.cgi?PAGE_TYPE=BlastDocs&DOC_TYPE=Download) |          2.10.1 |
+| Taxonomic_affiliation               | [NCBI BLAST+](http://blast.ncbi.nlm.nih.gov/Blast.cgi?PAGE_TYPE=BlastDocs&DOC_TYPE=Download) |          2.10 |
 | Taxonomic_affiliation               |    [RDP Classifier](https://github.com/rdpstaff/RDPTools)    |                2.0.3 |
 | Taxonomic_affiliation               | [EMBOSS needleall](http://emboss.sourceforge.net/apps/release/6.6/emboss/apps/needleall.html) |                6.6.0 |
-| Tree                          |       [MAFFT](https://mafft.cbrc.jp/alignment/server/)       |                7.475 |
-| Tree                          |     [Fasttree](http://www.microbesonline.org/fasttree/)      |               2.1.10 |
-| Tree / FROGSSTAT              | [plotly](https://plotly.com/r/), [phangorn](https://cran.r-project.org/web/packages/phangorn/index.html), [rmarkdown](https://cran.r-project.org/web/packages/rmarkdown/index.html), [phyloseq](https://joey711.github.io/phyloseq/), [DESeq2](https://bioconductor.org/packages/release/bioc/html/DESeq2.html), [optparse](https://cran.r-project.org/web/packages/optparse/index.html), [calibrate](https://cran.r-project.org/web/packages/calibrate/index.html), [formattable](https://cran.r-project.org/web/packages/formattable/), [DT](https://cran.r-project.org/web/packages/DT/index.html) |              R 3.6.3 |
+| Tree                          |       [MAFFT](https://mafft.cbrc.jp/alignment/server/)       |                7.407 |
+| Tree                          |     [Fasttree](http://www.microbesonline.org/fasttree/)      |               2.1.9 |
+| Tree / FROGSSTAT              | [plotly](https://plotly.com/r/), [phangorn](https://cran.r-project.org/web/packages/phangorn/index.html), [rmarkdown](https://cran.r-project.org/web/packages/rmarkdown/index.html), [phyloseq](https://joey711.github.io/phyloseq/), [DESeq2](https://bioconductor.org/packages/release/bioc/html/DESeq2.html), [optparse](https://cran.r-project.org/web/packages/optparse/index.html), [calibrate](https://cran.r-project.org/web/packages/calibrate/index.html), [formattable](https://cran.r-project.org/web/packages/formattable/), [DT](https://cran.r-project.org/web/packages/DT/index.html) |              R 4.1.2 |
 | FROGSSTAT | [pandoc](https://pandoc.org/) | 2.11.3|
 | FROGSFUNC | [PICRUSt2](https://github.com/picrust/picrust2/wiki) | 2.5.1|
 | FROGSFUNC | [ete3](http://etetoolkit.org/) | 3.1.1|
@@ -136,29 +136,29 @@ FROGS is now available on bioconda (https://anaconda.org/bioconda/frogs).
   * to create a specific environment for a specific FROGS version
 
 ```
-conda env create --name frogs@4.1.0 --file frogs-conda-requirements.yaml
+conda env create --name frogs@5.0.0 --file frogs-conda-requirements.yaml
 # to use FROGS, first you need to activate your environment
-conda activate frogs@4.1.0
+conda activate frogs@5.0.0
 ```
 
 **WARNING** : As PICRUSt2 currently relies on a different R version, in order to use the FROGSFUNC tools, it is necessary to create a dedicated conda environment as follows:
 
 ```
-conda env create --name frogsfunc@4.1.0 --file frogsfunc-conda-requirements.yaml
+conda env create --name frogsfunc@5.0.0 --file frogsfunc-conda-requirements.yaml
 # and then activate the environment
-conda activate frogsfunc@4.1.0
+conda activate frogsfunc@5.0.0
 ```
 
-After that, you just have to switch from one environment to another (with `conda activate frogs@4.1.0` or `conda activate frogsfunc@4.1.0` depending on whether you want to use FROGSFUNC or all the other tools.
+After that, you just have to switch from one environment to another (with `conda activate frogs@5.0.0` or `conda activate frogsfunc@5.0.0` depending on whether you want to use FROGSFUNC or all the other tools.
 
 ## Check intallation
 
 To check your installation you can type:
 
 ```
-cd <conda_env_dir>/frogs@4.1.0/share/FROGS-4.1.0/test
+cd <conda_env_dir>/frogs@5.0.0/share/FROGS-5.0.0/test
 
-conda activate frogs@4.1.0
+conda activate frogs@5.0.0
 
 sh test_frogs.sh <NB_CPU> <JAVA_MEM> <OUT_FOLDER>
 ```
@@ -169,43 +169,48 @@ This test executes the FROGS tools in command line mode.
 Example:
 
 ```
-[user@computer:/home/frogs/FROGS/test/]$ sh test_frogs.sh ../ 1 2 res
-Step demultiplexe lun. 25 avril 2022 16:01:36 CEST
-Step preprocess : Flash lun. 25 avril 2022 16:01:36 CEST
-Step preprocess : Vsearch lun. 25 avril 2022 16:02:34 CEST
-Step clustering lun. 25 avril 2022 16:03:30 CEST
-Step remove_chimera lun. 25 avril 2022 16:05:21 CEST
-Step cluster filters lun. 25 avril 2022 16:06:25 CEST
-Step ITSx lun. 25 avril 2022 16:06:43 CEST
-Step taxonomic_affiliation lun. 25 avril 2022 16:06:51 CEST
-Step affiliation_filter: masking mode lun. 25 avril 2022 16:06:54 CEST
-Step affiliation_filter: deleted mode lun. 25 avril 2022 16:06:55 CEST
-Step affiliation_postprocess lun. 25 avril 2022 16:06:56 CEST
-Step normalisation lun. 25 avril 2022 16:06:57 CEST
-Step clusters_stat lun. 25 avril 2022 16:06:58 CEST
-Step affiliations_stat lun. 25 avril 2022 16:06:59 CEST
-Step biom_to_tsv lun. 25 avril 2022 16:06:59 CEST
-Step biom_to_stdBiom lun. 25 avril 2022 16:07:00 CEST
-Step tsv_to_biom lun. 25 avril 2022 16:07:00 CEST
-Step tree lun. 25 avril 2022 16:07:00 CEST
-Step phyloseq_import_data lun. 25 avril 2022 16:07:59 CEST
-Step phyloseq_composition lun. 25 avril 2022 16:08:11 CEST
-Step phyloseq_alpha_diversity lun. 25 avril 2022 16:08:29 CEST
-Step phyloseq_beta_diversity lun. 25 avril 2022 16:08:49 CEST
-Step phyloseq_structure lun. 25 avril 2022 16:09:01 CEST
-Step phyloseq_clustering lun. 25 avril 2022 16:09:15 CEST
-Step phyloseq_manova lun. 25 avril 2022 16:09:26 CEST
-Step deseq2_preprocess lun. 25 avril 2022 16:09:37 CEST
-Step deseq2_visualisation lun. 25 avril 2022 16:10:03 CEST
+[user@computer:/home/frogs/FROGS/test/]$ sh test_frogs.sh 1 2 res
+Step demultiplex jeu. 02 mai 2024 17:54:17 CEST
+Step denoising 16S vsearch jeu. 02 mai 2024 17:54:21 CEST:
+Step denoising 16S pear jeu. 02 mai 2024 17:54:37 CEST:
+Step denoising: dada2 keep-unmerged jeu. 02 mai 2024 17:55:48 CEST
+Step denoising: preprocess only jeu. 02 mai 2024 17:57:10 CEST
+Step remove_chimera jeu. 02 mai 2024 17:57:13 CEST
+Step cluster_filters jeu. 02 mai 2024 17:57:15 CEST
+Step itsx jeu. 02 mai 2024 17:57:19 CEST
+Step taxonomic_affiliation jeu. 02 mai 2024 17:57:24 CEST
+Step affiliation_filters: masking mode jeu. 02 mai 2024 17:57:32 CEST
+Step affiliation_filters: deleted mode jeu. 02 mai 2024 17:57:34 CEST
+Step affiliation_postprocess jeu. 02 mai 2024 17:57:35 CEST
+Step normalisation jeu. 02 mai 2024 17:57:36 CEST
+Step cluster_stats jeu. 02 mai 2024 17:57:41 CEST
+Step affiliation_stats jeu. 02 mai 2024 17:57:42 CEST
+Step biom_to_tsv jeu. 02 mai 2024 17:57:43 CEST
+Step biom_to_stdBiom jeu. 02 mai 2024 17:57:44 CEST
+Step tsv_to_biom jeu. 02 mai 2024 17:57:44 CEST
+Step tree jeu. 02 mai 2024 17:57:45 CEST
+Step phyloseq_import_data jeu. 02 mai 2024 17:58:00 CEST
+Step phyloseq_composition jeu. 02 mai 2024 17:59:40 CEST
+Step phyloseq_alpha_diversity jeu. 02 mai 2024 18:00:02 CEST
+Step phyloseq_beta_diversity jeu. 02 mai 2024 18:00:25 CEST
+Step phyloseq_structure jeu. 02 mai 2024 18:00:44 CEST
+Step phyloseq_clustering jeu. 02 mai 2024 18:01:02 CEST
+Step phyloseq_manova jeu. 02 mai 2024 18:01:17 CEST
+Step deseq2_preprocess jeu. 02 mai 2024 18:01:32 CEST
+DESeq2 asv abundances
+DESeq2 function abundances
+Step deseq2_visualisation jeu. 02 mai 2024 18:03:02 CEST
+DESeq2 otu abundances
+DESeq2 function abundances
 Completed with success
 ```
 
 Finally, to check the FROGSFUNC tools installation you can type:
 
 ```
-cd <conda_env_dir>/frogsfunc@4.1.0/share/FROGS-4.1.0/test
+cd <conda_env_dir>/frogsfunc@5.0.0/share/FROGS-5.0.0/test
 
-conda activate frogsfunc@4.1.0
+conda activate frogsfunc@5.0.0
 
 sh test_frogsfunc.sh <OUT_FOLDER>
 ```
@@ -214,10 +219,11 @@ This test executes the FROGSFUNC tools in command line mode.
 Example:
 
 ```
-[user@computer:/home/frogs/FROGS/test/]$ sh test_frogsfunc.sh ../ res
-Step frogsfunc_placeseqs lun. 25 avril 2022 16:17:33 CEST
-Step frogsfunc_functions lun. 25 avril 2022 16:17:50 CEST
-Step frogsfunc_pathways lun. 25 avril 2022 16:17:56 CEST
+[user@computer:/home/frogs/FROGS/test/]$ sh test_frogsfunc.sh res
+Step frogsfunc_placeseqs jeu. 02 mai 2024 18:32:19 CEST
+Step frogsfunc_functions jeu. 02 mai 2024 18:33:49 CEST
+Step frogsfunc_pathways jeu. 02 mai 2024 18:36:32 CEST
+Completed with success
 Completed with success
 ```
 
@@ -229,8 +235,7 @@ All the CPUs must be on the same computer/node.
 
 |         Tool          | RAM per CPU | Minimal RAM | Configuration example |
 | :-------------------: | :---------: | :---------: | :-------------------: |
-|      Preprocess       |     8Gb     |      -      |   12 CPUs and 96 GB   |
-|      Clustering       |      -      |    10 Gb    |   16 CPUs and 60 GB   |
+|      Denoising       |     8Gb     |      10 Gb      |   12 CPUs and 96 GB   |
 | ITSx / Remove_Chimera |     3Gb     |     5Gb     |   12 CPUs and 36 GB   |
 |    Taxonomic_affiliation    |      -      |    20 Gb    |  30 CPUs and 300 GB   |
 
@@ -238,7 +243,7 @@ All the CPUs must be on the same computer/node.
 
 # Download databanks
 
-Reference database are needed to filter contaminants, assign taxonomy to each ASV or filter ambiguities for hyper variable amplicon length.
+Reference databanks are needed to filter contaminants, assign taxonomy to each ASV or filter ambiguities for hyper variable amplicon length.
 
 We propose some databanks, that you simply need to download and extract.
 
@@ -285,7 +290,7 @@ GNU GPL v3
 
 
 # Copyright
-2023 INRAE
+2024 INRAE
 
 
 # Citation

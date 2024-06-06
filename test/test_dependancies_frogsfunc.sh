@@ -1,8 +1,8 @@
 #!/bin/bash
 
 out_dir=res_4.1.0_to_check
-expected_dir=frogsfunc_4.0.1
-run_programs=false     ## if true lance les python sinon, fait uniquement les comparatifs de résultats
+expected_dir=/projet/tmp/frogsfunc//
+run_programs=true     ## if true lance les python sinon, fait uniquement les comparatifs de résultats
 
 ## Set ENV
 ## export PATH=../app:$PATH
@@ -44,7 +44,7 @@ then
 	 --output-biom $out_dir/25-frogsfunc_placeseqs.biom \
 	 --closests-ref $out_dir/25-frogsfunc_placeseqs_closests_ref_sequences.txt \
 	 --output-marker $out_dir/25-frogsfunc_marker.tsv \
-	 --summary $out_dir/25-frogsfunc_placeseqs_summary.html \
+	 --html $out_dir/25-frogsfunc_placeseqs_summary.html \
 	 --log-file $out_dir/25-frogsfunc_placeseqs.log 
 
 	if [ $? -ne 0 ]
@@ -96,11 +96,11 @@ then
 	 --marker-type 16S \
 	 --input-tree $out_dir/25-frogsfunc_placeseqs_tree.nwk  \
 	 --output-function-abund $out_dir/26-frogsfunc_functions_unstrat.tsv \
-	 --output-otu-norm $out_dir/26-frogsfunc_functions_marker_norm.tsv \
+	 --output-asv-norm $out_dir/26-frogsfunc_functions_marker_norm.tsv \
 	 --output-weighted $out_dir/26-frogsfunc_functions_weighted_nsti.tsv \
 	 --output-excluded $out_dir/26-frogsfunc_functions_excluded.txt \
 	 --output-contrib $out_dir/26-frogsfunc_functions_strat.tsv \
-	 --summary $out_dir/26-frogsfunc_functions_summary.html \
+	 --html $out_dir/26-frogsfunc_functions_summary.html \
 	 --log-file $out_dir/26-frogsfunc_functions.log
 
 	if [ $? -ne 0 ]
@@ -115,9 +115,9 @@ then
 	echo "Difference in frogsfunc_functions : 26-frogsfunc_functions_unstrat_EC.tsv " >&2
 fi
 
-if diff_line $out_dir/26-frogsfunc_functions_strat_EC.tsv $expected_dir/26-frogsfunc_functions_strat_EC.tsv 0
+if diff_line $out_dir/26-frogsfunc_functions_unstrat_EC.tsv $expected_dir/26-frogsfunc_functions_unstrat_EC.tsv 0
 then
-	echo "Difference in frogsfunc_functions : 26-frogsfunc_functions_strat_EC.tsv " >&2
+	echo "Difference in frogsfunc_functions : 26-frogsfunc_functions_unstrat_EC.tsv " >&2
 fi
 
 
@@ -156,7 +156,7 @@ then
 	 --output-pathways-contrib $out_dir/27-frogsfunc_pathways_strat.tsv \
 	 --output-pathways-predictions $out_dir/27-frogsfunc_pathways_predictions.tsv \
 	 --output-pathways-abund-per-seq $out_dir/27-frogsfunc_pathways_unstrat_per_seq.tsv \
-	 --summary $out_dir/27-frogsfunc_pathways_summary.html \
+	 --html $out_dir/27-frogsfunc_pathways_summary.html \
 	 --log-file $out_dir/27-frogsfunc_pathways.log
 
 	if [ $? -ne 0 ]

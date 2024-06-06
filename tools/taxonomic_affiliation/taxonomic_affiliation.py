@@ -405,6 +405,55 @@ def split_fasta(fasta_file, tmp_files_manager, nb, out_list, log_file):
         FH_log.write( "\tWrote " + str(out_file['nb_seq']) + " records to " + out_file['file_path'] + "\n" )
     FH_log.close()
 
+def get_bootstrap_distrib( input_biom, bootstrap_tag, multiple_tag ):
+    """
+    @summary: Returns by taxonomic rank the count (seq and clstr) for the different bootstrap categories.
+    @param input_biom: The path to the processed BIOM.
+    @param bootstrap_tag: The metadata tag used in BIOM file to store the taxonomy bootstraps.
+    @param multiple_tag: The metadata tag used in BIOM file to store the list of possible taxonomies.
+    @returns: [dict] By taxonomic rank the count for the different bootstrap categories.
+              Example:
+                {
+                    "Phylum": {
+                        "80": { "clstr": 1, "seq":100 },
+                        "90": {    "clstr": 2,    "seq":400 },
+                        "100": { "clstr": 50, "seq":20000 },
+                    },
+                    "Genus":{
+                        "80":{ "clstr": 1, "seq":100 },
+                        "90":{ "clstr": 2, "seq":400 },
+                        "100":{ "clstr": 50, "seq":20000 },
+                    }
+                }
+    """
+    bootstrap_results = dict()
+
+    biom = BiomIO.from_json( input_biom )
+    for observation in biom.get_observations():
+        observation_metadata = observation['metadata']
+        bootstrap = None
+        if multiple_tag is not None:
+            if multiple_tag in observation_metadata and observation_metadata[multiple_tag] is not None and len(observation_metadata[multiple_tag]) > 0:
+                bootstrap = observation_metadata[multiple_tag][0][bootstrap_tag]
+        else:
+            if bootstrap_tag in observation_metadata:
+                bootstrap = observation_metadata[bootstrap_tag]
+        if bootstrap is not None:
+            for taxonomy_depth, rank_bootstrap in enumerate( bootstrap ):
+                rank_bootstrap = rank_bootstrap * 100
+                rank = args.taxonomy_ranks[taxonomy_depth]
+                if rank not in bootstrap_results:
+                    bootstrap_results[rank] = dict()
+                if rank_bootstrap not in bootstrap_results[rank]:
+                    bootstrap_results[rank][rank_bootstrap] = {
+                        "clstr": 0,
+                        "seq": 0
+                    }
+                bootstrap_results[rank][rank_bootstrap]["clstr"] += 1
+                bootstrap_results[rank][rank_bootstrap]["seq"] += biom.get_observation_count( observation['id'] )
+    del biom
+    return bootstrap_results
+
 def get_alignment_distrib( input_biom, identity_tag, coverage_tag, multiple_tag ):
     """
     @summary: Returns by taxonomic rank the count (seq and clstr) for the different identity/coverage.
@@ -478,8 +527,8 @@ def summarise_results( summary_file, biom_file, tree_count_file, tree_ids_file, 
 
     # Get bootstrap metrics
     bootstrap_results = None
-    if args.bootstrap_tag is not None:
-        bootstrap_results = get_bootstrap_distrib( input_biom, args.bootstrap_tag, args.multiple_tag )
+    if args.rdp:
+        bootstrap_results = get_bootstrap_distrib( biom_file, args.bootstrap_tag, None )
     # Get alignment metrics
     aln_results = get_alignment_distrib( biom_file, "perc_identity", "perc_query_coverage", "blast_affiliations" )
 
@@ -773,6 +822,10 @@ if __name__ == "__main__":
     log_blast_list = []
     # merge aln
     aln_out = ""
+
+    # Set default options
+    if args.rdp:
+        args.bootstrap_tag = "rdp_bootstrap"
 
     # Process
     try:

@@ -320,7 +320,7 @@ if __name__ == "__main__":
 	group_output.add_argument('--output-pathways-predictions', default=None, help='Stratified output corresponding to contribution of predicted gene family abundances within each predicted genome. [Default: %(default)s]')
 	group_output.add_argument('--output-pathways-abund-per-seq', default=None, help='Pathway abundance file output per sequences (if --per-sequence-contrib set). [Default: %(default)s]')
 	group_output.add_argument('--log-file', default=sys.stdout, help='This output file will contain several information on executed commands. [Default: stdout]')
-	group_output.add_argument('--summary', default='frogsfunc_pathways_summary.html', help="Path to store resulting html file. [Default: %(default)s]" )	
+	group_output.add_argument('--html', default='frogsfunc_pathways_summary.html', help="Path to store resulting html file. [Default: %(default)s]" )	
 	args = parser.parse_args()
 	prevent_shell_injections(args)
 	
@@ -339,7 +339,7 @@ if __name__ == "__main__":
 	if (args.per_sequence_abun is not None or args.per_sequence_function is not None) and not args.per_sequence_contrib:
 		parser.error("\n\n#ERROR : --per-sequence-contrib required when --per-sequence-contrib and --per-sequence-function option is set!\n\n")
 
-	tmp_files=TmpFiles(os.path.split(args.summary)[0])
+	tmp_files=TmpFiles(os.path.split(args.html)[0])
 	tmp_files_picrust =  TmpFiles(os.path.dirname(args.output_pathways_abund), prefix="")
 
 	HIERARCHY_RANKS = ['Level1','Level2','Level3','Pathway']
@@ -396,7 +396,7 @@ if __name__ == "__main__":
 		hierarchy_tag = "classification"
 		TaxonomyTree( tmp_biom, hierarchy_tag, tree_count_file, tree_ids_file ).submit( args.log_file )
 
-		write_summary( args.output_pathways_abund, tree_count_file, tree_ids_file, args.summary )
+		write_summary( args.output_pathways_abund, tree_count_file, tree_ids_file, args.html )
 
 	finally:
 		if not args.debug:

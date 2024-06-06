@@ -27,7 +27,7 @@ frogsfunc_placeseqs.py \
  --closests-ref $out_dir/25-frogsfunc_placeseqs_closests_ref_sequences.txt \
  --log-file $out_dir/25-frogsfunc_placeseqs.log \
  --output-marker $out_dir/25-frogsfunc_marker.tsv \
- --summary $out_dir/25-frogsfunc_placeseqs_summary.html
+ --html $out_dir/25-frogsfunc_placeseqs_summary.html
 
 if [ $? -ne 0 ]
 then
@@ -50,7 +50,7 @@ frogsfunc_functions.py \
  --output-fasta $out_dir/26-frogsfunc_function.fasta \
  --output-biom $out_dir/26-frogsfunc_function.biom \
  --log-file $out_dir/26-frogsfunc_functions.log \
- --summary $out_dir/26-frogsfunc_functions_summary.html
+ --html $out_dir/26-frogsfunc_functions_summary.html
 
 
 if [ $? -ne 0 ]
@@ -72,7 +72,7 @@ frogsfunc_pathways.py \
  --output-pathways-predictions $out_dir/27-frogsfunc_pathways_predictions.tsv \
  --output-pathways-abund-per-seq $out_dir/27-frogsfunc_pathways_unstrat_per_seq.tsv \
  --log-file $out_dir/27-frogsfunc_pathways.log \
- --summary  $out_dir/27-frogsfunc_pathways_summary.html
+ --html  $out_dir/27-frogsfunc_pathways_summary.html
 
 if [ $? -ne 0 ]
 then
