@@ -1,4 +1,4 @@
-#!/usr/bin/env /usr/local/public/R/bin/Rscript
+#!/usr/bin/env Rscript
 
 author = 'Olivier Rué'
 copyright = 'Copyright (C) 2023 INRAE'
