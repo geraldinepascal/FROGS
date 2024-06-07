@@ -1,0 +1,39 @@
+---
+title: "Untitled"
+output: html_document
+date: "2024-06-06"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(dplyr)
+```
+
+```{r}
+# KEGG_annot <- read.table('KEGG_hierarchy_Metabolism_ko_in_picrust.tsv', sep="\t", header = FALSE, quote = "")
+KEGG_annot <- read.table('KEGG_hierarchy_all_ko_in_picrust.tsv', sep="\t", header = FALSE, quote = "")
+colnames(KEGG_annot) <- c("gene_family","Name","path_number", "path_id","path_names")
+KEGG_annot <- KEGG_annot %>% select(gene_family, Name, path_names) %>%  separate_rows(path_names, sep=' & ') %>% separate(path_names, c("level1", "level2","level3"), sep = ";") 
+KEGG_annot[KEGG_annot == ""] <- NA
+KEGG_annot[KEGG_annot == "NA"] <- NA
+KEGG_annot_reformat <- KEGG_annot %>% arrange(gene_family, level1, level2, level3) %>%
+         group_by(gene_family, level1, level2) %>% mutate(level3 = paste0(level3, collapse = "; ")) %>% unique() %>%
+         group_by(gene_family, level1) %>% mutate(level2 = paste0(level2, collapse = "; "),
+                                         level3 = paste0(level3, collapse = "; ")) %>% unique() %>% dplyr::select(level1, level2, level3, Name, gene_family)
+
+KEGG_annot_reformat[KEGG_annot_reformat == "NA"] <- NA
+
+# ajout manuel des gene_family picrust manquant
+KEGG_annot_reformat <- rbind(KEGG_annot_reformat, 
+      data.frame(level1 = rep("Probably removed Ortholog",6),
+                 level2 = rep(NA,6),
+                 level3 = rep(NA,6),
+                 Name = c("tachykinin-like receptor", "phosphate-transporting ATPase [EC:3.6.3.27]", "molybdate-transporting ATPase [EC:3.6.3.29]", "mitotic spindle assembly checkpoint protein MAD1", "Fe3+-transporting ATPase [EC:3.6.3.30]","dopamine D2-like receptor"),
+                 gene_family = c("K04225", "K06021", "K06022", "K06638","K10826","K14049"))
+      )
+
+# write.table(KEGG_annot_reformat,"KEGG_annot.tsv", quote = FALSE, sep="\t", row.names = FALSE)
+write.table(KEGG_annot_reformat,"KEGG_all_annot.tsv", quote = FALSE, sep="\t", row.names = FALSE)
+```
+

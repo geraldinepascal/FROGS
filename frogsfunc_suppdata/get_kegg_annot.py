@@ -43,14 +43,14 @@ d_fun_name_path = dict()	# stocke le nom et la liste d'ID de classe C
 	# D      K12407  GCK; glucokinase [EC:2.7.1.2]
 # FH_name = open("KEGG_Orthology_20231128.txt", "rt")
 FH_name = open("KEGG_hierarchy.txt", "rt")
-is_in_metabolism = True
+# is_in_metabolism = True
 for line in FH_name:
 	if not line[0] in ["A","B","C","D"]:
 		continue
 	if "B  09194 Poorly characterized" in line:		
 		break
-	if "Genetic Information Processing" in line: 	# store only Metabolism function
-		is_in_metabolism = False
+	# if "Genetic Information Processing" in line: 	# store only Metabolism function : 6232 KO sur / 20666 (ou 4218sur 13833 si on se retreint à celles dans picrust2)
+	# 	is_in_metabolism = False
 
 	if line[0] in ["A","B", "C"]:
 		if line[0] == "A":
@@ -104,24 +104,27 @@ for line in FH_name:
 		fun_name = d[1].strip()								#platelet-derived growth factor receptor alpha [EC:2.7.10.1]
 		if not fun_id in d_fun_name_path:
 			d_fun_name_path[fun_id] = {"name" : fun_name, "path" : list()}
-		if is_in_metabolism :
-			d_fun_name_path[fun_id]["path"].append(ClassC_Id)
+		# if is_in_metabolism :
+		d_fun_name_path[fun_id]["path"].append(ClassC_Id)
 		# if fun_id == "K00046":
 		# 	print(ClassA_name + ";" + ClassB_name + ";" + Name+ "\t"+str(is_in_metabolism))
+		# if fun_id == "K00001":
+		# 	print(ClassA_name + ";" + ClassB_name + ";" + Name)
 
 # try to recover old function name : https://www.genome.jp/ftp/db/kofam/archives save in kofam_archives_2019-03-20_ko_list.tsv
 FH_archives = open("KEGG_kofam_archive_2019_03_20.tsv")
 for line in FH_archives:
 	fun_id = line.split()[0]
 	if fun_id != "knum" and not fun_id in d_fun_name_path:
-		name=line.split('\t')[-1].strip()
-		d_fun_name_path[fun_id]= {"name" : name, "path" : "Removed Ortholog"}
+		fun_name=line.split('\t')[-1].strip()
+		d_fun_name_path[fun_id]= {"name" : fun_name, "path" : "Removed Ortholog"}
 
 
-# print(d_fun_name_path["K00046"])
+# print(d_fun_name_path["K00001"])
 
 # faire un fichier bilan pour chaque fonction associer son nom le nombre de pathway KEGG, BRITE, OTHER (en 3 sections de colonnes séparées)
-FH_out = open("KEGG_hierarchy_Metabolism_ko.tsv" , "wt")
+# FH_out = open("KEGG_hierarchy_Metabolism_ko.tsv" , "wt")			que Metabolism
+FH_out = open("KEGG_hierarchy_all_ko.tsv" , "wt")
 FH_out.write("Function_id\tFunction_name\tNumber_pathway\tPathway_ids\tPathway_names\n")
 for fun in d_fun_name_path:
 	if  d_fun_name_path[fun]["path"] == "Removed Ortholog":

@@ -4,6 +4,19 @@
 #	le code pour KEGG n'a pas été développé pour FROGS et certaines parties ne sont pas nécessaire.
 #	les noms level1 level2 level3 ne sont pas forcément appropriés pour COG (c'est plutôt categories, pathway, et pas de level3)
 
+#	check si chaque colonne est unique ou redondante. est logique? Doit on imaginer une autre annotation?
+#		les level sont utilisés pour créer un sunburst dans frogsfunc_functions. Est ce fonctionnel? Est ce pertinent ? Comme gérer la multiplicité des levels pour KEGG ou COG par exemple
+
+# la concaténation des niveaux peut poser problème pour les stat
+
+
+#################
+# 							/!\/!\/!\/!\/!\/!\/!\/!\/!\/!\/!\/!\
+#
+# CONCLUSION : besoins de plus de réflexion ne communiquer que le fichier KEGG_hierarchy_all_ko_in_picrust à utiliser en dehors de FROGS
+#
+#
+#################
 
 #############################################################################################################################################
 #												GET KEGG
@@ -30,20 +43,44 @@ python get_kegg_annot.py
 gzip -dc ~/miniconda3/envs/frogsfunc@4.0.1/lib/python3.6/site-packages/picrust2/default_files/description_mapfiles/ko_info.tsv.gz | wc -l
 	# 13839 KEGG KO in picrust2
 
-gzip -dc ~/miniconda3/envs/frogsfunc@4.0.1/lib/python3.6/site-packages/picrust2/default_files/description_mapfiles/ko_info.tsv.gz | awk -F "\t" 'BEGIN{
-	while(getline<"KEGG_hierarchy_Metabolism_ko.tsv">0){tab[$1]=$0}
-	}{
-		if(tab[$1]!=""){
-			print tab[$1]
-		}
-	}' > KEGG_hierarchy_Metabolism_ko_in_picrust.tsv
-	
-	wc -l KEGG_hierarchy_Metabolism_ko_in_picrust.tsv 
-	# 13833 
-	grep -c "Removed Ortholog" KEGG_hierarchy_Metabolism_ko_in_picrust.tsv 
-	# 519
-	# 13833 -1 header - 519 removed = 13313 KO toujours dans KEGG et annoté dans des pathway metabolique
-	# 13839 - 13832 = 7 KO picrust non retrouvé
+	# sur KO impliqué dans les metabolism uniquement
+	gzip -dc ~/miniconda3/envs/frogsfunc@4.0.1/lib/python3.6/site-packages/picrust2/default_files/description_mapfiles/ko_info.tsv.gz | awk -F "\t" 'BEGIN{
+		while(getline<"KEGG_hierarchy_Metabolism_ko.tsv">0){tab[$1]=$0}
+		}{
+			if(tab[$1]!=""){
+				print tab[$1]
+			}
+		}' > KEGG_hierarchy_Metabolism_ko_in_picrust.tsv
+		
+		wc -l KEGG_hierarchy_Metabolism_ko_in_picrust.tsv 
+		# 13833
+		grep -c "Metabolism;" KEGG_hierarchy_Metabolism_ko_in_picrust.tsv
+		# 4218  
+		grep -c "Removed Ortholog" KEGG_hierarchy_Metabolism_ko_in_picrust.tsv 
+		# 519
+		# 13833 -1 header - 519 removed = 13313 KO toujours dans KEGG
+		# 13839 - 13832 = 7 KO picrust non retrouvé
+
+	# sur all KO
+	gzip -dc ~/miniconda3/envs/frogsfunc@4.0.1/lib/python3.6/site-packages/picrust2/default_files/description_mapfiles/ko_info.tsv.gz | awk -F "\t" 'BEGIN{
+		while(getline<"KEGG_hierarchy_all_ko.tsv">0){tab[$1]=$0}
+		}{
+			if(tab[$1]!=""){
+				print tab[$1]
+			}
+		}' > KEGG_hierarchy_all_ko_in_picrust.tsv
+		
+		wc -l KEGG_hierarchy_all_ko_in_picrust.tsv 
+		# 13833
+		grep -c "Metabolism;" KEGG_hierarchy_all_ko_in_picrust.tsv
+		# 4218  
+		awk -F '\t' '$3==0 || $3=="NA"' KEGG_hierarchy_all_ko_in_picrust.tsv| wc -l 
+		519  # 519 KO sans pathway
+		grep -c "Removed Ortholog" KEGG_hierarchy_all_ko_in_picrust.tsv 
+		# 519	==> en dehors de ces KO supprimés tous les autres sont associé à une hierarchy fonctionnelle
+		# 13833 -1 header - 519 removed = 13313 KO 
+		# 13839 - 13832 = 7 KO picrust non retrouvé
+
 
 # check missing KO
 gzip -dc ~/miniconda3/envs/frogsfunc@4.0.1/lib/python3.6/site-packages/picrust2/default_files/description_mapfiles/ko_info.tsv.gz | awk -F "\t" 'BEGIN{
@@ -89,5 +126,10 @@ mv cog-20.def.tab COG_descriptions.tsv
 
 mv gene_family_hierarchy.tsv gene_family_hierarchy_frogs4.1.tsv
 cp KEGG_annot.tsv gene_family_hierarchy.tsv 
+tail -n +2 COG_annot.tsv >> gene_family_hierarchy.tsv 
+awk -F "\t" '{if(substr($5,0,3) == "EC:"){print $0}}' gene_family_hierarchy_frogs4.1.tsv >> gene_family_hierarchy.tsv 
+
+mv gene_family_hierarchy.tsv gene_family_hierarchy_KEGG_MetaboOnly.tsv
+cp KEGG_all_annot.tsv gene_family_hierarchy.tsv 
 tail -n +2 COG_annot.tsv >> gene_family_hierarchy.tsv 
 awk -F "\t" '{if(substr($5,0,3) == "EC:"){print $0}}' gene_family_hierarchy_frogs4.1.tsv >> gene_family_hierarchy.tsv 
