@@ -6,7 +6,7 @@
 
 Visit our web site : http://frogs.toulouse.inrae.fr/
 
-[![Release](https://img.shields.io/badge/release-4.1.0-blue.svg)![Date](https://img.shields.io/badge/date-March%202023-red.svg)](https://github.com/geraldinepascal/FROGS-wrappers/releases) [<img src="https://cdn.icon-icons.com/icons2/70/PNG/512/deezer_14086.png" width="2%" style="display: block; margin: auto;"/>](https://www.deezer.com/fr/playlist/5233843102?utm_source=deezer&utm_content=playlist-5233843102&utm_term=18632989_1545296531&utm_medium=web)
+[![Release](https://img.shields.io/badge/release-5.0.0-blue.svg)![Date](https://img.shields.io/badge/date-June%202024-red.svg)](https://github.com/geraldinepascal/FROGS-wrappers/releases) [<img src="https://cdn.icon-icons.com/icons2/70/PNG/512/deezer_14086.png" width="2%" style="display: block; margin: auto;"/>](https://www.deezer.com/fr/playlist/5233843102?utm_source=deezer&utm_content=playlist-5233843102&utm_term=18632989_1545296531&utm_medium=web)
 
 
 
@@ -105,7 +105,7 @@ FROGS relies on different specific tools for each of the analysis steps.
 | Denoising and Remove_chimera |        [vsearch](https://github.com/torognes/vsearch)        | 2.17.0 |
 | Denoising                    | [flash](https://sourceforge.net/projects/flashpage/files/) (optional) |               1.2.11 |
 | Denoising                    |       [cutadapt](https://github.com/marcelm/cutadapt) (need to be >=2.8)       |            2.10 |
-| Denoising                    |          [swarm](https://github.com/torognes/swarm) (need to be >=2.1)          |            3.0.0 |
+| Denoising                    |          [swarm](https://github.com/torognes/swarm) (need to be >=2.1)          |            3.1.4 |
 | Denoising                    |          [DADA2](https://benjjneb.github.io/dada2/index.html)     |            1.22.0 |
 | ITSx                          |        [ITSx](http://microbiology.se/software/itsx/)         |  1.1.2 |
 | Taxonomic_affiliation               | [NCBI BLAST+](http://blast.ncbi.nlm.nih.gov/Blast.cgi?PAGE_TYPE=BlastDocs&DOC_TYPE=Download) |          2.10 |
@@ -124,7 +124,7 @@ FROGS relies on different specific tools for each of the analysis steps.
 If you work in an academic lab on a private Galaxy server, or if you have paid your license you can use PEAR in FROGS preprocess.
 For that you need to:
 
-- have PEAR in your PATH or in the FROGS libexec directory. We have tested PEAR 0.9.10 version (last version 0.9.11).
+- have PEAR in your PATH or in the FROGS libexec directory. We have tested PEAR 0.9.11 version.
 - use `--merge-software pear` option in the preprocess.py command line
 
 ## FROGS and dependencies installation
@@ -223,7 +223,6 @@ Example:
 Step frogsfunc_placeseqs jeu. 02 mai 2024 18:32:19 CEST
 Step frogsfunc_functions jeu. 02 mai 2024 18:33:49 CEST
 Step frogsfunc_pathways jeu. 02 mai 2024 18:36:32 CEST
-Completed with success
 Completed with success
 ```
 
