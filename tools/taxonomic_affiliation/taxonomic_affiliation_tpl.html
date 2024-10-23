@@ -1483,7 +1483,7 @@
 				for( var rank = 0 ; rank < taxonomy_ranks.length ; rank++ ){
 					titles.push( "Nb " + taxonomy_ranks[rank].toLowerCase() );
 				}
-				titles.push( "Nb asv" );
+				//titles.push( "Nb asv" );
 				titles.push( "Nb sequences" );
 				$('#taxBySample-table thead').empty();
 				$('#taxBySample-table tbody').empty();
@@ -1500,7 +1500,7 @@
 					tree.keepOnlySamples( [sample_idx] );
 					//var sample_data = [ '<input id="taxBySample-chk-' + sample_name + '" type="checkbox" value="1">', sample_name ];
 					var sample_data = ['<label class="container"><input type="checkbox" id="taxBySample-chk-' + sample_name + '" value="1"><span class="checkmark"></span></label>',sample_name];
-					for( var rank = 0 ; rank < taxonomy_ranks.length ; rank++ ){
+					for( var rank = 0 ; rank < taxonomy_ranks.length-1 ; rank++ ){
 						sample_data.push( numberDisplay(tree.getNodeByDepth(rank+1).length) );
 					}
 					sample_data.push( numberDisplay(rarefaction[sample_name]['nb_asv']) );
