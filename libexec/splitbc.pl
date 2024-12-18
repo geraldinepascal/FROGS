@@ -490,7 +490,8 @@ sub match_sequences {
 					$sequence_fragment_radTAG = substr $seq_bases_r2, $barcodes_length, $radTAG_length;
 				}
 				if ($trim){
-					$start2=0 ;
+					#$start2=0 ;
+					$start2=$barcodes_length+$adapt;
 					$cut_len2=$seq_len_r2-$barcodes_length-$adapt;
 					if ($trim2) {
 						$start = 0 ;
