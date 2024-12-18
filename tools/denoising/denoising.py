@@ -325,7 +325,7 @@ class Vsearch(Cmd):
             'join overlapping paired reads',
              ' --threads 1 --fastq_mergepairs ' + in_R1 + ' --reverse ' + in_R2 \
              + ' --fastqout ' + out_prefix + '.assembled.fastq ' + ' --fastqout_notmerged_fwd ' + out_prefix + '.unassembled_R1.fastq ' + ' --fastqout_notmerged_rev ' + out_prefix + '.unassembled_R2.fastq '\
-             + ' --fastq_allowmergestagger --fastq_ascii ' + param.quality_scale + ' --fastq_maxdiffpct ' + str(param.mismatch_rate*100) + ' --fastq_minovlen ' + str(min_overlap) \
+             + ' --fastq_allowmergestagger --fastq_ascii ' + param.quality_scale + ' --fastq_maxdiffpct ' + str(param.mismatch_rate*100) + ' --fastq_minovlen ' + str(min_overlap) + ' --fastq_qmax ' + str(93) \
              + ' 2> ' + log,
              '--version')
 
