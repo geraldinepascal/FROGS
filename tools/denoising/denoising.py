@@ -2039,62 +2039,90 @@ if __name__ == "__main__":
     parser_illumina = subparsers.add_parser( 'illumina', help='Illumina sequencers.', usage='''
   For samples archive:
     denoising.py illumina
+      [--nb-cpus NB_CPUS] [--debug] [--version]
       --input-archive ARCHIVE_FILE
-      --already-contiged
-      --R1-size R1_SIZE [--R2-size R2_SIZE]sequencer
-      --without-primers | --five-prim-primer FIVE_PRIM_PRIMER --three-prim-primer THREE_PRIM_PRIMER
-      --min-amplicon-size MIN_AMPLICON_SIZE
-      --max-amplicon-size MAX_AMPLICON_SIZE
+        # if single-end ou already-contiged
+        --already-contiged
+        # else
+        --R1-size R1_SIZE --R2-size R2_SIZE
+        [--merge-software {vsearch,flash,pear}] [--quality-scale SCALE ] [--expected-amplicon-size] [--keep-unmerged]
+      # primers
+      --without-primers | --five-prim-primer FIVE_PRIM_PRIMER --three-prim-primer THREE_PRIM_PRIMER [--mismatch-rate RATE ]
+      # filter
+      --min-amplicon-size MIN_AMPLICON_SIZE --max-amplicon-size MAX_AMPLICON_SIZE
+      # clustering or denoising
       [--process {swarm, dada2, preprocess-only}]
-      [--denoising] [--distance DISTANCE] [--fastidious] | [--sample-inference {pseudo-pooling, independent, pooling}]
-      [--mismatch-rate RATE ] [--quality-scale SCALE ] [--merge-software {vsearch,flash,pear}] [--expected-amplicon-size] 
-      [--keep-unmerged]
-      [--nb-cpus NB_CPUS] [--debug] [--version]
+        # if swarm
+        [--denoising] [--distance DISTANCE] [--fastidious] 
+        # if dada2
+        [--sample-inference {pseudo-pooling, independent, pooling}]
+      # outputs
       [--output-biom BIOM_FILE] [--output-fasta FASTA_FILE]
-      [--html SUMMARY_FILE] [--log-file LOG_FILE]
-      
-  For samples files:
-    denoising.py illumina
-      --input-R1 R1_FILE [R1_FILE ...] 
-      --already-contiged | --input-R2 R2_FILE [R2_FILE ...]
-      --R1-size R1_SIZE [--R2-size R2_SIZE]
-      --samples-names SAMPLE_NAME [SAMPLE_NAME ...]
-      --without-primers | --five-prim-primer FIVE_PRIM_PRIMER --three-prim-primer THREE_PRIM_PRIMER
-      --min-amplicon-size MIN_AMPLICON_SIZE
-      --max-amplicon-size MAX_AMPLICON_SIZE
-      [--process {swarm, dada2, preprocess-only}]
-      [--denoising] [--distance DISTANCE] [--fastidious] | [--sample-inference {pseudo-pooling, independent, pooling}]
-      [--mismatch-rate RATE ] [--quality-scale SCALE ] [--merge-software {vsearch,flash,pear}] [--expected-amplicon-size] 
-      [--keep-unmerged]
-      [--nb-cpus NB_CPUS] [--debug] [--version]
-      [--output-biom BIOM_FILE] [--output-fasta FASTA_FILE]
+        # if swarm
+        [--output-compo OUTPUT_COMPO]
       [--html SUMMARY_FILE] [--log-file LOG_FILE]
 
+      
+  For samples files:
+      denoising.py illumina
+      [--nb-cpus NB_CPUS] [--debug] [--version]
+      --input-R1 R1_FILE [R1_FILE ...]
+      --samples-names SAMPLE_NAME [SAMPLE_NAME ...]
+        # if single-end ou already-contiged
+        --already-contiged
+        # else
+        --input-R2 R2_FILE [R2_FILE ...]
+        --R1-size R1_SIZE --R2-size R2_SIZE
+        [--merge-software {vsearch,flash,pear}] [--quality-scale SCALE ] [--expected-amplicon-size] [--keep-unmerged]
+      # primers
+      --without-primers | --five-prim-primer FIVE_PRIM_PRIMER --three-prim-primer THREE_PRIM_PRIMER [--mismatch-rate RATE ]
+      # filter
+      --min-amplicon-size MIN_AMPLICON_SIZE --max-amplicon-size MAX_AMPLICON_SIZE
+      # clustering or denoising
+      [--process {swarm, dada2, preprocess-only}]
+        # if swarm
+        [--denoising] [--distance DISTANCE] [--fastidious] 
+        # if dada2
+        [--sample-inference {pseudo-pooling, independent, pooling}]
+      # outputs
+      [--output-biom BIOM_FILE] [--output-fasta FASTA_FILE]
+        # if swarm
+        [--output-compo OUTPUT_COMPO]
+      [--html SUMMARY_FILE] [--log-file LOG_FILE]
 ''')
     #     Illumina parameters
-    parser_illumina.add_argument('--process', default="swarm", choices=["swarm","dada2","preprocess-only"], help='Choose between performing only dereplication and using swarm or dada2 to build ASVs [Default: %(default)s]' )
+    parser_illumina.add_argument('--nb-cpus', type=int, default=1, help="The maximum number of CPUs used. [Default: %(default)s]" )
+    parser_illumina.add_argument('--debug', default=False, action='store_true', help="Keep temporary files to debug program. [Default: %(default)s]" )
+        # input description
+    parser_illumina.add_argument('--R1-size', type=int, help='The read1 size.' )
+    parser_illumina.add_argument('--R2-size', type=int, help='The read2 size.' )
+        # merging process
+    parser_illumina.add_argument('--already-contiged', action='store_true', default=False, help='The archive contains 1 file by sample : Reads 1 and Reads 2 are already contiged by pair. [Default: %(default)s]' )
     parser_illumina.add_argument('--merge-software', default="vsearch", choices=["vsearch","flash","pear"], help='Software used to merge paired reads' )
-    parser_illumina.add_argument('--keep-unmerged', default=False, action='store_true', help='In case of uncontiged paired reads, keep unmerged, and artificially combined them with 100 Ns. [Default: %(default)s]' )
-    parser_illumina.add_argument('--min-amplicon-size', type=int, required=True, help='The minimum size for the amplicons (with primers).' )
-    parser_illumina.add_argument('--max-amplicon-size', type=int, required=True, help='The maximum size for the amplicons (with primers).' )
+    parser_illumina.add_argument('--quality-scale', type=str, default="33", choices=["33", "64"], help='The phred base quality scale, either 33 or 64 if using Vsearch as read pair merge software [Default: %(default)s]' )
     parser_illumina.add_argument('--expected-amplicon-size', type=int, help='The expected size for the majority of the amplicons (with primers), if using Flash as read pair merge software.' )
+    parser_illumina.add_argument('--keep-unmerged', default=False, action='store_true', help='In case of uncontiged paired reads, keep unmerged, and artificially combined them with 100 Ns. [Default: %(default)s]' )
+        # primers filtering
     parser_illumina.add_argument('--five-prim-primer', type=str, help="The 5' primer sequence (wildcards are accepted)." )
     parser_illumina.add_argument('--three-prim-primer', type=str, help="The 3' primer sequence (wildcards are accepted)." )
     parser_illumina.add_argument('--without-primers', action='store_true', default=False, help="Use this option when you use custom sequencing primers and these primers are the PCR primers. In this case the reads do not contain the PCR primers. [Default: %(default)s]" )
-    parser_illumina.add_argument('--R1-size', type=int, help='The read1 size.' )
-    parser_illumina.add_argument('--R2-size', type=int, help='The read2 size.' )
     parser_illumina.add_argument('--mismatch-rate', type=float, default=0.1, help='Maximum mismatch rate in overlap region. [Default: %(default)s; must be expressed as decimal, between 0 and 1]' )
-    parser_illumina.add_argument('--quality-scale', type=str, default="33", choices=["33", "64"], help='The phred base quality scale, either 33 or 64 if using Vsearch as read pair merge software [Default: %(default)s]' )
-    parser_illumina.add_argument('--already-contiged', action='store_true', default=False, help='The archive contains 1 file by sample : Reads 1 and Reads 2 are already contiged by pair. [Default: %(default)s]' )
+        # filters
+    parser_illumina.add_argument('--min-amplicon-size', type=int, required=True, help='The minimum size for the amplicons (with primers).' )
+    parser_illumina.add_argument('--max-amplicon-size', type=int, required=True, help='The maximum size for the amplicons (with primers).' )
+        # clustering or denoising
+    group_clustering_or_denoising = parser_illumina.add_argument_group( 'Clustering or Denoising option' )
+    group_clustering_or_denoising.add_argument('--process', default="swarm", choices=["swarm","dada2","preprocess-only"], help='Choose between performing only dereplication and using swarm or dada2 to build ASVs [Default: %(default)s]' )
+            # swarm
     group_clustering = parser_illumina.add_argument_group( 'Clustering options' )
     group_clustering.add_argument('--denoising', default=False, action='store_true',  help="denoise data by clustering read with distance=1 before perform real clustering. It is mutually exclusive with --fastidious. [Default: %(default)s]" )
     group_clustering.add_argument('--distance', type=int, default=1, help="Maximum distance between sequences in each aggregation step. RECOMMENDED : d=1 in combination with --fastidious option [Default: %(default)s]" )
     group_clustering.add_argument('--fastidious', default=False, action='store_true',  help="use the fastidious option of swarm to refine cluster. RECOMMENDED in combination with a distance equal to 1 (-d). it is only usable with d=1 and mutually exclusive with --denoising. [Default: %(default)s]" )
-    group_clustering.add_argument('--output-compo', default='clustering_swarms_composition.tsv', help='This output file will contain the composition of each cluster (format: TSV). One Line is a cluster ; each column is a sequence ID. [Default: %(default)s]')
+    group_clustering_output = parser_illumina.add_argument_group( 'Clustering output' )
+    group_clustering_output.add_argument('--output-compo', default='clustering_swarms_composition.tsv', help='This output file will contain the composition of each cluster (format: TSV). One Line is a cluster ; each column is a sequence ID. [Default: %(default)s]')
+            # dada2
     group_denoising = parser_illumina.add_argument_group( 'Denoising options' )
     group_denoising.add_argument('--sample-inference', default="pseudo-pooling", choices=["pseudo-pooling", "independent", "pooling"],  help="Independent, pseudo-pooling of full pooling for dada2 samples processing. [Default: %(default)s]" )
-    parser_illumina.add_argument('--nb-cpus', type=int, default=1, help="The maximum number of CPUs used. [Default: %(default)s]" )
-    parser_illumina.add_argument('--debug', default=False, action='store_true', help="Keep temporary files to debug program. [Default: %(default)s]" )
     #     Illumina inputs
     group_illumina_input = parser_illumina.add_argument_group( 'Inputs' )
     group_illumina_input.add_argument('--samples-names', type=spl_name_type, nargs='+', default=None, help='The sample name for each R1/R2-files.' )
