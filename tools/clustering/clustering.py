@@ -265,24 +265,24 @@ def addNtags(in_fasta, output_fasta):
 if __name__ == "__main__":
     # Manage parameters
     parser = argparse.ArgumentParser( description='Single-linkage clustering on sequences.' )
-    parser.add_argument( '-p', '--nb-cpus', type=int, default=1, help="The maximum number of CPUs used. [Default: %(default)s]" )
+    parser.add_argument( '--nb-cpus', type=int, default=1, help="The maximum number of CPUs used. [Default: %(default)s]" )
     parser.add_argument( '--debug', default=False, action='store_true', help="Keep temporary files to debug program." )
-    parser.add_argument( '-v', '--version', action='version', version=__version__ )
+    parser.add_argument( '--version', action='version', version=__version__ )
     group_reco = parser.add_argument_group( 'Recommended options' )
-    group_reco.add_argument( '-d', '--distance', type=int, default=1, help="Maximum distance between sequences in each aggregation step. RECOMMENDED : d=1 in combination with --fastidious option [Default: %(default)s]" )
+    group_reco.add_argument( '--distance', type=int, default=1, help="Maximum distance between sequences in each aggregation step. RECOMMENDED : d=1 in combination with --fastidious option [Default: %(default)s]" )
     group_reco.add_argument( '--fastidious', default=False, action='store_true',  help="use the fastidious option of swarm to refine ASV. RECOMMENDED in combination with a distance equal to 1 (-d). it is only usable with d=1 and mutually exclusive with --denoising." )
     group_clustering = parser.add_argument_group( 'other clustering option' )
-    group_clustering.add_argument( '-n', '--denoising', default=False, action='store_true',  help="denoise data by clustering read with distance=1 before perform real clustering. It is mutually exclusive with --fastidious." )
+    group_clustering.add_argument( '--denoising', default=False, action='store_true',  help="denoise data by clustering read with distance=1 before perform real clustering. It is mutually exclusive with --fastidious." )
     # Inputs
     group_input = parser.add_argument_group( 'Inputs' )
-    group_input.add_argument( '-f', '--input-fasta', required=True, help='The sequences file (format: FASTA).' )       
-    group_input.add_argument( '-c', '--input-count', required=True, help="The count file for 'fasta-file' (format: TSV). It contains the count by sample for each sequence." )
+    group_input.add_argument( '--input-fasta', required=True, help='The sequences file (format: FASTA).' )       
+    group_input.add_argument( '--input-count', required=True, help="The count file for 'fasta-file' (format: TSV). It contains the count by sample for each sequence." )
     # Outputs
     group_output = parser.add_argument_group( 'Outputs' )
-    group_output.add_argument( '-b', '--output-biom', default='clustering_abundance.biom', help='This output file will contain the abondance by sample for each cluster (format: BIOM). [Default: %(default)s]')
+    group_output.add_argument( '--output-biom', default='clustering_abundance.biom', help='This output file will contain the abondance by sample for each cluster (format: BIOM). [Default: %(default)s]')
     group_output.add_argument( '--output-fasta', default='clustering_seeds.fasta', help='This output file will contain the seed sequence for each cluster (format: FASTA). [Default: %(default)s]')
     group_output.add_argument( '--output-compo', default='clustering_swarms_composition.tsv', help='This output file will contain the composition of each cluster (format: TSV). One Line is a cluster ; each column is a sequence ID. [Default: %(default)s]')
-    group_output.add_argument( '-l', '--log-file', default=sys.stdout, help='This output file will contain several information on executed commands.')
+    group_output.add_argument( '--log-file', default=sys.stdout, help='This output file will contain several information on executed commands.')
     args = parser.parse_args()
     prevent_shell_injections(args)
 

@@ -187,7 +187,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         description='Process several metrics on abundance from BIOM file.'
     )
-    parser.add_argument( '-v', '--version', action='version', version=__version__ )
+    parser.add_argument( '--version', action='version', version=__version__ )
     parser.add_argument( '--debug', default=False, action='store_true', help="Keep temporary files to debug program." )
     parser.add_argument( '--hierarchical-clustering', action='store_true', default=False, help="Perform Hierarchical classification on observation proportions. [Default: %(default)s]" )
     parser.add_argument( '--distance-method', type=str, default="braycurtis", help='Used distance method for classify (see http://docs.scipy.org/doc/scipy-0.14.0/reference/generated/generated/scipy.spatial.distance.pdist.html#scipy.spatial.distance.pdist). [Default: %(default)s]',
