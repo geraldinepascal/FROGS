@@ -237,7 +237,7 @@ def addNtags(in_fasta, output_fasta):
 
     FH_in = FastaIO(in_fasta)
     FH_out = FastaIO(output_fasta, "wt")
-    regexp = re.compile('50A50C:\d+:\d+$')
+    regexp = re.compile(r'50A50C:\d+:\d+$')
 
     for record in FH_in:
         if "FROGS_combined" in record.id :

@@ -765,7 +765,7 @@ def spl_name_type( arg_value ):
     @summary: Argparse type for samples-names.
     @param arg_value: [str] --samples-names parameter
     """
-    if re.search("\s", arg_value): raise_exception( argparse.ArgumentTypeError( "\n\n#ERROR : A sample name must not contain white spaces.\n\n" ))
+    if re.search(r"\s", arg_value): raise_exception( argparse.ArgumentTypeError( "\n\n#ERROR : A sample name must not contain white spaces.\n\n" ))
     return str(arg_value)
 
 def sort_fasta_and_count(in_fasta, in_count, out_fasta, out_count):
@@ -917,7 +917,7 @@ def addNtags(in_fasta, output_fasta):
 
     FH_in = FastaIO(in_fasta)
     FH_out = FastaIO(output_fasta, "wt")
-    regexp = re.compile('50A50C:\d+:\d+$')
+    regexp = re.compile(r'50A50C:\d+:\d+$')
 
     for record in FH_in:
         if "FROGS_combined" in record.id :
