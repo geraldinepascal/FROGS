@@ -1009,6 +1009,51 @@ def get_seq_length( input_file, size_separator=None ):
     FH_seq.close()
     return nb_by_length
 
+def resizeSeed(seed_in, seed_in_compo, seed_out):
+    """
+    @summary: add read abundance to seed sequence name
+    @param seed_in : [str] Path to seed input fasta file
+    @param seed_in_compo : [str] Path to seed input composition swarm file
+    @param seed_out : [str] Path to seed output fasta file with abundance in name and sorted
+    """
+    dict_cluster_abond=dict()
+    with open(seed_in_compo,"rt") as f:
+        for idx,line in enumerate(f.readlines()):
+            if not line.startswith("#"):
+                cluster_name = "Cluster_" + str(idx+1) if not "FROGS_combined" in line.split()[0] else "Cluster_" + str(idx+1) + "_FROGS_combined"
+                dict_cluster_abond[cluster_name]=sum([ int(n.split("_")[-1]) for n in line.strip().split()])
+    f.close()
+
+    FH_input = FastaIO( seed_in )
+    FH_out=FastaIO(seed_out , "wt" )
+    for record in FH_input:
+        record.id += "_" + str(dict_cluster_abond[record.id])
+        FH_out.write( record )
+    FH_input.close()
+    FH_out.close()
+
+def agregate_composition(step1_compo , step2_compo, out_compo):
+    """
+    @summary: convert cluster composition in cluster in cluster composition in read (in case of two steps clustering)
+    @param step1_compo : [str] Path to cluster1 composition in read (clustering step1)
+    @param step2_compo : [str] Path to cluster2 composition in cluster1 (clustering step2) 
+    @param out_composition : [str] Path to cluster2 composition in read
+    """
+    dict_cluster1_compo=dict()
+    with open(step1_compo,"rt") as f:
+        for idx,line in enumerate(f.readlines()):
+            if "FROGS_combined" in line.split()[0]:
+                dict_cluster1_compo["Cluster_"+str(idx+1)+"_FROGS_combined"]=line.strip()
+            else:
+                dict_cluster1_compo["Cluster_"+str(idx+1)]=line.strip()
+    f.close()
+
+    FH_out=open(out_compo,"wt")
+    with open(step2_compo,"rt") as f:
+        for line in f.readlines():
+            compo=" ".join([dict_cluster1_compo["_".join(n.split('_')[0:-1])] for n in line.strip().split(" ")])
+            FH_out.write(compo+"\n")
+
 def summarise_results( samples_names, lengths_files, biom_file, depth_file, classif_file, log_files, log_files2, param ):
     """
     @summary: Writes one summary of results from several logs.
@@ -1852,7 +1897,7 @@ def process( args ):
                 denoising_log = tmp_files.add( filename_woext + '_denoising_log.txt' )
                 denoising_compo = tmp_files.add( filename_woext + '_denoising_composition.txt' )
                 denoising_seeds = tmp_files.add( filename_woext + '_denoising_seeds.fasta' )
-                denoising_resized_seeds = tmpFiles.add( filename_woext + '_denoising_resizedSeeds.fasta' )
+                denoising_resized_seeds = tmp_files.add( filename_woext + '_denoising_resizedSeeds.fasta' )
                 swarms_file = tmp_files.add( filename_woext + '_swarmD' + str(args.distance) + '_composition.txt' )
                 final_sorted_fasta = tmp_files.add( filename_woext + '_denoising_sortedSeeds.fasta' )
 
