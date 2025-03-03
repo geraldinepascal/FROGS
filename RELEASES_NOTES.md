@@ -1,3 +1,10 @@
+# v5.0.1 [2025-003]
+
+### Bugs fixed
+* Issue #75: unable to use denoising.py with swarm and --denoising option with --distance > 1
+* splitbc.pl: fix R2 truncation
+* denoising.py: Allow vsearch to deal with AVITI reads (higher max quality value allowed)
+
 # v5.0.0 [2024-06]
 
 ### Tool added
