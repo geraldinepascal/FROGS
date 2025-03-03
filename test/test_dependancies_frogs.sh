@@ -47,7 +47,7 @@ fi
 
 if diff_line $out_dir/demultiplex_summary.txt $expected_dir/demultiplex_summary.txt  0
 then
-	echo "difference in clustering: 02-clustering_fastidious.biom " >&2
+	echo "difference in demultiplex: demultiplex_summary.txt " >&2
 fi
 
 echo "Step denoising : Vsearch & swarm `date`"

@@ -42,7 +42,23 @@ denoising.py illumina \
  --output-fasta $out_dir/01-denoising-swarm-vsearch.fasta \
  --output-biom $out_dir/01-denoising-swarm-vsearch.biom \
  --html $out_dir/01-denoising-swarm-vsearch.html \
- --log-file $out_dir/01-denoising-swarm-vsearch.log 
+ --log-file $out_dir/01-denoising-swarm-vsearch.log
+ 
+ echo "Step denoising 16S vsearch swarm denoising and distance 3 `date`":
+
+
+denoising.py illumina \
+ --process swarm \
+ --min-amplicon-size 44 --max-amplicon-size 490 \
+ --five-prim-primer GGCGVACGGGTGAGTAA --three-prim-primer GTGCCAGCNGCNGCGG \
+ --R1-size 267 --R2-size 266 --merge-software vsearch \
+ --nb-cpus $nb_cpu --mismatch-rate 0.15 \
+ --input-archive data/test_dataset.tar.gz \
+ --output-fasta $out_dir/01-denoising-swarm-dd3-vsearch.fasta \
+ --output-biom $out_dir/01-denoising-swarm-dd3-vsearch.biom \
+ --html $out_dir/01-denoising-swarm-dd3-vsearch.html \
+ --log-file $out_dir/01-denoising-swarm-dd3--vsearch.log \
+ --denoising --distance 3 
 
 echo "Step denoising 16S pear `date`":
 
