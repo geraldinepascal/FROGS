@@ -136,29 +136,29 @@ FROGS is now available on bioconda (https://anaconda.org/bioconda/frogs).
   * to create a specific environment for a specific FROGS version
 
 ```
-conda env create --name frogs@5.0.0 --file frogs-conda-requirements.yaml
+conda env create --name frogs@5.0.1 --file frogs-conda-requirements.yaml
 # to use FROGS, first you need to activate your environment
-conda activate frogs@5.0.0
+conda activate frogs@5.0.1
 ```
 
 **WARNING** : As PICRUSt2 currently relies on a different R version, in order to use the FROGSFUNC tools, it is necessary to create a dedicated conda environment as follows:
 
 ```
-conda env create --name frogsfunc@5.0.0 --file frogsfunc-conda-requirements.yaml
+conda env create --name frogsfunc@5.0.1 --file frogsfunc-conda-requirements.yaml
 # and then activate the environment
-conda activate frogsfunc@5.0.0
+conda activate frogsfunc@5.0.1
 ```
 
-After that, you just have to switch from one environment to another (with `conda activate frogs@5.0.0` or `conda activate frogsfunc@5.0.0` depending on whether you want to use FROGSFUNC or all the other tools.
+After that, you just have to switch from one environment to another (with `conda activate frogs@5.0.1` or `conda activate frogsfunc@5.0.1` depending on whether you want to use FROGSFUNC or all the other tools.
 
 ## Check intallation
 
 To check your installation you can type:
 
 ```
-cd <conda_env_dir>/frogs@5.0.0/share/FROGS-5.0.0/test
+cd <conda_env_dir>/frogs@5.0.1/share/FROGS-5.0.1/test
 
-conda activate frogs@5.0.0
+conda activate frogs@5.0.1
 
 sh test_frogs.sh <NB_CPU> <JAVA_MEM> <OUT_FOLDER>
 ```
@@ -208,9 +208,9 @@ Completed with success
 Finally, to check the FROGSFUNC tools installation you can type:
 
 ```
-cd <conda_env_dir>/frogsfunc@5.0.0/share/FROGS-5.0.0/test
+cd <conda_env_dir>/frogsfunc@5.0.1/share/FROGS-5.0.1/test
 
-conda activate frogsfunc@5.0.0
+conda activate frogsfunc@5.0.1
 
 sh test_frogsfunc.sh <OUT_FOLDER>
 ```
@@ -289,7 +289,7 @@ GNU GPL v3
 
 
 # Copyright
-2024 INRAE
+2025 INRAE
 
 
 # Citation
