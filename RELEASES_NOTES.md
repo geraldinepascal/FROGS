@@ -1,4 +1,4 @@
-# v4.1.0 [2025-02]
+# v4.2.0 [2025-02]
   
 ### Tools modified:
   * FROGSPreprocess : Allow vsearch to deal with AVITI reads (higher max quality value allowed)
