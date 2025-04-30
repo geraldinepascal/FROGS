@@ -3,7 +3,7 @@ channels:
   - bioconda
 dependencies:
 # bioconda
-  - frogs =5.0.0
+  - frogs =5.0.2
   - emboss =6.6.0
   - flash =1.2.11
   # need to be >=2.8
@@ -12,9 +12,9 @@ dependencies:
   - swarm =3.1.4
   - vsearch =2.17.0
   - itsx =1.1.2
-  - blast =2.10
+  - blast =2.16
   # - rdptool=2.0.3 # is already included in the frogs dependency
-  - mafft =7.407
+  - mafft =7.525
   - fasttree =2.1.9
   - bioconductor-dada2= 1.22.0
   - bioconductor-phyloseq =1.38
