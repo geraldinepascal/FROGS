@@ -9,6 +9,7 @@ Visit our web site : http://frogs.toulouse.inrae.fr/
 [![Release](https://img.shields.io/badge/release-5.0.2-blue.svg)![Date](https://img.shields.io/badge/date-June%202024-red.svg)](https://github.com/geraldinepascal/FROGS-wrappers/releases) [<img src="https://cdn.icon-icons.com/icons2/70/PNG/512/deezer_14086.png" width="2%" style="display: block; margin: auto;"/>](https://www.deezer.com/fr/playlist/5233843102?utm_source=deezer&utm_content=playlist-5233843102&utm_term=18632989_1545296531&utm_medium=web)
 
 
+
 # Description
 
 FROGS is a CLI workflow designed to produce and analysis an ASV count matrix from high depth sequencing amplicon data.
@@ -134,50 +135,29 @@ FROGS is now available on bioconda (https://anaconda.org/bioconda/frogs).
   * to create a specific environment for a specific FROGS version
 
 ```
-<<<<<<< HEAD
-conda env create --name frogs@5.0.1 --file frogs-conda-requirements.yaml
-# to use FROGS, first you need to activate your environment
-conda activate frogs@5.0.1
-=======
 conda env create --name frogs@5.0.2 --file frogs-conda-requirements.yaml
 # to use FROGS, first you need to activate your environment
 conda activate frogs@5.0.2
->>>>>>> dev
 ```
 
 **WARNING** : As PICRUSt2 currently relies on a different R version, in order to use the FROGSFUNC tools, it is necessary to create a dedicated conda environment as follows:
 
 ```
-<<<<<<< HEAD
-conda env create --name frogsfunc@5.0.1 --file frogsfunc-conda-requirements.yaml
-# and then activate the environment
-conda activate frogsfunc@5.0.1
-```
-
-After that, you just have to switch from one environment to another (with `conda activate frogs@5.0.1` or `conda activate frogsfunc@5.0.1` depending on whether you want to use FROGSFUNC or all the other tools.
-=======
 conda env create --name frogsfunc@5.0.2 --file frogsfunc-conda-requirements.yaml
 # and then activate the environment
 conda activate frogsfunc@5.0.2
 ```
 
 After that, you just have to switch from one environment to another (with `conda activate frogs@5.0.2` or `conda activate frogsfunc@5.0.2` depending on whether you want to use FROGSFUNC or all the other tools.
->>>>>>> dev
 
 ## Check intallation
 
 To check your installation you can type:
 
 ```
-<<<<<<< HEAD
-cd <conda_env_dir>/frogs@5.0.1/share/FROGS-5.0.1/test
-
-conda activate frogs@5.0.1
-=======
 cd <conda_env_dir>/frogs@5.0.2/share/FROGS-5.0.2/test
 
 conda activate frogs@5.0.2
->>>>>>> dev
 
 sh test_frogs.sh <NB_CPU> <JAVA_MEM> <OUT_FOLDER>
 ```
@@ -228,15 +208,9 @@ Completed with success
 Finally, to check the FROGSFUNC tools installation you can type:
 
 ```
-<<<<<<< HEAD
-cd <conda_env_dir>/frogsfunc@5.0.1/share/FROGS-5.0.1/test
-
-conda activate frogsfunc@5.0.1
-=======
 cd <conda_env_dir>/frogsfunc@5.0.2/share/FROGS-5.0.2/test
 
 conda activate frogsfunc@5.0.2
->>>>>>> dev
 
 sh test_frogsfunc.sh <OUT_FOLDER>
 ```
