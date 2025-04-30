@@ -1,4 +1,8 @@
-# v5.0.1 [2025-003]
+# v5.0.2 [2025-05]
+* Issue #77: remove max-len parameter for artificial combined sequences
+* Upgrade mafft and blast versions
+
+# v5.0.1 [2025-03]
 
 ### Bugs fixed
 * Issue #75: unable to use denoising.py with swarm and --denoising option with --distance > 1
