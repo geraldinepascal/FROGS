@@ -3,7 +3,7 @@
 __author__ = 'Olivier Rué - Migale/MaIAGE & Frédéric Escudié - Genotoul/MIAT - INRAE & Maria Bernard - SIGENAE/GABI'
 __copyright__ = 'Copyright (C) 2024 INRAE'
 __license__ = 'GNU General Public License'
-__version__ = '5.0.0'
+__version__ = '5.0.2'
 __email__ = 'frogs-support@inrae.fr'
 __status__ = 'prod'
 
@@ -1603,7 +1603,7 @@ def process_sample_after_denoising(R1_file, R2_file, sample_name, out_file, art_
         # dealing with uncontiged reads.
         if args.keep_unmerged:
             Combined(out_notcombined_R1, out_notcombined_R2, "X"*100, art_out_cutadapt ).submit(log_file)
-            MultiFilter(art_out_cutadapt, None, min_len, max_len, None, None, art_out_Nfilter, None, art_log_Nfilter, True, False, args).submit(log_file)
+            MultiFilter(art_out_cutadapt, None, min_len, None, 0, None, art_out_Nfilter, None, art_log_Nfilter, True, False, args).submit(log_file)
             ReplaceJoinTag(art_out_Nfilter, "X"*100, "N"*100, art_out_XtoN ).submit(log_file)
             DerepBySample(out_NAndLengthfilter + " " + art_out_XtoN, out_file, out_count, size_separator="';size='").submit(log_file)
         
@@ -1774,7 +1774,7 @@ def merge_primers_filters(R1_file, R2_file, sample_name, out_file, art_out_file,
             else: # Custom sequencing primers. The amplicons is full length (Illumina) except PCR primers (it is use as sequencing primers). [Protocol Kozich et al. 2013]
                 Combined(out_notcombined_R1, out_notcombined_R2, "X"*100, art_out_cutadapt ).submit(log_file)
             # filter on length, N 
-            MultiFilter(art_out_cutadapt, None, min_len, max_len, 0, None, art_out_Nfilter, None, art_log_Nfilter, True, False, args).submit(log_file)
+            MultiFilter(art_out_cutadapt, None, min_len, None, 0, None, art_out_Nfilter, None, art_log_Nfilter, True, False, args).submit(log_file)
             ReplaceJoinTag(art_out_Nfilter, "X"*100, "N"*100, art_out_XtoN ).submit(log_file)
             DerepBySample(out_NAndLengthfilter + " " + art_out_XtoN, out_file, out_count).submit(log_file)
         else:

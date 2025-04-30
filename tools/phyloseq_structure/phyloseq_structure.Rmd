@@ -201,7 +201,7 @@ a:hover{
 	background-color: var(--frogsColorHover);
 }
 .button {
-    background-color: var(--frogsButtonColor)
+    background-color: var(--frogsButtonColor);
     border          : none;
     color           : white;
     padding         : 5px 10px;

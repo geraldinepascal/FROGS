@@ -4,7 +4,7 @@ author = 'Olivier Rué'
 copyright = 'Copyright (C) 2023 INRAE'
 license = 'GNU General Public License'
 email = 'frogs-support@inrae.fr'
-version = '5.0.0'
+version = '1.0.0'
 status = 'prod'
 
 ############## IMPORT

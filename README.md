@@ -6,8 +6,7 @@
 
 Visit our web site : http://frogs.toulouse.inrae.fr/
 
-[![Release](https://img.shields.io/badge/release-5.0.1-blue.svg)![Date](https://img.shields.io/badge/date-March%202025-red.svg)](https://github.com/geraldinepascal/FROGS/releases)
-
+[![Release](https://img.shields.io/badge/release-5.0.2-blue.svg)![Date](https://img.shields.io/badge/date-June%202024-red.svg)](https://github.com/geraldinepascal/FROGS-wrappers/releases) [<img src="https://cdn.icon-icons.com/icons2/70/PNG/512/deezer_14086.png" width="2%" style="display: block; margin: auto;"/>](https://www.deezer.com/fr/playlist/5233843102?utm_source=deezer&utm_content=playlist-5233843102&utm_term=18632989_1545296531&utm_medium=web)
 
 
 # Description
@@ -108,10 +107,9 @@ FROGS relies on different specific tools for each of the analysis steps.
 | Denoising                    |          [swarm](https://github.com/torognes/swarm) (need to be >=2.1)          |            3.1.4 |
 | Denoising                    |          [DADA2](https://benjjneb.github.io/dada2/index.html)     |            1.22.0 |
 | ITSx                          |        [ITSx](http://microbiology.se/software/itsx/)         |  1.1.2 |
-| Taxonomic_affiliation               | [NCBI BLAST+](http://blast.ncbi.nlm.nih.gov/Blast.cgi?PAGE_TYPE=BlastDocs&DOC_TYPE=Download) |          2.10 |
-| Taxonomic_affiliation               |    [RDP Classifier](https://github.com/rdpstaff/RDPTools)    |                2.0.3 |
+| Taxonomic_affiliation               | [NCBI BLAST+](http://blast.ncbi.nlm.nih.gov/Blast.cgi?PAGE_TYPE=BlastDocs&DOC_TYPE=Download) |          2.16 |
 | Taxonomic_affiliation               | [EMBOSS needleall](http://emboss.sourceforge.net/apps/release/6.6/emboss/apps/needleall.html) |                6.6.0 |
-| Tree                          |       [MAFFT](https://mafft.cbrc.jp/alignment/server/)       |                7.407 |
+| Tree                          |       [MAFFT](https://mafft.cbrc.jp/alignment/server/)       |                7.525 |
 | Tree                          |     [Fasttree](http://www.microbesonline.org/fasttree/)      |               2.1.9 |
 | Tree / FROGSSTAT              | [plotly](https://plotly.com/r/), [phangorn](https://cran.r-project.org/web/packages/phangorn/index.html), [rmarkdown](https://cran.r-project.org/web/packages/rmarkdown/index.html), [phyloseq](https://joey711.github.io/phyloseq/), [DESeq2](https://bioconductor.org/packages/release/bioc/html/DESeq2.html), [optparse](https://cran.r-project.org/web/packages/optparse/index.html), [calibrate](https://cran.r-project.org/web/packages/calibrate/index.html), [formattable](https://cran.r-project.org/web/packages/formattable/), [DT](https://cran.r-project.org/web/packages/DT/index.html) |              R 4.1.2 |
 | FROGSSTAT | [pandoc](https://pandoc.org/) | 2.11.3|
@@ -136,29 +134,50 @@ FROGS is now available on bioconda (https://anaconda.org/bioconda/frogs).
   * to create a specific environment for a specific FROGS version
 
 ```
+<<<<<<< HEAD
 conda env create --name frogs@5.0.1 --file frogs-conda-requirements.yaml
 # to use FROGS, first you need to activate your environment
 conda activate frogs@5.0.1
+=======
+conda env create --name frogs@5.0.2 --file frogs-conda-requirements.yaml
+# to use FROGS, first you need to activate your environment
+conda activate frogs@5.0.2
+>>>>>>> dev
 ```
 
 **WARNING** : As PICRUSt2 currently relies on a different R version, in order to use the FROGSFUNC tools, it is necessary to create a dedicated conda environment as follows:
 
 ```
+<<<<<<< HEAD
 conda env create --name frogsfunc@5.0.1 --file frogsfunc-conda-requirements.yaml
 # and then activate the environment
 conda activate frogsfunc@5.0.1
 ```
 
 After that, you just have to switch from one environment to another (with `conda activate frogs@5.0.1` or `conda activate frogsfunc@5.0.1` depending on whether you want to use FROGSFUNC or all the other tools.
+=======
+conda env create --name frogsfunc@5.0.2 --file frogsfunc-conda-requirements.yaml
+# and then activate the environment
+conda activate frogsfunc@5.0.2
+```
+
+After that, you just have to switch from one environment to another (with `conda activate frogs@5.0.2` or `conda activate frogsfunc@5.0.2` depending on whether you want to use FROGSFUNC or all the other tools.
+>>>>>>> dev
 
 ## Check intallation
 
 To check your installation you can type:
 
 ```
+<<<<<<< HEAD
 cd <conda_env_dir>/frogs@5.0.1/share/FROGS-5.0.1/test
 
 conda activate frogs@5.0.1
+=======
+cd <conda_env_dir>/frogs@5.0.2/share/FROGS-5.0.2/test
+
+conda activate frogs@5.0.2
+>>>>>>> dev
 
 sh test_frogs.sh <NB_CPU> <JAVA_MEM> <OUT_FOLDER>
 ```
@@ -170,37 +189,38 @@ Example:
 
 ```
 [user@computer:/home/frogs/FROGS/test/]$ sh test_frogs.sh 1 2 res
-Step demultiplex jeu. 02 mai 2024 17:54:17 CEST
-Step denoising 16S vsearch jeu. 02 mai 2024 17:54:21 CEST:
-Step denoising 16S pear jeu. 02 mai 2024 17:54:37 CEST:
-Step denoising: dada2 keep-unmerged jeu. 02 mai 2024 17:55:48 CEST
-Step denoising: preprocess only jeu. 02 mai 2024 17:57:10 CEST
-Step remove_chimera jeu. 02 mai 2024 17:57:13 CEST
-Step cluster_filters jeu. 02 mai 2024 17:57:15 CEST
-Step itsx jeu. 02 mai 2024 17:57:19 CEST
-Step taxonomic_affiliation jeu. 02 mai 2024 17:57:24 CEST
-Step affiliation_filters: masking mode jeu. 02 mai 2024 17:57:32 CEST
-Step affiliation_filters: deleted mode jeu. 02 mai 2024 17:57:34 CEST
-Step affiliation_postprocess jeu. 02 mai 2024 17:57:35 CEST
-Step normalisation jeu. 02 mai 2024 17:57:36 CEST
-Step cluster_stats jeu. 02 mai 2024 17:57:41 CEST
-Step affiliation_stats jeu. 02 mai 2024 17:57:42 CEST
-Step biom_to_tsv jeu. 02 mai 2024 17:57:43 CEST
-Step biom_to_stdBiom jeu. 02 mai 2024 17:57:44 CEST
-Step tsv_to_biom jeu. 02 mai 2024 17:57:44 CEST
-Step tree jeu. 02 mai 2024 17:57:45 CEST
-Step phyloseq_import_data jeu. 02 mai 2024 17:58:00 CEST
-Step phyloseq_composition jeu. 02 mai 2024 17:59:40 CEST
-Step phyloseq_alpha_diversity jeu. 02 mai 2024 18:00:02 CEST
-Step phyloseq_beta_diversity jeu. 02 mai 2024 18:00:25 CEST
-Step phyloseq_structure jeu. 02 mai 2024 18:00:44 CEST
-Step phyloseq_clustering jeu. 02 mai 2024 18:01:02 CEST
-Step phyloseq_manova jeu. 02 mai 2024 18:01:17 CEST
-Step deseq2_preprocess jeu. 02 mai 2024 18:01:32 CEST
+Step demultiplex Wed Apr 30 11:40:08 AM CEST 2025
+Step denoising 16S vsearch Wed Apr 30 11:40:09 AM CEST 2025:
+Step denoising 16S vsearch swarm denoising and distance 3 Wed Apr 30 11:40:25 AM CEST 2025:
+Step denoising 16S pear Wed Apr 30 11:40:41 AM CEST 2025:
+Step denoising: dada2 keep-unmerged Wed Apr 30 11:41:49 AM CEST 2025
+Step denoising: preprocess only Wed Apr 30 11:42:12 AM CEST 2025
+Step remove_chimera Wed Apr 30 11:42:16 AM CEST 2025
+Step cluster_filters Wed Apr 30 11:42:19 AM CEST 2025
+Step itsx Wed Apr 30 11:42:26 AM CEST 2025
+Step taxonomic_affiliation Wed Apr 30 11:42:31 AM CEST 2025
+Step affiliation_filters: masking mode Wed Apr 30 11:42:43 AM CEST 2025
+Step affiliation_filters: deleted mode Wed Apr 30 11:42:47 AM CEST 2025
+Step affiliation_postprocess Wed Apr 30 11:42:50 AM CEST 2025
+Step normalisation Wed Apr 30 11:42:52 AM CEST 2025
+Step cluster_stats Wed Apr 30 11:42:57 AM CEST 2025
+Step affiliation_stats Wed Apr 30 11:42:58 AM CEST 2025
+Step biom_to_tsv Wed Apr 30 11:42:59 AM CEST 2025
+Step biom_to_stdBiom Wed Apr 30 11:43:00 AM CEST 2025
+Step tsv_to_biom Wed Apr 30 11:43:00 AM CEST 2025
+Step tree Wed Apr 30 11:43:01 AM CEST 2025
+Step phyloseq_import_data Wed Apr 30 11:43:13 AM CEST 2025
+Step phyloseq_composition Wed Apr 30 11:44:20 AM CEST 2025
+Step phyloseq_alpha_diversity Wed Apr 30 11:44:44 AM CEST 2025
+Step phyloseq_beta_diversity Wed Apr 30 11:45:08 AM CEST 2025
+Step phyloseq_structure Wed Apr 30 11:45:24 AM CEST 2025
+Step phyloseq_clustering Wed Apr 30 11:45:39 AM CEST 2025
+Step phyloseq_manova Wed Apr 30 11:45:53 AM CEST 2025
+Step deseq2_preprocess Wed Apr 30 11:46:08 AM CEST 2025
 DESeq2 asv abundances
 DESeq2 function abundances
-Step deseq2_visualisation jeu. 02 mai 2024 18:03:02 CEST
-DESeq2 otu abundances
+Step deseq2_visualisation Wed Apr 30 11:47:30 AM CEST 2025
+DESeq2 ASV abundances
 DESeq2 function abundances
 Completed with success
 ```
@@ -208,9 +228,15 @@ Completed with success
 Finally, to check the FROGSFUNC tools installation you can type:
 
 ```
+<<<<<<< HEAD
 cd <conda_env_dir>/frogsfunc@5.0.1/share/FROGS-5.0.1/test
 
 conda activate frogsfunc@5.0.1
+=======
+cd <conda_env_dir>/frogsfunc@5.0.2/share/FROGS-5.0.2/test
+
+conda activate frogsfunc@5.0.2
+>>>>>>> dev
 
 sh test_frogsfunc.sh <OUT_FOLDER>
 ```
@@ -220,9 +246,9 @@ Example:
 
 ```
 [user@computer:/home/frogs/FROGS/test/]$ sh test_frogsfunc.sh res
-Step frogsfunc_placeseqs jeu. 02 mai 2024 18:32:19 CEST
-Step frogsfunc_functions jeu. 02 mai 2024 18:33:49 CEST
-Step frogsfunc_pathways jeu. 02 mai 2024 18:36:32 CEST
+Step frogsfunc_placeseqs Wed Apr 30 11:50:43 AM CEST 2025
+Step frogsfunc_functions Wed Apr 30 11:52:04 AM CEST 2025
+Step frogsfunc_pathways Wed Apr 30 11:54:47 AM CEST 2025
 Completed with success
 ```
 

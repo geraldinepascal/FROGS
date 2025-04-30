@@ -3,7 +3,7 @@
 __author__ = 'Frederic Escudie - Genotoul/MIAT & Maria Bernard - SIGENAE/GABI'
 __copyright__ = 'Copyright (C) 2024 INRAE'
 __license__ = 'GNU General Public License'
-__version__ = '5.0.0'
+__version__ = '5.0.2'
 __email__ = 'frogs-support@inrae.fr'
 __status__ = 'prod'
 
