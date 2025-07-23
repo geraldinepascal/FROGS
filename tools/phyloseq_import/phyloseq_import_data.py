@@ -114,13 +114,13 @@ if __name__ == "__main__":
     parser.add_argument('--ranks', type=str, nargs='*', default=['Kingdom', 'Phylum', 'Class', 'Order','Family','Genus', 'Species'], help='The ordered taxonomic ranks levels stored in BIOM. Each rank is separated by one space. [Default: %(default)s]')      
     # Inputs
     group_input = parser.add_argument_group( 'Inputs' )
-    group_input.add_argument('--biomfile', required=True, help='path to the abundance BIOM file.' )
-    group_input.add_argument('--samplefile', required=True, help='path to sample file (format: TSV).' )
-    group_input.add_argument('--treefile', default=None, help='path to tree file from FROGS Tree (format: Newick "nhx" or "nwk" ).' )
+    group_input.add_argument('--input-biom', required=True, help='path to the abundance BIOM file.' )
+    group_input.add_argument('--sample-metadata-tsv', required=True, help='path to sample file (format: TSV).' )
+    group_input.add_argument('--tree-nwk', default=None, help='path to tree file from FROGS Tree (format: Newick "nhx" or "nwk" ).' )
    
     # output
     group_output = parser.add_argument_group( 'Outputs' ) 
-    group_output.add_argument('--rdata', default='asv_data.Rdata', help="path to store phyloseq-class object in Rdata file. [Default: %(default)s]" )
+    group_output.add_argument('--out-phyloseq-rdata', default='asv_data.Rdata', help="path to store phyloseq-class object in Rdata file. [Default: %(default)s]" )
     group_output.add_argument('--html', default='phyloseq_import_summary.nb.html', help="The HTML file containing the graphs. [Default: %(default)s]" )
     group_output.add_argument('--log-file', default=sys.stdout, help='This output file will contain several informations on executed commands. [Default: stdout]')   
     args = parser.parse_args()
@@ -129,9 +129,9 @@ if __name__ == "__main__":
     # Process  
     Logger.static_write(args.log_file, "## Application\nSoftware :" + sys.argv[0] + " (version : " + str(__version__) + ")\nCommand : " + " ".join(sys.argv) + "\n\n")
     html=os.path.abspath(args.html)
-    phyloseq=os.path.abspath(args.rdata)
-    biomfile=os.path.abspath(args.biomfile)
-    samplefile=os.path.abspath(args.samplefile)
+    phyloseq=os.path.abspath(args.out_phyloseq_rdata)
+    biomfile=os.path.abspath(args.input_biom)
+    samplefile=os.path.abspath(args.sample_metadata_tsv)
 
     biom = BiomIO.from_json(biomfile)
     # biom file need to be standardize
@@ -143,7 +143,7 @@ if __name__ == "__main__":
             to_standardize=True
     # check sample names compatibility between input biom and sample metadata file
     sample_metadata_list = set()
-    FH_in = open(args.samplefile)
+    FH_in = open(args.sample_metadata_tsv)
     FH_in.readline()
     for line in FH_in:
         sample_metadata_list.add(line.split()[0])
@@ -157,10 +157,10 @@ if __name__ == "__main__":
     if len(sample_metadata_spec) > 0 :
        raise_exception( Exception( "\n\n#ERROR : " + str(len(sample_metadata_spec)) + " among " + str(len(sample_metadata_list)) + " samples from your sample metadata file are not present in your biom file:\n\t" + "; ".join(sample_metadata_spec) + "\nPlease give a sample metadata file that fits your abundance biom file\n\n"))
 
-    if (args.treefile is None) :
+    if (args.tree_nwk is None) :
         treefile="None"
     else:
-        treefile=os.path.abspath(args.treefile)
+        treefile=os.path.abspath(args.tree_nwk)
     ranks=" ".join(args.ranks)
 
     try : 

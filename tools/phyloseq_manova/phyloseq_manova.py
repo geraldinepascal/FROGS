@@ -81,12 +81,12 @@ if __name__ == "__main__":
     parser.add_argument('--version', action='version', version=__version__ )
     parser.add_argument('--debug', default=False, action='store_true', help="Keep temporary files to debug program. [Default: %(default)s]" )
     
-    parser.add_argument('--varExp', type=str, required=True, default=None, help='The experiment variable you want to analyse. [Default: %(default)s]')
+    parser.add_argument('--var-exp', type=str, required=True, default=None, help='The experiment variable you want to analyse. [Default: %(default)s]')
     
     # Inputs
     group_input = parser.add_argument_group( 'Inputs' )
-    group_input.add_argument('--rdata', required=True, default=None, help="The path of RData file containing a phyloseq object-the result of FROGS Phyloseq Import Data. [Default: %(default)s]" )
-    group_input.add_argument('--distance-matrix', required=True, default=None, help="The path of data file containing beta diversity distance matrix. These file is the result of FROGS Phyloseq Beta Diversity. [Default: %(default)s]" ) 
+    group_input.add_argument('--phyloseq-rdata', required=True, default=None, help="The path of RData file containing a phyloseq object-the result of FROGS Phyloseq Import Data. [Default: %(default)s]" )
+    group_input.add_argument('--beta-distance-matrix', required=True, default=None, help="The path of data file containing beta diversity distance matrix. These file is the result of FROGS Phyloseq Beta Diversity. [Default: %(default)s]" ) 
 
     # output
     group_output = parser.add_argument_group( 'Outputs' )
@@ -97,19 +97,19 @@ if __name__ == "__main__":
     prevent_shell_injections(args)   
     # Process 
     # keep quote around varExp
-    idx=sys.argv.index("-v")+1 if "-v" in sys.argv else sys.argv.index("--varExp")+1 
+    idx=sys.argv.index("-v")+1 if "-v" in sys.argv else sys.argv.index("--var-exp")+1 
     cmd = " ".join(sys.argv[0:idx]) + " \"" + sys.argv[idx] + "\" "
     if idx != len(sys.argv):
         cmd += " ".join(sys.argv[idx+1:])
 
     Logger.static_write(args.log_file, "## Application\nSoftware :" + sys.argv[0] + " (version : " + str(__version__) + ")\nCommand : " + cmd + "\n\n")
     html=os.path.abspath(args.html)
-    phyloseq=os.path.abspath(args.rdata)
-    matrix=os.path.abspath(args.distance_matrix)    
+    phyloseq=os.path.abspath(args.phyloseq_rdata)
+    matrix=os.path.abspath(args.beta_distance_matrix)    
     try:
         tmpFiles = TmpFiles(os.path.dirname(html))
         rmd_stderr = tmpFiles.add("rmarkdown.stderr")
-        Rscript(html, phyloseq, args.varExp, matrix, rmd_stderr).submit( args.log_file )   
+        Rscript(html, phyloseq, args.var_exp, matrix, rmd_stderr).submit( args.log_file )   
     finally:
         if not args.debug:
             tmpFiles.deleteAll()

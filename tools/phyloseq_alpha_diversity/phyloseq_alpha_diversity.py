@@ -82,17 +82,17 @@ if __name__ == "__main__":
     parser.add_argument('--version', action='version', version=__version__ )
     parser.add_argument('--debug', default=False, action='store_true', help="Keep temporary files to debug program. [Default: %(default)s]" )   
     
-    parser.add_argument('--varExp', type=str, required=True, default=None, help='The experiment variable used to aggregate sample diversities. [Default: %(default)s]' )
+    parser.add_argument('--var-exp', type=str, required=True, default=None, help='The experiment variable used to aggregate sample diversities. [Default: %(default)s]' )
     parser.add_argument('--alpha-measures', type=str, nargs="*", default=['Observed','Chao1','Shannon','InvSimpson'], help='The indices of alpha diversity. Available indices : Observed, Chao1, Shannon, InvSimpson, Simpson, ACE, Fisher. [Default: %(default)s]')
   
     # Inputs
     group_input = parser.add_argument_group( 'Inputs' )
-    group_input.add_argument('--rdata', required=True, default=None, help="The path of RData file containing a phyloseq object-the result of FROGS Phyloseq Import Data. [Default: %(default)s]" )
+    group_input.add_argument('--phyloseq-rdata', required=True, default=None, help="The path of RData file containing a phyloseq object-the result of FROGS Phyloseq Import Data. [Default: %(default)s]" )
 
     # output
     group_output = parser.add_argument_group( 'Outputs' )
     group_output.add_argument('--html', default='phyloseq_alpha_diversity.nb.html', help="The HTML file containing the graphs. [Default: %(default)s]" )
-    group_output.add_argument('--alpha-out', default='phyloseq_alpha_diversity.tsv', help="The path to store resulting data file containing alpha diversity table. [Default: %(default)s]" )    
+    group_output.add_argument('--output-alpha-tsv', default='phyloseq_alpha_diversity.tsv', help="The path to store resulting data file containing alpha diversity table. [Default: %(default)s]" )    
     group_output.add_argument('--log-file', default=sys.stdout, help="This output file will contain several informations on executed commands. [Default: stdout]")    
     args = parser.parse_args()
     prevent_shell_injections(args)   
@@ -107,14 +107,14 @@ if __name__ == "__main__":
             if m not in ["Observed", "Chao1", "Shannon", "InvSimpson", "Simpson", "ACE", "Fisher"] :
                 raise_exception( Exception("\n\n#ERROR : Measure, " + m + " is not a valid alpha diversity indice\n\n"))
 
-    phyloseq=os.path.abspath(args.rdata)
+    phyloseq=os.path.abspath(args.phyloseq_rdata )
     html=os.path.abspath(args.html)
-    alphaOut=os.path.abspath(args.alpha_out)
+    alphaOut=os.path.abspath(args.output_alpha_tsv)
     measures=",".join(args.alpha_measures)
     try:
         tmpFiles = TmpFiles(os.path.dirname(html))
         rmd_stderr = tmpFiles.add("rmarkdown.stderr")
-        Rscript(phyloseq, html, args.varExp, measures, alphaOut, rmd_stderr).submit( args.log_file )
+        Rscript(phyloseq, html, args.var_exp, measures, alphaOut, rmd_stderr).submit( args.log_file )
     finally :
         if not args.debug:
             tmpFiles.deleteAll()

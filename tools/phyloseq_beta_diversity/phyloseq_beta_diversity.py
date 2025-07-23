@@ -60,7 +60,7 @@ class Rscript(Cmd):
                       'Rscript',
                       'Run 1 code Rmarkdown',
                        '-e "rmarkdown::render(' + "'" + rmd + "',knit_root_dir='" + outdir + "',output_file='" + html + \
-                       "', params=list(phyloseq='" + phyloseq + "', varExp='" + varExp + "', methods='" + methods + "', libdir ='" + LIBR_DIR + "', version='"+ str(__version__) + "'), intermediates_dir='" + os.path.dirname(html) + "')" + '" 2> ' + rmd_stderr,
+                       "', params=list(phyloseq='" + phyloseq + "', varExp='" + varExp + "', methods='" + ",".join(methods) + "', libdir ='" + LIBR_DIR + "', version='"+ str(__version__) + "'), intermediates_dir='" + os.path.dirname(html) + "')" + '" 2> ' + rmd_stderr,
                        "-e '(sessionInfo()[[1]][13])[[1]][1]; paste(\"Rmarkdown version: \",packageVersion(\"rmarkdown\")) ; library(phyloseq); paste(\"Phyloseq version: \",packageVersion(\"phyloseq\"))'")
     def get_version(self):
         """
@@ -82,11 +82,11 @@ if __name__ == "__main__":
     parser.add_argument( '--version', action='version', version=__version__ )
     parser.add_argument( '--debug', default=False, action='store_true', help="Keep temporary files to debug program. [Default: %(default)s]" )   
     
-    parser.add_argument('--varExp', type=str, required=True, default=None, help='The experiment variable you want to analyse. [Default: %(default)s]')
-    parser.add_argument('--distance-methods', required=True, type=str, default='bray,cc,unifrac,wunifrac', help='Comma separated values beta diversity methods available in Phyloseq (see https://www.bioconductor.org/packages/devel/bioc/manuals/phyloseq/man/phyloseq.pdf). [Default: %(default)s].')
+    parser.add_argument('--var-exp', type=str, required=True, default=None, help='The experiment variable you want to analyse. [Default: %(default)s]')
+    parser.add_argument('--beta-distance-methods', required=True, type=str, nargs="*", default=['bray','cc','unifrac','wunifrac'], help='Beta diversity methods to use (list available in Phyloseq manual, see https://www.bioconductor.org/packages/devel/bioc/manuals/phyloseq/man/phyloseq.pdf). [Default: %(default)s].')
     # Inputs
     group_input = parser.add_argument_group( 'Inputs' )
-    group_input.add_argument('--rdata', required=True, default=None, help="The path of RData file containing a phyloseq object-the result of FROGS Phyloseq Import Data. [Default: %(default)s]" )
+    group_input.add_argument('--phyloseq-rdata', required=True, default=None, help="The path of RData file containing a phyloseq object-the result of FROGS Phyloseq Import Data. [Default: %(default)s]" )
     # output
     group_output = parser.add_argument_group( 'Outputs' )    
     group_output.add_argument('--matrix-outdir', required=True, action="store", type=str, help="Path to output matrix file")       
@@ -99,8 +99,8 @@ if __name__ == "__main__":
     # check parameter
     list_distance=["unifrac","wunifrac","bray","cc","dpcoa","jsd","manhattan","euclidean","canberra","kulczynski","jaccard","gower","altGower","morisita","horn","mountford","raup","binomial","chao","cao","wt","-1","c","wb","rt","I","e","t","me","j","sor","m","-2","co","g","-3","l","19","hk","rlb","sim","gl","z","maximum","binary","minkowski","ANY"]
     
-    methods = args.distance_methods.strip() if not args.distance_methods.strip()[-1]=="," else args.distance_methods.strip()[:-1]
-    for method in methods.split(","):
+    methods = args.beta_distance_methods
+    for method in methods:
         if method not in list_distance:
             raise_exception( Exception( '\n\n#ERROR : Your method "'+str(method)+'", name is not correct !!! Please make sure that it is in the list:'+str(list_distance)+"\n\n"))
 
@@ -108,12 +108,12 @@ if __name__ == "__main__":
     outdir = os.path.abspath(args.matrix_outdir)
     if not os.path.exists(outdir):
         os.makedirs(outdir)
-    phyloseq=os.path.abspath(args.rdata)
+    phyloseq=os.path.abspath(args.phyloseq_rdata)
     html=os.path.abspath(args.html)
     try:
         tmpFiles = TmpFiles(os.path.dirname(html))
         rmd_stderr = tmpFiles.add("rmarkdown.stderr")
-        Rscript(html, phyloseq, args.varExp, methods, outdir, rmd_stderr).submit( args.log_file )
+        Rscript(html, phyloseq, args.var_exp, methods, outdir, rmd_stderr).submit( args.log_file )
     finally :
         if not args.debug:
             tmpFiles.deleteAll()

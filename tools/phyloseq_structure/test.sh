@@ -1,4 +1,5 @@
 #!/bin/sh
+# conda activate frogs@5.0.2
 FROGS_DIR=`dirname $(dirname $(pwd))`
 export PATH=$FROGS_DIR/libexec:$PATH
 export PYTHONPATH=$FROGS_DIR/lib:$PYTHONPATH
@@ -11,9 +12,9 @@ else
 fi 
 
 ./phyloseq_structure.py \
-     --rdata data/data.Rdata \
-     --varExp EnvType \
+     --phyloseq-rdata data/data.Rdata \
+     --var-exp EnvType \
      --ordination-method MDS \
-     --distance-matrix data/Unifrac.tsv \
+     --beta-distance-matrix data/Unifrac.tsv \
      --html test/phylo_structure.nb.html \
      --log-file test/phylo_structure.log

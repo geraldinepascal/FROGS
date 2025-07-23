@@ -80,12 +80,12 @@ if __name__ == "__main__":
     parser.add_argument( '--version', action='version', version=__version__ )
     parser.add_argument( '--debug', default=False, action='store_true', help="Keep temporary files to debug program. [Default: %(default)s]" )   
     
-    parser.add_argument('--varExp', type=str, required=True, default=None, help='The experiment variable you want to analyse. [Default: %(default)s]')
+    parser.add_argument('--var-exp', type=str, required=True, default=None, help='The experiment variable you want to analyse. [Default: %(default)s]')
     parser.add_argument('--ordination-method', type=str, default='MDS', choices=["MDS", "NMDS", "DPCoA", "PCoA"], help="The ordination methods. [Default: %(default)s]")
     # Inputs
     group_input = parser.add_argument_group( 'Inputs' )
-    group_input.add_argument('--rdata', required=True, default=None, help="The path of RData file containing a phyloseq object-the result of FROGS Phyloseq Import Data. [Default: %(default)s]" )
-    group_input.add_argument('--distance-matrix', required=True, default=None, help="Path of data file containing beta diversity distance matrix. These file is the result of FROGS Phyloseq Beta Diversity. [Default: %(default)s]") 
+    group_input.add_argument('--phyloseq-rdata', required=True, default=None, help="The path of RData file containing a phyloseq object-the result of FROGS Phyloseq Import Data. [Default: %(default)s]" )
+    group_input.add_argument('--beta-distance-matrix', required=True, default=None, help="Path of data file containing beta diversity distance matrix. These file is the result of FROGS Phyloseq Beta Diversity. [Default: %(default)s]") 
     # output
     group_output = parser.add_argument_group( 'Outputs' )
     group_output.add_argument('--html', default='phyloseq_structure.nb.html', help="The HTML file containing the graphs. [Default: %(default)s]" )
@@ -95,12 +95,12 @@ if __name__ == "__main__":
     # Process 
     Logger.static_write(args.log_file, "## Application\nSoftware :" + sys.argv[0] + " (version : " + str(__version__) + ")\nCommand : " + " ".join(sys.argv) + "\n\n")
     html=os.path.abspath(args.html)
-    phyloseq=os.path.abspath(args.rdata)
-    distance=os.path.abspath(args.distance_matrix)
+    phyloseq=os.path.abspath(args.phyloseq_rdata)
+    distance=os.path.abspath(args.beta_distance_matrix)
     try:
         tmpFiles = TmpFiles(os.path.dirname(html))
         rmd_stderr = tmpFiles.add("rmarkdown.stderr")
-        Rscript(html, phyloseq, args.varExp, args.ordination_method, distance,rmd_stderr).submit( args.log_file )
+        Rscript(html, phyloseq, args.var_exp, args.ordination_method, distance,rmd_stderr).submit( args.log_file )
     finally :
         if not args.debug:
             tmpFiles.deleteAll()

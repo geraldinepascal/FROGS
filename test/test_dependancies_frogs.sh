@@ -718,10 +718,10 @@ echo "Step phyloseq_import_data `date`"
 if $run_programs
 then
 phyloseq_import_data.py  \
-	 --biomfile data/chaillou.biom \
-	 --samplefile data/sample_metadata.tsv \
-	 --treefile data/tree.nwk \
-	 --rdata $out_dir/16-phylo_import.Rdata \
+	 --input-biom data/chaillou.biom \
+	 --sample-metadata-tsv data/sample_metadata.tsv \
+	 --tree-nwk data/tree.nwk \
+	 --out-phyloseq-rdata $out_dir/16-phylo_import.Rdata \
 	 --html $out_dir/16-phylo_import.nb.html \
 	 --log-file $out_dir/16-phylo_import.log
 
@@ -744,8 +744,8 @@ echo "Step phyloseq_composition `date`"
 if $run_programs
 then
 phyloseq_composition.py  \
-	 --varExp EnvType --taxaRank1 Kingdom --taxaSet1 Bacteria --taxaRank2 Phylum --numberOfTaxa 9 \
-	 --rdata $expected_dir/16-phylo_import.Rdata \
+	 --var-exp EnvType --taxa-rank-1 Kingdom --taxa-set-1 Bacteria --taxa-rank-2 Phylum --number-of-taxa 9 \
+	 --phyloseq-rdata $expected_dir/16-phylo_import.Rdata \
 	 --html $out_dir/17-phylo_composition.nb.html \
 	 --log-file $out_dir/17-phylo_composition.log
 
@@ -771,9 +771,9 @@ echo "Step phyloseq_alpha_diversity `date`"
 if $run_programs
 then
 phyloseq_alpha_diversity.py  \
-	 --varExp EnvType \
-	 --rdata $expected_dir/16-phylo_import.Rdata --alpha-measures Observed Chao1 Shannon \
-	 --alpha-out $out_dir/18-phylo_alpha_div.tsv \
+	 --var-exp EnvType \
+	 --phyloseq-rdata $expected_dir/16-phylo_import.Rdata --alpha-measures Observed Chao1 Shannon \
+	 --output-alpha-tsv $out_dir/18-phylo_alpha_div.tsv \
 	 --html $out_dir/18-phylo_alpha_div.nb.html \
 	 --log-file $out_dir/18-phylo_alpha_div.log
 
@@ -795,8 +795,8 @@ echo "Step phyloseq_beta_diversity `date`"
 if $run_programs
 then
 phyloseq_beta_diversity.py  \
-	 --varExp EnvType --distance-methods cc,unifrac \
-	 --rdata $expected_dir/16-phylo_import.Rdata \
+	 --var-exp EnvType --distance-methods cc unifrac \
+	 --phyloseq-rdata $expected_dir/16-phylo_import.Rdata \
 	 --matrix-outdir $out_dir \
 	 --html $out_dir/19-phylo_beta_div.nb.html \
 	 --log-file $out_dir/19-phylo_beta_div.log
@@ -818,8 +818,8 @@ echo "Step phyloseq_structure `date`"
 if $run_programs
 then
 phyloseq_structure.py  \
-	 --varExp EnvType --ordination-method MDS \
-	 --rdata $expected_dir/16-phylo_import.Rdata --distance-matrix $expected_dir/unifrac.tsv \
+	 --var-exp EnvType --ordination-method MDS \
+	 --phyloseq-rdata $expected_dir/16-phylo_import.Rdata --beta-distance-matrix $expected_dir/unifrac.tsv \
 	 --html $out_dir/20-phylo_structure.nb.html \
 	 --log-file $out_dir/20-phylo_structure.log
 
@@ -849,8 +849,8 @@ echo "Step phyloseq_clustering `date`"
 if $run_programs
 then
 phyloseq_clustering.py  \
-	 --varExp EnvType \
-	 --rdata $expected_dir/16-phylo_import.Rdata --distance-matrix $expected_dir/unifrac.tsv \
+	 --var-exp EnvType \
+	 --phyloseq-rdata $expected_dir/16-phylo_import.Rdata --beta-distance-matrix $expected_dir/unifrac.tsv \
 	 --html $out_dir/21-phylo_clustering.nb.html \
 	 --log-file $out_dir/21-phylo_clustering.log
 
@@ -872,8 +872,8 @@ echo "Step phyloseq_manova `date`"
 if $run_programs
 then
 phyloseq_manova.py  \
-	 --varExp EnvType \
-	 --rdata $expected_dir/16-phylo_import.Rdata --distance-matrix $expected_dir/unifrac.tsv \
+	 --var-exp EnvType \
+	 --phyloseq-rdata $expected_dir/16-phylo_import.Rdata --beta-distance-matrix $expected_dir/unifrac.tsv \
 	 --html $out_dir/22-phylo_manova.nb.html \
 	 --log-file $out_dir/22-phylo_manova.log
 

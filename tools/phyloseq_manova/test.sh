@@ -1,4 +1,5 @@
 #!/bin/sh
+# conda activate frogs@5.0.2
 FROGS_DIR=`dirname $(dirname $(pwd))`
 export PATH=$FROGS_DIR/libexec:$PATH
 export PYTHONPATH=$FROGS_DIR/lib:$PYTHONPATH
@@ -10,8 +11,8 @@ else
   mkdir test
 fi 
 
-./phyloseq_manova.py --rdata data/data.Rdata \
-                   --varExp "EnvType + FoodType" \
-                   --distance-matrix data/Unifrac.tsv \
+./phyloseq_manova.py --phyloseq-rdata data/data.Rdata \
+                   --var-exp "EnvType + FoodType" \
+                   --beta-distance-matrix data/Unifrac.tsv \
                    --html test/phylo_manova.nb.html \
                    --log-file test/phylo_manova.log
