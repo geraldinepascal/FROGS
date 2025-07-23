@@ -84,7 +84,7 @@ if __name__ == "__main__":
     parser.add_argument('--ordination-method', type=str, default='MDS', choices=["MDS", "NMDS", "DPCoA", "PCoA"], help="The ordination methods. [Default: %(default)s]")
     # Inputs
     group_input = parser.add_argument_group( 'Inputs' )
-    group_input.add_argument('--phyloseq-rdata', required=True, default=None, help="The path of RData file containing a phyloseq object-the result of FROGS Phyloseq Import Data. [Default: %(default)s]" )
+    group_input.add_argument('--phyloseq-rdata', required=True, default=None, help="The path of RData file containing a phyloseq object-the result of phyloseq_import.py. [Default: %(default)s]" )
     group_input.add_argument('--beta-distance-matrix', required=True, default=None, help="Path of data file containing beta diversity distance matrix. These file is the result of FROGS Phyloseq Beta Diversity. [Default: %(default)s]") 
     # output
     group_output = parser.add_argument_group( 'Outputs' )

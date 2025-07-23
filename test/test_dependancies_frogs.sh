@@ -721,7 +721,7 @@ phyloseq_import_data.py  \
 	 --input-biom data/chaillou.biom \
 	 --sample-metadata-tsv data/sample_metadata.tsv \
 	 --tree-nwk data/tree.nwk \
-	 --out-phyloseq-rdata $out_dir/16-phylo_import.Rdata \
+	 --output-phyloseq-rdata $out_dir/16-phylo_import.Rdata \
 	 --html $out_dir/16-phylo_import.nb.html \
 	 --log-file $out_dir/16-phylo_import.log
 
@@ -897,10 +897,10 @@ echo "DESeq2 ASV abundances"
 if $run_programs
 then
 deseq2_preprocess.py \
-	 --data $out_dir/16-phylo_import.Rdata \
-	 --analysis ASV \
+	 --phyloseq-rdata $out_dir/16-phylo_import.Rdata \
+	 --analysis-type ASV \
 	 --log-file $out_dir/23-deseq2_preprocess_otu.log \
-	 --out-Rdata $out_dir/23-deseq2_preprocess_otu.Rdata \
+	 --output-deseq-rdata $out_dir/23-deseq2_preprocess_otu.Rdata \
 	 --var EnvType
 
 	if [ $? -ne 0 ]
@@ -919,13 +919,13 @@ echo "DESeq2 function abundances"
 if $run_programs
 then
 deseq2_preprocess.py \
-	 --samplefile data/sample_metadata.tsv \
-	 --input-functions data/frogsfunc_functions_unstrat_EC.tsv \
-	 --analysis FUNCTION \
+	 --sample-metadata-tsv data/sample_metadata.tsv \
+	 --input-functions-abund data/frogsfunc_functions_unstrat_EC.tsv \
+	 --analysis-type FUNCTION \
 	 --log-file $out_dir/23-deseq2_preprocess_func.log \
-	 --out-Rdata $out_dir/23-deseq2_preprocess_func.Rdata \
-	 --out-Phyloseq $out_dir/23-phyloseq_functions.Rdata \
-	 --var EnvType
+	 --output-deseq-rdata $out_dir/23-deseq2_preprocess_func.Rdata \
+	 --output-phyloseq-rdata $out_dir/23-phyloseq_functions.Rdata \
+	 --var-exp EnvType
 
 	if [ $? -ne 0 ]
 	then

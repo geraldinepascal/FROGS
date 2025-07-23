@@ -120,7 +120,7 @@ if __name__ == "__main__":
    
     # output
     group_output = parser.add_argument_group( 'Outputs' ) 
-    group_output.add_argument('--out-phyloseq-rdata', default='asv_data.Rdata', help="path to store phyloseq-class object in Rdata file. [Default: %(default)s]" )
+    group_output.add_argument('--output-phyloseq-rdata', default='phyloseq_asv.Rdata', help="path to store phyloseq-class object in Rdata file. [Default: %(default)s]" )
     group_output.add_argument('--html', default='phyloseq_import_summary.nb.html', help="The HTML file containing the graphs. [Default: %(default)s]" )
     group_output.add_argument('--log-file', default=sys.stdout, help='This output file will contain several informations on executed commands. [Default: stdout]')   
     args = parser.parse_args()
@@ -129,7 +129,7 @@ if __name__ == "__main__":
     # Process  
     Logger.static_write(args.log_file, "## Application\nSoftware :" + sys.argv[0] + " (version : " + str(__version__) + ")\nCommand : " + " ".join(sys.argv) + "\n\n")
     html=os.path.abspath(args.html)
-    phyloseq=os.path.abspath(args.out_phyloseq_rdata)
+    phyloseq=os.path.abspath(args.output_phyloseq_rdata)
     biomfile=os.path.abspath(args.input_biom)
     samplefile=os.path.abspath(args.sample_metadata_tsv)
 
