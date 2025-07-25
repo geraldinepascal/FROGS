@@ -127,7 +127,7 @@ cluster_filters.py \
  --nb-cpus $nb_cpu \
  --input-biom $out_dir/03-chimera.biom \
  --input-fasta $out_dir/03-chimera.fasta \
- --replicate_file data/replicates_file.tsv \
+ --replicate-tsv data/replicates_file.tsv \
  --min-replicate-presence 0.5 \
  --output-fasta $out_dir/04-filters.fasta \
  --output-biom $out_dir/04-filters.biom \

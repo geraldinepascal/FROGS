@@ -13,6 +13,7 @@ import json
 import operator
 import argparse
 import collections
+from decimal import Decimal
 
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
 # PATH
@@ -449,7 +450,7 @@ def minAbundParameter( arg_value ):
     @summary: Argparse type for min-abundance parameter.
     """
     str_value = arg_value.replace(",",".") 
-    cleaned_value = float(str_value) if "." in str_value or "e-" in str_value else int(str_value)
+    cleaned_value = Decimal(str_value) if "." in str_value or "e-" in str_value else int(str_value)
     return cleaned_value
 
 
@@ -469,10 +470,10 @@ def process( args ):
         if args.min_replicate_presence is None:
             FH_log = Logger(replicate_groups_log)
             FH_log.write('No replicate groups defined\n')
-        elif args.min_replicate_presence is not None and args.replicate_file is not None:
+        elif args.min_replicate_presence is not None and args.replicate_tsv is not None:
             label = "Present in less than " + str(args.min_replicate_presence*100) + "%  of replicates of all replicate groups."
             discards[label] = tmpFiles.add( "min_replicate_presence")
-            excluded_obs_on_replicatePresence( args.input_biom, args.replicate_file, args.min_replicate_presence, replicate_groups_log, discards[label])
+            excluded_obs_on_replicatePresence( args.input_biom, args.replicate_tsv, args.min_replicate_presence, replicate_groups_log, discards[label])
 
         if args.min_abundance is not None:
             
@@ -540,19 +541,19 @@ if __name__ == '__main__':
     group_filter.add_argument( '--nb-biggest-clusters', type=int, default=None, required=False, help="Number of most abundant clusters you want to keep.") 
     group_filter.add_argument('--min-sample-presence', type=int, help="Keep cluster present in at least this number of samples.") 
     group_filter.add_argument('--min-replicate-presence', type=minAbundParameter, default=None, help="Keep cluster present in at least this proportion of replicates in at least one group (please indicate a proportion between 0 and 1). Replicates must be defined with --replicate_file REPLICATE FILE")
-    group_filter.add_argument('--replicate_file', help='Replicate file must be specified if --min-replicate-presence is set. First column of the file must indicate the sample name, and the second column the group name of this replicate. Exemple: TEM1_L0001_R   Temoin.')
     group_filter.add_argument('--min-abundance', type=minAbundParameter, default=None, required=False, help="Minimum percentage/number of sequences, comparing to the total number of sequences, of a cluster (between 0 and 1 if percentage desired)." )
     #     Inputs
     group_input = parser.add_argument_group( 'Inputs' )
     group_input.add_argument('--input-biom', required=True, help="The input BIOM file. (format: BIOM)")
     group_input.add_argument('--input-fasta', required=True, help="The input FASTA file. (format: FASTA)")
     group_input.add_argument('--contaminant', default=None, help="Use this databank to filter sequence before affiliation. (format: FASTA)")
+    group_input.add_argument('--replicate-tsv', help='Sample replicate tsv file must be specified if --min-replicate-presence is set. First column indicates the sample name, and the second column the group name.')
     #     Outputs
     group_output = parser.add_argument_group( 'Outputs' )
     group_output.add_argument('--output-biom', default="cluster_filters_abundance.biom", help="The BIOM file output. (format: BIOM) [Default: %(default)s]")
     group_output.add_argument('--output-fasta', default="cluster_filters.fasta", help="The FASTA output file. (format: FASTA) [Default: %(default)s]")
     group_output.add_argument('--html', default="cluster_filters.html", help="The HTML file containing the graphs. [Default: %(default)s]")
-    group_output.add_argument('--excluded', default="cluster_filters_excluded.tsv", help="The TSV file that summarizes all the clusters discarded. (format: TSV) [Default: %(default)s]")
+    group_output.add_argument('--excluded', default="cluster_filters_excluded.tsv", help="The TSV file that summarizes all the discarded clusters. (format: TSV) [Default: %(default)s]")
     group_output.add_argument('--log-file', default=sys.stdout, help='This output file will contain several information on executed commands. [Default: stdout]')
     args = parser.parse_args()
     prevent_shell_injections(args)
@@ -563,7 +564,7 @@ if __name__ == '__main__':
         raise_exception( argparse.ArgumentTypeError( "\n\n#ERROR : At least one filter must be set to run " + os.path.basename(sys.argv[0]) + "\n\n"))
     if not args.min_abundance is None and (args.min_abundance <= 0 or (type(args.min_abundance) == float and args.min_abundance >= 1.0 ) ):
         raise_exception( argparse.ArgumentTypeError( "\n\n#ERROR : If filtering on abundance, you must indicate a positive threshold and if percentage abundance threshold must be smaller than 1.0. \n\n" ))
-    if not args.min_replicate_presence is None and args.replicate_file is None or not args.replicate_file is None and args.min_replicate_presence is None:
+    if not args.min_replicate_presence is None and args.replicate_tsv is None or not args.replicate_tsv is None and args.min_replicate_presence is None:
         raise_exception( argparse.ArgumentTypeError( "\n\n#ERROR : --min-replicate-presence and --replicate_file must be both specified.\n\n" ))
     elif not args.min_replicate_presence is None and (args.min_replicate_presence < 0 or args.min_replicate_presence > 1):
         raise_exception( argparse.ArgumentTypeError( "\n\n#ERROR : --min_replicate_presence must be a proportion (between 0 and 1).\n\n "))
