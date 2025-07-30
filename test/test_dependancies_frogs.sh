@@ -36,7 +36,7 @@ if $run_programs
 then
 demultiplex.py --input-R1 data/demultiplex_test2_R1.fq.gz --input-R2 data/demultiplex_test2_R2.fq.gz --input-barcode data/demultiplex_barcode.txt \
 	    --mismatches 1 --end both \
-	    --output-demultiplexed $out_dir/demultiplexed.tar.gz --output-excluded $out_dir/undemultiplexed.tar.gz \
+	    --output-demultiplexed $out_dir/demultiplexed.tar.gz --output-undemultiplexed $out_dir/undemultiplexed.tar.gz \
 	    --log-file $out_dir/demultiplex.log --summary $out_dir/demultiplex_summary.txt
 	if [ $? -ne 0 ]
 	then

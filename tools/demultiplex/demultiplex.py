@@ -299,7 +299,7 @@ if __name__ == "__main__":
     group_output = parser.add_argument_group( 'Outputs' )
     # Outputs
     group_output.add_argument('--output-demultiplexed', default="demultiplexed_read.tar.gz", help='The tar file containing R1 files and R2 files for each sample (format: tar). [Default: %(default)s]' )
-    group_output.add_argument('--output-excluded', default="undemultiplexed_read.tar.gz", help='The tar file containing R1 files and R2 files not demultiplexed  (format: tar). [Default: %(default)s]' )
+    group_output.add_argument('--output-undemultiplexed', default="undemultiplexed_read.tar.gz", help='The tar file containing R1 files and R2 files not demultiplexed  (format: tar). [Default: %(default)s]' )
     group_output.add_argument('--summary', default='demultiplex_summary.tsv', help='TSV file with summary of filters results  (format: TSV). [Default: %(default)s]')
     group_output.add_argument('--log-file', default=sys.stdout, help='This output file will contain several informations on executed commands. [Default: stdout]')
     args = parser.parse_args()

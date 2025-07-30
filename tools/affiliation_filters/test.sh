@@ -1,4 +1,5 @@
 #!/bin/bash
+# conda activate frogs@5.0.2
 FROGS_DIR=`dirname $(dirname $(pwd))`
 export PATH=$FROGS_DIR/libexec:$FROGS_DIR/app:$PATH
 export PYTHONPATH=$FROGS_DIR/lib:$PYTHONPATH
