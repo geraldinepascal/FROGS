@@ -1252,6 +1252,8 @@ def get_sample_results_dada2( log_file, log_file2 ):
             nb_seq["before process"] = int(line.split(':')[1].strip())
         elif line.strip().startswith('nb seq'):
             step = line.split('nb seq')[1].split(':')[0].strip() 
+            if step != "without N": ## Après DADA2, plus nécessaire de regarder le nombre de reads sans N
+                nb_seq[key][step] = int(line.split(':')[1].strip())
             nb_seq[key][step] = int(line.split(':')[1].strip())
         elif line.strip().startswith('initial') and not longreads:
             step = "after_merge"
