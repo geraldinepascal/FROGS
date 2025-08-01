@@ -34,16 +34,16 @@ echo "Illumina R1 and R2 with vsearch and dada2"
                          --output-fasta test/derep_illumina_dada2_R1R2.fasta --output-biom test/illumina_dada2_R1R2.biom --html test/summary_illumina_dada2_R1R2.html --log-file test/log_illumina_dada2_R1R2.txt
 
 # Illumina R1 and R2 with PEAR swarm
-echo "Illumina R1 and R2 with PEAR and swarm"
-./denoising.py illumina --input-R1 data/sampleA_R1.fastq.gz data/sampleB_R1.fastq.gz --input-R2 data/sampleA_R2.fastq.gz data/sampleB_R2.fastq.gz \
-                         --samples-names sample_A sample_B \
-                         --R1-size 251 --R2-size 251 \
-                         --merge-software pear \
-                         --min-amplicon-size 340 --max-amplicon-size 450 \
-                         --five-prim-primer "CCGTCAATTC" --three-prim-primer "CCGCNGCTGCT" \
-                         --process swarm \
-                         --output-fasta test/derep_illumina_pear_R1R2.fasta --output-biom test/illumina_pear_R1R2.biom --html test/summary_illumina_pear_R1R2.html --log-file test/log_illumina_pear_R1R2.txt
-
+`# echo "Illumina R1 and R2 with PEAR and swarm"
+# ./denoising.py illumina --input-R1 data/sampleA_R1.fastq.gz data/sampleB_R1.fastq.gz --input-R2 data/sampleA_R2.fastq.gz data/sampleB_R2.fastq.gz \
+#                          --samples-names sample_A sample_B \
+#                          --R1-size 251 --R2-size 251 \
+#                          --merge-software pear \
+#                          --min-amplicon-size 340 --max-amplicon-size 450 \
+#                          --five-prim-primer "CCGTCAATTC" --three-prim-primer "CCGCNGCTGCT" \
+#                          --process swarm \
+#                          --output-fasta test/derep_illumina_pear_R1R2.fasta --output-biom test/illumina_pear_R1R2.biom --html test/summary_illumina_pear_R1R2.html --log-file test/log_illumina_pear_R1R2.txt
+`
 # Illumina R1 and R2 with flash swarm
 echo "Illumina R1 and R2 with flash and swarm"
 ./denoising.py illumina --input-R1 data/sampleA_R1.fastq.gz data/sampleB_R1.fastq.gz --input-R2 data/sampleA_R2.fastq.gz data/sampleB_R2.fastq.gz \

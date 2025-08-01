@@ -1605,7 +1605,7 @@ def process_sample_after_denoising(R1_file, R2_file, sample_name, out_file, art_
         # dealing with uncontiged reads.
         if args.keep_unmerged:
             Combined(out_notcombined_R1, out_notcombined_R2, "X"*100, art_out_cutadapt ).submit(log_file)
-            MultiFilter(art_out_cutadapt, None, min_len, None, 0, None, art_out_Nfilter, None, art_log_Nfilter, True, False, args).submit(log_file)
+            MultiFilter(art_out_cutadapt, None, min_len, None, None, None, art_out_Nfilter, None, art_log_Nfilter, True, False, args).submit(log_file)
             ReplaceJoinTag(art_out_Nfilter, "X"*100, "N"*100, art_out_XtoN ).submit(log_file)
             DerepBySample(out_NAndLengthfilter + " " + art_out_XtoN, out_file, out_count, size_separator="';size='").submit(log_file)
         
