@@ -11,6 +11,7 @@ then
 fi
 
 ./frogsfunc_functions.py \
+    --nb-cpus 2 \
     --strat-out \
     --marker-type 16S \
     --input-biom data/25-frogsfunc_placeseqs.biom \
@@ -32,6 +33,7 @@ then
     mkdir test_KO
 fi
 ./frogsfunc_functions.py \
+    --nb-cpus 2 \
     --strat-out \
     --marker-type 16S \
     --functions KO \
@@ -46,7 +48,7 @@ fi
     --output-contrib test_KO/26-frogsfunc_functions_strat.tsv \
     --output-fasta test_KO/26-frogsfunc_function.fasta \
     --output-biom test_KO/26-frogsfunc_function.biom \
-    --html test_KO/26-frogsfunc_functions_summary.html --debug
+    --html test_KO/26-frogsfunc_functions_summary.html
 
 # Create output folder
 if [ ! -d "test_EC_COG" ]
@@ -54,6 +56,7 @@ then
     mkdir test_EC_COG
 fi
 ./frogsfunc_functions.py \
+    --nb-cpus 2 \
     --strat-out \
     --marker-type 16S \
     --functions EC,COG \

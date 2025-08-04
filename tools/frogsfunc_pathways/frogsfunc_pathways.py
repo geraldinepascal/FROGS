@@ -45,7 +45,7 @@ class PathwayPipeline(Cmd):
 	"""
 	@summary: pathway_pipeline.py : Infer the presence and abundances of pathways based on gene family abundances in a sample.
 	"""
-	def __init__(self, input_file, map_file, per_sequence_contrib, per_sequence_abun, per_sequence_function, output_dir, log):
+	def __init__(self, input_file, map_file, nb_cpus, per_sequence_contrib, per_sequence_abun, per_sequence_function, output_dir, log):
 		"""
 		@param input_file: [str] Input TSV table of gene family abundances (frogsfunc_genefamilies_pred_metagenome_unstrat.tsv from frogsfunc_genefamilies.py.
 		@param map_file: [str] Mapping file of pathways to reactions, necessary if marker studied is not 16S.
@@ -68,7 +68,7 @@ class PathwayPipeline(Cmd):
 		Cmd.__init__(self,
 				 'pathway_pipeline.py ',
 				 'predict abundance pathway', 
-				  " --input " + input_file + " --out_dir " + output_dir + opt + ' 2> ' + log,
+				  " --input " + input_file + " --out_dir " + output_dir + ' -p ' + str(nb_cpus) + opt + ' 2> ' + log,
 				"--version")
 		
 	def get_version(self):
@@ -304,6 +304,7 @@ if __name__ == "__main__":
 	parser = argparse.ArgumentParser( description='Infer the presence and abundances of pathways based on gene family abundances in a sample.' )
 	parser.add_argument('--version', action='version', version=__version__)
 	parser.add_argument('--debug', default=False, action='store_true', help="Keep temporary files to debug program. [Default: %(default)s]" )
+	parser.add_argument('--nb-cpus', type=int, default=1, help="The maximum number of CPUs used. [Default: %(default)s]" )
 	parser.add_argument('--per-sequence-contrib', default=False, action='store_true', help='If stratified option is activated, a new table is built. It will contain the abundances of each function of each ASV in each sample. (in contrast to the default stratified output, which is the contribution to the community-wide pathway abundances.) Options --per-sequence-abun and --per-sequence-function need to be set when this option is used. [Default: %(default)s] ')
 	# Inputs
 	group_input = parser.add_argument_group( 'Inputs' )
@@ -369,7 +370,7 @@ if __name__ == "__main__":
 			args.per_sequence_function = per_sequence_function
 		##
 		try:
-			PathwayPipeline(tmp_tsv, args.map, args.per_sequence_contrib, args.per_sequence_abun, args.per_sequence_function, output_dir, tmp_pathway).submit(args.log_file)
+			PathwayPipeline(tmp_tsv, args.map, args.nb_cpus, args.per_sequence_contrib, args.per_sequence_abun, args.per_sequence_function, output_dir, tmp_pathway).submit(args.log_file)
 		except:
 			raise_exception( Exception("\n\n#Note that the default pathway and regroup mapfiles are meant for EC numbers with 16S sequences. KEGG pathways are not supported since KEGG is a closed-source database, but you can input custom pathway mapfiles with the flag --map, associated with the file available here: $PICRUSt2_PATH/default_files/pathway_mapfiles/KEGG_pathways_to_KO.tsv. For ITS or 18S please use --map with the file available here: $PICRUSt2_PATH/default_files/pathway_mapfiles/metacyc_path2rxn_struc_filt_fungi.txt. \n\n"))
 			

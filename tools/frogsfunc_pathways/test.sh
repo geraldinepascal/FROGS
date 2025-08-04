@@ -12,6 +12,7 @@ then
 fi
 
 ./frogsfunc_pathways.py \
+    --nb-cpus 2 \
     --input-file data/26-frogsfunc_functions_unstrat_EC.tsv \
     --normalisation \
     --per-sequence-contrib \

@@ -12,6 +12,7 @@ fi
 ./frogsfunc_placeseqs.py \
     --input-fasta data/frogsfunc.fasta \
     --input-biom data/frogsfunc.biom \
+    --nb-cpus 2 \
     --placement-tool sepp \
     --output-tree test/25-frogsfunc_placeseqs_tree.nwk \
     --excluded test/25-frogsfunc_placeseqs_excluded.txt \
@@ -19,4 +20,4 @@ fi
     --output-biom test/25-frogsfunc_placeseqs.biom \
     --closests-ref test/25-frogsfunc_placeseqs_closests_ref_sequences.txt \
     --output-marker test/25-frogsfunc_marker.tsv \
-    --html test/25-frogsfunc_placeseqs_summary.html
+    --html test/25-frogsfunc_placeseqs_summary.html --debug
