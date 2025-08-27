@@ -43,7 +43,7 @@ then
 	 --output-fasta $out_dir/25-frogsfunc_placeseqs.fasta \
 	 --output-biom $out_dir/25-frogsfunc_placeseqs.biom \
 	 --closests-ref $out_dir/25-frogsfunc_placeseqs_closests_ref_sequences.txt \
-	 --output-marker $out_dir/25-frogsfunc_marker.tsv \
+	 --output-marker-copy $out_dir/25-frogsfunc_marker.tsv \
 	 --html $out_dir/25-frogsfunc_placeseqs_summary.html \
 	 --log-file $out_dir/25-frogsfunc_placeseqs.log 
 
@@ -92,11 +92,11 @@ then
 	 --strat-out \
 	 --input-biom $out_dir/25-frogsfunc_placeseqs.biom \
 	 --input-fasta $out_dir/25-frogsfunc_placeseqs.fasta \
-	 --input-marker $out_dir/25-frogsfunc_marker.tsv \
+	 --input-marker-copy $out_dir/25-frogsfunc_marker.tsv \
 	 --marker-type 16S \
 	 --input-tree $out_dir/25-frogsfunc_placeseqs_tree.nwk  \
 	 --output-function-abund $out_dir/26-frogsfunc_functions_unstrat.tsv \
-	 --output-asv-norm $out_dir/26-frogsfunc_functions_marker_norm.tsv \
+	 --output-asv-copy-norm $out_dir/26-frogsfunc_functions_marker_norm.tsv \
 	 --output-weighted $out_dir/26-frogsfunc_functions_weighted_nsti.tsv \
 	 --output-excluded $out_dir/26-frogsfunc_functions_excluded.txt \
 	 --output-contrib $out_dir/26-frogsfunc_functions_strat.tsv \

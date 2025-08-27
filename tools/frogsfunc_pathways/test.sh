@@ -13,13 +13,14 @@ fi
 
 ./frogsfunc_pathways.py \
     --nb-cpus 2 \
-    --input-file data/26-frogsfunc_functions_unstrat_EC.tsv \
+    --input-tsv data/26-frogsfunc_functions_unstrat_abundance_EC.tsv \
     --normalisation \
-    --per-sequence-contrib \
-    --per-sequence-abun data/26-frogsfunc_functions_marker_norm.tsv \
-    --per-sequence-function data/EC_copynumbers_predicted.tsv \
+    --strat-contrib \
+    --input-asv-copy-norm data/26-frogsfunc_functions_marker_norm.tsv \
+    --input-fun-copy data/EC_copynumbers_predicted.tsv \
     --output-pathways-abund test/27-frogsfunc_pathways_unstrat.tsv \
     --output-pathways-contrib test/27-frogsfunc_pathways_strat.tsv \
     --output-pathways-predictions test/27-frogsfunc_pathways_predictions.tsv \
     --output-pathways-abund-per-seq test/27-frogsfunc_pathways_unstrat_per_seq.tsv \
-    --html test/27-frogsfunc_pathways_summary.html
+    --log-file test/frogsfunc_pathways_EC.log \
+    --html test/27-frogsfunc_pathways_summary.html --debug

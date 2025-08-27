@@ -19,5 +19,5 @@ fi
     --output-fasta test/25-frogsfunc_placeseqs.fasta \
     --output-biom test/25-frogsfunc_placeseqs.biom \
     --closests-ref test/25-frogsfunc_placeseqs_closests_ref_sequences.txt \
-    --output-marker test/25-frogsfunc_marker.tsv \
-    --html test/25-frogsfunc_placeseqs_summary.html --debug
+    --output-marker-copy test/25-frogsfunc_marker_copy_per_asv.tsv \
+    --html test/25-frogsfunc_placeseqs_summary.html

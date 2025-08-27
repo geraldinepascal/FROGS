@@ -149,13 +149,13 @@ class HspMarker(Cmd):
 	"""
 	@summary: Predict number of marker copies (16S, 18S or ITS) for each cluster sequence (i.e ASV).
 	"""
-	def __init__(self, tree, nb_cpus, marker_type, marker_table, hsp_method, biom_file, output, log, is_debug):
+	def __init__(self, tree, nb_cpus, marker_type, marker_table, hsp_method, biom_file, out_marker_copy, log, is_debug):
 		"""
 		@param nb_cpus : [int] 'param.nb_cpus'.
 		@param observed_marker_table: [str] Path to marker table file if marker studied is not 16S.
 		@param in_tree: [str] Path to resulting tree file with inserted clusters sequences from frogsfunc_placeseqs.
 		@param hsp_method: [str] HSP method to use.
-		@param output: [str] PICRUSt2 marker output file.
+		@param out_marker_copy: [str] PICRUSt2 marker output file.
 		"""
 		debug = ""
 		if is_debug:
@@ -168,10 +168,10 @@ class HspMarker(Cmd):
 		Cmd.__init__(self,
 				 'launch_hsp.py',
 				 'predict marker copy number per sequence.', 
-				  debug + ' --nb-cpus ' + str(nb_cpus) + ' marker --input-tree ' + tree + ' --marker-type ' + marker_type + opt + ' --hsp-method ' + hsp_method + ' -o ' + output + '  2> ' + log,
+				  debug + ' --nb-cpus ' + str(nb_cpus) + ' marker --input-tree ' + tree + ' --marker-type ' + marker_type + opt + ' --hsp-method ' + hsp_method + ' -o ' + out_marker_copy + '  2> ' + log,
 				"--version")
 
-		self.output = output
+		self.out_marker_copy = out_marker_copy
 		self.biom_file = biom_file
 
 	def get_version(self):
@@ -179,7 +179,7 @@ class HspMarker(Cmd):
 	
 	def parser(self, log_file):
 		biom = BiomIO.from_json(self.biom_file)
-		with open(self.output) as fi:
+		with open(self.out_marker_copy) as fi:
 			for li in fi:
 				if "metadata_NSTI" in li:
 					continue
@@ -364,13 +364,13 @@ if __name__ == "__main__":
 	group_input.add_argument('--input-marker-table',help="If marker studied is not 16S, the marker table describing copy number by genome assembly. (ex: $PICRUSt2_PATH/default_files/fungi/ITS_counts.txt.gz).")	
 	# Outputs
 	group_output = parser.add_argument_group('Outputs')
-	group_output.add_argument('--output-tree', default='frogsfunc_placeseqs_tree.nwk', help='Reference tree output with insert sequences (format: newick). [Default: %(default)s]')
-	group_output.add_argument('--excluded', default='frogsfunc_placeseqs_excluded.txt', help='List of sequences not inserted in the tree. [Default: %(default)s]')
-	group_output.add_argument('--output-fasta', default='frogsfunc_placeseqs.fasta', help='Fasta file without non insert sequences. (format: FASTA). [Default: %(default)s]')
-	group_output.add_argument('--output-biom', default='frogsfunc_placeseqs.biom', help='Biom file without non insert sequences. (format: BIOM) [Default: %(default)s]')
+	group_output.add_argument('--output-tree', default='frogsfunc_placeseqs_tree.nwk', help='Reference and ASV phylogentic tree (format: newick). [Default: %(default)s]')
+	group_output.add_argument('--excluded', default='frogsfunc_placeseqs_asv_excluded.txt', help='Excluded ASV list. [Default: %(default)s]')
+	group_output.add_argument('--output-fasta', default='frogsfunc_placeseqs.fasta', help='Kept ASV sequence file. (format: FASTA). [Default: %(default)s]')
+	group_output.add_argument('--output-biom', default='frogsfunc_placeseqs.biom', help='Kept ASV abundance file. (format: BIOM) [Default: %(default)s]')
 	group_output.add_argument('--closests-ref', default='frogsfunc_placeseqs_closests_ref_sequences.txt', help='Informations about Clusters (i.e ASVs) and PICRUSt2 closest reference from cluster sequences (identifiants, taxonomies, phylogenetic distance from reference, nucleotidics sequences). [Default: %(default)s]')
-	group_output.add_argument('--html', default='frogsfunc_placeseqs_summary.html', help="Path to store resulting html file. [Default: %(default)s]" )
-	group_output.add_argument('--output-marker', default="frogsfunc_marker.tsv", type=str, help='Output table of predicted marker gene copy numbers per studied sequence in input tree. If the extension \".gz\" is added the table will automatically be gzipped. [Default: %(default)s]')	
+	group_output.add_argument('--html', default='frogsfunc_placeseqs_summary.html', help="HTML report. [Default: %(default)s]" )
+	group_output.add_argument('--output-marker-copy', default="frogsfunc_marker_copy_per_asv.tsv", type=str, help='Predicted marker gene copy numbers per kept ASV. If the extension \".gz\" is added the table will automatically be gzipped. [Default: %(default)s]')	
 	group_output.add_argument('--log-file', default=sys.stdout, help='List of commands executed. [Default: stdout]')
 	args = parser.parse_args()
 	prevent_shell_injections(args)
@@ -407,7 +407,7 @@ if __name__ == "__main__":
 			raise_exception( Exception ("\n\n#ERROR : --input-marker-table required when studied marker is not 16S!\n\n"))
 
 		tmp_hsp_marker = tmp_files.add( 'tmp_hsp_marker.log' )
-		HspMarker(args.output_tree, args.nb_cpus, category, args.input_marker_table, args.hsp_method, args.output_biom, args.output_marker, tmp_hsp_marker, args.debug).submit(args.log_file)
+		HspMarker(args.output_tree, args.nb_cpus, category, args.input_marker_table, args.hsp_method, args.output_biom, args.output_marker_copy, tmp_hsp_marker, args.debug).submit(args.log_file)
 
 		tmp_find_closest_ref = tmp_files.add( 'tmp_find_closest_ref.log' )
 		FindClosestsRefSequences(args.output_tree, args.output_biom, args.output_fasta, ref_aln, args.output_biom, args.closests_ref, tmp_find_closest_ref).submit(args.log_file)

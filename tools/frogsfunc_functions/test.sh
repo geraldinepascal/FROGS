@@ -12,64 +12,19 @@ fi
 
 ./frogsfunc_functions.py \
     --nb-cpus 2 \
-    --strat-out \
+    --strat-contrib \
     --marker-type 16S \
+    --functions EC COG \
     --input-biom data/25-frogsfunc_placeseqs.biom \
     --input-fasta data/25-frogsfunc_placeseqs.fasta \
-    --input-marker data/25-frogsfunc_marker.tsv \
+    --input-marker-copy data/25-frogsfunc_marker_copy_per_asv.tsv \
     --input-tree data/25-frogsfunc_placeseqs_tree.nwk \
-    --output-function-abund test/26-frogsfunc_functions_unstrat.tsv \
-    --output-asv-norm test/26-frogsfunc_functions_marker_norm.tsv \
-    --output-weighted test/26-frogsfunc_functions_weighted_nsti.tsv \
+    --prefix-function-abund test/26-frogsfunc_functions_unstrat_abundance \
+    --prefix-contrib  test/26-frogsfunc_functions_strat_contrib_and_abundance \
+    --output-asv-copy-norm test/26-frogsfunc_functions_marker_norm.tsv \
+    --output-weighted-nsti test/26-frogsfunc_functions_weighted_nsti.tsv \
     --output-excluded test/26-frogsfunc_functions_excluded.txt \
-    --output-contrib test/26-frogsfunc_functions_strat.tsv \
-    --output-fasta test/26-frogsfunc_function.fasta \
-    --output-biom test/26-frogsfunc_function.biom \
-    --html test/26-frogsfunc_functions_summary.html
-
-# Create output folder
-if [ ! -d "test_KO" ]
-then
-    mkdir test_KO
-fi
-./frogsfunc_functions.py \
-    --nb-cpus 2 \
-    --strat-out \
-    --marker-type 16S \
-    --functions KO \
-    --input-biom data/25-frogsfunc_placeseqs.biom \
-    --input-fasta data/25-frogsfunc_placeseqs.fasta \
-    --input-marker data/25-frogsfunc_marker.tsv \
-    --input-tree data/25-frogsfunc_placeseqs_tree.nwk \
-    --output-function-abund test_KO/26-frogsfunc_functions_unstrat.tsv \
-    --output-asv-norm test_KO/26-frogsfunc_functions_marker_norm.tsv \
-    --output-weighted test_KO/26-frogsfunc_functions_weighted_nsti.tsv \
-    --output-excluded test_KO/26-frogsfunc_functions_excluded.txt \
-    --output-contrib test_KO/26-frogsfunc_functions_strat.tsv \
-    --output-fasta test_KO/26-frogsfunc_function.fasta \
-    --output-biom test_KO/26-frogsfunc_function.biom \
-    --html test_KO/26-frogsfunc_functions_summary.html
-
-# Create output folder
-if [ ! -d "test_EC_COG" ]
-then
-    mkdir test_EC_COG
-fi
-./frogsfunc_functions.py \
-    --nb-cpus 2 \
-    --strat-out \
-    --marker-type 16S \
-    --functions EC,COG \
-    --input-biom data/25-frogsfunc_placeseqs.biom \
-    --input-fasta data/25-frogsfunc_placeseqs.fasta \
-    --input-marker data/25-frogsfunc_marker.tsv \
-    --input-tree data/25-frogsfunc_placeseqs_tree.nwk \
-    --output-function-abund test_EC_COG/26-frogsfunc_functions_unstrat.tsv \
-    --output-asv-norm test_EC_COG/26-frogsfunc_functions_marker_norm.tsv \
-    --output-weighted test_EC_COG/26-frogsfunc_functions_weighted_nsti.tsv \
-    --output-excluded test_EC_COG/26-frogsfunc_functions_excluded.txt \
-    --output-contrib test_EC_COG/26-frogsfunc_functions_strat.tsv \
-    --output-fasta test_EC_COG/26-frogsfunc_function.fasta \
-    --output-biom test_EC_COG/26-frogsfunc_function.biom \
-    --html test_EC_COG/26-frogsfunc_functions_summary.html
-
+    --output-fasta test/26-frogsfunc_functions.fasta \
+    --output-biom test/26-frogsfunc_functions.biom \
+    --html test/26-frogsfunc_functions_summary.html \
+    --log-file test/test_EC_COG.log --debug
