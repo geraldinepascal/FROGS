@@ -135,8 +135,8 @@ def process_hsp_function(trait, observed_trait_table, in_tree, nb_cpus, hsp_meth
     FH_log.close()
 
 
-def parallel_submission( function, inputs, tree, hsp_method, outputs, logs, cpu_used):
-    processes = [{'process':None, 'inputs':None, 'tree':tree, 'hsp_method':hsp_method, 'outputs':None, 'log_files':None} for trait in range(cpu_used)]
+def parallel_submission( function, inputs, tree, nb_cpus, hsp_method, outputs, logs, cpu_used):
+    processes = [{'process':None, 'inputs':None, 'tree':tree, 'nb_cpus':nb_cpus, 'hsp_method':hsp_method, 'outputs':None, 'log_files':None} for trait in range(cpu_used)]
     # Launch processes
     for trait in range(len(inputs)):
         process_idx = trait % cpu_used
@@ -148,10 +148,10 @@ def parallel_submission( function, inputs, tree, hsp_method, outputs, logs, cpu_
     for current_process in processes:
         if trait == 0:  # First process is threaded with parent job
             current_process['process'] = threading.Thread(target=function,
-                                                          args=(current_process['inputs'], None, tree, hsp_method, current_process['outputs'], current_process['log_files']))
+                                                          args=(current_process['inputs'], None, tree, nb_cpus, hsp_method, current_process['outputs'], current_process['log_files']))
         else:  # Others processes are processed on diffrerent CPU
             current_process['process'] = multiprocessing.Process(target=function,
-                                                          args=(current_process['inputs'], None, tree, hsp_method, current_process['outputs'], current_process['log_files']))
+                                                          args=(current_process['inputs'], None, tree, nb_cpus, hsp_method, current_process['outputs'], current_process['log_files']))
         current_process['process'].start()
     # Wait processes end
     for current_process in processes:
