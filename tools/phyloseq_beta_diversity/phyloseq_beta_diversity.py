@@ -83,7 +83,7 @@ if __name__ == "__main__":
     parser.add_argument( '--debug', default=False, action='store_true', help="Keep temporary files to debug program. [Default: %(default)s]" )   
     
     parser.add_argument('--var-exp', type=str, required=True, default=None, help='The experiment variable you want to analyse. [Default: %(default)s]')
-    parser.add_argument('--beta-distance-methods', required=True, type=str, nargs="*", default=['bray','cc','unifrac','wunifrac'], help='Beta diversity methods to use (list available in Phyloseq manual, see https://www.bioconductor.org/packages/devel/bioc/manuals/phyloseq/man/phyloseq.pdf). [Default: %(default)s].')
+    parser.add_argument('--beta-distance-methods', required=True, type=str, nargs="+", default=['bray','cc','unifrac','wunifrac'], help='Beta diversity methods to use (list available in Phyloseq manual, see https://www.bioconductor.org/packages/devel/bioc/manuals/phyloseq/man/phyloseq.pdf). [Default: %(default)s].')
     # Inputs
     group_input = parser.add_argument_group( 'Inputs' )
     group_input.add_argument('--phyloseq-rdata', required=True, default=None, help="The path of RData file containing a phyloseq object-the result of phyloseq_import.py. [Default: %(default)s]" )
