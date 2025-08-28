@@ -35,9 +35,10 @@ def process( in_biom, out_biom, out_metadata ):
     taxonomy_depth = 0
     unclassified_observations = list()
 
-    FH_metadata = open( out_metadata, "wt" )
-    FH_metadata.write( "ASVID\t" + "\t".join([item for item in ordered_blast_keys]) + "\n" )
     biom = BiomIO.from_json( in_biom )
+    if biom.has_metadata("blast_affiliations"):
+        FH_metadata = open( out_metadata, "wt" )
+        FH_metadata.write( "ASVID\t" + "\t".join([item for item in ordered_blast_keys]) + "\n" )
     for observation in biom.get_observations():
         for metadata_key in list(observation["metadata"].keys()):
             # Extract blast_affiliations metadata in metadata_file

@@ -12,11 +12,12 @@ fi
 # BIOM without affiliation
 ./biom_to_stdBiom.py \
  --input-biom data/abundance.biom \
- --output-biom test/abundance_1.biom \
- --log-file test/log_1.txt
+ --output-biom test/abundance.biom \
+ --log-file test/abundance.log
 
 # BIOM with affiliation
 ./biom_to_stdBiom.py \
  --input-biom data/affiliation.biom \
- --output-biom test/abundance_blast.biom \
- --log-file test/log_blast.txt
+ --output-biom test/affiliation.biom \
+ --output-metadata test/blast_informations.tsv \
+ --log-file test/affiliation.log
