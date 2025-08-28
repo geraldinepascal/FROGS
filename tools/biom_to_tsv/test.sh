@@ -21,12 +21,12 @@ fi
 
 # With affiliation without sequences
 ./biom_to_tsv.py --input-biom data/affiliation.biom \
-                 --output-tsv test/abundance3.tsv \
+                 --output-tsv test/abundance3.tsv --output-multi-affi test/multi_affi3.tsv \
                  --log-file test/log3.txt
 
 # With affiliation with sequences
 ./biom_to_tsv.py --input-biom data/affiliation.biom --input-fasta data/affiliation.fasta \
-                 --output-tsv test/abundance4.tsv \
+                 --output-tsv test/abundance4.tsv  --output-multi-affi test/multi_affi4.tsv \
                  --log-file test/log4.txt
 
 # With affiliation without sequences with multi-affi extraction
