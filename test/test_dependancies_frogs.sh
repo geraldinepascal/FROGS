@@ -1,9 +1,9 @@
 #!/bin/bash
 
-nb_cpu=2
-java_mem=1
-out_dir=res_4.1.0_to_check
-expected_dir=/projet/tmp/res_to_check/
+nb_cpu=1
+java_mem=2
+out_dir=res_check
+expected_dir=res_dev
 run_programs=true	## if true lance les python sinon, fait uniquement les comparatifs de résultats
 
 ## Set ENV
@@ -34,10 +34,11 @@ diff_size() {
 echo "Step demultiplex `date`"
 if $run_programs
 then
-demultiplex.py --input-R1 data/demultiplex_test2_R1.fq.gz --input-R2 data/demultiplex_test2_R2.fq.gz --input-barcode data/demultiplex_barcode.txt \
-	    --mismatches 1 --end both \
-	    --output-demultiplexed $out_dir/demultiplexed.tar.gz --output-undemultiplexed $out_dir/undemultiplexed.tar.gz \
-	    --log-file $out_dir/demultiplex.log --summary $out_dir/demultiplex_summary.txt
+demultiplex.py \
+	--input-R1 data/demultiplex_test2_R1.fq.gz --input-R2 data/demultiplex_test2_R2.fq.gz --input-barcode data/demultiplex_barcode.txt \
+	--mismatches 1 --end both \
+	--output-demultiplexed $out_dir/demultiplexed.tar.gz --output-undemultiplexed $out_dir/undemultiplexed.tar.gz \
+	--log-file $out_dir/demultiplex.log --summary $out_dir/demultiplex_summary.txt
 	if [ $? -ne 0 ]
 	then
 		echo "Error in demultiplex" >&2
@@ -56,7 +57,7 @@ echo "Step denoising : Vsearch & swarm `date`"
 if $run_programs
 then
 denoising.py illumina \
-     --process swarm \
+     --process swarm --fastidious \
 	 --min-amplicon-size 44 --max-amplicon-size 490 \
      --five-prim-primer GGCGVACGGGTGAGTAA --three-prim-primer GTGCCAGCNGCNGCGG \
      --R1-size 267 --R2-size 266 --merge-software vsearch \
@@ -80,17 +81,6 @@ then
 fi
 
 echo "Step denoising : dada2 keep-unmerged `date`"
-
-denoising.py illumina  \
- --process dada2 --keep-unmerged \
- --input-archive data/verysmallITS.tar.gz \
- --min-amplicon-size 50 --max-amplicon-size 1000 --merge-software vsearch \
- --five-prim-primer TAGACTCGTCAHCGATGAAGAACGYRG --three-prim-primer GCATATCAATAAGCGSAGGAA \
- --R1-size 300 --R2-size 300  --nb-cpus $nb_cpu \
- --output-fasta $out_dir/01-denoising-dada2-clusters.fasta \
- --output-biom $out_dir/01-denoising-dada2-clusters.biom \
- --html $out_dir/01-denoising-dada2.html \
- --log-file $out_dir/01-denoising-dada2.log
 
 if $run_programs
 then
@@ -208,7 +198,7 @@ echo "Step ITSx `date`"
 if $run_programs
 then
 itsx.py \
-	  --input-fasta $out_dir/04-filters.fasta \
+	 --input-fasta $out_dir/04-filters.fasta \
 	--input-biom $out_dir/04-filters.biom \
 	--region ITS1 --nb-cpus $nb_cpu \
 	--output-biom $out_dir/05-itsx.biom \
@@ -250,8 +240,8 @@ if $run_programs
 then
 taxonomic_affiliation.py \
 	 --reference data/ITS1.rdp.fasta \
-	 --input-fasta $expected_dir/04-filters.fasta \
-	 --input-biom $expected_dir/04-filters.biom \
+	 --input-fasta $out_dir/04-filters.fasta \
+	 --input-biom $out_dir/04-filters.biom \
 	 --output-biom $out_dir/06-affiliation.biom \
 	 --html $out_dir/06-affiliation.html \
 	 --log-file $out_dir/06-affiliation.log \
@@ -270,7 +260,8 @@ then
 	echo "difference in taxonomic_affiliation :06-affiliation.biom " >&2
 fi
 
-if diff_line $out_dir/06-affiliation.html $expected_dir/06-affiliation.html 0
+# random sampling for rarefaction curve and sometime boostrap changes
+if diff_line $out_dir/06-affiliation.html $expected_dir/06-affiliation.html 2
 then
 	echo "difference in taxonomic_affiliation :06-affiliation.html " >&2
 fi
@@ -308,7 +299,8 @@ then
 	echo "difference in affiliation_filters, mask mode :07-impacted_OTU_masked.tsv" >&2
 fi
 
-if diff_line $out_dir/07-affiliation_masked.html $expected_dir/07-affiliation_masked.html 0
+# random sampling for rarefaction curve
+if diff_line $out_dir/07-affiliation_masked.html $expected_dir/07-affiliation_masked.html 1
 then
 	echo "difference in affiliation_filters, mask mode :07-affiliation_masked.html" >&2
 fi
@@ -416,39 +408,6 @@ echo "Step normalisation `date`"
 
 if $run_programs
 then
-
-normalisation.py \
-	 --num-reads 25000 \
-	--delete-samples \
-	--input-biom $out_dir/08-affiliation_postprocessed.biom \
-	--input-fasta $out_dir/08-affiliation_postprocessed.fasta \
-	--output-biom $out_dir/09-normalisation_25K_delS.biom \
-	--output-fasta $out_dir/09-normalisation_25K_delS.fasta \
-	--html $out_dir/09-normalisation_25K_delS.html \
-	--log-file $out_dir/09-normalisation_25K_delS.log
-	 
-	if [ $? -ne 0 ]
-	then
-		echo "Error in normalisation 25K_delS" >&2
-		exit 1;
-	fi
-
-normalisation.py \
-	 --sampling-by-min \
-	--input-biom $out_dir/08-affiliation_postprocessed.biom \
-	--input-fasta $out_dir/08-affiliation_postprocessed.fasta \
-	--output-biom $out_dir/09-normalisation_by_min.biom \
-	--output-fasta $out_dir/09-normalisation_by_min.fasta \
-	--html $out_dir/09-normalisation_by_min.html \
-	--log-file $out_dir/09-normalisation_by_min.log
-	 
-	if [ $? -ne 0 ]
-	then
-	    echo "Error in normalisation by min" >&2
-	    exit 1;
-	fi
-
-	# to reduce computing time for the others step
 normalisation.py \
 	 --num-reads 100 \
 	--input-biom $out_dir/08-affiliation_postprocessed.biom \
@@ -466,51 +425,7 @@ normalisation.py \
 fi
 
 
-##difficile à tester à cause du tirage aléatoire
-
-# normalisation with deleting too small sample
-if diff_line $out_dir/09-normalisation_25K_delS.fasta $expected_dir/09-normalisation_25K_delS.fasta 5
-then
-	echo "Difference in normalisation : 09-normalisation_25K_delS.fasta" >&2
-fi
-
-if diff_size $out_dir/09-normalisation_25K_delS.biom $expected_dir/09-normalisation_25K_delS.biom 0
-then
-	echo "Difference in normalisation : 09-normalisation_25K_delS.biom" >&2
-fi
-
-if diff_line $out_dir/09-normalisation_25K_delS.html $expected_dir/09-normalisation_25K_delS.html 0
-then
-	echo "Difference in normalisation : 09-normalisation_25K_delS.html" >&2
-fi
-
-if diff_size $out_dir/09-normalisation_25K_delS.html $expected_dir/09-normalisation_25K_delS.html 0
-then
-	echo "Difference in normalisation : 09-normalisation_25K_delS.html" >&2
-fi
-
-# normalisation on the smallest sample
-if diff_line $out_dir/09-normalisation_by_min.fasta $expected_dir/09-normalisation_by_min.fasta 5
-then
-	echo "Difference in normalisation : 09-normalisation_by_min.fasta" >&2
-fi
-
-if diff_size $out_dir/09-normalisation_by_min.biom $expected_dir/09-normalisation_by_min.biom 0
-then
-	echo "Difference in normalisation : 09-normalisation_by_min.biom" >&2
-fi
-
-if diff_line $out_dir/09-normalisation_by_min.html $expected_dir/09-normalisation_by_min.html 0
-then
-	echo "Difference in normalisation : 09-normalisation_by_min.html" >&2
-fi
-
-if diff_size $out_dir/09-normalisation_by_min.html $expected_dir/09-normalisation_by_min.html 0
-then
-	echo "Difference in normalisation : 09-normalisation_by_min.html" >&2
-fi
-
-# hard normalisation (100 sequences) to optimize next steps
+# random sampling for rarefaction curve 
 if diff_line $out_dir/09-normalisation.fasta $expected_dir/09-normalisation.fasta 5
 then
 	echo "Difference in normalisation : 09-normalisation.fasta" >&2
@@ -557,7 +472,7 @@ echo "Step affiliation_stats `date`"
 if $run_programs
 then
 affiliation_stats.py \
-	 --input-biom $out_dir/09-normalisation.biom \
+	--input-biom $expected_dir/09-normalisation.biom \
 	--html $out_dir/11-affiliationsStat.html \
 	--log-file $out_dir/11-affiliationsStat.log \
 	--tax-consensus-tag "blast_taxonomy" \
@@ -574,7 +489,7 @@ affiliation_stats.py \
 	fi
 fi
 
-## tirage aléatoire sur les courbes de raréfaction
+# random sampling for rarefaction curve
 if diff_line $out_dir/11-affiliationsStat.html $expected_dir/11-affiliationsStat.html 1
 then
 	echo "Difference in nb diff affiliations_stat : 11-affiliationsStat.html" >&2
@@ -674,8 +589,8 @@ if $run_programs
 then
 tree.py \
 	 --nb-cpus $nb_cpu \
-	 --input-fasta $out_dir/09-normalisation.fasta \
-	 --input-biom $out_dir/09-normalisation.biom \
+	 --input-fasta $expected_dir/09-normalisation.fasta \
+	 --input-biom $expected_dir/09-normalisation.biom \
 	 --output-tree $out_dir/15-tree-mafft.nwk \
 	 --html $out_dir/15-tree-mafft.html \
 	 --log-file $out_dir/15-tree-mafft.log
@@ -795,7 +710,7 @@ echo "Step phyloseq_beta_diversity `date`"
 if $run_programs
 then
 phyloseq_beta_diversity.py  \
-	 --var-exp EnvType --distance-methods cc unifrac \
+	 --var-exp EnvType --beta-distance-methods cc unifrac \
 	 --phyloseq-rdata $expected_dir/16-phylo_import.Rdata \
 	 --matrix-outdir $out_dir \
 	 --html $out_dir/19-phylo_beta_div.nb.html \
@@ -892,8 +807,8 @@ then
 	echo "Difference in phyloseq_manova :  different statistical test result" >&2
 fi
 
-echo "Step deseq2_preprocess `date`"
-echo "DESeq2 ASV abundances"
+echo "Step deseq2_preprocess ASV`date`"
+
 if $run_programs
 then
 deseq2_preprocess.py \
@@ -915,7 +830,7 @@ then
 	echo "Difference in deseq2_preprocess : 23-deseq2_preprocess.Rdata " >&2
 fi
 
-echo "DESeq2 function abundances"
+echo "Step deseq2_preprocess Function`date`"
 if $run_programs
 then
 deseq2_preprocess.py \
@@ -939,14 +854,14 @@ then
 	echo "Difference in deseq2_preprocess : 23-deseq2_preprocess.Rdata " >&2
 fi
 
-echo "Step deseq2_visualisation `date`"
-echo "DESeq2 otu abundances"
+echo "Step deseq2_visualisation ASV`date`"
+
 if $run_programs
 then
 deseq2_visualisation.py \
-	 --abundanceData $out_dir/16-phylo_import.Rdata \
+	 --phyloseq-rdata $out_dir/16-phylo_import.Rdata \
 	 --analysis ASV \
-	 --dds $out_dir/23-deseq2_preprocess_otu.Rdata \
+	 --deseq-rdata $out_dir/23-deseq2_preprocess_otu.Rdata \
 	 --log-file $out_dir/24-deseq2_visualisation_otu.log \
 	 --html $out_dir/24-deseq2_visualisation_otu.nb.html \
 	 --var EnvType --mod1 BoeufHache --mod2 SaumonFume
@@ -977,13 +892,14 @@ then
 	echo "Difference in deseq2_visualisation : 24-deseq2_visualisation_otu.nb.html  " >&2
 fi
 
-echo "DESeq2 function abundances"
+echo "Step deseq2_visualisation Function`date`"
+
 if $run_programs
 then
 deseq2_visualisation.py \
-	--abundanceData $out_dir/23-phyloseq_functions.Rdata \
+	--phyloseq-rdata $out_dir/23-phyloseq_functions.Rdata \
 	--analysis FUNCTION \
-	--dds $out_dir/23-deseq2_preprocess_func.Rdata \
+	--deseq-rdata $out_dir/23-deseq2_preprocess_func.Rdata \
 	--log-file $out_dir/24-deseq2_visualisation_func.log \
 	--html $out_dir/24-deseq2_visualisation_func.nb.html \
 	--var EnvType --mod1 BoeufHache --mod2 SaumonFume

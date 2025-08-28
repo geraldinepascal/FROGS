@@ -20,7 +20,8 @@ echo "Illumina R1 and R2 with vsearch and swarm"
                          --min-amplicon-size 340 --max-amplicon-size 450 \
                          --five-prim-primer "CCGTCAATTC" --three-prim-primer "CCGCNGCTGCT" \
                          --process swarm \
-                         --output-fasta test/derep_illumina_R1R2.fasta --output-biom test/illumina_R1R2.biom --html test/summary_illumina_R1R2.html --log-file test/log_illumina_R1R2.txt
+                         --output-fasta test/derep_illumina_R1R2.fasta --output-biom test/illumina_R1R2.biom --output-compo test/illumina_R1R2_swarm_compo.tsv \
+                         --html test/summary_illumina_R1R2.html --log-file test/log_illumina_R1R2.txt
 
 # Illumina R1 and R2 vsearch dada2
 echo "Illumina R1 and R2 with vsearch and dada2"
@@ -42,7 +43,8 @@ echo "Illumina R1 and R2 with vsearch and dada2"
 #                          --min-amplicon-size 340 --max-amplicon-size 450 \
 #                          --five-prim-primer "CCGTCAATTC" --three-prim-primer "CCGCNGCTGCT" \
 #                          --process swarm \
-#                          --output-fasta test/derep_illumina_pear_R1R2.fasta --output-biom test/illumina_pear_R1R2.biom --html test/summary_illumina_pear_R1R2.html --log-file test/log_illumina_pear_R1R2.txt
+#                          --output-fasta test/derep_illumina_pear_R1R2.fasta --output-biom test/illumina_pear_R1R2.biom  --output-compo test/illumina_pear_R1R2_swarm_compo.tsv \
+#                          --html test/summary_illumina_pear_R1R2.html --log-file test/log_illumina_pear_R1R2.txt
 `
 # Illumina R1 and R2 with flash swarm
 echo "Illumina R1 and R2 with flash and swarm"
@@ -54,7 +56,8 @@ echo "Illumina R1 and R2 with flash and swarm"
                          --min-amplicon-size 340 --max-amplicon-size 450 \
                          --five-prim-primer "CCGTCAATTC" --three-prim-primer "CCGCNGCTGCT" \
                          --process swarm \
-                         --output-fasta test/derep_illumina_flash_R1R2.fasta --output-biom test/illumina_flash_R1R2.biom --html test/summary_illumina_flash_R1R2.html --log-file test/log_illumina_flash_R1R2.txt
+                         --output-fasta test/derep_illumina_flash_R1R2.fasta --output-biom test/illumina_flash_R1R2.biom  --output-compo test/illumina_flash_R1R2_swarm_compo.tsv \
+                         --html test/summary_illumina_flash_R1R2.html --log-file test/log_illumina_flash_R1R2.txt
 
 # Illumina tar R1 and R2, keep unmerged swarm
 echo "Illumina tar R1 and R2, keep unmerged"
@@ -64,7 +67,8 @@ tar -zcf test/samples.tar.gz -C data sampleA_R1.fastq.gz sampleA_R2.fastq.gz sam
                          --min-amplicon-size 340 --max-amplicon-size 450 \
                          --process swarm \
                          --five-prim-primer "CCGTCAATTC" --three-prim-primer "CCGCNGCTGCT" \
-                         --output-fasta test/derep_illumina_TAR_R1R2_keepUnmerged.fasta --output-biom test/count_illumina_TAR_R1R2_keepUnmerged.biom --html test/summary_illumina_TAR_R1R2_keepUnmerged.html --log-file test/log_illumina_TAR_R1R2_keepUnmerged.txt
+                         --output-fasta test/derep_illumina_TAR_R1R2_keepUnmerged.fasta --output-biom test/count_illumina_TAR_R1R2_keepUnmerged.biom  --output-compo test/log_illumina_TAR_R1R2_keepUnmerged_swarm_compo.tsv \
+                         --html test/summary_illumina_TAR_R1R2_keepUnmerged.html --log-file test/log_illumina_TAR_R1R2_keepUnmerged.txt
 rm test/samples.tar.gz
 
 # Illumina tar R1 and R2, keep unmerged dada2
@@ -84,7 +88,9 @@ echo "Illumina contiged"
                          --samples-names sample_A sample_B \
                          --min-amplicon-size 340 --max-amplicon-size 450 \
                          --five-prim-primer "CCGTCAATTC" --three-prim-primer "CCGCNGCTGCT" \
-                         --output-fasta test/derep_illumina_CONTIGED.fasta --output-biom test/count_illumina_CONTIGED.biom --html test/summary_illumina_CONTIGED.html --log-file test/log_illumina_CONTIGED.txt
+                         --process swarm \
+                         --output-fasta test/derep_illumina_CONTIGED.fasta --output-biom test/count_illumina_CONTIGED.biom --output-compo test/illumina_CONTIGED_swarm_compo.tsv \
+                         --html test/summary_illumina_CONTIGED.html --log-file test/log_illumina_CONTIGED.txt
 
 # Illumina tar contiged
 echo "Illumina tar contiged"
@@ -92,7 +98,10 @@ tar -zcf test/contiged_samples.tar.gz -C data sampleA.fastq.gz sampleB.fastq.gz
 ./denoising.py illumina --input-archive test/contiged_samples.tar.gz --already-contiged \
                          --min-amplicon-size 340 --max-amplicon-size 450 \
                          --five-prim-primer "CCGTCAATTC" --three-prim-primer "CCGCNGCTGCT" \
-                         --output-fasta test/derep_illumina_TAR_CONTIGED.fasta --output-biom test/count_illumina_TAR_CONTIGED.tsv --html test/summary_illumina_TAR_CONTIGED.html --log-file test/log_illumina_TAR_CONTIGED.txt
+                         --process swarm \
+                         --output-fasta test/derep_illumina_TAR_CONTIGED.fasta --output-biom test/count_illumina_TAR_CONTIGED.tsv --output-compo test/illumina_TAR_CONTIGED_swarm_compo.tsv\
+                         --html test/summary_illumina_TAR_CONTIGED.html --log-file test/log_illumina_TAR_CONTIGED.txt
+
 rm test/contiged_samples.tar.gz
 
 # Illumina contiged without primers
@@ -105,7 +114,10 @@ cutadapt -a CCGCNGCTGCT --error-rate 0.1 --discard-untrimmed --match-read-wildca
                          --samples-names sample_A sample_B \
                          --already-contiged --without-primers \
                          --min-amplicon-size 340 --max-amplicon-size 450 \
-                         --output-fasta test/derep_illumina_contiged_custom.fasta --output-biom test/count_illumina_contiged_custom.biom --html test/summary_illumina_contiged_custom.html --log-file test/log_illumina_contiged_custom.txt
+                         --process swarm \
+                         --output-fasta test/derep_illumina_contiged_custom.fasta --output-biom test/count_illumina_contiged_custom.biom --output-compo test/illumina_contiged_custom_swarm_compo.tsv \
+                         --html test/summary_illumina_contiged_custom.html --log-file test/log_illumina_contiged_custom.txt
+
 rm test/test_sampleA.fastq.gz test/test_sampleA_tmp.fastq.gz test/test_sampleB.fastq.gz test/test_sampleB_tmp.fastq.gz
 
 # 454 R1
@@ -113,7 +125,9 @@ echo "454 R1"
 ./denoising.py 454 --input-R1 data/SRR443364_clipped.fastq.gz \
                     --min-amplicon-size 340 --max-amplicon-size 450 \
                     --five-prim-primer "ACGGGAGGCAGCAG" --three-prim-primer "AGGATTAGATACCCTGGTA" \
-                    --output-fasta test/derep_SRR443364_454.fasta --output-biom test/count_SRR443364_454.biom --html test/summary_SRR443364_454.html --log-file test/log_SRR443364_454.txt
+                    --process swarm \
+                    --output-fasta test/derep_SRR443364_454.fasta --output-biom test/count_SRR443364_454.biom --output-compo test/SRR443364_454_swarm_compo.tsv \
+                    --html test/summary_SRR443364_454.html --log-file test/log_SRR443364_454.txt
                     
 # Long reads PacBio swarm
 echo "Long reads swarm"
@@ -122,7 +136,8 @@ echo "Long reads swarm"
                     --five-prim-primer AGRGTTYGATYMTGGCTCAG --three-prim-primer AAGTCGTAACAAGGTARCY \
                     --process swarm \
                     --nb-cpus 4 \
-                    --log-file test/denoising_longreads_swarm.log --output-fasta test/denoising_longreads_swarm.fasta --output-biom test/denoising_longreads_swarm.biom --html test/denoising_longreads_swarm.html
+                    --output-fasta test/denoising_longreads_swarm.fasta --output-biom test/denoising_longreads_swarm.biom --output-compo test/longreads_swarm_compo.tsv \
+                    --html test/denoising_longreads_swarm.html --log-file test/denoising_longreads_swarm.log
 			
 # Long reads PacBio dada2
 echo "Long reads dada2"

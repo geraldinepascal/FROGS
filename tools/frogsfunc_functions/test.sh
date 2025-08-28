@@ -27,4 +27,4 @@ fi
     --output-fasta test/26-frogsfunc_functions.fasta \
     --output-biom test/26-frogsfunc_functions.biom \
     --html test/26-frogsfunc_functions_summary.html \
-    --log-file test/test_EC_COG.log --debug
+    --log-file test/test_EC_COG.log
