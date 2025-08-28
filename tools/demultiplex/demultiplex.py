@@ -369,12 +369,12 @@ if __name__ == "__main__":
             Logger.static_write(args.log_file,"\n#Archive demultiplexed R1 and R2 files\n")
             Archive(R1_files + R2_files, args.output_demultiplexed).submit( args.log_file )
             Logger.static_write(args.log_file,"\n#Archive undemultiplexed R1 and R2 files\n")
-            Archive([excluded_R1_file,excluded_R2_file], args.output_excluded).submit( args.log_file )
+            Archive([excluded_R1_file,excluded_R2_file], args.output_undemultiplexed).submit( args.log_file )
         else:
             Logger.static_write(args.log_file,"\n#Archive demultiplexed files\n")
             Archive(R1_files, args.output_demultiplexed).submit( args.log_file )
             Logger.static_write(args.log_file,"\n#Archive undemultiplexed files\n")
-            Archive([excluded_R1_file], args.output_excluded).submit( args.log_file )
+            Archive([excluded_R1_file], args.output_undemultiplexed).submit( args.log_file )
 
     # Remove temporary files
     finally:
