@@ -312,6 +312,7 @@ def process( args ):
         # Add temp taxonomy if multiple and without consensus
         tmp_biom = args.input_biom
         used_taxonomy_tag = args.taxonomy_tag
+        #### Is it usefull? ######
         if args.multiple_tag is not None:
             used_taxonomy_tag = args.tax_consensus_tag
             if args.tax_consensus_tag is None:
