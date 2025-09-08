@@ -536,7 +536,7 @@ if __name__ == '__main__':
     
     #     Filters
     group_filter = parser.add_argument_group( 'Filters' )
-    group_filter.add_argument( '--nb-biggest-clusters', type=int, default=None, required=False, help="Number of most abundant clusters you want to keep.") 
+    group_filter.add_argument( '--nb-biggest-clusters', type=int, default=None, required=False, help="Number of most abundant clusters you want to keep, after all others filters applied.") 
     group_filter.add_argument('--min-sample-presence', type=int, help="Keep cluster present in at least this number of samples.") 
     group_filter.add_argument('--min-replicate-presence', type=minAbundParameter, default=None, help="Keep cluster present in at least this proportion of replicates in at least one group (please indicate a proportion between 0 and 1). Replicates must be defined with --replicate_file REPLICATE FILE")
     group_filter.add_argument('--min-abundance', type=minAbundParameter, default=None, required=False, help="Minimum percentage/number of sequences, comparing to the total number of sequences, of a cluster (between 0 and 1 if percentage desired)." )
