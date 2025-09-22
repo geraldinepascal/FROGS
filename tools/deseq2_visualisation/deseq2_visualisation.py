@@ -3,7 +3,7 @@
 __author__ = 'Ta Thi Ngan - SIGENAE/GABI & Mahendra Mariadassou - MaIAGE'
 __copyright__ = 'Copyright (C) 2024 INRAE'
 __license__ = 'GNU General Public License'
-__version__ = '5.0.2'
+__version__ = '5.1.0'
 __email__ = 'frogs@toulouse.inrae.fr'
 __status__ = 'prod'
 
