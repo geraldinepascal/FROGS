@@ -259,10 +259,11 @@ Phyloseq `r packageVersion("phyloseq")`
 </select>
 ```
 
-```{r import, message=FALSE}
+```{r import, message=FALSE, warning=FALSE}
 ## Import packages
 library(phyloseq)
 library(ggplot2)
+library(vegan)
 source(file.path(params$libdir, "graphical_methods.R"))
 ## Alternative to source all extra function from a github repo
 ## source("https://raw.githubusercontent.com/mahendra-mariadassou/phyloseq-extended/master/load-extra-functions.R")
@@ -334,7 +335,6 @@ for (m in measures){
 
 ## Import additionnal packages
 # library(parallel)
-library(vegan)
 
 ## Rarefaction curve, ggplot style (additionnal phyloseq-extend function, not yet released)
 ggrare <- function(physeq, step = 10, label = NULL, color = NULL, plot = TRUE, parallel = FALSE, se = TRUE) {
