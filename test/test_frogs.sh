@@ -3,6 +3,9 @@ nb_cpu=$1
 java_mem=$2
 out_dir=$3
 
+# conda activate frogs@5.0.2
+# export PATH=/home/maria/workspace/FROGS_dev/app:$PATH
+
 # Check parameters
 if [ "$#" -ne 3 ]; then
     echo "ERROR: Illegal number of parameters." ;
@@ -195,8 +198,8 @@ affiliation_filters.py \
 	--input-fasta $out_dir/04-filters.fasta \
 	--output-biom $out_dir/07-affiliation_masked.biom \
 	--html $out_dir/07-affiliation_masked.html \
-	--impacted $out_dir/07-impacted_OTU_masked.tsv \
-	--impacted-multihit $out_dir/07-impacted_OTU_masked_multihit.tsv \
+	--impacted $out_dir/07-impacted_ASV_masked.tsv \
+	--impacted-multihit $out_dir/07-impacted_ASV_masked_multihit.tsv \
 	--log-file $out_dir/07-affiliation_filter_maskMode.log \
 	--min-rdp-bootstrap Species:0.8 \
 	--min-blast-length 150 \
@@ -221,8 +224,8 @@ affiliation_filters.py \
 	--output-biom $out_dir/07-affiliation_deleted.biom \
 	--output-fasta $out_dir/07-affiliation_deleted.fasta \
 	--html $out_dir/07-affiliation_deleted.html \
-	--impacted $out_dir/07-impacted_OTU_deleted.tsv \
-	--impacted-multihit $out_dir/07-impacted_OTU_deleted_multihit.tsv \
+	--impacted $out_dir/07-impacted_ASV_deleted.tsv \
+	--impacted-multihit $out_dir/07-impacted_ASV_deleted_multihit.tsv \
 	--log-file $out_dir/07-affiliation_filter_delMode.log \
 	--min-rdp-bootstrap Species:0.8 \
 	--min-blast-length 150 \
@@ -509,8 +512,8 @@ echo "Step deseq2_preprocess ASV `date`"
 deseq2_preprocess.py \
  --phyloseq-rdata $out_dir/16-phylo_import.Rdata \
  --analysis-type ASV \
- --log-file $out_dir/23-deseq2_preprocess_otu.log \
- --output-deseq-rdata $out_dir/23-deseq2_preprocess_otu.Rdata \
+ --log-file $out_dir/23-deseq2_preprocess_asv.log \
+ --output-deseq-rdata $out_dir/23-deseq2_preprocess_asv.Rdata \
  --var-exp EnvType
 
 if [ $? -ne 0 ]
@@ -541,9 +544,9 @@ echo "Step deseq2_visualisation ASV `date`"
 deseq2_visualisation.py \
  --phyloseq-rdata $out_dir/16-phylo_import.Rdata \
  --analysis-type ASV \
- --deseq-rdata $out_dir/23-deseq2_preprocess_otu.Rdata \
- --log-file $out_dir/24-deseq2_visualisation_otu.log \
- --html $out_dir/24-deseq2_visualisation_otu.nb.html \
+ --deseq-rdata $out_dir/23-deseq2_preprocess_asv.Rdata \
+ --log-file $out_dir/24-deseq2_visualisation_asv.log \
+ --html $out_dir/24-deseq2_visualisation_asv.nb.html \
  --var EnvType --mod1 BoeufHache --mod2 SaumonFume
 
 if [ $? -ne 0 ]

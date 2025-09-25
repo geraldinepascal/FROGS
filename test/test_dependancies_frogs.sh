@@ -275,8 +275,8 @@ affiliation_filters.py \
 	--input-fasta $expected_dir/04-filters.fasta \
 	--output-biom $out_dir/07-affiliation_masked.biom \
 	--html $out_dir/07-affiliation_masked.html \
-	--impacted $out_dir/07-impacted_OTU_masked.tsv \
-	--impacted-multihit $out_dir/07-impacted_OTU_masked_multihit.tsv \
+	--impacted $out_dir/07-impacted_ASV_masked.tsv \
+	--impacted-multihit $out_dir/07-impacted_ASV_masked_multihit.tsv \
 	--log-file $out_dir/07-affiliation_filter_maskMode.log \
 	--min-rdp-bootstrap Species:0.8 \
 	--min-blast-length 150 \
@@ -294,9 +294,9 @@ affiliation_filters.py \
 	fi
 fi
 
-if diff_line $out_dir/07-impacted_OTU_masked.tsv $expected_dir/07-impacted_OTU_masked.tsv 0
+if diff_line $out_dir/07-impacted_ASV_masked.tsv $expected_dir/07-impacted_ASV_masked.tsv 0
 then
-	echo "difference in affiliation_filters, mask mode :07-impacted_OTU_masked.tsv" >&2
+	echo "difference in affiliation_filters, mask mode :07-impacted_ASV_masked.tsv" >&2
 fi
 
 # random sampling for rarefaction curve
@@ -305,9 +305,9 @@ then
 	echo "difference in affiliation_filters, mask mode :07-affiliation_masked.html" >&2
 fi
 
-if diff_line $out_dir/07-impacted_OTU_masked_multihit.tsv $expected_dir/07-impacted_OTU_masked_multihit.tsv 0
+if diff_line $out_dir/07-impacted_ASV_masked_multihit.tsv $expected_dir/07-impacted_ASV_masked_multihit.tsv 0
 then
-	echo "difference in affiliation_filters, mask mode :07-impacted_OTU_masked_multihit.tsv" >&2
+	echo "difference in affiliation_filters, mask mode :07-impacted_ASV_masked_multihit.tsv" >&2
 fi
 
 if diff_size $out_dir/07-affiliation_masked.biom  $expected_dir/07-affiliation_masked.biom 0
@@ -325,8 +325,8 @@ affiliation_filters.py \
 	--output-biom $out_dir/07-affiliation_deleted.biom \
 	--output-fasta $out_dir/07-affiliation_deleted.fasta \
 	--html $out_dir/07-affiliation_deleted.html \
-	--impacted $out_dir/07-impacted_OTU_deleted.tsv \
-	--impacted-multihit $out_dir/07-impacted_OTU_deleted_multihit.tsv \
+	--impacted $out_dir/07-impacted_ASV_deleted.tsv \
+	--impacted-multihit $out_dir/07-impacted_ASV_deleted_multihit.tsv \
 	--log-file $out_dir/07-affiliation_filter_delMode.log \
 	--min-rdp-bootstrap Species:0.8 \
 	--min-blast-length 150 \
@@ -344,9 +344,9 @@ affiliation_filters.py \
 	fi
 fi
 
-if diff_line $out_dir/07-impacted_OTU_deleted.tsv $expected_dir/07-impacted_OTU_deleted.tsv 0
+if diff_line $out_dir/07-impacted_ASV_deleted.tsv $expected_dir/07-impacted_ASV_deleted.tsv 0
 then
-	echo "difference in affiliation_filters, delete mode :07-impacted_OTU_deleted.tsv" >&2
+	echo "difference in affiliation_filters, delete mode :07-impacted_ASV_deleted.tsv" >&2
 fi
 
 if diff_line $out_dir/07-affiliation_deleted.html $expected_dir/07-affiliation_deleted.html 0
@@ -354,9 +354,9 @@ then
 	echo "difference in affiliation_filters, delete mode :07-affiliation_deleted.html" >&2
 fi
 
-if diff_line $out_dir/07-impacted_OTU_deleted_multihit.tsv $expected_dir/07-impacted_OTU_deleted_multihit.tsv 0
+if diff_line $out_dir/07-impacted_ASV_deleted_multihit.tsv $expected_dir/07-impacted_ASV_deleted_multihit.tsv 0
 then
-	echo "difference in affiliation_filters, delete mode :07-impacted_OTU_deleted_multihit.tsv" >&2
+	echo "difference in affiliation_filters, delete mode :07-impacted_ASV_deleted_multihit.tsv" >&2
 fi
 
 if diff_size $out_dir/07-affiliation_deleted.biom  $expected_dir/07-affiliation_deleted.biom 0
@@ -814,8 +814,8 @@ then
 deseq2_preprocess.py \
 	 --phyloseq-rdata $out_dir/16-phylo_import.Rdata \
 	 --analysis-type ASV \
-	 --log-file $out_dir/23-deseq2_preprocess_otu.log \
-	 --output-deseq-rdata $out_dir/23-deseq2_preprocess_otu.Rdata \
+	 --log-file $out_dir/23-deseq2_preprocess_asv.log \
+	 --output-deseq-rdata $out_dir/23-deseq2_preprocess_asv.Rdata \
 	 --var EnvType
 
 	if [ $? -ne 0 ]
@@ -825,7 +825,7 @@ deseq2_preprocess.py \
 	fi
 fi
 
-if diff_line $out_dir/23-deseq2_preprocess_otu.Rdata $expected_dir/23-deseq2_preprocess_otu.Rdata 50
+if diff_line $out_dir/23-deseq2_preprocess_asv.Rdata $expected_dir/23-deseq2_preprocess_asv.Rdata 50
 then
 	echo "Difference in deseq2_preprocess : 23-deseq2_preprocess.Rdata " >&2
 fi
@@ -861,9 +861,9 @@ then
 deseq2_visualisation.py \
 	 --phyloseq-rdata $out_dir/16-phylo_import.Rdata \
 	 --analysis ASV \
-	 --deseq-rdata $out_dir/23-deseq2_preprocess_otu.Rdata \
-	 --log-file $out_dir/24-deseq2_visualisation_otu.log \
-	 --html $out_dir/24-deseq2_visualisation_otu.nb.html \
+	 --deseq-rdata $out_dir/23-deseq2_preprocess_asv.Rdata \
+	 --log-file $out_dir/24-deseq2_visualisation_asv.log \
+	 --html $out_dir/24-deseq2_visualisation_asv.nb.html \
 	 --var EnvType --mod1 BoeufHache --mod2 SaumonFume
 	                            
 
@@ -884,12 +884,12 @@ fi
 # et faire sdiff
 # dans les XML on teste les valeurs de otu_01582 avec des valeurs avec 3 décimales (des mises à jours de DESeq provoque des ajustements des valeurs ...)
 
-grep otu_01582 $out_dir/24-deseq2_visualisation_otu.nb.html | sed 's/],/],\n/g' > /tmp/tmp
-grep otu_01582 $expected_dir/24-deseq2_visualisation_otu.nb.html | sed 's/],/],\n/g'  > /tmp/tmp1
+grep otu_01582 $out_dir/24-deseq2_visualisation_asv.nb.html | sed 's/],/],\n/g' > /tmp/tmp
+grep otu_01582 $expected_dir/24-deseq2_visualisation_asv.nb.html | sed 's/],/],\n/g'  > /tmp/tmp1
 
 if diff_line /tmp/tmp /tmp/tmp1 1
 then
-	echo "Difference in deseq2_visualisation : 24-deseq2_visualisation_otu.nb.html  " >&2
+	echo "Difference in deseq2_visualisation : 24-deseq2_visualisation_asv.nb.html  " >&2
 fi
 
 echo "Step deseq2_visualisation Function`date`"
