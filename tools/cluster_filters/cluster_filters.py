@@ -477,7 +477,6 @@ def process( args ):
             
             if type(args.min_abundance) == Decimal:
                 biom = BiomIO.from_json( args.input_biom )
-                print(biom.get_total_count())
                 min_nb_seq = int(biom.get_total_count() * args.min_abundance) + 1
                 label = "Abundance < " + str(float(args.min_abundance*100)) + "% (i.e " + str(min_nb_seq) + " sequences )"
             else:
