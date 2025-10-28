@@ -199,7 +199,7 @@ def excluded_obs_on_abundance(input_biom, min_abundance, excluded_file):
     biom = BiomIO.from_json( input_biom )
     FH_excluded_file = open( excluded_file, "wt" )
     min_nb_seq = min_abundance
-    if type(min_abundance) == float:
+    if type(min_abundance) == Decimal:
         min_nb_seq = biom.get_total_count() * min_abundance
     for idx, count_by_sample in enumerate(biom.to_count()):
         observation = biom.rows[idx]
@@ -453,8 +453,6 @@ def minAbundParameter( arg_value ):
     cleaned_value = Decimal(str_value) if "." in str_value or "e-" in str_value else int(str_value)
     return cleaned_value
 
-
-
 def process( args ):
     tmpFiles = TmpFiles( os.path.split(args.output_biom)[0] )
 
@@ -477,10 +475,11 @@ def process( args ):
 
         if args.min_abundance is not None:
             
-            if type(args.min_abundance) == float:
+            if type(args.min_abundance) == Decimal:
                 biom = BiomIO.from_json( args.input_biom )
+                print(biom.get_total_count())
                 min_nb_seq = int(biom.get_total_count() * args.min_abundance) + 1
-                label = "Abundance < " + str(args.min_abundance*100) + "% (i.e " + str(min_nb_seq) + " sequences )"
+                label = "Abundance < " + str(float(args.min_abundance*100)) + "% (i.e " + str(min_nb_seq) + " sequences )"
             else:
                 label = "Abundance < " + str(args.min_abundance)
             discards[label] = tmpFiles.add( "min_abundance" )
