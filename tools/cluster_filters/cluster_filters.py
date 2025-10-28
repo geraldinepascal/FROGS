@@ -351,7 +351,7 @@ def write_summary( summary_file, input_biom, output_biom, replicate_log, discard
     FH_depth.close()
 
     # Get sample data
-    biom = BiomIO.from_json( input_biom )
+    biom = BiomIO.from_json( output_biom )
     samples_distrib = dict()
     for sample_name in biom.get_samples_names():
         shared_seq = 0
