@@ -356,6 +356,8 @@
 					          dispersion['upper_quartile'],
 					          dispersion['max']]]
 				}];
+				/*
+				Test data for boxplot
 				var boxplot_series = [{
 					'name': "Cluster size",
 					'data': [[10,
@@ -363,7 +365,7 @@
 					          25,
 					          75,
 					          100]]
-				}];
+				}];*/
 				
 				boxplotChart_options = boxplotOption("ASV size distribution", "", "ASV size", ["All"], boxplot_series);
 				boxplotChart = echarts.init(document.getElementById('boxplot-container'),CURRENT_THEME,{renderer: 'svg', height:600})
