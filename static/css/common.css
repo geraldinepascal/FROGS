@@ -1,0 +1,169 @@
+
+body{
+    background-color: var(--frogsBackgroundColor);
+}
+.page-link{
+    color: var(--frogsColor);
+}
+.page-link:hover{
+    color: var(--frogsColorHover);
+}
+
+/* Titles */
+h2{
+    color: var(--frogsColor) !important;
+}
+.pb-2, .py-2 {
+    padding-bottom: 1.5rem !important;
+    margin-bottom: 2rem !important;
+    margin-top: 4rem !important;
+}
+
+.nav-link {
+    color: var(--frogsColor) !important;
+}
+
+.nav-tabs .nav-item.show .nav-link, .nav-tabs .nav-link.active {
+    color: white !important;
+    background-color: var(--frogsColor) !important;
+}
+
+.form-select:focus {
+    border-color: rgba(185, 187, 189) !important;
+    box-shadow: 0 0 0 .25rem rgba(185, 187, 189, 0.25) !important;
+  }
+
+.form-check-input:checked {
+    background-color: var(--frogsColor) !important;
+    border-color: var(--frogsButtonBorderColor) !important;
+  }
+
+
+/*
+.btn-outline-primary{
+    color: var(--frogsColor) !important;
+    border:  var(--bs-btn-border-width) solid var(--frogsColor) !important;
+}
+
+.btn-outline-primary:hover{
+    background-color: var(--frogsColor) !important;
+    color: white !important;
+}
+*/
+.btn{
+    background-color: var(--frogsButtonColor) !important;
+    color: white !important;
+    border-color: var(--frogsButtonBorderColor) !important;
+}
+
+.btn:hover {
+    color: white !important;
+    background-color: var(--frogsColorHover) !important;
+    /*border-color: var(--frogsButtonBorderColor) !important;*/
+  }
+*/
+/* Global */
+/*
+#dispersion {
+     margin: auto;
+}
+#twofigs{
+     height: 500px;
+}
+     */
+#content {
+    width: 90%;
+    margin-right: auto;
+    margin-left: auto;
+}
+#js-alert {
+    width: 90%;
+    margin-right: auto;
+    margin-left: auto;
+}
+a {
+    color: var(--frogsColor);
+}
+a:hover{
+    color: var(--frogsColorHover);
+}
+.page-item.active .page-link {
+    z-index: 1;
+    color: #fff;
+    background-color: var(--frogsButtonColor);
+    border-color: var(--frogsButtonColor);
+    outline: none !important;
+    box-shadow: none !important;
+}
+
+.pagination{
+    --bs-pagination-color: var(--frogsColor) !important;
+}
+.page-link:hover {
+    color: var(--frogsColorHover) !important;
+}
+
+
+
+
+/* Checkmarks in tables */
+.checkmark {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 20px;
+    width: 20px;
+    background-color: var(--frogsButtonColor);
+    border-radius: 5px;
+    opacity:0.65;
+}
+.container:hover input ~ .checkmark {
+    background-color: var(--frogsColorHover);
+}
+.checkmark:after {
+    content: "";
+    position: absolute;
+    display: none;
+}
+.container input:checked ~ .checkmark:after {
+    display: block;
+}
+.container .checkmark:after {
+    left: 7px;
+    top: 3px;
+    width: 6px;
+    height: 10px;
+    border: solid white;
+    border-width: 0 3px 3px 0;
+    -webkit-transform: rotate(45deg);
+    -ms-transform: rotate(45deg);
+    transform: rotate(45deg);
+}
+
+/* Circles */
+.circle {
+    /*border-style: solid;
+    border-width: 3px;*/
+    border-radius: 50px;
+    box-shadow: 2px 2px 2px var(--frogsColorShadow);
+    border-color: var(--frogsCircleBorderColor);
+    background: var(--frogsCircleBackgroundColor);
+    color: var(--frogsCircleFontColor);
+    width: 180px;
+    height: 98px;
+    line-height: 30px;
+    text-align: center;
+    margin-left: auto;
+    margin-right: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+.circle-value {
+    font-weight: bold;
+}
+
+.table{
+    --bs-table-bg: var(--frogsBackgroundColor);
+}

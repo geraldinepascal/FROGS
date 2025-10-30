@@ -491,12 +491,7 @@ def process( args ):
             excluded_obs_on_replicatePresence( args.input_biom, args.replicate_tsv, args.min_replicate_presence, replicate_groups_log, discards[label])
 
         if args.min_abundance is not None:
-<<<<<<< Updated upstream
-            
             if type(args.min_abundance) == Decimal:
-=======
-            if not isinstance(args.min_abundance, int):
->>>>>>> Stashed changes
                 biom = BiomIO.from_json( args.input_biom )
                 min_nb_seq = int(biom.get_total_count() * args.min_abundance) + 1
                 label = "Abundance < " + str(float(args.min_abundance*100)) + "% (i.e " + str(min_nb_seq) + " sequences )"
