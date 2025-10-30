@@ -65,7 +65,6 @@ function recreateChart(oldChart, elementId, option, theme, height = null) {
 
     // ⚡ pas de width/height fixés ici
     const chart = echarts.init(chartDom, theme, {renderer: 'svg'});
-    console.log("in recreateChart : ", theme);
     chart.setOption(option);
 
     // Resize auto sur mutation du conteneur
@@ -351,7 +350,7 @@ function boxplotOption(pTitle, pXTitle, pYTitle, pXCategories, boxplot_series) {
         series: boxplot_series.map(s => ({
             name: s.name,
             type: 'boxplot',
-            boxWidth: "60%",
+            boxWidth: "70%",
             data: s.data,
             /*itemStyle: {
                 color: frogsColor,

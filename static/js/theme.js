@@ -1,4 +1,5 @@
-const DEFAULT_THEME = "CoralTheme";
+//const DEFAULT_THEME = "CoralTheme";
+const DEFAULT_THEME = "Frogs5Theme";
 var CURRENT_THEME = DEFAULT_THEME;
 
 
@@ -120,6 +121,23 @@ const themeConfigs = {
 	  "--frogsCircleBackgroundColor": "#8eadac",
 	  "--frogsBackgroundColor": "white"
 	}),
+
+	Frogs5Theme: makeThemeConfig("Frogs5Theme", {
+		"--frogsColor": "#03a5a8",
+		//"--frogsColorHover": "#648a89",
+		"--frogsColorHover": "hsl(from var(--frogsColor) h calc(s + 4) calc(l - 3) / 1)", // not
+		"--frogsColorShadow": "#648a89", // not
+		"--frogsColor2": "#b8d578",
+		"--frogsColor3": "#ad8e9f", // not
+		"--frogsColor4": "#a2a32f", // not
+		//"--frogsButtonColor": "#8EADAC",
+		"--frogsButtonColor": "hsl(from var(--frogsColor) h calc(s + 4) calc(l + 1) / 0.8)", // not
+		"--frogsButtonBorderColor": "#f2f2f2", // not
+		"--frogsOddTable": "#f2f2f2", // not
+		"--frogsCircleFontColor": "#FFF", // not
+		"--frogsCircleBackgroundColor": "#03a5a8",
+		"--frogsBackgroundColor": "white" // not
+	  }),
   
 	VintageTheme: makeThemeConfig("VintageTheme", {
 	  "--frogsColor": "#d87c7c",
