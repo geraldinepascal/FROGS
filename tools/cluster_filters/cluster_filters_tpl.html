@@ -365,7 +365,7 @@
 					          100]]
 				}];
 				
-				boxplotChart_options = boxplotOption("Clusters size distribution", "", "Cluster size", ["All"], boxplot_series);
+				boxplotChart_options = boxplotOption("ASV size distribution", "", "ASV size", ["All"], boxplot_series);
 				boxplotChart = echarts.init(document.getElementById('boxplot-container'),CURRENT_THEME,{renderer: 'svg', height:600})
 				boxplotChart.setOption(boxplotChart_options);
 
@@ -399,7 +399,7 @@
 				}
 
 				$("#clusters-size-details").empty()
-				$("#clusters-size-details").append( table("Clusters size", ["Cluster size", "Number of cluster", "% of all clusters"], distrib_data) );
+				$("#clusters-size-details").append( table("Clusters size", ["ASV size", "Number of ASVs", "% of all ASVs"], distrib_data) );
 				$('#clusters-size-details table').last().prop( 'id', 'dispersion-table' );
 				$('#dispersion-table').bootstrapTable();
 
@@ -432,7 +432,7 @@
 				}
 				
 				console.log("BEFORE area plot");
-				areaChart_options = areaplotOption("Cumulative sequences proportion by cluster size", "Cluster size", "% sequences", null, series_cumulative);
+				areaChart_options = areaplotOption("Cumulative sequences proportion by ASV size", "ASV size", "% sequences", null, series_cumulative);
 				areaChart = echarts.init(document.getElementById('sequences-distrib-chart'),CURRENT_THEME,{renderer: 'svg', height:600})
 				areaChart.setOption(areaChart_options);
 
@@ -455,7 +455,7 @@
 					  samples_distrib[sample]['own_seq'],
 					])
 				}
-				$('#' + container_id).html( table("Samples information", ["Sample", "Total clusters", "Shared clusters", "Own clusters", "Total sequences", "Shared sequences", "Own sequences"], table_data) );
+				$('#' + container_id).html( table("Sample information", ["Sample name", "Total number of ASVs", "Number of shared ASVs", "Number of own ASVs", "Total number of sequences", "Number of shared sequences", "Number of own sequences"], table_data) );
 				$('#' + container_id + ' table').prop( 'id', 'samples-table' );
 				$('#samples-table').bootstrapTable();
 			}
@@ -565,6 +565,7 @@
 		<div class="container" style="max-width: fit-content; float: right;">
 			<select id="themechoice" class="form-select" onchange="update_theme($(this).val())" style="font-size: smaller;" aria-label="Default select example">
 				<option selected disabled>Switch theme</option>
+				<option value="Frogs5Theme">Frogs5</option>
 				<option value="PlumTheme">Plum</option>
 				<option value="CoralTheme">Coral</option>
 				<option value="Frogs4Theme">Frogs4</option>
@@ -577,22 +578,22 @@
 		<ul class="nav nav-tabs" id="myTab" role="tablist">
 			<li class="nav-item" role="presentation">
 			  <button class="nav-link active" id="tab1-tab" data-bs-toggle="tab" data-bs-target="#tab1" type="button" role="tab">
-				Filters by ASVs
+				Filters by ASV
 			  </button>
 			</li>
 			<li class="nav-item" role="presentation">
 			  <button class="nav-link" id="tab2-tab" data-bs-toggle="tab" data-bs-target="#tab2" type="button" role="tab">
-				Filters by samples
+				Filters by Sample
 			  </button>
 			</li>
 			<li class="nav-item" role="presentation">
 				<button class="nav-link" id="tab3-tab" data-bs-toggle="tab" data-bs-target="#tab3" type="button" role="tab">
-				ASVs distribution
+				ASV Distribution
 				</button>
 			  </li>
 			<li class="nav-item" role="presentation">
 			<button class="nav-link" id="tab4-tab" data-bs-toggle="tab" data-bs-target="#tab4" type="button" role="tab">
-				Samples distribution
+				Sample Distribution
 			</button>
 			</li>
 			<li class="nav-item" role="presentation">
@@ -636,7 +637,7 @@
 				<div class="row justify-content-center p-5">
 					<div id="nb-clusters" class="col-sm-6 col-md-4">
 						<div class="circle">
-							<span class="circle-title">Clusters</span>
+							<span class="circle-title">ASVs</span>
 							<span id="clusters-number" class="circle-value"></span>
 						</div>
 					</div>
@@ -648,27 +649,27 @@
 					</div>
 				</div>
 				<div>
-					<h2 class="pb-4 mt-4 mb-2 border-bottom">Clusters size summary</h2>
-					<p><i>The cluster size is the sum of the abundances of the sequences grouped in a cluster.</i></p>
+					<h2 class="pb-4 mt-4 mb-2 border-bottom">ASV size summary</h2>
+					<p><i>The ASV size is the sum of the abundances of the sequences grouped in a cluster.</i></p>
 					<div class="row" width="620px">
 						<div id="twofigs" style="height: 600px" class="row">
 							<div id="boxplot-container" class="col-12 col-md-8"" style="height:100%;"></div>
 							<div id="boxplot-table" class="col-12 col-md-4"></div>
 						</div>
 					</div>
-					<h2 class="pb-4 mt-4 mb-2 border-bottom">Clusters size details</h2>
+					<h2 class="pb-4 mt-4 mb-2 border-bottom">Details on ASV size</h2>
 					<div id="clusters-size-details" class="col-md-12">
 					</div>
 				</div>
 				
-				<h2 class="pb-4 mt-4 mb-2 border-bottom">Sequences distribution</h2>
+				<h2 class="pb-4 mt-4 mb-2 border-bottom">Sequence distribution</h2>
 				<div id="sequences-distrib-chart">
 				</div>
 
 			</div>
 			<!-- TAB 4 -->
 			<div class="tab-pane fade p-3 border border-top-0" id="tab4" role="tabpanel">
-				<h2 class="pb-4 mt-4 mb-2 border-bottom">Sequences count</h2>
+				<h2 class="pb-4 mt-4 mb-2 border-bottom">Sequence count</h2>
 				<div id="samples-distrib-table"></div>
 			</div>
 			<!-- TAB 5 -->

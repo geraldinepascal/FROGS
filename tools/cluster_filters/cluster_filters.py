@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
-__author__ = 'Katia Vidal - GENPHYSE & Frédéric Escudié - Genotoul/MIAT & Maria Bernard - SIGENAE/GABI'
-__copyright__ = 'Copyright (C) 2024 INRAE'
+__author__ = 'Katia Vidal - GENPHYSE & Frédéric Escudié - Genotoul/MIAT & Maria Bernard - SIGENAE/GABI & Olivier Rué - Migale/MaIAGE'
+__copyright__ = 'Copyright (C) 2025 INRAE'
 __license__ = 'GNU General Public License'
 __version__ = '5.1.0'
 __email__ = 'frogs-support@inrae.fr'
