@@ -27,6 +27,10 @@ LIB_DIR = os.path.abspath(os.path.join(os.path.dirname(CURRENT_DIR), "lib"))
 sys.path.append(LIB_DIR)
 if os.getenv('PYTHONPATH') is None: os.environ['PYTHONPATH'] = LIB_DIR
 else: os.environ['PYTHONPATH'] = LIB_DIR + os.pathsep + os.environ['PYTHONPATH']
+# THEME
+THEME_DIR = os.path.abspath(os.path.join(os.path.dirname(CURRENT_DIR), "static"))
+if not os.path.exists(THEME_DIR):
+    THEME_DIR = os.path.abspath(os.path.join(os.path.dirname(os.path.dirname(CURRENT_DIR)), "static"))
 
 from frogsUtils import *
 from frogsSequenceIO import *
@@ -1140,8 +1144,23 @@ def summarise_results( samples_names, lengths_files, biom_file, depth_file, clas
     # Write
     FH_summary_tpl = open( os.path.join(CURRENT_DIR, "denoising_tpl.html") )
     FH_summary_out = open( param.html, "wt" )
+    # Load shared JS
+    with open(os.path.join(THEME_DIR, "js", "theme.js")) as f:
+        theme_js = f.read()
+    with open(os.path.join(THEME_DIR, "js", "utils.js")) as f:
+        utils_js = f.read()
+    # Load shared CSS
+    with open(os.path.join(THEME_DIR, "css", "common.css")) as f:
+        common_css = f.read()
     for line in FH_summary_tpl:
-        if "###CLUSTERS_SIZES###" in line:
+        if "###IMPORT_CSS###" in line:
+            line = line.replace("###IMPORT_CSS###", f"<style type='text/css'>{common_css}</style>")
+        elif "###IMPORT_JS_UTILS###" in line:
+            # injection du JS inline
+            line = line.replace("###IMPORT_JS_UTILS###", f"<script>\n{utils_js}</script>")
+        elif "###IMPORT_JS_THEME###" in line:
+            line = line.replace("###IMPORT_JS_THEME###", f"<script>\n{theme_js}</script>")
+        elif "###CLUSTERS_SIZES###" in line:
             #if args.process != "preprocess-only":
             line = line.replace( "###CLUSTERS_SIZES###", json.dumps(clusters_size) )
             #else:
@@ -1877,9 +1896,9 @@ def process( args ):
             # Temporary files
             filename_woext = os.path.split(dereplicated_fasta)[1].split('.')[0]
 
-            if args.distance == 1 and args.denoising:
-                Logger.static_write(args.log_file, "Warning: using the denoising option with a distance of 1 is useless. The denoising option is cancelled\n\n")
-                args.denoising = False
+            if args.distance == 1 and args.pre_clustering:
+                Logger.static_write(args.log_file, "Warning: using the --pre_clustering option with a distance of 1 is useless. The denoising option is cancelled\n\n")
+                args.pre_clustering = False
 
             sorted_fasta = tmp_files.add( filename_woext + '_sorted.fasta' )
             replaceN_fasta = tmp_files.add( filename_woext + '_sorted_NtoA.fasta' )
@@ -1892,7 +1911,7 @@ def process( args ):
             Logger.static_write(args.log_file, "replace 100 N tags by 50A-50C in: " + sorted_fasta + " out : "+ replaceN_fasta +"\n")
             replaceNtags(sorted_fasta, replaceN_fasta)
 
-            if args.denoising and args.distance > 1:
+            if args.pre_clustering and args.distance > 1:
                 # Denoising
                 denoising_log = tmp_files.add( filename_woext + '_denoising_log.txt' )
                 denoising_compo = tmp_files.add( filename_woext + '_denoising_composition.txt' )
@@ -1908,7 +1927,7 @@ def process( args ):
 
             Swarm( final_sorted_fasta, swarms_file, swarm_log, args.distance, args.fastidious, args.nb_cpus ).submit( args.log_file )
 
-            if args.denoising and args.distance > 1:
+            if args.pre_clustering and args.distance > 1:
                 # convert cluster composition in read composition ==> final swarm composition
                 agregate_composition(denoising_compo, swarms_file, args.output_compo)
 
@@ -2098,7 +2117,7 @@ if __name__ == "__main__":
       # clustering or denoising
       [--process {swarm, dada2, preprocess-only}]
         # if swarm
-        [--denoising] [--distance DISTANCE] [--fastidious] 
+        [--pre-clustering] [--distance DISTANCE] [--fastidious] 
         # if dada2
         [--sample-inference {pseudo-pooling, independent, pooling}]
       # outputs
@@ -2126,7 +2145,7 @@ if __name__ == "__main__":
       # clustering or denoising
       [--process {swarm, dada2, preprocess-only}]
         # if swarm
-        [--denoising] [--distance DISTANCE] [--fastidious] 
+        [--pre-clustering] [--distance DISTANCE] [--fastidious] 
         # if dada2
         [--sample-inference {pseudo-pooling, independent, pooling}]
       # outputs
@@ -2160,9 +2179,9 @@ if __name__ == "__main__":
     group_clustering_or_denoising.add_argument('--process', default="swarm", choices=["swarm","dada2","preprocess-only"], help='Choose between performing only dereplication and using swarm or dada2 to build ASVs [Default: %(default)s]' )
             # swarm
     group_clustering = parser_illumina.add_argument_group( 'Clustering options' )
-    group_clustering.add_argument('--denoising', default=False, action='store_true',  help="denoise data by clustering read with distance=1 before perform real clustering. It is mutually exclusive with --fastidious. [Default: %(default)s]" )
+    group_clustering.add_argument('--pre-clustering', default=False, action='store_true',  help="denoise data by clustering read with distance=1 before perform real clustering. It is mutually exclusive with --fastidious. [Default: %(default)s]" )
     group_clustering.add_argument('--distance', type=int, default=1, help="Maximum distance between sequences in each aggregation step. RECOMMENDED : d=1 in combination with --fastidious option [Default: %(default)s]" )
-    group_clustering.add_argument('--fastidious', default=False, action='store_true',  help="use the fastidious option of swarm to refine cluster. RECOMMENDED in combination with a distance equal to 1 (-d). it is only usable with d=1 and mutually exclusive with --denoising. [Default: %(default)s]" )
+    group_clustering.add_argument('--fastidious', default=False, action='store_true',  help="use the fastidious option of swarm to refine cluster. RECOMMENDED in combination with a distance equal to 1 (-d). it is only usable with d=1 and mutually exclusive with --pre-clustering. [Default: %(default)s]" )
     group_clustering_output = parser_illumina.add_argument_group( 'Clustering output' )
     group_clustering_output.add_argument('--output-compo', default='clustering_swarms_composition.tsv', help='This output file will contain the composition of each cluster (format: TSV). One Line is a cluster ; each column is a sequence ID. [Default: %(default)s]')
             # dada2
@@ -2189,7 +2208,7 @@ if __name__ == "__main__":
     --min-amplicon-size MIN_AMPLICON_SIZE
     --max-amplicon-size MAX_AMPLICON_SIZE
     [--process {swarm, dada2, preprocess-only}]
-    [--denoising] [--distance DISTANCE] [--fastidious] | [--sample-inference {pseudo-pooling, independent, pooling}]
+    [--pre-clustering] [--distance DISTANCE] [--fastidious] | [--sample-inference {pseudo-pooling, independent, pooling}]
     --without-primers | --five-prim-primer FIVE_PRIM_PRIMER --three-prim-primer THREE_PRIM_PRIMER
     [--nb-cpus NB_CPUS] [--debug] [--version]
     [--process PROCESS]
@@ -2213,9 +2232,9 @@ if __name__ == "__main__":
                                   nargs='+', default=None, help='The sample name for each R1/R2-files.')
     group_longreads_input.add_argument('--input-R1', required=None, nargs='+', help='The R1 sequence file for each sample (format: fastq). Required for single-ends OR paired-ends data.' )
     group_clustering_longreads = parser_longreads.add_argument_group( 'Clustering options' )
-    group_clustering_longreads.add_argument('--denoising', default=False, action='store_true',  help="denoise data by clustering read with distance=1 before perform real clustering. It is mutually exclusive with --fastidious. [Default: %(default)s]" )
+    group_clustering_longreads.add_argument('--pre-clustering', default=False, action='store_true',  help="denoise data by clustering read with distance=1 before perform real clustering. It is mutually exclusive with --fastidious. [Default: %(default)s]" )
     group_clustering_longreads.add_argument('--distance', type=int, default=1, help="Maximum distance between sequences in each aggregation step. RECOMMENDED : d=1 in combination with --fastidious option [Default: %(default)s]" )
-    group_clustering_longreads.add_argument('--fastidious', default=False, action='store_true',  help="use the fastidious option of swarm to refine cluster. RECOMMENDED in combination with a distance equal to 1 (-d). it is only usable with d=1 and mutually exclusive with --denoising. [Default: %(default)s]" )
+    group_clustering_longreads.add_argument('--fastidious', default=False, action='store_true',  help="use the fastidious option of swarm to refine cluster. RECOMMENDED in combination with a distance equal to 1 (-d). it is only usable with d=1 and mutually exclusive with --pre-clustering. [Default: %(default)s]" )
     group_clustering_longreads.add_argument('--output-compo', default='clustering_swarms_composition.tsv', help='This output file will contain the composition of each cluster (format: TSV). One Line is a cluster ; each column is a sequence ID. [Default: %(default)s]')
     group_denoising_longreads = parser_longreads.add_argument_group( 'Denoising options' )
     group_denoising_longreads.add_argument('--sample-inference', default="pseudo-pooling", choices=["pseudo-pooling", "independent", "pooling"],  help="Independent, pseudo-pooling of full pooling for dada2 samples processing. [Default: %(default)s]" )
@@ -2254,9 +2273,9 @@ if __name__ == "__main__":
     group_454_input.add_argument('--input-R1', required=None, nargs='+', help='The sequence file for each sample (format: fastq).' )
     group_454_input.set_defaults( sequencer='454' )
     group_clustering = parser_454.add_argument_group( 'Clustering options' )
-    group_clustering.add_argument('--denoising', default=False, action='store_true',  help="denoise data by clustering read with distance=1 before perform real clustering. It is mutually exclusive with --fastidious. [Default: %(default)s]" )
+    group_clustering.add_argument('--pre-clustering', default=False, action='store_true',  help="denoise data by clustering read with distance=1 before perform real clustering. It is mutually exclusive with --fastidious. [Default: %(default)s]" )
     group_clustering.add_argument('--distance', type=int, default=1, help="Maximum distance between sequences in each aggregation step. RECOMMENDED : d=1 in combination with --fastidious option [Default: %(default)s]" )
-    group_clustering.add_argument('--fastidious', default=False, action='store_true',  help="use the fastidious option of swarm to refine cluster. RECOMMENDED in combination with a distance equal to 1 (-d). it is only usable with d=1 and mutually exclusive with --denoising. [Default: %(default)s]" )
+    group_clustering.add_argument('--fastidious', default=False, action='store_true',  help="use the fastidious option of swarm to refine cluster. RECOMMENDED in combination with a distance equal to 1 (-d). it is only usable with d=1 and mutually exclusive with --pre-clustering. [Default: %(default)s]" )
     group_clustering.add_argument('--output-compo', default='clustering_swarms_composition.tsv', help='This output file will contain the composition of each cluster (format: TSV). One Line is a cluster ; each column is a sequence ID. [Default: %(default)s]')
     group_denoising = parser_454.add_argument_group( 'Denoising options' )
     group_denoising.add_argument('--sample-inference', default="pseudo-pooling", choices=["pseudo-pooling", "independent", "pooling"],  help="Independent, pseudo-pooling of full pooling for dada2 samples processing. [Default: %(default)s]" )
@@ -2310,8 +2329,8 @@ if __name__ == "__main__":
         if args.mismatch_rate and args.mismatch_rate < 0 or args.mismatch_rate > 1:
             raise_exception( argparse.ArgumentTypeError( "\n\n#ERROR : mismatch-rate option need to be included between 0 and 1.\n\n" ))
             
-    if args.denoising and args.fastidious:
-        raise_exception( parser.error("\n#ERROR : --fastidious and --denoising are mutually exclusive.\n\n"))
+    if args.pre_clustering and args.fastidious:
+        raise_exception( parser.error("\n#ERROR : --fastidious and --pre-clustering are mutually exclusive.\n\n"))
     if args.distance > 1 and args.fastidious:
         raise_exception( parser.error("\n#ERROR : --fastidious is not allowed with d>1.\n\n"))
 
