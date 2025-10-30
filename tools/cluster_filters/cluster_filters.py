@@ -24,6 +24,8 @@ LIB_DIR = os.path.abspath(os.path.join(os.path.dirname(CURRENT_DIR), "lib"))
 sys.path.append(LIB_DIR)
 if os.getenv('PYTHONPATH') is None: os.environ['PYTHONPATH'] = LIB_DIR
 else: os.environ['PYTHONPATH'] = LIB_DIR + os.pathsep + os.environ['PYTHONPATH']
+# THEME
+THEME_DIR = os.path.abspath(os.path.join(os.path.dirname(CURRENT_DIR), "../static"))
 
 from frogsUtils import *
 from frogsBiom import Biom, BiomIO
@@ -406,8 +408,23 @@ def write_summary( summary_file, input_biom, output_biom, replicate_log, discard
     # Write
     FH_summary_tpl = open( os.path.join(CURRENT_DIR, "cluster_filters_tpl.html") )
     FH_summary_out = open( summary_file, "wt" )
+    # Load shared JS
+    with open(os.path.join(THEME_DIR, "js", "theme.js")) as f:
+        theme_js = f.read()
+    with open(os.path.join(THEME_DIR, "js", "utils.js")) as f:
+        utils_js = f.read()
+    # Load shared CSS
+    with open(os.path.join(THEME_DIR, "css", "common.css")) as f:
+        common_css = f.read()
     for line in FH_summary_tpl:
-        if "###PORCESSED_FILTERS###" in line:
+        if "###IMPORT_CSS###" in line:
+            line = line.replace("###IMPORT_CSS###", f"<style type='text/css'>{common_css}</style>")
+        elif "###IMPORT_JS_UTILS###" in line:
+            # injection du JS inline
+            line = line.replace("###IMPORT_JS_UTILS###", f"<script>\n{utils_js}</script>")
+        elif "###IMPORT_JS_THEME###" in line:
+            line = line.replace("###IMPORT_JS_THEME###", f"<script>\n{theme_js}</script>")
+        elif "###PORCESSED_FILTERS###" in line:
             line = line.replace( "###PORCESSED_FILTERS###", json.dumps([filter for filter in discards]) )
         elif "###GLOBAL_RESULTS###" in line:
             line = line.replace( "###GLOBAL_RESULTS###", json.dumps(global_results) )
@@ -474,15 +491,20 @@ def process( args ):
             excluded_obs_on_replicatePresence( args.input_biom, args.replicate_tsv, args.min_replicate_presence, replicate_groups_log, discards[label])
 
         if args.min_abundance is not None:
+<<<<<<< Updated upstream
             
             if type(args.min_abundance) == Decimal:
+=======
+            if not isinstance(args.min_abundance, int):
+>>>>>>> Stashed changes
                 biom = BiomIO.from_json( args.input_biom )
                 min_nb_seq = int(biom.get_total_count() * args.min_abundance) + 1
                 label = "Abundance < " + str(float(args.min_abundance*100)) + "% (i.e " + str(min_nb_seq) + " sequences )"
             else:
                 label = "Abundance < " + str(args.min_abundance)
+                min_nb_seq = args.min_abundance
             discards[label] = tmpFiles.add( "min_abundance" )
-            excluded_obs_on_abundance( args.input_biom, args.min_abundance, discards[label] )
+            excluded_obs_on_abundance( args.input_biom, min_nb_seq, discards[label] )
 
         if args.contaminant is not None:
             label = "Present in databank of contaminants"
