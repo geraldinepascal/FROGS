@@ -1,0 +1,700 @@
+/**
+ * Returns the string representation of the number. 
+ * @param pValue {Float} The number to process.
+ * @return {String} The string representation (example: 12856892.11111 => 12,856,892.11).
+ */
+var numberDisplay = function( pValue ){
+	var new_val = "" ;
+	if( ("" + pValue + "").indexOf(".") != -1 ){
+		new_val = pValue.toFixed(2).replace(/(\d)(?=(\d{3})+\b)/g, '$1,');
+	} else {
+		new_val = pValue.toFixed().replace(/(\d)(?=(\d{3})+\b)/g, '$1,');
+	}
+	return new_val ;
+}
+
+
+var get_dispersion = function( values, counts ) { 
+    var dispersion = new Array();
+    
+    // Unstack list
+    unstacked_list = new Array();
+    for( var idx = 0 ; idx < values.length ; idx++ ){
+        for( var nb_add = 0 ; nb_add < counts[idx] ; nb_add++ ){
+            unstacked_list.push( values[idx] );
+        }
+    }
+
+    // Process metrics
+    var nb_elt = unstacked_list.length ;
+    dispersion['min'] = unstacked_list[0] ;
+    dispersion['max'] = unstacked_list[nb_elt - 1];
+    if( nb_elt % 2 == 0 ) {
+        dispersion['median'] = unstacked_list[(nb_elt/2) -1] ;
+    } else {
+        dispersion['median'] = (unstacked_list[parseInt((nb_elt/2) -1)] + unstacked_list[parseInt(nb_elt/2)])/2 ;
+    }
+    // Deciles
+    for( var idx = 1 ; idx <= 9 ; idx++ ){
+        if( idx != 5 ) {
+            dispersion[idx + '_decile'] = unstacked_list[Math.floor(idx*(nb_elt/10) + 0.5) -1] ;
+        } else {
+            dispersion['5_decile'] = dispersion['median'] ;
+        }
+    }
+    // Quartiles
+    dispersion['lower_quartile'] = unstacked_list[Math.floor((nb_elt/4) + 0.5) -1] ;
+    dispersion['upper_quartile'] = unstacked_list[Math.floor((3*(nb_elt/4)) + 0.5) -1] ;
+    
+    return dispersion ;
+};
+
+
+function recreateChart(oldChart, elementId, option, theme, height = null) {
+    const chartDom = document.getElementById(elementId);
+    if (!chartDom) return null;
+
+    if (oldChart) {
+        oldChart.__ro?.disconnect?.(); // débrancher ResizeObserver
+        oldChart.dispose();
+    }
+
+    // S'assurer que le conteneur a une taille visible
+    if (!chartDom.style.height) chartDom.style.height = (height || 600) + "px";
+    //if (!chartDom.style.width)  chartDom.style.width  = chartDom.clientWidth ? chartDom.clientWidth + "px" : "100%";
+
+    // ⚡ pas de width/height fixés ici
+    const chart = echarts.init(chartDom, theme, {renderer: 'svg'});
+    console.log("in recreateChart : ", theme);
+    chart.setOption(option);
+
+    // Resize auto sur mutation du conteneur
+    const ro = new ResizeObserver(() => !chart.isDisposed() && chart.resize({animation:false}));
+    ro.observe(chartDom);
+    chart.__ro = ro;
+    return chart;
+}
+
+
+$('#themechoice').change(function() {
+    var $select = $(this);
+    var selectedIndex = $select.prop('selectedIndex');
+    
+    // Activer toutes les options
+    $select.find('option').prop('disabled', false);
+
+    // Désactiver l'option sélectionnée
+    if (selectedIndex > 0) { // Ignorer l'option "Switch theme"
+        $select.find('option').eq(selectedIndex).prop('disabled', true);
+    }
+
+    // Réinitialiser la sélection à "Switch theme"
+    $select.prop('selectedIndex', 0);
+});
+
+
+
+
+function hexToRgba(hex, alpha = 1) {
+	// Supprime le # si présent
+	hex = hex.replace(/^#/, '');
+
+	// Gestion du format court (#123 → #112233)
+	if (hex.length === 3) {
+		hex = hex.split('').map(c => c + c).join('');
+	}
+
+	const r = parseInt(hex.slice(0, 2), 16);
+	const g = parseInt(hex.slice(2, 4), 16);
+	const b = parseInt(hex.slice(4, 6), 16);
+
+	return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+}
+
+
+var table = function( pTitle, pCategories, pData , footer=undefined ) {
+    // Header
+    var table_header = '' ;
+    var table_header_line = "" ;
+    for(var idx = 0 ; idx < pCategories.length ; idx++){
+        table_header_line += "      <th  data-sortable='true'>" + pCategories[idx] + "</th>\n" ;
+    }
+    table_header += "    <tr>\n" + table_header_line + "    </tr>\n" ;
+    table_header = "  <thead>\n" + table_header + "  </thead>\n" ;
+    table_footer = footer ? "<tfoot>\n" + footer + "</tfoot>\n" : "";
+    
+    // Body
+    var table_body = '' ;
+    for(var data_idx = 0 ; data_idx < pData.length ; data_idx++){
+        var table_body_row = "" ;
+        for(var category_idx = 0 ; category_idx < pCategories.length ; category_idx++){
+            if( typeof pData[data_idx][category_idx] === "number" ) {
+                table_body_row += "      <td>" + numberDisplay(pData[data_idx][category_idx]) + "</td>\n" ;
+            } else {
+                table_body_row += "      <td>" + pData[data_idx][category_idx] + "</td>\n" ;
+            }
+        }
+        table_body += "    <tr>\n" + table_body_row + "    </tr>\n" ;
+    }
+    table_body = "  <tbody>\n" + table_body + "  </tbody>\n" ;
+    table_caption = pTitle ? " <caption>\n" + pTitle + " </caption>\n" : ""
+
+    return `
+        <table
+            class="table table-bordered table-striped"
+            data-toggle="table"
+            data-search="true"
+            data-pagination="true"
+            data-page-size="10"
+            data-page-list='[5, 10, 20, 50, "All"]'
+            data-show-export="true"
+            data-export-types='["excel","csv"]'
+            data-export-data-type="all"
+        >
+            ${table_header}
+            ${table_body}
+            ${table_caption}
+            ${table_footer}
+        </table>
+        `;
+}
+
+var lineOption = function(pTitle, pXTitle, pYTitle, pXCategories, pData) {
+    let xMin = Math.min(
+        ...pData.flatMap(serie => serie.data.map(point => point[0]))
+    );
+    return {
+        title: {
+            text: pTitle
+        },
+        color: ['#d87c7c', '#919e8b', '#d7ab82', '#6e7074', '#61a0a8', '#efa18d', '#787464', '#cc7e63', '#724e58', '#4b565b'],
+        tooltip: {
+            trigger: 'item',
+            axisPointer: { show: false },
+            formatter: function (params) {
+                let tooltip_head = '<b>Length ' + params.value[0] + ' nt</b>';
+                let tooltip_body = '<tr>' +
+                '<td style="color:' + params.color + '">' + params.seriesName + ': </td>' +
+                '<td>' + numberDisplay(params.value[1]) + '</td>' +
+                '<td> seq</td>' +
+                '</tr>';
+            return tooltip_head + '<table>' + tooltip_body + '</table>';
+            }
+        },
+        toolbox: {
+            feature: {
+                saveAsImage: { title: 'Download' },
+                dataZoom: { title: { zoom: 'Zoom', back: 'Reset' } }
+            }
+        },
+        xAxis: {
+            type: 'value', // car on a des valeurs numériques (longueurs)
+            name: pXTitle,
+            splitLine: {
+                show: false
+            },
+            min:xMin,
+            nameLocation: 'middle',
+            //nameGap: 50,
+            minInterval: 1,
+            axisLabel: {
+                formatter: function (value) {
+                    return Math.round(value); // arrondi à l'entier le plus proche
+                }
+            }
+        },
+        yAxis: {
+            type: 'value',
+            name: pYTitle,
+            nameLocation: 'middle',
+            nameGap: 50,
+            minInterval: 1,
+            splitLine: {
+                show: true
+            },
+            axisLabel: {
+                formatter: function (value) {
+                    return Math.round(value);
+                }
+            }
+        },
+        legend: {
+            show: true
+        },
+        dataZoom: [
+            {
+                type: 'inside',   // zoom à la molette ou pinch
+                xAxisIndex: 0,
+                filterMode: 'filter'
+            }
+        ],
+        series: pData.map(function (serie) {
+            return {
+                name: serie.name,
+                type: 'line',
+                data: serie.data,
+                symbol: 'circle',
+                symbolSize: 4,
+                smooth: false,
+            };
+        })
+    };
+};
+
+function boxplotOption(pTitle, pXTitle, pYTitle, pXCategories, boxplot_series) {
+    return {
+        title: {
+            text: pTitle,
+            left: 'center',
+            subtext: 'N.B.: Use slider to zoom in.',
+            textStyle: {
+                fontWeight: 'normal'
+            }
+        },
+        tooltip: {
+            trigger: 'item',
+            formatter: function (param) {
+                let d = param.data;
+                return [
+                    `${pXCategories[param.dataIndex]}`,
+                    `Min: ${d[0]}`,
+                    `Q1: ${d[1]}`,
+                    `Median: ${d[2]}`,
+                    `Q3: ${d[3]}`,
+                    `Max: ${d[4]}`
+                ].join('<br/>');
+            }
+        },
+        toolbox: {
+            feature: {
+                saveAsImage: {},
+                restore: {}
+            }
+        },
+        xAxis: {
+            type: 'category',
+            name: pXTitle,
+            data: pXCategories,
+            boundaryGap: true,
+            nameLocation: 'middle',
+            nameGap: 30,
+            axisPointer: {
+                label: {
+                    show: true,
+                    backgroundColor: 'red'
+                }
+            }
+        },
+        yAxis: {
+            type: 'value',
+            name: pYTitle,
+            min: 0,
+            nameLocation: 'middle',
+            nameGap: 45
+        },
+        grid: {
+            containLabel: true,
+            bottom: 0  // ajuste selon ton cas pour éviter les débordements
+        },
+        dataZoom: [
+            /*{
+                type: 'slider',
+                fillerColor: "rgba(230, 234, 240, 0.4)",
+                filterMode: 'none',
+                yAxisIndex: 0,
+                start: 0,
+                end: 100,
+                zoomLock: false,
+                minValueSpan: 1,
+                maxValueSpan: null
+            },*/
+            {
+                type: 'slider', 
+                yAxisIndex: 0, 
+                zoomLock: false,
+                minValueSpan: 1,
+                maxValueSpan: null,
+                width: 20,
+                filterMode: 'none', 
+                start: 0, 
+                end: 100, 
+                backgroundColor: "rgba(211,211,211,0.2)",
+                fillerColor: "rgba(211,211,211,0.2)", 
+                dataBackground: {
+                      lineStyle: { color: "rgba(211,211,211,8)"},
+                    areaStyle: {
+                        color: "rgba(211,211,211,0.5)",
+                        shadowColor: "rgba(211,211,211,0.5)"
+                    }
+                },
+                borderColor: "rgb(211,211,211)",
+                handleStyle: {
+                    color: "rgba(211,211,211,0.2)"
+                },
+                moveHandleStyle: {
+                    color: "rgba(211,211,211,1)",
+                      opacity: 1
+                },
+                selectedDataBackground: {
+                    areaStyle: {
+                        color: "rgba(211,211,211,0.8)"
+                    }
+                },
+                moveHandleSize: 4,
+                emphasis: {
+                    moveHandleStyle: {
+                        color: "rgba(211,211,211,0.8)"
+                    }
+                }
+            }
+        ],
+        series: boxplot_series.map(s => ({
+            name: s.name,
+            type: 'boxplot',
+            boxWidth: "60%",
+            data: s.data,
+            /*itemStyle: {
+                color: frogsColor,
+                borderColor: frogsColor,
+            },*/
+            emphasis: {
+                itemStyle: {
+                    borderWidth: 2,
+                    shadowBlur: 8,
+                    shadowColor: 'rgba(0,0,0,0.4)'
+                }
+            }
+        }))
+    };
+}
+
+function barOption(nb, yTitle, categories, series, unity, is_stacked) {
+    return {
+        title: { },
+        tooltip: {
+            trigger: 'axis',
+            axisPointer: { type: 'shadow' },
+            formatter: function (params) {
+                let s = '<b>' + params[0].axisValue + '</b>';
+                let sum = 0;
+                params.forEach(function (point) {
+                    s += '<br/><span style="color:' + point.color + ';">' + point.seriesName + ' : </span>'
+                    + numberDisplay(point.value) + ' ' + unity;
+                    if (!is_stacked) {
+                        s += ' (' + (Math.round(point.value * 100 / nb * 100) / 100) + '%)';
+                    }
+                    sum += point.value;
+                });
+                if (is_stacked) {
+                    s += '<br/>total : ' + numberDisplay(sum) + ' (' + (Math.round(sum * 100 / nb * 100) / 100) + '%)';
+                }
+                return s;
+            }
+        },
+        legend: { show: true },
+        xAxis: {
+            type: 'category',
+            data: categories,
+            axisTick: { alignWithLabel: true }
+        },
+        yAxis: {
+            type: 'value',
+            min: 0,
+            max: nb + 10,
+            name: yTitle,
+            splitLine: { show: true },
+            axisLabel: { formatter: '{value}' }
+        },
+        series: series.map(s => ({
+            name: s.name,
+            type: 'bar',
+            stack: is_stacked ? 'total' : null,
+            data: s.data,
+            label: {
+                show: true,
+                position: 'top',
+                formatter: function (params) {
+                    return numberDisplay(params.value);
+                },
+                fontWeight: 'bold'
+            },
+            // 👉 Ici on insère ton markLine
+            markLine: nb ? {
+                symbol: "none",
+                silent: true,
+                data: [{ yAxis: nb }],
+                label: {
+                    show: true,
+                    position: "insideStartBottom",
+                    padding: [0, 20, -30, -100],
+                    rotate: 90,
+                    color: "green",
+                    fontFamily: "Arial",
+                    formatter: () =>
+                        `Input sequences:\n${nb.toLocaleString("en-US")}`,
+                },
+                lineStyle: {
+                    color: "green",
+                    type: "solid",
+                    width: 1.5,
+                }
+            } : null
+        })),
+        toolbox: {
+            feature: {
+                saveAsImage: { title: 'Download' }
+            }
+        }
+    };
+}
+
+function pieOption(value_1, value_2, label_1, label_2, title, unit) {
+    let option = {
+        title: {
+        text: title,
+        textStyle: {fontWeight: 'normal'},
+        left: 'center' // 'left', 'right', 'center', ou valeur en %/px
+        },
+        //color: [frogsColor, frogsColor2],
+        tooltip: {
+        trigger: 'item' // 'item' (pour pie), 'axis' (pour bar/line)
+        },
+        legend: {
+            show: false
+        },
+        toolbox: {
+        feature: {
+            saveAsImage: {}
+        }
+        },
+        series: [
+        {
+            label: {
+                color: "#000000", // ou "black", ou en hexadécimal
+                fontSize: 13,
+                fontWeight: 'bold',
+                fontFamily: "Arial",
+                formatter: function(params) {
+                    const name = params.name;
+                    const value = params.value;
+                    return `${name}: ${value.toLocaleString('fr-FR')}`;
+                }
+            },
+            tooltip: {
+                formatter: function (params) {
+                    return `${params.name} <br>${unit}: <strong>${params.percent}%</strong>`;
+                }
+            },
+            type: 'pie', // 'pie' est le type pour camembert
+            radius: '50%', // peut être ['40%', '70%'] pour un donut
+            data: [
+            { value: value_1, name: label_1 },
+            { value: value_2, name: label_2 }
+            ],
+            itemStyle: {
+                    borderColor: '#ffffff', // couleur du trait
+                    borderWidth: 2 // épaisseur du trait
+                    },
+            emphasis: { 
+                    focus: 'self',
+                    blurScope: 'series',
+                        itemStyle: { // paramétrage des ombres ( épaisseur), épaisseur de la bordure et de la couleur des ombres
+                    borderWidth: 0, // supprime la bordure au hover
+                    shadowBlur: 10,
+                    shadowOffsetX: 5,
+                    shadowColor: 'rgba(0, 0, 0, 0.5)'
+                }
+
+            },
+            blur: {    //(opacité des différents effets de blurs)
+            itemStyle: {
+                opacity: 0.5
+            },
+            label: {
+                opacity: 0.7
+            }
+            },
+        }
+        ]
+    };
+    return option;
+}
+
+function areaplotOption(pTitle, pXTitle, pYTitle, pXCategories, pData) {
+    // Trouver le max des X
+    let x_max = 0;
+    for (const serie of pData) {
+        for (const [x] of serie.data) {
+            if (x > x_max) x_max = x;
+        }
+    }
+    const tickInterval = Math.max(1, Math.floor(x_max / 10));
+
+    // Créer une map des séries -> data X pour retrouver les index
+    const seriesIndexMap = {};
+    for (const s of pData) {
+        seriesIndexMap[s.name] = s.data.map(d => d[0]);
+    }
+
+    let option = {
+        title: {
+            text: pTitle,
+            left: 'center',
+            textStyle: { fontWeight: 'normal' },
+            subtext: 'N.B.: Use sliders to zoom in.'
+        },
+        grid: {
+            left: 60,
+            right: 60,
+            top: 60,
+            bottom: 120  // espace supplémentaire pour titre + dataZoom
+        },
+        tooltip: {
+            trigger: 'axis',
+            axisPointer: { type: 'cross' },
+            useHTML: true,
+            formatter: function (params) {
+                if (!params?.length) return '';
+
+                const xValue = params[0].value[0];
+                let tooltip_head = `<caption><b>Clusters with size ≤ ${xValue}</b></caption>`;
+                let tooltip_body = `
+                    <thead><tr><th>Sequences</th><th>Clusters</th></tr></thead><tbody>
+                `;
+
+                params.forEach(p => {
+                    const allX = seriesIndexMap[p.seriesName] || [];
+                    const pointIndex = allX.findIndex(x => x === xValue);
+                    const percCluster = (pointIndex >= 0 && allX.length > 0)
+                        ? (((pointIndex + 1) / allX.length) * 100).toFixed(2)
+                        : 'NA';
+
+                    tooltip_body += `
+                        <tr>
+                            <td>${p.value[1].toFixed(2)}%</td>
+                            <td>${percCluster}%</td>
+                        </tr>
+                    `;
+                });
+
+                tooltip_body += '</tbody>';
+                return `<table id="tooltip-seqdepth" class="table caption-top">${tooltip_head}${tooltip_body}</table>`;
+            }
+        },
+        toolbox: {
+            feature: {
+                saveAsImage: {},
+                restore: {}
+            }
+        },
+        xAxis: {
+            type: 'value',
+            nameGap: 50,
+            boundaryGap: true,
+            name: pXTitle,
+            nameLocation: 'middle',
+            min: 1,
+            max: x_max,
+            interval: tickInterval
+        },
+        yAxis: {
+            type: 'value',
+            name: pYTitle,
+            min: 0,
+            max: 100
+        },
+        dataZoom: [
+            {
+                type: 'slider', 
+                xAxisIndex: 0, 
+                height: 20,
+                filterMode: 'none', 
+                start: 0, 
+                end: 100, 
+                backgroundColor: "rgba(211,211,211,0.2)",
+                fillerColor: "rgba(211,211,211,0.2)", 
+                dataBackground: {
+                      lineStyle: { color: "rgba(211,211,211,8)"},
+                    areaStyle: {
+                        color: "rgba(211,211,211,0.5)",
+                        shadowColor: "rgba(211,211,211,0.5)"
+                    }
+                },
+                borderColor: "rgb(211,211,211)",
+                handleStyle: {
+                    color: "rgba(211,211,211,0.2)"
+                },
+                moveHandleStyle: {
+                    color: "rgba(211,211,211,1)",
+                      opacity: 1
+                },
+                selectedDataBackground: {
+                    areaStyle: {
+                        color: "rgba(211,211,211,0.8)"
+                    }
+                },
+                moveHandleSize: 4,
+                emphasis: {
+                    moveHandleStyle: {
+                        color: "rgba(211,211,211,0.8)"
+                    }
+                }
+            },
+            {
+                type: 'slider', 
+                yAxisIndex: 0, 
+                width: 20,
+                filterMode: 'none', 
+                start: 0, 
+                end: 100, 
+                backgroundColor: "rgba(211,211,211,0.2)",
+                fillerColor: "rgba(211,211,211,0.2)", 
+                dataBackground: {
+                      lineStyle: { color: "rgba(211,211,211,8)"},
+                    areaStyle: {
+                        color: "rgba(211,211,211,0.5)",
+                        shadowColor: "rgba(211,211,211,0.5)"
+                    }
+                },
+                borderColor: "rgb(211,211,211)",
+                handleStyle: {
+                    color: "rgba(211,211,211,0.2)"
+                },
+                moveHandleStyle: {
+                    color: "rgba(211,211,211,1)",
+                      opacity: 1
+                },
+                selectedDataBackground: {
+                    areaStyle: {
+                        color: "rgba(211,211,211,0.8)"
+                    }
+                },
+                moveHandleSize: 4,
+                emphasis: {
+                    moveHandleStyle: {
+                        color: "rgba(211,211,211,0.8)"
+                    }
+                }
+            }
+        ],
+        
+        series: pData.map(s => ({
+            name: s.name,
+            type: 'line',
+            data: s.data,
+            areaStyle: {},
+            symbol: 'circle',
+            symbolSize: 8,
+            emphasis: {
+                focus: 'series',
+                itemStyle: {
+                    borderColor: frogsButtonColor,
+                    borderWidth: 2,
+                    color: frogsColorHover
+                }
+            }
+        }))
+    };
+
+    return option;
+}
