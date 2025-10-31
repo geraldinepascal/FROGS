@@ -456,9 +456,6 @@ class Cutadapt3prim(Cmd):
         @param cutadapt_err: [str] Path to the error file.
         @param param: [Namespace] The primer sequence 'param.three_prim_primer', 'param.sequencer'
         """
-        opt = ''
-        if param.sequencer == "longreads":
-            opt = ' --revcomp '
         Cmd.__init__( self,
                       'cutadapt',
                       "Removes reads without the 3' primer and removes primer sequence.",
