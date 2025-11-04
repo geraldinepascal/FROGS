@@ -158,6 +158,112 @@ var table = function( pTitle, pCategories, pData , footer=undefined ) {
         `;
 }
 
+var heatmapOption = function(data_type) {
+
+    if (data_type == null) data_type = "clstr";
+
+    var clean_type = {
+        "clstr": "ASVs",
+        "seq": "sequences"
+    };
+
+    var categories_ident = [1, 50, 80, 90, 95, 99, 100, 101];
+    var categories_cover = [1, 50, 80, 90, 95, 99, 100, 101];
+
+    var heatmap_data = get_alignment_heatmap_data(categories_ident, categories_cover, data_type)
+        .map(function(item) {
+            return [item[0], item[1], item[2] || 0];
+        });
+
+    var frogsColor = style.getPropertyValue('--frogsColor').trim();
+
+    return {
+        title: {
+            text: 'Number of ' + clean_type[data_type] + ' among their alignment results',
+            left: 'center'
+        },
+        tooltip: {
+            position: 'top',
+            formatter: function(params) {
+                return 'Identity: <b>' + categories_ident[params.data[0]] + '</b><br>'
+                    + 'Coverage: <b>' + categories_cover[params.data[1]] + '</b><br>'
+                    + 'Nb ' + clean_type[data_type] + ': <b>' + params.data[2] + '</b>';
+            }
+        },
+        grid: {
+            height: '70%',
+            width: '70%',
+            top: '15%'
+        },
+        xAxis: {
+            type: 'category',
+            data: get_displayed_categories(categories_ident),
+            name: 'Identity',
+            nameLocation: 'middle',
+            nameGap: 30,
+        },
+        yAxis: {
+            type: 'category',
+            data: get_displayed_categories(categories_cover),
+            name: 'Coverage',
+            nameLocation: 'middle',
+            nameGap: 50,
+        },
+        visualMap: {
+            min: 0,
+            max: Math.max(...heatmap_data.map(d => d[2])),
+            calculable: false,
+            orient: 'vertical',
+            left: 'right',
+            top: 'center',
+            inRange: {
+                color: ['#ffffff', frogsColor]
+            },
+            show: true,
+            text: [
+                Math.max(...heatmap_data.map(d => d[2])),
+                0
+            ],
+            textStyle: {
+                color: frogsColor,
+                fontSize: 12
+            }
+        },
+        series: [{
+            name: clean_type[data_type],
+            type: 'heatmap',
+            data: heatmap_data,
+            label: {
+                show: true,
+                color: '#000',
+                fontSize: 12,
+                formatter: function(params) {
+                    return params.data[2];
+                },
+                textBorderColor: '#ffffff',
+                textBorderWidth: 2
+            },
+            itemStyle: {
+                borderColor: frogsColor,
+                borderWidth: 1
+            },
+            emphasis: {
+                itemStyle: {
+                    shadowBlur: 10,
+                    shadowColor: 'rgba(0,0,0,0.5)'
+                }
+            }
+        }],
+        toolbox: {
+            feature: {
+                saveAsImage: {}
+            },
+            right: '10%',
+            top: 'top'
+        }
+    };
+};
+
 var lineOption = function(pTitle, pXTitle, pYTitle, pXCategories, pData) {
     let xMin = Math.min(
         ...pData.flatMap(serie => serie.data.map(point => point[0]))
@@ -187,7 +293,7 @@ var lineOption = function(pTitle, pXTitle, pYTitle, pXCategories, pData) {
             }
         },
         xAxis: {
-            type: 'value', // car on a des valeurs numériques (longueurs)
+            type: 'value', // car on a des valeurs numériques (longueuheatmapChart_optionsrs)
             name: pXTitle,
             splitLine: {
                 show: false
@@ -218,7 +324,11 @@ var lineOption = function(pTitle, pXTitle, pYTitle, pXCategories, pData) {
             }
         },
         legend: {
-            show: true
+            type: 'scroll',
+            orient: 'horizontal',
+            bottom: 20,
+            height: 100,
+            pageButtonGap: 5 // espace entre les boutons de navigation
         },
         dataZoom: [
             {
@@ -447,7 +557,14 @@ function barOption(nb, yTitle, categories, series, unity, is_stacked) {
     };
 }
 
-function pieOption(value_1, value_2, label_1, label_2, title, unit) {
+function pieOption(value_1, value_2, label_1, label_2, title, unit, value_3 = null, label_3 = null) {
+    const data = [
+        { value: value_1, name: label_1 },
+        { value: value_2, name: label_2 }
+        ];
+    if (value_3 !== null && label_3 !== null) {
+        data.push({ value: value_3, name: label_3 });
+    }
     let option = {
         title: {
         text: title,
@@ -486,10 +603,7 @@ function pieOption(value_1, value_2, label_1, label_2, title, unit) {
             },
             type: 'pie', // 'pie' est le type pour camembert
             radius: '50%', // peut être ['40%', '70%'] pour un donut
-            data: [
-            { value: value_1, name: label_1 },
-            { value: value_2, name: label_2 }
-            ],
+            data: data,
             itemStyle: {
                     borderColor: '#ffffff', // couleur du trait
                     borderWidth: 2 // épaisseur du trait
