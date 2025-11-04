@@ -3,13 +3,32 @@
 <html>
 	<head>
 		<title>FROGS Affiliation Filters</title>
-		<meta charset="UTF-8">
-		<meta name="author" content="Katia Vidal - GENPHYSE & Frédéric Escudié - Genotoul/MIAT & Maria Bernard - SIGENAE/GABI">
-        <meta name="version" content="5.0.0">
-        <meta name="copyright" content="Copyright (C) 2024 INRAE" />
-		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.1.1/css/bootstrap.css"></link>
-		<link rel="stylesheet" href="https://cdn.datatables.net/1.10.19/css/dataTables.bootstrap4.min.css"></link>
+		<meta charset="UTF-8" />
+		<meta name="author" content="Frederic Escudie - Genotoul/MIAT & Maria Bernard - SIGENAE/GABI & Olivier Rué - Migale/MaIAGE" />
+        <meta name="version" content="5.1.0" />
+        <meta name="copyright" content="Copyright (C) 2025 INRAE" />
+		<!-- JQUERY -->
+		<script type="text/javascript" src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+		<!-- ECHARTS -->
+		<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/echarts@6.0.0/dist/echarts.min.js"></script>
+		<!-- Bootstrap -->
+		<link rel="stylesheet" href="https://cdn.datatables.net/1.10.21/css/dataTables.bootstrap4.min.css">
+		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-table@1.22.6/dist/bootstrap-table.min.css">
+		<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+		<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+		<script src="https://cdn.jsdelivr.net/npm/bootstrap-table@1.22.6/dist/bootstrap-table.min.js"></script>
+		<!-- Extensions Export -->
+		<script src="https://cdn.jsdelivr.net/npm/tableexport.jquery.plugin@1.28.0/tableExport.min.js"></script>
+		<script src="https://cdn.jsdelivr.net/npm/bootstrap-table@1.22.6/dist/extensions/export/bootstrap-table-export.min.js"></script>
+		<!-- Font Awesome -->
 		<link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+		
+		###IMPORT_CSS###
+		
+		###IMPORT_JS_UTILS###
+
+		###IMPORT_JS_THEME###
+
 		<style type="text/css">
 			/*
 			 * jDistrib 0.1.0 - CSS jDistrib Library	
@@ -19,281 +38,7 @@
 			 */
 			#sunburst-graph{margin-left:auto;margin-right:auto}.jDistrib-walk-rank{height:100%;margin-right:2px;padding:8px;float:left;border-top-right-radius:7px;border-bottom-right-radius:7px;cursor:pointer;box-shadow:1px 1px 1px #555}.jDistrib-walk-rank-size{margin-left:5px;padding:4px;background-color:#FFF;color:#648a89;border-radius:9px;text-align:center;font-size:10px;font-family:sans-serif}.jDistrib-root-label{font-weight:700;cursor:pointer}.jDistrib-arc-label{cursor:pointer}.jDistrib-arc{cursor:pointer;stroke:#fff;fill-rule:evenodd}.jDistrib-tooltip{position:absolute;padding:10px;font:12px sans-serif;background:var(--frogsColor);border:0;border-radius:8px;pointer-events:none;color:#FFF}.jDistrib-empty-details{color:#fff;background-color:frogsColor;padding:15px;margin-bottom:20px;border:1px solid transparent;border-radius:4px}.jDistrib-table-details>tbody>tr:nth-of-type(2n+1){background-color:#F5F5F5}.jDistrib-table-details{border:1px solid #DDD;border-radius:8px;border-spacing:1px;border-collapse:separate}.jDistrib-table-details td,th{padding:2px 8px}.jDistrib-table-details .number{text-align:right}.jDistrib-export-toggle{height:30px;width:30px;padding:1px}.jDistrib-export-toggle div{background-color:#636363;border-radius:2px;height:3px;margin-top:2px;margin-bottom:2px}
 		</style>
-		<style type="text/css">
-			/*
-			.clear {
-				clear: both;
-				height: 0px;
-				width: 100%;
-				float: none !important;
-			}
-			*/
-			
-			:root {
-				--frogsColor: #388697; 
-				--frogsColorHover: rgb(12,10,62,0.8);
-				--frogsColorShadow: #6c5b64;
-				--frogsColor2: #FA8883;
-				--frogsColor3: #ffef99;
-				--frogsColor4: #737f75;
-				--frogsColorZoomHighCharts: rgb(191,211,193,0.25);
-				--frogsButtonColor: rgb(12,10,62,0.6);
-				--frogsButtonBorderColor: rgb(12,10,62,0.6);
-				--frogsOddTable: rgba(249,86,79, 0.1);
-				--frogsCircleFontColor: #FFF;
-				--frogsCircleBackgroundColor: #FA8883;
-				--frogsCircleBorderColor: #FA8883;
-			}
-			/* Tables */
-			.table-striped tbody tr:nth-of-type(2n+1) {
-			  background-color: var(--frogsOddTable);
-			}
-			.container {
-				position: relative;
-				padding-left: 35px;
-				margin-bottom: 15px;
-				cursor: pointer;
-				-webkit-user-select: none;
-				-moz-user-select: none;
-				-ms-user-select: none;
-				user-select: none;
-			}
-			.container input {
-				position: absolute;
-				opacity: 0;
-				cursor: pointer;
-			}
-			.page-link{
-				color: var(--frogsColor);
-			}
-			.page-link:hover{
-				color: var(--frogsColorHover);
-			}
-			
-			/* Titles */
-			h2{
-				color: var(--frogsColor);
-			}
-			.pb-2, .py-2 {
-				padding-bottom: 1.5rem !important;
-				margin-bottom: 2rem !important;
-				margin-top: 4rem !important;
-			}
-			.pb-2-first{
-				padding-bottom: 1.5rem !important;
-				margin-bottom: 2rem !important;
-				margin-top: 1rem !important;
-			}
-			
-			/* Header */
-			.frogsversion{
-				position: absolute;
-				right: 5%;
-				color: var(--frogsColor);
-				font-style: italic;
-				font-size: smaller;
-				padding:8px;
-			}
-			.frogsversion > a{
-				border: none !important;
-				display: inline-block;
-			}
-			ul.nav-tabs {
-				margin-bottom: 30px;
-			}
-			.nav-tabs .nav-link.active, .nav-tabs .nav-item.show .nav-link{
-				color: #fff;
-				background-color: var(--frogsColor);
-				border-color: #dee2e6 #dee2e6 #fff;
-			}
-			
-			/* Buttons */
-			.btn {
-				color: #fff;
-				border:  var(--frogsButtonBorderColor);
-				background-color: var(--frogsButtonColor);
-			}
-			.btn:focus, .btn:active {
-				outline: none !important;
-				box-shadow: none !important;
-			}
-			.btn:hover:enabled{
-				color: #fff;
-				border: var(--frogsButtonBorderColor);
-				background-color: var(--frogsColorHover);
-				cursor:pointer !important;
-			}
-			.heatmap-button-container {
-				width: 200px;
-				margin-left: auto;
-				margin-right: auto;
-			}
-			
-			/* Global */
-			#dispersion {
-                 margin: auto;
-			}
-			#twofigs{
-                 height: 600px;
-			}
-			#content {
-                width: 90%;
-                margin-right: auto;
-                margin-left: auto;
-            }
-            #js-alert {
-                width: 90%;
-                margin-right: auto;
-                margin-left: auto;
-            }
-            a {
-				color: var(--frogsColor);
-			}
-			a:hover{
-				color: var(--frogsColorHover);
-			}
-			.page-item.active .page-link {
-				z-index: 1;
-				color: #fff;
-				background-color: var(--frogsButtonColor);
-				border-color: var(--frogsButtonColor);
-				outline: none !important;
-				box-shadow: none !important;
-			}
-			
-			/* Checkmarks in tables */
-			.checkmark {
-				position: absolute;
-				top: 0;
-				left: 0;
-				height: 20px;
-				width: 20px;
-				background-color: var(--frogsButtonColor);
-				border-radius: 5px;
-				opacity:0.65;
-			}
-			.container:hover input ~ .checkmark {
-				background-color: var(--frogsColorHover);
-			}
-			.checkmark:after {
-				content: "";
-				position: absolute;
-				display: none;
-			}
-			.container input:checked ~ .checkmark:after {
-				display: block;
-			}
-			.container .checkmark:after {
-				left: 7px;
-				top: 3px;
-				width: 6px;
-				height: 10px;
-				border: solid white;
-				border-width: 0 3px 3px 0;
-				-webkit-transform: rotate(45deg);
-				-ms-transform: rotate(45deg);
-				transform: rotate(45deg);
-			}
-			
-			/* Highcharts buttons */
-			.highcharts-button > path{
-				stroke:#fff !important;
-				fill: var(--frogsButtonColor) !important;
-			}
-			g.highcharts-button{
-				cursor:pointer !important;
-			}
-			g.highcharts-button:hover{
-				color: #fff;
-				border: var(--frogsColorHover);
-				background-color: var(--frogsColorHover);
-				cursor:pointer !important;
-			}
-			.highcharts-button > path{
-				stroke:#fff !important;
-				fill: var(--frogsColor) !important;
-			}
-			g.highcharts-button{
-				cursor:pointer !important;
-			}
-			g.highcharts-button:hover{
-				color: #fff;
-				border: var(--frogsColorHover);
-				background-color: var(--frogsColorHover);
-				background-color: var(--frogsColorHover);
-				cursor:pointer !important;
-			}
-			
-			/* Circles */
-			.circle {
-				border-style: solid;
-				border-width: 3px;
-				border-radius: 50px;
-				box-shadow: 2px 2px 2px var(--frogsColorShadow);
-				border-color: var(--frogsCircleBorderColor);
-				background: var(--frogsCircleBackgroundColor);
-				color: var(--frogsCircleFontColor);
-				padding: 10px;
-				width: 180px;
-				height: 98px;
-				line-height: 30px;
-				text-align: center;
-				margin-left: auto;
-				margin-right: auto;
-				margin-bottom: 10px;
-				vertical-align: middle;
-			}
-			.circle-value {
-				font-weight: bold;
-			}
-			
-			/* Venn */
-			#venn-filters {
-				padding: 10px;
-				background-color: #FFF;
-				background-clip: padding-box;
-				border: 1px solid rgba(0, 0, 0, 0.15);
-				border-radius: 4px;
-				box-shadow: 0px 6px 12px rgba(0, 0, 0, 0.176);
-				margin-right: auto;
-				margin-left: auto;
-				margin-bottom: 30px;
-			}
-			#byFilters-jvenn {
-				margin-right: auto;
-				margin-left: auto;
-			}
-			#venn-filters ul {
-				list-style-type: none;
-			}
-			
-			/* Sunburst */
-			#sunburst-detail table {
-				margin-left: auto;
-				margin-right: auto;
-			}	
-			#sunburst-detail p {
-				text-align: center;
-			}
-			#sunburst-menu input {
-				margin-right: 10px;
-			}
-			#display-global-sunburst {
-				margin-bottom: 40px;
-			}
-			
-		</style>
-
-		<script type="text/javascript" src="https://code.jquery.com/jquery-2.1.3.min.js"></script>
-		<script type="text/javascript" src="https://code.highcharts.com/8.2.0/highcharts.js"></script>
-		<script type="text/javascript" src="https://code.highcharts.com/8.2.0/highcharts-more.js"></script>
-		<script type="text/javascript" src="https://code.highcharts.com/8.2.0/modules/heatmap.js"></script>
-		<script type="text/javascript" src="https://code.highcharts.com/8.2.0/modules/exporting.js"></script>
-		<script type="text/javascript" src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
-		<script type="text/javascript" src="https://cdn.datatables.net/1.10.19/js/dataTables.bootstrap4.min.js"></script>
-		<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.11.0/umd/popper.min.js" integrity="sha384-b/U6ypiBEHpOf/4+1nzFpr53nxSS+GLCkfwBdFNTxtclqqenISfwAzpKaMNFNmj4" crossorigin="anonymous"></script>
-		<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js" integrity="sha384-smHYKdLADwkXOn1EmN1qk/HfnUcbVRZyYmZ4qpPea6sjB/pTJ0euyQp0Mk8ck+5T" crossorigin="anonymous"></script>
-		<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.12.4/js/bootstrap-select.min.js"></script>
+		
 		<script type="text/javascript">
 			/***************************************************************
 			*  Copyright notice
@@ -383,292 +128,39 @@
 					"#E67A5A", // Saumon clair
 					"#819CA5"  // Bleu clair
 				];
-			var jDistrib={pg_selector:{sunburst:null,walktrace:null,menu:null,detail:null},access:{graph:null,tooltip:null},graph:{sunburst:{padding:30,width:null,height:null,_radius:null,_arc:null,_x:null,_y:null},labels:{padding:7,font_size:15},colors:{set:frogsSunburstPalette,neutral:"#dadaeb",radialization:15,start_depth:1}},tree:{current_root:null,root_size:0}},cJDistrib=function(t,e){Object.deepExtend(jDistrib,e),null==jDistrib.pg_selector.menu||d3.select(jDistrib.pg_selector.menu).empty()||_setMenu(),null==jDistrib.pg_selector.detail||d3.select(jDistrib.pg_selector.detail).empty()||(jQuery(jDistrib.pg_selector.sunburst).on("jd.walk",function(){clearDetails()}),jQuery(jDistrib.pg_selector.sunburst).on("jd.displayDetails",function(t,e){displayDetails(e)})),null==jDistrib.pg_selector.walktrace||d3.select(jDistrib.pg_selector.walktrace).empty()||jQuery(jDistrib.pg_selector.sunburst).on("jd.walk",function(t,e){walkTraceUpdate(e)}),_setSVG(),_load(t),walkTo(jDistrib.tree.current_root,0)},_setSVG=function(){var t=d3.select(jDistrib.pg_selector.sunburst).append("svg").attr("width",jDistrib.graph.sunburst.width).attr("height",jDistrib.graph.sunburst.height).append("g").attr("transform","translate("+jDistrib.graph.sunburst.width/2+","+jDistrib.graph.sunburst.height/2+")");jDistrib.access.graph=t,jDistrib.graph._radius=Math.min(jDistrib.graph.sunburst.width,jDistrib.graph.sunburst.height)/2-jDistrib.graph.sunburst.padding,(jDistrib.graph.sunburst.padding>=jDistrib.graph.sunburst.width+10||jDistrib.graph.sunburst.padding>=jDistrib.graph.sunburst.height+10)&&(jDistrib.graph._radius=Math.min(jDistrib.graph.sunburst.width,jDistrib.graph.sunburst.height)/2),jDistrib.graph._x=d3.scale.linear().range([0,2*Math.PI]),jDistrib.graph._y=d3.scale.pow().exponent(1.3).domain([0,1]).range([0,jDistrib.graph._radius]),jDistrib.graph._arc=d3.svg.arc().startAngle(function(t){return getStartAngle(t)}).endAngle(function(t){return getEndAngle(t)}).innerRadius(function(t){return getInnerRadius(t)}).outerRadius(function(t){return getOuterRadius(t)}),jDistrib.access.tooltip=d3.select(jDistrib.pg_selector.sunburst).append("div").attr("class","jDistrib-tooltip").style("opacity",0)},_load=function(t){jDistrib.tree.current_root=t,jDistrib.tree.root_size=getSize(t);var e=d3.layout.partition().value(function(t){return t.size});addID(t,0),addDepth(t,0);d3.select(jDistrib.pg_selector.sunburst+" g").datum(t).selectAll("path").data(e.nodes).enter().append("path").attr("d",jDistrib.graph._arc).attr("class","jDistrib-arc").attr("id",function(t){return"sb-arc-"+t.sunburst_id}).on("click",click).on("dblclick",dblclick).on("mousemove",hover).on("mouseout",function(){hideTooltip()}).each(stash),getColorsByFirstNodes(t);changeColorDepth(jDistrib.graph.colors.start_depth)},hover=function(t){displayTooltip(t)},click=function(t){jQuery(jDistrib.pg_selector.sunburst).trigger("jd.displayDetails",[t])},dblclick=function(t){walkTo(t)};Object.deepExtend=function(t,e){for(var r in e)"object"==typeof e[r]&&null!==e[r]?(t[r]=t[r]||{},arguments.callee(t[r],e[r])):t[r]=e[r];return t};var getStartAngle=function(t){return Math.max(0,Math.min(2*Math.PI,jDistrib.graph._x(t.x)))},getEndAngle=function(t){return Math.max(0,Math.min(2*Math.PI,jDistrib.graph._x(t.x+t.dx)))},getInnerRadius=function(t){return Math.max(0,t.y?jDistrib.graph._y(t.y):t.y)},getOuterRadius=function(t){return Math.max(0,jDistrib.graph._y(t.y+t.dy))},stash=function(t){t.x0=t.x,t.dx0=t.dx},brancheSizes=function(t){var e=new Array,r=t;for(e.unshift({name:r.name,size:getSize(r),node:r});r.hasOwnProperty("parent")&&null!=r.parent;)r=r.parent,e.unshift({name:r.name,size:getSize(r),node:r});return e},sunburstUpdate=function(t,e){e=null==e?1e3:e,removeLabels(),d3.selectAll(jDistrib.pg_selector.sunburst+" path").transition().duration(e).attrTween("d",arcTweenZoom(t)),setTimeout(function(){addLabels()},e)},walkTo=function(t,e){jQuery(jDistrib.pg_selector.sunburst).trigger("jd.walk",[t]),jDistrib.tree.current_root=t,sunburstUpdate(t,e)},arcTweenData=function(t,e){function r(e){var r=i(e);return t.x0=r.x,t.dx0=r.dx,jDistrib.graph._arc(r)}var i=d3.interpolate({x:t.x0,dx:t.dx0},t);if(0==e){var n=d3.interpolate(x.domain(),[jDistrib.tree.current_root.x,jDistrib.tree.current_root.x+jDistrib.tree.current_root.dx]);return function(t){return x.domain(n(t)),r(t)}}return r},arcTweenZoom=function(t){var e=d3.interpolate(jDistrib.graph._x.domain(),[t.x,t.x+t.dx]),r=d3.interpolate(jDistrib.graph._y.domain(),[t.y,1]),i=d3.interpolate(jDistrib.graph._y.range(),[t.y?20:0,jDistrib.graph._radius]);return function(t,n){return n?function(){return jDistrib.graph._arc(t)}:function(n){return jDistrib.graph._x.domain(e(n)),jDistrib.graph._y.domain(r(n)).range(i(n)),jDistrib.graph._arc(t)}}},colorComponentToHexa=function(t){var e=t.toString(16);return e.length<2&&(e="0"+e),e},RGBToHexa=function(t,e,r){return colorComponentToHexa(t)+colorComponentToHexa(e)+colorComponentToHexa(r)},hexa2RGB=function(t){return[parseInt(t.substring(0,2),16),parseInt(t.substring(2,4),16),parseInt(t.substring(4,6),16)]},colorToWhite=function(t,e){var r=new Array;if(0===t.indexOf("#"))r=hexa2RGB(t.substr(1));else if(0===t.indexOf("rgb(")){r=t.substr(4,t.length-1).split(",");for(var i=0;3>i;i++)r[i]=parseInt(r[i])}for(var n="#",i=0;3>i;i++)n+=colorComponentToHexa(Math.min(255,r[i]+e));return n},getNodeByDepthSorted=function(t,e){var r=new Array;if(t.depth==e)r.push(t);else if(t.depth<e&&t.hasOwnProperty("children")&&0!=t.children.length)for(var i=t.children.sort(function(t,e){return getSize(e)-getSize(t)}),n=0;n<i.length;n++)for(var s=getNodeByDepth(i[n],e),a=0;a<s.length;a++)r.push(s[a]);return r},getColorsByFirstNodes=function(t){for(var e=getNodeByDepthSorted(t,t.depth+jDistrib.graph.colors.start_depth),r=new Array,i=0;i<e.length;i++)r["sb-arc-"+e[i].sunburst_id]=jDistrib.graph.colors.set[i%jDistrib.graph.colors.set.length];return r},getColorToApply=function(t,e){return t.depth<jDistrib.graph.colors.start_depth?jDistrib.graph.colors.neutral:t.depth==jDistrib.graph.colors.start_depth?e["sb-arc-"+t.sunburst_id]:colorToWhite(d3.select("#sb-arc-"+t.parent.sunburst_id).style("fill"),jDistrib.graph.colors.radialization)},getNodeByDepth=function(t,e){var r=new Array;if(t.depth==e)r.push(t);else if(t.depth<e&&t.hasOwnProperty("children")&&0!=t.children.length)for(var i=0;i<t.children.length;i++)for(var n=getNodeByDepth(t.children[i],e),s=0;s<n.length;s++)r.push(n[s]);return r},addDepth=function(t,e){if(t.depth=e,t.hasOwnProperty("children")&&0!=t.children.length)for(var r=0;r<t.children.length;r++)addDepth(t.children[r],e+1)},addID=function(t,e){if(e+=1,t.sunburst_id=e,t.hasOwnProperty("children")&&0!=t.children.length)for(var r=0;r<t.children.length;r++)e=addID(t.children[r],e);return e},getSize=function(t){if(t.hasOwnProperty("size"))return t.size;if(t.hasOwnProperty("children")&&0!=t.children.length){for(var e=0,r=0;r<t.children.length;r++)e+=getSize(t.children[r]);return e}},getRoot=function(t){for(var e=t;e.hasOwnProperty("parent")&&null!=e.parent;)e=e.parent;return e},addLabels=function(){0!=jDistrib.tree.current_root.depth&&d3.select(jDistrib.pg_selector.sunburst+" g").append("text").text(jDistrib.tree.current_root.depth).attr("class","jDistrib-root-label").attr("text-anchor","middle").attr("x",0).attr("y",0).on("dblclick",function(){walkTo(jDistrib.tree.current_root.parent)}),d3.selectAll(jDistrib.pg_selector.sunburst+" path").each(function(t){if(t==jDistrib.tree.current_root||isChildOf(t,jDistrib.tree.current_root)){var e=getEndAngle(t)-getStartAngle(t),r=getInnerRadius(t),i=Math.sin(e/2)*r*2,n=getOuterRadius(t)-r,s=r+(getOuterRadius(t)-r)/2,a=s*e;a>=n?setLabelArcMode(t,a,n):setLabelLineMode(t,n,i,r,e)}})},setLabelArcMode=function(t,e,r){if(r>=jDistrib.graph.labels.font_size){var i=d3.select(jDistrib.pg_selector.sunburst+" g"),n=t.name;"root"==t.name&&(n=""),i.append("text").text(n).attr("id","evaluate-size").attr("white-space","nowrap").attr("visibility","hidden").style("font-size",jDistrib.graph.labels.font_size+"px");var s=d3.select("#evaluate-size")[0][0].getBBox().width+jDistrib.graph.labels.padding;if(jDistrib.graph.labels.padding>e-3)n="";else for(;s>e-3;)n=n.substring(0,n.length-1),d3.select("#evaluate-size").text(n),s=d3.select("#evaluate-size")[0][0].getBBox().width+jDistrib.graph.labels.padding;d3.select("#evaluate-size").remove(),0!=n.length&&n.length<t.name.length&&(n=n.length>1?n.substring(0,n.length-1)+".":""),n.length>0&&i.append("text").attr("class","jDistrib-arc-label").attr("dy",(getOuterRadius(t)-getInnerRadius(t))/2).style("font-size",jDistrib.graph.labels.font_size+"px").attr("text-rendering","optimizeLegibility").append("textPath").attr("xlink:href",function(){return"#sb-arc-"+t.sunburst_id}).attr("startOffset",jDistrib.graph.labels.padding).text(function(){return n}).on("click",function(){click(t)}).on("dblclick",function(){walkTo(t)}).on("mousemove",function(){displayTooltip(t)}).on("mouseout",function(){hideTooltip()})}},setLabelLineMode=function(t,e,r,i,n){var s=d3.select(jDistrib.pg_selector.sunburst+" g"),a=!1;if(n>=Math.PI&&2*i>jDistrib.graph.labels.font_size?a=!0:r>jDistrib.graph.labels.font_size&&(a=!0),a){var l=t.name;if("root"==t.name&&(l=""),t.hasOwnProperty("children")&&0!=t.children.length){s.append("text").text(l).attr("id","evaluate-size").attr("white-space","nowrap").attr("visibility","hidden").style("font-size",jDistrib.graph.labels.font_size+"px");var o=d3.select("#evaluate-size")[0][0].getBBox().width+jDistrib.graph.labels.padding;if(jDistrib.graph.labels.padding>e-3)l="";else for(;o>e-3;)l=l.substring(0,l.length-1),d3.select("#evaluate-size").text(l),o=d3.select("#evaluate-size")[0][0].getBBox().width+jDistrib.graph.labels.padding;d3.select("#evaluate-size").remove(),0!=l.length&&l.length<t.name.length&&(l=l.length>1?l.substring(0,l.length-1)+".":"")}l.length>0&&s.append("text").text(function(){return l}).attr("class","jDistrib-arc-label").style("font-size",jDistrib.graph.labels.font_size+"px").attr("dy",".35em").attr("text-anchor",function(){return jDistrib.graph._x(t.x+t.dx/2)>Math.PI?"end":"start"}).attr("transform",function(){var e=180*jDistrib.graph._x(t.x+t.dx/2)/Math.PI-90;return"rotate("+e+")translate("+(jDistrib.graph._y(t.y)+jDistrib.graph.labels.padding)+")rotate("+(e>90?-180:0)+")"}).on("click",function(){click(t)}).on("dblclick",function(){walkTo(t)}).on("mousemove",function(){displayTooltip(t)}).on("mouseout",function(){hideTooltip()})}},removeLabels=function(){d3.selectAll(jDistrib.pg_selector.sunburst+" .jDistrib-arc-label").remove(),d3.selectAll(jDistrib.pg_selector.sunburst+" .jDistrib-root-label").remove()},isChildOf=function(t,e){return t.depth<=e.depth?!1:t.depth-1==e.depth?t.parent==e:isChildOf(t.parent,e)},hideTooltip=function(){jDistrib.access.tooltip.transition().duration(500).style("opacity",0)},displayTooltip=function(t){jDistrib.access.tooltip.html(getTooltipContent(t)).style("left",d3.event.layerX+5+"px").style("top",d3.event.layerY-30+"px"),jDistrib.access.tooltip.transition().duration(200).style("opacity",.9)},getTooltipContent=function(t){return 0==jDistrib.tree.current_root.depth?t.name+": <b>"+(getSize(t)/jDistrib.tree.root_size*100).toFixed(3)+"%</b>":t.name+":<br />Total <b>"+(getSize(t)/jDistrib.tree.root_size*100).toFixed(3)+"%</b><br />"+jDistrib.tree.current_root.name+" <b>"+(getSize(t)/getSize(jDistrib.tree.current_root)*100).toFixed(3)+"%</b>"},walkTraceUpdate=function(t){var e=brancheSizes(t),r=d3.select(jDistrib.pg_selector.walktrace);r.selectAll(".jDistrib-walk-path").remove();for(var i=r.append("div").attr("class","jDistrib-walk-path"),n=0;n<e.length;n++){var s=i.append("div").attr("class","jDistrib-walk-rank").attr("style","background-color:"+frogsColor+";color:#fff");s.append("span").attr("class","jDistrib-walk-rank-name").html(e[n].name),0!=n&&s.append("span").attr("class","jDistrib-walk-rank-size").html((parseInt(e[n].size)/parseInt(e[n-1].size)*100).toFixed(1)),s.data([e[n].node]),s.on("click",function(){walkTo(d3.select(this)[0][0].__data__)})}i.append("div").attr("style","clear:both")},_setMenu=function(){d3.select(jDistrib.pg_selector.menu).append("label").attr("for","in-label-size").text("Font size: "),d3.select(jDistrib.pg_selector.menu).append("input").attr("id","in-label-size").attr("type","number").attr("min",1).attr("value",jDistrib.graph.labels.font_size).on("change",function(){d3.select("#in-color-depth")[0][0].value<1&&(d3.select("#in-color-depth")[0][0].value=1),changeLabelSize(d3.select("#in-label-size")[0][0].value)});var t=7;d3.select(jDistrib.pg_selector.menu).append("label").attr("for","in-color-depth").text("Colors start depth: "),d3.select(jDistrib.pg_selector.menu).append("input").attr("id","in-color-depth").attr("type","number").attr("min",1).attr("max",t).attr("value",jDistrib.graph.colors.start_depth).on("change",function(){d3.select("#in-color-depth")[0][0].value<1?d3.select("#in-color-depth")[0][0].value=1:d3.select("#in-color-depth")[0][0].value>t&&(d3.select("#in-color-depth")[0][0].value=t),changeColorDepth(d3.select("#in-color-depth")[0][0].value)})},changeLabelSize=function(t){jDistrib.graph.labels.font_size=t,removeLabels(),addLabels()},changeColorDepth=function(t){jDistrib.graph.colors.start_depth=t;var e=getColorsByFirstNodes(getRoot(jDistrib.tree.current_root));d3.select(jDistrib.pg_selector.sunburst+" g").selectAll("path").style("fill",function(t){return getColorToApply(t,e)})},clearDetails=function(){d3.select(jDistrib.pg_selector.detail).html(""),d3.select(jDistrib.pg_selector.detail).append("div").attr("class","jDistrib-empty-details").text("Click on an element to see more details.")},displayDetails=function(t){for(var e=brancheSizes(t),r="",i=0;i<e.length;i++){var n="";n+="<td>"+e[i].name+"</td>",n+='<td class="number">'+e[i].size+"</td>",0!=i?(n+='<td class="number">'+(parseInt(e[i].size)/parseInt(e[0].size)*100).toFixed(3)+"</td>",n+='<td class="number">'+(parseInt(e[i].size)/parseInt(e[i-1].size)*100).toFixed(3)+"</td>"):(n+="<td></td>",n+="<td></td>"),r+="<tr>"+n+"</tr>"}d3.select(jDistrib.pg_selector.detail).html('<table class="jDistrib-table-details">	<thead>		<tr>			<th>Name</th>			<th>Size</th>			<th>Global %</th>			<th>Parent %</th>		</tr>	</thead>	<tbody>'+r+"</tbody></table><p>"+t.name+" nb children: "+(void 0==t.children?0:t.children.length)+"</p>")},exportSVG=function(){console.log("export"),d3.select(jDistrib.pg_selector.sunburst+" .jDistrib-data-export").empty()&&d3.select(jDistrib.pg_selector.sunburst).append("a").attr("class","jDistrib-data-export").attr("href","").attr("download","").attr("style","display:none;");var t=d3.select(jDistrib.pg_selector.sunburst+" svg");console.log(t[0][0]),xml=(new XMLSerializer).serializeToString(t[0][0]),svg_data="data:application/octet-stream;base64,"+btoa(xml),d3.select(jDistrib.pg_selector.sunburst+" .jDistrib-data-export").attr("href",svg_data).attr("download","jDistribChart.svg"),jQuery(jDistrib.pg_selector.sunburst+" .jDistrib-data-export")[0].click()};
+			var jDistrib={pg_selector:{sunburst:null,walktrace:null,menu:null,detail:null},access:{graph:null,tooltip:null},graph:{sunburst:{padding:30,width:null,height:null,_radius:null,_arc:null,_x:null,_y:null},labels:{padding:7,font_size:15},colors:{set:frogsSunburstPalette,neutral:"#dadaeb",radialization:15,start_depth:1}},tree:{current_root:null,root_size:0}},cJDistrib=function(t,e){Object.deepExtend(jDistrib,e),null==jDistrib.pg_selector.menu||d3.select(jDistrib.pg_selector.menu).empty()||_setMenu(),null==jDistrib.pg_selector.detail||d3.select(jDistrib.pg_selector.detail).empty()||(jQuery(jDistrib.pg_selector.sunburst).on("jd.walk",function(){clearDetails()}),jQuery(jDistrib.pg_selector.sunburst).on("jd.displayDetails",function(t,e){displayDetails(e)})),null==jDistrib.pg_selector.walktrace||d3.select(jDistrib.pg_selector.walktrace).empty()||jQuery(jDistrib.pg_selector.sunburst).on("jd.walk",function(t,e){walkTraceUpdate(e)}),_setSVG(),_load(t),walkTo(jDistrib.tree.current_root,0)},_setSVG=function(){var t=d3.select(jDistrib.pg_selector.sunburst).append("svg").attr("width",jDistrib.graph.sunburst.width).attr("height",jDistrib.graph.sunburst.height).append("g").attr("transform","translate("+jDistrib.graph.sunburst.width/2+","+jDistrib.graph.sunburst.height/2+")");jDistrib.access.graph=t,jDistrib.graph._radius=Math.min(jDistrib.graph.sunburst.width,jDistrib.graph.sunburst.height)/2-jDistrib.graph.sunburst.padding,(jDistrib.graph.sunburst.padding>=jDistrib.graph.sunburst.width+10||jDistrib.graph.sunburst.padding>=jDistrib.graph.sunburst.height+10)&&(jDistrib.graph._radius=Math.min(jDistrib.graph.sunburst.width,jDistrib.graph.sunburst.height)/2),jDistrib.graph._x=d3.scale.linear().range([0,2*Math.PI]),jDistrib.graph._y=d3.scale.pow().exponent(1.3).domain([0,1]).range([0,jDistrib.graph._radius]),jDistrib.graph._arc=d3.svg.arc().startAngle(function(t){return getStartAngle(t)}).endAngle(function(t){return getEndAngle(t)}).innerRadius(function(t){return getInnerRadius(t)}).outerRadius(function(t){return getOuterRadius(t)}),jDistrib.access.tooltip=d3.select(jDistrib.pg_selector.sunburst).append("div").attr("class","jDistrib-tooltip").style("opacity",0)},_load=function(t){jDistrib.tree.current_root=t,jDistrib.tree.root_size=getSize(t);var e=d3.layout.partition().value(function(t){return t.size});addID(t,0),addDepth(t,0);d3.select(jDistrib.pg_selector.sunburst+" g").datum(t).selectAll("path").data(e.nodes).enter().append("path").attr("d",jDistrib.graph._arc).attr("class","jDistrib-arc").attr("id",function(t){return"sb-arc-"+t.sunburst_id}).on("click",click).on("dblclick",dblclick).on("mousemove",hover).on("mouseout",function(){hideTooltip()}).each(stash),getColorsByFirstNodes(t);changeColorDepth(jDistrib.graph.colors.start_depth)},hover=function(t){displayTooltip(t)},click=function(t){jQuery(jDistrib.pg_selector.sunburst).trigger("jd.displayDetails",[t])},dblclick=function(t){walkTo(t)};Object.deepExtend=function(t,e){for(var r in e)"object"==typeof e[r]&&null!==e[r]?(t[r]=t[r]||{},arguments.callee(t[r],e[r])):t[r]=e[r];return t};var getStartAngle=function(t){return Math.max(0,Math.min(2*Math.PI,jDistrib.graph._x(t.x)))},getEndAngle=function(t){return Math.max(0,Math.min(2*Math.PI,jDistrib.graph._x(t.x+t.dx)))},getInnerRadius=function(t){return Math.max(0,t.y?jDistrib.graph._y(t.y):t.y)},getOuterRadius=function(t){return Math.max(0,jDistrib.graph._y(t.y+t.dy))},stash=function(t){t.x0=t.x,t.dx0=t.dx},brancheSizes=function(t){var e=new Array,r=t;for(e.unshift({name:r.name,size:getSize(r),node:r});r.hasOwnProperty("parent")&&null!=r.parent;)r=r.parent,e.unshift({name:r.name,size:getSize(r),node:r});return e},sunburstUpdate=function(t,e){e=null==e?1e3:e,removeLabels(),d3.selectAll(jDistrib.pg_selector.sunburst+" path").transition().duration(e).attrTween("d",arcTweenZoom(t)),setTimeout(function(){addLabels()},e)},walkTo=function(t,e){jQuery(jDistrib.pg_selector.sunburst).trigger("jd.walk",[t]),jDistrib.tree.current_root=t,sunburstUpdate(t,e)},arcTweenData=function(t,e){function r(e){var r=i(e);return t.x0=r.x,t.dx0=r.dx,jDistrib.graph._arc(r)}var i=d3.interpolate({x:t.x0,dx:t.dx0},t);if(0==e){var n=d3.interpolate(x.domain(),[jDistrib.tree.current_root.x,jDistrib.tree.current_root.x+jDistrib.tree.current_root.dx]);return function(t){return x.domain(n(t)),r(t)}}return r},arcTweenZoom=function(t){var e=d3.interpolate(jDistrib.graph._x.domain(),[t.x,t.x+t.dx]),r=d3.interpolate(jDistrib.graph._y.domain(),[t.y,1]),i=d3.interpolate(jDistrib.graph._y.range(),[t.y?20:0,jDistrib.graph._radius]);return function(t,n){return n?function(){return jDistrib.graph._arc(t)}:function(n){return jDistrib.graph._x.domain(e(n)),jDistrib.graph._y.domain(r(n)).range(i(n)),jDistrib.graph._arc(t)}}},colorComponentToHexa=function(t){var e=t.toString(16);return e.length<2&&(e="0"+e),e},RGBToHexa=function(t,e,r){return colorComponentToHexa(t)+colorComponentToHexa(e)+colorComponentToHexa(r)},hexa2RGB=function(t){return[parseInt(t.substring(0,2),16),parseInt(t.substring(2,4),16),parseInt(t.substring(4,6),16)]},colorToWhite=function(t,e){var r=new Array;if(0===t.indexOf("#"))r=hexa2RGB(t.substr(1));else if(0===t.indexOf("rgb(")){r=t.substr(4,t.length-1).split(",");for(var i=0;3>i;i++)r[i]=parseInt(r[i])}for(var n="#",i=0;3>i;i++)n+=colorComponentToHexa(Math.min(255,r[i]+e));return n},getNodeByDepthSorted=function(t,e){var r=new Array;if(t.depth==e)r.push(t);else if(t.depth<e&&t.hasOwnProperty("children")&&0!=t.children.length)for(var i=t.children.sort(function(t,e){return getSize(e)-getSize(t)}),n=0;n<i.length;n++)for(var s=getNodeByDepth(i[n],e),a=0;a<s.length;a++)r.push(s[a]);return r},getColorsByFirstNodes=function(t){for(var e=getNodeByDepthSorted(t,t.depth+jDistrib.graph.colors.start_depth),r=new Array,i=0;i<e.length;i++)r["sb-arc-"+e[i].sunburst_id]=jDistrib.graph.colors.set[i%jDistrib.graph.colors.set.length];return r},getColorToApply=function(t,e){return t.depth<jDistrib.graph.colors.start_depth?jDistrib.graph.colors.neutral:t.depth==jDistrib.graph.colors.start_depth?e["sb-arc-"+t.sunburst_id]:colorToWhite(d3.select("#sb-arc-"+t.parent.sunburst_id).style("fill"),jDistrib.graph.colors.radialization)},getNodeByDepth=function(t,e){var r=new Array;if(t.depth==e)r.push(t);else if(t.depth<e&&t.hasOwnProperty("children")&&0!=t.children.length)for(var i=0;i<t.children.length;i++)for(var n=getNodeByDepth(t.children[i],e),s=0;s<n.length;s++)r.push(n[s]);return r},addDepth=function(t,e){if(t.depth=e,t.hasOwnProperty("children")&&0!=t.children.length)for(var r=0;r<t.children.length;r++)addDepth(t.children[r],e+1)},addID=function(t,e){if(e+=1,t.sunburst_id=e,t.hasOwnProperty("children")&&0!=t.children.length)for(var r=0;r<t.children.length;r++)e=addID(t.children[r],e);return e},getSize=function(t){if(t.hasOwnProperty("size"))return t.size;if(t.hasOwnProperty("children")&&0!=t.children.length){for(var e=0,r=0;r<t.children.length;r++)e+=getSize(t.children[r]);return e}},getRoot=function(t){for(var e=t;e.hasOwnProperty("parent")&&null!=e.parent;)e=e.parent;return e},addLabels=function(){0!=jDistrib.tree.current_root.depth&&d3.select(jDistrib.pg_selector.sunburst+" g").append("text").text(jDistrib.tree.current_root.depth).attr("class","jDistrib-root-label").attr("text-anchor","middle").attr("x",0).attr("y",0).on("dblclick",function(){walkTo(jDistrib.tree.current_root.parent)}),d3.selectAll(jDistrib.pg_selector.sunburst+" path").each(function(t){if(t==jDistrib.tree.current_root||isChildOf(t,jDistrib.tree.current_root)){var e=getEndAngle(t)-getStartAngle(t),r=getInnerRadius(t),i=Math.sin(e/2)*r*2,n=getOuterRadius(t)-r,s=r+(getOuterRadius(t)-r)/2,a=s*e;a>=n?setLabelArcMode(t,a,n):setLabelLineMode(t,n,i,r,e)}})},setLabelArcMode=function(t,e,r){if(r>=jDistrib.graph.labels.font_size){var i=d3.select(jDistrib.pg_selector.sunburst+" g"),n=t.name;"root"==t.name&&(n=""),i.append("text").text(n).attr("id","evaluate-size").attr("white-space","nowrap").attr("visibility","hidden").style("font-size",jDistrib.graph.labels.font_size+"px");var s=d3.select("#evaluate-size")[0][0].getBBox().width+jDistrib.graph.labels.padding;if(jDistrib.graph.labels.padding>e-3)n="";else for(;s>e-3;)n=n.substring(0,n.length-1),d3.select("#evaluate-size").text(n),s=d3.select("#evaluate-size")[0][0].getBBox().width+jDistrib.graph.labels.padding;d3.select("#evaluate-size").remove(),0!=n.length&&n.length<t.name.length&&(n=n.length>1?n.substring(0,n.length-1)+".":""),n.length>0&&i.append("text").attr("class","jDistrib-arc-label").attr("dy",(getOuterRadius(t)-getInnerRadius(t))/2).style("font-size",jDistrib.graph.labels.font_size+"px").attr("text-rendering","optimizeLegibility").append("textPath").attr("xlink:href",function(){return"#sb-arc-"+t.sunburst_id}).attr("startOffset",jDistrib.graph.labels.padding).text(function(){return n}).on("click",function(){click(t)}).on("dblclick",function(){walkTo(t)}).on("mousemove",function(){displayTooltip(t)}).on("mouseout",function(){hideTooltip()})}},setLabelLineMode=function(t,e,r,i,n){var s=d3.select(jDistrib.pg_selector.sunburst+" g"),a=!1;if(n>=Math.PI&&2*i>jDistrib.graph.labels.font_size?a=!0:r>jDistrib.graph.labels.font_size&&(a=!0),a){var l=t.name;if("root"==t.name&&(l=""),t.hasOwnProperty("children")&&0!=t.children.length){s.append("text").text(l).attr("id","evaluate-size").attr("white-space","nowrap").attr("visibility","hidden").style("font-size",jDistrib.graph.labels.font_size+"px");var o=d3.select("#evaluate-size")[0][0].getBBox().width+jDistrib.graph.labels.padding;if(jDistrib.graph.labels.padding>e-3)l="";else for(;o>e-3;)l=l.substring(0,l.length-1),d3.select("#evaluate-size").text(l),o=d3.select("#evaluate-size")[0][0].getBBox().width+jDistrib.graph.labels.padding;d3.select("#evaluate-size").remove(),0!=l.length&&l.length<t.name.length&&(l=l.length>1?l.substring(0,l.length-1)+".":"")}l.length>0&&s.append("text").text(function(){return l}).attr("class","jDistrib-arc-label").style("font-size",jDistrib.graph.labels.font_size+"px").attr("dy",".35em").attr("text-anchor",function(){return jDistrib.graph._x(t.x+t.dx/2)>Math.PI?"end":"start"}).attr("transform",function(){var e=180*jDistrib.graph._x(t.x+t.dx/2)/Math.PI-90;return"rotate("+e+")translate("+(jDistrib.graph._y(t.y)+jDistrib.graph.labels.padding)+")rotate("+(e>90?-180:0)+")"}).on("click",function(){click(t)}).on("dblclick",function(){walkTo(t)}).on("mousemove",function(){displayTooltip(t)}).on("mouseout",function(){hideTooltip()})}},removeLabels=function(){d3.selectAll(jDistrib.pg_selector.sunburst+" .jDistrib-arc-label").remove(),d3.selectAll(jDistrib.pg_selector.sunburst+" .jDistrib-root-label").remove()},isChildOf=function(t,e){return t.depth<=e.depth?!1:t.depth-1==e.depth?t.parent==e:isChildOf(t.parent,e)},hideTooltip=function(){jDistrib.access.tooltip.transition().duration(500).style("opacity",0)},displayTooltip=function(t){jDistrib.access.tooltip.html(getTooltipContent(t)).style("left",d3.event.layerX+5+"px").style("top",d3.event.layerY-30+"px"),jDistrib.access.tooltip.transition().duration(200).style("opacity",.9)},getTooltipContent=function(t){return 0==jDistrib.tree.current_root.depth?t.name+": <b>"+(getSize(t)/jDistrib.tree.root_size*100).toFixed(3)+"%</b>":t.name+":<br />Total <b>"+(getSize(t)/jDistrib.tree.root_size*100).toFixed(3)+"%</b><br />"+jDistrib.tree.current_root.name+" <b>"+(getSize(t)/getSize(jDistrib.tree.current_root)*100).toFixed(3)+"%</b>"},walkTraceUpdate=function(t){var e=brancheSizes(t),r=d3.select(jDistrib.pg_selector.walktrace);r.selectAll(".jDistrib-walk-path").remove();for(var i=r.append("div").attr("class","jDistrib-walk-path"),n=0;n<e.length;n++){var s=i.append("div").attr("class","jDistrib-walk-rank").attr("style","background-color:var(--frogsColor);color:#fff");s.append("span").attr("class","jDistrib-walk-rank-name").html(e[n].name),0!=n&&s.append("span").attr("class","jDistrib-walk-rank-size").html((parseInt(e[n].size)/parseInt(e[n-1].size)*100).toFixed(1)),s.data([e[n].node]),s.on("click",function(){walkTo(d3.select(this)[0][0].__data__)})}i.append("div").attr("style","clear:both")},_setMenu=function(){d3.select(jDistrib.pg_selector.menu).append("label").attr("for","in-label-size").text("Font size: "),d3.select(jDistrib.pg_selector.menu).append("input").attr("id","in-label-size").attr("type","number").attr("min",1).attr("value",jDistrib.graph.labels.font_size).on("change",function(){d3.select("#in-color-depth")[0][0].value<1&&(d3.select("#in-color-depth")[0][0].value=1),changeLabelSize(d3.select("#in-label-size")[0][0].value)});var t=7;d3.select(jDistrib.pg_selector.menu).append("label").attr("for","in-color-depth").text("Colors start depth: "),d3.select(jDistrib.pg_selector.menu).append("input").attr("id","in-color-depth").attr("type","number").attr("min",1).attr("max",t).attr("value",jDistrib.graph.colors.start_depth).on("change",function(){d3.select("#in-color-depth")[0][0].value<1?d3.select("#in-color-depth")[0][0].value=1:d3.select("#in-color-depth")[0][0].value>t&&(d3.select("#in-color-depth")[0][0].value=t),changeColorDepth(d3.select("#in-color-depth")[0][0].value)})},changeLabelSize=function(t){jDistrib.graph.labels.font_size=t,removeLabels(),addLabels()},changeColorDepth=function(t){jDistrib.graph.colors.start_depth=t;var e=getColorsByFirstNodes(getRoot(jDistrib.tree.current_root));d3.select(jDistrib.pg_selector.sunburst+" g").selectAll("path").style("fill",function(t){return getColorToApply(t,e)})},clearDetails=function(){d3.select(jDistrib.pg_selector.detail).html(""),d3.select(jDistrib.pg_selector.detail).append("div").attr("class","jDistrib-empty-details").text("Click on an element to see more details.")},displayDetails=function(t){for(var e=brancheSizes(t),r="",i=0;i<e.length;i++){var n="";n+="<td>"+e[i].name+"</td>",n+='<td class="number">'+e[i].size+"</td>",0!=i?(n+='<td class="number">'+(parseInt(e[i].size)/parseInt(e[0].size)*100).toFixed(3)+"</td>",n+='<td class="number">'+(parseInt(e[i].size)/parseInt(e[i-1].size)*100).toFixed(3)+"</td>"):(n+="<td></td>",n+="<td></td>"),r+="<tr>"+n+"</tr>"}d3.select(jDistrib.pg_selector.detail).html('<table class="jDistrib-table-details">	<thead>		<tr>			<th>Name</th>			<th>Size</th>			<th>Global %</th>			<th>Parent %</th>		</tr>	</thead>	<tbody>'+r+"</tbody></table><p>"+t.name+" nb children: "+(void 0==t.children?0:t.children.length)+"</p>")},exportSVG=function(){console.log("export"),d3.select(jDistrib.pg_selector.sunburst+" .jDistrib-data-export").empty()&&d3.select(jDistrib.pg_selector.sunburst).append("a").attr("class","jDistrib-data-export").attr("href","").attr("download","").attr("style","display:none;");var t=d3.select(jDistrib.pg_selector.sunburst+" svg");console.log(t[0][0]),xml=(new XMLSerializer).serializeToString(t[0][0]),svg_data="data:application/octet-stream;base64,"+btoa(xml),d3.select(jDistrib.pg_selector.sunburst+" .jDistrib-data-export").attr("href",svg_data).attr("download","jDistribChart.svg"),jQuery(jDistrib.pg_selector.sunburst+" .jDistrib-data-export")[0].click()};
 		</script>
 		
 		<script type="text/javascript">
-			/**
-			Colors
-			*/
-			var root = document.documentElement;
-			var style = getComputedStyle(root);
-			var frogsColor = style.getPropertyValue('--frogsColor');
-			var frogsColor2 = style.getPropertyValue('--frogsColor2');
-			var frogsColor3 = style.getPropertyValue('--frogsColor3');
-			var frogsColor4 = style.getPropertyValue('--frogsColor4');
-			var frogsColorZoomHighCharts = style.getPropertyValue('--frogsColorZoomHighCharts');
-			var frogsColorHover = style.getPropertyValue('--frogsColorHover');
-			var frogsButtonColor = style.getPropertyValue('--frogsButtonColor');
-			var frogsCircleFontColor = style.getPropertyValue('--frogsCircleFontColor');
-				
-			Highcharts.setOptions({
-					 //colors : [frogsColor2, frogsColor],
-					 colors: [
-							"#769576", // Vert clair
-							"#D9A6A6", // Rose pâle
-							"#C0C099", // Jaune pâle
-							"#567330", // Vert olive
-							"#B0B061", // Jaune clair
-							"#94A1B2", // Bleu clair
-							"#B04D4D", // Rouge clair
-							"#E6A320", // Or
-							"#E67A5A", // Saumon clair
-							"#819CA5"  // Bleu clair
-						],
-					 lang: {thousandsSep: ','}
-					});
+			var pieChart_Clusters;
+			var pieChart_Abundance;
+			var boxplotChart;
+			var areaChart;
+			var heatmapChart;
+			var lineChart;
+			var pieChart_Clusters_options;
+			var pieChart_Abundance_options;
+			var boxplotChart_options;
+			var areaChart_options;
+			var heatmapChart_options;
+			var lineChart_options;
 			
-			function update_pie_plots_three(mainColor, secondColor, thirdColor, buttonColor, buttonColorHover){
-				try{
-					var chart = $('#abundance-filtered').highcharts();
-					chart.update({'colors':[mainColor,secondColor, thirdColor]});
-					chart.update({navigation:{
-						buttonOptions: {
-								theme: {
-									r: 4,
-									fill: buttonColor,
-									states: {
-										hover: {
-											fill: buttonColorHover,
-											stroke:buttonColor
-										},
-										select: {
-											stroke: buttonColor,
-											fill: buttonColorHover,
-										}
-									}
-								}
-							}
-						}
-					});
-					var chart = $('#nb-filtered').highcharts();
-					chart.update({'colors':[mainColor,secondColor, thirdColor]});
-					chart.update({navigation:{
-						buttonOptions: {
-								theme: {
-									r: 4,
-									fill: buttonColor,
-									states: {
-										hover: {
-											fill: buttonColorHover,
-											stroke:buttonColor
-										},
-										select: {
-											stroke: buttonColor,
-											fill: buttonColorHover,
-										}
-									}
-								}
-							}
-						}
-					});
-				} catch(err){}
+			function updateCharts(CURRENT_THEME) {
+				pieChart_Clusters = recreateChart(pieChart_Clusters, "nb-filtered", pieChart_Clusters_options, CURRENT_THEME, 600);
+				pieChart_Abundance = recreateChart(pieChart_Abundance, "abundance-filtered", pieChart_Abundance_options, CURRENT_THEME, 600);
+				if(boxplotChart_options) boxplotChart = recreateChart(boxplotChart, "boxplot-container", boxplotChart_options, CURRENT_THEME, 600);
+				if(areaChart_options) areaChart = recreateChart(areaChart, "sequences-distrib-chart", areaChart_options, CURRENT_THEME, 600);
+				//if(heatmapChart_options) heatmapChart = recreateChart(heatmapChart, "alignment-heatmap", heatmapChart_options, CURRENT_THEME, 600);
+				if (heatmapChart) {
+					let currentType = $('#heatmap-seq-btn').prop('disabled') ? 'seq' : 'clstr';
+					let heatmapChart_options = heatmapOption(currentType);
+					heatmapChart = recreateChart(heatmapChart, "alignment-heatmap", heatmapChart_options, CURRENT_THEME, 600);
+				}
+				if (lineChart_options) {
+					lineChart = recreateChart(lineChart, "alignment-heatmap", lineChart_options, CURRENT_THEME, 600);
+				}
 			}
-			
-			function update_rarefaction_plot(mainColor, secondColor, buttonColor, buttonColorHover){
-				try{
-						var chart = $('#rarefaction-chart').highcharts()
-						/*chart.update({
-								colors: ['#F3E796', '#95C471', '#35729E', '#251735']
-						});*/
-						chart.series.forEach(function (series, index) {
-							series.update({
-								color: chart.options.colors[index % chart.options.colors.length]
-							});
-						});
-						chart.update({navigation:{
-							buttonOptions: {
-								theme: {
-									r: 4,
-									fill: buttonColor,
-									states: {
-										hover: {
-											fill: buttonColorHover,
-											stroke:buttonColor
-										},
-										select: {
-											stroke: buttonColor,
-											fill: buttonColorHover,
-										}
-									}
-								}
-							}
-						}
-				});
-						
-					} catch(err){}
-			}
-			
-			function update_heamap(mainColor, buttonColor, buttonColorHover){
-				try{
-					var chart = $('#alignment-heatmap').highcharts();
-					chart.series[0].update({'color':mainColor});
-					chart.update({'colorAxis':{'maxColor':mainColor}});
-					chart.update({navigation:{
-							buttonOptions: {
-								theme: {
-									r: 4,
-									fill: buttonColor,
-									states: {
-										hover: {
-											fill: buttonColorHover,
-											stroke:buttonColor
-										},
-										select: {
-											stroke: buttonColor,
-											fill: buttonColorHover,
-										}
-									}
-								}
-							}
-						}});
-				} catch(err){}
-			}
-			
-			function update_theme(val){
-				if(val == "Coral" ){
-					/*
-					:root {
-						--frogsColor: #388697; 
-						--frogsColorHover: rgb(12,10,62,0.8);
-						--frogsColorShadow: #6c5b64;
-						--frogsColor2: #FA8883;
-						--frogsColor3: #EFC7C2;
-						--frogsColor4: #737f75;
-						--frogsColorZoomHighCharts: rgb(191,211,193,0.25);
-						--frogsButtonColor: rgb(105,79,93,0.6);
-						--frogsButtonBorderColor: rgb(12,10,62,0.6);
-						--frogsOddTable: rgba(249,86,79, 0.1);
-						--frogsCircleFontColor: #FFF;
-						--frogsCircleBackgroundColor: #FA8883;
-						--frogsCircleBorderColor: #FA8883;
-					}
-					*/
-					document.documentElement.style.setProperty('--frogsColor', "#388697");
-					document.documentElement.style.setProperty('--frogsColorHover', "rgb(12,10,62,0.8)");
-					document.documentElement.style.setProperty('--frogsColorShadow', "#6c5b64");
-					document.documentElement.style.setProperty('--frogsColor2', "#FA8883");
-					document.documentElement.style.setProperty('--frogsColor3', "#ffef99");
-					document.documentElement.style.setProperty('--frogsColor4', "#737f75");
-					document.documentElement.style.setProperty('--frogsColorZoomHighCharts', "rgb(191,211,193,0.25)");
-					document.documentElement.style.setProperty('--frogsButtonColor', "rgb(12,10,62,0.6)");
-					document.documentElement.style.setProperty('--frogsButtonBorderColor', "rgb(12,10,62,0.8)");
-					document.documentElement.style.setProperty('--frogsOddTable', "rgba(249,86,79, 0.1)");
-					document.documentElement.style.setProperty('--frogsCircleFontColor', "#FFF");
-					document.documentElement.style.setProperty('--frogsCircleBackgroundColor',"#FA8883");
-					document.documentElement.style.setProperty('--frogsCircleBorderColor',"#FA8883");
-					
-					var root = document.documentElement;
-					var style = getComputedStyle(root);
-					var frogsColor = style.getPropertyValue('--frogsColor');
-					var frogsColor2 = style.getPropertyValue('--frogsColor2');
-					var frogsColor3 = style.getPropertyValue('--frogsColor3');
-					var frogsColor4 = style.getPropertyValue('--frogsColor4');
-					var frogsColorZoomHighCharts = style.getPropertyValue('--frogsColorZoomHighCharts');
-					var frogsColorHover = style.getPropertyValue('--frogsColorHover');
-					var frogsButtonColor = style.getPropertyValue('--frogsButtonColor');
-					var frogsCircleFontColor = style.getPropertyValue('--frogsCircleFontColor');
-					var frogsColorShadow = style.getPropertyValue('--frogsColorShadow');
-					
-					update_pie_plots_three(frogsColor2, frogsColor, frogsColor3, frogsButtonColor, frogsColorHover);
-					update_heamap(frogsColor, frogsButtonColor, frogsColorHover);
-					update_rarefaction_plot(frogsColor, frogsColor2, frogsButtonColor, frogsColorHover);
-					
-				}else if(val == "Plum" ){
-					/*
-					:root {
-						--frogsColor: #694F5D; 
-						--frogsColorHover: rgb(105,79,93,0.8);
-						--frogsColorShadow: #6c5b64;
-						--frogsColor2: #BFD3C1;
-						--frogsColor3: #EFC7C2;
-						--frogsColor4: #737f75;
-						--frogsColorZoomHighCharts: rgb(222,159,115,0.25);
-						--frogsButtonColor: rgb(105,79,93,0.6);
-						--frogsButtonBorderColor: rgb(105,79,93,0.8);
-						--frogsOddTable: #f2f2f2;
-						--frogsCircleFontColor: #694F5D;
-						--frogsCircleBackgroundColor: #BFD3C1;
-						--frogsCircleBorderColor: #BFD3C1;
-					}*/
-					document.documentElement.style.setProperty('--frogsColor', "#694F5D");
-					document.documentElement.style.setProperty('--frogsColorHover', "rgb(105,79,93,0.8)");
-					document.documentElement.style.setProperty('--frogsColorShadow', "#6c5b64");
-					document.documentElement.style.setProperty('--frogsColor2', "#BFD3C1");
-					document.documentElement.style.setProperty('--frogsColor3', "#4f5d69");
-					document.documentElement.style.setProperty('--frogsColor4', "#737f75");
-					document.documentElement.style.setProperty('--frogsColorZoomHighCharts', "rgb(222,159,115,0.25)");
-					document.documentElement.style.setProperty('--frogsButtonColor', "rgb(105,79,93,0.6)");
-					document.documentElement.style.setProperty('--frogsButtonBorderColor', "rgb(105,79,93,0.8)");
-					document.documentElement.style.setProperty('--frogsOddTable', "#f2f2f2");
-					document.documentElement.style.setProperty('--frogsCircleFontColor', "#694F5D");
-					document.documentElement.style.setProperty('--frogsCircleBackgroundColor',"#BFD3C1");
-					document.documentElement.style.setProperty('--frogsCircleBorderColor',"#BFD3C1");
-					
-					var root = document.documentElement;
-					var style = getComputedStyle(root);
-					var frogsColor = style.getPropertyValue('--frogsColor');
-					var frogsColor2 = style.getPropertyValue('--frogsColor2');
-					var frogsColor3 = style.getPropertyValue('--frogsColor3');
-					var frogsColor4 = style.getPropertyValue('--frogsColor4');
-					var frogsColorZoomHighCharts = style.getPropertyValue('--frogsColorZoomHighCharts');
-					var frogsColorHover = style.getPropertyValue('--frogsColorHover');
-					var frogsButtonColor = style.getPropertyValue('--frogsButtonColor');
-					var frogsCircleFontColor = style.getPropertyValue('--frogsCircleFontColor');
-					var frogsColorShadow = style.getPropertyValue('--frogsColorShadow');
-					
-					update_pie_plots_three(frogsColor2, frogsColor, frogsColor3, frogsButtonColor, frogsColorHover);
-					update_heamap(frogsColor, frogsButtonColor, frogsColorHover);
-					update_rarefaction_plot(frogsColor, frogsColor2, frogsButtonColor, frogsColorHover);
-					
-				}else if(val == "FROGS4" ){
-					/*
-					:root {
-						--frogsColor: #8eadac; 
-						--frogsColorHover: #648a89;
-						--frogsColorShadow: #648a89;
-						--frogsColor2: #de9f73;
-						--frogsColor3: #ad8e9f;
-						--frogsColor4: #a2a32f;
-						--frogsColorZoomHighCharts: rgb(100, 138, 137, 0.25);
-						--frogsButtonColor: #8EADAC;
-						--frogsButtonBorderColor: #8EADAC;
-						--frogsOddTable: #f2f2f2;
-						--frogsCircleFontColor: #FFF;
-						--frogsCircleBackgroundColor: #8eadac;
-						--frogsCircleBorderColor: #648a89;
-					}*/
-					document.documentElement.style.setProperty('--frogsColor', "#8eadac");
-					document.documentElement.style.setProperty('--frogsColorHover', "#648a89");
-					document.documentElement.style.setProperty('--frogsColorShadow', "#648a89");
-					document.documentElement.style.setProperty('--frogsColor2', "#de9f73");
-					document.documentElement.style.setProperty('--frogsColor3', "#ad8e9f");
-					document.documentElement.style.setProperty('--frogsColor4', "#a2a32f");
-					document.documentElement.style.setProperty('--frogsColorZoomHighCharts', "rgb(100, 138, 137, 0.25)");
-					document.documentElement.style.setProperty('--frogsButtonColor', "#8EADAC");
-					document.documentElement.style.setProperty('--frogsButtonBorderColor', "#8EADAC");
-					document.documentElement.style.setProperty('--frogsOddTable', "#f2f2f2");
-					document.documentElement.style.setProperty('--frogsCircleFontColor', "#FFF");
-					document.documentElement.style.setProperty('--frogsCircleBackgroundColor',"#8eadac");
-					document.documentElement.style.setProperty('--frogsCircleBorderColor',"#648a89");
-					
-					var root = document.documentElement;
-					var style = getComputedStyle(root);
-					var frogsColor = style.getPropertyValue('--frogsColor');
-					var frogsColor2 = style.getPropertyValue('--frogsColor2');
-					var frogsColor3 = style.getPropertyValue('--frogsColor3');
-					var frogsColor4 = style.getPropertyValue('--frogsColor4');
-					var frogsColorZoomHighCharts = style.getPropertyValue('--frogsColorZoomHighCharts');
-					var frogsColorHover = style.getPropertyValue('--frogsColorHover');
-					var frogsButtonColor = style.getPropertyValue('--frogsButtonColor');
-					var frogsCircleFontColor = style.getPropertyValue('--frogsCircleFontColor');
-					var frogsColorShadow = style.getPropertyValue('--frogsColorShadow');
-					
-					update_pie_plots_three(frogsColor, frogsColor2, frogsColor3, frogsButtonColor, frogsColorHover);
-					update_heamap(frogsColor, frogsButtonColor, frogsColorHover);
-					update_rarefaction_plot(frogsColor, frogsColor2, frogsButtonColor, frogsColorHover);
-				 }
-			}
+
 			/**
 			 Data from HTML
 			*/
@@ -682,6 +174,7 @@
 			/*Example: Removed or Masked
 				"Removed"
 			*/
+			
 			var global_results = ###GLOBAL_RESULTS### ; 
 			/* Example: 
 				{
@@ -789,7 +282,7 @@
 					[90, 95, { "clstr": 1, "seq": 10 }],
 				]
 			*/
-			console.log(alignment_scores);
+			
 			var bootstrap_scores = ###BOOTSTRAP_SCORES### ;
 			/* Example:
 				{
@@ -821,253 +314,6 @@
 		        return new_val ;
 		    }
 		    
-		    /**
-			 * Returns hash use to init HightChart line. 
-			 * @param pTitle {String} The title of the chart.
-			 * @param pXTitle {String} The xAxis title.
-			 * @param pYTitle {String} The yAxis title.
-			 * @param pXCategories {Array} x scale labels.
-			 * @param pData {Array} The HightChart series.
-			 * @return {Hash} Parameters to use in Highchart's constructor.
-			 */
-			var lineplot_param = function(pTitle, pXTitle, pYTitle, pXCategories, pData) {
-				var chart = chartplot( pTitle, pXTitle, pYTitle, pXCategories, pData );
-				chart['chart'] = { 
-					type: 'line',
-                    zoomType: 'x',
-                    selectionMarkerFill: frogsColorZoomHighCharts,
-                    exporting:{buttons: {contextButton: { symbol: 'download' }}},
-					buttons: {contextButton: {menuItems: ['downloadPNG', 'downloadSVG']}},
-					navigation: {
-						buttonOptions: {
-							theme: {
-								r: 4,
-								fill: frogsColor,
-								states: {
-									hover: {
-										fill: frogsColorHover,
-										stroke:frogsColor
-									},
-									select: {
-										stroke: frogsColor,
-										fill: frogsColorHover,
-									}
-								}
-							}
-						}
-					}
-				};
-				chart['yAxis']['min'] = 0 ;
-				chart['legend'] = {'enabled': true};
-				chart['plotOptions'] = {
-					area: {
-						marker: {
-							enabled: true,
-							symbol: 'circle',radius:4,
-						}
-					}
-				};
-				return chart ;
-			}
-		    
-			/**
-			 * Returns the HTML table representation of the data. 
-			 * @param pTitle {String} The title of the table.
-			 * @param pCategories {Array} The title of each column.
-			 * @param pData {Array} 2D matrix with row and column data.
-			 * @return {String} The HTML table representation.
-			 */
-			var table = function( pTitle, pCategories, pData  ) {
-				// Header
-				var table_header = '' ;
-				var table_header_line = "" ;
-				for(var idx = 0 ; idx < pCategories.length ; idx++){
-					table_header_line += "      <th>" + pCategories[idx] + "</th>\n" ;
-				}
-				table_header += "    <tr>\n" + table_header_line + "    </tr>\n" ;
-				table_header = "  <thead>\n" + table_header + "  </thead>\n" ;
-				
-				// Body
-				var table_body = '' ;
-				for(var data_idx = 0 ; data_idx < pData.length ; data_idx++){
-					var table_body_row = "" ;
-					for(var category_idx = 0 ; category_idx < pCategories.length ; category_idx++){
-						if( typeof pData[data_idx][category_idx] === "number" ) {
-							table_body_row += "      <td>" + numberDisplay(pData[data_idx][category_idx]) + "</td>\n" ;
-						} else {
-							table_body_row += "      <td>" + pData[data_idx][category_idx] + "</td>\n" ;
-						}
-					}
-					table_body += "    <tr>\n" + table_body_row + "    </tr>\n" ;
-				}
-				table_body = "  <tbody>\n" + table_body + "  </tbody>\n" ;
-
-				return '<table class="table table-striped table-bordered">\n' + table_header + table_body + "</table>\n" ;
-			}
-			 
-			 /**
-			  * Returns hash use to init HightChart object (without 'type'). 
-			  * @param pTitle {String} The title of the chart.
-			  * @param pXTitle {String} The xAxis title.
-			  * @param pYTitle {String} The yAxis title.
-			  * @param pXCategories {Array} The title of each category (x scale labels).
-			  * @param pData {Array} The HightChart series.
-			  * @return {Hash} The hash.
-			  * @warning This method use HightChart xAxis.categories.
-			  */
-			 var chartplot = function( pTitle, pXTitle, pYTitle, pXCategories, pData ) {
-			 	var chart = {
-			 	        title: {
-			 	            text: pTitle
-			 	        },
-			 	        xAxis: {},
-			 	        yAxis: {
-			 	            title: {
-			 	                text: pYTitle
-			 	            }
-			 	        },
-			 	        series: pData,
-			 	        credits: {
-			 	        	enabled: false
-			 	        },
-			 	        exporting:{buttons: {contextButton: { symbol: 'download' }}},
-						buttons: {contextButton: {menuItems: ['downloadPNG', 'downloadSVG']}},
-						navigation: {
-							buttonOptions: {
-							theme: {
-								r: 4,
-								fill: frogsColor,
-								states: {
-									hover: {
-										fill: frogsColorHover,
-										stroke:frogsColor
-									},
-									select: {
-										stroke: frogsColor,
-										fill: frogsColorHover,
-									}
-								}
-							}
-						}
-						}
-			 	}
-			 	if( pXCategories != null ){
-			 		chart['xAxis']['categories'] = pXCategories ;
-			 	}
-			 	if( pXTitle != null ){
-			 		chart['xAxis']['title'] = { text: pXTitle } ;
-			 	}
-			 	if( pData.length <= 1 ) {
-			 		chart['legend'] = {'enabled': false};
-			 	} else {
-			 		chart['legend'] = {'enabled': true};
-			 	}
-			 	return chart ;
-			 }
-			
-			var pie_param = function( pTitle, pData, unity ) {
-				var series = [{
-	                type: 'pie',
-	                name: unity,
-	                data: pData
-            	}]
-				var plot = chartplot( pTitle, null, null, null, series );
-				plot['tooltip'] = {
-		            pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
-		        };
-				plot['plotOptions'] = {
-		            pie: {
-		                allowPointSelect: true,
-		                cursor: 'pointer',
-		                dataLabels: {
-		                    enabled: true,
-		                    useHTML : true,
-		                    formatter: function () {
-        		                return this.point.name + ' : ' + numberDisplay(this.point.y);
-		                    },
-		                    style: {
-		                        color: (Highcharts.theme && Highcharts.theme.contrastTextColor) || 'black'
-		                    }
-		                }
-		            }
-		        };
-				return plot ;
-			};
-
-			var global_filters_load = function(){
-				// Radializes colors
-				Highcharts.setOptions({
-					 colors : [frogsColor, frogsColor2, frogsColor3] ,
-					});
-					Highcharts.SVGRenderer.prototype.symbols.download = function (x, y, w, h) {
-					var path = [
-						// Arrow stem
-						'M', x + w * 0.5, y,
-						'L', x + w * 0.5, y + h * 0.7,
-						// Arrow head
-						'M', x + w * 0.3, y + h * 0.5,
-						'L', x + w * 0.5, y + h * 0.7,
-						'L', x + w * 0.7, y + h * 0.5,
-						// Box
-						'M', x, y + h * 0.9,
-						'L', x, y + h,
-						'L', x + w, y + h,
-						'L', x + w, y + h * 0.9
-					];
-					return path;
-				};
-				/* Radial gradient ?
-			    Highcharts.getOptions().colors = Highcharts.map(Highcharts.getOptions().colors, function (color) {
-			        return {
-			            radialGradient: { cx: 0.5, cy: 0.3, r: 0.7 },
-			            stops: [
-			                [0, color],
-			                [1, Highcharts.Color(color).brighten(-0.1).get('rgb')] // darken
-			            ]
-			        };
-			    });*/
-				
-				// Results by clusters
-				var nb_filtered_data = [
-					['Kept', global_results['cluster']['Kept']],
-					[mode, global_results['cluster'][mode]],
-					['Modified', global_results['cluster']['Modified']]
-				];
-				$('#nb-filtered').highcharts( pie_param('ASVs', nb_filtered_data, 'ASVs') );
-				
-				// Results by sequences
-				var abundance_filtered_data = [
-					['Kept', global_results['sequence']['Kept']],
-					[mode, global_results['sequence'][mode]],
-					['Modified', global_results['sequence']['Modified']]
-				];
-				$('#abundance-filtered').highcharts( pie_param('Abundance', abundance_filtered_data, 'Sequences') );
-
-
-				// Add taxon lost table
-				var taxon_lost_table_titles = $.merge( ["Affiliation method",], global_taxon_list );
-				var taxon_lost_table_data = new Array();
-				for( var method in global_taxon_lost ){
-					method_data = [method];
-					for( var taxon_idx=0 ; taxon_idx < global_taxon_list.length ; taxon_idx++ ){
-						if (global_taxon_lost[method][global_taxon_list[taxon_idx]].length  == 2){
-							s = numberDisplay(global_taxon_lost[method][global_taxon_list[taxon_idx]][0]);
-							if (global_taxon_lost[method][global_taxon_list[taxon_idx]][1] > 0){
-								s += ' ( including  ' + numberDisplay(global_taxon_lost[method][global_taxon_list[taxon_idx]][1]) +' multi-affiliation(s) ) ' ;
-							}
-							method_data.push( s);
-						}else{
-							method_data.push( numberDisplay(global_taxon_lost[method][global_taxon_list[taxon_idx]]))
-						}
-					}
-					taxon_lost_table_data.push( method_data );
-				}
-				$('#taxon_lost').append( table("Taxon lost table", taxon_lost_table_titles, taxon_lost_table_data) );
-				$('#taxon_lost table').prop( 'id', 'details-table' );
-				$('#taxon_lost table').DataTable({
-					"dom": 't'
-				});
-			}
 			
 			var intersections_filters_load = function(){
 				// Set filters in selection list
@@ -1150,95 +396,246 @@
 				});
 			}
 			
-			var samples_filters_load = function( container_id ){
-				var sample_table_titles = $.merge( ["Sample name", "Initial", "Kept"], processed_filters );
-				var sample_table_data = new Array();
-				for( var sample in by_samples_results ){
-					sample_data = [sample, by_samples_results[sample]['initial'], by_samples_results[sample]['kept']] ;
-					for( var filter_idx=0 ; filter_idx < processed_filters.length ; filter_idx++ ){
-						if( by_samples_results[sample]['filtered'].hasOwnProperty(processed_filters[filter_idx]) ){
-							sample_data.push( by_samples_results[sample]['filtered'][processed_filters[filter_idx]] );
+			
+
+			var samples_filters_load = function(container_id) {
+				// Titres des colonnes
+				var sample_table_titles = $.merge(["Sample name", "Initial", "Kept"], processed_filters);
+
+				// Construction des données du tableau
+				var sample_table_data = [];
+				for (var sample in by_samples_results) {
+					var sample_data = [
+						sample,
+						by_samples_results[sample]['initial'],
+						by_samples_results[sample]['kept']
+					];
+
+					for (var filter_idx = 0; filter_idx < processed_filters.length; filter_idx++) {
+						var filter_name = processed_filters[filter_idx];
+						if (by_samples_results[sample]['filtered'].hasOwnProperty(filter_name)) {
+							sample_data.push(by_samples_results[sample]['filtered'][filter_name]);
 						} else {
-							sample_data.push( 0 );
+							sample_data.push(0);
 						}
 					}
-					sample_table_data.push( sample_data );
+
+					sample_table_data.push(sample_data);
 				}
-				$('#' + container_id).append( table("ASVs removed by sample", sample_table_titles, sample_table_data) );
-				$('#' + container_id + ' table').prop( 'id', 'details-table' );
-				$('#' + container_id + ' table').DataTable({
-					dom: 	"<'#details-csv-export'><'row'<'col-sm-5'l><'col-sm-7'f>>" +
-							"<'row'<'col-sm-12'tr>>" +
-							"<'row'<'col-sm-5'i><'col-sm-7'p>>"
-				});
-				$('#details-csv-export').html( '<button class="btn"><span class="fa fa-download" aria-hidden="true"> CSV</span></button>' );
-				$('#details-csv-export').addClass( 'dataTables_filter' );
-				$('#details-csv-export').datatableExport({
-					'table_id': "details-table"
-				});
+
+				// Création du tableau avec Bootstrap Table
+				$('#' + container_id).html( table("Filters by sample", ["Sample name", "Initial", "Kept"], sample_table_data) );
+				$('#' + container_id + ' table').prop( 'id', 'samples-table' );
+				$('#samples-table').bootstrapTable();
+
 			}
 			
-			/**
-			 * Add listener to update content of rarefaction-modal.
-			 */
-			var add_rarefaction_listeners = function() {				
-				$('#rarefaction-modal').on('shown.bs.modal', function (e) { // Draw curves when modal is shown
-					// Select data
-					var selected_level = $('#rarefaction-level').val() ;
-					var selected_series = new Array();
-					$('input[id^="taxBySample-chk-"]').each( function(){
-						if( $(this).is(':checked')){
-							var selected_sample = $(this).prop('id').substring(16, $(this).prop('id').length) ;
-							var series_data = new Array([0, 0]); // Add the zero point to curve
-							for( var sampling_idx = 0 ; sampling_idx < rarefaction[selected_sample][selected_level].length ; sampling_idx++ ){
-								series_data.push([
-									(sampling_idx+1)*rarefaction_step, 
-									rarefaction[selected_sample][selected_level][sampling_idx]
-								]);
-							}
-							selected_series.push({
-								'name': selected_sample,
-								'data': series_data
-							});
+
+			/*var add_rarefaction_listeners = function() {
+				$('#rarefaction-modal').on('shown.bs.modal', function (e) {
+					// --- Récupère le niveau sélectionné ---
+					const selected_level = $('#rarefaction-level').val();
+
+					// --- Récupère les lignes sélectionnées dans la table ---
+					const selectedRows = $('#taxBySample-table').bootstrapTable('getSelections');
+					if (selectedRows.length === 0) {
+						console.warn("No samples selected for rarefaction.");
+						return;
+					}
+
+					// --- Construit les séries pour ECharts ---
+					let selected_series = [];
+					selectedRows.forEach(row => {
+						const selected_sample = row.col0;
+						const sample_rarefaction = rarefaction[selected_sample][selected_level];
+
+						if (!sample_rarefaction) return;
+
+						// Ajoute le point d'origine [0,0] + les points successifs
+						const series_data = [[0, 0]];
+						for (let i = 0; i < sample_rarefaction.length; i++) {
+							series_data.push([
+								(i + 1) * rarefaction_step,
+								sample_rarefaction[i]
+							]);
 						}
+
+						selected_series.push({
+							name: selected_sample,
+							type: 'line',
+							showSymbol: false,
+							data: series_data,
+							smooth: true
+						});
 					});
-					
-					// Draw chart
-					$('#rarefaction-chart').highcharts( lineplot_param("Rarefaction curves", "Nb sampled sequences", "Nb " + selected_level, null, selected_series) );
-					var frogsColor = style.getPropertyValue('--frogsColor');
-					var frogsColor2 = style.getPropertyValue('--frogsColor2');
-					var frogsColorHover = style.getPropertyValue('--frogsColorHover');
-					var frogsButtonColor = style.getPropertyValue('--frogsButtonColor');
-					update_theme($("#themechoice").val());
-					update_lengths_plots(frogsColor, frogsColor2, frogsButtonColor, frogsColorHover);
+
+					// --- Nettoie le graphique précédent ---
+					const chartDom = document.getElementById('rarefaction-chart');
+					if (!chartDom) return;
+					const myChart = echarts.init(chartDom);
+					myChart.clear();
+
+					// --- Couleurs du thème ---
+					const style = getComputedStyle(document.documentElement);
+					const frogsColor = style.getPropertyValue('--frogsColor').trim();
+					const frogsColor2 = style.getPropertyValue('--frogsColor2').trim();
+					const frogsColorHover = style.getPropertyValue('--frogsColorHover').trim();
+
+					// --- Options ECharts ---
+					const option = {
+						title: {
+							text: 'Rarefaction curves',
+							left: 'center',
+							textStyle: {
+								color: frogsColor,
+								fontSize: 16
+							}
+						},
+						tooltip: {
+							trigger: 'axis'
+						},
+						legend: {
+							type: 'scroll',
+							orient: 'vertical',
+							bottom: 20,
+							height: 100,
+							pageButtonGap: 5 // espace entre les boutons de navigation
+						},
+						grid: {
+							left: '10%',
+							right: '10%',
+							bottom: '40%',
+							containLabel: true
+						},
+						xAxis: {
+							name: 'Nb sampled sequences',
+							type: 'value',
+							nameLocation: 'middle',
+							nameGap: 30,
+							axisLine: { lineStyle: { color: frogsColor2 } },
+							nameTextStyle: { color: frogsColor2 }
+						},
+						yAxis: {
+							name: 'Nb ' + selected_level,
+							type: 'value',
+							nameLocation: 'middle',
+							nameGap: 40,
+							axisLine: { lineStyle: { color: frogsColor2 } },
+							nameTextStyle: { color: frogsColor2 }
+						},
+						dataZoom: [
+							{
+								type: 'inside',   // zoom à la molette ou pinch
+								xAxisIndex: 0,
+								filterMode: 'filter'
+							}
+						],
+						series: selected_series,
+						color: [frogsColor, frogsColor2, frogsColorHover]
+					};
+
+					// --- Affiche le graphique ---
+					myChart.setOption(option);
+					window.addEventListener('resize', () => myChart.resize());
 				});
-			}
+			};
+			*/
+
+			var add_rarefaction_listeners = function() {
+				$('#rarefaction-modal').on('shown.bs.modal', function (e) {
+					// --- Récupère le niveau sélectionné ---
+					const selected_level = $('#rarefaction-level').val();
+
+					// --- Récupère les lignes sélectionnées dans la table ---
+					const selectedRows = $('#taxBySample-table').bootstrapTable('getSelections');
+					if (selectedRows.length === 0) {
+					console.warn("No samples selected for rarefaction.");
+					return;
+					}
+
+					// --- Construit les séries pour ECharts ---
+					let selected_series = [];
+					selectedRows.forEach(row => {
+					const selected_sample = row.col0;
+					const sample_rarefaction = rarefaction[selected_sample][selected_level];
+
+					if (!sample_rarefaction) return;
+
+					// Ajoute le point d'origine [0,0] + les points successifs
+					const series_data = [[0, 0]];
+					for (let i = 0; i < sample_rarefaction.length; i++) {
+						series_data.push([
+						(i + 1) * rarefaction_step,
+						sample_rarefaction[i]
+						]);
+					}
+
+					selected_series.push({
+						name: selected_sample,
+						data: series_data
+					});
+					});
+
+					// --- Nettoie le graphique précédent ---
+					lineChart = echarts.init(document.getElementById("rarefaction-chart"),CURRENT_THEME,{renderer: 'svg', height:600});
+					//lineChart.clear();
+
+					// --- Crée l'option via ta fonction générique ---
+					const option = lineOption(
+					'Rarefaction curves',
+					'Nb sampled sequences',
+					'Nb ' + selected_level,
+					null, // pas de catégories X (on est en valeurs continues)
+					selected_series
+					);
+
+					// --- Applique les couleurs du thème (facultatif mais conseillé) ---
+					const style = getComputedStyle(document.documentElement);
+					const frogsColor = style.getPropertyValue('--frogsColor').trim();
+					const frogsColor2 = style.getPropertyValue('--frogsColor2').trim();
+					const frogsColorHover = style.getPropertyValue('--frogsColorHover').trim();
+
+					option.title.textStyle = { color: frogsColor, fontSize: 16 };
+					option.xAxis.axisLine = { lineStyle: { color: frogsColor2 } };
+					option.yAxis.axisLine = { lineStyle: { color: frogsColor2 } };
+					option.color = [frogsColor, frogsColor2, frogsColorHover];
+
+					// --- Affiche le graphique ---
+					lineChart.setOption(option);
+					window.addEventListener('resize', () => lineChart.resize());
+				});
+				};
 			
 			/**
 			 * Add listener to update content of sunburst-modal.
 			 */
-			var add_sunburst_listeners = function() {
-				$('#sunburst-modal').on('shown.bs.modal', function (event) { // Draw sunburst when modal is shown
-					// Clean previous chart
-					$('#sunburst-graph').empty() ;
-					$('#sunburst-walktrace').empty() ;
-					$('#sunburst-menu').empty() ;
-					$('#sunburst-detail').empty() ;
+			 var add_sunburst_listeners = function() {
+				$('#sunburst-modal').on('shown.bs.modal', function (event) {
+					// --- Nettoyage du contenu précédent ---
+					$('#sunburst-graph').empty();
+					$('#sunburst-walktrace').empty();
+					$('#sunburst-menu').empty();
+					$('#sunburst-detail').empty();
 
-					// Select data
-					var tree = ExtendedNode.fromNewick( tree_distribution );
-					if( event.relatedTarget.id == "display-spl-sunburst" ){
-						var selected_samples = new Array();
-						$('input[id^="taxBySample-chk-"]').each( function(){
-							if( $(this).is(':checked')){
-								var sample_name = $(this).prop('id').substring(16, $(this).prop('id').length) ;
-								selected_samples.push( samples_names.indexOf(sample_name) );
-							}
+					// --- Création du tree complet ---
+					let tree = ExtendedNode.fromNewick(tree_distribution);
+
+					// --- Si le bouton "Display distribution" est celui qui a déclenché ---
+					if (event.relatedTarget.id === "display-spl-sunburst") {
+						// Récupère les lignes sélectionnées dans la table
+						const selectedRows = $('#taxBySample-table').bootstrapTable('getSelections');
+
+						// Extrait les noms d'échantillons (col0)
+						const selected_samples = selectedRows.map(row => {
+							return samples_names.indexOf(row.col0); // correspondance par nom
 						});
-						tree.keepOnlySamples( selected_samples );
+
+						// Restreint le tree aux échantillons sélectionnés
+						tree.keepOnlySamples(selected_samples);
 					}
-					// Draw chart
-					cJDistrib( 
+
+					// --- Dessin du graphique Sunburst ---
+					cJDistrib(
 						tree.toJson(),
 						{
 							"pg_selector": {
@@ -1250,19 +647,19 @@
 							"graph": {
 								"sunburst": {
 									"width": Math.min($("#sunburst-graph").width(), $(window).height()),
-									"height": Math.min($("#sunburst-graph").width(), $(window).height()),
+									"height": Math.min($("#sunburst-graph").width(), $(window).height())
 								},
 								"colors": {
 									"start_depth": 2
 								}
-							},
+							}
 						}
 					);
 
-					// Center sunburst
-					$("#sunburst-graph").width( Math.min($("#sunburst-graph").width(), $(window).height()) );
+					// --- Ajuste la taille du conteneur pour centrer le graphique ---
+					$("#sunburst-graph").width(Math.min($("#sunburst-graph").width(), $(window).height()));
 				});
-			}
+			};
 			
 			/**
 			 * Returns from alignment data an hash formatted to use in heatmap series.
@@ -1340,101 +737,148 @@
 				return displayed_categories ;
 			}
 			
-			/**
-			 * Returns hash use to init an HightChart heatmap with alignment distribution.
-			 * @param data_type {String} The type of count ('seq' or 'clstr') [default: clstr].
-			 * @return {Hash} The hash.
-			 */
-			var alignment_param = function( data_type ){
-				if( data_type == null ){ data_type = "clstr" ; }
+
+			var alignment_score_load = function(container_id) {
+				console.log("IN alignment score load")
+				heatmapChart_options = heatmapOption("clstr");
+				// Initialisation des graphiques avec ECharts
+				heatmapChart = echarts.init(document.getElementById(container_id),CURRENT_THEME,{renderer: 'svg', height:600})
 				
-				// Parameters
+				heatmapChart.setOption(heatmapChart_options);
+				
+				//var myChart = echarts.init(document.getElementById(container_id),CURRENT_THEME,{renderer: 'svg', height:600});
+				//myChart.setOption(alignment_param()); // Aff
+				$('#heatmap-clstr-btn').on('click', function (e) {
+					$('#heatmap-seq-btn').prop('disabled', false );
+					$('#heatmap-clstr-btn').prop('disabled', true );
+					heatmapChart_options = heatmapOption("clstr");
+					heatmapChart.setOption(heatmapChart_options);
+				});
+				$('#heatmap-seq-btn').on('click', function (e) {
+					$('#heatmap-clstr-btn').prop('disabled', false);
+					$('#heatmap-seq-btn').prop('disabled', true);
+					heatmapChart_options = heatmapOption("seq");
+					heatmapChart.setOption(heatmapChart_options);
+				});
+			}
+
+			// Fonction de génération des options pour ECharts
+			var alignment_param = function(data_type) {
+				if (data_type == null) data_type = "clstr";
+
 				var clean_type = {
 					"clstr": "ASVs",
 					"seq": "sequences"
-				}
+				};
+
 				var categories_ident = [1, 50, 80, 90, 95, 99, 100, 101];
 				var categories_cover = [1, 50, 80, 90, 95, 99, 100, 101];
 
-				// Chart
-				var chart = {
-					chart: {
-						type: 'heatmap'
-					},
+				var heatmap_data = get_alignment_heatmap_data(categories_ident, categories_cover, data_type)
+					.map(function(item) {
+						// ECharts attend [x, y, value] avec x = index colonne, y = index ligne
+						return [item[0], item[1], item[2] || 0];
+					});
+				frogsColor = style.getPropertyValue('--frogsColor').trim();
+				var option = {
 					title: {
-						text: 'Number of ' + clean_type[data_type] + ' among their alignment results'
+						text: 'Number of ' + clean_type[data_type] + ' among their alignment results',
+						left: 'center'
 					},
-					exporting:{buttons: {contextButton: { symbol: 'download' }}},
-					buttons: {contextButton: {menuItems: ['downloadPNG', 'downloadSVG']}},
-					navigation: {
-						buttonOptions: {
-							theme: {
-								r: 4,
-								fill: frogsColor,
-								states: {
-									hover: {
-										fill: frogsColorHover,
-										stroke:frogsColor
-									},
-									select: {
-										stroke: frogsColor,
-										fill: frogsColorHover,
-									}
-								}
-							}
+					label: {
+						show: true,
+						color: '#000',               // couleur du texte
+						fontSize: 12,
+						formatter: function(params) {
+							return params.data[2];   // afficher la valeur
+						},
+						textBorderColor: '#ffffff',  // contour blanc
+						textBorderWidth: 2           // épaisseur du contour
+					},
+					tooltip: {
+						position: 'top',
+						formatter: function(params) {
+							return 'Identity: <b>' + categories_ident[params.data[0]] + '</b><br>'
+								+ 'Coverage: <b>' + categories_cover[params.data[1]] + '</b><br>'
+								+ 'Nb ' + clean_type[data_type] + ': <b>' + params.data[2] + '</b>';
 						}
 					},
-					xAxis: { 
-						categories: get_displayed_categories(categories_ident),
-						title: {text: 'Identity'}, 
-					}, 
+					grid: {
+						height: '70%',
+						width: '70%',
+						top: '15%'
+					},
+					xAxis: {
+						type: 'category',
+						data: get_displayed_categories(categories_ident),
+						name: 'Identity',
+						nameLocation: 'middle',
+						nameGap: 30,
+					},
 					yAxis: {
-						categories: get_displayed_categories(categories_cover),
-						title: {text: 'Coverage'}, 
+						type: 'category',
+						data: get_displayed_categories(categories_cover),
+						name: 'Coverage',
+						nameLocation: 'middle',
+						nameGap: 50,
 					},
-					colorAxis: {
+					visualMap: {
 						min: 0,
-						minColor: '#FFFFFF',
-						maxColor: frogsColor
+						max: Math.max(...heatmap_data.map(d => d[2])),
+						calculable: false,           // pas de slider
+						orient: 'vertical',
+						left: 'right',
+						top: 'center',
+						inRange: {
+							color: ['#ffffff', frogsColor]
+						},
+						show: true,
+						text: [
+							Math.max(...heatmap_data.map(d => d[2])), // label max en haut
+							0                                         // label min en bas
+						],
+						textStyle: {
+							color: frogsColor,
+							fontSize: 12
+						}
 					},
-					legend: {
-						align: 'right',
-						layout: 'vertical',
-						margin: 0,
-						verticalAlign: 'top',
-						y: 25,
-						symbolHeight: 280
-					},
-					tooltip: { 
-						formatter: function () {
-							return 'Identity: <b>' + this.series.xAxis.categories[this.point.x] + '</b><br>'
-								+ ' Coverage: <b>' + this.series.yAxis.categories[this.point.y] + '</b><br>'
-								+ ' Nb ' + clean_type[data_type] + ': <b>' + ((this.point.value == "") ? 0 : this.point.value) + '</b>' ;
-						} 
-					},
-					credits: {enabled: false},
-					/*exporting: {
-						sourceHeight: 400,
-						sourceWidth: 850
-					},*/
+					
 					series: [{
 						name: clean_type[data_type],
-						borderWidth: 1,
-						data: get_alignment_heatmap_data( categories_ident, categories_cover, data_type ),
-						dataLabels: {
-							enabled: true,
-							color: '#000000'
+						type: 'heatmap',
+						data: heatmap_data,
+						label: {
+							show: true,
+							color: '#000'
+						},
+						itemStyle: {
+							borderColor: frogsColor, // couleur du contour
+							borderWidth: 1        // épaisseur du contour en pixels
+						},
+						emphasis: {
+							itemStyle: {
+								shadowBlur: 10,
+								shadowColor: 'rgba(0,0,0,0.5)'
+							}
 						}
-					}]
+					}],
+					toolbox: {
+						feature: {
+							saveAsImage: {}
+						},
+						right: '10%',
+						top: 'top'
+					}
 				};
-				
-				return chart ;
+
+				return option;
 			}
 			
 			/**
 			 * Loads content of "taxonomy distribution" nav.
 			 * @param cotainer_id {String} The ID of the content where the information will be added.
 			 */
+			/*
 			var taxBySample_load = function( container_id ) {
 				// Table titles
 				//var titles = [ '<input id="taxBySample-check-all" type="checkbox" value="1">', "Samples" ];
@@ -1527,13 +971,290 @@
 				// Add listeners
 				add_sunburst_listeners() ;
 				add_rarefaction_listeners() ;
-			}
+			}*/
+
+			/*var taxBySample_load = function(container_id) {
+				// Table titles
+				var titles = [
+					'<label class="container"><input type="checkbox" id="taxBySample-check-all" value="1"><span class="checkmark"></span></label>',
+					'Samples'
+				];
+				for (var rank = 0; rank < taxonomy_ranks.length; rank++) {
+					titles.push("Nb " + taxonomy_ranks[rank].toLowerCase());
+				}
+				titles.push("Nb asv", "Nb sequences");
+
+				// Construction des données
+				var table_data = [];
+				for (var sample_idx = 0; sample_idx < samples_names.length; sample_idx++) {
+					var sample_name = samples_names[sample_idx];
+					var tree = ExtendedNode.fromNewick(tree_distribution);
+					tree.keepOnlySamples([sample_idx]);
+
+					var row = [
+						'<label class="container"><input type="checkbox" id="taxBySample-chk-' + sample_name + '" value="1"></label>',
+						sample_name
+					];
+
+					for (var rank = 0; rank < taxonomy_ranks.length; rank++) {
+						row.push(numberDisplay(tree.getNodeByDepth(rank + 1).length));
+					}
+					row.push(numberDisplay(rarefaction[sample_name]['nb_asv']));
+					row.push(numberDisplay(rarefaction[sample_name]['nb_seq']));
+
+					table_data.push(row);
+				}
+
+				// Création du tableau avec Bootstrap Table
+				$('#' + container_id).html(table("Taxonomy by sample", titles, table_data));
+				$('#' + container_id + ' table').prop('id', 'taxBySample-table');
+				$('#taxBySample-table').bootstrapTable({
+					sortable: true,
+					search: true,
+					pagination: true,
+					pageSize: 10,
+					pageList: [10, 25, 50, 100, 'All'],
+					columns: [] // les colonnes sont déjà dans le HTML
+				});
+
+				// Gestion des checkboxes
+				$('input[id^="taxBySample-check-all"]').on('change', updateTaxButtonState);
+				$('input[id^="taxBySample-chk-"]').on('change', updateTaxButtonState);
+
+				$('#taxBySample-check-all').on('click', function() {
+					var checked = $(this).is(':checked');
+					$('input[id^="taxBySample-chk-"]').prop('checked', checked);
+				});
+
+				$('input[id^="taxBySample-chk-"]').on('change', function() {
+					if (!$(this).is(':checked') && $('#taxBySample-check-all').is(':checked')) {
+						$('#taxBySample-check-all').prop('checked', false);
+					}
+				});
+
+				// Rarefaction select options
+				var select_lvl_options = "";
+				$.each(rarefaction_ranks, function(idx, level) {
+					if (level != "nb_seq") {
+						select_lvl_options += '<option value="' + level + '">' + level.charAt(0).toUpperCase() + level.slice(1) + '</option>';
+					}
+				});
+				$('#rarefaction-level').html(select_lvl_options);
+
+				// Listeners supplémentaires
+				add_sunburst_listeners();
+				add_rarefaction_listeners();
+			}*/
+
+			var taxBySample_load = function(container_id) {
+				// --- Titres / Colonnes dynamiques ---
+				let titles = ["Sample name"];
+				taxonomy_ranks.forEach(rank => {
+					titles.push("Nb " + rank.toLowerCase());
+				});
+				titles.push("Nb ASV", "Nb sequences");
+
+				let columns = [];
+
+				// 1) colonne checkbox (plugin bootstrap-table)
+				columns.push({
+					checkbox: true,
+					field: 'state',
+					align: 'center',
+					valign: 'middle',
+					width: 30
+				});
+
+				// 2) colonnes de données : col0, col1, ...
+				titles.forEach((title, idx) => {
+					columns.push({
+						field: 'col' + idx,
+						title: title,
+						sortable: true
+					});
+				});
+
+				// --- Construction des lignes (objets) ---
+				let rows = [];
+				for (let sample_idx = 0; sample_idx < samples_names.length; sample_idx++) {
+					let sample_name = samples_names[sample_idx];
+					let tree = ExtendedNode.fromNewick(tree_distribution);
+					tree.keepOnlySamples([sample_idx]);
+
+					let row = { state: false }; // state pour la checkbox
+
+					// col0 = sample name
+					row['col0'] = sample_name;
+
+					// colonnes taxonomiques
+					for (let rank = 0; rank < taxonomy_ranks.length; rank++) {
+						// getNodeByDepth(rank+1).length -> entier
+						row['col' + (rank + 1)] = numberDisplay(tree.getNodeByDepth(rank + 1).length);
+					}
+
+					// Nb ASV et Nb sequences
+					row['col' + (taxonomy_ranks.length + 1)] = numberDisplay(rarefaction[sample_name]['nb_asv']);
+					row['col' + (taxonomy_ranks.length + 2)] = numberDisplay(rarefaction[sample_name]['nb_seq']);
+
+					rows.push(row);
+				}
+
+				// --- Création du <table> dans le container et initialisation bootstrapTable ---
+				// on met un <table> vide (bootstrapTable s'initialise dessus)
+				$('#' + container_id).html('<table id="taxBySample-table" class="table table-striped"></table>');
+
+				// destroy si existant puis init
+				$('#taxBySample-table').bootstrapTable('destroy');
+				$('#taxBySample-table').bootstrapTable({
+					columns: columns,
+					data: rows,
+					search: true,
+					pagination: true,
+					pageSize: 10,
+					pageList: [10, 25, 50, 100, 'All'],
+					showExport: true,
+					exportTypes: ['excel', 'csv']
+				});
+
+				// --- Activation des boutons "With selection" (div externe) ---
+				// écouter sur la table (événements fournis par bootstrap-table)
+				$('#taxBySample-table').on('check.bs.table uncheck.bs.table check-all.bs.table uncheck-all.bs.table', function () {
+					const selected = $('#taxBySample-table').bootstrapTable('getSelections');
+					const anySelected = selected.length > 0;
+					$('#display-rarefaction').prop('disabled', !anySelected);
+					$('#display-spl-sunburst').prop('disabled', !anySelected);
+				});
+
+				// --- Sélecteur de rarefaction ---
+				let select_lvl_options = "";
+				$.each(rarefaction_ranks, function(idx, level) {
+					if (level != "nb_seq") {
+						select_lvl_options += '<option value="' + level + '">' + level.charAt(0).toUpperCase() + level.slice(1) + '</option>';
+					}
+				});
+				$('#rarefaction-level').html(select_lvl_options);
+
+				// --- Listeners pour modales (réutilise tes fonctions existantes) ---
+				add_sunburst_listeners();
+				add_rarefaction_listeners();
+			};
+
+
+			/*var taxBySampleLoad = function(checkBox = true) {
+				// --- Colonnes dynamiques ---
+				let titles = ['Sample name'];
+				taxonomy_ranks.forEach(rank => titles.push('Nb ' + rank.toLowerCase()));
+				titles.push('Nb asv', 'Nb sequences');
+
+				let columns = [];
+
+				// 1ère colonne : checkbox (plugin)
+				if (checkBox) {
+					columns.push({
+						checkbox: true,
+						field: 'state',
+						align: 'center',
+						valign: 'middle',
+						width: 30
+					});
+				}
+
+				// Colonnes restantes
+				titles.forEach((title, idx) => {
+					columns.push({
+						field: 'col' + idx,
+						title: title,
+						sortable: true
+					});
+				});
+
+				// --- Construction des lignes ---
+				let rows = [];
+				for (let sample_idx = 0; sample_idx < samples_names.length; sample_idx++) {
+					let sample_name = samples_names[sample_idx];
+					let tree = ExtendedNode.fromNewick(tree_distribution);
+					tree.keepOnlySamples([sample_idx]);
+
+					let row = { state: false };
+					row['col0'] = sample_name;
+
+					// Colonnes taxonomie
+					for (let rank_idx = 0; rank_idx < taxonomy_ranks.length; rank_idx++) {
+						let rank_size = tree.getNodeByDepth(rank_idx + 1).length;
+						row['col' + (rank_idx + 1)] = numberDisplay(rank_size);
+					}
+
+					// Nb asv
+					row['col' + (taxonomy_ranks.length + 1)] = numberDisplay(rarefaction[sample_name]['nb_asv']);
+					// Nb sequences
+					row['col' + (taxonomy_ranks.length + 2)] = numberDisplay(rarefaction[sample_name]['nb_seq']);
+
+					rows.push(row);
+				}
+
+				// --- Init table ---
+				$('#taxBySample-table').bootstrapTable('destroy');
+				$('#taxBySample-table').bootstrapTable({
+					columns: columns,
+					data: rows,
+					search: true,
+					pagination: true,
+					pageSize: 10,
+					pageList: [5, 10, 20, 50, 'All'],
+					showExport: true,
+					exportTypes: ['excel', 'csv']
+				});
+
+				// --- Activation boutons ---
+				$('#taxBySample-table').on('check.bs.table uncheck.bs.table check-all.bs.table uncheck-all.bs.table', function() {
+					const selected = $('#taxBySample-table').bootstrapTable('getSelections');
+					const anySelected = selected.length > 0;
+					$('#display-rarefaction').prop('disabled', !anySelected);
+					$('#display-spl-sunburst').prop('disabled', !anySelected);
+				});
+
+				// --- Modal sunburst ---
+				$('#sunburst-modal').off('shown.bs.modal').on('shown.bs.modal', function(event) {
+					$('#sunburst-graph, #sunburst-walktrace, #sunburst-menu, #sunburst-detail').empty();
+					let tree = ExtendedNode.fromNewick(tree_distribution);
+
+					if (event.relatedTarget && event.relatedTarget.id === "display-spl-sunburst") {
+						let selected_samples = [];
+						$('input[id^="taxBySample-chk-"]').each(function() {
+							if ($(this).is(':checked')) {
+								let sample_name = $(this).prop('id').substring(16);
+								selected_samples.push(samples_names.indexOf(sample_name));
+							}
+						});
+						tree.keepOnlySamples(selected_samples);
+					}
+
+					cJDistrib(
+						tree.toJson(),
+						{
+							pg_selector: {
+								sunburst: "#sunburst-graph",
+								walktrace: "#sunburst-walktrace",
+								menu: "#sunburst-menu",
+								detail: "#sunburst-detail"
+							},
+							graph: {
+								sunburst: {
+									width: Math.min($("#sunburst-graph").width(), $(window).height()),
+									height: Math.min($("#sunburst-graph").width(), $(window).height())
+								},
+								colors: { start_depth: 2 }
+							}
+						}
+					);
+				});
+			};*/
 			
 			/**
 			 * Loads content of "alignment distribution" nav.
 			 * @param cotainer_id {String} The ID of the content where the information will be added.
 			 */
-			var alignment_score_load = function( cotainer_id ){
+			/*var alignment_score_load = function( cotainer_id ){
 				$('#' + cotainer_id).highcharts( alignment_param() );
 				
 				$('#heatmap-clstr-btn').on('click', function (e) {
@@ -1546,7 +1267,7 @@
 					$('#heatmap-seq-btn').prop('disabled', true );
 					$('#' + cotainer_id).highcharts( alignment_param("seq") );
 				});
-			}
+			}*/
 			
 			/**
 			 * Loads content of "bootstrap distribution" nav.
@@ -1594,6 +1315,146 @@
 				}
 			}
 
+			var intersections_filters_load = function(){
+				// Set filters in selection list
+				$('#byFilters-jvenn-chkbx').append( function(){
+					var items = "" ;
+					for( var filter_idx = 0 ; filter_idx < processed_filters.length ; filter_idx++ ){
+						/*items += '' +
+							'<li>' +
+							'<label class="container">'+processed_filters[filter_idx]+'<input type="checkbox" id="byFilters-chk-' + filter_idx + '" name="'+processed_filters[filter_idx]+'"><span class="checkmark"></span></label>' +
+							<!--'	<input type="checkbox" id="byFilters-chk-' + filter_idx + '" name="' + processed_filters[filter_idx] + '"> ' + processed_filters[filter_idx] + -->
+							'</li>' ;
+							*/
+							items += `
+							<li class="form-check">
+								<input class="form-check-input" type="checkbox" 
+									id="byFilters-chk-${filter_idx}" 
+									name="${processed_filters[filter_idx]}">
+								<label class="form-check-label" for="byFilters-chk-${filter_idx}">
+								${processed_filters[filter_idx]}
+								</label>
+							</li>`;
+					}
+					return items ;
+				});
+				
+				
+				// Add listener on click
+				$('#byFilters-jvenn-btn').click(function() {			
+					// Find filters
+					var venn_names_by_tag = new Array();
+					var venn_tags_by_name = new Array();
+					var selected_filters = new Array();
+					var tag_idx = 0 ;
+					$('input[id^="byFilters-chk-"]:checked').each( function(){
+						var filter_name = $(this).attr("name") ;
+						selected_filters.push( filter_name );
+						var venn_tag = String.fromCharCode( 65 + tag_idx );
+						venn_tags_by_name[filter_name] = venn_tag
+						venn_names_by_tag[venn_tag] = filter_name ;
+						tag_idx++ ;
+					});
+					// Find counts
+					var values_by_tag = new Array() ;
+					for( var idx=0 ; idx < by_filters_results.length ; idx++ ){
+						var kept_filters = new Array();
+						for( var filters_idx=0 ; filters_idx < by_filters_results[idx]['filters'].length ; filters_idx++ ){
+							var filter_name = by_filters_results[idx]['filters'][filters_idx] ;
+							if( $.inArray(filter_name, selected_filters) != -1 ){
+								kept_filters.push( venn_tags_by_name[filter_name] );
+							}
+						}
+						if( kept_filters.length > 0 ){
+							var venn_tag = kept_filters.sort().join("") ;
+							if( !values_by_tag.hasOwnProperty(venn_tag) ){
+								values_by_tag[venn_tag] = 0 ;
+							}
+							values_by_tag[venn_tag] += by_filters_results[idx]['count'] ;
+						}
+					}
+					// Display modal
+					$('#byFilters-jvenn').empty();
+					$('#byFilters-jvenn').jvenn({
+						colors: [
+							"rgb(118, 149, 118)", // Vert clair
+							"rgb(217, 166, 166)", // Rose pâle
+							"rgb(192, 192, 153)", // Jaune pâle
+							"rgb(86, 115, 48)",   // Vert olive
+							"rgb(176, 176, 97)",  // Jaune clair
+							"rgb(148, 161, 178)"  // Bleu clair
+						],
+						colors: ['#d87c7c', '#919e8b', '#d7ab82', '#6e7074', '#61a0a8', '#efa18d'],//, '#787464', '#cc7e63', '#724e58', '#4b565b']
+						colors: [
+							"rgb(216, 124, 124)",
+							"rgb(145, 158, 139)",
+							"rgb(215, 171, 130)",
+							"rgb(110,112,116)",
+							"rgb(97, 160, 168)",
+							"rgb(239,161,141)"
+						],
+
+						series: [{
+					    	name: venn_names_by_tag,
+					    	values: values_by_tag
+					    }],
+						disableClick: true
+					});
+					
+					//$('#byFilters-venn-modal').modal( 'show' );
+					var myModal = new bootstrap.Modal(document.getElementById('byFilters-venn-modal'));
+					myModal.show();
+				});
+				
+				// Manage click on byFilters checkboxes
+				$('input[id^="byFilters-chk-"]').on('change', function (e) {
+					var nb_checked = $('input[id^="byFilters-chk-"]:checked').length;
+					if( nb_checked <= 6 && nb_checked >= 1 ){
+						$('#byFilters-jvenn-btn').prop( "disabled", false );
+					} else {
+						$('#byFilters-jvenn-btn').prop( "disabled", true );
+					}
+				});
+			}
+
+			var taxon_lost_table_load = function(container_id) {
+				// Titres des colonnes
+				var taxon_lost_table_titles = $.merge(["Affiliation method"], global_taxon_list);
+
+				// Construction des données du tableau
+				var taxon_lost_table_data = [];
+				for (var method in global_taxon_lost) {
+					var method_data = [method];
+
+					for (var taxon_idx = 0; taxon_idx < global_taxon_list.length; taxon_idx++) {
+						var taxon = global_taxon_list[taxon_idx];
+						var value = global_taxon_lost[method][taxon];
+
+						if (Array.isArray(value) && value.length === 2) {
+							var s = numberDisplay(value[0]);
+							if (value[1] > 0) {
+								s += ' (including ' + numberDisplay(value[1]) + ' multi-affiliation(s))';
+							}
+							method_data.push(s);
+						} else {
+							method_data.push(numberDisplay(value));
+						}
+					}
+
+					taxon_lost_table_data.push(method_data);
+				}
+
+				// Création du tableau avec Bootstrap Table
+				$('#' + container_id).html(
+					table("Taxon lost table", taxon_lost_table_titles, taxon_lost_table_data)
+				);
+				$('#' + container_id + ' table').prop('id', 'details-table');
+				$('#details-table').bootstrapTable({
+					// options Bootstrap Table si besoin
+					// ex: search: true, pagination: true, sortable: true
+				});
+			}
+
 
 			///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 			//
@@ -1607,7 +1468,7 @@
 			// Main
 			//
 			///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-			$(function() {
+			/*$(function() {
 				$(".frogsversion > div > a").text("FROGS "+frogs_tool+" "+frogs_version);
 				// Remove alert
 				$('#js-alert').remove();
@@ -1616,17 +1477,12 @@
 				// Load active tab
 				global_filters_load();
 				intersections_filters_load();
-				update_pie_plots_three(frogsColor2, frogsColor, frogsColor3, frogsButtonColor, frogsColorHover);
-				update_heamap(frogsColor, frogsButtonColor, frogsColorHover);
-				update_rarefaction_plot(frogsColor, frogsColor2, frogsButtonColor, frogsColorHover);
+				
+				
+				
 				// Hide tab if no data
 				if( alignment_scores == null ){
 					$('#alignment-nav-tab').remove();
-					/*
-					$('#alignment-nav-tab').each( function(){
-						$(this).addClass("hidden");
-					});
-					*/
 				}
 				if( bootstrap_scores == null ){
 					$('#bootstrap-nav-tab').remove();
@@ -1671,169 +1527,311 @@
 					// Réinitialiser la sélection à "Switch theme"
 					$select.prop('selectedIndex', 0);
 				});
+			});*/
+			var summaryLoad = function(){
+				// Remove alert
+				$('#js-alert').remove();
+				$('#content').removeClass("hidden");
+								
+			 	// Results by clusters
+				var nb_filtered_data = {
+					'Kept': global_results['cluster']['Kept'],
+					[mode]: global_results['cluster'][mode],
+					'Modified':  global_results['cluster']['Modified']
+				};
+				
+				// Results by sequences
+				var abundance_filtered_data = {
+					'Kept': global_results['sequence']['Kept'],
+					[mode]: global_results['sequence'][mode],
+					'Modified': global_results['sequence']['Modified']
+				};
+				
+				pieChart_Clusters_options = pieOption(nb_filtered_data['Kept'], nb_filtered_data['Removed'], "Kept", "Removed","ASVs","ASVs", nb_filtered_data['Modified'], "Modified")
+				pieChart_Abundance_options = pieOption(abundance_filtered_data['Kept'], abundance_filtered_data['Removed'], "Kept", "Removed","Abundance","Sequences");
+				// Initialisation des graphiques avec ECharts
+				pieChart_Clusters = echarts.init(document.getElementById("nb-filtered"),CURRENT_THEME,{renderer: 'svg', height:600})
+				pieChart_Abundance = echarts.init(document.getElementById("abundance-filtered"),CURRENT_THEME,{renderer: 'svg', height:600})
+				pieChart_Clusters.setOption(pieChart_Clusters_options);
+				pieChart_Abundance.setOption(pieChart_Abundance_options);
+
+				intersections_filters_load();
+				taxon_lost_table_load("taxon_lost")
+				
+			}
+
+			$(function() { 
+				// Remove alert
+				$('#js-alert').remove();
+				document.getElementById("logo").src = "data:image/png;base64," + logoBase64;
+
+				// Resize charts on window resize
+				window.addEventListener('resize', () => {
+					[pieChart_Clusters, pieChart_Abundance, boxplotChart, areaChart, heatmapChart].forEach(chart => {
+						if (chart) chart.resize();
+					});
+				});
+				document.querySelectorAll('button[data-bs-toggle="tab"]').forEach(tab => {
+					tab.addEventListener('shown.bs.tab', function (e) {
+						setTimeout(() => {
+						if (pieChart_Clusters) pieChart_Clusters.resize();
+						if (pieChart_Abundance) pieChart_Abundance.resize();
+						if (boxplotChart) boxplotChart.resize();
+						if (areaChart) areaChart.resize();
+						if (heatmapChart) heatmapChart.resize();
+						}, 200);
+					});
+				});
+
+				$("#report-title").html("Affiliation filters report <i><small class='text-muted'>(" + frogs_tool + ", v" + frogs_version + ")<small></i>");
+
+				summaryLoad();
+
+				const tabEl = document.querySelectorAll('button[data-bs-toggle="tab"]');
+				tabEl.forEach(tab => {
+					tab.addEventListener('shown.bs.tab', function (event) {
+						const target = event.target.getAttribute("data-bs-target");
+						if (target === "#tab2") {
+							samples_filters_load('filters-distrib-table')
+						}
+						if (target === "#tab3") {
+							//cluster_distrib_load();
+							taxBySample_load( "tax-distrib" );
+						}
+						if (target === "#tab4") {
+							//sample_table_load('samples-distrib-table');
+							alignment_score_load( "alignment-heatmap" );
+						}
+
+					});
+				});
+				// Default theme
+				update_theme(DEFAULT_THEME);
 			});
+
 		</script>
 
 	</head>
-	<body>
-		<!-- Alert -->
+	<body class="p-5">
 		<p id="js-alert" class="alert alert-warning">
-                javascript is needed to display data.<br />
-                If you try to view this data on galaxy please contact your administrator to authorise javascript or download the file to view.
+			javascript is needed to display data.<br />
+			If you are trying to view this data on galaxy, please contact your administrator to enable javascript or download the file for viewing.
 		</p>
-		
-        <!-- Content -->
-        <div id="content" class="hidden">
-        	<ul class="nav nav-tabs">
-				<li class="nav-item active"><a class="nav-link active" href="#view-by-filters">Filters by ASVs</a></li>
-				<li class="nav-item"><a class="nav-link" href="#view-by-samples">Filters by samples</a></li>
-				<li class="nav-item" id="taxonomy-nav-tav"><a class="nav-link" href="#tax-distrib">Taxonomy distribution</a></li>
-				<li class="nav-item" id="bootstrap-nav-tab"><a class="nav-link" href="#bootstrap-distrib">Bootstrap distribution</a></li>
-				<li class="nav-item" id="alignment-nav-tab"><a class="nav-link" href="#alignment-distrib">Alignment distribution</a></li>
-				<li class="nav-item frogsversion">
-					<div class="container">
-						<select id="themechoice" class="form-select" onchange="update_theme($(this).val())" style="font-size: smaller;" aria-label="Default select example">
-							<option selected disabled>Switch theme</option>
-							<option value="Plum">Plum</option>
-							<option value="Coral" disabled>Coral</option>
-							<option value="FROGS4">FROGS4</option>
-						</select>
-						<a style="padding: 0.5rem 1rem;"></a>
-					</div>
-				</li>
-			</ul>
+		<div class="container-fluid d-flex align-items-center mb-5">
+			<img id="logo" class="object-fit-contain me-3" style="height:180px;" src="data:image/png;base64," />
+			<h2 id="report-title" class="mb-0"></h2>
+		</div>
+	
+		<div class="container" style="max-width: fit-content; float: right;">
+			<select id="themechoice" class="form-select" onchange="update_theme($(this).val())" style="font-size: smaller;" aria-label="Default select example">
+				<option selected disabled>Switch theme</option>
+				<option value="Frogs5Theme">Frogs5</option>
+				<option value="PlumTheme">Plum</option>
+				<option value="CoralTheme">Coral</option>
+				<option value="Frogs4Theme">Frogs4</option>
+				<option value="VintageTheme">Vintage</option>
+			</select>
+			<a style="padding: 0.5rem 1rem;"></a>
+		</div>
 
-			<div id="tab-content" class="tab-content">
-				<div id="view-by-filters" role="tabpanel" class="tab-pane active">
-					<h2 class="pb-2 mt-4 mb-2 border-bottom">Filters summary</h2>
-					<div id="filter-summary">
-		        		<div class="row">
-			        		<div id="nb-filtered" class="col-md-6"></div> 
-			        		<div id="abundance-filtered" class="col-md-6"></div>
-		        		</div>
-					</div>
-		
-					<h2 class="pb-2 mt-4 mb-2 border-bottom">Taxon lost summary</h2>
-					Filtering criteria are applied by affiliation. So for blast, filters are not only applied on the blast consensus taxonomy but on each blast hit (cf multihit.tsv file).<br>
-					For each ASV, none, part or all blast affiliations may be removed, resulting in unchanged / updated or deleted blast consensus taxonomy.<br>
-					The detailed number of lost affiliations (not only the consensus) by rank are summarised. It may also precise if blast consensus multi-affiliation are lost.<br><br>
-		            <div id="taxon_lost"></div>
+		<!-- New content-->
+		<ul class="nav nav-tabs" id="myTab" role="tablist">
+			<li class="nav-item" role="presentation">
+			  <button class="nav-link active" id="tab1-tab" data-bs-toggle="tab" data-bs-target="#tab1" type="button" role="tab">
+				Filters by ASV
+			  </button>
+			</li>
+			<li class="nav-item" role="presentation">
+			  <button class="nav-link" id="tab2-tab" data-bs-toggle="tab" data-bs-target="#tab2" type="button" role="tab">
+				Filters by Sample
+			  </button>
+			</li>
+			<li class="nav-item" role="presentation">
+				<button class="nav-link" id="tab3-tab" data-bs-toggle="tab" data-bs-target="#tab3" type="button" role="tab">
+				Taxonomy Distribution
+				</button>
+			  </li>
+			<li class="nav-item" role="presentation">
+			<button class="nav-link" id="tab4-tab" data-bs-toggle="tab" data-bs-target="#tab4" type="button" role="tab">
+				Alignment Distribution
+			</button>
+			</li>
+		</ul>
+		<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+			<symbol id="info-fill" fill="currentColor" viewBox="0 0 16 16">
+			  <path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zm.93-9.412-1 4.705c-.07.34.029.533.304.533.194 0 .487-.07.686-.246l-.088.416c-.287.346-.92.598-1.465.598-.703 0-1.002-.422-.808-1.319l.738-3.468c.064-.293.006-.399-.287-.47l-.451-.081.082-.381 2.29-.287zM8 5.5a1 1 0 1 1 0-2 1 1 0 0 1 0 2z"/>
+			</symbol>
+		  </svg>
+		<!-- Contenu des onglets -->
+		<div class="tab-content" id="myTabContent">
+			<!-- TAB 1 -->
+			<div class="tab-pane fade show active p-3 border border-top-0" id="tab1" role="tabpanel">
+				<h2 class="pb-4 mt-4 mb-2 border-bottom">Filters summary</h2>
+				  	<div id="filter-summary">
+					  	<div class="row">
+							<div id="nb-filtered" class="col-md-6"></div> 
+							<div id="abundance-filtered" class="col-md-6"></div>
+					  	</div>
+						<h2 class="pb-2 mt-4 mb-2 border-bottom">Taxon lost summary</h2>
 
-					<h2 class="pb-2 mt-4 mb-2 border-bottom">Filters intersections</h2>
-		       		<div class="row">
-		       			<div class="col-md-2 col-ld-3"></div>
-						<div id="venn-filters" class="col-md-8 col-ld-6">
-		                    <p> Draw a Venn to see which ASVs had been deleted by the filters chosen (Maximum 6 options): </p>
-		                    <ul id="byFilters-jvenn-chkbx"></ul>
-		                    <button id="byFilters-jvenn-btn" class="btn d-block mx-auto" disabled><span class="fa fa-gears" aria-hidden="true"> Venn</span></button>
-		                </div>
-		                <div class="col-md-2 col-ld-3"></div>
-		            </div>
-		        </div>
-		        
-		        
-		    
-                <div id="view-by-samples" role="tabpanel" class="tab-pane disabled">
-					<h2 class="pb-2 mt-4 mb-2 border-bottom">Details by samples</h2>
-		            <div id="filter-log"></div>
-                </div>
-                
-						<div id="tax-distrib" role="tabpanel" class="tab-pane disabled">
-							<button id="display-global-sunburst" class="btn d-block mx-auto" data-toggle="modal" data-target="#sunburst-modal">
-								<span class="fa fa-pie-chart" aria-hidden="true"> Display global distribution</span>
-							</button>
-							<table id="taxBySample-table" class="table table-striped">
-								<thead>
-								</thead>
-								<tbody></tbody>
-								<tfoot>
-									<tr>
-										<th>
-											<span class="table-action">With selection:</span>
-											<select id="rarefaction-level" name="select" class="table-action fusion-left"></select>
-											<button id="display-rarefaction" class="btn table-action fusion-right" disabled data-toggle="modal" data-target="#rarefaction-modal"><span class="fa fa-line-chart" aria-hidden="true"> Display rarefaction</span></button>
-											<button id="display-spl-sunburst" class="btn table-action" disabled data-toggle="modal" data-target="#sunburst-modal"><span class="fa fa-pie-chart" aria-hidden="true"> Display distribution</span></button>
-										</th>
-									</tr>
-								</tfoot>
-							</table>
-						</div>
-						<div id="bootstrap-distrib" role="tabpanel" class="tab-pane disabled">
-							<div id="bootstrap-barplot"></div>
-							<div id="set-bootstrap-barplot" class="heatmap-button-container">
-								<button id="bootstrap-clstr-btn" type="button" class="btn btn-md btn-block">by ASVs</button>
-								<button id="bootstrap-seq-btn" type="button" class="btn btn-md btn-block">by sequences</button>
+						<div class="alert alert-primary d-flex align-items-center" role="alert">
+							<svg class="bi flex-shrink-0 me-2" width="24" height="24" role="img" aria-label="Info:"><use xlink:href="#info-fill"/></svg>
+							<div>
+								Filtering criteria are applied by affiliation. So for blast, filters are not only applied on the blast consensus taxonomy but on each blast hit (cf multihit.tsv file).
+								For each ASV, none, part or all blast affiliations may be removed, resulting in unchanged / updated or deleted blast consensus taxonomy.
+								The detailed number of lost affiliations (not only the consensus) by rank are summarised. It may also precise if blast consensus multi-affiliation are lost.
 							</div>
-						</div>
-						<div id="alignment-distrib" role="tabpanel" class="tab-pane disabled">
-							<div id="alignment-heatmap"></div>
-							<div id="set-alignment-heatmap" class="heatmap-button-container">
-								<button id="heatmap-clstr-btn" type="button" class="btn btn-md btn-block" disabled>by ASVs</button>
-								<button id="heatmap-seq-btn" type="button" class="btn btn-md btn-block">by sequences</button>
-							</div>
-						</div>
+						  </div>
+						<div id="taxon_lost"></div>
+				  	</div>
+				  	<div id="filter-log">
+						<h2 class="pb-4 mt-4 mb-2 border-bottom">Filters intersections</h2>
+						<div class="row">
+							<div class="col-md-2 col-ld-3"></div>
+						 <div id="venn-filters" class="col-md-6 col-ld-6 border p-5 rounded shadow">
+							 <p> Draw a Venn to see which ASVs had been deleted by the filters chosen (Maximum 6 options): </p>
+							 <ul id="byFilters-jvenn-chkbx"></ul>
+							 <button id="byFilters-jvenn-btn" class="btn d-block mx-auto" disabled><span class="fa fa-gears" aria-hidden="true"> Venn</span></button>
+						 </div>
+						 <div class="col-md-2 col-ld-3"></div>
+					 	</div>
+					</div>
+			</div>
+			<!-- TAB 2 -->
+			<div class="tab-pane fade p-3 border border-top-0" id="tab2" role="tabpanel">
+				<h2 class="pb-4 mt-4 mb-2 border-bottom">Details by sample</h2>
+				<div id="filters-distrib-table"></div>
+			</div>
+			<!-- TAB 3 -->
+			<div class="tab-pane fade p-3 border border-top-0" id="tab3" role="tabpanel">
+				<button id="display-global-sunburst" class="btn d-block mx-auto" data-bs-toggle="modal" data-bs-target="#sunburst-modal">
+					<span class="fa fa-pie-chart" aria-hidden="true"></span> Display global distribution
+				</button>
+				<div id="tax-distrib">
+					
+					<table id="taxBySample-table" class="table table-striped">
+						<!--<thead>
+						</thead>
+						<tbody></tbody>
+						<tfoot>
+							<tr>
+								<th>
+									<span class="table-action">With selection:</span>
+									<select id="rarefaction-level" name="select" class="table-action fusion-left"></select>
+									<button id="display-rarefaction" class="btn table-action fusion-right" disabled data-toggle="modal" data-target="#rarefaction-modal"><span class="fa fa-line-chart" aria-hidden="true"> Display rarefaction</span></button>
+									<button id="display-spl-sunburst" class="btn table-action" disabled data-toggle="modal" data-target="#sunburst-modal"><span class="fa fa-pie-chart" aria-hidden="true"> Display distribution</span></button>
+								</th>
+							</tr>
+						</tfoot>-->
+					</table>
+					
 				</div>
-            </div>
-            
-            
+				<!-- Bouton Display Sunburst -->
+				
+				
+				<span class="table-action">With selection:</span>
+				<br>
+					<button id="display-spl-sunburst" class="btn btn-outline-secondary btn-sm table-action" disabled
+					data-bs-toggle="modal" data-bs-target="#sunburst-modal" data-whatever="distribution">
+					<span class="fa fa-pie-chart" aria-hidden="true"></span> Display distribution
+				</button>
+				<br>
+				
+				<button id="display-rarefaction" class="btn btn-outline-secondary btn-sm fusion-right" disabled
+					data-bs-toggle="modal" data-bs-target="#rarefaction-modal" data-whatever="before-process">
+					<span class="fa fa-line-chart" aria-hidden="true"></span> Display rarefaction
+				</button>
+				<div class="d-inline-block me-2"> <!-- wrapper inline-block avec margin-end -->
+					<select id="rarefaction-level" name="select" class="table-action fusion-left form-select form-select-sm" style="width:auto">
+					</select>
+				</div>
+				<!-- Bouton Display Rarefaction -->
+				
+					
+					
+			</div>
+			<!-- TAB 4 -->
+			<div class="tab-pane fade p-3 border border-top-0" id="tab4" role="tabpanel">
+				
+				<div id="alignment-distrib" role="tabpanel" class="tab-pane disabled">
+					<div id="alignment-heatmap"></div>
+					<div id="set-alignment-heatmap" class="text-center">
+						<button id="heatmap-clstr-btn" type="button" class="btn btn-md" disabled>By ASV</button>
+						<button id="heatmap-seq-btn" type="button" class="btn btn-md">By sequence</button>
+					</div>
+				</div>
+			</div>
+			
 
+		</div>
+	
 		
-		<!--modal Jvenn by filters-->
-		<div class="modal fade" id="byFilters-venn-modal" tabindex="-1" role="dialog" aria-labelledby="modal-venn" aria-hidden="true">
-		  <div class="modal-dialog modal-lg">
-			<div class="modal-content">
-			  <div class="modal-header">
-				<h4 class="modal-title">Venn on removed ASVs</h4>
-				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+		<!-- Modal -->
+		<div class="modal fade" id="byFilters-venn-modal" tabindex="-1" aria-labelledby="modal-venn" aria-hidden="true">
+			<div class="modal-dialog modal-xl">
+			  <div class="modal-content">
+
+				<div class="modal-header">
+				  <h4 class="modal-title">Venn on removed ASVs</h4>
+				  <button type="button" class="btn-close btn-sm" data-bs-dismiss="modal" aria-label="Close"></button>
+				</div>
+
+				<div class="modal-body m-auto">
+				  <div id="byFilters-jvenn" style="width:500px;height:500px;"></div>
+				</div>
+				
+				<div class="modal-footer">
+					<button class="btn table-action fusion-right btn-sm" data-bs-dismiss="modal">
+						<span class="fa fa-close" aria-hidden="true"></span> Close
+					</button>
+				</div>
+				
 			  </div>
-			  <div class="modal-body">
-				<div id="byFilters-jvenn"></div>
-			  </div>
-			  <div class="modal-footer">
-				<button type="button" class="btn btn-default" data-dismiss="modal"><span class="fa fa-close" aria-hidden="true"> Close</span></button>
+			</div>
+		</div>
+		<div class="modal fade" id="sunburst-modal" tabindex="-1">
+			<div class="modal-dialog modal-xl">
+			  <div class="modal-content">
+				<div class="modal-header">
+				  <h6 class="modal-title">Taxa distribution</h6>
+				  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+				</div>
+				<div class="modal-body">
+				  <div id="sunburst-walktrace"></div>
+				  <div id="sunburst-graph"></div>
+				  <div>
+					<br>
+					<h6>Detail on selected:</h6>
+					<div id="sunburst-detail"></div>
+				  </div>
+				</div>
+				<div class="modal-footer">
+				  <span id="sunburst-menu"></span>
+				  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+					<span class="fa fa-close" aria-hidden="true"></span> Close
+				  </button>
+				</div>
 			  </div>
 			</div>
 		  </div>
-		</div>
-		
-		<div class="modal" id="sunburst-modal" tabindex="-1" role="dialog" aria-hidden="true">
-			<div class="modal-dialog modal-lg">
-				<div class="modal-content">
-					<div class="modal-header">
-						<h6 class="modal-title">Taxa distribution</h6>
-						<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-					</div>
-					<div class="modal-body">
-						<div id="sunburst-walktrace"></div>
-						<div id="sunburst-graph"></div>
-						<div>
-							</br><h6>Detail on selected:</h6>
-							<div id="sunburst-detail"></div>
-						</div>
-					</div>
-					<div class="modal-footer">
-						<span id="sunburst-menu"></span>
-						<button type="button" class="btn btn-default" data-dismiss="modal"><span class="fa fa-close" aria-hidden="true"> Close</span> </button>
-					</div>
+		  <div class="modal fade" id="rarefaction-modal" tabindex="-1" aria-hidden="true">
+			<div class="modal-dialog modal-xl">
+			  <div class="modal-content">
+				<div class="modal-header">
+				  <h6 class="modal-title">Rarefaction</h6>
+				  <!-- Bouton Close Bootstrap 5 -->
+				  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
 				</div>
-			</div>
-		</div>
-		<div class="modal" id="rarefaction-modal" tabindex="-1" role="dialog" aria-hidden="true">
-			<div class="modal-dialog modal-lg">
-				<div class="modal-content">
-					<div class="modal-header">
-						<h6 class="modal-title">Rarefaction</h6>
-						<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-					</div>
-					<div class="modal-body">
-						<div id="rarefaction-chart"></div>
-					</div>
-					<div class="modal-footer">
-						<button type="button" class="btn btn-default" data-dismiss="modal"><span class="fa fa-close" aria-hidden="true"> Close</span> </button>
-					</div>
+				<div class="modal-body">
+				  <div id="rarefaction-chart"></div>
 				</div>
+				<div class="modal-footer">
+				  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+					<span class="fa fa-close" aria-hidden="true"></span> Close
+				  </button>
+				</div>
+			  </div>
 			</div>
-			</div>
-		</div>
+		  </div>
 	</body>
 </html>
