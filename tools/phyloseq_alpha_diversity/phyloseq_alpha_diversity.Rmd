@@ -298,7 +298,7 @@ write.table(alpha.diversity, params$fileAlpha, sep="\t", quote = FALSE, col.name
 # {.tabset .tabset-fade .tabset-pills}
 ## Richness plot
 ```{r richness, fig.width=10, fig.height=8, warning=FALSE}
-p <- plot_richness(data, x = params$varExp, color = params$varExp, measures = measures) + ggtitle(paste("Alpha diversity distribution in function of", params$varExp))+ theme(plot.title = element_text(hjust = 0.5))
+p <- plot_richness(data, x = params$varExp, color = params$varExp, measures = measures) + ggtitle(paste("Alpha diversity distribution by", params$varExp))+ theme(plot.title = element_text(hjust = 0.5))
 plot(p)
 ```
 
