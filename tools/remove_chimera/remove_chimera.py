@@ -59,15 +59,16 @@ class ParallelChimera(Cmd):
     """
     @summary: Removes PCR chimera by samples.
     """
-    def __init__(self, in_fasta, in_abundance, out_fasta, out_abundance, out_summary, abundance_type, nb_cpus, log, debug, size_separator=None):
+    def __init__(self, in_fasta, in_abundance, out_fasta, out_abundance, out_summary, abundance_type, long_reads, nb_cpus, log, debug, size_separator=None):
         """
         """
         size_separator_option = "" if size_separator is None else "--size-separator '" + size_separator + "' "
+        long_reads_option = "--long-reads " if long_reads else ""
         debug_option = " --debug " if debug else ""
         Cmd.__init__( self,
                       'parallelChimera.py',
                       'Removes PCR chimera by samples.',
-                      debug_option + size_separator_option + "--lenient-filter --nb-cpus " + str(nb_cpus) + " --sequences " + in_fasta + " --" + abundance_type + " " + in_abundance + " --non-chimera " + out_fasta + " --out-abundance " + out_abundance + " --summary " + out_summary + " --log-file " + log,
+                      debug_option + size_separator_option + long_reads_option + "--lenient-filter --nb-cpus " + str(nb_cpus) + " --sequences " + in_fasta + " --" + abundance_type + " " + in_abundance + " --non-chimera " + out_fasta + " --out-abundance " + out_abundance + " --summary " + out_summary + " --log-file " + log,
                       '--version' )
 
     def get_version(self):
@@ -273,6 +274,7 @@ if __name__ == "__main__":
     parser.add_argument('--version', action='version', version=__version__ )
     parser.add_argument('--debug', default=False, action='store_true', help="Keep temporary files to debug program. [Default: %(default)s]" )
     parser.add_argument('--nb-cpus', type=int, default=1, help="The maximum number of CPUs used. [Default: %(default)s]" )
+    parser.add_argument('--long-reads', default=False, action='store_true', help="If original sequences were long reads, use chimera_denovo algorithm to detect chimera, else, i.e for short reads, use uchime_denovo [Default: %(default)s]" )
     # Inputs
     group_input = parser.add_argument_group( 'Inputs' )
     group_input.add_argument('--input-fasta', required=True, help='The cluster sequences (format: FASTA).' )
@@ -297,7 +299,7 @@ if __name__ == "__main__":
         tmp_log  = tmpFiles.add(os.path.basename(args.output_fasta) + "_tmp.log")
         size_separator = get_size_separator( args.input_fasta )
 
-        ParallelChimera( args.input_fasta, args.input_biom, args.output_fasta, args.output_biom, tmp_chimera_summary, "biom", args.nb_cpus, tmp_log, args.debug, size_separator ).submit( args.log_file )
+        ParallelChimera( args.input_fasta, args.input_biom, args.output_fasta, args.output_biom, tmp_chimera_summary, "biom", args.long_reads, args.nb_cpus, tmp_log, args.debug, size_separator ).submit( args.log_file )
         
         depth_file = tmpFiles.add( "depths.tsv" )
         Depths(args.output_biom, depth_file).submit( args.log_file )

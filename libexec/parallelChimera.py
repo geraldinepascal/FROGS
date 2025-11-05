@@ -249,12 +249,12 @@ def remove_chimera_biom( samples, chimera_files, in_biom_file, out_biom_file, le
     FH_log.close()
 
 
-def chimera( sample_names, input_fasta, input_abund, outputs_fasta, outputs_chimera, log_chimera, user_size_separator ):
+def chimera( sample_names, input_fasta, input_abund, outputs_fasta, outputs_chimera, log_chimera, user_size_separator, long_reads ):
     for idx in range(len(sample_names)):
-        chimera_by_sample( sample_names[idx], input_fasta, input_abund, outputs_fasta[idx], outputs_chimera[idx], log_chimera[idx], user_size_separator )
+        chimera_by_sample( sample_names[idx], input_fasta, input_abund, outputs_fasta[idx], outputs_chimera[idx], log_chimera[idx], user_size_separator, long_reads )
     time.sleep(0.5) # Wait to fix 'Exception in thread QueueFeederThread' in slow systems 
 
-def chimera_by_sample( sample_name, input_fasta, input_abund, output_fasta, output_chimera, log_chimera, user_size_separator ):
+def chimera_by_sample( sample_name, input_fasta, input_abund, output_fasta, output_chimera, log_chimera, user_size_separator, long_reads ):
     tmp_fasta = output_fasta + ".tmp"
     tmp_log = output_fasta + ".log"
     tmp_stderr = output_fasta + ".stderr"
@@ -291,9 +291,15 @@ def chimera_by_sample( sample_name, input_fasta, input_abund, output_fasta, outp
         tmp_fasta_fh.close()
 
         # Chimera cleanning
+        vsearch_command = list()
+        if long_reads:
+            vsearch_command = ["vsearch", "--chimeras_denovo", tmp_fasta,"--chimeras_diff_pct", "1.0", "--nonchimeras", output_fasta, "--tabbedout", tmp_log]
+        else:
+            vsearch_command = ["vsearch", "--uchime_denovo", tmp_fasta, "--nonchimeras", output_fasta, "--uchimeout", tmp_log]
+
         if nb_seq_sample != 0:
-            FH_log.write("## Vsearch command: " + " ".join(["vsearch", "--uchime_denovo", tmp_fasta, "--nonchimeras", output_fasta, "--uchimeout", tmp_log]) + "\n" )
-            submit_cmd( ["vsearch", "--uchime_denovo", tmp_fasta, "--nonchimeras", output_fasta, "--uchimeout", tmp_log], tmp_stdout, tmp_stderr )
+            FH_log.write("## Vsearch command: " + " ".join(vsearch_command) + "\n" )
+            submit_cmd( vsearch_command, tmp_stdout, tmp_stderr )
         else: # The sample is empty
             FH_log.write("## Empty sample, no chimera research\n")
             open( output_fasta, "wt" ).close()
@@ -392,10 +398,10 @@ def main_process(args):
         for current_process in processes:
             if idx == 0: # First process is threaded with parent job
                 current_process['process'] = threading.Thread( target=chimera, 
-                                                               args=(current_process['sample_name'], args.sequences, count_table, current_process['in_file'], current_process['out_file'], current_process['log'], args.size_separator) )
+                                                               args=(current_process['sample_name'], args.sequences, count_table, current_process['in_file'], current_process['out_file'], current_process['log'], args.size_separator, args.long_reads) )
             else: # Others processes are processed on different CPU
                 current_process['process'] = multiprocessing.Process( target=chimera, 
-                                                                      args=(current_process['sample_name'], args.sequences, count_table, current_process['in_file'], current_process['out_file'], current_process['log'], args.size_separator) )
+                                                                      args=(current_process['sample_name'], args.sequences, count_table, current_process['in_file'], current_process['out_file'], current_process['log'], args.size_separator, args.long_reads) )
             current_process['process'].start()
         #    Wait processes end
         for current_process in processes:
@@ -455,6 +461,7 @@ if __name__ == "__main__":
     )
     parser.add_argument( '--size-separator', help="The size separator if the cluster IDs contain the number of represented sequence (format: '<ID_IN_ABUND_FILE><size_separator><NB_SEQ>'" )
     parser.add_argument( '-l', '--lenient-filter', default=False, action='store_true', help="Removes one sequence in all samples only if it is detected as chimera in all samples where it is present. Without this option the program removes one sequence in all samples if it is detected as chimera in at least one sample." )
+    parser.add_argument('--long-reads', default=False, action='store_true', help="If original sequences were long reads, use chimera_denovo algorithm to detect chimera, else, i.e for short reads, use uchime_denovo [Default: %(default)s]" )
     parser.add_argument( '-p', '--nb-cpus', type=int, default=1, help="The maximum number of CPUs used. [Default: %(default)s]" )
     parser.add_argument( '--debug', default=False, action='store_true', help="Keep temporary files to debug program." )
     parser.add_argument( '-v', '--version', action='version', version=__version__ + " [vsearch " + get_vsearch_version() + "]" )

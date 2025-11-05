@@ -14,3 +14,9 @@ fi
                     --input-fasta data/swarm_seed_sequences.fasta --input-biom data/swarm_abundance.biom \
                     --output-fasta test/non_chimera.fasta --output-biom test/abundance.biom --html test/summary.html --log-file test/log.txt \
                     --nb-cpus 2
+
+./remove_chimera.py \
+                    --input-fasta data/swarm_seed_sequences.fasta --input-biom data/swarm_abundance.biom \
+                    --output-fasta test/longRead_non_chimera.fasta --output-biom test/longRead__abundance.biom --html test/longRead_summary.html --log-file test/longRead_log.txt \
+                    --nb-cpus 2 --long-reads
+

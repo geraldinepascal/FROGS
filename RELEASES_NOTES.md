@@ -1,3 +1,11 @@
+# v5.1.0 [DATE]
+### Functions added
+* remove_chimera.py : implement a chimera_denovo algorithm for long reads.
+
+### Bugs fixed
+* denoising.py: For long reads, remove --revcomp option in cutadapt command line for 3' primer removal)
+* cluster_filters.py : fix bug while interpreting minmin-abundance as decimal value
+
 # v5.0.2 [2025-05]
 * Issue #77: remove max-len parameter for artificial combined sequences
 * Upgrade mafft and blast versions
