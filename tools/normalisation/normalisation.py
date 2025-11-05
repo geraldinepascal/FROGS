@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 __author__ = 'Maria Bernard - SIGENAE/GABI'
-__copyright__ = 'Copyright (C) 2024 INRAE'
+__copyright__ = 'Copyright (C) 2025 INRAE'
 __license__ = 'GNU General Public License'
 __version__ = '5.1.0'
 __email__ = 'frogs-support@inrae.fr'
@@ -21,6 +21,10 @@ LIB_DIR = os.path.abspath(os.path.join(os.path.dirname(CURRENT_DIR), "lib"))
 sys.path.append(LIB_DIR)
 if os.getenv('PYTHONPATH') is None: os.environ['PYTHONPATH'] = LIB_DIR
 else: os.environ['PYTHONPATH'] = LIB_DIR + os.pathsep + os.environ['PYTHONPATH']
+# THEME
+THEME_DIR = os.path.abspath(os.path.join(os.path.dirname(CURRENT_DIR), "static"))
+if not os.path.exists(THEME_DIR):
+    THEME_DIR = os.path.abspath(os.path.join(os.path.dirname(os.path.dirname(CURRENT_DIR)), "static"))
 
 from frogsUtils import *
 from frogsBiom import BiomIO
@@ -152,13 +156,28 @@ def summarise_results( summary_file, is_delete_samples, num_reads, biom_subsampl
     # Write Deleted samples (nb sequences < ###NB_SEQS###)
     FH_summary_tpl = open( os.path.join(CURRENT_DIR, "normalisation_tpl.html") )
     FH_summary_out = open( summary_file, "wt" )
+    # Load shared JS
+    with open(os.path.join(THEME_DIR, "js", "theme.js")) as f:
+        theme_js = f.read()
+    with open(os.path.join(THEME_DIR, "js", "utils.js")) as f:
+        utils_js = f.read()
+    # Load shared CSS
+    with open(os.path.join(THEME_DIR, "css", "common.css")) as f:
+        common_css = f.read()
     if is_delete_samples:
         title = 'Deleted samples (nb sequences < ' + str(num_reads) + ')'
     else:
         title = 'Kept samples (nb sequences < ' + str(num_reads) + ')'
 
     for line in FH_summary_tpl:
-        if "###DATA_CATEGORIES###" in line:
+        if "###IMPORT_CSS###" in line:
+            line = line.replace("###IMPORT_CSS###", f"<style type='text/css'>{common_css}</style>")
+        elif "###IMPORT_JS_UTILS###" in line:
+            # injection du JS inline
+            line = line.replace("###IMPORT_JS_UTILS###", f"<script>\n{utils_js}</script>")
+        elif "###IMPORT_JS_THEME###" in line:
+            line = line.replace("###IMPORT_JS_THEME###", f"<script>\n{theme_js}</script>")
+        elif "###DATA_CATEGORIES###" in line:
             line = line.replace( "###DATA_CATEGORIES###", json.dumps(categories) )
         elif "###DELETE_CATEGORIES###" in line:
             line = line.replace( "###DELETE_CATEGORIES###", json.dumps(delete_categories) )

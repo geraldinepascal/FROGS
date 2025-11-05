@@ -52,7 +52,8 @@ function makeEchartsTheme() {
 		get color() {
 		return [
 			getCssVar("--frogsColor"),
-			getCssVar("--frogsColor2")
+			getCssVar("--frogsColor2"),
+			getCssVar("--frogsColor3")
 		];
 		},
 		backgroundColor: getCssVar("--frogsBackgroundColor"),
