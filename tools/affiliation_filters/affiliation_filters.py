@@ -298,12 +298,24 @@ def get_tax_consensus( taxonomies ):
         return = ["Bacteria", "Proteobacteria", "Multi-affiliation", "Multi-affiliation"]
     """
     consensus = list()
+    # init with first taxonomy
     if len(taxonomies) != 0:
         consensus = copy.copy(taxonomies[0])
+        if len(consensus[-1].split(' ')) > 2:
+            # for last rank take as taxon only the 2 first terms (ex: Listeria monocytogenes FSL R2-503 = Listeria monocytogenes)
+            consensus[-1] = ' '.join(consensus[-1].split(' ')[:2])
+    
+    # compare with other taxonomies
     for curr_taxonomy in taxonomies[1:]:
-        for rank, taxon in enumerate(curr_taxonomy):
+        for rank, taxon in enumerate(curr_taxonomy[:-1]):
             if consensus[rank] != "Multi-affiliation" and consensus[rank] != taxon:
                 consensus[rank] = "Multi-affiliation"
+        # for last rank take as taxon only the 2 first terms (ex: Listeria monocytogenes FSL R2-503 = Listeria monocytogenes)
+        rank +=1
+        taxon = ' '.join(curr_taxonomy[-1].split(' ')[:2])
+        if consensus[rank] != "Multi-affiliation" and consensus[rank] != taxon:
+            consensus[rank] = "Multi-affiliation"
+
     # Clean case with same taxon name in different branches:
     #      with taxonomies = [["A", "B", "C"], ["A", "L", "C"]]
     #      consensus is ["A", "Multi-affiliation", "C"] but must be ["A", "Multi-affiliation", "Multi-affiliation"]
@@ -316,7 +328,6 @@ def get_tax_consensus( taxonomies ):
     if len(consensus) == 0 :
         consensus = None
     return consensus
-
 
 
 def update_blast_metadata(metadata_dict, kept_affiliaitons):
