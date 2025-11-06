@@ -801,9 +801,11 @@ def sort_fasta_and_count(in_fasta, in_count, out_fasta, out_count):
     cpt=1
     for entry in sorted_fasta_data:
         if "FROGS_combined" in entry[0]:
-            seqid = "Cluster_"+str(cpt)+"_FROGS_combined"#+";"+sizes
+            # seqid = "Cluster_"+str(cpt)+"_FROGS_combined"#+";"+sizes
+            seqid = "ID_"+str(cpt)+"_FROGS_combined"#+";"+sizes
         else:
-            seqid = "Cluster_"+str(cpt)#+";"+sizes
+            # seqid = "Cluster_"+str(cpt)#+";"+sizes
+            seqid = "ID_"+str(cpt)#+";"+sizes
         out_fasta_fh.write(">"+seqid+"\n"+entry[2]+"\n")
         cpt+=1
         
@@ -813,15 +815,17 @@ def sort_fasta_and_count(in_fasta, in_count, out_fasta, out_count):
     cpt=1
     for entry in sorted_tsv_data:
         if "FROGS_combined" in str(entry[0]):
-            seqid = "Cluster_"+str(cpt)+"_FROGS_combined"#+";"+sizes
+            # seqid = "Cluster_"+str(cpt)+"_FROGS_combined"#+";"+sizes
+            seqid = "ID_"+str(cpt)+"_FROGS_combined"#+";"+sizes
         else:
-            seqid = "Cluster_"+str(cpt)#+";"+sizes
+            # seqid = "Cluster_"+str(cpt)#+";"+sizes
+            seqid = "ID_"+str(cpt)#+";"+sizes
         out_count_fh.write(seqid+"\t"+"\t".join(entry[2])+"\n")
         cpt+=1
 
 def to_biom(count_file, output_biom, process):
     """
-    @summary : Write a biom and a fasta file from a count and a fasta file by adding Cluster_ prefix
+    @summary : Write a biom and a fasta file from a count and a fasta file by adding ID_ prefix
     @param count_file : [str] path to the count file. It contains the count of
                          sequences by sample of each preclusters.
                          Line format : "Precluster_id    nb_in_sampleA    nb_in_sampleB"
@@ -857,10 +861,12 @@ def to_biom(count_file, output_biom, process):
         if not line.startswith("#"):
             seq_id = line.strip().split()[0]
             if "FROGS_combined" in seq_id:
-                cluster_name = "Cluster_" + str(cluster_idx) + "_FROGS_combined"
+                # cluster_name = "Cluster_" + str(cluster_idx) + "_FROGS_combined"
+                cluster_name = "ID_" + str(cluster_idx) + "_FROGS_combined"
                 comment = ["FROGS_combined"]
             else:
-                cluster_name = "Cluster_" + str(cluster_idx)
+                # cluster_name = "Cluster_" + str(cluster_idx)
+                cluster_name = "ID_" + str(cluster_idx)
                 comment = list()
             cluster_count = {key:0 for key in samples}
             
@@ -1021,7 +1027,8 @@ def resizeSeed(seed_in, seed_in_compo, seed_out):
     with open(seed_in_compo,"rt") as f:
         for idx,line in enumerate(f.readlines()):
             if not line.startswith("#"):
-                cluster_name = "Cluster_" + str(idx+1) if not "FROGS_combined" in line.split()[0] else "Cluster_" + str(idx+1) + "_FROGS_combined"
+                # cluster_name = "Cluster_" + str(idx+1) if not "FROGS_combined" in line.split()[0] else "Cluster_" + str(idx+1) + "_FROGS_combined"
+                cluster_name = "ID_" + str(idx+1) if not "FROGS_combined" in line.split()[0] else "ID_" + str(idx+1) + "_FROGS_combined"
                 dict_cluster_abond[cluster_name]=sum([ int(n.split("_")[-1]) for n in line.strip().split()])
     f.close()
 
@@ -1044,9 +1051,11 @@ def agregate_composition(step1_compo , step2_compo, out_compo):
     with open(step1_compo,"rt") as f:
         for idx,line in enumerate(f.readlines()):
             if "FROGS_combined" in line.split()[0]:
-                dict_cluster1_compo["Cluster_"+str(idx+1)+"_FROGS_combined"]=line.strip()
+                # dict_cluster1_compo["Cluster_"+str(idx+1)+"_FROGS_combined"]=line.strip()
+                dict_cluster1_compo["ID_"+str(idx+1)+"_FROGS_combined"]=line.strip()
             else:
-                dict_cluster1_compo["Cluster_"+str(idx+1)]=line.strip()
+                # dict_cluster1_compo["Cluster_"+str(idx+1)]=line.strip()
+                dict_cluster1_compo["ID_"+str(idx+1)]=line.strip()
     f.close()
 
     FH_out=open(out_compo,"wt")
@@ -1883,7 +1892,6 @@ def process( args ):
             # Dereplicate global on combined filtered cutadapted multifiltered derep
             Logger.static_write(args.log_file, '##Sample\nAll\n##Commands\n')
             DerepGlobalMultiFasta(filtered_files, samples_names, tmp_files.add('derep_inputs.tsv'), dereplicated_fasta, tmp_count, args).submit( args.log_file )
-            
 
             # Check the number of sequences after filtering
             nb_seq = get_nb_seq(dereplicated_fasta)
@@ -1909,24 +1917,24 @@ def process( args ):
             replaceNtags(sorted_fasta, replaceN_fasta)
 
             if args.pre_clustering and args.distance > 1:
-                # Denoising
-                denoising_log = tmp_files.add( filename_woext + '_denoising_log.txt' )
-                denoising_compo = tmp_files.add( filename_woext + '_denoising_composition.txt' )
-                denoising_seeds = tmp_files.add( filename_woext + '_denoising_seeds.fasta' )
-                denoising_resized_seeds = tmp_files.add( filename_woext + '_denoising_resizedSeeds.fasta' )
+                # Pre-clustering
+                pre_clustering_log = tmp_files.add( filename_woext + '_pre_clustering_log.txt' )
+                pre_clustering_compo = tmp_files.add( filename_woext + '_pre_clustering_composition.txt' )
+                pre_clustering_seeds = tmp_files.add( filename_woext + '_pre_clustering_seeds.fasta' )
+                pre_clustering_resized_seeds = tmp_files.add( filename_woext + '_pre_clustering_resizedSeeds.fasta' )
                 swarms_file = tmp_files.add( filename_woext + '_swarmD' + str(args.distance) + '_composition.txt' )
-                final_sorted_fasta = tmp_files.add( filename_woext + '_denoising_sortedSeeds.fasta' )
+                final_sorted_fasta = tmp_files.add( filename_woext + '_pre_clustering_sortedSeeds.fasta' )
 
-                Swarm( replaceN_fasta, denoising_compo, denoising_log, 1 , args.fastidious, args.nb_cpus ).submit( args.log_file )
-                ExtractSwarmsFasta( replaceN_fasta, denoising_compo, denoising_seeds ).submit( args.log_file )
-                resizeSeed( denoising_seeds, denoising_compo, denoising_resized_seeds ) # add size to seeds name
-                SortFasta( denoising_resized_seeds, final_sorted_fasta, args.debug, "_" ).submit( args.log_file )
+                Swarm( replaceN_fasta, pre_clustering_compo, pre_clustering_log, 1 , args.fastidious, args.nb_cpus ).submit( args.log_file )
+                ExtractSwarmsFasta( replaceN_fasta, pre_clustering_compo, pre_clustering_seeds ).submit( args.log_file )
+                resizeSeed( pre_clustering_seeds, pre_clustering_compo, pre_clustering_resized_seeds ) # add size to seeds name
+                SortFasta( pre_clustering_resized_seeds, final_sorted_fasta, args.debug, "_" ).submit( args.log_file )
 
             Swarm( final_sorted_fasta, swarms_file, swarm_log, args.distance, args.fastidious, args.nb_cpus ).submit( args.log_file )
 
             if args.pre_clustering and args.distance > 1:
                 # convert cluster composition in read composition ==> final swarm composition
-                agregate_composition(denoising_compo, swarms_file, args.output_compo)
+                agregate_composition(pre_clustering_compo, swarms_file, args.output_compo)
 
             Swarm2Biom( args.output_compo, tmp_count, args.output_biom).submit( args.log_file )
             ExtractSwarmsFasta( final_sorted_fasta, swarms_file, swarms_seeds ).submit( args.log_file )

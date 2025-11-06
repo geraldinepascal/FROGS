@@ -35,8 +35,8 @@ def find_excluded(excluded_file):
 	@summary: Returns the list of clusters excluded from excluded file.
 	@param excluded_file: [str] Path to the excluded clusters file. 
 	@note : Excluded clusters file must be one cluster ID in the first column:
-	Cluster_1
-	Cluster_4
+	ID_1
+	ID_4
 	...
 	"""
 	excluded = list()
