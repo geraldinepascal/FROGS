@@ -324,7 +324,7 @@ if(params$mod1 == "None"){
 #This implies that a positive log2FoldChange means more abundant in low than in high.")
 ```
 
-Then we extract significant ASVs or FUNCTIONs at the p-value adjusted threshold (after Benjamini Hochberg correction) and enrich results with taxonomic/functional classification and sort the results by pvalue.
+Then we extract significant `r params$analysis`s at the p-value adjusted threshold (after Benjamini Hochberg correction) and enrich results with taxonomic/functional classification and sort the results by pvalue.
 
 ```{r da_abundances}
 
