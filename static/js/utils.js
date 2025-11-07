@@ -185,8 +185,8 @@ var heatmapOption = function(data_type) {
         tooltip: {
             position: 'top',
             formatter: function(params) {
-                return 'Identity: <b>' + categories_ident[params.data[0]] + '</b><br>'
-                    + 'Coverage: <b>' + categories_cover[params.data[1]] + '</b><br>'
+                return 'Identity: <b>' + get_displayed_categories(categories_ident)[params.data[0]] + '</b><br>'
+                    + 'Coverage: <b>' + get_displayed_categories(categories_ident)[params.data[1]] + '</b><br>'
                     + 'Nb ' + clean_type[data_type] + ': <b>' + params.data[2] + '</b>';
             }
         },
@@ -264,15 +264,103 @@ var heatmapOption = function(data_type) {
     };
 };
 
+var histogramOption = function(pTitle, pYTitle, pCategories, pSeries, unity) {
+    var frogsColor = style.getPropertyValue('--frogsColor').trim();
+    return {
+        title: {
+            text: pTitle,
+            left: 'center',
+            textStyle: {
+              //color: frogsColor,
+              fontSize: 16
+            }
+          },
+          tooltip: {
+            trigger: 'axis',
+            axisPointer: {
+              type: 'shadow'
+            },
+            formatter: function(params) {
+              let header = `<span style="font-size:12px"><b>${params[0].axisValue}</b></span><br>`;
+              let body = params.map(p => 
+                `<span style="color:${p.color};">${p.seriesName}:</span> 
+                 <b>${p.value} ${unity}</b><br>`
+              ).join('');
+              return header + body;
+            }
+          },
+          legend: {
+            top: 'bottom'
+          },
+          grid: {
+            left: '8%',
+            right: '5%',
+            bottom: '10%',
+            containLabel: true
+          },
+          //color: [frogsColor, frogsColor2],
+          xAxis: {
+            type: 'category',
+            data: pCategories,
+            axisLabel: {
+              //color: frogsColor2,
+              rotate: 45,
+            },
+            axisLine: {
+              lineStyle: { color: frogsColor2 }
+            }
+          },
+          yAxis: {
+            type: 'value',
+            name: pYTitle,
+            nameLocation: 'middle',
+            nameGap: 40,
+            axisLine: {
+              lineStyle: { color: frogsColor2 }
+            },
+            splitLine: {
+              show: true,
+              lineStyle: { color: 'rgba(0,0,0,0.1)' }
+            },
+            axisLabel: {
+              //color: frogsColor2
+            }
+          },
+          series: pSeries.map(serie => ({
+            name: serie.name,
+            type: 'bar',
+            data: serie.data,
+            barMaxWidth: '50%',
+            emphasis: {
+              focus: 'series'
+            }
+          })),
+          toolbox: {
+            feature: {
+              saveAsImage: {
+                title: 'Download',
+                name: pTitle.replace(/\s+/g, '_')
+              },
+              dataZoom: {}
+            },
+            right: '5%',
+            top: 'top'
+          }
+    }
+}
+
 var lineOption = function(pTitle, pXTitle, pYTitle, pXCategories, pData) {
     let xMin = Math.min(
         ...pData.flatMap(serie => serie.data.map(point => point[0]))
     );
+    /*let colors = Array.from({ length: pData.length }, (_, i) =>
+        `hsl(${(i * 360 / pData.length)}, 70%, 50%)`
+    );*/
     return {
         title: {
             text: pTitle
         },
-        color: ['#d87c7c', '#919e8b', '#d7ab82', '#6e7074', '#61a0a8', '#efa18d', '#787464', '#cc7e63', '#724e58', '#4b565b'],
+        //color: ['#d87c7c', '#919e8b', '#d7ab82', '#6e7074', '#61a0a8', '#efa18d', '#787464', '#cc7e63', '#724e58', '#4b565b'],
         tooltip: {
             trigger: 'item',
             axisPointer: { show: false },
@@ -565,6 +653,7 @@ function pieOption(value_1, value_2, label_1, label_2, title, unit, value_3 = nu
     if (value_3 !== null && label_3 !== null) {
         data.push({ value: value_3, name: label_3 });
     }
+    
     let option = {
         title: {
         text: title,
