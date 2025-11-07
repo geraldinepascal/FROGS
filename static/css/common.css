@@ -167,3 +167,8 @@ a:hover{
 .table{
     --bs-table-bg: var(--frogsBackgroundColor);
 }
+
+#byFilters-jvenn svg {
+        width: 100% !important;
+        height: 100% !important;
+}

@@ -2,15 +2,33 @@
 
 <html>
 	<head>
-		<title>FROGS Affiliation</title>
-		<meta charset="UTF-8">
-		<meta name="author" content="Frederic Escudie - Genotoul/MIAT & Maria Bernard - SIGENAE/GABI" />
-        <meta name="version" content="5.0.0" />
-        <meta name="copyright" content="Copyright (C) 2024 INRAE" />
-		<!-- CSS -->
-		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.1.1/css/bootstrap.css"></link>
-		<link rel="stylesheet" href="https://cdn.datatables.net/1.10.19/css/dataTables.bootstrap4.min.css"></link>
-		<link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet"></link>
+		<title>FROGS Taxonomic affiliation</title>
+		<meta charset="UTF-8" />
+		<meta name="author" content="Frederic Escudie - Genotoul/MIAT & Maria Bernard - SIGENAE/GABI & Olivier Rué - Migale/MaIAGE" />
+        <meta name="version" content="5.1.0" />
+        <meta name="copyright" content="Copyright (C) 2025 INRAE" />
+		<!-- JQUERY -->
+		<script type="text/javascript" src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+		<!-- ECHARTS -->
+		<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/echarts@6.0.0/dist/echarts.min.js"></script>
+		<!-- Bootstrap -->
+		<link rel="stylesheet" href="https://cdn.datatables.net/1.10.21/css/dataTables.bootstrap4.min.css">
+		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-table@1.22.6/dist/bootstrap-table.min.css">
+		<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+		<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+		<script src="https://cdn.jsdelivr.net/npm/bootstrap-table@1.22.6/dist/bootstrap-table.min.js"></script>
+		<!-- Extensions Export -->
+		<script src="https://cdn.jsdelivr.net/npm/tableexport.jquery.plugin@1.28.0/tableExport.min.js"></script>
+		<script src="https://cdn.jsdelivr.net/npm/bootstrap-table@1.22.6/dist/extensions/export/bootstrap-table-export.min.js"></script>
+		<!-- Font Awesome -->
+		<link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+		
+		###IMPORT_CSS###
+		
+		###IMPORT_JS_UTILS###
+
+		###IMPORT_JS_THEME###
+
 		<style type="text/css">
 			/*
 			 * jDistrib 0.1.0 - CSS jDistrib Library	
@@ -20,291 +38,7 @@
 			 */
 			#sunburst-graph{margin-left:auto;margin-right:auto}.jDistrib-walk-rank{height:100%;margin-right:2px;padding:8px;float:left;border-top-right-radius:7px;border-bottom-right-radius:7px;cursor:pointer;box-shadow:1px 1px 1px #555}.jDistrib-walk-rank-size{margin-left:5px;padding:4px;background-color:#FFF;color:#648a89;border-radius:9px;text-align:center;font-size:10px;font-family:sans-serif}.jDistrib-root-label{font-weight:700;cursor:pointer}.jDistrib-arc-label{cursor:pointer}.jDistrib-arc{cursor:pointer;stroke:#fff;fill-rule:evenodd}.jDistrib-tooltip{position:absolute;padding:10px;font:12px sans-serif;background:var(--frogsColor);border:0;border-radius:8px;pointer-events:none;color:#FFF}.jDistrib-empty-details{color:#fff;background-color:frogsColor;padding:15px;margin-bottom:20px;border:1px solid transparent;border-radius:4px}.jDistrib-table-details>tbody>tr:nth-of-type(2n+1){background-color:#F5F5F5}.jDistrib-table-details{border:1px solid #DDD;border-radius:8px;border-spacing:1px;border-collapse:separate}.jDistrib-table-details td,th{padding:2px 8px}.jDistrib-table-details .number{text-align:right}.jDistrib-export-toggle{height:30px;width:30px;padding:1px}.jDistrib-export-toggle div{background-color:#636363;border-radius:2px;height:3px;margin-top:2px;margin-bottom:2px}
 		</style>
-		<style type="text/css">
-			:root {
-				--frogsColor: #388697; 
-				--frogsColorHover: rgb(12,10,62,0.8);
-				--frogsColorShadow: #6c5b64;
-				--frogsColor2: #FA8883;
-				--frogsColor3: #ffef99;
-				--frogsColor4: #737f75;
-				--frogsColorZoomHighCharts: rgb(191,211,193,0.25);
-				--frogsButtonColor: rgb(105,79,93,0.6);
-				--frogsButtonBorderColor: rgb(12,10,62,0.6);
-				--frogsOddTable: rgba(249,86,79, 0.1);
-				--frogsCircleFontColor: #FFF;
-				--frogsCircleBackgroundColor: #FA8883;
-				--frogsCircleBorderColor: #FA8883;
-			}
-			/* Tables */
-			.table-striped tbody tr:nth-of-type(2n+1) {
-			  background-color: var(--frogsOddTable);
-			}
-			.container {
-				position: relative;
-				padding-left: 35px;
-				margin-bottom: 15px;
-				cursor: pointer;
-				-webkit-user-select: none;
-				-moz-user-select: none;
-				-ms-user-select: none;
-				user-select: none;
-			}
-			.container input {
-				position: absolute;
-				opacity: 0;
-				cursor: pointer;
-			}
-			.page-link{
-				color: var(--frogsColor);
-			}
-			.page-link:hover{
-				color: var(--frogsColorHover);
-			}
-			
-			/* Titles */
-			h2{
-				color: var(--frogsColor);
-			}
-			.pb-2, .py-2 {
-				padding-bottom: 1.5rem !important;
-				margin-bottom: 2rem !important;
-				margin-top: 4rem !important;
-			}
-			.pb-2-first{
-				padding-bottom: 1.5rem !important;
-				margin-bottom: 2rem !important;
-				margin-top: 1rem !important;
-			}
-			
-			/* Header */
-			.frogsversion{
-				position: absolute;
-				right: 5%;
-				color: var(--frogsColor);
-				font-style: italic;
-				font-size: smaller;
-				padding:8px;
-			}
-			.frogsversion > a{
-				border: none !important;
-				display: inline-block;
-			}
-			ul.nav-tabs {
-				margin-bottom: 30px;
-			}
-			.nav-tabs .nav-link.active, .nav-tabs .nav-item.show .nav-link{
-				color: #fff;
-				background-color: var(--frogsColor);
-				border-color: #dee2e6 #dee2e6 #fff;
-			}
-			
-			/* Buttons */
-			.btn {
-				color: #fff;
-				border:  var(--frogsButtonBorderColor);
-				background-color: var(--frogsButtonColor);
-			}
-			.btn:focus, .btn:active {
-				outline: none !important;
-				box-shadow: none !important;
-			}
-			.btn:hover:enabled{
-				color: #fff;
-				border: var(--frogsButtonBorderColor);
-				background-color: var(--frogsColorHover);
-				cursor:pointer !important;
-			}
-			.heatmap-button-container {
-				width: 200px;
-				margin-left: auto;
-				margin-right: auto;
-			}
-			
-			/* Global */
-			#dispersion {
-                 margin: auto;
-			}
-			#twofigs{
-                 height: 600px;
-			}
-			#content {
-                width: 90%;
-                margin-right: auto;
-                margin-left: auto;
-            }
-            #js-alert {
-                width: 90%;
-                margin-right: auto;
-                margin-left: auto;
-            }
-            a {
-				color: var(--frogsColor);
-			}
-			a:hover{
-				color: var(--frogsColorHover);
-			}
-			.page-item.active .page-link {
-				z-index: 1;
-				color: #fff;
-				background-color: var(--frogsButtonColor);
-				border-color: var(--frogsButtonColor);
-				outline: none !important;
-				box-shadow: none !important;
-			}
-			
-			/* Checkmarks in tables */
-			.checkmark {
-				position: absolute;
-				top: 0;
-				left: 0;
-				height: 20px;
-				width: 20px;
-				background-color: var(--frogsButtonColor);
-				border-radius: 5px;
-				opacity:0.65;
-			}
-			.container:hover input ~ .checkmark {
-				background-color: var(--frogsColorHover);
-			}
-			.checkmark:after {
-				content: "";
-				position: absolute;
-				display: none;
-			}
-			.container input:checked ~ .checkmark:after {
-				display: block;
-			}
-			.container .checkmark:after {
-				left: 7px;
-				top: 3px;
-				width: 6px;
-				height: 10px;
-				border: solid white;
-				border-width: 0 3px 3px 0;
-				-webkit-transform: rotate(45deg);
-				-ms-transform: rotate(45deg);
-				transform: rotate(45deg);
-			}
-			
-			/* Highcharts buttons */
-			.highcharts-button > path{
-				stroke:#fff !important;
-				fill: var(--frogsButtonColor) !important;
-			}
-			g.highcharts-button{
-				cursor:pointer !important;
-			}
-			g.highcharts-button:hover{
-				color: #fff;
-				border: var(--frogsColorHover);
-				background-color: var(--frogsColorHover);
-				cursor:pointer !important;
-			}
-			.highcharts-button > path{
-				stroke:#fff !important;
-				fill: var(--frogsColor) !important;
-			}
-			g.highcharts-button{
-				cursor:pointer !important;
-			}
-			g.highcharts-button:hover{
-				color: #fff;
-				border: var(--frogsColorHover);
-				background-color: var(--frogsColorHover);
-				background-color: var(--frogsColorHover);
-				cursor:pointer !important;
-			}
-			
-			/* Circles */
-			.circle {
-				border-style: solid;
-				border-width: 3px;
-				border-radius: 50px;
-				box-shadow: 2px 2px 2px var(--frogsColorShadow);
-				border-color: var(--frogsCircleBorderColor);
-				background: var(--frogsCircleBackgroundColor);
-				color: var(--frogsCircleFontColor);
-				padding: 10px;
-				width: 180px;
-				height: 98px;
-				line-height: 30px;
-				text-align: center;
-				margin-left: auto;
-				margin-right: auto;
-				margin-bottom: 10px;
-				vertical-align: middle;
-			}
-			.circle-value {
-				font-weight: bold;
-			}
-			
-			/* Venn */
-			#venn-filters {
-				padding: 10px;
-				background-color: #FFF;
-				background-clip: padding-box;
-				border: 1px solid rgba(0, 0, 0, 0.15);
-				border-radius: 4px;
-				box-shadow: 0px 6px 12px rgba(0, 0, 0, 0.176);
-				margin-right: auto;
-				margin-left: auto;
-				margin-bottom: 30px;
-			}
-			#byFilters-jvenn {
-				margin-right: auto;
-				margin-left: auto;
-			}
-			#venn-filters ul {
-				list-style-type: none;
-			}
-			
-			/* Sunburst */
-			#sunburst-detail table {
-				margin-left: auto;
-				margin-right: auto;
-			}	
-			#sunburst-detail p {
-				text-align: center;
-			}
-			#sunburst-menu input {
-				margin-right: 10px;
-			}
-			#display-global-sunburst {
-				margin-bottom: 40px;
-			}
-			
-			
-						 
-        </style>
-		<!-- JS -->
-		<script type="text/javascript" src="https://code.jquery.com/jquery-2.1.3.min.js"></script>
-		<script type="text/javascript" src="https://code.highcharts.com/8.2.0/highcharts.js"></script>
-		<script type="text/javascript" src="https://code.highcharts.com/8.2.0/highcharts-more.js"></script>
-		<script type="text/javascript" src="https://code.highcharts.com/8.2.0/modules/heatmap.js"></script>
-		<script type="text/javascript" src="https://code.highcharts.com/8.2.0/modules/exporting.js"></script>
-		<script type="text/javascript" src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
-		<script type="text/javascript" src="https://cdn.datatables.net/1.10.19/js/dataTables.bootstrap4.min.js"></script>
-		<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.11.0/umd/popper.min.js" integrity="sha384-b/U6ypiBEHpOf/4+1nzFpr53nxSS+GLCkfwBdFNTxtclqqenISfwAzpKaMNFNmj4" crossorigin="anonymous"></script>
-		<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js" integrity="sha384-smHYKdLADwkXOn1EmN1qk/HfnUcbVRZyYmZ4qpPea6sjB/pTJ0euyQp0Mk8ck+5T" crossorigin="anonymous"></script>
-		<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.12.4/js/bootstrap-select.min.js"></script>
-		<script type="text/javascript">
-			/*
-			 * HTMLTable.js 0.1.0 - HTMLTable Library
-			 *
-			 * Copyright (c) 2015 Escudie Frederic
-			 * Licensed under the MIT (http://www.opensource.org/licenses/mit-license.php) license.
-			 */
-			function HTMLtable(e){var t,r,n=e,a=";";this.deleteColumns=function(e){for(var a=n.getElementsByTagName("tr"),o=0;o<a.length;o++){s=0;var i=a[o].getElementsByTagName("td");0==i.length&&(i=a[o].getElementsByTagName("th"));for(var v=0,s=0;s<t[1];s++)if(!r[o][s]){var f=i[v].getAttribute("colspan");if(null!=f)for(var m=0;f>m;m++){if(in_array(s+m,e)){var u=i[v].getAttribute("colspan");u-1==0?i[v].removeAttribute("colspan"):i[v].setAttribute("colspan",u-1)}if(null==i[v].getAttribute("colspan")){var h=i[v];a[o].removeChild(h),v--}}else if(in_array(s,e)){var h=i[v];a[o].removeChild(h),v--}v++}}l(),g()},this.filter=function(e,a){var l=new RegExp(e),g=new Array;null!=a&&a||(g.c0=!0);for(var o=n.getElementsByTagName("tr"),i=0;i<o.length;i++){f=0;var v=o[i].getElementsByTagName("td");if(0!=v.length)for(var s=0,f=0;f<t[1];f++)r[i][f]||(l.test(v[s].innerHTML)&&(g["c"+f]=!0),s++)}for(var m=new Array,u=0;u<t[1];u++)void 0===g["c"+u]&&m.push(u);this.deleteColumns(m)},this.getModel=function(){return n};var l=function(){for(var e=0,r=0,a=n.getElementsByTagName("tr"),l=0;l<a.length;l++){var g=0;e++;var o=a[l].getElementsByTagName("td");0==o.length&&(o=a[l].getElementsByTagName("th"));for(var i=0;i<o.length;i++){var v=o[i].getAttribute("colspan");g+=null==v?1:parseInt(v)}g>r&&(r=g)}t=new Array(2),t[0]=e,t[1]=r},g=function(){r=new Array(t[0]);for(var e=0;e<t[0];e++){r[e]=new Array(t[1]);for(var a=0;a<t[1];a++)r[e][a]=!1}for(var l=n.getElementsByTagName("tr"),g=0;g<l.length;g++){v=0;var o=l[g].getElementsByTagName("td");0==o.length&&(o=l[g].getElementsByTagName("th"));for(var i=0,v=0;v<t[1];v++)if(!r[g][v]){var s=0,f=0,m=o[i].getAttribute("rowspan");null!=m&&(s=parseInt(m)-1);var u=o[i].getAttribute("colspan");null!=u&&(f=parseInt(u)-1);for(var h=s;h>=0;h--)for(var y=f;y>=0;y--)(0!=h||0!=y)&&(r[g+h][v+y]=!0);i++}}};this.replace=function(e,a,l){var g=new RegExp(e);null==a&&(a=""),null==l&&(l="");for(var o=n.getElementsByTagName("tr"),i=0;i<o.length;i++){f=0;var v=o[i].getElementsByTagName("td");if(0!=v.length)for(var s=0,f=0;f<t[1];f++)if(!r[i][f]){var m=g.exec(v[s].innerHTML);null!=m&&(void 0===m[1]&&(m[1]=""),v[s].innerHTML=a+m[1]+l),s++}}},this.toCSV=function(){for(var e="",l=n.getElementsByTagName("tr"),g=0;g<l.length;g++){var o=l[g].getElementsByTagName("td");0==o.length&&(o=l[g].getElementsByTagName("th"));for(var i=0,v=0;v<t[1];v++)r[g][v]||(e+=o[i].innerHTML,i++),e+=a;e=e.substr(0,e.length-1)+"\n"}return e},l(),g()}var in_array=function(e,t){for(var r in t)if(t[r]==e)return!0;return!1};
-			
-			/*
-			 * dataTableExtractor.plugin.js 0.1.0 - datatableExport Library
-			 *
-			 * Copyright (c) 2015 Escudie Frederic
-			 * Licensed under the MIT (http://www.opensource.org/licenses/mit-license.php) license.
-			 */
-			!function(t){t.fn.datatableExport=function(a){var e={anchor_id:t(this).attr("id"),table_id:null,csv_separator:";",omitted_columns:[]},n=t.extend(e,a);if(!t(this).length)throw"The element where the datatableExport is called does not exist.";if(void 0==n.anchor_id)throw"The datatableExport plugin must be called on an element with id.";if(null==n.table_id)throw"You must set the table_id parameter in datatableExport plugin.";if(!t("#"+n.table_id))throw"The datatable '#"+n.table_id+"' cannot be retieve in DOM.";return this.each(function(){var a=t(this);a.on("click",function(){t.fn.datatableExport.csv(n.anchor_id,n.table_id,n.csv_separator,n.omitted_columns)})})},t.fn.datatableExport.cleanCellMarkup=function(a,e){t.parseHTML(e);t("#"+a).append('<div class="hidden data-tmp">'+e+"</div>"),t("#"+a+" .data-tmp").find("input").each(function(){var a="";a=t(this).is(":checkbox")?t(this).is(":checked")?"true":"false":t(this).val(),t(this).replaceWith(a)});var n=t("#"+a+" .data-tmp").text();return t("#"+a+" .data-tmp").remove(),n},t.fn.datatableExport.csv=function(a,e,n,i){var l="",r=t("#"+e).DataTable(),d=t("#"+e+" thead")[0],o=new HTMLtable(d.cloneNode(!0));o.deleteColumns(i),l+=o.toCSV();var c=r.rows().data();t.each(c,function(e,n){for(var r="",d=0;d<n.length;d++)-1==t.inArray(d,i)&&(r+='"'+t.fn.datatableExport.cleanCellMarkup(a,n[d])+'";');""!=r&&(r=r.slice(0,-1)),l+=r+"\n"}),t("#"+a+"-extract-csv").length||t("#"+a).append('<a id="'+a+'-extract-csv" href="data:text/csv;charset=UTF-8,'+encodeURI(l)+'" download="data.csv" style="display:none;"></a>'),t("#"+a+"-extract-csv")[0].click()}}(jQuery);
-		</script>
+
 		<script type="text/javascript">
 			/*
 			 * d3 v3 - JavaScript d3 Library
@@ -323,19 +57,10 @@
 			 * Copyright (c) 2015 Escudie Frederic
 			 * Licensed under the MIT (http://www.opensource.org/licenses/mit-license.php) license.
 			 */
-			var frogsSunburstPalette = [
-					"#769576", // Vert clair
-					"#D9A6A6", // Rose pâle
-					"#C0C099", // Jaune pâle
-					"#567330", // Vert olive
-					"#B0B061", // Jaune clair
-					"#94A1B2", // Bleu clair
-					"#B04D4D", // Rouge clair
-					"#E6A320", // Or
-					"#E67A5A", // Saumon clair
-					"#819CA5"  // Bleu clair
-				];
-			var jDistrib={pg_selector:{sunburst:null,walktrace:null,menu:null,detail:null},access:{graph:null,tooltip:null},graph:{sunburst:{padding:30,width:null,height:null,_radius:null,_arc:null,_x:null,_y:null},labels:{padding:7,font_size:15},colors:{set:frogsSunburstPalette,neutral:"#dadaeb",radialization:15,start_depth:1}},tree:{current_root:null,root_size:0}},cJDistrib=function(t,e){Object.deepExtend(jDistrib,e),null==jDistrib.pg_selector.menu||d3.select(jDistrib.pg_selector.menu).empty()||_setMenu(),null==jDistrib.pg_selector.detail||d3.select(jDistrib.pg_selector.detail).empty()||(jQuery(jDistrib.pg_selector.sunburst).on("jd.walk",function(){clearDetails()}),jQuery(jDistrib.pg_selector.sunburst).on("jd.displayDetails",function(t,e){displayDetails(e)})),null==jDistrib.pg_selector.walktrace||d3.select(jDistrib.pg_selector.walktrace).empty()||jQuery(jDistrib.pg_selector.sunburst).on("jd.walk",function(t,e){walkTraceUpdate(e)}),_setSVG(),_load(t),walkTo(jDistrib.tree.current_root,0)},_setSVG=function(){var t=d3.select(jDistrib.pg_selector.sunburst).append("svg").attr("width",jDistrib.graph.sunburst.width).attr("height",jDistrib.graph.sunburst.height).append("g").attr("transform","translate("+jDistrib.graph.sunburst.width/2+","+jDistrib.graph.sunburst.height/2+")");jDistrib.access.graph=t,jDistrib.graph._radius=Math.min(jDistrib.graph.sunburst.width,jDistrib.graph.sunburst.height)/2-jDistrib.graph.sunburst.padding,(jDistrib.graph.sunburst.padding>=jDistrib.graph.sunburst.width+10||jDistrib.graph.sunburst.padding>=jDistrib.graph.sunburst.height+10)&&(jDistrib.graph._radius=Math.min(jDistrib.graph.sunburst.width,jDistrib.graph.sunburst.height)/2),jDistrib.graph._x=d3.scale.linear().range([0,2*Math.PI]),jDistrib.graph._y=d3.scale.pow().exponent(1.3).domain([0,1]).range([0,jDistrib.graph._radius]),jDistrib.graph._arc=d3.svg.arc().startAngle(function(t){return getStartAngle(t)}).endAngle(function(t){return getEndAngle(t)}).innerRadius(function(t){return getInnerRadius(t)}).outerRadius(function(t){return getOuterRadius(t)}),jDistrib.access.tooltip=d3.select(jDistrib.pg_selector.sunburst).append("div").attr("class","jDistrib-tooltip").style("opacity",0)},_load=function(t){jDistrib.tree.current_root=t,jDistrib.tree.root_size=getSize(t);var e=d3.layout.partition().value(function(t){return t.size});addID(t,0),addDepth(t,0);d3.select(jDistrib.pg_selector.sunburst+" g").datum(t).selectAll("path").data(e.nodes).enter().append("path").attr("d",jDistrib.graph._arc).attr("class","jDistrib-arc").attr("id",function(t){return"sb-arc-"+t.sunburst_id}).on("click",click).on("dblclick",dblclick).on("mousemove",hover).on("mouseout",function(){hideTooltip()}).each(stash),getColorsByFirstNodes(t);changeColorDepth(jDistrib.graph.colors.start_depth)},hover=function(t){displayTooltip(t)},click=function(t){jQuery(jDistrib.pg_selector.sunburst).trigger("jd.displayDetails",[t])},dblclick=function(t){walkTo(t)};Object.deepExtend=function(t,e){for(var r in e)"object"==typeof e[r]&&null!==e[r]?(t[r]=t[r]||{},arguments.callee(t[r],e[r])):t[r]=e[r];return t};var getStartAngle=function(t){return Math.max(0,Math.min(2*Math.PI,jDistrib.graph._x(t.x)))},getEndAngle=function(t){return Math.max(0,Math.min(2*Math.PI,jDistrib.graph._x(t.x+t.dx)))},getInnerRadius=function(t){return Math.max(0,t.y?jDistrib.graph._y(t.y):t.y)},getOuterRadius=function(t){return Math.max(0,jDistrib.graph._y(t.y+t.dy))},stash=function(t){t.x0=t.x,t.dx0=t.dx},brancheSizes=function(t){var e=new Array,r=t;for(e.unshift({name:r.name,size:getSize(r),node:r});r.hasOwnProperty("parent")&&null!=r.parent;)r=r.parent,e.unshift({name:r.name,size:getSize(r),node:r});return e},sunburstUpdate=function(t,e){e=null==e?1e3:e,removeLabels(),d3.selectAll(jDistrib.pg_selector.sunburst+" path").transition().duration(e).attrTween("d",arcTweenZoom(t)),setTimeout(function(){addLabels()},e)},walkTo=function(t,e){jQuery(jDistrib.pg_selector.sunburst).trigger("jd.walk",[t]),jDistrib.tree.current_root=t,sunburstUpdate(t,e)},arcTweenData=function(t,e){function r(e){var r=i(e);return t.x0=r.x,t.dx0=r.dx,jDistrib.graph._arc(r)}var i=d3.interpolate({x:t.x0,dx:t.dx0},t);if(0==e){var n=d3.interpolate(x.domain(),[jDistrib.tree.current_root.x,jDistrib.tree.current_root.x+jDistrib.tree.current_root.dx]);return function(t){return x.domain(n(t)),r(t)}}return r},arcTweenZoom=function(t){var e=d3.interpolate(jDistrib.graph._x.domain(),[t.x,t.x+t.dx]),r=d3.interpolate(jDistrib.graph._y.domain(),[t.y,1]),i=d3.interpolate(jDistrib.graph._y.range(),[t.y?20:0,jDistrib.graph._radius]);return function(t,n){return n?function(){return jDistrib.graph._arc(t)}:function(n){return jDistrib.graph._x.domain(e(n)),jDistrib.graph._y.domain(r(n)).range(i(n)),jDistrib.graph._arc(t)}}},colorComponentToHexa=function(t){var e=t.toString(16);return e.length<2&&(e="0"+e),e},RGBToHexa=function(t,e,r){return colorComponentToHexa(t)+colorComponentToHexa(e)+colorComponentToHexa(r)},hexa2RGB=function(t){return[parseInt(t.substring(0,2),16),parseInt(t.substring(2,4),16),parseInt(t.substring(4,6),16)]},colorToWhite=function(t,e){var r=new Array;if(0===t.indexOf("#"))r=hexa2RGB(t.substr(1));else if(0===t.indexOf("rgb(")){r=t.substr(4,t.length-1).split(",");for(var i=0;3>i;i++)r[i]=parseInt(r[i])}for(var n="#",i=0;3>i;i++)n+=colorComponentToHexa(Math.min(255,r[i]+e));return n},getNodeByDepthSorted=function(t,e){var r=new Array;if(t.depth==e)r.push(t);else if(t.depth<e&&t.hasOwnProperty("children")&&0!=t.children.length)for(var i=t.children.sort(function(t,e){return getSize(e)-getSize(t)}),n=0;n<i.length;n++)for(var s=getNodeByDepth(i[n],e),a=0;a<s.length;a++)r.push(s[a]);return r},getColorsByFirstNodes=function(t){for(var e=getNodeByDepthSorted(t,t.depth+jDistrib.graph.colors.start_depth),r=new Array,i=0;i<e.length;i++)r["sb-arc-"+e[i].sunburst_id]=jDistrib.graph.colors.set[i%jDistrib.graph.colors.set.length];return r},getColorToApply=function(t,e){return t.depth<jDistrib.graph.colors.start_depth?jDistrib.graph.colors.neutral:t.depth==jDistrib.graph.colors.start_depth?e["sb-arc-"+t.sunburst_id]:colorToWhite(d3.select("#sb-arc-"+t.parent.sunburst_id).style("fill"),jDistrib.graph.colors.radialization)},getNodeByDepth=function(t,e){var r=new Array;if(t.depth==e)r.push(t);else if(t.depth<e&&t.hasOwnProperty("children")&&0!=t.children.length)for(var i=0;i<t.children.length;i++)for(var n=getNodeByDepth(t.children[i],e),s=0;s<n.length;s++)r.push(n[s]);return r},addDepth=function(t,e){if(t.depth=e,t.hasOwnProperty("children")&&0!=t.children.length)for(var r=0;r<t.children.length;r++)addDepth(t.children[r],e+1)},addID=function(t,e){if(e+=1,t.sunburst_id=e,t.hasOwnProperty("children")&&0!=t.children.length)for(var r=0;r<t.children.length;r++)e=addID(t.children[r],e);return e},getSize=function(t){if(t.hasOwnProperty("size"))return t.size;if(t.hasOwnProperty("children")&&0!=t.children.length){for(var e=0,r=0;r<t.children.length;r++)e+=getSize(t.children[r]);return e}},getRoot=function(t){for(var e=t;e.hasOwnProperty("parent")&&null!=e.parent;)e=e.parent;return e},addLabels=function(){0!=jDistrib.tree.current_root.depth&&d3.select(jDistrib.pg_selector.sunburst+" g").append("text").text(jDistrib.tree.current_root.depth).attr("class","jDistrib-root-label").attr("text-anchor","middle").attr("x",0).attr("y",0).on("dblclick",function(){walkTo(jDistrib.tree.current_root.parent)}),d3.selectAll(jDistrib.pg_selector.sunburst+" path").each(function(t){if(t==jDistrib.tree.current_root||isChildOf(t,jDistrib.tree.current_root)){var e=getEndAngle(t)-getStartAngle(t),r=getInnerRadius(t),i=Math.sin(e/2)*r*2,n=getOuterRadius(t)-r,s=r+(getOuterRadius(t)-r)/2,a=s*e;a>=n?setLabelArcMode(t,a,n):setLabelLineMode(t,n,i,r,e)}})},setLabelArcMode=function(t,e,r){if(r>=jDistrib.graph.labels.font_size){var i=d3.select(jDistrib.pg_selector.sunburst+" g"),n=t.name;"root"==t.name&&(n=""),i.append("text").text(n).attr("id","evaluate-size").attr("white-space","nowrap").attr("visibility","hidden").style("font-size",jDistrib.graph.labels.font_size+"px");var s=d3.select("#evaluate-size")[0][0].getBBox().width+jDistrib.graph.labels.padding;if(jDistrib.graph.labels.padding>e-3)n="";else for(;s>e-3;)n=n.substring(0,n.length-1),d3.select("#evaluate-size").text(n),s=d3.select("#evaluate-size")[0][0].getBBox().width+jDistrib.graph.labels.padding;d3.select("#evaluate-size").remove(),0!=n.length&&n.length<t.name.length&&(n=n.length>1?n.substring(0,n.length-1)+".":""),n.length>0&&i.append("text").attr("class","jDistrib-arc-label").attr("dy",(getOuterRadius(t)-getInnerRadius(t))/2).style("font-size",jDistrib.graph.labels.font_size+"px").attr("text-rendering","optimizeLegibility").append("textPath").attr("xlink:href",function(){return"#sb-arc-"+t.sunburst_id}).attr("startOffset",jDistrib.graph.labels.padding).text(function(){return n}).on("click",function(){click(t)}).on("dblclick",function(){walkTo(t)}).on("mousemove",function(){displayTooltip(t)}).on("mouseout",function(){hideTooltip()})}},setLabelLineMode=function(t,e,r,i,n){var s=d3.select(jDistrib.pg_selector.sunburst+" g"),a=!1;if(n>=Math.PI&&2*i>jDistrib.graph.labels.font_size?a=!0:r>jDistrib.graph.labels.font_size&&(a=!0),a){var l=t.name;if("root"==t.name&&(l=""),t.hasOwnProperty("children")&&0!=t.children.length){s.append("text").text(l).attr("id","evaluate-size").attr("white-space","nowrap").attr("visibility","hidden").style("font-size",jDistrib.graph.labels.font_size+"px");var o=d3.select("#evaluate-size")[0][0].getBBox().width+jDistrib.graph.labels.padding;if(jDistrib.graph.labels.padding>e-3)l="";else for(;o>e-3;)l=l.substring(0,l.length-1),d3.select("#evaluate-size").text(l),o=d3.select("#evaluate-size")[0][0].getBBox().width+jDistrib.graph.labels.padding;d3.select("#evaluate-size").remove(),0!=l.length&&l.length<t.name.length&&(l=l.length>1?l.substring(0,l.length-1)+".":"")}l.length>0&&s.append("text").text(function(){return l}).attr("class","jDistrib-arc-label").style("font-size",jDistrib.graph.labels.font_size+"px").attr("dy",".35em").attr("text-anchor",function(){return jDistrib.graph._x(t.x+t.dx/2)>Math.PI?"end":"start"}).attr("transform",function(){var e=180*jDistrib.graph._x(t.x+t.dx/2)/Math.PI-90;return"rotate("+e+")translate("+(jDistrib.graph._y(t.y)+jDistrib.graph.labels.padding)+")rotate("+(e>90?-180:0)+")"}).on("click",function(){click(t)}).on("dblclick",function(){walkTo(t)}).on("mousemove",function(){displayTooltip(t)}).on("mouseout",function(){hideTooltip()})}},removeLabels=function(){d3.selectAll(jDistrib.pg_selector.sunburst+" .jDistrib-arc-label").remove(),d3.selectAll(jDistrib.pg_selector.sunburst+" .jDistrib-root-label").remove()},isChildOf=function(t,e){return t.depth<=e.depth?!1:t.depth-1==e.depth?t.parent==e:isChildOf(t.parent,e)},hideTooltip=function(){jDistrib.access.tooltip.transition().duration(500).style("opacity",0)},displayTooltip=function(t){jDistrib.access.tooltip.html(getTooltipContent(t)).style("left",d3.event.layerX+5+"px").style("top",d3.event.layerY-30+"px"),jDistrib.access.tooltip.transition().duration(200).style("opacity",.9)},getTooltipContent=function(t){return 0==jDistrib.tree.current_root.depth?t.name+": <b>"+(getSize(t)/jDistrib.tree.root_size*100).toFixed(3)+"%</b>":t.name+":<br />Total <b>"+(getSize(t)/jDistrib.tree.root_size*100).toFixed(3)+"%</b><br />"+jDistrib.tree.current_root.name+" <b>"+(getSize(t)/getSize(jDistrib.tree.current_root)*100).toFixed(3)+"%</b>"},walkTraceUpdate=function(t){var e=brancheSizes(t),r=d3.select(jDistrib.pg_selector.walktrace);r.selectAll(".jDistrib-walk-path").remove();for(var i=r.append("div").attr("class","jDistrib-walk-path"),n=0;n<e.length;n++){var s=i.append("div").attr("class","jDistrib-walk-rank").attr("style","background-color:"+frogsColor+";color:#fff");s.append("span").attr("class","jDistrib-walk-rank-name").html(e[n].name),0!=n&&s.append("span").attr("class","jDistrib-walk-rank-size").html((parseInt(e[n].size)/parseInt(e[n-1].size)*100).toFixed(1)),s.data([e[n].node]),s.on("click",function(){walkTo(d3.select(this)[0][0].__data__)})}i.append("div").attr("style","clear:both")},_setMenu=function(){d3.select(jDistrib.pg_selector.menu).append("label").attr("for","in-label-size").text("Font size: "),d3.select(jDistrib.pg_selector.menu).append("input").attr("id","in-label-size").attr("type","number").attr("min",1).attr("value",jDistrib.graph.labels.font_size).on("change",function(){d3.select("#in-color-depth")[0][0].value<1&&(d3.select("#in-color-depth")[0][0].value=1),changeLabelSize(d3.select("#in-label-size")[0][0].value)});var t=7;d3.select(jDistrib.pg_selector.menu).append("label").attr("for","in-color-depth").text("Colors start depth: "),d3.select(jDistrib.pg_selector.menu).append("input").attr("id","in-color-depth").attr("type","number").attr("min",1).attr("max",t).attr("value",jDistrib.graph.colors.start_depth).on("change",function(){d3.select("#in-color-depth")[0][0].value<1?d3.select("#in-color-depth")[0][0].value=1:d3.select("#in-color-depth")[0][0].value>t&&(d3.select("#in-color-depth")[0][0].value=t),changeColorDepth(d3.select("#in-color-depth")[0][0].value)})},changeLabelSize=function(t){jDistrib.graph.labels.font_size=t,removeLabels(),addLabels()},changeColorDepth=function(t){jDistrib.graph.colors.start_depth=t;var e=getColorsByFirstNodes(getRoot(jDistrib.tree.current_root));d3.select(jDistrib.pg_selector.sunburst+" g").selectAll("path").style("fill",function(t){return getColorToApply(t,e)})},clearDetails=function(){d3.select(jDistrib.pg_selector.detail).html(""),d3.select(jDistrib.pg_selector.detail).append("div").attr("class","jDistrib-empty-details").text("Click on an element to see more details.")},displayDetails=function(t){for(var e=brancheSizes(t),r="",i=0;i<e.length;i++){var n="";n+="<td>"+e[i].name+"</td>",n+='<td class="number">'+e[i].size+"</td>",0!=i?(n+='<td class="number">'+(parseInt(e[i].size)/parseInt(e[0].size)*100).toFixed(3)+"</td>",n+='<td class="number">'+(parseInt(e[i].size)/parseInt(e[i-1].size)*100).toFixed(3)+"</td>"):(n+="<td></td>",n+="<td></td>"),r+="<tr>"+n+"</tr>"}d3.select(jDistrib.pg_selector.detail).html('<table class="jDistrib-table-details">	<thead>		<tr>			<th>Name</th>			<th>Size</th>			<th>Global %</th>			<th>Parent %</th>		</tr>	</thead>	<tbody>'+r+"</tbody></table><p>"+t.name+" nb children: "+(void 0==t.children?0:t.children.length)+"</p>")},exportSVG=function(){console.log("export"),d3.select(jDistrib.pg_selector.sunburst+" .jDistrib-data-export").empty()&&d3.select(jDistrib.pg_selector.sunburst).append("a").attr("class","jDistrib-data-export").attr("href","").attr("download","").attr("style","display:none;");var t=d3.select(jDistrib.pg_selector.sunburst+" svg");console.log(t[0][0]),xml=(new XMLSerializer).serializeToString(t[0][0]),svg_data="data:application/octet-stream;base64,"+btoa(xml),d3.select(jDistrib.pg_selector.sunburst+" .jDistrib-data-export").attr("href",svg_data).attr("download","jDistribChart.svg"),jQuery(jDistrib.pg_selector.sunburst+" .jDistrib-data-export")[0].click()};
+			
+			 var frogsSunburstPalette = [];
+				
+			var jDistrib={pg_selector:{sunburst:null,walktrace:null,menu:null,detail:null},access:{graph:null,tooltip:null},graph:{sunburst:{padding:30,width:null,height:null,_radius:null,_arc:null,_x:null,_y:null},labels:{padding:7,font_size:15},colors:{set:frogsSunburstPalette,neutral:"#dadaeb",radialization:15,start_depth:1}},tree:{current_root:null,root_size:0}},cJDistrib=function(t,e){Object.deepExtend(jDistrib,e),null==jDistrib.pg_selector.menu||d3.select(jDistrib.pg_selector.menu).empty()||_setMenu(),null==jDistrib.pg_selector.detail||d3.select(jDistrib.pg_selector.detail).empty()||(jQuery(jDistrib.pg_selector.sunburst).on("jd.walk",function(){clearDetails()}),jQuery(jDistrib.pg_selector.sunburst).on("jd.displayDetails",function(t,e){displayDetails(e)})),null==jDistrib.pg_selector.walktrace||d3.select(jDistrib.pg_selector.walktrace).empty()||jQuery(jDistrib.pg_selector.sunburst).on("jd.walk",function(t,e){walkTraceUpdate(e)}),_setSVG(),_load(t),walkTo(jDistrib.tree.current_root,0)},_setSVG=function(){var t=d3.select(jDistrib.pg_selector.sunburst).append("svg").attr("width",jDistrib.graph.sunburst.width).attr("height",jDistrib.graph.sunburst.height).append("g").attr("transform","translate("+jDistrib.graph.sunburst.width/2+","+jDistrib.graph.sunburst.height/2+")");jDistrib.access.graph=t,jDistrib.graph._radius=Math.min(jDistrib.graph.sunburst.width,jDistrib.graph.sunburst.height)/2-jDistrib.graph.sunburst.padding,(jDistrib.graph.sunburst.padding>=jDistrib.graph.sunburst.width+10||jDistrib.graph.sunburst.padding>=jDistrib.graph.sunburst.height+10)&&(jDistrib.graph._radius=Math.min(jDistrib.graph.sunburst.width,jDistrib.graph.sunburst.height)/2),jDistrib.graph._x=d3.scale.linear().range([0,2*Math.PI]),jDistrib.graph._y=d3.scale.pow().exponent(1.3).domain([0,1]).range([0,jDistrib.graph._radius]),jDistrib.graph._arc=d3.svg.arc().startAngle(function(t){return getStartAngle(t)}).endAngle(function(t){return getEndAngle(t)}).innerRadius(function(t){return getInnerRadius(t)}).outerRadius(function(t){return getOuterRadius(t)}),jDistrib.access.tooltip=d3.select(jDistrib.pg_selector.sunburst).append("div").attr("class","jDistrib-tooltip").style("opacity",0)},_load=function(t){jDistrib.tree.current_root=t,jDistrib.tree.root_size=getSize(t);var e=d3.layout.partition().value(function(t){return t.size});addID(t,0),addDepth(t,0);d3.select(jDistrib.pg_selector.sunburst+" g").datum(t).selectAll("path").data(e.nodes).enter().append("path").attr("d",jDistrib.graph._arc).attr("class","jDistrib-arc").attr("id",function(t){return"sb-arc-"+t.sunburst_id}).on("click",click).on("dblclick",dblclick).on("mousemove",hover).on("mouseout",function(){hideTooltip()}).each(stash),getColorsByFirstNodes(t);changeColorDepth(jDistrib.graph.colors.start_depth)},hover=function(t){displayTooltip(t)},click=function(t){jQuery(jDistrib.pg_selector.sunburst).trigger("jd.displayDetails",[t])},dblclick=function(t){walkTo(t)};Object.deepExtend=function(t,e){for(var r in e)"object"==typeof e[r]&&null!==e[r]?(t[r]=t[r]||{},arguments.callee(t[r],e[r])):t[r]=e[r];return t};var getStartAngle=function(t){return Math.max(0,Math.min(2*Math.PI,jDistrib.graph._x(t.x)))},getEndAngle=function(t){return Math.max(0,Math.min(2*Math.PI,jDistrib.graph._x(t.x+t.dx)))},getInnerRadius=function(t){return Math.max(0,t.y?jDistrib.graph._y(t.y):t.y)},getOuterRadius=function(t){return Math.max(0,jDistrib.graph._y(t.y+t.dy))},stash=function(t){t.x0=t.x,t.dx0=t.dx},brancheSizes=function(t){var e=new Array,r=t;for(e.unshift({name:r.name,size:getSize(r),node:r});r.hasOwnProperty("parent")&&null!=r.parent;)r=r.parent,e.unshift({name:r.name,size:getSize(r),node:r});return e},sunburstUpdate=function(t,e){e=null==e?1e3:e,removeLabels(),d3.selectAll(jDistrib.pg_selector.sunburst+" path").transition().duration(e).attrTween("d",arcTweenZoom(t)),setTimeout(function(){addLabels()},e)},walkTo=function(t,e){jQuery(jDistrib.pg_selector.sunburst).trigger("jd.walk",[t]),jDistrib.tree.current_root=t,sunburstUpdate(t,e)},arcTweenData=function(t,e){function r(e){var r=i(e);return t.x0=r.x,t.dx0=r.dx,jDistrib.graph._arc(r)}var i=d3.interpolate({x:t.x0,dx:t.dx0},t);if(0==e){var n=d3.interpolate(x.domain(),[jDistrib.tree.current_root.x,jDistrib.tree.current_root.x+jDistrib.tree.current_root.dx]);return function(t){return x.domain(n(t)),r(t)}}return r},arcTweenZoom=function(t){var e=d3.interpolate(jDistrib.graph._x.domain(),[t.x,t.x+t.dx]),r=d3.interpolate(jDistrib.graph._y.domain(),[t.y,1]),i=d3.interpolate(jDistrib.graph._y.range(),[t.y?20:0,jDistrib.graph._radius]);return function(t,n){return n?function(){return jDistrib.graph._arc(t)}:function(n){return jDistrib.graph._x.domain(e(n)),jDistrib.graph._y.domain(r(n)).range(i(n)),jDistrib.graph._arc(t)}}},colorComponentToHexa=function(t){var e=t.toString(16);return e.length<2&&(e="0"+e),e},RGBToHexa=function(t,e,r){return colorComponentToHexa(t)+colorComponentToHexa(e)+colorComponentToHexa(r)},hexa2RGB=function(t){return[parseInt(t.substring(0,2),16),parseInt(t.substring(2,4),16),parseInt(t.substring(4,6),16)]},colorToWhite=function(t,e){var r=new Array;if(0===t.indexOf("#"))r=hexa2RGB(t.substr(1));else if(0===t.indexOf("rgb(")){r=t.substr(4,t.length-1).split(",");for(var i=0;3>i;i++)r[i]=parseInt(r[i])}for(var n="#",i=0;3>i;i++)n+=colorComponentToHexa(Math.min(255,r[i]+e));return n},getNodeByDepthSorted=function(t,e){var r=new Array;if(t.depth==e)r.push(t);else if(t.depth<e&&t.hasOwnProperty("children")&&0!=t.children.length)for(var i=t.children.sort(function(t,e){return getSize(e)-getSize(t)}),n=0;n<i.length;n++)for(var s=getNodeByDepth(i[n],e),a=0;a<s.length;a++)r.push(s[a]);return r},getColorsByFirstNodes=function(t){for(var e=getNodeByDepthSorted(t,t.depth+jDistrib.graph.colors.start_depth),r=new Array,i=0;i<e.length;i++)r["sb-arc-"+e[i].sunburst_id]=jDistrib.graph.colors.set[i%jDistrib.graph.colors.set.length];return r},getColorToApply=function(t,e){return t.depth<jDistrib.graph.colors.start_depth?jDistrib.graph.colors.neutral:t.depth==jDistrib.graph.colors.start_depth?e["sb-arc-"+t.sunburst_id]:colorToWhite(d3.select("#sb-arc-"+t.parent.sunburst_id).style("fill"),jDistrib.graph.colors.radialization)},getNodeByDepth=function(t,e){var r=new Array;if(t.depth==e)r.push(t);else if(t.depth<e&&t.hasOwnProperty("children")&&0!=t.children.length)for(var i=0;i<t.children.length;i++)for(var n=getNodeByDepth(t.children[i],e),s=0;s<n.length;s++)r.push(n[s]);return r},addDepth=function(t,e){if(t.depth=e,t.hasOwnProperty("children")&&0!=t.children.length)for(var r=0;r<t.children.length;r++)addDepth(t.children[r],e+1)},addID=function(t,e){if(e+=1,t.sunburst_id=e,t.hasOwnProperty("children")&&0!=t.children.length)for(var r=0;r<t.children.length;r++)e=addID(t.children[r],e);return e},getSize=function(t){if(t.hasOwnProperty("size"))return t.size;if(t.hasOwnProperty("children")&&0!=t.children.length){for(var e=0,r=0;r<t.children.length;r++)e+=getSize(t.children[r]);return e}},getRoot=function(t){for(var e=t;e.hasOwnProperty("parent")&&null!=e.parent;)e=e.parent;return e},addLabels=function(){0!=jDistrib.tree.current_root.depth&&d3.select(jDistrib.pg_selector.sunburst+" g").append("text").text(jDistrib.tree.current_root.depth).attr("class","jDistrib-root-label").attr("text-anchor","middle").attr("x",0).attr("y",0).on("dblclick",function(){walkTo(jDistrib.tree.current_root.parent)}),d3.selectAll(jDistrib.pg_selector.sunburst+" path").each(function(t){if(t==jDistrib.tree.current_root||isChildOf(t,jDistrib.tree.current_root)){var e=getEndAngle(t)-getStartAngle(t),r=getInnerRadius(t),i=Math.sin(e/2)*r*2,n=getOuterRadius(t)-r,s=r+(getOuterRadius(t)-r)/2,a=s*e;a>=n?setLabelArcMode(t,a,n):setLabelLineMode(t,n,i,r,e)}})},setLabelArcMode=function(t,e,r){if(r>=jDistrib.graph.labels.font_size){var i=d3.select(jDistrib.pg_selector.sunburst+" g"),n=t.name;"root"==t.name&&(n=""),i.append("text").text(n).attr("id","evaluate-size").attr("white-space","nowrap").attr("visibility","hidden").style("font-size",jDistrib.graph.labels.font_size+"px");var s=d3.select("#evaluate-size")[0][0].getBBox().width+jDistrib.graph.labels.padding;if(jDistrib.graph.labels.padding>e-3)n="";else for(;s>e-3;)n=n.substring(0,n.length-1),d3.select("#evaluate-size").text(n),s=d3.select("#evaluate-size")[0][0].getBBox().width+jDistrib.graph.labels.padding;d3.select("#evaluate-size").remove(),0!=n.length&&n.length<t.name.length&&(n=n.length>1?n.substring(0,n.length-1)+".":""),n.length>0&&i.append("text").attr("class","jDistrib-arc-label").attr("dy",(getOuterRadius(t)-getInnerRadius(t))/2).style("font-size",jDistrib.graph.labels.font_size+"px").attr("text-rendering","optimizeLegibility").append("textPath").attr("xlink:href",function(){return"#sb-arc-"+t.sunburst_id}).attr("startOffset",jDistrib.graph.labels.padding).text(function(){return n}).on("click",function(){click(t)}).on("dblclick",function(){walkTo(t)}).on("mousemove",function(){displayTooltip(t)}).on("mouseout",function(){hideTooltip()})}},setLabelLineMode=function(t,e,r,i,n){var s=d3.select(jDistrib.pg_selector.sunburst+" g"),a=!1;if(n>=Math.PI&&2*i>jDistrib.graph.labels.font_size?a=!0:r>jDistrib.graph.labels.font_size&&(a=!0),a){var l=t.name;if("root"==t.name&&(l=""),t.hasOwnProperty("children")&&0!=t.children.length){s.append("text").text(l).attr("id","evaluate-size").attr("white-space","nowrap").attr("visibility","hidden").style("font-size",jDistrib.graph.labels.font_size+"px");var o=d3.select("#evaluate-size")[0][0].getBBox().width+jDistrib.graph.labels.padding;if(jDistrib.graph.labels.padding>e-3)l="";else for(;o>e-3;)l=l.substring(0,l.length-1),d3.select("#evaluate-size").text(l),o=d3.select("#evaluate-size")[0][0].getBBox().width+jDistrib.graph.labels.padding;d3.select("#evaluate-size").remove(),0!=l.length&&l.length<t.name.length&&(l=l.length>1?l.substring(0,l.length-1)+".":"")}l.length>0&&s.append("text").text(function(){return l}).attr("class","jDistrib-arc-label").style("font-size",jDistrib.graph.labels.font_size+"px").attr("dy",".35em").attr("text-anchor",function(){return jDistrib.graph._x(t.x+t.dx/2)>Math.PI?"end":"start"}).attr("transform",function(){var e=180*jDistrib.graph._x(t.x+t.dx/2)/Math.PI-90;return"rotate("+e+")translate("+(jDistrib.graph._y(t.y)+jDistrib.graph.labels.padding)+")rotate("+(e>90?-180:0)+")"}).on("click",function(){click(t)}).on("dblclick",function(){walkTo(t)}).on("mousemove",function(){displayTooltip(t)}).on("mouseout",function(){hideTooltip()})}},removeLabels=function(){d3.selectAll(jDistrib.pg_selector.sunburst+" .jDistrib-arc-label").remove(),d3.selectAll(jDistrib.pg_selector.sunburst+" .jDistrib-root-label").remove()},isChildOf=function(t,e){return t.depth<=e.depth?!1:t.depth-1==e.depth?t.parent==e:isChildOf(t.parent,e)},hideTooltip=function(){jDistrib.access.tooltip.transition().duration(500).style("opacity",0)},displayTooltip=function(t){jDistrib.access.tooltip.html(getTooltipContent(t)).style("left",d3.event.layerX+5+"px").style("top",d3.event.layerY-30+"px"),jDistrib.access.tooltip.transition().duration(200).style("opacity",.9)},getTooltipContent=function(t){return 0==jDistrib.tree.current_root.depth?t.name+": <b>"+(getSize(t)/jDistrib.tree.root_size*100).toFixed(3)+"%</b>":t.name+":<br />Total <b>"+(getSize(t)/jDistrib.tree.root_size*100).toFixed(3)+"%</b><br />"+jDistrib.tree.current_root.name+" <b>"+(getSize(t)/getSize(jDistrib.tree.current_root)*100).toFixed(3)+"%</b>"},walkTraceUpdate=function(t){var e=brancheSizes(t),r=d3.select(jDistrib.pg_selector.walktrace);r.selectAll(".jDistrib-walk-path").remove();for(var i=r.append("div").attr("class","jDistrib-walk-path"),n=0;n<e.length;n++){var s=i.append("div").attr("class","jDistrib-walk-rank").attr("style","background-color:var(--frogsColor);color:#fff");s.append("span").attr("class","jDistrib-walk-rank-name").html(e[n].name),0!=n&&s.append("span").attr("class","jDistrib-walk-rank-size").html((parseInt(e[n].size)/parseInt(e[n-1].size)*100).toFixed(1)),s.data([e[n].node]),s.on("click",function(){walkTo(d3.select(this)[0][0].__data__)})}i.append("div").attr("style","clear:both")},_setMenu=function(){d3.select(jDistrib.pg_selector.menu).append("label").attr("for","in-label-size").text("Font size: "),d3.select(jDistrib.pg_selector.menu).append("input").attr("id","in-label-size").attr("type","number").attr("min",1).attr("value",jDistrib.graph.labels.font_size).on("change",function(){d3.select("#in-color-depth")[0][0].value<1&&(d3.select("#in-color-depth")[0][0].value=1),changeLabelSize(d3.select("#in-label-size")[0][0].value)});var t=7;d3.select(jDistrib.pg_selector.menu).append("label").attr("for","in-color-depth").text("Colors start depth: "),d3.select(jDistrib.pg_selector.menu).append("input").attr("id","in-color-depth").attr("type","number").attr("min",1).attr("max",t).attr("value",jDistrib.graph.colors.start_depth).on("change",function(){d3.select("#in-color-depth")[0][0].value<1?d3.select("#in-color-depth")[0][0].value=1:d3.select("#in-color-depth")[0][0].value>t&&(d3.select("#in-color-depth")[0][0].value=t),changeColorDepth(d3.select("#in-color-depth")[0][0].value)})},changeLabelSize=function(t){jDistrib.graph.labels.font_size=t,removeLabels(),addLabels()},changeColorDepth=function(t){jDistrib.graph.colors.start_depth=t;var e=getColorsByFirstNodes(getRoot(jDistrib.tree.current_root));d3.select(jDistrib.pg_selector.sunburst+" g").selectAll("path").style("fill",function(t){return getColorToApply(t,e)})},clearDetails=function(){d3.select(jDistrib.pg_selector.detail).html(""),d3.select(jDistrib.pg_selector.detail).append("div").attr("class","jDistrib-empty-details").text("Click on an element to see more details.")},displayDetails=function(t){for(var e=brancheSizes(t),r="",i=0;i<e.length;i++){var n="";n+="<td>"+e[i].name+"</td>",n+='<td class="number">'+e[i].size+"</td>",0!=i?(n+='<td class="number">'+(parseInt(e[i].size)/parseInt(e[0].size)*100).toFixed(3)+"</td>",n+='<td class="number">'+(parseInt(e[i].size)/parseInt(e[i-1].size)*100).toFixed(3)+"</td>"):(n+="<td></td>",n+="<td></td>"),r+="<tr>"+n+"</tr>"}d3.select(jDistrib.pg_selector.detail).html('<table class="jDistrib-table-details">	<thead>		<tr>			<th>Name</th>			<th>Size</th>			<th>Global %</th>			<th>Parent %</th>		</tr>	</thead>	<tbody>'+r+"</tbody></table><p>"+t.name+" nb children: "+(void 0==t.children?0:t.children.length)+"</p>")},exportSVG=function(){console.log("export"),d3.select(jDistrib.pg_selector.sunburst+" .jDistrib-data-export").empty()&&d3.select(jDistrib.pg_selector.sunburst).append("a").attr("class","jDistrib-data-export").attr("href","").attr("download","").attr("style","display:none;");var t=d3.select(jDistrib.pg_selector.sunburst+" svg");console.log(t[0][0]),xml=(new XMLSerializer).serializeToString(t[0][0]),svg_data="data:application/octet-stream;base64,"+btoa(xml),d3.select(jDistrib.pg_selector.sunburst+" .jDistrib-data-export").attr("href",svg_data).attr("download","jDistribChart.svg"),jQuery(jDistrib.pg_selector.sunburst+" .jDistrib-data-export")[0].click()};
 		</script>
 		<script type="text/javascript">
 			/*
@@ -349,347 +74,41 @@
 			var ExtendedNode=function(e,t,n,r){if(this.name=e,this.parent=t,this.children=new Array,null!=n)for(var a=0;a<n.length;a++)this.addChild(n[a]);this.metadata=new Array,null!=r&&(this.metadata=r)};ExtendedNode.prototype.hasChild=function(e){if(null==e)return this.children.length>0;for(var t=!1,n=0;n<this.children.length&&!t;n++)e==this.children[n]&&(t=!0);return t},ExtendedNode.prototype.getChild=function(e){if(!this.hasChild(e))throw this.name+" doesn't have child named '"+e+"'.";return this.children[e]},ExtendedNode.prototype.getParent=function(){return this.parent},ExtendedNode.prototype.getNodeByDepth=function(e){var t=new Array;if(0==e)t.push(this);else if(this.hasChild())for(var n=0;n<this.children.length;n++)for(var r=this.children[n].getNodeByDepth(e-1),a=0;a<r.length;a++)t.push(r[a]);return t},ExtendedNode.prototype.addChild=function(e){null==e.parent&&(e.parent=this),this.children.push(e)},ExtendedNode.fromNewick=function(e){for(var t=new Array,n=0;n<e.length;n++){var r=e[n];if("("==r)t.push("(");else if(")"==r){for(var a=new ExtendedNode(null,null,null,null);"("!=t[t.length-1];)a.addChild(t.pop());t.pop(),t.push(a)}else if(","==r);else if(";"==r);else if(" "==r);else if(":"==r)if("{"==e[n+1]){for(metadata_json="{",n++,nb_open=1,nb_closed=0;nb_open!=nb_closed;)n++,metadata_json+=e[n],"{"==e[n]?nb_open++:"}"==e[n]&&nb_closed++;t[t.length-1].metadata=JSON.parse(metadata_json)}else{for(var h="";","!=e[n+1]&&")"!=e[n+1]&&";"!=e[n+1];)n++,h+=e[n];t[t.length-1].metadata.dist=h}else{var i=null;0!=n&&(i=e[n-1]),'"'==r?(stop_markers=['"'],n++):stop_markers=[",",")",":",";"];for(var d=e[n];-1==stop_markers.indexOf(e[n+1]);)n++,d+=e[n];if(-1!=stop_markers.indexOf('"')&&n++,")"==i)t[t.length-1].name=d;else{var l=new ExtendedNode(d,null,null,null);t.push(l)}}}return t[0]},ExtendedNode.prototype.keepOnlySamples=function(e){var t=!1;if(this.hasChild()){for(var n=new Array,r=0;r<this.children.length;r++)this.children[r].keepOnlySamples(e)&&n.push(r);for(var a=0,h=0;h<n.length;h++)this.children.splice(n[h]-a,1),a++;0==this.children.length&&(t=!0)}else{for(var i=!1,d={},l=0;l<e.length;l++)this.metadata.hasOwnProperty(e[l])&&(d[e[l]]=this.metadata[e[l]],i=!0);i?this.metadata=d:t=!0}return t},ExtendedNode.prototype.toJson=function(){var e={name:null!=this.name?this.name:"",metadata:this.metadata};if(this.hasChild()){for(var t=new Array,n=0;n<this.children.length;n++)t.push(this.children[n].toJson());e.children=t}var r=Object.keys(this.metadata);if(0!=r.length){for(var a=0,h=0;h<r.length;h++)a+=this.metadata[r[h]];e.size=a}return e};
 		</script>
 		<script type="text/javascript">
-			/**
-			Colors
-			*/
-			var root = document.documentElement;
-			var style = getComputedStyle(root);
-			var frogsColor = style.getPropertyValue('--frogsColor');
-			var frogsColor2 = style.getPropertyValue('--frogsColor2');
-			var frogsColor3 = style.getPropertyValue('--frogsColor3');
-			var frogsColor4 = style.getPropertyValue('--frogsColor4');
-			var frogsColorZoomHighCharts = style.getPropertyValue('--frogsColorZoomHighCharts');
-			var frogsColorHover = style.getPropertyValue('--frogsColorHover');
-			var frogsButtonColor = style.getPropertyValue('--frogsButtonColor');
-			var frogsCircleFontColor = style.getPropertyValue('--frogsCircleFontColor');
-				
-			Highcharts.setOptions({
-					 //colors : [frogsColor2, frogsColor],
-					 colors: [
-							"#769576", // Vert clair
-							"#D9A6A6", // Rose pâle
-							"#C0C099", // Jaune pâle
-							"#567330", // Vert olive
-							"#B0B061", // Jaune clair
-							"#94A1B2", // Bleu clair
-							"#B04D4D", // Rouge clair
-							"#E6A320", // Or
-							"#E67A5A", // Saumon clair
-							"#819CA5"  // Bleu clair
-						],
-					 lang: {thousandsSep: ','}
-					});
 			
-			function update_pie_plots(mainColor, secondColor, buttonColor, buttonColorHover){
-				try{
-					var chart = $('#abundance-filtered').highcharts();
-					chart.update({'colors':[mainColor,secondColor]});
-					chart.update({navigation:{
-						buttonOptions: {
-								theme: {
-									r: 4,
-									fill: buttonColor,
-									states: {
-										hover: {
-											fill: buttonColorHover,
-											stroke:buttonColor
-										},
-										select: {
-											stroke: buttonColor,
-											fill: buttonColorHover,
-										}
-									}
-								}
-							}
-						}
-					});
-					var chart = $('#nb-filtered').highcharts();
-					chart.update({'colors':[mainColor,secondColor]});
-					chart.update({navigation:{
-						buttonOptions: {
-								theme: {
-									r: 4,
-									fill: buttonColor,
-									states: {
-										hover: {
-											fill: buttonColorHover,
-											stroke:buttonColor
-										},
-										select: {
-											stroke: buttonColor,
-											fill: buttonColorHover,
-										}
-									}
-								}
-							}
-						}
-					});
-				} catch(err){}
-			}
+			var pieChart_Clusters;
+			var pieChart_Abundance;
+			var heatmapChart;
+			var histogramChart;
+			var lineChart;
+			var bootstrapChart;
+			var pieChart_Clusters_options;
+			var pieChart_Abundance_options;
+			var heatmapChart_options;
+			var histogramChart_options;
+			var bootstrapChart_options;
+			var lineChart_options;
 			
-			function update_rarefaction_plot(mainColor, secondColor, buttonColor, buttonColorHover){
-				try{
-						var chart = $('#rarefaction-chart').highcharts()
-						/*chart.update({
-								colors: ['#F3E796', '#95C471', '#35729E', '#251735']
-						});*/
-						chart.series.forEach(function (series, index) {
-							series.update({
-								color: chart.options.colors[index % chart.options.colors.length]
-							});
-						});
-						chart.update({navigation:{
-							buttonOptions: {
-								theme: {
-									r: 4,
-									fill: buttonColor,
-									states: {
-										hover: {
-											fill: buttonColorHover,
-											stroke:buttonColor
-										},
-										select: {
-											stroke: buttonColor,
-											fill: buttonColorHover,
-										}
-									}
-								}
-							}
-						}
-				});
-						
-					} catch(err){}
-			}
-			
-			function update_bootstrap_plot(mainColor, secondColor, buttonColor, buttonColorHover){
-				try{
-				var chart = $('#bootstrap-barplot').highcharts();
-				chart.update({navigation:{
-							buttonOptions: {
-									theme: {
-										r: 4,
-										fill: buttonColor,
-										states: {
-											hover: {
-												fill: buttonColorHover,
-												stroke:buttonColor
-											},
-											select: {
-												stroke: buttonColor,
-												fill: buttonColorHover,
-											}
-										}
-									}
-								}
-							}
-						});
-				
-				}catch(err){}
-			}
-			
-			function update_multi_aff_plot(mainColor, secondColor, buttonColor, buttonColorHover){
-				try{
-						var chart = $('#clstr-multi-affi').highcharts()
-						chart.update({'colors':[mainColor,secondColor]});
-						chart.update({navigation:{
-							buttonOptions: {
-									theme: {
-										r: 4,
-										fill: buttonColor,
-										states: {
-											hover: {
-												fill: buttonColorHover,
-												stroke:buttonColor
-											},
-											select: {
-												stroke: buttonColor,
-												fill: buttonColorHover,
-											}
-										}
-									}
-								}
-							}
-						});
-					} catch(err){}
+			function updateCharts(CURRENT_THEME) {
+				pieChart_Clusters = recreateChart(pieChart_Clusters, "nb-filtered", pieChart_Clusters_options, CURRENT_THEME, 600);
+				pieChart_Abundance = recreateChart(pieChart_Abundance, "abundance-filtered", pieChart_Abundance_options, CURRENT_THEME, 600);
+				if(heatmapChart_options) heatmapChart = recreateChart(heatmapChart, "alignment-heatmap", heatmapChart_options, CURRENT_THEME, 600);
+				if (heatmapChart) {
+					let currentType = $('#heatmap-seq-btn').prop('disabled') ? 'seq' : 'clstr';
+					let heatmapChart_options = heatmapOption(currentType);
+					heatmapChart = recreateChart(heatmapChart, "alignment-heatmap", heatmapChart_options, CURRENT_THEME, 600);
+				}
+				if(histogramChart_options){
+					histogramChart = recreateChart(histogramChart, "clstr-multi-affi", histogramChart_options, CURRENT_THEME, 600);
+				}
+				if(bootstrapChart_options){
+					bootstrapChart = recreateChart(bootstrapChart, "bootstrap-barplot", bootstrapChart_options, CURRENT_THEME, 600);
+				}
+				if(lineChart_options){
+					lineChart = recreateChart(lineChart, "rarefaction-chart", lineChart_options, CURRENT_THEME, 600);
+				}
 			}
 			
 			
-			function update_heamap(mainColor, buttonColor, buttonColorHover){
-				try{
-					var chart = $('#alignment-heatmap').highcharts();
-					chart.series[0].update({'color':mainColor});
-					chart.update({'colorAxis':{'maxColor':mainColor}});
-					chart.update({navigation:{
-							buttonOptions: {
-								theme: {
-									r: 4,
-									fill: buttonColor,
-									states: {
-										hover: {
-											fill: buttonColorHover,
-											stroke:buttonColor
-										},
-										select: {
-											stroke: buttonColor,
-											fill: buttonColorHover,
-										}
-									}
-								}
-							}
-						}});
-				} catch(err){}
-			}
-			
-			function update_theme(val){
-				if(val == "Coral" ){
-					/*
-					:root {
-						--frogsColor: #388697; 
-						--frogsColorHover: rgb(12,10,62,0.8);
-						--frogsColorShadow: #6c5b64;
-						--frogsColor2: #FA8883;
-						--frogsColor3: #EFC7C2;
-						--frogsColor4: #737f75;
-						--frogsColorZoomHighCharts: rgb(191,211,193,0.25);
-						--frogsButtonColor: rgb(105,79,93,0.6);
-						--frogsButtonBorderColor: rgb(12,10,62,0.6);
-						--frogsOddTable: rgba(249,86,79, 0.1);
-						--frogsCircleFontColor: #FFF;
-						--frogsCircleBackgroundColor: #FA8883;
-						--frogsCircleBorderColor: #FA8883;
-					}
-					*/
-					document.documentElement.style.setProperty('--frogsColor', "#388697");
-					document.documentElement.style.setProperty('--frogsColorHover', "rgb(12,10,62,0.8)");
-					document.documentElement.style.setProperty('--frogsColorShadow', "#6c5b64");
-					document.documentElement.style.setProperty('--frogsColor2', "#FA8883");
-					document.documentElement.style.setProperty('--frogsColor3', "#ffef99");
-					document.documentElement.style.setProperty('--frogsColor4', "#737f75");
-					document.documentElement.style.setProperty('--frogsColorZoomHighCharts', "rgb(191,211,193,0.25)");
-					document.documentElement.style.setProperty('--frogsButtonColor', "rgb(12,10,62,0.6)");
-					document.documentElement.style.setProperty('--frogsButtonBorderColor', "rgb(12,10,62,0.8)");
-					document.documentElement.style.setProperty('--frogsOddTable', "rgba(249,86,79, 0.1)");
-					document.documentElement.style.setProperty('--frogsCircleFontColor', "#FFF");
-					document.documentElement.style.setProperty('--frogsCircleBackgroundColor',"#FA8883");
-					document.documentElement.style.setProperty('--frogsCircleBorderColor',"#FA8883");
-					
-					var root = document.documentElement;
-					var style = getComputedStyle(root);
-					var frogsColor = style.getPropertyValue('--frogsColor');
-					var frogsColor2 = style.getPropertyValue('--frogsColor2');
-					var frogsColor3 = style.getPropertyValue('--frogsColor3');
-					var frogsColor4 = style.getPropertyValue('--frogsColor4');
-					var frogsColorZoomHighCharts = style.getPropertyValue('--frogsColorZoomHighCharts');
-					var frogsColorHover = style.getPropertyValue('--frogsColorHover');
-					var frogsButtonColor = style.getPropertyValue('--frogsButtonColor');
-					var frogsCircleFontColor = style.getPropertyValue('--frogsCircleFontColor');
-					var frogsColorShadow = style.getPropertyValue('--frogsColorShadow');
-					
-					update_heamap(frogsColor, frogsButtonColor, frogsColorHover);
-					update_rarefaction_plot(frogsColor, frogsColor2, frogsButtonColor, frogsColorHover);
-					update_pie_plots(frogsColor2, frogsColor, frogsButtonColor, frogsColorHover);
-					update_multi_aff_plot(frogsColor2, frogsColor, frogsButtonColor, frogsColorHover);
-					update_bootstrap_plot(frogsColor2, frogsColor, frogsButtonColor, frogsColorHover);
-					
-				}else if(val == "Plum" ){
-					/*
-					:root {
-						--frogsColor: #694F5D; 
-						--frogsColorHover: rgb(105,79,93,0.8);
-						--frogsColorShadow: #6c5b64;
-						--frogsColor2: #BFD3C1;
-						--frogsColor3: #EFC7C2;
-						--frogsColor4: #737f75;
-						--frogsColorZoomHighCharts: rgb(222,159,115,0.25);
-						--frogsButtonColor: rgb(105,79,93,0.6);
-						--frogsButtonBorderColor: rgb(105,79,93,0.8);
-						--frogsOddTable: #f2f2f2;
-						--frogsCircleFontColor: #694F5D;
-						--frogsCircleBackgroundColor: #BFD3C1;
-						--frogsCircleBorderColor: #BFD3C1;
-					}*/
-					document.documentElement.style.setProperty('--frogsColor', "#694F5D");
-					document.documentElement.style.setProperty('--frogsColorHover', "rgb(105,79,93,0.8)");
-					document.documentElement.style.setProperty('--frogsColorShadow', "#6c5b64");
-					document.documentElement.style.setProperty('--frogsColor2', "#BFD3C1");
-					document.documentElement.style.setProperty('--frogsColor3', "#4f5d69");
-					document.documentElement.style.setProperty('--frogsColor4', "#737f75");
-					document.documentElement.style.setProperty('--frogsColorZoomHighCharts', "rgb(222,159,115,0.25)");
-					document.documentElement.style.setProperty('--frogsButtonColor', "rgb(105,79,93,0.6)");
-					document.documentElement.style.setProperty('--frogsButtonBorderColor', "rgb(105,79,93,0.8)");
-					document.documentElement.style.setProperty('--frogsOddTable', "#f2f2f2");
-					document.documentElement.style.setProperty('--frogsCircleFontColor', "#694F5D");
-					document.documentElement.style.setProperty('--frogsCircleBackgroundColor',"#BFD3C1");
-					document.documentElement.style.setProperty('--frogsCircleBorderColor',"#BFD3C1");
-					
-					var root = document.documentElement;
-					var style = getComputedStyle(root);
-					var frogsColor = style.getPropertyValue('--frogsColor');
-					var frogsColor2 = style.getPropertyValue('--frogsColor2');
-					var frogsColor3 = style.getPropertyValue('--frogsColor3');
-					var frogsColor4 = style.getPropertyValue('--frogsColor4');
-					var frogsColorZoomHighCharts = style.getPropertyValue('--frogsColorZoomHighCharts');
-					var frogsColorHover = style.getPropertyValue('--frogsColorHover');
-					var frogsButtonColor = style.getPropertyValue('--frogsButtonColor');
-					var frogsCircleFontColor = style.getPropertyValue('--frogsCircleFontColor');
-					var frogsColorShadow = style.getPropertyValue('--frogsColorShadow');
-					
-					update_heamap(frogsColor, frogsButtonColor, frogsColorHover);
-					update_rarefaction_plot(frogsColor, frogsColor2, frogsButtonColor, frogsColorHover);
-					update_pie_plots(frogsColor2, frogsColor, frogsButtonColor, frogsColorHover);
-					update_multi_aff_plot(frogsColor2, frogsColor, frogsButtonColor, frogsColorHover);
-					update_bootstrap_plot(frogsColor2, frogsColor, frogsButtonColor, frogsColorHover);
-					
-				}else if(val == "FROGS4" ){
-					/*
-					:root {
-						--frogsColor: #8eadac; 
-						--frogsColorHover: #648a89;
-						--frogsColorShadow: #648a89;
-						--frogsColor2: #de9f73;
-						--frogsColor3: #ad8e9f;
-						--frogsColor4: #a2a32f;
-						--frogsColorZoomHighCharts: rgb(100, 138, 137, 0.25);
-						--frogsButtonColor: #8EADAC;
-						--frogsButtonBorderColor: #8EADAC;
-						--frogsOddTable: #f2f2f2;
-						--frogsCircleFontColor: #FFF;
-						--frogsCircleBackgroundColor: #8eadac;
-						--frogsCircleBorderColor: #648a89;
-					}*/
-					document.documentElement.style.setProperty('--frogsColor', "#8eadac");
-					document.documentElement.style.setProperty('--frogsColorHover', "#648a89");
-					document.documentElement.style.setProperty('--frogsColorShadow', "#648a89");
-					document.documentElement.style.setProperty('--frogsColor2', "#de9f73");
-					document.documentElement.style.setProperty('--frogsColor3', "#ad8e9f");
-					document.documentElement.style.setProperty('--frogsColor4', "#a2a32f");
-					document.documentElement.style.setProperty('--frogsColorZoomHighCharts', "rgb(100, 138, 137, 0.25)");
-					document.documentElement.style.setProperty('--frogsButtonColor', "#8EADAC");
-					document.documentElement.style.setProperty('--frogsButtonBorderColor', "#8EADAC");
-					document.documentElement.style.setProperty('--frogsOddTable', "#f2f2f2");
-					document.documentElement.style.setProperty('--frogsCircleFontColor', "#FFF");
-					document.documentElement.style.setProperty('--frogsCircleBackgroundColor',"#8eadac");
-					document.documentElement.style.setProperty('--frogsCircleBorderColor',"#648a89");
-					
-					var root = document.documentElement;
-					var style = getComputedStyle(root);
-					var frogsColor = style.getPropertyValue('--frogsColor');
-					var frogsColor2 = style.getPropertyValue('--frogsColor2');
-					var frogsColor3 = style.getPropertyValue('--frogsColor3');
-					var frogsColor4 = style.getPropertyValue('--frogsColor4');
-					var frogsColorZoomHighCharts = style.getPropertyValue('--frogsColorZoomHighCharts');
-					var frogsColorHover = style.getPropertyValue('--frogsColorHover');
-					var frogsButtonColor = style.getPropertyValue('--frogsButtonColor');
-					var frogsCircleFontColor = style.getPropertyValue('--frogsCircleFontColor');
-					var frogsColorShadow = style.getPropertyValue('--frogsColorShadow');
-					
-					update_heamap(frogsColor, frogsButtonColor, frogsColorHover);
-					update_rarefaction_plot(frogsColor, frogsColor2, frogsButtonColor, frogsColorHover);
-					update_pie_plots(frogsColor, frogsColor2, frogsButtonColor, frogsColorHover);
-					update_multi_aff_plot(frogsColor, frogsColor2, frogsButtonColor, frogsColorHover);
-					update_bootstrap_plot(frogsColor2, frogsColor, frogsButtonColor, frogsColorHover);
-				 }
-			}
 			/**
 			 Data from HTML
 			*/
@@ -749,385 +168,6 @@
 					}
 				}
 			*/
-			
-			Highcharts.SVGRenderer.prototype.symbols.download = function (x, y, w, h) {
-				var path = [
-					// Arrow stem
-					'M', x + w * 0.5, y,
-					'L', x + w * 0.5, y + h * 0.7,
-					// Arrow head
-					'M', x + w * 0.3, y + h * 0.5,
-					'L', x + w * 0.5, y + h * 0.7,
-					'L', x + w * 0.7, y + h * 0.5,
-					// Box
-					'M', x, y + h * 0.9,
-					'L', x, y + h,
-					'L', x + w, y + h,
-					'L', x + w, y + h * 0.9
-				];
-				return path;
-			};
-			
-			/**
-			 * Returns hash use to init HightChart line. 
-			 * @param pTitle {String} The title of the chart.
-			 * @param pXTitle {String} The xAxis title.
-			 * @param pYTitle {String} The yAxis title.
-			 * @param pXCategories {Array} x scale labels.
-			 * @param pData {Array} The HightChart series.
-			 * @return {Hash} Parameters to use in Highchart's constructor.
-			 */
-			var lineplot_param = function(pTitle, pXTitle, pYTitle, pXCategories, pData) {
-				var chart = chartplot( pTitle, pXTitle, pYTitle, pXCategories, pData );
-				chart['chart'] = { 
-					type: 'line',
-                    zoomType: 'x',
-                    selectionMarkerFill: frogsColorZoomHighCharts,
-                    exporting:{buttons: {contextButton: { symbol: 'download' }}},
-					buttons: {contextButton: {menuItems: ['downloadPNG', 'downloadSVG']}},
-					navigation: {
-						buttonOptions: {
-							theme: {
-								r: 4,
-								fill: frogsButtonColor,
-								states: {
-									hover: {
-										fill: frogsColorHover,
-										stroke:frogsButtonColor
-									},
-									select: {
-										stroke: frogsButtonColor,
-										fill: frogsColorHover,
-									}
-								}
-							}
-						}
-					}
-				};
-				chart['yAxis']['min'] = 0 ;
-				chart['legend'] = {'enabled': true};
-				chart['plotOptions'] = {
-					area: {
-						marker: {
-							enabled: true,
-							symbol: 'circle',radius:4,
-						}
-					}
-				};
-				return chart ;
-			}
-			
-			/**
-			 * Returns the string representation of the number. 
-			 * @param pValue {Float} The number to process.
-			 * @return {String} The string representation (example: 12856892.11111 => 12,856,892.11).
-			 */
-		    var numberDisplay = function( pValue ){
-		    	var new_val = "" ;
-		    	if( ("" + pValue + "").indexOf(".") != -1 ){
-		    		new_val = pValue.toFixed(2).replace(/(\d)(?=(\d{3})+\b)/g, '$1,');
-		    	} else {
-		    		new_val = pValue.toFixed().replace(/(\d)(?=(\d{3})+\b)/g, '$1,');
-		    	}
-		        return new_val ;
-		    }
-		    // Radializes colors
-				Highcharts.setOptions({
-					 colors : frogsSunburstPalette, 
-					});
-					Highcharts.SVGRenderer.prototype.symbols.download = function (x, y, w, h) {
-					var path = [
-						// Arrow stem
-						'M', x + w * 0.5, y,
-						'L', x + w * 0.5, y + h * 0.7,
-						// Arrow head
-						'M', x + w * 0.3, y + h * 0.5,
-						'L', x + w * 0.5, y + h * 0.7,
-						'L', x + w * 0.7, y + h * 0.5,
-						// Box
-						'M', x, y + h * 0.9,
-						'L', x, y + h,
-						'L', x + w, y + h,
-						'L', x + w, y + h * 0.9
-					];
-					return path;
-				};
-				/* Radial gradient ?*/
-				/*
-			    Highcharts.getOptions().colors = Highcharts.map(Highcharts.getOptions().colors, function (color) {
-			        return {
-			            radialGradient: { cx: 0.5, cy: 0.3, r: 0.7 },
-			            stops: [
-			                [0, color],
-			                [1, Highcharts.Color(color).brighten(-0.1).get('rgb')] // darken
-			            ]
-			        };
-			    });
-			    */
-			/**
-			 * Returns the HTML table representation of the data. 
-			 * @param pTitle {String} The title of the table.
-			 * @param pCategories {Array} The title of each column.
-			 * @param pData {Array} 2D matrix with row and column data.
-			 * @return {String} The HTML table representation.
-			 */
-			var table = function( pTitle, pCategories, pData  ) {
-				// Header
-				var table_header = '' ;
-				var table_header_line = "" ;
-				for(var idx = 0 ; idx < pCategories.length ; idx++){
-					table_header_line += "      <th>" + pCategories[idx] + "</th>\n" ;
-				}
-				table_header += "    <tr>\n" + table_header_line + "    </tr>\n" ;
-				table_header = "  <thead>\n" + table_header + "  </thead>\n" ;
-				
-				// Body
-				var table_body = '' ;
-				for(var data_idx = 0 ; data_idx < pData.length ; data_idx++){
-					var table_body_row = "" ;
-					for(var category_idx = 0 ; category_idx < pCategories.length ; category_idx++){
-						if( typeof pData[data_idx][category_idx] === "number" ) {
-							table_body_row += "      <td>" + numberDisplay(pData[data_idx][category_idx]) + "</td>\n" ;
-						} else {
-							table_body_row += "      <td>" + pData[data_idx][category_idx] + "</td>\n" ;
-						}
-					}
-					table_body += "    <tr>\n" + table_body_row + "    </tr>\n" ;
-				}
-				table_body = "  <tbody>\n" + table_body + "  </tbody>\n" ;
-
-				return '<table class="table table-striped table-bordered">\n' + table_header + table_body + "</table>\n" ;
-			}
-			
-			/**
-			 * Returns hash use to init HightChart column. 
-			 * @param pTitle {String} The title of the chart.
-			 * @param pYTitle {String} The yAxis title.
-			 * @param pCategories {Array} x scale labels.
-			 * @param pSeries {Array} The HightChart series.
-			 * @param unity {String} Unity used in tooltip.
-			 * @return {Hash} Parameters to use in Highchart's constructor.
-			 */
-			var barplot_param = function( pTitle, pYTitle, pCategories, pSeries, unity ) {
-				return {
-					chart: {
-						type: 'column',
-						zoomType: 'y'
-					},
-					title: {
-						text: pTitle
-					},
-					xAxis: {
-						categories: pCategories,
-						crosshair: true
-					},
-					exporting:{buttons: {contextButton: { symbol: 'download' }}},
-					buttons: {contextButton: {menuItems: ['downloadPNG', 'downloadSVG']}},
-					navigation: {
-						buttonOptions: {
-							theme: {
-								r: 4,
-								fill: frogsButtonColor,
-								states: {
-									hover: {
-										fill: frogsColorHover,
-										stroke:frogsButtonColor
-									},
-									select: {
-										stroke: frogsButtonColor,
-										fill: frogsColorHover,
-									}
-								}
-							}
-						}
-					},
-					yAxis: {
-						min: 0,
-					title: {
-							text: pYTitle
-						}
-					},
-					tooltip: {
-						headerFormat: '<span style="font-size:10px">{point.key}</span><table>',
-						pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' +
-						             '<td style="padding:0"><b>{point.y} ' + unity + '</b></td></tr>',
-						footerFormat: '</table>',
-						shared: true,
-						useHTML: true
-					},
-					plotOptions: {
-						column: {
-							pointPadding: 0.2,
-							borderWidth: 0
-						}
-					},
-					credits: {
-						enabled: false
-					},
-					series: pSeries
-				};
-			}
-			
-			// couleur des diapos : bleu #8EADAC, vert : #A2A32F, orange1 #C6792B , taupe #9A866C, orange pastel : #DE9F73
-			var histogram_param = function( pTitle, pYTitle, pCategories, pSeries, unity ) {
-				var param = {
-					chart: {
-						type: 'column'
-					},
-					colors : [
-                            frogsColor, frogsColor2
-                    ] ,
-                    exporting:{buttons: {contextButton: { symbol: 'download' }}},
-					buttons: {contextButton: {menuItems: ['downloadPNG', 'downloadSVG']}},
-					navigation: {
-						buttonOptions: {
-							theme: {
-								r: 4,
-								fill: frogsButtonColor,
-								states: {
-									hover: {
-										fill: frogsColorHover,
-										stroke:frogsButtonColor
-									},
-									select: {
-										stroke: frogsButtonColor,
-										fill: frogsColorHover,
-									}
-								}
-							}
-						}
-					},
-					title: {
-						text: pTitle
-					},
-					xAxis: {
-						categories: pCategories,
-						crosshair: true,
-						crosshair: {
-							color: frogsColorZoomHighCharts
-						}
-					},
-					yAxis: {
-						min: 0,
-						title: {
-							text: pYTitle
-						}
-					},
-					tooltip: {
-						headerFormat: '<span style="font-size:10px">{point.key}</span><table>',
-						pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' +
-							'<td style="padding:0"><b>{point.y} ' + unity + '</b></td></tr>',
-						footerFormat: '</table>',
-						shared: true,
-						useHTML: true
-					},
-					plotOptions: {
-						column: {
-							pointPadding: 0.2,
-							borderWidth: 0
-						}
-					},
-					credits: {
-						enabled: false
-					},
-					series: pSeries
-				};
-				
-				return param ;
-			}
-			
-			/**
-			* Returns hash use to init HightChart object (without 'type'). 
-			* @param pTitle {String} The title of the chart.
-			* @param pXTitle {String} The xAxis title.
-			* @param pYTitle {String} The yAxis title.
-			* @param pXCategories {Array} The title of each category (x scale labels).
-			* @param pData {Array} The HightChart series.
-			* @return {Hash} The hash.
-			* @warning This method use HightChart xAxis.categories.
-			*/
-			// couleur des diapos : bleu #8EADAC, vert : #A2A32F, orange1 #C6792B , taupe #9A866C, orange pastel : #DE9F73
-			var chartplot = function( pTitle, pXTitle, pYTitle, pXCategories, pData ) {
-				var chart = {
-						title: {
-							text: pTitle
-						},
-						colors : [
-                            frogsColor2, frogsColor
-                    	] ,
-                    	exporting:{buttons: {contextButton: { symbol: 'download' }}},
-						buttons: {contextButton: {menuItems: ['downloadPNG', 'downloadSVG']}},
-						navigation: {
-							buttonOptions: {
-							theme: {
-								r: 4,
-								fill: frogsButtonColor,
-								states: {
-									hover: {
-										fill: frogsColorHover,
-										stroke:frogsButtonColor
-									},
-									select: {
-										stroke: frogsButtonColor,
-										fill: frogsColorHover,
-									}
-								}
-							}
-						}
-						},
-						xAxis: {},
-						yAxis: {
-							title: {
-								text: pYTitle
-							}
-						},
-						series: pData,
-						credits: {
-							enabled: false
-						}
-				}
-				if( pXCategories != null ){
-					chart['xAxis']['categories'] = pXCategories ;
-				}
-				if( pXTitle != null ){
-					chart['xAxis']['title'] = { text: pXTitle } ;
-				}
-				if( pData.length <= 1 ) {
-					chart['legend'] = {'enabled': false};
-				} else {
-					chart['legend'] = {'enabled': true};
-				}
-				return chart ;
-			}
-			
-			var pie_param = function( pTitle, pData, unity ) {
-				var series = [{
-	                type: 'pie',
-	                name: unity,
-	                data: pData
-            	}]
-				var plot = chartplot( pTitle, null, null, null, series );
-				plot['tooltip'] = {
-		            pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
-		        };
-				plot['plotOptions'] = {
-		            pie: {
-		                allowPointSelect: true,
-		                cursor: 'pointer',
-		                dataLabels: {
-		                    enabled: true,
-		                    useHTML : true,
-		                    formatter: function () {
-        		                return this.point.name + ' : ' + numberDisplay(this.point.y);
-		                    },
-		                    style: {
-		                        color: (Highcharts.theme && Highcharts.theme.contrastTextColor) || 'black'
-		                    }
-		                }
-		            }
-		        };
-				return plot ;
-			};
 			
 			/**
 			 * Returns the list of human readable intervals from The list of right threshold.
@@ -1337,102 +377,90 @@
 				return formated_data ;
 			}
 			
-			/**
-			 * Returns hash use to init an HightChart barplot with bootstrap distribution.
-			 * @param data_type {String} The type of count ('seq' or 'clstr') [default: clstr].
-			 * @return {Hash} The hash.
-			 */
-			var bootstrap_param = function( data_type ){
-				if( data_type == null ){ data_type = "clstr" ; }
-				
-				// Parameters
-				var clean_type = {
-					"clstr": "ASVs",
-					"seq": "sequences"
-				}
-				var bootstrap_categories = [50, 80, 90, 95, 100, 101];
-				
-				// Data
-				var histogram_series = new Array();
-				for( var taxonomic_rank in bootstrap_scores ){
-					histogram_series.push({
-						"name": taxonomic_rank,
-						"data": get_bootstrap_barplot_data( bootstrap_categories, bootstrap_scores[taxonomic_rank], data_type ),
-						"index": taxonomy_ranks.indexOf( taxonomic_rank )
-					});
-				}
-				
-				// Chart
-				return(
-					barplot_param(
-						'Number of ' + clean_type[data_type] + ' by bootstrap on affiliation',
-						'Nb ' + clean_type[data_type],
-						get_displayed_categories(bootstrap_categories),
-						histogram_series,
-						clean_type[data_type]
-					)
-				);
-			}
 			
-			/**
-			 * Add listener to update content of rarefaction-modal.
-			 */
-			var add_rarefaction_listeners = function() {				
-				$('#rarefaction-modal').on('shown.bs.modal', function (e) { // Draw curves when modal is shown
-					// Select data
-					var selected_level = $('#rarefaction-level').val() ;
-					var selected_series = new Array();
-					$('input[id^="taxBySample-chk-"]').each( function(){
-						if( $(this).is(':checked')){
-							var selected_sample = $(this).prop('id').substring(16, $(this).prop('id').length) ;
-							var series_data = new Array([0, 0]); // Add the zero point to curve
-							for( var sampling_idx = 0 ; sampling_idx < rarefaction[selected_sample][selected_level].length ; sampling_idx++ ){
-								series_data.push([
-									(sampling_idx+1)*rarefaction_step, 
-									rarefaction[selected_sample][selected_level][sampling_idx]
-								]);
-							}
-							selected_series.push({
-								'name': selected_sample,
-								'data': series_data
-							});
-						}
+			
+			
+			
+			var add_rarefaction_listeners = function() {
+				$('#rarefaction-modal').on('shown.bs.modal', function (e) {
+					// --- Récupère le niveau sélectionné ---
+					const selected_level = $('#rarefaction-level').val();
+
+					// --- Récupère les lignes sélectionnées dans la table ---
+					const selectedRows = $('#taxBySample-table').bootstrapTable('getSelections');
+					if (selectedRows.length === 0) {
+					console.warn("No samples selected for rarefaction.");
+					return;
+					}
+
+					// --- Construit les séries pour ECharts ---
+					let selected_series = [];
+					selectedRows.forEach(row => {
+					const selected_sample = row.col0;
+					const sample_rarefaction = rarefaction[selected_sample][selected_level];
+
+					if (!sample_rarefaction) return;
+
+					// Ajoute le point d'origine [0,0] + les points successifs
+					const series_data = [[0, 0]];
+					for (let i = 0; i < sample_rarefaction.length; i++) {
+						series_data.push([
+						(i + 1) * rarefaction_step,
+						sample_rarefaction[i]
+						]);
+					}
+
+					selected_series.push({
+						name: selected_sample,
+						data: series_data
 					});
-					// Draw chart
-					$('#rarefaction-chart').highcharts( lineplot_param("Rarefaction curves", "Nb sampled sequences", "Nb " + selected_level, null, selected_series) );
-					var frogsColor = style.getPropertyValue('--frogsColor');
-					var frogsColor2 = style.getPropertyValue('--frogsColor2');
-					var frogsColorHover = style.getPropertyValue('--frogsColorHover');
-					var frogsButtonColor = style.getPropertyValue('--frogsButtonColor');
-					update_theme($("#themechoice").val());
+					});
+
+					// --- Nettoie le graphique précédent ---
+					lineChart = echarts.init(document.getElementById("rarefaction-chart"),CURRENT_THEME,{renderer: 'svg', height:600});
+					lineChart_options = lineOption(
+						'Rarefaction curves',
+						'Nb sampled sequences',
+						'Nb ' + selected_level,
+						null, // pas de catégories X (on est en valeurs continues)
+						selected_series
+					);
+					lineChart.setOption(lineChart_options);
+
+					window.addEventListener('resize', () => lineChart.resize());
 				});
-			}
+				};
 			
 			/**
 			 * Add listener to update content of sunburst-modal.
 			 */
-			var add_sunburst_listeners = function() {
-				$('#sunburst-modal').on('shown.bs.modal', function (event) { // Draw sunburst when modal is shown
-					// Clean previous chart
-					$('#sunburst-graph').empty() ;
-					$('#sunburst-walktrace').empty() ;
-					$('#sunburst-menu').empty() ;
-					$('#sunburst-detail').empty() ;
+			 var add_sunburst_listeners = function() {
+				$('#sunburst-modal').on('shown.bs.modal', function (event) {
+					// --- Nettoyage du contenu précédent ---
+					$('#sunburst-graph').empty();
+					$('#sunburst-walktrace').empty();
+					$('#sunburst-menu').empty();
+					$('#sunburst-detail').empty();
 
-					// Select data
-					var tree = ExtendedNode.fromNewick( tree_distribution );
-					if( event.relatedTarget.id == "display-spl-sunburst" ){
-						var selected_samples = new Array();
-						$('input[id^="taxBySample-chk-"]').each( function(){
-							if( $(this).is(':checked')){
-								var sample_name = $(this).prop('id').substring(16, $(this).prop('id').length) ;
-								selected_samples.push( samples_names.indexOf(sample_name) );
-							}
+					// --- Création du tree complet ---
+					let tree = ExtendedNode.fromNewick(tree_distribution);
+
+					// --- Si le bouton "Display distribution" est celui qui a déclenché ---
+					if (event.relatedTarget.id === "display-spl-sunburst") {
+						// Récupère les lignes sélectionnées dans la table
+						const selectedRows = $('#taxBySample-table').bootstrapTable('getSelections');
+
+						// Extrait les noms d'échantillons (col0)
+						const selected_samples = selectedRows.map(row => {
+							return samples_names.indexOf(row.col0); // correspondance par nom
 						});
-						tree.keepOnlySamples( selected_samples );
+
+						// Restreint le tree aux échantillons sélectionnés
+						tree.keepOnlySamples(selected_samples);
 					}
-					// Draw chart
-					cJDistrib( 
+
+					// --- Dessin du graphique Sunburst ---
+					cJDistrib(
 						tree.toJson(),
 						{
 							"pg_selector": {
@@ -1444,210 +472,264 @@
 							"graph": {
 								"sunburst": {
 									"width": Math.min($("#sunburst-graph").width(), $(window).height()),
-									"height": Math.min($("#sunburst-graph").width(), $(window).height()),
+									"height": Math.min($("#sunburst-graph").width(), $(window).height())
 								},
 								"colors": {
 									"start_depth": 2
 								}
-							},
+							}
 						}
 					);
 
-					// Center sunburst
-					$("#sunburst-graph").width( Math.min($("#sunburst-graph").width(), $(window).height()) );
+					// --- Ajuste la taille du conteneur pour centrer le graphique ---
+					$("#sunburst-graph").width(Math.min($("#sunburst-graph").width(), $(window).height()));
 				});
-			}
+			};
 
-			/**
-			 * disable/enable buttons in "taxonomy distribution" datatable.
-			 */
-			var updateTaxButtonState = function(){
-				//$("#display-rarefaction").removeClass( "disabled" );
-				$("#display-rarefaction").prop('disabled', false);
-				//$("#display-spl-sunburst").removeClass( "disabled" );
-				$("#display-spl-sunburst").prop('disabled', false);
-				if( $('input[id^="taxBySample-chk-"]:checked').length == 0 ){
-					$("#display-rarefaction").prop( "disabled" , true);
-					$("#display-spl-sunburst").prop( "disabled" ,true );
+			var samples_filters_load = function(container_id) {
+				// Titres des colonnes
+				var sample_table_titles = $.merge(["Sample name", "Initial", "Kept"], processed_filters);
+
+				// Construction des données du tableau
+				var sample_table_data = [];
+				for (var sample in by_samples_results) {
+					var sample_data = [
+						sample,
+						by_samples_results[sample]['initial'],
+						by_samples_results[sample]['kept']
+					];
+
+					for (var filter_idx = 0; filter_idx < processed_filters.length; filter_idx++) {
+						var filter_name = processed_filters[filter_idx];
+						if (by_samples_results[sample]['filtered'].hasOwnProperty(filter_name)) {
+							sample_data.push(by_samples_results[sample]['filtered'][filter_name]);
+						} else {
+							sample_data.push(0);
+						}
+					}
+
+					sample_table_data.push(sample_data);
 				}
+
+				// Création du tableau avec Bootstrap Table
+				$('#' + container_id).html( table("Filters by sample", ["Sample name", "Initial", "Kept"], sample_table_data) );
+				$('#' + container_id + ' table').prop( 'id', 'samples-table' );
+				$('#samples-table').bootstrapTable();
+
 			}
 			
-			/**
-			 * Loads content of "taxonomy distribution" nav.
-			 * @param cotainer_id {String} The ID of the content where the information will be added.
-			 */
-			var taxBySample_load = function( container_id ) {
-				// Table titles
-				//var titles = [ '<input id="taxBySample-check-all" type="checkbox" value="1">', "Samples" ];
-				var titles = ['<label class="container"><input type="checkbox" id="taxBySample-check-all" value="1"><span class="checkmark"></span></label>','Samples'];
-				for( var rank = 0 ; rank < taxonomy_ranks.length ; rank++ ){
-					titles.push( "Nb " + taxonomy_ranks[rank].toLowerCase() );
-				}
-				//titles.push( "Nb asv" );
-				titles.push( "Nb sequences" );
-				$('#taxBySample-table thead').empty();
-				$('#taxBySample-table tbody').empty();
-				$('#taxBySample-table thead').append( '<tr><th>' + titles.join("</th><th>") + '</th></tr>' );
-				$('#taxBySample-table .title').attr( "colspan", titles.length );
-				$('#taxBySample-table tfoot th').each(function(){
-					$(this).attr( "colspan", titles.length );
-				});
-				
-				// Table data
-				for( var sample_idx = 0 ; sample_idx < samples_names.length ; sample_idx++ ){
-					var sample_name = samples_names[sample_idx] ;
-					var tree = ExtendedNode.fromNewick( tree_distribution );
-					tree.keepOnlySamples( [sample_idx] );
-					//var sample_data = [ '<input id="taxBySample-chk-' + sample_name + '" type="checkbox" value="1">', sample_name ];
-					var sample_data = ['<label class="container"><input type="checkbox" id="taxBySample-chk-' + sample_name + '" value="1"><span class="checkmark"></span></label>',sample_name];
-					for( var rank = 0 ; rank < taxonomy_ranks.length-1 ; rank++ ){
-						sample_data.push( numberDisplay(tree.getNodeByDepth(rank+1).length) );
-					}
-					sample_data.push( numberDisplay(rarefaction[sample_name]['nb_asv']) );
-					sample_data.push( numberDisplay(rarefaction[sample_name]['nb_seq']) );
-					// Add row data
-					$('#taxBySample-table tbody').append( '<tr><td>' + sample_data.join("</td><td>") + '</td></tr>' );
-				}
-				
-				// Buttons enable/disable management
-				$('input[id^="taxBySample-check-all"]').on( 'change', updateTaxButtonState );
-				$('input[id^="taxBySample-chk-"]').on( 'change', updateTaxButtonState );
-				
-				// Check all management
-				$('#taxBySample-check-all').on('click', function (e) { // Manage check all
-					if( $(this).is(':checked') ){
-						$('input[id^="taxBySample-chk-"]').each( function(){
-							$(this).prop( 'checked', true );
-						});
-					} else {
-						$('input[id^="taxBySample-chk-"]').each( function(){
-							$(this).prop( 'checked', false );
-						});
-					}
-				});
-				$('input[id^="taxBySample-chk-"]').on('change', function (e) { // Uncheck select all when uncheck one sample
-					if( !$(this).is(':checked') && $('#taxBySample-check-all').is(':checked') ){
-						$('#taxBySample-check-all').prop( 'checked', false );
-					}
-				});
-				
-				// Datatable
-				$('#taxBySample-table').DataTable({
-					retrieve: true,
-					//"sDom": '<"top"<"#taxBySample-csv-export"><"clear">lf>rt<"bottom"ip><"clear">',
-					dom: 	"<'#taxBySample-csv-export'><'row'<'col-sm-5'l><'col-sm-7'f>>" +
-							"<'row'<'col-sm-12'tr>>" +
-							"<'row'<'col-sm-5'i><'col-sm-7'p>>",
-					'order': [[1, 'asc']],
-					'lengthMenu': [[10, 25, 50, 100, -1], [10, 25, 50, 100, "All"]],
-					'columnDefs': [{
-						'targets': [0],
-						'orderable': false
-					}],
-					"fnDrawCallback": updateTaxButtonState
-				});
-				// Datatable export
-				$('#taxBySample-csv-export').addClass( 'dataTables_filter' );
-				$('#taxBySample-csv-export').html( '<button class="btn"><span class="fa fa-download" aria-hidden="true"> CSV</span></button>' );
-				$('#taxBySample-csv-export').datatableExport({
-					'table_id': "taxBySample-table",
-					'omitted_columns': [0]
-				});
-				
-				
-				
-				// Rarefaction select options
-				var select_lvl_options = "" ;
-				$.each( rarefaction_ranks, function( idx, level ){
-					if( level != "nb_seq" ){
-						select_lvl_options += '<option value="' + level + '">' + level.charAt(0).toUpperCase() + level.slice(1) + '</option>'
-					}
-				});
-				$('#rarefaction-level').html( select_lvl_options );
-				
-				// Add listeners
-				add_sunburst_listeners() ;
-				add_rarefaction_listeners() ;
-			}
+			var bootstrap_score_load = function(container_id) {
 
-			/**
-			 * Loads content of "alignment distribution" nav.
-			 * @param cotainer_id {String} The ID of the content where the information will be added.
-			 */
-			var alignment_score_load = function( cotainer_id ){
-				$('#' + cotainer_id).highcharts( alignment_param() );
+				// Initialisation du graphique ECharts
+				var bootstrapChart = echarts.init(
+					document.getElementById(container_id),
+					CURRENT_THEME,
+					{ renderer: 'svg', height: 600 }
+				);
+
+				// Affichage initial (view by ASVs)
+				var bootstrap_options = bootstrap_param("clstr");
+				bootstrapChart.setOption(bootstrap_options);
+
+				// Gestion des boutons
+				$('#bootstrap-clstr-btn').on('click', function(e) {
+					$('#bootstrap-seq-btn').prop('disabled', false);
+					$('#bootstrap-clstr-btn').prop('disabled', true);
+
+					bootstrap_options = bootstrap_param("clstr");
+					bootstrapChart.setOption(bootstrap_options);
+				});
+
+				$('#bootstrap-seq-btn').on('click', function(e) {
+					$('#bootstrap-clstr-btn').prop('disabled', false);
+					$('#bootstrap-seq-btn').prop('disabled', true);
+
+					bootstrap_options = bootstrap_param("seq");
+					bootstrapChart.setOption(bootstrap_options);
+				});
+
+				window.addEventListener('resize', () => bootstrapChart.resize());
+			};
+
+			var bootstrap_param = function(data_type) {
+				if (!data_type) data_type = "clstr";
+
+				var clean_type = { "clstr": "ASVs", "seq": "sequences" };
+				var bootstrap_categories = [50, 80, 90, 95, 100, 101];
+
+				var histogram_series = [];
+
+				// Construction des données pour chaque taxonomic rank
+				for (var taxonomic_rank in bootstrap_scores) {
+					histogram_series.push({
+						name: taxonomic_rank,
+						data: get_bootstrap_barplot_data(
+							bootstrap_categories,
+							bootstrap_scores[taxonomic_rank],
+							data_type
+						)
+					});
+				}
+
+				// Appel à histogramOption pour générer l'option ECharts
+				return histogramOption(
+					'Number of ' + clean_type[data_type] + ' by bootstrap on affiliation',
+					'Nb ' + clean_type[data_type],
+					get_displayed_categories(bootstrap_categories),
+					histogram_series,
+					clean_type[data_type]
+				);
+			};
+
+			var get_bootstrap_barplot_data = function(bootstrap_categories, scores, data_type) {
+				var formated_data = [];
+				var scores_by_xCategory = {};
+
+				for (var bootstrap in scores) {
+					var bootstrap_idx = 0;
+					while (bootstrap >= bootstrap_categories[bootstrap_idx]) {
+						bootstrap_idx++;
+					}
+					if (!scores_by_xCategory.hasOwnProperty(bootstrap_idx)) {
+						scores_by_xCategory[bootstrap_idx] = 0;
+					}
+					scores_by_xCategory[bootstrap_idx] += scores[bootstrap][data_type];
+				}
+
+				for (var i = 0; i < bootstrap_categories.length; i++) {
+					formated_data.push(scores_by_xCategory[i] || 0);
+				}
+
+				return formated_data;
+			};
+			
+			var taxBySample_load = function(container_id) {
+				// --- Titres / Colonnes dynamiques ---
+				const style = getComputedStyle(document.documentElement);
+				const frogsColor = style.getPropertyValue('--frogsColor').trim();
+				const frogsColor2 = style.getPropertyValue('--frogsColor2').trim();
+				const frogsColorHover = style.getPropertyValue('--frogsColorHover').trim();
+				let titles = ["Sample name"];
+				taxonomy_ranks.forEach(rank => {
+					titles.push("Nb " + rank.toLowerCase());
+				});
+				titles.push("Nb ASV", "Nb sequences");
+
+				let columns = [];
+
+				// 1) colonne checkbox (plugin bootstrap-table)
+				columns.push({
+					checkbox: true,
+					field: 'state',
+					align: 'center',
+					valign: 'middle',
+					width: 30
+				});
+
+				// 2) colonnes de données : col0, col1, ...
+				titles.forEach((title, idx) => {
+					columns.push({
+						field: 'col' + idx,
+						title: title,
+						sortable: true
+					});
+				});
+
+				// --- Construction des lignes (objets) ---
+				let rows = [];
+				for (let sample_idx = 0; sample_idx < samples_names.length; sample_idx++) {
+					let sample_name = samples_names[sample_idx];
+					let tree = ExtendedNode.fromNewick(tree_distribution);
+					tree.keepOnlySamples([sample_idx]);
+
+					let row = { state: false }; // state pour la checkbox
+
+					// col0 = sample name
+					row['col0'] = sample_name;
+
+					// colonnes taxonomiques
+					for (let rank = 0; rank < taxonomy_ranks.length; rank++) {
+						// getNodeByDepth(rank+1).length -> entier
+						row['col' + (rank + 1)] = numberDisplay(tree.getNodeByDepth(rank + 1).length);
+					}
+
+					// Nb ASV et Nb sequences
+					row['col' + (taxonomy_ranks.length + 1)] = numberDisplay(rarefaction[sample_name]['nb_asv']);
+					row['col' + (taxonomy_ranks.length + 2)] = numberDisplay(rarefaction[sample_name]['nb_seq']);
+
+					rows.push(row);
+				}
+
+				// --- Création du <table> dans le container et initialisation bootstrapTable ---
+				// on met un <table> vide (bootstrapTable s'initialise dessus)
+				$('#' + container_id).html('<table id="taxBySample-table" class="table table-striped"></table>');
+
+				// destroy si existant puis init
+				$('#taxBySample-table').bootstrapTable('destroy');
+				$('#taxBySample-table').bootstrapTable({
+					columns: columns,
+					data: rows,
+					search: true,
+					pagination: true,
+					pageSize: 10,
+					pageList: [10, 25, 50, 100, 'All'],
+					showExport: true,
+					exportTypes: ['excel', 'csv']
+				});
+
+				// Ajouter la classe aux input pour s'adapter au theme
+				//$('#taxBySample-table').find('tbody input[type="checkbox"], thead input[type="checkbox"]').addClass("form-check-input");
+				$('#taxBySample-table input[type="checkbox"]').addClass('form-check-input');
+
+				// --- Activation des boutons "With selection" (div externe) ---
+				// écouter sur la table (événements fournis par bootstrap-table)
+				$('#taxBySample-table').on('check.bs.table uncheck.bs.table check-all.bs.table uncheck-all.bs.table', function () {
+					const selected = $('#taxBySample-table').bootstrapTable('getSelections');
+					const anySelected = selected.length > 0;
+					$('#display-rarefaction').prop('disabled', !anySelected);
+					$('#display-spl-sunburst').prop('disabled', !anySelected);
+				});
+
+				// --- Sélecteur de rarefaction ---
+				let select_lvl_options = "";
+				$.each(rarefaction_ranks, function(idx, level) {
+					if (level != "nb_seq") {
+						select_lvl_options += '<option value="' + level + '">' + level.charAt(0).toUpperCase() + level.slice(1) + '</option>';
+					}
+				});
+				$('#rarefaction-level').html(select_lvl_options);
+
+				// --- Listeners pour modales (réutilise tes fonctions existantes) ---
+				add_sunburst_listeners();
+				add_rarefaction_listeners();
+			};
+			
+			var alignment_score_load = function(container_id) {
+				heatmapChart_options = heatmapOption("clstr");
+				// Initialisation des graphiques avec ECharts
+				heatmapChart = echarts.init(document.getElementById(container_id),CURRENT_THEME,{renderer: 'svg', height:600})
+				
+				heatmapChart.setOption(heatmapChart_options);
 				
 				$('#heatmap-clstr-btn').on('click', function (e) {
 					$('#heatmap-seq-btn').prop('disabled', false );
 					$('#heatmap-clstr-btn').prop('disabled', true );
-					$('#' + cotainer_id).highcharts( alignment_param("clstr") );
+					heatmapChart_options = heatmapOption("clstr");
+					heatmapChart.setOption(heatmapChart_options);
 				});
 				$('#heatmap-seq-btn').on('click', function (e) {
-					$('#heatmap-clstr-btn').prop('disabled', false );
-					$('#heatmap-seq-btn').prop('disabled', true );
-					$('#' + cotainer_id).highcharts( alignment_param("seq") );
-				});
-			}
-			
-			/**
-			 * Loads content of "bootstrap distribution" nav.
-			 * @param cotainer_id {String} The ID of the content where the information will be added.
-			 */
-			var bootstrap_score_load = function( cotainer_id ){
-				$('#' + cotainer_id).highcharts( bootstrap_param() );
-				
-				$('#bootstrap-clstr-btn').on('click', function (e) { // Display view by ASVs
-					if( $('#bootstrap-clstr-btn').hasClass("btn-default") ){
-						$('#bootstrap-clstr-btn').removeClass( "btn-default" );
-						$('#bootstrap-clstr-btn').addClass( "btn-primary" );
-					}
-					if( $('#bootstrap-seq-btn').hasClass("btn-primary") ){
-						$('#bootstrap-seq-btn').removeClass( "btn-primary" );
-						$('#bootstrap-seq-btn').addClass( "btn-default" );
-					}
-					$('#' + cotainer_id).highcharts( bootstrap_param("clstr") );
-				});
-				
-				$('#bootstrap-seq-btn').on('click', function (e) { // Display view by sequences
-					if( $('#bootstrap-seq-btn').hasClass("btn-default") ){
-						$('#bootstrap-seq-btn').removeClass( "btn-default" );
-						$('#bootstrap-seq-btn').addClass( "btn-primary" );
-					}
-					if( $('#bootstrap-clstr-btn').hasClass("btn-primary") ){
-						$('#bootstrap-clstr-btn').removeClass( "btn-primary" );
-						$('#bootstrap-clstr-btn').addClass( "btn-default" );
-					}
-					$('#' + cotainer_id).highcharts( bootstrap_param("seq") );
+					$('#heatmap-clstr-btn').prop('disabled', false);
+					$('#heatmap-seq-btn').prop('disabled', true);
+					heatmapChart_options = heatmapOption("seq");
+					heatmapChart.setOption(heatmapChart_options);
 				});
 			}
 			
 			var summaryLoad = function(){
-				// Display summary
-				var std_color = Highcharts.getOptions().colors ;
-			    Highcharts.getOptions().colors = Highcharts.map(Highcharts.getOptions().colors, function (color) {
-			        return {
-			            radialGradient: { cx: 0.5, cy: 0.3, r: 0.7 },
-			            stops: [
-			                [0, color],
-			                [1, Highcharts.Color(color).brighten(-0.3).get('rgb')] // darken
-			            ]
-			        };
-			    });
-			    
-				var pie_series = [
-					["With affiliation", global_results["nb_clstr_with_affi"]],
-					["Without affiliation", (global_results["nb_clstr"] - global_results["nb_clstr_with_affi"])]
-				]
-				$('#nb-filtered').highcharts( pie_param("ASVs affiliation", pie_series, 'ASVs') );
-				
-				var pie_series = [
-					["With affiliation", global_results["nb_seq_with_affi"]],
-					["Without affiliation", (global_results["nb_seq"] - global_results["nb_seq_with_affi"])]
-				]
-				$('#abundance-filtered').highcharts( pie_param("Sequences affiliation", pie_series, 'sequences') );
-				
-				Highcharts.getOptions().colors = std_color ;
-				
+				// Remove alert
+				$('#js-alert').remove();
+				$('#content').removeClass("hidden");
+
 				var histogram_series = [
 					{
 						'name': 'ASVs',
@@ -1663,224 +745,292 @@
 						})
 					}
 				];
-				$('#clstr-multi-affi').highcharts( histogram_param('Multi-affiliation by taxonomic rank', '% of multi-affiliated', taxonomy_ranks, histogram_series, '%') );
+			 	
+				var pie_series_asvs = {
+					"With affiliation": global_results["nb_clstr_with_affi"],
+					"Without affiliation": (global_results["nb_clstr"] - global_results["nb_clstr_with_affi"])
+				}
+				var pie_series_seqs = {
+					"With affiliation": global_results["nb_seq_with_affi"],
+					"Without affiliation": (global_results["nb_seq"] - global_results["nb_seq_with_affi"])
+				}
+
+				pieChart_Clusters_options = pieOption(pie_series_asvs['With affiliation'], pie_series_asvs['Without affiliation'], "With affiliation", "Without affiliation","ASVs affiliation","ASVs")
+				pieChart_Abundance_options = pieOption(pie_series_seqs['With affiliation'], pie_series_seqs['Without affiliation'], "With affiliation", "Without affiliation","Sequences affiliation","Sequences");
+				// Initialisation des graphiques avec ECharts
+				pieChart_Clusters = echarts.init(document.getElementById("nb-filtered"),CURRENT_THEME,{renderer: 'svg', height:600})
+				pieChart_Abundance = echarts.init(document.getElementById("abundance-filtered"),CURRENT_THEME,{renderer: 'svg', height:600})
+				pieChart_Clusters.setOption(pieChart_Clusters_options);
+				pieChart_Abundance.setOption(pieChart_Abundance_options);
+				tax_ranks = taxonomy_ranks.slice(0, -1) // Remove ASVs item (last element)
+				histogramChart_options = histogramOption('Multi-affiliation by taxonomic rank', '% of multi-affiliated', tax_ranks, histogram_series, '%')
+				histogramChart = echarts.init(document.getElementById("clstr-multi-affi"),CURRENT_THEME,{renderer: 'svg', height:600})
 				
-				// Display data by sample
-				var table_categories = [ 'Sample', 'Nb Clusters', '% affiliated clusters by blast', 'Nb seq', '% Affiliated sequences by blast' ];
-				var table_series = new Array();
-				for( var sample_name in sample_results ){
-					table_series.push([
-						sample_name,
-						sample_results[sample_name]['nb_clstr'],
-						Math.round(((sample_results[sample_name]['nb_clstr_with_affi']/sample_results[sample_name]['nb_clstr'])*10000)/100),
-						sample_results[sample_name]['nb_seq'],
-						Math.round(((sample_results[sample_name]['nb_seq_with_affi']/sample_results[sample_name]['nb_seq'])*10000)/100)
-					]);
-				};
-				$('#samples-details').append( table("Blast affiliation by sample", table_categories, table_series) );
-				$('#samples-details table').prop( 'id', 'details-table' );
-				$('#samples-details table').DataTable({
-					retrieve: true,
-					//"sDom": '<"top"<"#details-csv-export"><"clear">lf>rt<"bottom"ip><"clear">'
-					dom: 	"<'#details-csv-export'><'row'<'col-sm-5'l><'col-sm-7'f>>" +
-							"<'row'<'col-sm-12'tr>>" +
-							"<'row'<'col-sm-5'i><'col-sm-7'p>>",
-							"pagingType": "simple"
-				});
-				$('#details-csv-export').html( '<button class="btn btn-primary" ><span class="fa fa-download" aria-hidden="true"> CSV</span></button>' );
-				$('#details-csv-export').addClass( 'dataTables_filter' );
-				$('#details-csv-export').datatableExport({
-					'table_id': "details-table"
-				});
+				// --- Prépare les catégories (en-têtes de colonnes)
+				var table_categories = [
+				'Sample',
+				'Nb Clusters',
+				'% affiliated clusters by blast',
+				'Nb seq',
+				'% Affiliated sequences by blast'
+				];
+
+				// --- Construit les lignes de données
+				var table_series = [];
+				for (var sample_name in sample_results) {
+				if (!sample_results.hasOwnProperty(sample_name)) continue;
+
+				const nb_clstr = sample_results[sample_name]['nb_clstr'];
+				const nb_clstr_affi = sample_results[sample_name]['nb_clstr_with_affi'];
+				const nb_seq = sample_results[sample_name]['nb_seq'];
+				const nb_seq_affi = sample_results[sample_name]['nb_seq_with_affi'];
+
+				table_series.push([
+					sample_name,
+					nb_clstr,
+					nb_clstr > 0 ? Math.round((nb_clstr_affi / nb_clstr) * 10000) / 100 : 0,
+					nb_seq,
+					nb_seq > 0 ? Math.round((nb_seq_affi / nb_seq) * 10000) / 100 : 0
+				]);
+				}
+
+				// --- Génère la table HTML
+				$('#samples-details').append(
+				table("Affiliation summary by sample", table_categories, table_series)
+				);
+
+				// --- Donne un ID et active BootstrapTable
+				$('#samples-details table').prop('id', 'affiliation-table');
+				$('#affiliation-table').bootstrapTable();
+
+
+				// Default theme
+				update_theme(DEFAULT_THEME);
 				
 			}
-			
-			$(function() {
-				$(".frogsversion > div > a").text("FROGS "+frogs_tool+" "+frogs_version);
-				summaryLoad();
-				// Hide tab if no data
-				if( alignment_scores == null ){
-					$('#alignment-nav-tab').remove();
-					/*
-					$('#alignment-nav-tab').each( function(){
-						$(this).addClass("hidden");
-					});
-					*/
-				}
-				if( bootstrap_scores == null ){
-					$('#bootstrap-nav-tab').remove();
-				}
-				
-				$('.nav-tabs a').click(function (e) {
-					e.preventDefault();
-					$(this).tab('show');
-					if( $(this).attr('href') == "#global-summary" && $('#global-summary').hasClass('disabled') ){
-						$('#global-summary').removeClass("disabled");
-						summaryLoad()
-					}
-					else if ($(this).attr('href') == "#tax-distrib" && $('#tax-distrib').prop('disabled',true)  ) {
-						taxBySample_load( "tax-distrib" );
-						$('#tax-distrib').prop("disabled",true);
-					}
-					
-					else if( $(this).attr('href') == "#bootstrap-distrib" && $('#bootstrap-distrib').prop('disabled',true)  ) {
-						$('#bootstrap').prop("disabled",true);
-						bootstrap_score_load( "bootstrap-barplot" );
-						update_bootstrap_plot(frogsColor2, frogsColor, frogsButtonColor, frogsColorHover);
-					} else if( $(this).attr('href') == "#alignment-distrib" && $('#alignment-distrib').prop('disabled',true)  ) {
-						$('#alignment').prop("disabled",true);
-						alignment_score_load( "alignment-heatmap" );
-						update_heamap(frogsColor, frogsButtonColor, frogsColorHover);
-					}
-					
-				
-				})
+
+			$(function() { 
 				
 				// Remove alert
 				$('#js-alert').remove();
-				$('#content').removeClass("hidden");
-				
-				$('#themechoice').change(function() {
-					var $select = $(this);
-					var selectedIndex = $select.prop('selectedIndex');
-					
-					// Activer toutes les options
-					$select.find('option').prop('disabled', false);
+				document.getElementById("logo").src = "data:image/png;base64," + logoBase64;
 
-					// Désactiver l'option sélectionnée
-					if (selectedIndex > 0) { // Ignorer l'option "Switch theme"
-						$select.find('option').eq(selectedIndex).prop('disabled', true);
-					}
-
-					// Réinitialiser la sélection à "Switch theme"
-					$select.prop('selectedIndex', 0);
+				// Resize charts on window resize
+				window.addEventListener('resize', () => {
+					[pieChart_Clusters, pieChart_Abundance, heatmapChart, lineChart].forEach(chart => {
+						if (chart) chart.resize();
+					});
 				});
-				
-				
+				document.querySelectorAll('button[data-bs-toggle="tab"]').forEach(tab => {
+					tab.addEventListener('shown.bs.tab', function (e) {
+						setTimeout(() => {
+						if (pieChart_Clusters) pieChart_Clusters.resize();
+						if (pieChart_Abundance) pieChart_Abundance.resize();
+						if (heatmapChart) heatmapChart.resize();
+						if (bootstrapChart) bootstrapChart.resize();
+						if (lineChart) lineChart.resize();
+						}, 200);
+					});
+				});
+
+				if(bootstrap_scores == null){
+					$("#tab3").remove();
+					$("#bootstrap-tab").remove();
+				}
+
+				$("#report-title").html("Taxonomic affiliation report <i><small class='text-muted'>(" + frogs_tool + ", v" + frogs_version + ")<small></i>");
+
+				summaryLoad();
+
+				const tabEl = document.querySelectorAll('button[data-bs-toggle="tab"]');
+				tabEl.forEach(tab => {
+					tab.addEventListener('shown.bs.tab', function (event) {
+						const target = event.target.getAttribute("data-bs-target");
+						if (target === "#tab2") {
+							//samples_filters_load('filters-distrib-table')
+							taxBySample_load( "tax-distrib" );
+						}
+						if (target === "#tab3") {
+							bootstrap_score_load( "bootstrap-barplot" );
+						}
+						if (target === "#tab4") {
+							alignment_score_load( "alignment-heatmap" );
+						}
+						
+
+					});
+				});
+				// Default theme
+				update_theme(DEFAULT_THEME);
 			});
+
+			
 		</script>
 	</head>
-	<body>
+	<body class="p-5">
 		<p id="js-alert" class="alert alert-warning">
 			javascript is needed to display data.<br />
-			If you try to view this data on galaxy please contact your administrator to authorise javascript or download the file to view.
+			If you are trying to view this data on galaxy, please contact your administrator to enable javascript or download the file for viewing.
 		</p>
-		
-		<div id="content" class="hidden">
-			<ul id="mytab" class="nav nav-tabs">
-				<li class="nav-item active"><a class="nav-link active" href="#global-summary">Summary</a></li>
-				<li class="nav-item" id="taxonomy-nav-tav"><a class="nav-link" href="#tax-distrib">Taxonomy distribution</a></li>
-				<li class="nav-item" id="bootstrap-nav-tab"><a class="nav-link" href="#bootstrap-distrib">Bootstrap distribution</a></li>
-				<li class="nav-item" id="alignment-nav-tab"><a class="nav-link" href="#alignment-distrib">Alignment distribution</a></li>
-				<li class="nav-item frogsversion">
-					<div class="container">
-						<select id="themechoice" class="form-select" onchange="update_theme($(this).val())" style="font-size: smaller;" aria-label="Default select example">
-							<option selected disabled>Switch theme</option>
-							<option value="Plum">Plum</option>
-							<option value="Coral" disabled>Coral</option>
-							<option value="FROGS4">FROGS4</option>
-						</select>
-						<a style="padding: 0.5rem 1rem;"></a>
-					</div>
-				</li>
-			</ul>
-			
-			<div class="tab-content">
-				<div id="global-summary" role="tabpanel" class="tab-pane active">
-					<h2 class="pb-2-first mt-4 mb-2 border-bottom" style="margin-top: 1rem">Blast affiliation summary</h2>
+		<div class="container-fluid d-flex align-items-center mb-5">
+			<img id="logo" class="object-fit-contain me-3" style="height:180px;" src="data:image/png;base64," />
+			<h2 id="report-title" class="mb-0"></h2>
+		</div>
+	
+		<div class="container" style="max-width: fit-content; float: right;">
+			<select id="themechoice" class="form-select" onchange="update_theme($(this).val())" style="font-size: smaller;" aria-label="Default select example">
+				<option selected disabled>Switch theme</option>
+				<option value="Frogs5Theme">Frogs5</option>
+				<option value="PlumTheme">Plum</option>
+				<option value="CoralTheme">Coral</option>
+				<option value="Frogs4Theme">Frogs4</option>
+				<option value="VintageTheme">Vintage</option>
+			</select>
+			<a style="padding: 0.5rem 1rem;"></a>
+		</div>
+
+		<!-- New content-->
+		<ul class="nav nav-tabs" id="myTab" role="tablist">
+			<li class="nav-item" role="presentation">
+			  <button class="nav-link active" id="tab1-tab" data-bs-toggle="tab" data-bs-target="#tab1" type="button" role="tab">
+				Summary
+			  </button>
+			</li>
+			<li class="nav-item" role="presentation">
+			  <button class="nav-link" id="tab2-tab" data-bs-toggle="tab" data-bs-target="#tab2" type="button" role="tab">
+				Taxonomy Distribution
+			  </button>
+			</li>
+			<li id="bootstrap-tab" class="nav-item" role="presentation">
+				<button class="nav-link" id="tab3-tab" data-bs-toggle="tab" data-bs-target="#tab3" type="button" role="tab">
+					Bootstrap distribution
+				</button>
+			  </li>
+			  <li class="nav-item" role="presentation">
+				<button class="nav-link" id="tab4-tab" data-bs-toggle="tab" data-bs-target="#tab4" type="button" role="tab">
+					Alignment Distribution
+				</button>
+			  </li>
+		</ul>
+
+		<!-- Contenu des onglets -->
+		<div class="tab-content" id="myTabContent">
+			<!-- TAB 1 -->
+			<div class="tab-pane fade show active p-3 border border-top-0" id="tab1" role="tabpanel">
+				<h2 class="pb-4 mt-4 mb-2 border-bottom">Blast affiliation summary</h2>
+				<div id="filter-summary">
 					<div class="row">
-						<div class="col-md-1"></div>
-						<div id="nb-filtered" class="col-md-5"></div>
-						<div id="abundance-filtered" class="col-md-5"></div>
-						<div class="col-md-1"></div>
+						<div id="nb-filtered" class="col-md-6"></div> 
+						<div id="abundance-filtered" class="col-md-6"></div>
 					</div>
-					<h2 class="pb-2 mt-4 mb-2 border-bottom">Blast multi-affiliation summary</h2>
-					<div class="row">
-						<div class="col-md-1"></div>
-						<div id="clstr-multi-affi" class="col-md-10"></div>
-						<div class="col-md-1"></div>
-					</div>
-					<div id="samples-details">
-					<h2 class="pb-2 mt-4 mb-2 border-bottom">Blast affiliation by sample</h2>
+					
 				</div>
+				<h2 class="pb-4 mt-4 mb-2 border-bottom">Blast multi-affiliation summary</h2>
+				<div id="clstr-multi-affi" class=""></div>
+				<h2 class="pb-4 mt-4 mb-2 border-bottom">Blast affiliation by sample</h2>
+				<div id="samples-details">
+
 				</div>
-				
-				
-				<div id="tax-distrib" role="tabpanel" class="tab-pane disabled">
-					<button id="display-global-sunburst" class="btn d-block mx-auto" data-toggle="modal" data-target="#sunburst-modal">
-						<span class="fa fa-pie-chart" aria-hidden="true"> Display global distribution</span>
-					</button>
+				  	
+			</div>
+			<!-- TAB 2 -->
+			<div class="tab-pane fade p-3 border border-top-0" id="tab2" role="tabpanel">
+				<button id="display-global-sunburst" class="btn d-block mx-auto" data-bs-toggle="modal" data-bs-target="#sunburst-modal">
+					<span class="fa fa-pie-chart" aria-hidden="true"></span> Display global distribution
+				</button>
+				<div id="tax-distrib">
+					
 					<table id="taxBySample-table" class="table table-striped">
-						<thead>
-						</thead>
-						<tbody></tbody>
-						<tfoot>
-							<tr>
-								<th>
-									<span class="table-action">With selection:</span>
-									<select id="rarefaction-level" name="select" class="table-action fusion-left"></select>
-									<button id="display-rarefaction" class="btn table-action fusion-right" disabled data-toggle="modal" data-target="#rarefaction-modal"><span class="fa fa-line-chart" aria-hidden="true"> Display rarefaction</span></button>
-									<button id="display-spl-sunburst" class="btn table-action" disabled data-toggle="modal" data-target="#sunburst-modal"><span class="fa fa-pie-chart" aria-hidden="true"> Display distribution</span></button>
-								</th>
-							</tr>
-						</tfoot>
 					</table>
+					
 				</div>
-				<div id="bootstrap-distrib" role="tabpanel" class="tab-pane disabled">
-					<div id="bootstrap-barplot"></div>
-					<div id="set-bootstrap-barplot" class="heatmap-button-container">
-						<button id="bootstrap-clstr-btn" type="button" class="btn btn-md btn-block">by ASVs</button>
-						<button id="bootstrap-seq-btn" type="button" class="btn btn-md btn-block">by sequences</button>
-					</div>
+				<!-- Bouton Display Sunburst -->
+				
+				
+				<span class="table-action">With selection:</span>
+				<br>
+					<button id="display-spl-sunburst" class="btn btn-outline-secondary btn-sm table-action" disabled
+					data-bs-toggle="modal" data-bs-target="#sunburst-modal" data-whatever="distribution">
+					<span class="fa fa-pie-chart" aria-hidden="true"></span> Display distribution
+				</button>
+				<br>
+				
+				<button id="display-rarefaction" class="btn btn-outline-secondary btn-sm fusion-right" disabled
+					data-bs-toggle="modal" data-bs-target="#rarefaction-modal" data-whatever="before-process">
+					<span class="fa fa-line-chart" aria-hidden="true"></span> Display rarefaction
+				</button>
+				<div class="d-inline-block me-2"> <!-- wrapper inline-block avec margin-end -->
+					<select id="rarefaction-level" name="select" class="table-action fusion-left form-select form-select-sm" style="width:auto">
+					</select>
 				</div>
+				
+			</div>
+			<!-- TAB 3 -->
+			<div class="tab-pane fade p-3 border border-top-0" id="tab3" role="tabpanel">
+				<div id="bootstrap-barplot"></div>
+					<div id="set-bootstrap-barplot" class="text-center mt-4">
+						<button id="bootstrap-clstr-btn" type="button" class="btn btn-md" disabled>By ASV</button>
+						<button id="bootstrap-seq-btn" type="button" class="btn btn-md">By sequence</button>
+				</div>
+			</div>
+			<!-- TAB 4 -->
+			<div class="tab-pane fade p-3 border border-top-0" id="tab4" role="tabpanel">
+				
 				<div id="alignment-distrib" role="tabpanel" class="tab-pane disabled">
 					<div id="alignment-heatmap"></div>
-					<div id="set-alignment-heatmap" class="heatmap-button-container">
-						<button id="heatmap-clstr-btn" type="button" class="btn btn-md btn-block" disabled>by ASVs</button>
-						<button id="heatmap-seq-btn" type="button" class="btn btn-md btn-block">by sequences</button>
+					<div id="set-alignment-heatmap" class="text-center">
+						<button id="heatmap-clstr-btn" type="button" class="btn btn-md" disabled>By ASV</button>
+						<button id="heatmap-seq-btn" type="button" class="btn btn-md">By sequence</button>
 					</div>
 				</div>
 			</div>
 		</div>
+	
 		
-		<div class="modal" id="sunburst-modal" tabindex="-1" role="dialog" aria-hidden="true">
+		<!-- Modal -->
+		<div class="modal fade" id="sunburst-modal" tabindex="-1">
 			<div class="modal-dialog modal-lg">
-				<div class="modal-content">
-					<div class="modal-header">
-						<h6 class="modal-title">Taxa distribution</h6>
-						<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-					</div>
-					<div class="modal-body">
-						<div id="sunburst-walktrace"></div>
-						<div id="sunburst-graph"></div>
-						<div>
-							</br><h6>Detail on selected:</h6>
-							<div id="sunburst-detail"></div>
-						</div>
-					</div>
-					<div class="modal-footer">
-						<span id="sunburst-menu"></span>
-						<button type="button" class="btn btn-default" data-dismiss="modal"><span class="fa fa-close" aria-hidden="true"> Close</span> </button>
-					</div>
+			  <div class="modal-content">
+				<div class="modal-header">
+				  <h6 class="modal-title">Taxa distribution</h6>
+				  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
 				</div>
-			</div>
-		</div>
-		<div class="modal" id="rarefaction-modal" tabindex="-1" role="dialog" aria-hidden="true">
-			<div class="modal-dialog modal-lg">
-				<div class="modal-content">
-					<div class="modal-header">
-						<h6 class="modal-title">Rarefaction</h6>
-						<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-					</div>
-					<div class="modal-body">
-						<div id="rarefaction-chart"></div>
-					</div>
-					<div class="modal-footer">
-						<button type="button" class="btn btn-default" data-dismiss="modal"><span class="fa fa-close" aria-hidden="true"> Close</span> </button>
-					</div>
+				<div class="modal-body">
+				  <div id="sunburst-walktrace"></div>
+				  <div id="sunburst-graph"></div>
+				  <div>
+					<br>
+					<h6>Detail on selected:</h6>
+					<div id="sunburst-detail"></div>
+				  </div>
 				</div>
+				<div class="modal-footer">
+				  <span id="sunburst-menu"></span>
+				  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+					<span class="fa fa-close" aria-hidden="true"></span> Close
+				  </button>
+				</div>
+			  </div>
 			</div>
+		  </div>
+		  <div class="modal fade" id="rarefaction-modal" tabindex="-1" aria-hidden="true">
+			<div class="modal-dialog modal-xl">
+			  <div class="modal-content">
+				<div class="modal-header">
+				  <h6 class="modal-title">Rarefaction</h6>
+				  <!-- Bouton Close Bootstrap 5 -->
+				  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+				</div>
+				<div class="modal-body">
+				  <div id="rarefaction-chart"></div>
+				</div>
+				<div class="modal-footer">
+				  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+					<span class="fa fa-close" aria-hidden="true"></span> Close
+				  </button>
+				</div>
+			  </div>
 			</div>
-		</div>
+		  </div>
 	</body>
 </html>

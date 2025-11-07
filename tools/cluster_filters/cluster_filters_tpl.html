@@ -405,10 +405,6 @@
 				$('#clusters-size-details table').last().prop( 'id', 'dispersion-table' );
 				$('#dispersion-table').bootstrapTable();
 
-				
-				
-				
-				
 				var series_cumulative = new Array() ;
 				for( var series_idx = 0 ; series_idx < series.length ; series_idx++ ){
 					series_cumulative.push({
@@ -433,7 +429,6 @@
 					}
 				}
 				
-				console.log("BEFORE area plot");
 				areaChart_options = areaplotOption("Cumulative sequences proportion by ASV size", "ASV size", "% sequences", null, series_cumulative);
 				areaChart = echarts.init(document.getElementById('sequences-distrib-chart'),CURRENT_THEME,{renderer: 'svg', height:600})
 				areaChart.setOption(areaChart_options);
@@ -561,7 +556,7 @@
 		</p>
 		<div class="container-fluid d-flex align-items-center mb-5">
 			<img id="logo" class="object-fit-contain me-3" style="height:180px;" src="data:image/png;base64," />
-			<h2 id="report-title" class="mb-0">Denoising report</h2>
+			<h2 id="report-title" class="mb-0"></h2>
 		</div>
 	
 		<div class="container" style="max-width: fit-content; float: right;">
