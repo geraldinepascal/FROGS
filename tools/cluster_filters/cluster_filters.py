@@ -480,7 +480,7 @@ def process( args ):
         discards = dict() # by filter the discard file path
 
         if args.min_sample_presence is not None:
-            label = "Present in less than " + str(args.min_sample_presence) + " samples"
+            label = "Present in fewer than " + str(args.min_sample_presence) + " samples"
             discards[label] = tmpFiles.add( "min_sample_presence" )
             excluded_obs_on_samplePresence( args.input_biom, args.min_sample_presence, discards[label] )
 
@@ -489,7 +489,7 @@ def process( args ):
             FH_log = Logger(replicate_groups_log)
             FH_log.write('No replicate groups defined\n')
         elif args.min_replicate_presence is not None and args.replicate_tsv is not None:
-            label = "Present in less than " + str(args.min_replicate_presence*100) + "%  of replicates of all replicate groups."
+            label = "Present in fewer than " + str(args.min_replicate_presence*100) + "%  of replicates of all replicate groups."
             discards[label] = tmpFiles.add( "min_replicate_presence")
             excluded_obs_on_replicatePresence( args.input_biom, args.replicate_tsv, args.min_replicate_presence, replicate_groups_log, discards[label])
 
@@ -497,15 +497,15 @@ def process( args ):
             if type(args.min_abundance) == Decimal:
                 biom = BiomIO.from_json( args.input_biom )
                 min_nb_seq = int(biom.get_total_count() * args.min_abundance) + 1
-                label = "Abundance < " + str(float(args.min_abundance*100)) + "% (i.e " + str(min_nb_seq) + " sequences )"
+                label = "ASV abundance < " + str(float(args.min_abundance*100)) + "% (i.e " + str(min_nb_seq) + " sequences )"
             else:
-                label = "Abundance < " + str(args.min_abundance)
+                label = "ASV abundance < " + str(args.min_abundance)
                 min_nb_seq = args.min_abundance
             discards[label] = tmpFiles.add( "min_abundance" )
             excluded_obs_on_abundance( args.input_biom, min_nb_seq, discards[label] )
 
         if args.contaminant is not None:
-            label = "Present in databank of contaminants"
+            label = "Found in contaminant database"
             discards[label] = tmpFiles.add( "contaminant" )
             cleaned_seq = tmpFiles.add( "cleaned_sequences.fasta" )
             cleaned_biom = tmpFiles.add( "cleaned_abundance.biom" )

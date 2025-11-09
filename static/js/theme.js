@@ -1,5 +1,5 @@
 //const DEFAULT_THEME = "CoralTheme";
-const DEFAULT_THEME = "Frogs5Theme";
+const DEFAULT_THEME = "FROGS5Theme";
 var CURRENT_THEME = DEFAULT_THEME;
 
 
@@ -24,27 +24,27 @@ const logoBase64 = "iVBORw0KGgoAAAANSUhEUgAABkoAAAhPCAYAAACXR9fmAAAACXBIWXMAAC4j
 /**************************************************************************** */
 
 paletteColors10 = {
-	"Frogs5Theme": ['#03A5A8','#B8D578','#AD8E9F','#027D80','#CDE58C','#DAB6C2','#58C1C4','#A1B56B','#C7A7B7','#E3DCCF'],
+	"FROGS5Theme": ['#03A5A8','#B8D578','#AD8E9F','#027D80','#CDE58C','#DAB6C2','#58C1C4','#A1B56B','#C7A7B7','#E3DCCF'],
 	"PlumTheme": ['#694F5D','#BFD3C1','#EFC7C2','#737F75','#8E6A85','#D9B18E','#A6C4C4','#C5B1B8','#8BA58C','#9C8F8A'],
 	"CoralTheme": ['#00A3A6','#FA8883','#EFC7C2','#737F75','#7A8FA3','#D7B377','#A7C7A1','#A79BAE','#A0705A','#92B7C9'],
 	"VintageTheme": ['#D87C7C','#919E8B','#D7AB82','#6E7074','#61A0A8','#EFA18D','#787464','#CC7E63','#724E58','#4B565B'],
-	"Frogs4Theme": ['#8eadac','#de9f73','#ad8e9f','#a2a32f','#7398A6','#D7A5B3','#6B8E3A','#CFA96E','#7E6FA8','#E3C9B2']
+	"FROGS4Theme": ['#8eadac','#de9f73','#ad8e9f','#a2a32f','#7398A6','#D7A5B3','#6B8E3A','#CFA96E','#7E6FA8','#E3C9B2']
 }
 
 function getFrogsSunburstPalette() {
 	switch (CURRENT_THEME) {
-		case "Frogs5Theme":
-			return paletteColors10["Frogs5Theme"];
+		case "FROGS5Theme":
+			return paletteColors10["FROGS5Theme"];
 		case "PlumTheme":
 			return paletteColors10["PlumTheme"];
 		case "CoralTheme":
 			return paletteColors10["CoralTheme"];
 		case "VintageTheme":
 			return paletteColors10["VintageTheme"];
-		case "Frogs4Theme":
-			return paletteColors10["Frogs4Theme"];
+		case "FROGS4Theme":
+			return paletteColors10["FROGS4Theme"];
 		default:
-			return paletteColors10["Frogs5Theme"];
+			return paletteColors10["FROGS5Theme"];
 	}
 }
 
@@ -160,20 +160,20 @@ const themeConfigs = {
 	  "--frogsBackgroundColor": "white"
 	}),
   
-	Frogs4Theme: makeThemeConfig("Frogs4Theme", {
-	  "--frogsColor": paletteColors10["Frogs4Theme"][0],
+	FROGS4Theme: makeThemeConfig("FROGS4Theme", {
+	  "--frogsColor": paletteColors10["FROGS4Theme"][0],
 	  //"--frogsColorHover": "#648a89",
 	  "--frogsColorHover": "hsl(from var(--frogsColor) h calc(s + 4) calc(l - 3) / 1)",
 	  "--frogsColorShadow": "#648a89",
-	  "--frogsColor2": paletteColors10["Frogs4Theme"][1],
-	  "--frogsColor3": paletteColors10["Frogs4Theme"][2],
-	  "--frogsColor4": paletteColors10["Frogs4Theme"][3],
-	  "--frogsColor5": paletteColors10["Frogs4Theme"][4],
-	  "--frogsColor6": paletteColors10["Frogs4Theme"][5],
-	  "--frogsColor7": paletteColors10["Frogs4Theme"][6],
-	  "--frogsColor8": paletteColors10["Frogs4Theme"][7],
-	  "--frogsColor9": paletteColors10["Frogs4Theme"][8],
-	  "--frogsColor10": paletteColors10["Frogs4Theme"][9],
+	  "--frogsColor2": paletteColors10["FROGS4Theme"][1],
+	  "--frogsColor3": paletteColors10["FROGS4Theme"][2],
+	  "--frogsColor4": paletteColors10["FROGS4Theme"][3],
+	  "--frogsColor5": paletteColors10["FROGS4Theme"][4],
+	  "--frogsColor6": paletteColors10["FROGS4Theme"][5],
+	  "--frogsColor7": paletteColors10["FROGS4Theme"][6],
+	  "--frogsColor8": paletteColors10["FROGS4Theme"][7],
+	  "--frogsColor9": paletteColors10["FROGS4Theme"][8],
+	  "--frogsColor10": paletteColors10["FROGS4Theme"][9],
 	  //"--frogsButtonColor": "#8EADAC",
 	  "--frogsButtonColor": "hsl(from var(--frogsColor) h calc(s + 4) calc(l + 1) / 0.8)",
 	  "--frogsButtonBorderColor": "#f2f2f2",
@@ -183,20 +183,20 @@ const themeConfigs = {
 	  "--frogsBackgroundColor": "white"
 	}),
 
-	Frogs5Theme: makeThemeConfig("Frogs5Theme", {
-		"--frogsColor": paletteColors10["Frogs5Theme"][0],
+	FROGS5Theme: makeThemeConfig("FROGS5Theme", {
+		"--frogsColor": paletteColors10["FROGS5Theme"][0],
 		//"--frogsColorHover": "#648a89",
 		"--frogsColorHover": "hsl(from var(--frogsColor) h calc(s + 4) calc(l - 3) / 1)", // not
 		"--frogsColorShadow": "#648a89", // not
-		"--frogsColor2": paletteColors10["Frogs5Theme"][1],
-		"--frogsColor3": paletteColors10["Frogs5Theme"][2],
-		"--frogsColor4": paletteColors10["Frogs5Theme"][3],
-		"--frogsColor5": paletteColors10["Frogs5Theme"][4],
-		"--frogsColor6": paletteColors10["Frogs5Theme"][5],
-		"--frogsColor7": paletteColors10["Frogs5Theme"][6],
-		"--frogsColor8": paletteColors10["Frogs5Theme"][7],
-		"--frogsColor9": paletteColors10["Frogs5Theme"][8],
-		"--frogsColor10": paletteColors10["Frogs5Theme"][9],
+		"--frogsColor2": paletteColors10["FROGS5Theme"][1],
+		"--frogsColor3": paletteColors10["FROGS5Theme"][2],
+		"--frogsColor4": paletteColors10["FROGS5Theme"][3],
+		"--frogsColor5": paletteColors10["FROGS5Theme"][4],
+		"--frogsColor6": paletteColors10["FROGS5Theme"][5],
+		"--frogsColor7": paletteColors10["FROGS5Theme"][6],
+		"--frogsColor8": paletteColors10["FROGS5Theme"][7],
+		"--frogsColor9": paletteColors10["FROGS5Theme"][8],
+		"--frogsColor10": paletteColors10["FROGS5Theme"][9],
 		//"--frogsButtonColor": "#8EADAC",
 		"--frogsButtonColor": "hsl(from var(--frogsColor) h calc(s + 4) calc(l + 1) / 0.8)", // not
 		"--frogsButtonBorderColor": "#f2f2f2", // not
