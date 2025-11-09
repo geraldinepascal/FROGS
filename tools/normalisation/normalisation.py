@@ -130,7 +130,7 @@ def summarise_results( summary_file, is_delete_samples, num_reads, biom_subsampl
     """
     # Get data
     # to summary ASVs number && abundances number              
-    categories = ["Nb ASV before normalisation" ,"Nb ASV after normalisation" ]
+    categories = ["Number of ASVs before normalisation" ,"Number of ASVs after normalisation" ]
     delete_categories = ['Nb sequences']
     series = list()
     deletes = list()

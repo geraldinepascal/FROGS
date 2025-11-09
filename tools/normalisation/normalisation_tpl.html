@@ -70,7 +70,7 @@
   					['Kept', remove_info['abundance_kept']],
   					['Removed', remove_info['abundance_removed']]
   				];
-				pieChart_Clusters_options = pieOption(remove_info['nb_kept'], remove_info['nb_removed'], "Kept", "Removed","Clusters","Clusters")
+				pieChart_Clusters_options = pieOption(remove_info['nb_kept'], remove_info['nb_removed'], "Kept", "Removed","ASVs","ASVs")
 				pieChart_Abundance_options = pieOption(remove_info['abundance_kept'], remove_info['abundance_removed'], "Kept", "Removed","Abundance","Sequences");
 				// Initialisation des graphiques avec ECharts
 				pieChart_Clusters = echarts.init(document.getElementById("nb-filtered"),CURRENT_THEME,{renderer: 'svg', height:600})
@@ -184,10 +184,10 @@
 		<div class="container" style="max-width: fit-content; float: right;">
 			<select id="themechoice" class="form-select" onchange="update_theme($(this).val())" style="font-size: smaller;" aria-label="Default select example">
 				<option selected disabled>Switch theme</option>
-				<option value="Frogs5Theme">Frogs5</option>
+				<option value="FROGS5Theme">FROGS5</option>
 				<option value="PlumTheme">Plum</option>
 				<option value="CoralTheme">Coral</option>
-				<option value="Frogs4Theme">Frogs4</option>
+				<option value="FROGS4Theme">FROGS4</option>
 				<option value="VintageTheme">Vintage</option>
 			</select>
 			<a style="padding: 0.5rem 1rem;"></a>
