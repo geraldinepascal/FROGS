@@ -443,6 +443,76 @@ var lineOption = function(pTitle, pXTitle, pYTitle, pXCategories, pData) {
     };
 };
 
+var lineOptionDualY = function(pTitle, pXTitle, x_values, y_axis_infos, my_series) {
+    return {
+        tooltip: {
+            trigger: 'axis',
+            axisPointer: { type: 'cross' },
+            backgroundColor: 'rgba(255, 255, 255, 0.95)',
+            borderWidth: 1,
+            borderColor: '#ccc',
+            textStyle: { color: '#333' },
+            confine: true,
+            extraCssText: 'box-shadow: 0 0 8px rgba(0,0,0,0.2); padding: 8px;',
+            formatter: function (params) {
+                if (!params || params.length === 0) return '';
+
+                // Récupérer les max de chaque série
+                const seqSeries = my_series.find(s => s.name === "Sequences");
+                const asvSeries = my_series.find(s => s.name === "ASVs");
+                const maxSeq = seqSeries.data[seqSeries.data.length - 1];
+                const maxASV = asvSeries.data[asvSeries.data.length - 1];
+
+                let tooltip = '<table style="border-collapse:collapse;">';
+
+                params.forEach(p => {
+                    const val = p.value; // juste le Y
+                    let pct = 0;
+                    if (p.seriesName === "Sequences") pct = maxSeq ? (val / maxSeq) * 100 : 0;
+                    if (p.seriesName === "ASVs") pct = maxASV ? (val / maxASV) * 100 : 0;
+
+                    tooltip += `
+                        <tr>
+                            <td style="color:${p.color};padding-right:8px;">${p.seriesName} :</td>
+                            <td style="text-align:right;">
+                                ${val.toLocaleString('en-US')} 
+                                (${pct.toFixed(1)}%)
+                            </td>
+                        </tr>`;
+                });
+
+                tooltip += '</table>';
+                return tooltip;
+            },
+            useHTML: true
+        },
+        title: {
+            text: pTitle,
+            textStyle: {fontWeight: 'normal'},
+        },
+        //grid: { right: '20%' },
+        toolbox: {
+            feature: {
+                //dataView: { show: true, readOnly: false },
+                dataZoom: { title: { zoom: 'Zoom', back: 'Reset' } },
+                saveAsImage: { show: true }
+            }
+        },
+        legend: {
+            data: my_series.map(s => s.name)
+        },
+        xAxis: [
+            {
+                type: 'category',
+                axisTick: { alignWithLabel: true },
+                data: x_values
+            }
+        ],
+        yAxis: y_axis_infos,
+        series: my_series
+    };
+};
+
 function boxplotOption(pTitle, pXTitle, pYTitle, pXCategories, boxplot_series) {
     return {
         title: {

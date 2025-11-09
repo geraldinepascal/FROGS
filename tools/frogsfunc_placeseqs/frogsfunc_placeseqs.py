@@ -23,6 +23,10 @@ LIB_DIR = os.path.abspath(os.path.join(os.path.dirname(CURRENT_DIR), "lib"))
 sys.path.append(LIB_DIR)
 if os.getenv('PYTHONPATH') is None: os.environ['PYTHONPATH'] = LIB_DIR
 else: os.environ['PYTHONPATH'] = LIB_DIR + os.pathsep + os.environ['PYTHONPATH']
+# THEME
+THEME_DIR = os.path.abspath(os.path.join(os.path.dirname(CURRENT_DIR), "static"))
+if not os.path.exists(THEME_DIR):
+    THEME_DIR = os.path.abspath(os.path.join(os.path.dirname(os.path.dirname(CURRENT_DIR)), "static"))
 
 from frogsUtils import *
 from frogsBiom import BiomIO
@@ -316,11 +320,28 @@ def write_summary(in_fasta, excluded_file, biomfile, closest_ref_file, category,
 	summary_info['nb_kept'] = number_asv_all - summary_info['nb_removed']
 	summary_info['abundance_kept'] = number_abundance_all - summary_info['abundance_removed']
 
+	# Load shared JS
+	with open(os.path.join(THEME_DIR, "js", "theme.js")) as f:
+		theme_js = f.read()
+	with open(os.path.join(THEME_DIR, "js", "utils.js")) as f:
+		utils_js = f.read()
+    # Load shared CSS
+	with open(os.path.join(THEME_DIR, "css", "common.css")) as f:
+		common_css = f.read()
+
 	FH_summary_tpl = open( os.path.join(CURRENT_DIR, "frogsfunc_placeseqs_tpl.html") )
 	FH_summary_out = open( summary_file, "wt" )
+	
 
 	for line in FH_summary_tpl:
-		if "###DETECTION_CATEGORIES###" in line:
+		if "###IMPORT_CSS###" in line:
+			line = line.replace("###IMPORT_CSS###", f"<style type='text/css'>{common_css}</style>")
+		elif "###IMPORT_JS_UTILS###" in line:
+			# injection du JS inline
+			line = line.replace("###IMPORT_JS_UTILS###", f"<script>\n{utils_js}</script>")
+		elif "###IMPORT_JS_THEME###" in line:
+			line = line.replace("###IMPORT_JS_THEME###", f"<script>\n{theme_js}</script>")
+		elif "###DETECTION_CATEGORIES###" in line:
 			line = line.replace( "###DETECTION_CATEGORIES###", json.dumps(details_categorys) )
 		elif "###DETECTION_DATA###" in line:
 			line = line.replace( "###DETECTION_DATA###", json.dumps(infos_asvs) )
