@@ -126,8 +126,8 @@ echo "454 R1"
                     --min-amplicon-size 340 --max-amplicon-size 450 \
                     --five-prim-primer "ACGGGAGGCAGCAG" --three-prim-primer "AGGATTAGATACCCTGGTA" \
                     --process swarm \
-                    --output-fasta test/derep_SRR443364_454.fasta --output-biom test/count_SRR443364_454.biom --output-compo test/SRR443364_454_swarm_compo.tsv \
-                    --html test/summary_SRR443364_454.html --log-file test/log_SRR443364_454.txt
+                    --output-fasta test/01-denoising-454-swarm.fasta --output-biom test/01-denoising-454-swarm.biom --output-compo test/01-denoising-454-swarm_compo.tsv \
+                    --html test/01-denoising-454-swarm.html --log-file test/01-denoising-454-swarm.log
                     
 # Long reads PacBio swarm
 echo "Long reads swarm"
@@ -136,8 +136,8 @@ echo "Long reads swarm"
                     --five-prim-primer AGRGTTYGATYMTGGCTCAG --three-prim-primer AAGTCGTAACAAGGTARCY \
                     --process swarm \
                     --nb-cpus 4 \
-                    --output-fasta test/denoising_longreads_swarm.fasta --output-biom test/denoising_longreads_swarm.biom --output-compo test/longreads_swarm_compo.tsv \
-                    --html test/denoising_longreads_swarm.html --log-file test/denoising_longreads_swarm.log
+                    --output-fasta test/01-denoising-long-swarm.fasta --output-biom test/01-denoising-long-swarm.biom --output-compo test/01-denoising-long-swarm_compo.tsv \
+                    --html test/01-denoising-long-swarm.html --log-file test/01-denoising-long-swarm.log
 			
 # Long reads PacBio dada2
 echo "Long reads dada2"
@@ -146,4 +146,5 @@ echo "Long reads dada2"
                     --five-prim-primer AGRGTTYGATYMTGGCTCAG --three-prim-primer AAGTCGTAACAAGGTARCY \
                     --process dada2 \
                     --nb-cpus 4 \
-                    --log-file test/denoising_longreads_dada2.log --output-fasta test/denoising_longreads_dada2.fasta --output-biom test/denoising_longreads_dada2.biom --html test/denoising_longreads_dada2.html
+                    --log-file test/01-denoising-long-dada2.log --output-fasta test/01-denoising-long-dada2.fasta --output-biom test/01-denoising-long-dada2.biom --html test/01-denoising-long-dada2.html
+                    
