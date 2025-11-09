@@ -105,10 +105,9 @@ if __name__ == "__main__":
     
     # output
     group_output = parser.add_argument_group( '# Outputs' )
-    
     group_output_fun = parser.add_argument_group( '  ## Outputs specific of FUNCTION analysis type ' )
-    group_output_fun.add_argument('--output-ipath-over', default=None, help="The tsv file of over abundants functions" )
-    group_output_fun.add_argument('--output-ipath-under', default=None, help="The tsv file of under abundants functions" )
+    group_output_fun.add_argument('--output-ipath-over', default=None, help="The tsv file of over abundants functions [Default:ipath_over.tsv] " )
+    group_output_fun.add_argument('--output-ipath-under', default=None, help="The tsv file of under abundants functions [Default:ipath_under.tsv]" )
 
     group_output.add_argument('--html', default='DESeq2_visualisation.html', help="The HTML file containing the graphs. [Default: %(default)s]" )
     group_output.add_argument('--log-file', default=sys.stdout, help='This output file will contain several informations on executed commands. [Default: stdout]')
@@ -135,11 +134,9 @@ if __name__ == "__main__":
             svg_ipath_file_over  = os.path.abspath(output_dir + "/" +  "ipath_over.svg")
             svg_ipath_file_under  = os.path.abspath(output_dir + "/" +  "ipath_under.svg")
             if args.output_ipath_over is None:
-                args.output_ipath_over = "ipath_over.tsv"
-            args.output_ipath_over =  os.path.abspath(output_dir + "/" + os.path.basename(args.output_ipath_over))
+                args.output_ipath_over = os.path.abspath(output_dir + "/" + "ipath_over.tsv")
             if args.output_ipath_under is None:
-                args.output_ipath_under = "ipath_under.tsv"
-            args.output_ipath_under = os.path.abspath(output_dir + "/" +  os.path.basename(args.output_ipath_under))
+                args.output_ipath_under =  os.path.abspath(output_dir + "/" + "ipath_under.tsv")
 
             Rscript(abundance_data, dds, args.var_exp, args.mod1, args.mod2, args.padj, html, args.analysis_type, R_stderr, args.output_ipath_over, args.output_ipath_under, svg_ipath_file_over, svg_ipath_file_under).submit(args.log_file)
     
