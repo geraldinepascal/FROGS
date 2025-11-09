@@ -310,7 +310,7 @@ var histogramOption = function(pTitle, pYTitle, pCategories, pSeries, unity) {
               rotate: 45,
             },
             axisLine: {
-              lineStyle: { color: frogsColor2 }
+              //lineStyle: { color: frogsColor2 }
             }
           },
           yAxis: {
@@ -319,7 +319,7 @@ var histogramOption = function(pTitle, pYTitle, pCategories, pSeries, unity) {
             nameLocation: 'middle',
             nameGap: 40,
             axisLine: {
-              lineStyle: { color: frogsColor2 }
+              //lineStyle: { color: frogsColor2 }
             },
             splitLine: {
               show: true,
