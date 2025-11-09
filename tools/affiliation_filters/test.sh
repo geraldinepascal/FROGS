@@ -27,7 +27,8 @@ mkdir -p $OUT
 --min-blast-identity 1.0 \
 --min-blast-coverage 1.0 \
 --max-blast-evalue 0 \
---delete
+--delete \
+--bootstrap-tag rdp_bootstrap
 
 echo ""
 OUT=test/metrics-filter

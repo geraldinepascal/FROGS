@@ -431,36 +431,6 @@
 			 * @return {Hash} The hash.
 			 */
 			
-
-			var bootstrap_param = function(data_type) {
-				if (!data_type) data_type = "clstr";
-
-				
-
-				var histogram_series = [];
-
-				// Construction des données pour chaque taxonomic rank
-				for (var taxonomic_rank in bootstrap_scores) {
-					histogram_series.push({
-						name: taxonomic_rank,
-						data: get_bootstrap_barplot_data(
-							bootstrap_categories,
-							bootstrap_scores[taxonomic_rank],
-							data_type
-						)
-					});
-				}
-
-				// Appel à histogramOption pour générer l'option ECharts
-				return histogramOption(
-					'Number of ' + clean_type[data_type] + ' by bootstrap on affiliation',
-					'Nb ' + clean_type[data_type],
-					get_displayed_categories(bootstrap_categories),
-					histogram_series,
-					clean_type[data_type]
-				);
-			};
-
 			/**
 			 * Add listener to update content of sunburst-modal.
 			 */

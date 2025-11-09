@@ -80,25 +80,7 @@
 			var bootstrapChart_options;
 			var lineChart_options;
 			
-			function updateCharts(CURRENT_THEME) {
-				pieChart_Clusters = recreateChart(pieChart_Clusters, "nb-filtered", pieChart_Clusters_options, CURRENT_THEME, 600);
-				pieChart_Abundance = recreateChart(pieChart_Abundance, "abundance-filtered", pieChart_Abundance_options, CURRENT_THEME, 600);
-				if(heatmapChart_options) heatmapChart = recreateChart(heatmapChart, "alignment-heatmap", heatmapChart_options, CURRENT_THEME, 600);
-				if (heatmapChart) {
-					let currentType = $('#heatmap-seq-btn').prop('disabled') ? 'seq' : 'clstr';
-					let heatmapChart_options = heatmapOption(currentType);
-					heatmapChart = recreateChart(heatmapChart, "alignment-heatmap", heatmapChart_options, CURRENT_THEME, 600);
-				}
-				if(histogramChart_options){
-					histogramChart = recreateChart(histogramChart, "clstr-multi-affi", histogramChart_options, CURRENT_THEME, 600);
-				}
-				if(bootstrapChart_options){
-					bootstrapChart = recreateChart(bootstrapChart, "bootstrap-barplot", bootstrapChart_options, CURRENT_THEME, 600);
-				}
-				if(lineChart_options){
-					lineChart = recreateChart(lineChart, "rarefaction-chart", lineChart_options, CURRENT_THEME, 600);
-				}
-			}
+			
 			
 			
 			/**
@@ -160,6 +142,10 @@
 					}
 				}
 			*/
+
+			var clean_type = { "clstr": "ASVs", "seq": "sequences" };
+			var data_type = "clstr";
+			var bootstrap_categories = [50, 80, 90, 95, 100, 101];
 			
 			/**
 			 * Returns the list of human readable intervals from The list of right threshold.
@@ -341,7 +327,7 @@
 			 * @param data_type {String} The type of count ('seq' or 'clstr') [default: clstr].
 			 * @return {Hash} The formatted hash.
 			 */
-			var get_bootstrap_barplot_data = function( bootstrap_categories, scores, data_type ){
+			/*var get_bootstrap_barplot_data = function( bootstrap_categories, scores, data_type ){
 				var formated_data = new Array();
 				
 				// Data to hash by category
@@ -368,6 +354,7 @@
 				
 				return formated_data ;
 			}
+				*/
 			
 			var add_rarefaction_listeners = function() {
 				$('#rarefaction-modal').on('shown.bs.modal', function (e) {
@@ -507,39 +494,60 @@
 			}
 			
 			var bootstrap_score_load = function(container_id) {
-
 				// Initialisation du graphique ECharts
-				var bootstrapChart = echarts.init(
-					document.getElementById(container_id),
-					CURRENT_THEME,
-					{ renderer: 'svg', height: 600 }
-				);
-
-				// Affichage initial (view by ASVs)
-				var bootstrap_options = bootstrap_param("clstr");
-				bootstrapChart.setOption(bootstrap_options);
-
-				// Gestion des boutons
-				$('#bootstrap-clstr-btn').on('click', function(e) {
-					$('#bootstrap-seq-btn').prop('disabled', false);
-					$('#bootstrap-clstr-btn').prop('disabled', true);
-
-					bootstrap_options = bootstrap_param("clstr");
-					bootstrapChart.setOption(bootstrap_options);
+				bootstrapChart = echarts.init(document.getElementById(container_id), CURRENT_THEME, {
+					renderer: 'svg',
+					height: 600
 				});
 
-				$('#bootstrap-seq-btn').on('click', function(e) {
+				// Fonction interne pour construire les options du graphique selon le type
+				function getBootstrapOptions(data_type = "clstr") {
+					const histogram_series = [];
+
+					// Construction des données pour chaque taxonomic rank
+					for (const taxonomic_rank in bootstrap_scores) {
+						histogram_series.push({
+							name: taxonomic_rank,
+							data: get_bootstrap_barplot_data(
+								bootstrap_categories,
+								bootstrap_scores[taxonomic_rank],
+								data_type
+							)
+						});
+					}
+
+					return histogramOption(
+						`Number of ${clean_type[data_type]} by bootstrap on affiliation`,
+						`Nb ${clean_type[data_type]}`,
+						get_displayed_categories(bootstrap_categories),
+						histogram_series,
+						clean_type[data_type]
+					);
+				}
+
+				// Affichage initial (view by ASVs)
+				bootstrapChart_options = getBootstrapOptions("clstr");
+				bootstrapChart.setOption(bootstrapChart_options);
+
+				// Gestion des boutons
+				$('#bootstrap-clstr-btn').on('click', function () {
+					$('#bootstrap-seq-btn').prop('disabled', false);
+					$('#bootstrap-clstr-btn').prop('disabled', true);
+					bootstrapChart_options = getBootstrapOptions("clstr");
+					bootstrapChart.setOption(bootstrapChart_options);
+				});
+
+				$('#bootstrap-seq-btn').on('click', function () {
 					$('#bootstrap-clstr-btn').prop('disabled', false);
 					$('#bootstrap-seq-btn').prop('disabled', true);
-
-					bootstrap_options = bootstrap_param("seq");
-					bootstrapChart.setOption(bootstrap_options);
+					bootstrapChart_options = getBootstrapOptions("seq");
+					bootstrapChart.setOption(bootstrapChart_options);
 				});
 
 				window.addEventListener('resize', () => bootstrapChart.resize());
 			};
 
-			var bootstrap_param = function(data_type) {
+			/*var bootstrap_param = function(data_type) {
 				if (!data_type) data_type = "clstr";
 
 				var clean_type = { "clstr": "ASVs", "seq": "sequences" };
@@ -567,7 +575,7 @@
 					histogram_series,
 					clean_type[data_type]
 				);
-			};
+			};*/
 
 			var get_bootstrap_barplot_data = function(bootstrap_categories, scores, data_type) {
 				var formated_data = [];
@@ -598,10 +606,11 @@
 				const frogsColor2 = style.getPropertyValue('--frogsColor2').trim();
 				const frogsColorHover = style.getPropertyValue('--frogsColorHover').trim();
 				let titles = ["Sample name"];
-				taxonomy_ranks.forEach(rank => {
-					titles.push("Nb " + rank.toLowerCase());
+				taxo_ranks = taxonomy_ranks.slice(0, -1)
+				taxo_ranks.forEach(rank => {
+					titles.push("Number of " + rank);
 				});
-				titles.push("Nb ASV", "Nb sequences");
+				titles.push("Number of ASVs", "Number of sequences");
 
 				let columns = [];
 
@@ -636,14 +645,14 @@
 					row['col0'] = sample_name;
 
 					// colonnes taxonomiques
-					for (let rank = 0; rank < taxonomy_ranks.length; rank++) {
+					for (let rank = 0; rank < taxo_ranks.length; rank++) {
 						// getNodeByDepth(rank+1).length -> entier
 						row['col' + (rank + 1)] = numberDisplay(tree.getNodeByDepth(rank + 1).length);
 					}
 
 					// Nb ASV et Nb sequences
-					row['col' + (taxonomy_ranks.length + 1)] = numberDisplay(rarefaction[sample_name]['nb_asv']);
-					row['col' + (taxonomy_ranks.length + 2)] = numberDisplay(rarefaction[sample_name]['nb_seq']);
+					row['col' + (taxo_ranks.length + 1)] = numberDisplay(rarefaction[sample_name]['nb_asv']);
+					row['col' + (taxo_ranks.length + 2)] = numberDisplay(rarefaction[sample_name]['nb_seq']);
 
 					rows.push(row);
 				}
@@ -743,8 +752,8 @@
 					"Without affiliation": (global_results["nb_seq"] - global_results["nb_seq_with_affi"])
 				}
 
-				pieChart_Clusters_options = pieOption(pie_series_asvs['With affiliation'], pie_series_asvs['Without affiliation'], "With affiliation", "Without affiliation","ASVs affiliation","ASVs")
-				pieChart_Abundance_options = pieOption(pie_series_seqs['With affiliation'], pie_series_seqs['Without affiliation'], "With affiliation", "Without affiliation","Sequences affiliation","Sequences");
+				pieChart_Clusters_options = pieOption(pie_series_asvs['With affiliation'], pie_series_asvs['Without affiliation'], "With affiliation", "Without affiliation","ASV affiliation","ASV")
+				pieChart_Abundance_options = pieOption(pie_series_seqs['With affiliation'], pie_series_seqs['Without affiliation'], "With affiliation", "Without affiliation","Sequence affiliation","Sequence");
 				// Initialisation des graphiques avec ECharts
 				pieChart_Clusters = echarts.init(document.getElementById("nb-filtered"),CURRENT_THEME,{renderer: 'svg', height:600})
 				pieChart_Abundance = echarts.init(document.getElementById("abundance-filtered"),CURRENT_THEME,{renderer: 'svg', height:600})
@@ -763,10 +772,10 @@
 				
 				// --- Prépare les catégories (en-têtes de colonnes)
 				var table_categories = [
-				'Sample',
-				'Nb Clusters',
-				'% affiliated clusters by blast',
-				'Nb seq',
+				'Sample name',
+				'Number of ASVs',
+				'% affiliated ASVs by blast',
+				'Number of sequences',
 				'% Affiliated sequences by blast'
 				];
 
@@ -804,6 +813,52 @@
 				
 			}
 
+			function updateCharts(CURRENT_THEME) {
+				pieChart_Clusters = recreateChart(pieChart_Clusters, "nb-filtered", pieChart_Clusters_options, CURRENT_THEME, 600);
+				pieChart_Abundance = recreateChart(pieChart_Abundance, "abundance-filtered", pieChart_Abundance_options, CURRENT_THEME, 600);
+				if(heatmapChart_options) heatmapChart = recreateChart(heatmapChart, "alignment-heatmap", heatmapChart_options, CURRENT_THEME, 600);
+				if (heatmapChart) {
+					let currentType = $('#heatmap-seq-btn').prop('disabled') ? 'seq' : 'clstr';
+					let heatmapChart_options = heatmapOption(currentType);
+					heatmapChart = recreateChart(heatmapChart, "alignment-heatmap", heatmapChart_options, CURRENT_THEME, 600);
+				}
+				if(histogramChart_options){
+					histogramChart = recreateChart(histogramChart, "clstr-multi-affi", histogramChart_options, CURRENT_THEME, 600);
+				}
+				if (bootstrapChart_options) {
+					bootstrapChart = recreateChart(bootstrapChart, "bootstrap-barplot", bootstrapChart_options, CURRENT_THEME, 600);
+				}
+				if (bootstrapChart) {
+					let currentType_bootstrap = $('#bootstrap-seq-btn').prop('disabled') ? 'seq' : 'clstr';
+
+					// même logique que dans bootstrap_score_load
+					const histogram_series = [];
+					for (const taxonomic_rank in bootstrap_scores) {
+						histogram_series.push({
+							name: taxonomic_rank,
+							data: get_bootstrap_barplot_data(
+								bootstrap_categories,
+								bootstrap_scores[taxonomic_rank],
+								currentType_bootstrap
+							)
+						});
+					}
+
+					bootstrapChart_options = histogramOption(
+						`Number of ${clean_type[currentType_bootstrap]} by bootstrap on affiliation`,
+						`Nb ${clean_type[currentType_bootstrap]}`,
+						get_displayed_categories(bootstrap_categories),
+						histogram_series,
+						clean_type[currentType_bootstrap]
+					);
+
+					bootstrapChart = recreateChart(bootstrapChart, "bootstrap-barplot", bootstrapChart_options, CURRENT_THEME, 600);
+				}
+				if(lineChart_options){
+					lineChart = recreateChart(lineChart, "rarefaction-chart", lineChart_options, CURRENT_THEME, 600);
+				}
+			}
+
 			$(function() { 
 				
 				// Remove alert
@@ -827,7 +882,15 @@
 						}, 200);
 					});
 				});
-
+				if( alignment_scores == null ){
+					$('#tab4').remove();
+					$("#heatmap-tab").remove();
+					/*
+					$('#alignment-nav-tab').each( function(){
+						$(this).addClass("hidden");
+					});
+					*/
+				}
 				if(bootstrap_scores == null){
 					$("#tab3").remove();
 					$("#bootstrap-tab").remove();
@@ -901,7 +964,7 @@
 					Bootstrap distribution
 				</button>
 			  </li>
-			  <li class="nav-item" role="presentation">
+			  <li id="heatmap-tab" class="nav-item" role="presentation">
 				<button class="nav-link" id="tab4-tab" data-bs-toggle="tab" data-bs-target="#tab4" type="button" role="tab">
 					Alignment Distribution
 				</button>
