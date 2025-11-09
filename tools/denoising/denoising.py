@@ -258,7 +258,7 @@ class Pear(Cmd):
         if self.process == "dada2":
             nb_seq_denoised = get_nb_seq(self.in_R1)
             FH_log.write( '\tnb seq denoised: ' + str(nb_seq_denoised) + '\n' )
-        FH_log.write( '\tnb seq paired-end assembled: ' + str(nb_seq_merged) + '\n' )
+        FH_log.write( '\tnb seq assembled paired-end reads: ' + str(nb_seq_merged) + '\n' )
         FH_log.close()
 
 class Flash(Cmd):
@@ -306,7 +306,7 @@ class Flash(Cmd):
         if self.process == "dada2":
             nb_seq_denoised = get_nb_seq(self.in_R1)
             FH_log.write( '\tnb seq denoised: ' + str(nb_seq_denoised) + '\n' )
-        FH_log.write( '\tnb seq paired-end assembled: ' + str(nb_seq_merged) + '\n' )
+        FH_log.write( '\tnb seq assembled paired-end reads: ' + str(nb_seq_merged) + '\n' )
         FH_log.close()
 
 class Vsearch(Cmd):
@@ -356,7 +356,7 @@ class Vsearch(Cmd):
         if self.process == "dada2":
             nb_seq_denoised = get_nb_seq(self.in_R1)
             FH_log.write( '\tnb seq denoised: ' + str(nb_seq_denoised) + '\n' )
-        FH_log.write( '\tnb seq paired-end assembled: ' + str(nb_seq_merged) + '\n' )
+        FH_log.write( '\tnb seq assembled paired-end reads: ' + str(nb_seq_merged) + '\n' )
         FH_log.close()
 
 class Remove454prim(Cmd):
@@ -1100,9 +1100,9 @@ def summarise_results( samples_names, lengths_files, biom_file, depth_file, clas
             filters_by_sample["artificial combined"][spl_name] = filters["artificial combined"]
             # add total uncombined pair
             if param.process != "dada2":
-                filters_by_sample["artificial combined"][spl_name]["paired-end assembled"] = filters_by_sample["before process"][spl_name] - filters_by_sample["merged"][spl_name]["paired-end assembled"]
+                filters_by_sample["artificial combined"][spl_name]["assembled paired-end reads"] = filters_by_sample["before process"][spl_name] - filters_by_sample["merged"][spl_name]["assembled paired-end reads"]
             else:
-                filters_by_sample["artificial combined"][spl_name]["paired-end assembled"] = filters_by_sample["artificial combined"][spl_name]["after_merge"]
+                filters_by_sample["artificial combined"][spl_name]["assembled paired-end reads"] = filters_by_sample["artificial combined"][spl_name]["after_merge"]
                 del filters_by_sample["artificial combined"][spl_name]["after_merge"]
 
         # length distribution
@@ -1171,6 +1171,8 @@ def summarise_results( samples_names, lengths_files, biom_file, depth_file, clas
             line = line.replace( "###CLUSTERS_SIZES###", json.dumps(clusters_size) )
             #else:
             #    line = line.replace( "###CLUSTERS_SIZES###", "null" )
+        elif "###PROCESS###" in line:
+            line = line.replace( "###PROCESS###", "\""+ str(args.process)+"\"" )
         elif "###DATA_COUNTS###" in line:
             line = line.replace( "###DATA_COUNTS###", json.dumps(counts) )
         elif "###DATA_SAMPLE###" in line:

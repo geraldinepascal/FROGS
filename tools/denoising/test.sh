@@ -11,6 +11,18 @@ else
     rm -r test/*
 fi
 
+#Preprocess only
+echo "Preprocess only Illumina R1 and R2 with vsearch"
+./denoising.py illumina --input-R1 data/sampleA_R1.fastq.gz data/sampleB_R1.fastq.gz --input-R2 data/sampleA_R2.fastq.gz data/sampleB_R2.fastq.gz \
+                         --samples-names sample_A sample_B \
+                         --R1-size 251 --R2-size 251 \
+                         --merge-software vsearch \
+                         --min-amplicon-size 340 --max-amplicon-size 450 \
+                         --five-prim-primer "CCGTCAATTC" --three-prim-primer "CCGCNGCTGCT" \
+                         --process preprocess-only \
+                         --output-fasta test/preproonly.fasta --output-biom test/preproonly.biom \
+                         --html test/summary_preproonly.html --log-file test/log_preproonly.txt
+
 # Illumina R1 and R2 vsearch swarm
 echo "Illumina R1 and R2 with vsearch and swarm"
 ./denoising.py illumina --input-R1 data/sampleA_R1.fastq.gz data/sampleB_R1.fastq.gz --input-R2 data/sampleA_R2.fastq.gz data/sampleB_R2.fastq.gz \
