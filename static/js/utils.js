@@ -270,6 +270,8 @@ var heatmapOption = function(data_type) {
 
 var histogramOption = function(pTitle, pYTitle, pCategories, pSeries, unity) {
     //var frogsColor = style.getPropertyValue('--frogsColor').trim();
+    const frogsColor = getCssVar('--frogsColor');
+    const frogsColor2 = getCssVar('--frogsColor2');
     return {
         title: {
             text: pTitle,
