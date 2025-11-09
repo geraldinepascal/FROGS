@@ -2,7 +2,7 @@
 
 <html>
 	<head>
-		<title>FROGS Clusters stats</title>
+		<title>FROGS Clusters/ASVs stats</title>
 		<meta charset="UTF-8" />
 		<meta name="author" content="Frederic Escudie - Genotoul/MIAT & Maria Bernard - SIGENAE/GABI & Olivier Rué - Migale/MaIAGE" />
         <meta name="version" content="5.1.0" />
@@ -79,7 +79,7 @@
 					  samples_distrib[sample]['own_seq'],
 					])
 				}
-				$('#' + container_id).html( table("Sample information", ["Sample name", "Number of clusters", "Number of shared clusters", "Number of own clusters", "Number of sequences", "Number of shared sequences", "Number of own sequences"], table_data) );
+				$('#' + container_id).html( table("Sample information", ["Sample name", "Number of clusters/ASVs", "Number of shared clusters/ASVs", "Number of own clusters/ASVs", "Number of sequences", "Number of shared sequences", "Number of own sequences"], table_data) );
 				$('#' + container_id + ' table').prop( 'id', 'samples-table' );
 				$('#samples-table').bootstrapTable();
 			}
@@ -316,7 +316,7 @@
 				
 				// Boxplot
 				var boxplot_series = [{
-					'name': "Cluster size",
+					'name': "Cluster/ASV size",
 					'data': [[dispersion['min'],
 					          dispersion['lower_quartile'],
 					          dispersion['median'],
@@ -326,7 +326,7 @@
 				/*
 				Test data for boxplot
 				var boxplot_series = [{
-					'name': "Cluster size",
+					'name': "Cluster/ASV size",
 					'data': [[10,
 					          15,
 					          25,
@@ -334,7 +334,7 @@
 					          100]]
 				}];*/
 				
-				boxplotChart_options = boxplotOption("Cluster size distribution", "", "Cluster size", ["All"], boxplot_series);
+				boxplotChart_options = boxplotOption("Cluster/ASV size distribution", "", "Cluster/ASV size", ["All"], boxplot_series);
 				boxplotChart = echarts.init(document.getElementById('boxplot-container'),CURRENT_THEME,{renderer: 'svg', height:600})
 				boxplotChart.setOption(boxplotChart_options);
 
@@ -354,7 +354,7 @@
 				];
 				
 				$("#boxplot-table").empty();
-				$("#boxplot-table").append( table("Cluster size distribution (decile)", ["Decile", "Value"], decile_data) );
+				$("#boxplot-table").append( table("Cluster/ASV size distribution (decile)", ["Decile", "Value"], decile_data) );
 				
 				// Details
 				var cluster_sum = 0 ;
@@ -368,7 +368,7 @@
 				}
 
 				$("#clusters-size-details").empty()
-				$("#clusters-size-details").append( table("Cluster size", ["Cluster size", "Number of clusters", "% of all clusters"], distrib_data) );
+				$("#clusters-size-details").append( table("Cluster/ASV size", ["Cluster/ASV size", "Number of clusters/ASVs", "% of all clusters/ASVs"], distrib_data) );
 				$('#clusters-size-details table').last().prop( 'id', 'dispersion-table' );
 				$('#dispersion-table').bootstrapTable();
 
@@ -399,7 +399,7 @@
 						series_cumulative[series_idx]['data'][val_idx][1] = Math.round(current_prct*100)/100 ;
 					}
 				}
-				areaChart_options = areaplotOption("Cumulative sequences proportion by cluster size", "Cluster size", "% sequences", null, series_cumulative);
+				areaChart_options = areaplotOption("Cumulative sequences proportion by cluster/ASV size", "Cluster/ASV size", "% sequences", null, series_cumulative);
 				areaChart = echarts.init(document.getElementById('sequences-distrib-chart'),CURRENT_THEME,{renderer: 'svg', height:600})
 				areaChart.setOption(areaChart_options);
 
@@ -433,7 +433,7 @@
 					});
 				});
 
-				$("#report-title").html("Clusters stats report <i><small class='text-muted'>(" + frogs_tool + ", v" + frogs_version + ")<small></i>");
+				$("#report-title").html("Cluster/ASV report <i><small class='text-muted'>(" + frogs_tool + ", v" + frogs_version + ")<small></i>");
 
 				// Charger le résumé par défaut
 				summaryLoad();
@@ -466,7 +466,7 @@
 		</p>
 		<div class="container-fluid d-flex align-items-center mb-5">
 			<img id="logo" class="object-fit-contain me-3" style="height:180px;" src="data:image/png;base64," />
-			<h2 id="report-title" class="mb-0">Clusters stats report</h2>
+			<h2 id="report-title" class="mb-0">Cluster/ASVs report</h2>
 		</div>
 	
 		<div class="container" style="max-width: fit-content; float: right;">
@@ -486,7 +486,7 @@
 		<ul class="nav nav-tabs" id="myTab" role="tablist">
 			<li class="nav-item" role="presentation">
 			  <button class="nav-link active" id="tab1-tab" data-bs-toggle="tab" data-bs-target="#tab1" type="button" role="tab">
-				Cluster distribution
+				Cluster/ASV distribution
 			  </button>
 			</li>
 			<li class="nav-item" role="presentation">
@@ -503,7 +503,7 @@
 				<div class="row justify-content-center p-5">
 					<div id="nb-clusters" class="col-sm-6 col-md-4">
 						<div class="circle">
-							<span class="circle-title">Clusters</span>
+							<span class="circle-title">Clusters/ASVs</span>
 							<span id="clusters-number" class="circle-value"></span>
 						</div>
 					</div>
@@ -515,15 +515,15 @@
 					</div>
 				</div>
 				<div>
-					<h2 class="pb-4 mt-4 mb-2 border-bottom">Cluster size summary</h2>
-					<p><i>The cluster size is the sum of the abundances of the sequences grouped in a cluster.</i></p>
+					<h2 class="pb-4 mt-4 mb-2 border-bottom">Cluster/ASV size summary</h2>
+					<p><i>The cluster/ASV size is the sum of the abundances of the sequences grouped in a cluster/ASV.</i></p>
 					<div class="row" width="620px">
 						<div id="twofigs" style="height: 600px" class="row">
 							<div id="boxplot-container" class="col-12 col-md-8"" style="height:100%;"></div>
 							<div id="boxplot-table" class="col-12 col-md-4"></div>
 						</div>
 					</div>
-					<h2 class="pb-4 mt-4 mb-2 border-bottom">Cluster size details</h2>
+					<h2 class="pb-4 mt-4 mb-2 border-bottom">Cluster/ASV size details</h2>
 					<div id="clusters-size-details" class="col-md-12">
 					</div>
 				</div>
