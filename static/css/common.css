@@ -172,3 +172,94 @@ a:hover{
         width: 100% !important;
         height: 100% !important;
 }
+
+/* Sunburst CSS */
+#sunburst-graph{
+    margin-left:auto;
+    margin-right:auto
+}
+.jDistrib-walk-rank{
+    height:100%;
+    margin-right:2px;
+    padding:8px;
+    float:left;
+    border-top-right-radius:7px;
+    border-bottom-right-radius:7px;
+    cursor:pointer;
+    box-shadow:1px 1px 1px #555
+}
+.jDistrib-walk-rank-size{
+    margin-left:5px;
+    padding:4px;
+    background-color:#FFF;
+    color:#648a89;
+    border-radius:9px;
+    text-align:center;
+    font-size:10px;
+    font-family:sans-serif
+}
+.jDistrib-root-label{
+    font-weight:700;
+    cursor:pointer
+}
+.jDistrib-arc-label{
+    cursor:pointer
+}
+.jDistrib-arc{
+    cursor:pointer;
+    stroke:#fff;
+    fill-rule:evenodd
+}
+.jDistrib-tooltip{
+    position:absolute;
+    padding:10px;
+    font:12px sans-serif;
+    background:var(--frogsColor);
+    border:0;
+    border-radius:8px;
+    pointer-events:none;
+    color:#FFF
+}
+.jDistrib-empty-details{
+    color:#fff;
+    background-color:var(--frogsColor);
+    padding:15px;
+    margin-bottom:20px;
+    border:1px solid transparent;
+    border-radius:4px
+}
+.jDistrib-table-details>tbody>tr:nth-of-type(2n+1){
+    background-color:#F5F5F5
+}
+.jDistrib-table-details{
+    border:1px solid #DDD;
+    border-radius:8px;
+    border-spacing:1px;
+    border-collapse:separate
+}
+.jDistrib-table-details td,th{
+    padding:2px 8px
+}
+.jDistrib-table-details .number{
+    text-align:right
+}
+.jDistrib-export-toggle{
+    height:30px;
+    width:30px;
+    padding:1px
+}
+.jDistrib-export-toggle div{
+    background-color:#636363;
+    border-radius:2px;
+    height:3px;
+    margin-top:2px;
+    margin-bottom:2px
+}
+#sunburst-detail {
+    text-align: center; /* centre le contenu inline et inline-block */
+  }
+#sunburst-detail .jDistrib-table-details {
+    display: inline-table; /* permet de centrer la table */
+    margin: 0 auto;
+  }
+/* End Sunburst CSS */

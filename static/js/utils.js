@@ -64,7 +64,7 @@ function recreateChart(oldChart, elementId, option, theme, height = null) {
     //if (!chartDom.style.width)  chartDom.style.width  = chartDom.clientWidth ? chartDom.clientWidth + "px" : "100%";
 
     // ⚡ pas de width/height fixés ici
-    const chart = echarts.init(chartDom, theme, {renderer: 'svg'});
+    const chart = echarts.init(chartDom, theme, {renderer: 'canvas', devicePixelRatio: 3});
     chart.setOption(option);
 
     // Resize auto sur mutation du conteneur
@@ -111,32 +111,35 @@ function hexToRgba(hex, alpha = 1) {
 }
 
 
-var table = function( pTitle, pCategories, pData , footer=undefined ) {
+var table = function(pTitle, pCategories, pData, footer = undefined) {
     // Header
-    var table_header = '' ;
-    var table_header_line = "" ;
-    for(var idx = 0 ; idx < pCategories.length ; idx++){
-        table_header_line += "      <th  data-sortable='true'>" + pCategories[idx] + "</th>\n" ;
+    var table_header = '';
+    var table_header_line = "";
+
+    for (var idx = 0; idx < pCategories.length; idx++) {
+        table_header_line += "      <th data-sortable='true'>" + pCategories[idx] + "</th>\n";
     }
-    table_header += "    <tr>\n" + table_header_line + "    </tr>\n" ;
-    table_header = "  <thead>\n" + table_header + "  </thead>\n" ;
-    table_footer = footer ? "<tfoot>\n" + footer + "</tfoot>\n" : "";
-    
+
+    table_header += "    <tr>\n" + table_header_line + "    </tr>\n";
+    table_header = "  <thead>\n" + table_header + "  </thead>\n";
+    var table_footer = footer ? "<tfoot>\n" + footer + "</tfoot>\n" : "";
+
     // Body
-    var table_body = '' ;
-    for(var data_idx = 0 ; data_idx < pData.length ; data_idx++){
-        var table_body_row = "" ;
-        for(var category_idx = 0 ; category_idx < pCategories.length ; category_idx++){
-            if( typeof pData[data_idx][category_idx] === "number" ) {
-                table_body_row += "      <td>" + numberDisplay(pData[data_idx][category_idx]) + "</td>\n" ;
+    var table_body = '';
+    for (var data_idx = 0; data_idx < pData.length; data_idx++) {
+        var table_body_row = "";
+        for (var category_idx = 0; category_idx < pCategories.length; category_idx++) {
+            if (typeof pData[data_idx][category_idx] === "number") {
+                table_body_row += "      <td>" + numberDisplay(pData[data_idx][category_idx]) + "</td>\n";
             } else {
-                table_body_row += "      <td>" + pData[data_idx][category_idx] + "</td>\n" ;
+                table_body_row += "      <td>" + pData[data_idx][category_idx] + "</td>\n";
             }
         }
-        table_body += "    <tr>\n" + table_body_row + "    </tr>\n" ;
+        table_body += "    <tr>\n" + table_body_row + "    </tr>\n";
     }
-    table_body = "  <tbody>\n" + table_body + "  </tbody>\n" ;
-    table_caption = pTitle ? " <caption>\n" + pTitle + " </caption>\n" : ""
+    table_body = "  <tbody>\n" + table_body + "  </tbody>\n";
+
+    var table_caption = pTitle ? "  <caption>\n" + pTitle + "  </caption>\n" : "";
 
     return `
         <table
@@ -155,8 +158,8 @@ var table = function( pTitle, pCategories, pData , footer=undefined ) {
             ${table_caption}
             ${table_footer}
         </table>
-        `;
-}
+    `;
+};
 
 var heatmapOption = function(data_type) {
 
@@ -175,12 +178,13 @@ var heatmapOption = function(data_type) {
             return [item[0], item[1], item[2] || 0];
         });
 
-    var frogsColor = style.getPropertyValue('--frogsColor').trim();
+    //var frogsColor = style.getPropertyValue('--frogsColor').trim();
 
     return {
         title: {
             text: 'Number of ' + clean_type[data_type] + ' among their alignment results',
-            left: 'center'
+            left: 'center',
+            textStyle: {fontWeight: 'normal'}
         },
         tooltip: {
             position: 'top',
@@ -217,7 +221,7 @@ var heatmapOption = function(data_type) {
             left: 'right',
             top: 'center',
             inRange: {
-                color: ['#ffffff', frogsColor]
+                color: ['#ffffff', getCssVar('--frogsColor')]
             },
             show: true,
             text: [
@@ -225,7 +229,7 @@ var heatmapOption = function(data_type) {
                 0
             ],
             textStyle: {
-                color: frogsColor,
+                color: getCssVar('--frogsColor'),
                 fontSize: 12
             }
         },
@@ -244,7 +248,7 @@ var heatmapOption = function(data_type) {
                 textBorderWidth: 2
             },
             itemStyle: {
-                borderColor: frogsColor,
+                borderColor: getCssVar('--frogsColor'),
                 borderWidth: 1
             },
             emphasis: {
@@ -265,15 +269,12 @@ var heatmapOption = function(data_type) {
 };
 
 var histogramOption = function(pTitle, pYTitle, pCategories, pSeries, unity) {
-    var frogsColor = style.getPropertyValue('--frogsColor').trim();
+    //var frogsColor = style.getPropertyValue('--frogsColor').trim();
     return {
         title: {
             text: pTitle,
             left: 'center',
-            textStyle: {
-              //color: frogsColor,
-              fontSize: 16
-            }
+            textStyle: {fontWeight: 'normal'},
           },
           tooltip: {
             trigger: 'axis',
@@ -358,7 +359,8 @@ var lineOption = function(pTitle, pXTitle, pYTitle, pXCategories, pData) {
     );*/
     return {
         title: {
-            text: pTitle
+            text: pTitle,
+            textStyle: {fontWeight: 'normal'},
         },
         //color: ['#d87c7c', '#919e8b', '#d7ab82', '#6e7074', '#61a0a8', '#efa18d', '#787464', '#cc7e63', '#724e58', '#4b565b'],
         tooltip: {
@@ -376,8 +378,8 @@ var lineOption = function(pTitle, pXTitle, pYTitle, pXCategories, pData) {
         },
         toolbox: {
             feature: {
-                saveAsImage: { title: 'Download' },
-                dataZoom: { title: { zoom: 'Zoom', back: 'Reset' } }
+                dataZoom: { title: { zoom: 'Zoom', back: 'Reset' } },
+                saveAsImage: { title: 'Save as PNG' }
             }
         },
         xAxis: {
@@ -412,11 +414,12 @@ var lineOption = function(pTitle, pXTitle, pYTitle, pXCategories, pData) {
             }
         },
         legend: {
-            type: 'scroll',
+            //type: 'scroll',
+            type: 'plain',
             orient: 'horizontal',
-            bottom: 20,
-            height: 100,
-            pageButtonGap: 5 // espace entre les boutons de navigation
+            //bottom: 20,
+            //height: 100,
+            //pageButtonGap: 5 // espace entre les boutons de navigation
         },
         dataZoom: [
             {
@@ -464,8 +467,8 @@ function boxplotOption(pTitle, pXTitle, pYTitle, pXCategories, boxplot_series) {
         },
         toolbox: {
             feature: {
-                saveAsImage: {},
-                restore: {}
+                restore: {},
+                saveAsImage: { title: 'Save as PNG' }
             }
         },
         xAxis: {
@@ -565,9 +568,14 @@ function boxplotOption(pTitle, pXTitle, pYTitle, pXCategories, boxplot_series) {
     };
 }
 
-function barOption(nb, yTitle, categories, series, unity, is_stacked) {
+function barOption(pTitle, nb, yTitle, categories, series, unity, is_stacked) {
+    const frogsColor = getCssVar('--frogsColor');
+    const frogsColor2 = getCssVar('--frogsColor2');
     return {
-        title: { },
+        title: {
+            text: pTitle,
+            textStyle: {fontWeight: 'normal'}
+        },
         tooltip: {
             trigger: 'axis',
             axisPointer: { type: 'shadow' },
@@ -596,6 +604,7 @@ function barOption(nb, yTitle, categories, series, unity, is_stacked) {
         },
         yAxis: {
             type: 'value',
+            nameLocation: 'center',
             min: 0,
             max: nb + 10,
             name: yTitle,
@@ -609,7 +618,8 @@ function barOption(nb, yTitle, categories, series, unity, is_stacked) {
             data: s.data,
             label: {
                 show: true,
-                position: 'top',
+                position: 'right',
+                color: 'inherit',
                 formatter: function (params) {
                     return numberDisplay(params.value);
                 },
@@ -625,13 +635,13 @@ function barOption(nb, yTitle, categories, series, unity, is_stacked) {
                     position: "insideStartBottom",
                     padding: [0, 20, -30, -100],
                     rotate: 90,
-                    color: "green",
+                    color: frogsColor,
                     fontFamily: "Arial",
                     formatter: () =>
                         `Input sequences:\n${nb.toLocaleString("en-US")}`,
                 },
                 lineStyle: {
-                    color: "green",
+                    color: frogsColor,
                     type: "solid",
                     width: 1.5,
                 }
@@ -639,7 +649,7 @@ function barOption(nb, yTitle, categories, series, unity, is_stacked) {
         })),
         toolbox: {
             feature: {
-                saveAsImage: { title: 'Download' }
+                saveAsImage: { title: 'Save as PNG' }
             }
         }
     };
@@ -675,7 +685,7 @@ function pieOption(value_1, value_2, label_1, label_2, title, unit, value_3 = nu
         series: [
         {
             label: {
-                color: "#000000", // ou "black", ou en hexadécimal
+                color: "#000000", // ou "black", ou en hexadécimalup
                 fontSize: 13,
                 fontWeight: 'bold',
                 fontFamily: "Arial",
@@ -785,8 +795,8 @@ function areaplotOption(pTitle, pXTitle, pYTitle, pXCategories, pData) {
         },
         toolbox: {
             feature: {
-                saveAsImage: {},
-                restore: {}
+                restore: {},
+                saveAsImage: { title: 'Save as PNG' },
             }
         },
         xAxis: {
@@ -889,10 +899,16 @@ function areaplotOption(pTitle, pXTitle, pYTitle, pXCategories, pData) {
             symbolSize: 8,
             emphasis: {
                 focus: 'series',
+                scale: true,
                 itemStyle: {
-                    borderColor: frogsButtonColor,
+                    //borderColor: getCssVar('--frogsButtonColor'),
+                    shadowColor: 'rgba(0,0,0,0.3)',
+                    shadowBlur: 10,
+                    shadowOffsetX: 0,
+                    shadowOffsetY: 0,
                     borderWidth: 2,
-                    color: frogsColorHover
+                    borderColor: "#fff",
+                    //color: getCssVar('--frogsColorHover')
                 }
             }
         }))
