@@ -11,7 +11,7 @@ fi
 
 # Blast consensus tax
 echo "# Blast consensus tax"
-./affiliation_stats.py \
+./affiliation_report.py \
   --input-biom data/set500_B_affiliation.biom \
   --html test/affiliations_metrics1.html \
   --log-file test/log1.txt \
@@ -23,7 +23,7 @@ echo "# Blast consensus tax"
 
 # RDP
 echo "# RDP"
-./affiliation_stats.py \
+./affiliation_report.py \
   --input-biom data/set500_B_affiliation.biom \
   --html test/affiliations_metrics3.html \
   --log-file test/log3.txt \

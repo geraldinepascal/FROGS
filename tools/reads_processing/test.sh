@@ -13,7 +13,7 @@ fi
 
 #Preprocess only
 echo "Preprocess only Illumina R1 and R2 with vsearch"
-./denoising.py illumina --input-R1 data/sampleA_R1.fastq.gz data/sampleB_R1.fastq.gz --input-R2 data/sampleA_R2.fastq.gz data/sampleB_R2.fastq.gz \
+./reads_processing.py illumina --input-R1 data/sampleA_R1.fastq.gz data/sampleB_R1.fastq.gz --input-R2 data/sampleA_R2.fastq.gz data/sampleB_R2.fastq.gz \
                          --samples-names sample_A sample_B \
                          --R1-size 251 --R2-size 251 \
                          --merge-software vsearch \
@@ -25,7 +25,7 @@ echo "Preprocess only Illumina R1 and R2 with vsearch"
 
 # Illumina R1 and R2 vsearch swarm
 echo "Illumina R1 and R2 with vsearch and swarm"
-./denoising.py illumina --input-R1 data/sampleA_R1.fastq.gz data/sampleB_R1.fastq.gz --input-R2 data/sampleA_R2.fastq.gz data/sampleB_R2.fastq.gz \
+./reads_processing.py illumina --input-R1 data/sampleA_R1.fastq.gz data/sampleB_R1.fastq.gz --input-R2 data/sampleA_R2.fastq.gz data/sampleB_R2.fastq.gz \
                          --samples-names sample_A sample_B \
                          --R1-size 251 --R2-size 251 \
                          --merge-software vsearch \
@@ -37,7 +37,7 @@ echo "Illumina R1 and R2 with vsearch and swarm"
 
 # Illumina R1 and R2 vsearch dada2
 echo "Illumina R1 and R2 with vsearch and dada2"
-./denoising.py illumina --input-R1 data/sampleA_R1.fastq.gz data/sampleB_R1.fastq.gz --input-R2 data/sampleA_R2.fastq.gz data/sampleB_R2.fastq.gz \
+./reads_processing.py illumina --input-R1 data/sampleA_R1.fastq.gz data/sampleB_R1.fastq.gz --input-R2 data/sampleA_R2.fastq.gz data/sampleB_R2.fastq.gz \
                          --samples-names sample_A sample_B \
                          --R1-size 251 --R2-size 251 \
                          --merge-software vsearch \
@@ -48,7 +48,7 @@ echo "Illumina R1 and R2 with vsearch and dada2"
 
 # Illumina R1 and R2 with PEAR swarm
 `# echo "Illumina R1 and R2 with PEAR and swarm"
-# ./denoising.py illumina --input-R1 data/sampleA_R1.fastq.gz data/sampleB_R1.fastq.gz --input-R2 data/sampleA_R2.fastq.gz data/sampleB_R2.fastq.gz \
+# ./reads_processing.py illumina --input-R1 data/sampleA_R1.fastq.gz data/sampleB_R1.fastq.gz --input-R2 data/sampleA_R2.fastq.gz data/sampleB_R2.fastq.gz \
 #                          --samples-names sample_A sample_B \
 #                          --R1-size 251 --R2-size 251 \
 #                          --merge-software pear \
@@ -60,7 +60,7 @@ echo "Illumina R1 and R2 with vsearch and dada2"
 `
 # Illumina R1 and R2 with flash swarm
 echo "Illumina R1 and R2 with flash and swarm"
-./denoising.py illumina --input-R1 data/sampleA_R1.fastq.gz data/sampleB_R1.fastq.gz --input-R2 data/sampleA_R2.fastq.gz data/sampleB_R2.fastq.gz \
+./reads_processing.py illumina --input-R1 data/sampleA_R1.fastq.gz data/sampleB_R1.fastq.gz --input-R2 data/sampleA_R2.fastq.gz data/sampleB_R2.fastq.gz \
                          --samples-names sample_A sample_B \
                          --R1-size 251 --R2-size 251 \
                          --merge-software flash \
@@ -74,7 +74,7 @@ echo "Illumina R1 and R2 with flash and swarm"
 # Illumina tar R1 and R2, keep unmerged swarm
 echo "Illumina tar R1 and R2, keep unmerged"
 tar -zcf test/samples.tar.gz -C data sampleA_R1.fastq.gz sampleA_R2.fastq.gz sampleB_R1.fastq.gz sampleB_R2.fastq.gz
-./denoising.py illumina --input-archive test/samples.tar.gz \
+./reads_processing.py illumina --input-archive test/samples.tar.gz \
                          --R1-size 251 --R2-size 251 --keep-unmerged \
                          --min-amplicon-size 340 --max-amplicon-size 450 \
                          --process swarm \
@@ -86,7 +86,7 @@ rm test/samples.tar.gz
 # Illumina tar R1 and R2, keep unmerged dada2
 echo "Illumina tar R1 and R2, keep unmerged"
 tar -zcf test/samples.tar.gz -C data sampleA_R1.fastq.gz sampleA_R2.fastq.gz sampleB_R1.fastq.gz sampleB_R2.fastq.gz
-./denoising.py illumina --input-archive test/samples.tar.gz \
+./reads_processing.py illumina --input-archive test/samples.tar.gz \
                          --R1-size 251 --R2-size 251 --keep-unmerged \
                          --min-amplicon-size 340 --max-amplicon-size 450 \
                          --process dada2 \
@@ -96,7 +96,7 @@ rm test/samples.tar.gz
 
 # Illumina contiged
 echo "Illumina contiged"
-./denoising.py illumina --input-R1 data/sampleA.fastq.gz data/sampleB.fastq.gz --already-contiged \
+./reads_processing.py illumina --input-R1 data/sampleA.fastq.gz data/sampleB.fastq.gz --already-contiged \
                          --samples-names sample_A sample_B \
                          --min-amplicon-size 340 --max-amplicon-size 450 \
                          --five-prim-primer "CCGTCAATTC" --three-prim-primer "CCGCNGCTGCT" \
@@ -107,7 +107,7 @@ echo "Illumina contiged"
 # Illumina tar contiged
 echo "Illumina tar contiged"
 tar -zcf test/contiged_samples.tar.gz -C data sampleA.fastq.gz sampleB.fastq.gz
-./denoising.py illumina --input-archive test/contiged_samples.tar.gz --already-contiged \
+./reads_processing.py illumina --input-archive test/contiged_samples.tar.gz --already-contiged \
                          --min-amplicon-size 340 --max-amplicon-size 450 \
                          --five-prim-primer "CCGTCAATTC" --three-prim-primer "CCGCNGCTGCT" \
                          --process swarm \
@@ -122,7 +122,7 @@ cutadapt -g CCGTCAATTC --error-rate 0.1 --discard-untrimmed --match-read-wildcar
 cutadapt -a CCGCNGCTGCT --error-rate 0.1 --discard-untrimmed --match-read-wildcards --minimum-length 200 --overlap 10 -o test/test_sampleA.fastq.gz test/test_sampleA_tmp.fastq.gz > /dev/null 2>&1
 cutadapt -g CCGTCAATTC --error-rate 0.1 --discard-untrimmed --match-read-wildcards --minimum-length 200 --overlap 9 -o test/test_sampleB_tmp.fastq.gz data/sampleB.fastq.gz > /dev/null 2>&1
 cutadapt -a CCGCNGCTGCT --error-rate 0.1 --discard-untrimmed --match-read-wildcards --minimum-length 200 --overlap 10 -o test/test_sampleB.fastq.gz test/test_sampleB_tmp.fastq.gz > /dev/null 2>&1
-./denoising.py illumina --input-R1 test/test_sampleA.fastq.gz test/test_sampleB.fastq.gz \
+./reads_processing.py illumina --input-R1 test/test_sampleA.fastq.gz test/test_sampleB.fastq.gz \
                          --samples-names sample_A sample_B \
                          --already-contiged --without-primers \
                          --min-amplicon-size 340 --max-amplicon-size 450 \
@@ -134,29 +134,29 @@ rm test/test_sampleA.fastq.gz test/test_sampleA_tmp.fastq.gz test/test_sampleB.f
 
 # 454 R1
 echo "454 R1"
-./denoising.py 454 --input-R1 data/SRR443364_clipped.fastq.gz \
+./reads_processing.py 454 --input-R1 data/SRR443364_clipped.fastq.gz \
                     --min-amplicon-size 340 --max-amplicon-size 450 \
                     --five-prim-primer "ACGGGAGGCAGCAG" --three-prim-primer "AGGATTAGATACCCTGGTA" \
                     --process swarm \
-                    --output-fasta test/01-denoising-454-swarm.fasta --output-biom test/01-denoising-454-swarm.biom --output-compo test/01-denoising-454-swarm_compo.tsv \
-                    --html test/01-denoising-454-swarm.html --log-file test/01-denoising-454-swarm.log
+                    --output-fasta test/01-reads_processing-454-swarm.fasta --output-biom test/01-reads_processing-454-swarm.biom --output-compo test/01-reads_processing-454-swarm_compo.tsv \
+                    --html test/01-reads_processing-454-swarm.html --log-file test/01-reads_processing-454-swarm.log
                     
 # Long reads PacBio swarm
 echo "Long reads swarm"
-./denoising.py longreads --input-archive data/LongReads.tar.gz \
+./reads_processing.py longreads --input-archive data/LongReads.tar.gz \
                     --min-amplicon-size 400 --max-amplicon-size 3000 \
                     --five-prim-primer AGRGTTYGATYMTGGCTCAG --three-prim-primer AAGTCGTAACAAGGTARCY \
                     --process swarm \
                     --nb-cpus 4 \
-                    --output-fasta test/01-denoising-long-swarm.fasta --output-biom test/01-denoising-long-swarm.biom --output-compo test/01-denoising-long-swarm_compo.tsv \
-                    --html test/01-denoising-long-swarm.html --log-file test/01-denoising-long-swarm.log
+                    --output-fasta test/01-reads_processing-long-swarm.fasta --output-biom test/01-reads_processing-long-swarm.biom --output-compo test/01-reads_processing-long-swarm_compo.tsv \
+                    --html test/01-reads_processing-long-swarm.html --log-file test/01-reads_processing-long-swarm.log
 			
 # Long reads PacBio dada2
 echo "Long reads dada2"
-./denoising.py longreads --input-archive data/LongReads.tar.gz \
+./reads_processing.py longreads --input-archive data/LongReads.tar.gz \
                     --min-amplicon-size 400 --max-amplicon-size 3000 \
                     --five-prim-primer AGRGTTYGATYMTGGCTCAG --three-prim-primer AAGTCGTAACAAGGTARCY \
                     --process dada2 \
                     --nb-cpus 4 \
-                    --log-file test/01-denoising-long-dada2.log --output-fasta test/01-denoising-long-dada2.fasta --output-biom test/01-denoising-long-dada2.biom --html test/01-denoising-long-dada2.html
+                    --log-file test/01-reads_processing-long-dada2.log --output-fasta test/01-reads_processing-long-dada2.fasta --output-biom test/01-reads_processing-long-dada2.biom --html test/01-reads_processing-long-dada2.html
                     

@@ -1,4 +1,9 @@
 # v5.1.0 [DATE]
+### Tools renammed
+* denoising becomes reads_processing
+* cluster_stats becomes cluster_asv_report
+* affiliation_stats becomes affiliation_report
+
 ### Functions added
 * remove_chimera.py : implement a chimera_denovo algorithm for long reads.
 

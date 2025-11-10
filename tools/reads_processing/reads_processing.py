@@ -1148,7 +1148,7 @@ def summarise_results( samples_names, lengths_files, biom_file, depth_file, clas
     del biom
 
     # Write
-    FH_summary_tpl = open( os.path.join(CURRENT_DIR, "denoising_tpl.html") )
+    FH_summary_tpl = open( os.path.join(CURRENT_DIR, "reads_processing_tpl.html") )
     FH_summary_out = open( param.html, "wt" )
     # Load shared JS
     with open(os.path.join(THEME_DIR, "js", "theme.js")) as f:
@@ -1425,7 +1425,7 @@ def get_nb_seq( reads_file ):
     FH_input.close()
     return int(nb_seq)
 
-def clean_before_denoising_process_multiples_files(R1_files, R2_files, samples_names, R1_out_files, R2_out_files, lengths_files, log_files, args):
+def clean_before_reads_processing_process_multiples_files(R1_files, R2_files, samples_names, R1_out_files, R2_out_files, lengths_files, log_files, args):
     """
     @summary: Remove primers and apply filters on sequences of all samples.
     @param R1_files: [list] List of path to reads 1 fastq files.
@@ -1439,11 +1439,11 @@ def clean_before_denoising_process_multiples_files(R1_files, R2_files, samples_n
     """
     for idx in range(len(R1_files)):
         if args.already_contiged:
-            clean_before_denoising_process( R1_files[idx], None, samples_names[idx], R1_out_files[idx], None, lengths_files[idx], log_files[idx], args )
+            clean_before_reads_processing_process( R1_files[idx], None, samples_names[idx], R1_out_files[idx], None, lengths_files[idx], log_files[idx], args )
         else:
-            clean_before_denoising_process( R1_files[idx], R2_files[idx], samples_names[idx], R1_out_files[idx], R2_out_files[idx], lengths_files[idx], log_files[idx], args )
+            clean_before_reads_processing_process( R1_files[idx], R2_files[idx], samples_names[idx], R1_out_files[idx], R2_out_files[idx], lengths_files[idx], log_files[idx], args )
 
-def clean_before_denoising_process(R1_file, R2_file, sample_name, R1_out_file, R2_out_file, lengths_file, log_file, args):
+def clean_before_reads_processing_process(R1_file, R2_file, sample_name, R1_out_file, R2_out_file, lengths_file, log_file, args):
     """
     @summary: Remove primers and apply filters from one sample.
     @param R1_file: [str] Path to reads 1 fastq file or contiged file of the sample.
@@ -1503,7 +1503,7 @@ def clean_before_denoising_process(R1_file, R2_file, sample_name, R1_out_file, R
         if not args.debug:
             tmp_files.deleteAll()
 
-def process_sample_after_denoising_multiple_files(R1_files, R2_files, samples_names, out_files, out_art_files, lengths_files, log_files, args):
+def process_sample_after_reads_processing_multiple_files(R1_files, R2_files, samples_names, out_files, out_art_files, lengths_files, log_files, args):
     """
     @summary: Merge and filters sequences from R1 and R2 FASTQ files list.
     @param R1_files: [list] List of path to reads 1 fastq files or contiged files (one by sample).
@@ -1517,11 +1517,11 @@ def process_sample_after_denoising_multiple_files(R1_files, R2_files, samples_na
     """
     for idx in range(len(out_files)):
         if args.already_contiged:
-            process_sample_after_denoising( R1_files[idx], None, samples_names[idx], out_files[idx], None, lengths_files[idx], log_files[idx], args )
+            process_sample_after_reads_processing( R1_files[idx], None, samples_names[idx], out_files[idx], None, lengths_files[idx], log_files[idx], args )
         else:
-            process_sample_after_denoising( R1_files[idx], R2_files[idx], samples_names[idx], out_files[idx], out_art_files[idx], lengths_files[idx], log_files[idx], args )
+            process_sample_after_reads_processing( R1_files[idx], R2_files[idx], samples_names[idx], out_files[idx], out_art_files[idx], lengths_files[idx], log_files[idx], args )
 
-def process_sample_after_denoising(R1_file, R2_file, sample_name, out_file, art_out_file, lengths_file, log_file, args):
+def process_sample_after_reads_processing(R1_file, R2_file, sample_name, out_file, art_out_file, lengths_file, log_file, args):
     """
     @summary: Remove primers and apply filters from one sample.
     @param R1_file: [str] Path to reads 1 fastq file or contiged file of the sample.
@@ -1904,7 +1904,7 @@ def process( args ):
             filename_woext = os.path.split(dereplicated_fasta)[1].split('.')[0]
 
             if args.distance == 1 and args.pre_clustering:
-                Logger.static_write(args.log_file, "Warning: using the --pre_clustering option with a distance of 1 is useless. The denoising option is cancelled\n\n")
+                Logger.static_write(args.log_file, "Warning: using the --pre-clustering option with a distance of 1 is useless. The pre-clustering option is cancelled\n\n")
                 args.pre_clustering = False
 
             sorted_fasta = tmp_files.add( filename_woext + '_sorted.fasta' )
@@ -1952,9 +1952,9 @@ def process( args ):
             log_files2 = [tmp_files.add(current_sample + '_after_dada2_log.txt') for current_sample in samples_names]
 
             if nb_processses_used == 1:
-                clean_before_denoising_process_multiples_files( R1_files, R2_files, samples_names, R1_cutadapted_files, R2_cutadapted_files, lengths_files, log_files, args )
+                clean_before_reads_processing_process_multiples_files( R1_files, R2_files, samples_names, R1_cutadapted_files, R2_cutadapted_files, lengths_files, log_files, args )
             else:
-                parallel_submission( clean_before_denoising_process_multiples_files, R1_files, R2_files, samples_names, R1_cutadapted_files, R2_cutadapted_files, lengths_files, log_files, nb_processses_used, args)
+                parallel_submission( clean_before_reads_processing_process_multiples_files, R1_files, R2_files, samples_names, R1_cutadapted_files, R2_cutadapted_files, lengths_files, log_files, nb_processses_used, args)
             ## Write summary
             log_append_files( args.log_file, log_files )
             
@@ -2024,14 +2024,14 @@ def process( args ):
             nb_processses_used = min( len(R1_files), args.nb_cpus ) # samples number may have changed
             if nb_processses_used == 1:
                 if not args.already_contiged:
-                    process_sample_after_denoising_multiple_files( R1_files, R2_files, samples_names, filtered_files, art_filtered_files, lengths_files, log_files2, args )
+                    process_sample_after_reads_processing_multiple_files( R1_files, R2_files, samples_names, filtered_files, art_filtered_files, lengths_files, log_files2, args )
                 else:
-                    process_sample_after_denoising_multiple_files( R1_files, None, samples_names, filtered_files, art_filtered_files, lengths_files, log_files2, args )
+                    process_sample_after_reads_processing_multiple_files( R1_files, None, samples_names, filtered_files, art_filtered_files, lengths_files, log_files2, args )
             else:
                 if not args.already_contiged:
-                    parallel_submission( process_sample_after_denoising_multiple_files, R1_files, R2_files, samples_names, filtered_files, art_filtered_files, lengths_files, log_files2, nb_processses_used, args)
+                    parallel_submission( process_sample_after_reads_processing_multiple_files, R1_files, R2_files, samples_names, filtered_files, art_filtered_files, lengths_files, log_files2, nb_processses_used, args)
                 else:
-                    parallel_submission( process_sample_after_denoising_multiple_files, R1_files, None, samples_names, filtered_files, art_filtered_files, lengths_files, log_files2, nb_processses_used, args)
+                    parallel_submission( process_sample_after_reads_processing_multiple_files, R1_files, None, samples_names, filtered_files, art_filtered_files, lengths_files, log_files2, nb_processses_used, args)
             #log_files.append(log_files_after_dada2)
 
             # Write summary
@@ -2109,7 +2109,7 @@ if __name__ == "__main__":
     subparsers = parser.add_subparsers()
     parser_illumina = subparsers.add_parser( 'illumina', help='Illumina sequencers.', usage='''
   For samples archive:
-    denoising.py illumina
+    reads_processing.py illumina
       [--nb-cpus NB_CPUS] [--debug] [--version]
       --input-archive ARCHIVE_FILE
         # if single-end ou already-contiged
@@ -2135,7 +2135,7 @@ if __name__ == "__main__":
 
       
   For samples files:
-      denoising.py illumina
+      reads_processing.py illumina
       [--nb-cpus NB_CPUS] [--debug] [--version]
       --input-R1 R1_FILE [R1_FILE ...]
       --samples-names SAMPLE_NAME [SAMPLE_NAME ...]
@@ -2203,14 +2203,14 @@ if __name__ == "__main__":
     group_illumina_input.set_defaults( sequencer='illumina' )
     #     Illumina outputs
     group_illumina_output = parser_illumina.add_argument_group( 'Outputs' )
-    group_illumina_output.add_argument('--output-biom', default='denoising_abundance.biom', help='This output file will contain the abundance by sample for each cluster or ASV (format: BIOM). [Default: %(default)s]')
+    group_illumina_output.add_argument('--output-biom', default='reads_processing_abundance.biom', help='This output file will contain the abundance by sample for each cluster or ASV (format: BIOM). [Default: %(default)s]')
     group_illumina_output.add_argument('--output-fasta', default='sequences.fasta', help='This output file will contain the sequence for each cluster or ASV (format: FASTA). [Default: %(default)s]')
-    group_illumina_output.add_argument('--html', default='denoising.html', help='The HTML file containing the graphs. [Default: %(default)s]')
+    group_illumina_output.add_argument('--html', default='reads_processing.html', help='The HTML file containing the graphs. [Default: %(default)s]')
     group_illumina_output.add_argument('--log-file', default=sys.stdout, help='This output file will contain several information on executed commands.')
 
 
     parser_longreads = subparsers.add_parser( 'longreads', help='longreads sequencers (dada2 process is however not compatible with ONT data)', usage='''
-    denoising.py longreads
+    reads_processing.py longreads
     --input-archive ARCHIVE_FILE | --input-R1 R1_FILE [R1_FILE ...]
     --min-amplicon-size MIN_AMPLICON_SIZE
     --max-amplicon-size MAX_AMPLICON_SIZE
@@ -2247,15 +2247,15 @@ if __name__ == "__main__":
     group_denoising_longreads.add_argument('--sample-inference', default="pseudo-pooling", choices=["pseudo-pooling", "independent", "pooling"],  help="Independent, pseudo-pooling of full pooling for dada2 samples processing. [Default: %(default)s]" )
     # Long-reads outputs
     group_longreads_output = parser_longreads.add_argument_group( 'Outputs' )
-    group_longreads_output.add_argument('--html', default='denoising.html', help='The HTML file containing the graphs. [Default: %(default)s]')
+    group_longreads_output.add_argument('--html', default='reads_processing.html', help='The HTML file containing the graphs. [Default: %(default)s]')
     group_longreads_output.add_argument('--log-file', default=sys.stdout, help='This output file will contain several information on executed commands.')
-    group_longreads_output.add_argument('--output-biom', default='denoising_abundance.biom', help='This output file will contain the abundance by sample for each cluster or ASV (format: BIOM). [Default: %(default)s]')
+    group_longreads_output.add_argument('--output-biom', default='reads_processing_abundance.biom', help='This output file will contain the abundance by sample for each cluster or ASV (format: BIOM). [Default: %(default)s]')
     group_longreads_output.add_argument('--output-fasta', default='sequences.fasta', help='This output file will contain the sequence for each cluster or ASV (format: FASTA). [Default: %(default)s]')
     parser_longreads.set_defaults( sequencer='longreads', already_contiged=True, keep_unmerged=False )
 
     # 454
     parser_454 = subparsers.add_parser('454', help='454 sequencers.', usage='''
-  denoising.py 454
+  reads_processing.py 454
     --input-archive ARCHIVE_FILE | --input-R1 R1_FILE [R1_FILE ...]
     --min-amplicon-size MIN_AMPLICON_SIZE
     --max-amplicon-size MAX_AMPLICON_SIZE
@@ -2284,13 +2284,11 @@ if __name__ == "__main__":
     group_clustering.add_argument('--distance', type=int, default=1, help="Maximum distance between sequences in each aggregation step. RECOMMENDED : d=1 in combination with --fastidious option [Default: %(default)s]" )
     group_clustering.add_argument('--fastidious', default=False, action='store_true',  help="use the fastidious option of swarm to refine cluster. RECOMMENDED in combination with a distance equal to 1 (-d). it is only usable with d=1 and mutually exclusive with --pre-clustering. [Default: %(default)s]" )
     group_clustering.add_argument('--output-compo', default='clustering_swarms_composition.tsv', help='This output file will contain the composition of each cluster (format: TSV). One Line is a cluster ; each column is a sequence ID. [Default: %(default)s]')
-    group_denoising = parser_454.add_argument_group( 'Denoising options' )
-    group_denoising.add_argument('--sample-inference', default="pseudo-pooling", choices=["pseudo-pooling", "independent", "pooling"],  help="Independent, pseudo-pooling of full pooling for dada2 samples processing. [Default: %(default)s]" )
     #     454 outputs
     group_454_output = parser_454.add_argument_group( 'Outputs' )
     group_454_output.add_argument('--output-biom', default='abundance.biom', help='This output file will contain the abundance by sample for each cluster or ASV (format: BIOM). [Default: %(default)s]')
     group_454_output.add_argument( '--output-fasta', default='sequences.fasta', help='This output file will contain the sequence for each cluster or ASV (format: FASTA). [Default: %(default)s]')
-    group_454_output.add_argument('--html', default='denoising.html', help='The HTML file containing the graphs. [Default: %(default)s]')
+    group_454_output.add_argument('--html', default='reads_processing.html', help='The HTML file containing the graphs. [Default: %(default)s]')
     group_454_output.add_argument('--log-file', default=sys.stdout, help='This output file will contain several information on executed commands.')
     parser_454.set_defaults( sequencer='454', already_contiged=True, keep_unmerged=False )
 
