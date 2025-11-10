@@ -64,7 +64,8 @@ function recreateChart(oldChart, elementId, option, theme, height = null) {
     //if (!chartDom.style.width)  chartDom.style.width  = chartDom.clientWidth ? chartDom.clientWidth + "px" : "100%";
 
     // ⚡ pas de width/height fixés ici
-    const chart = echarts.init(chartDom, theme, {renderer: 'canvas', devicePixelRatio: 3});
+    //const chart = echarts.init(chartDom, theme, {renderer: 'canvas', devicePixelRatio: 3});
+    const chart = echarts.init(chartDom, theme, {renderer: 'svg'});
     chart.setOption(option);
 
     // Resize auto sur mutation du conteneur
@@ -415,13 +416,23 @@ var lineOption = function(pTitle, pXTitle, pYTitle, pXCategories, pData) {
                 }
             }
         },
-        legend: {
+        /*legend: {
             //type: 'scroll',
             type: 'plain',
             orient: 'horizontal',
             //bottom: 20,
             //height: 100,
             //pageButtonGap: 5 // espace entre les boutons de navigation
+        },*/
+        legend: {
+            type: 'plain',
+            orient: 'horizontal',
+            bottom: 0,
+            width: '100%',
+            itemGap: 10,
+            itemWidth: 25,
+            itemHeight: 10,
+            textStyle: { fontSize: 11 },
         },
         dataZoom: [
             {
@@ -440,6 +451,70 @@ var lineOption = function(pTitle, pXTitle, pYTitle, pXCategories, pData) {
                 smooth: false,
             };
         })
+    };
+};
+
+var radarOption = function(pTitle, categories, my_series) {
+    return {
+        title: {
+            text: pTitle || ''
+        },
+        tooltip: {
+            trigger: 'item',
+            formatter: function (params) {
+                const values = params.value.map((v, i) =>
+                    `<tr><td>${categories[i]}:</td><td style="padding-left:8px;"><b>${v}</b></td></tr>`
+                ).join('');
+                return `<b>${params.seriesName}</b><br><table>${values}</table>`;
+            },
+            confine: true,
+            backgroundColor: 'rgba(255,255,255,0.95)',
+            borderColor: '#ccc',
+            borderWidth: 1,
+            textStyle: { color: '#333' }
+        },
+        legend: {
+            type: 'scroll',
+            bottom: 0,
+            orient: 'horizontal',
+            data: my_series.map(s => s.name)
+        },
+        radar: {
+            radius: '70%',
+            center: ['50%', '50%'],
+            startAngle: 90,    // 90° => premier axe en haut
+            indicator: categories.map(c => ({
+                name: c,
+                min: 0, // tu peux ajuster selon ton échelle
+            })),
+            splitLine: {
+                lineStyle: { color: 'rgba(0,0,0,0.15)' }
+            },
+            axisLine: {
+                lineStyle: { color: 'rgba(0,0,0,0.25)' }
+            },
+            splitArea: { show: false },
+            axisName: { fontSize: 12 }
+        },
+        series: my_series.map(s => ({
+            name: s.name,
+            type: 'radar',
+            data: [{
+                value: s.data,
+                name: s.name
+            }],
+            lineStyle: s.lineStyle || { width: 2 },
+            itemStyle: s.itemStyle || {},
+            symbol: 'circle',
+            symbolSize: s.symbolSize || 9,
+            areaStyle: { opacity: 0 }, // pas de remplissage
+            smooth: s.smooth || false
+        })),
+        toolbox: {
+            feature: {
+                saveAsImage: { title: 'Save as PNG' }
+            }
+        }
     };
 };
 
