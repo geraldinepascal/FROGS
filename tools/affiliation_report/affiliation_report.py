@@ -282,7 +282,7 @@ def write_summary( summary_file, input_biom, tree_count_file, tree_ids_file, rar
     del biom
 
     # Write
-    FH_summary_tpl = open( os.path.join(CURRENT_DIR, "affiliation_stats_tpl.html") )
+    FH_summary_tpl = open( os.path.join(CURRENT_DIR, "affiliation_report_tpl.html") )
     FH_summary_out = open( summary_file, "wt" )
     # Load shared JS
     with open(os.path.join(THEME_DIR, "js", "theme.js")) as f:
@@ -389,7 +389,7 @@ if __name__ == '__main__':
     group_input.add_argument('--input-biom', required=True, help="The input abundance file (format: BIOM)." )
     #     Outputs
     group_output = parser.add_argument_group( 'Outputs' )
-    group_output.add_argument('--html', default="affiliation_stats.html", help="The HTML file containing the graphs. [Default: %(default)s]" )
+    group_output.add_argument('--html', default="affiliation_report.html", help="The HTML file containing the graphs. [Default: %(default)s]" )
     group_output.add_argument('--log-file', default=sys.stdout, help='The list of commands executed. [Default: stdout]' )
     args = parser.parse_args()
     prevent_shell_injections(args)
