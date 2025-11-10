@@ -158,7 +158,7 @@ def write_summary( summary_file, input_biom, depth_file, classif_file=None ):
         FH_classif.close()
 
     # Write
-    FH_summary_tpl = open( os.path.join(CURRENT_DIR, "cluster_stats_tpl.html") )
+    FH_summary_tpl = open( os.path.join(CURRENT_DIR, "cluster_asv_report_tpl.html") )
     FH_summary_out = open( summary_file, "wt" )
     # Load shared JS
     with open(os.path.join(THEME_DIR, "js", "theme.js")) as f:
@@ -219,7 +219,7 @@ if __name__ == "__main__":
     group_input.add_argument('--input-biom', required=True, help='The BIOM file to process.' )
     # Outputs
     group_output = parser.add_argument_group( 'Outputs' )
-    group_output.add_argument('--html', default='cluster_stats.html', help='The HTML file containing the graphs. [Default: %(default)s]')
+    group_output.add_argument('--html', default='cluster_asv_report.html', help='The HTML file containing the graphs. [Default: %(default)s]')
     group_output.add_argument( '--log-file', default=sys.stdout, help='This output file will contain several informations on executed commands. [Default: stdout]')
     args = parser.parse_args()
     prevent_shell_injections(args)

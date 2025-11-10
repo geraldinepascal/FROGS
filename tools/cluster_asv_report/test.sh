@@ -9,6 +9,6 @@ then
     mkdir test
 fi
 
-./cluster_stats.py --input-biom data/swarm.biom \
+./cluster_asv_report.py --input-biom data/swarm.biom \
                    --html test/clusters_metrics.html \
                    --log-file test/log.txt
