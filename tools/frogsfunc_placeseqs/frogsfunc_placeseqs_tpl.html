@@ -36,64 +36,9 @@
 			var pieChart_Clusters_options;
 			var pieChart_Abundance_options;
 			var lineNSTIChart_options;
+			var scatterChart;
+			var scatterChart_options;
 		
-			
-			
-			function update_scatter(mainColor, secondColor, buttonColor, buttonColorHover){
-				try{
-					var chart = $('#container_scatter').highcharts();
-					chart.series[0].update({'color':mainColor});
-					chart.series[1].update({'color':secondColor});
-					chart.update({navigation:{
-						buttonOptions: {
-								theme: {
-									r: 4,
-									fill: buttonColor,
-									states: {
-										hover: {
-											fill: buttonColorHover,
-											stroke:buttonColor
-										},
-										select: {
-											stroke: buttonColor,
-											fill: buttonColorHover,
-										}
-									}
-								}
-							}
-					}
-				});
-				} catch(err){}
-			}
-			
-			function update_lineplot(mainColor, secondColor, buttonColor, buttonColorHover){
-				try{
-					var chart = $('#sequence-distrib').highcharts();
-					chart.series[0].update({'color':mainColor});
-					chart.series[1].update({'color':secondColor});
-					chart.yAxis[0].update({'title':{'style':{'color':mainColor}}});
-					chart.yAxis[1].update({'title':{'style':{'color':secondColor}}});
-					chart.update({navigation:{
-						buttonOptions: {
-								theme: {
-									r: 4,
-									fill: buttonColor,
-									states: {
-										hover: {
-											fill: buttonColorHover,
-											stroke:buttonColor
-										},
-										select: {
-											stroke: buttonColor,
-											fill: buttonColorHover,
-										}
-									}
-								}
-							}
-						}
-					});
-				} catch(err){}
-			}
 			
 			/**
 			 Data from HTML
@@ -167,98 +112,7 @@
 						 
 			 
 
-			 var chartplot_line = function( pTitle, pXTitle, f_pYTitle, s_pYTitle, max_fY, max_sY, pXCategories, pData ) {
-			 	var chart = {
-			 	        title: {
-			 	            text: pTitle
-			 	        },
-			 	        xAxis: {
-			 	        	allowDecimals: true
-			 	        },
-			 	        yAxis: [{
-			 	            title: {
-			 	                text: f_pYTitle,
-			 	                style: {
-                					color: Highcharts.getOptions().colors[1]
-            					}
-			 	            },
-			 	            dataSorting: {
-        					enabled: true
-    						},
-			 	            max: max_fY,
-			 	            startOnTick: false,
-			 	            endOnTick:false
-			 	        } , {
-			 	        	//Secondary Y axis
-			 	        	gridLineWidth: 0,
-			 	        	opposite: true,
-			 	        	title: {
-			 	        		text: s_pYTitle,
-			 	        		style: {
-                					color: Highcharts.getOptions().colors[0]
-            					}
-			 	        	},
-			 	        	labels: {
-            					style: {
-                					color: Highcharts.getOptions().colors[0]
-            						}
-       							},
-       						max: max_sY
-			 	        }] ,
-			 	        tooltip: {
-			 	        	shared: true
-			 	        },
-
-			 	        series: pData,
-			 	        credits: {
-			 	        	enabled: false
-			 	        },
-			 	        exporting:{buttons: {contextButton: { symbol: 'download' }}}
-			 	}
-			 	if( pXCategories != null ){
-			 		chart['xAxis']['categories'] = pXCategories ;
-			 	}
-			 	if( pXTitle != null ){
-			 		chart['xAxis']['title'] = { text: pXTitle } ;
-			 	}
-			 	if( pData.length <= 1 ) {
-			 		chart['legend'] = {'enabled': false};
-			 	} else {
-			 		chart['legend'] = {'enabled': true};
-			 	}
-			 	return chart ;
-			 }
 			 
-			
-
-			var lineplot_param = function(pTitle, pXTitle, f_pYTitle, s_pYTitle, pXCategories, pData) {
-			 	max_sY = 0;
-			 	max_fY = 0;
-			 	for (var series_cur = 0; series_cur < pData[0]['data'].length ; series_cur++ ){
-			 		if (pData[0]['data'][series_cur] > max_sY) {
-			 			max_sY = pData[0]['data'][series_cur];
-			 		}
-			 		if (pData[1]['data'][series_cur] > max_fY) {
-			 			max_fY = pData[1]['data'][series_cur];
-			 		}
-			 	}
-				var chart = chartplot_line( pTitle, pXTitle, f_pYTitle, s_pYTitle, max_fY, max_sY, pXCategories, pData );
-			 	chart['chart'] = { 
-			 		type: 'line',
-			 		zoomType:"x",
-			 		selectionMarkerFill: frogsColorZoomHighCharts
-			 	};
-				chart['plotOptions'] = {
-					area: {
-						marker: {
-							enabled: true,
-							symbol: 'circle',radius:4,
-						}
-					}
-				};
-			 	return chart ;
-			 }
-
 			
 
 			function nsti_ditrib_load(container_id) {
@@ -278,207 +132,6 @@
 				window.addEventListener('resize', () => lineNSTIChart.resize());
 			}
 
-			///////////////
-			/*$(function() {
-				$(".frogsversion > div > a").text("FROGS "+frogs_tool+" "+frogs_version);
-				
-				var alignment_series = [];
-				var coverage_series = [];
-
-				for(var cluster in detection_series) {
-					dict_a = {};
-					dict_c = {};
-					dict_a.name = detection_series[cluster].name;
-					dict_c.name = detection_series[cluster].name;
-					dict_a.x = parseFloat(detection_series[cluster].data[5]);
-					dict_c.x = parseFloat(detection_series[cluster].data[5]);
-					dict_a.y = parseFloat(detection_series[cluster].data[11].split(" ")[0]);
-					dict_c.y = parseFloat(detection_series[cluster].data[12].split(" ")[0]);
-					alignment_series.push(dict_a);
-					coverage_series.push(dict_c);
-				}
-				// alert(JSON.stringify(scatter_series, null, 4));
-				// Remove alert
-				$('#js-alert').remove();
-				$('#content').removeClass("hidden");
-				
-				// Radializes colors
-				Highcharts.setOptions({
-					 colors : [frogsColor2, frogsColor] ,
-					 lang: {thousandsSep: ','}
-					});
-					Highcharts.SVGRenderer.prototype.symbols.download = function (x, y, w, h) {
-					var path = [
-						// Arrow stem
-						'M', x + w * 0.5, y,
-						'L', x + w * 0.5, y + h * 0.7,
-						// Arrow head
-						'M', x + w * 0.3, y + h * 0.5,
-						'L', x + w * 0.5, y + h * 0.7,
-						'L', x + w * 0.7, y + h * 0.5,
-						// Box
-						'M', x, y + h * 0.9,
-						'L', x, y + h,
-						'L', x + w, y + h,
-						'L', x + w, y + h * 0.9
-					];
-					return path;
-				};
-				
-			 	// Display chimera remove data
-				var nb_filtered_data = [
-					['Inserted', remove_info['nb_kept']],
-					['Removed', remove_info['nb_removed']]
-				];
-				$('#nb-filtered').highcharts( pie_param('Clusters', nb_filtered_data, 'Clusters') );
-				var abundance_filtered_data = [
-  					['Inserted', remove_info['abundance_kept']],
-  					['Removed', remove_info['abundance_removed']]
-  				];
-				$('#abundance-filtered').highcharts( pie_param('Abundance', abundance_filtered_data, 'Sequences') );
-				
-				// Display chimera detection data
-				var table_categories = detection_categories.slice() ;
-				table_categories.unshift( "ASV" );
-				var table_series = new Array();var lineNSTIChart_options = option = lineOptionDualY(
-					"NSTI distribution",
-					"NSTI value", step_nsti, y_axis_infos, myseries
-				);
-
-
-				// Initialisation ECharts
-				var chartDom = document.getElementById(container_id);
-				var lineNSTIChart = echarts.init(chartDom, CURRENT_THEME, { renderer: 'svg', height: 600 });
-				lineNSTIChart.setOption(lineNSTIChart_options);
-
-				// Redimensionnement
-				window.addEventListener('resize', () => lineNSTIChart.resize());
-				for( var spl_idx = 0 ; spl_idx < detection_series.length ; spl_idx++ ){
-					var nb_by_step = detection_series[spl_idx]['data'].slice() ;
-					nb_by_step.unshift( detection_series[spl_idx]['name'] );
-					table_series.push( nb_by_step );
-				};
-				$('#filter-log').append( table("Chimera detection by sample", table_categories, table_series) );
-				$('#filter-log table').prop( 'id', 'details-table' );
-				$('#filter-log table').DataTable({
-					dom:  	"<'#details-csv-export'><'row'<'col-sm-5'l><'col-sm-7'f>>" +
-							"<'row'<'col-sm-12'tr>>" +
-							"<'row'<'col-sm-5'i><'col-sm-7'p>>",
-					'lengthMenu': [[10, 25, 50, 100, -1], [10, 25, 50, 100, "All"]],
-				});
-				$('#details-csv-export').html( '<button class="btn"><span class="fa fa-download" aria-hidden="true"> CSV</span></button>' );
-				$('#details-csv-export').addClass( 'dataTables_filter' );
-				$('#details-csv-export').datatableExport({
-					'table_id': "details-table"
-				});
-
-				clusters_ditrib_load( "sequence-distrib" );
-
-
-				Highcharts.chart('container_scatter', {
-				chart: {
-					type: 'scatter',
-					zoomType: 'xy'
-				},
-				title: {
-					text: ''
-				},
-				exporting:{buttons: {contextButton: { symbol: 'download' }}},
-				navigation: {
-					buttonOptions: {
-							theme: {
-								r: 4,
-								fill: frogsColor,
-								states: {
-									hover: {
-										fill: frogsColorHover,
-										stroke:frogsColor
-									},
-									select: {
-										stroke: frogsColor,
-										fill: frogsColorHover,
-									}
-								}
-							}
-						}
-				},
-				xAxis: {
-					title: {
-						enabled: true,
-						text: 'NSTI value'
-					},
-					startOnTick: true,
-					endOnTick: true,
-					showLastLabel: true
-				},
-				yAxis: {
-					title: {
-						text: 'alignment metrics (%)'
-					}
-				},
-				legend: {
-					backgroundColor: Highcharts.defaultOptions.chart.backgroundColor,
-				},
-				plotOptions: {
-					series : {
-						turboThreshold: 0
-					},
-					scatter: {
-						marker: {
-							radius: 5,
-							states: {
-								hover: {
-									enabled: true,
-									lineColor: 'rgb(100,100,100)'
-								}
-							}
-						},
-						states: {
-							hover: {
-								marker: {
-									enabled: false
-								}
-							}
-						},
-						tooltip: {
-							headerFormat: '<b>{point.key}</b><br>',
-							pointFormat: '{point.x}, {point.y}%'
-						}
-					}, 
-						dataLabels: {
-                    		format: "{point.key}",
-                    		enabled: true
-                	},
-					enableMouseTracking: false
-				},
-				series: [{
-					name: '% identity',
-					color: 'rgba(134, 165, 164, .5)',
-					data: alignment_series
-					}, {
-					name: '% coverage',
-					color: 'rgba(211, 148, 104, .5)',
-					data: coverage_series				
-					}]
-				});
-				
-				$('#themechoice').change(function() {
-					var $select = $(this);
-					var selectedIndex = $select.prop('selectedIndex');
-					
-					update_theme// Activer toutes les options
-					$select.find('option').prop('disabled', false);
-
-					// Désactiver l'option sélectionnée
-					if (selectedIndex > 0) { // Ignorer l'option "Switch theme"
-						$select.find('option').eq(selectedIndex).prop('disabled', true);
-					}
-
-					// Réinitialiser la sélection à "Switch theme"
-					$select.prop('selectedIndex', 0);
-				});
-			})*/
-			
 			var nb_filtered_data = {
 					'Inserted': remove_info['nb_kept'],
 					'Removed': remove_info['nb_removed']
@@ -558,20 +211,34 @@
 						textStyle: { color: '#333' },
 						confine: true
 					},
+					trigger: 'axis',
+            		axisPointer: { type: 'cross' },
 					xAxis: {
 						type: 'value',
+						nameLocation: 'center',
 						name: 'NSTI value',
+						nameGap: 35,
 						axisLine: { show: true },
 						splitLine: { show: false }
 					},
 					yAxis: {
 						type: 'value',
+						nameLocation: 'center',
 						name: 'alignment metrics (%)',
 						axisLine: { show: true },
 						splitLine: { show: true }
 					},
+					toolbox: {
+						feature: {
+							//dataView: { show: true, readOnly: false },
+							dataZoom: { title: { zoom: 'Zoom', back: 'Reset' } },
+							saveAsImage: { show: true }
+						}
+					},
+					grid: {
+						bottom: 150 // 🔹 augmente l’espace sous le graphique
+					},
 					series: mySeries,
-					grid: { left: 50, right: 50, top: 50, bottom: 50 },
 					legend: {
 						data: mySeries.map(s => s.name)
 					}
@@ -623,7 +290,7 @@
 					{
 						name: 'ASVs',
 						type: 'line',
-						yAxisIndex: 1, // axe gauche
+						yAxisIndex: 0, // axe droit
 						data: step_nsti.map((x, i) => series[0].data[i]),
 						itemStyle: { color: paletteColors10[CURRENT_THEME][0] },
 						lineStyle: { color: paletteColors10[CURRENT_THEME][0] }
@@ -631,7 +298,7 @@
 					{
 						name: 'Sequences',
 						type: 'line',
-						yAxisIndex: 0, // axe droit
+						yAxisIndex: 1, // axe gauche
 						data: step_nsti.map((x, i) => series[1].data[i]),
 						itemStyle: { color: paletteColors10[CURRENT_THEME][1] },
 						lineStyle: { color: paletteColors10[CURRENT_THEME][1] }
@@ -640,8 +307,9 @@
 				var y_axis_infos = [
 					{
 						type: 'value',
-						name: 'Sequences',
-						position: 'right',
+						nameLocation: 'center',
+						name: 'Number of kept sequences',
+						position: 'left',
 						alignTicks: true,
 						axisLabel: { formatter: '{value}' },
 						axisLine: {
@@ -653,8 +321,10 @@
 					},
 					{
 						type: 'value',
-						name: 'ASVs',
-						position: 'left',
+						nameRotate: -90,
+						nameLocation: 'center',
+						name: 'Number of ketp ASVs',
+						position: 'right',
 						alignTicks: true,
 						axisLine: {
 							show: true,
@@ -670,6 +340,77 @@
 					"NSTI value", step_nsti, y_axis_infos, myseries
 				);
 				lineNSTIChart = recreateChart(lineNSTIChart, "nsti-graph", lineNSTIChart_options, CURRENT_THEME, 600);
+
+				const alignmentData = detection_series.map(cluster => ({
+					name: cluster.name,
+					value: [
+							parseFloat(cluster.data[5]), // x : NSTI value
+							parseFloat(cluster.data[11].split(" ")[0]) // y : % identity
+						]
+				}));
+
+				const coverageData = detection_series.map(cluster => ({
+					name: cluster.name,
+					value:[
+							parseFloat(cluster.data[5]), // x : NSTI value
+							parseFloat(cluster.data[12].split(" ")[0]) // y : % coverage
+						]
+				}));
+
+				const mySeries = [
+					{
+						name: '% identity',
+						type: 'scatter',
+						symbolSize: 8,
+						data: alignmentData,
+						itemStyle: { color: hexToRgba(paletteColors10[CURRENT_THEME][0],0.7) }
+					},
+					{
+						name: '% coverage',
+						type: 'scatter',
+						symbolSize: 8,
+						data: coverageData,
+						itemStyle: { color: hexToRgba(paletteColors10[CURRENT_THEME][1],0.7) }
+					}
+				];
+				const option = {
+					tooltip: {
+						trigger: 'item',
+						formatter: function(params) {
+							return `<b>${params.data.name}</b><br>${params.value[0]}, ${params.value[1]}%`;
+						},
+						backgroundColor: 'rgba(255,255,255,0.95)',
+						borderColor: '#ccc',
+						borderWidth: 1,
+						textStyle: { color: '#333' },
+						confine: true
+					},
+					xAxis: {
+						type: 'value',
+						name: 'NSTI value',
+						axisLine: { show: true },
+						splitLine: { show: false }
+					},
+					yAxis: {
+						type: 'value',
+						nameLocation: 'center',
+						name: 'alignment metrics (%)',
+						axisLine: { show: true },
+						splitLine: { show: true }
+					},
+					series: mySeries,
+					grid: { left: 50, right: 50, top: 50, bottom: 50 },
+					legend: {
+						data: mySeries.map(s => s.name)
+					}
+				};
+
+				// Récupérer les max pour calcul des pourcentages
+				const maxIdentity = Math.max(...alignmentData.map(p => p[1]));
+				const maxCoverage = Math.max(...coverageData.map(p => p[1]));
+
+				var scatterChart_options = option;
+				scatterChart = recreateChart(scatterChart, "metrics-nsti-graph", scatterChart_options, CURRENT_THEME, 600);
 				
 			}
 			
@@ -752,60 +493,12 @@
 					<h2 class="pb-4 mt-4 mb-2 border-bottom">Closest reference sequences by ASV</h2>
 					<div id="details-table" class="col-md-12"></div>
 					<h2 class="pb-4 mt-4 mb-2 border-bottom">Number of ASVs according to NSTI threshold</h2>
-					<div id="nsti-graph"></div>
+					<div id="nsti-graph" style="width:90% ;margin:auto"></div>
 					<h2 class="pb-4 mt-4 mb-2 border-bottom">%identity and coverage vs NSTI between kept ASV and closest PICRUSt2 reference sequence</h2>
-					<div id="metrics-nsti-graph"></div>
+					<div id="metrics-nsti-graph" style="width:90% ;margin:auto"></div>
 				</div>
 			</div>
 
 		</body>
-	<!--<body>
-		
-		<p id="js-alert" class="alert alert-warning">
-			javascript is needed to display data.<br />
-			If you try to view this data on galaxy please contact your administrator to authorise javascript or download the file to view.
-		</p>
-		
-		<div id="content" class="hidden">
-			<ul id="mytab" class="nav nav-tabs">
-				<li class="nav-item frogsversion">
-					<div class="containertablfunction updateCharts(CURRENT_THEME) {
-				pieChart_Clusters = recreateChart(pieChart_Clusters, "nb-filtered", pieChart_Clusters_options, CURRENT_THEME, 600);
-				pieChart_Abundance = recreateChart(pieChart_Abundance, "abundance-filtered", pieChart_Abundance_options, CURRENT_THEME, 600);
-				//if(lineNSTIChart) lineNSTIChart = recreateChart(lineNSTIChart, "nsti-graph", lineNSTIChart_options, CURRENT_THEME, 600);
-				if(lineNSTIChart_options){
-					lineChart = recreateChart(lineChart, "nsti-graph", lineNSTIChart_options, CURRENT_THEME, 600);
-				}
-				//if(boxplotChart_options) boxplotChart = recreateChart(boxplotChart, "boxplot-container", boxplotChart_options, CURRENT_THEME, 600);
-				//if(areaChart_options) areaChart = recreateChart(areaChart, "sequences-distrib-chart", areaChart_options, CURRENT_THEME, 600);
-			}e_load">
-						<select id="themechoice" class="form-select" onchange="update_theme($(this).val())" style="font-size: smaller;" aria-label="Default select example">
-							<option selected disabled>Switch theme</option>
-							<option value="Plum">Plum</option>
-							<option value="Coral" disabled>Coral</option>
-							<option value="FROGS4">FROGS4</option>
-						</select>
-						<a style="padding: 0.5rem 1rem;"></a>
-					</div>
-				</li>
-			</ul>
-			<div id="filter-summary">
-        		<h2 class="pb-2 mt-4 mb-2 border-bottom">Insertion in reference tree summary</h2>
-        		<div class="row">
-	        		<div id="nb-filtered" class="col-md-6"></div> 
-	        		<div id="abundance-filtered" class="col-md-6"></div>
-        		</div>
-			</div>
-			<div id="filter-log">
-				<h2 class="pb-2 mt-4 mb-2 border-bottom">Closest reference sequences by ASV</h2>
-			</div>
-			<div class="tab-content">
-				<h2 class="pb-2 mt-4 mb-2 border-bottom">ASV number according to NSTI threshold</h2>
-				<div id="sequence-distrib" role="tabpanel" class="tab-pane active">
-				</div>
-			</div>
-			<h2 class="pb-2 mt-4 mb-2 border-bottom"> %identity and coverage vs NSTI between kept ASV and closest PICRUSt2 reference sequence</h2>
-			<div id="container_scatter"></div>
-		</div>
-	</body>-->
+	
 </html>

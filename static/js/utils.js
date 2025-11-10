@@ -447,12 +447,19 @@ var lineOptionDualY = function(pTitle, pXTitle, x_values, y_axis_infos, my_serie
     return {
         tooltip: {
             trigger: 'axis',
-            axisPointer: { type: 'cross' },
+            //axisPointer: { type: 'cross' },
             backgroundColor: 'rgba(255, 255, 255, 0.95)',
             borderWidth: 1,
             borderColor: '#ccc',
             textStyle: { color: '#333' },
             confine: true,
+            /*grid: {
+                left: '5%',
+                right: '5%',
+                top: '15%',
+                bottom: '10%',
+                containLabel: true
+            },*/
             extraCssText: 'box-shadow: 0 0 8px rgba(0,0,0,0.2); padding: 8px;',
             formatter: function (params) {
                 if (!params || params.length === 0) return '';
