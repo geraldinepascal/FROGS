@@ -136,15 +136,6 @@ pre{
 knitr::opts_chunk$set(echo = TRUE, error= TRUE)
 ```
 
-```{=html}
-<select id="themechoice" class="form-select" onchange="update_theme($(this).val())" style="font-size: smaller;" aria-label="Default select example">
-	<option selected disabled>Switch theme</option>
-	<option value="FROGS5">FROGS5</option>
-	<option value="Plum">Plum</option>
-	<option value="Coral">Coral</option>
-	<option value="FROGS4">FROGS4</option>
-</select>
-```
 
 ```{r import, message=FALSE, warning=FALSE}
 ## Import packages
@@ -183,6 +174,18 @@ write.table(alpha.diversity, params$fileAlpha, sep="\t", quote = FALSE, col.name
 ```
 
 # {.tabset .tabset-fade .tabset-pills}
+
+<ul class="nav nav-pills" style="float: right; z-index: 10; position: relative; max-width: fit-content;">
+  <select id="themechoice" class="form-select" onchange="update_theme($(this).val())"
+          style="font-size: smaller;">
+    <option selected disabled>Switch theme</option>
+    <option value="FROGS5">FROGS5</option>
+    <option value="Plum">Plum</option>
+    <option value="Coral">Coral</option>
+    <option value="FROGS4">FROGS4</option>
+  </select>
+</ul>
+
 ## Richness plot
 ```{r richness, fig.width=10, fig.height=8, warning=FALSE}
 p <- plot_richness(data, x = params$varExp, color = params$varExp, measures = measures) + ggtitle(paste("Alpha diversity distribution by", params$varExp))+ theme(plot.title = element_text(hjust = 0.5))

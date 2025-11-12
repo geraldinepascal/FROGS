@@ -132,16 +132,6 @@ pre{
 knitr::opts_chunk$set(echo = TRUE, error = TRUE)
 ```
 
-```{=html}
-<select id="themechoice" class="form-select" onchange="update_theme($(this).val())" style="font-size: smaller;" aria-label="Default select example">
-	<option selected disabled>Switch theme</option>
-	<option value="FROGS5">FROGS5</option>
-	<option value="Plum">Plum</option>
-	<option value="Coral">Coral</option>
-	<option value="FROGS4">FROGS4</option>
-</select>
-```
-
 ```{r import, message=FALSE}
 ## Import packages
 library(phyloseq)
@@ -181,6 +171,17 @@ sampleOrder <- levels(reorder(sample_names(data), as.numeric(get_variable(data, 
 ```
 
 # {.tabset .tabset-fade .tabset-pills}
+
+<ul class="nav nav-pills" style="float: right; z-index: 10; position: relative; max-width: fit-content;">
+  <select id="themechoice" class="form-select" onchange="update_theme($(this).val())"
+          style="font-size: smaller;">
+    <option selected disabled>Switch theme</option>
+    <option value="FROGS5">FROGS5</option>
+    <option value="Plum">Plum</option>
+    <option value="Coral">Coral</option>
+    <option value="FROGS4">FROGS4</option>
+  </select>
+</ul>
 
 ## Distance as heatmap plot(s)
 ```{r, fig.width=8, fig.height=6, warning=FALSE}
