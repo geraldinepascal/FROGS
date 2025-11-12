@@ -63,7 +63,7 @@ class Rscript(Cmd):
                       'Run r_import_data.Rmd',
                       '-e "rmarkdown::render(' + "'" + rmd + "',output_file='" + html + \
                       "', params=list(biomfile='" + biomfile + "', samplefile='" + samplefile + "', treefile='"+ treefile + \
-                      "', normalisation=" + normalisation + ", outputRdata='" + phyloseq + "', ranks='" + ranks +"', libdir ='" + LIBR_DIR + "', version='"+ str(__version__) + "'), intermediates_dir='" + os.path.dirname(html) + "')" + '" 2> ' + rmd_stderr,
+                      "', normalisation=" + normalisation + ", outputRdata='" + phyloseq + "', ranks='" + ranks +"', libdir ='" + LIBR_DIR + "', version='"+ str(__version__) + "', tool='" + os.path.basename(__file__) + "'), intermediates_dir='" + os.path.dirname(html) + "')" + '" 2> ' + rmd_stderr,
                        "-e '(sessionInfo()[[1]][13])[[1]][1]; paste(\"Rmarkdown version: \",packageVersion(\"rmarkdown\")) ; library(phyloseq); paste(\"Phyloseq version: \",packageVersion(\"phyloseq\"))'")
     def get_version(self):
         """
