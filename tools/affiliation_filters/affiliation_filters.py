@@ -263,29 +263,55 @@ def impacted_blast_affi_on_blastMetrics( observation, tag, cmp_operator, thresho
 
     return blast_affiliations_out
 
-def impacted_blast_affi_on_blastTaxonomy(observation, taxon_ignored, init_keep):
+
+def impacted_blast_affi_on_blastTaxonomy(observation, taxon_list, to_keep):
     """
     @summary: return blast affiliations whithout undesired taxon
     @param observation [obj] : observation object with list of blast affiliations
-    @param taxon_ignored [list] : list of taxon to ignored (it may be partial terms)
-    @param init_keep [boolean] : True if --ignore-blast-taxa, False if --keep-blast-taxa
+    @param taxon_list [list] : list of taxon to search (it may be partial terms)
+    @param to_keep [boolean] : True if --ignore-blast-taxa, False if --keep-blast-taxa
     @return blast affiliations filtered list
     """
     blast_affiliations_out = dict()
-    for idx,blast_affi in enumerate(observation['metadata']['blast_affiliations'] ):
-        # True if ignore_blast_taxa, False if keep_blast_taxa
-        keep = init_keep
-        for t in taxon_ignored:
-            regexp = re.compile(t)
-            if regexp.search(";".join(blast_affi["taxonomy"])):
-                if keep:
-                    keep=False
-                else:
-                    keep=True
-        if keep:
-            blast_affiliations_out[idx] = blast_affi
+    blast_affiliations_present = dict()
+    blast_affiliations_absent = dict()
+    for idx,blast_affi in enumerate(observation['metadata']['blast_affiliations']):
+        found = False
+        for t in taxon_list:
+            if t in ";".join(blast_affi["taxonomy"]):
+                blast_affiliations_present[idx] = blast_affi
+                found = True
+                break
+        if not found:
+            blast_affiliations_absent[idx] = blast_affi
 
-    return blast_affiliations_out
+    if to_keep:
+        return blast_affiliations_absent
+    else:
+        return blast_affiliations_present
+
+# def impacted_blast_affi_on_blastTaxonomy(observation, taxon_ignored, init_keep):
+#     """
+#     @summary: return blast affiliations whithout undesired taxon
+#     @param observation [obj] : observation object with list of blast affiliations
+#     @param taxon_ignored [list] : list of taxon to ignored (it may be partial terms)
+#     @param init_keep [boolean] : True if --ignore-blast-taxa, False if --keep-blast-taxa
+#     @return blast affiliations filtered list
+#     """
+#     blast_affiliations_out = dict()
+#     for idx,blast_affi in enumerate(observation['metadata']['blast_affiliations'] ):
+#         # True if ignore_blast_taxa, False if keep_blast_taxa
+#         keep = init_keep
+#         for t in taxon_ignored:
+#             regexp = re.compile(t)
+#             if regexp.search(";".join(blast_affi["taxonomy"])):
+#                 if keep:
+#                     keep=False
+#                 else:
+#                     keep=True
+#         if keep:
+#             blast_affiliations_out[idx] = blast_affi
+#     return blast_affiliations_out
 
 def get_tax_consensus( taxonomies ):
     """
@@ -330,23 +356,23 @@ def get_tax_consensus( taxonomies ):
     return consensus
 
 
-def update_blast_metadata(metadata_dict, kept_affiliaitons):
+def update_blast_metadata(metadata_dict, kept_affiliations):
     """
     @summary : return impact status
     @param metadata_dict [dict] : original observation metadata dictionnary
     @param kept_affiliations [dict] : indexed blast affiliations to keep by filter
     @return a filtering status True (if all affiliation are removed), False otherwise
     """
-    
+
     # compare the number of filtering criteria to the number of time a taxonomy is kept.
-    nb_criteria = len(kept_affiliaitons)
+    nb_criteria = len(kept_affiliations)
     nb_index = dict()
-    for criteria in kept_affiliaitons:
-        for i in kept_affiliaitons[criteria]:
+
+    for criteria in kept_affiliations:
+        for i in kept_affiliations[criteria]:
             if i not in nb_index:
                 nb_index[i] = 0
             nb_index[i] += 1
-
     keys = list(nb_index.keys())
     keys.sort(reverse=True)
     
@@ -356,11 +382,12 @@ def update_blast_metadata(metadata_dict, kept_affiliaitons):
             metadata_dict['blast_affiliations'].pop(index)
 
     # update consensus taxonomy
-    metadata_dict['blast_taxonomy'] = get_tax_consensus([affi['taxonomy'] for affi in metadata_dict['blast_affiliations']] )
+    consensensus_tax_updated = get_tax_consensus([affi['taxonomy'] for affi in metadata_dict['blast_affiliations']] )
 
     # return impacting status
-    if metadata_dict['blast_taxonomy'] is None :
-        metadata_dict['blast_affiliations'] = []
+    if metadata_dict['blast_taxonomy'] != consensensus_tax_updated :
+        metadata_dict['blast_taxonomy'] = consensensus_tax_updated
+      
         return True
     else:
         return False
@@ -517,6 +544,7 @@ def filter_biom(in_biom_file, impacted_file, output_file, params):
                     label = "Blast taxonomies belong to desired taxon: " + " / ".join(param)
                 out_blast_affiliations['filter_on_taxonIgnored'] = impacted_blast_affi_on_blastTaxonomy(observation, param, keep)
                 uniq_tax = get_uniq_tax(out_blast_affiliations['filter_on_taxonIgnored'])
+                
                 if len(uniq_tax) != len(tax_in):
                     observation['metadata']['comment'].append("undesired_tax_in_blast")
                     if not label in impacted_dict:
@@ -531,17 +559,22 @@ def filter_biom(in_biom_file, impacted_file, output_file, params):
                 impacted_dict[label] = list()
             impacted_dict[label].append(observation['id'])
             filter_on_blastCriteria = True
-            
+        
         # update blast_affiliation dictionnary and compute blast filtering status : True if all affiliations are removed else False
         metadata_out = copy.deepcopy(observation['metadata'])
         if len(out_blast_affiliations) > 0:
             filter_on_blastCriteria = update_blast_metadata(metadata_out, out_blast_affiliations)
-
+        # print(metadata_out['blast_affiliations'])
         # keep impacting criteria only if filter_on_blastCriteria is True
         if not filter_on_blastCriteria : 
+            impact_to_delete = list()
             for impact in impacted_dict:
                 if impact.startswith('Blast') and observation['id'] in impacted_dict[impact]:
                     impacted_dict[impact].remove(observation['id'])
+                if len(impacted_dict[impact]) == 0:
+                    impact_to_delete.append(impact)
+            for impact in impact_to_delete:
+                del impacted_dict[impact]
 
         # write observation in impacted biom as the orignal but with additionnal status metadata corresponding to 
         # the type of filtering (ASV_deleted/Affiliation_masked/Blast_taxonomy_changed) and/or in output biom file whithout affiliation that do not respect one of the criteria
@@ -869,7 +902,9 @@ def write_summary( summary_file, input_biom, output_biom, discards, tree_count_f
 
         # track lost blast taxon
         if len(out_biom.get_observation_metadata(observation_name)['blast_affiliations'])>0:
+            # print(out_biom.get_observation_metadata(observation_name))
             for blast_affi in out_biom.get_observation_metadata(observation_name)['blast_affiliations'] :
+                # print(blast_affi)
                 blast_taxonomy = blast_affi['taxonomy']
                 if issubclass(blast_taxonomy.__class__,str):
                     blast_taxonomy = blast_taxonomy.split(';')
@@ -993,7 +1028,7 @@ def process( args ):
     try:
         # parse biom, store impacted, write output biom by deleting ASV or masking taxonomies
         impacted_dict = filter_biom(args.input_biom,impacted_biom, args.output_biom, args)
-        
+
         # write log
         Logger.static_write(args.log_file, "Identify ASV with :\n")
         for label in impacted_dict:
