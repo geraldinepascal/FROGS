@@ -382,11 +382,11 @@ def update_blast_metadata(metadata_dict, kept_affiliations):
             metadata_dict['blast_affiliations'].pop(index)
 
     # update consensus taxonomy
-    consensensus_tax_updated = get_tax_consensus([affi['taxonomy'] for affi in metadata_dict['blast_affiliations']] )
+    metadata_dict['blast_taxonomy'] = get_tax_consensus([affi['taxonomy'] for affi in metadata_dict['blast_affiliations']] )
 
     # return impacting status
-    if metadata_dict['blast_taxonomy'] != consensensus_tax_updated :
-        metadata_dict['blast_taxonomy'] = consensensus_tax_updated
+    if metadata_dict['blast_taxonomy'] is None :
+        metadata_dict['blast_affiliations'] = []
       
         return True
     else:
@@ -564,7 +564,7 @@ def filter_biom(in_biom_file, impacted_file, output_file, params):
         metadata_out = copy.deepcopy(observation['metadata'])
         if len(out_blast_affiliations) > 0:
             filter_on_blastCriteria = update_blast_metadata(metadata_out, out_blast_affiliations)
-        # print(metadata_out['blast_affiliations'])
+
         # keep impacting criteria only if filter_on_blastCriteria is True
         if not filter_on_blastCriteria : 
             impact_to_delete = list()
