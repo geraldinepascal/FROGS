@@ -294,7 +294,7 @@ dist <- as.dist(A)
 ## Add SampleID variable to physeq metadata
 sample_data(data)$SampleID <- sample_names(data)
 
-ord  <- ordinate(data, method = params$method, distance = dist)
+junk = capture.output(ord  <- ordinate(data, method = params$method, distance = dist),file=NULL)
 var  <- get_variable(data, params$varExp)
 ```
 
