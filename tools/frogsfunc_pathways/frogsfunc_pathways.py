@@ -335,12 +335,14 @@ if __name__ == "__main__":
 	group_input.add_argument('--map', type=str, help='File required if you are not analyzing 16S sequences with the Metacyc ("EC" function in the previous step) database. IF MARKER STUDYED STILL 16S: it must indicate the path to the PICRUSt2 KEGG pathways mapfile, if you chose "KO" in the previous step (the mapfile is available here : $PICRUSt2_PATH/default_files/pathway_mapfiles/KEGG_pathways_to_KO.tsv) IF MARKER STUDYED IS ITS OR 18S: Path to mapping file of pathways to fungi reactions (the mapfile is available here : $PICRUSt2_PATH/default_files/pathway_mapfiles/metacyc_path2rxn_struc_filt_fungi.txt ).')
 	group_input.add_argument('--input-asv-copy-norm', default=None, help='ASV abunndances normalized by marker copy number (frogsfunc_functions --output-asv-copy-norm option: frogsfunc_functions_asv_copy_norm_abundance.tsv by default). This input is required when the --strat-contrib option is set. [Default: %(default)s]')
 	group_input.add_argument('--input-fun-copy', default=None, help='Function copy number per ASV ([FUN]_copynumbers_predicted.tsv output from frogsfunc_functions.py)). This input is required when the --strat-contrib option is set. [Default: %(default)s]')
+	#Stratified Outputs
+	group_strat_output = parser.add_argument_group( 'Outputs if --strat-contrib option is set')
+	group_strat_output.add_argument('--output-pathways-contrib', default=None, help='Stratified output corresponding to contribution of predicted gene family abundances within each predicted genome. [Default: %(default)s]')
+	group_strat_output.add_argument('--output-pathways-predictions', default=None, help='Stratified output corresponding to contribution of predicted gene family abundances within each predicted genome. [Default: %(default)s]')
+	group_strat_output.add_argument('--output-pathways-abund-per-seq', default=None, help='Pathway abundance file output per sequences (if --strat-contrib set). [Default: %(default)s]')
 	#Outputs
 	group_output = parser.add_argument_group( 'Outputs')
 	group_output.add_argument('--output-pathways-abund', default='frogsfunc_pathways_unstrat.tsv', help='Pathway abundance file output. [Default: %(default)s]')
-	group_output.add_argument('--output-pathways-contrib', default=None, help='Stratified output corresponding to contribution of predicted gene family abundances within each predicted genome. [Default: %(default)s]')
-	group_output.add_argument('--output-pathways-predictions', default=None, help='Stratified output corresponding to contribution of predicted gene family abundances within each predicted genome. [Default: %(default)s]')
-	group_output.add_argument('--output-pathways-abund-per-seq', default=None, help='Pathway abundance file output per sequences (if --strat-contrib set). [Default: %(default)s]')
 	group_output.add_argument('--log-file', default=sys.stdout, help='This output file will contain several information on executed commands. [Default: stdout]')
 	group_output.add_argument('--html', default='frogsfunc_pathways_summary.html', help="Path to store resulting html file. [Default: %(default)s]" )	
 	args = parser.parse_args()
