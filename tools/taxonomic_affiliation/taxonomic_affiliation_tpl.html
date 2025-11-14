@@ -251,7 +251,7 @@
 						type: 'heatmap'
 					},
 					title: {
-						text: 'Number of ' + clean_type[data_type] + ' among their alignment results'
+						text: 'Number of ' + clean_type[data_type] + ' by BLAST identity and coverage'
 					},
 					exporting:{buttons: {contextButton: { symbol: 'download' }}},
 					buttons: {contextButton: {menuItems: ['downloadPNG', 'downloadSVG']}},
@@ -517,7 +517,7 @@
 					}
 
 					return histogramOption(
-						`Number of ${clean_type[data_type]} by bootstrap on affiliation`,
+						`Number of ${clean_type[data_type]} by RDP bootstrap confidence level`,
 						`Nb ${clean_type[data_type]}`,
 						get_displayed_categories(bootstrap_categories),
 						histogram_series,
@@ -569,7 +569,7 @@
 
 				// Appel à histogramOption pour générer l'option ECharts
 				return histogramOption(
-					'Number of ' + clean_type[data_type] + ' by bootstrap on affiliation',
+					'Number of ' + clean_type[data_type] + ' by RDP bootstrap confidence level',
 					'Nb ' + clean_type[data_type],
 					get_displayed_categories(bootstrap_categories),
 					histogram_series,
@@ -845,7 +845,7 @@
 					}
 
 					bootstrapChart_options = histogramOption(
-						`Number of ${clean_type[currentType_bootstrap]} by bootstrap on affiliation`,
+						`Number of ${clean_type[currentType_bootstrap]} by RDP bootstrap confidence level`,
 						`Nb ${clean_type[currentType_bootstrap]}`,
 						get_displayed_categories(bootstrap_categories),
 						histogram_series,
@@ -961,12 +961,12 @@
 			</li>
 			<li id="bootstrap-tab" class="nav-item" role="presentation">
 				<button class="nav-link" id="tab3-tab" data-bs-toggle="tab" data-bs-target="#tab3" type="button" role="tab">
-					Bootstrap distribution
+					RDP Bootstrap distribution
 				</button>
 			  </li>
 			  <li id="heatmap-tab" class="nav-item" role="presentation">
 				<button class="nav-link" id="tab4-tab" data-bs-toggle="tab" data-bs-target="#tab4" type="button" role="tab">
-					Alignment Distribution
+					Blast Alignment metrics Distribution
 				</button>
 			  </li>
 		</ul>

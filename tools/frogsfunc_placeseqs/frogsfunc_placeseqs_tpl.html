@@ -143,7 +143,7 @@
 
 			var table_load = function(container_id) {
 				var table_categories = detection_categories.slice() ;
-				table_categories.unshift( "ASV" );
+				table_categories.unshift( "ASV name" );
 				var table_series = new Array();
 				for( var spl_idx = 0 ; spl_idx < detection_series.length ; spl_idx++ ){
 					var nb_by_step = detection_series[spl_idx]['data'].slice() ;
@@ -481,7 +481,7 @@
 			<div class="tab-content" id="myTabContent">
 				<!-- TAB 1 -->
 				<div class="tab-pane fade show active p-3 border border-top-0" id="tab1" role="tabpanel">
-					<h2 class="pb-4 mt-4 mb-2 border-bottom">Insertion in reference tree summary</h2>
+					<h2 class="pb-4 mt-4 mb-2 border-bottom">Insertion into the reference tree summary</h2>
 					<div class="row justify-content-center p-5">
 						<div id="insertion-summary">
 							<div class="row">
@@ -490,11 +490,11 @@
 							</div>
 						</div>
 					</div>
-					<h2 class="pb-4 mt-4 mb-2 border-bottom">Closest reference sequences by ASV</h2>
+					<h2 class="pb-4 mt-4 mb-2 border-bottom">Closest reference sequences for each ASV</h2>
 					<div id="details-table" class="col-md-12"></div>
-					<h2 class="pb-4 mt-4 mb-2 border-bottom">Number of ASVs according to NSTI threshold</h2>
+					<h2 class="pb-4 mt-4 mb-2 border-bottom">Number of ASVs according to the NSTI threshold</h2>
 					<div id="nsti-graph" style="width:90% ;margin:auto"></div>
-					<h2 class="pb-4 mt-4 mb-2 border-bottom">%identity and coverage vs NSTI between kept ASV and closest PICRUSt2 reference sequence</h2>
+					<h2 class="pb-4 mt-4 mb-2 border-bottom">NSTI vs %identity and %coverage between kept ASVs and their closest PICRUSt2 reference sequence</h2>
 					<div id="metrics-nsti-graph" style="width:90% ;margin:auto"></div>
 				</div>
 			</div>

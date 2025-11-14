@@ -183,7 +183,7 @@ var heatmapOption = function(data_type) {
 
     return {
         title: {
-            text: 'Number of ' + clean_type[data_type] + ' among their alignment results',
+            text: 'Number of ' + clean_type[data_type] + ' by BLAST identity and coverage',
             left: 'center',
             textStyle: {fontWeight: 'normal'}
         },
