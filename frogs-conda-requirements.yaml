@@ -30,3 +30,4 @@ dependencies:
   - r-plotly =4.9.3
   - r-gridextra =2.3
   - r-reticulate
+  - r-sessioninfo
