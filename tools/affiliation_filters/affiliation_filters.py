@@ -15,6 +15,7 @@ import json
 import operator
 import argparse
 import re
+from functools import partial
 
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
 # PATH
@@ -142,7 +143,7 @@ class BootstrapParameter(argparse.Action):
         output["rank"] = value.split(":")[0]
         output["value"] = value.split(":")[1]
         try:
-            output["value"] = ratioParameter(output["value"])
+            output["value"] = ratioParameter(output["value"], min=0.0, max=1.0)
         except:
             raise_exception( argparse.ArgumentTypeError("\n\n#ERROR : The value for the MIN_BOOTSTRAP in parameter '--min-rdp-bootstrap' must be between 0.0 and 1.0.\n\n"))
         setattr(namespace, self.dest, output)
@@ -200,17 +201,16 @@ class UpdateFasta(Cmd):
 # FUNCTIONS
 #
 ##################################################################################################################################################
-def ratioParameter( arg_value ):
+def ratioParameter( arg_value, min=0, max=100 ):
     """
     @summary: Argparse type for ratio (float between 0 and 100).
     """
     float_arg_value = None
-    try:
-        float_arg_value = float(arg_value)
-        if float_arg_value < 0.0 or float_arg_value > 100.0:
-            raise_exception( argparse.ArgumentTypeError("\n\n#ERROR : must be between 0 and 100.\n"))
-    except:
-        raise_exception( argparse.ArgumentTypeError("\n\n#ERROR : must be between 0 and 100.\n"))
+    float_arg_value = float(arg_value)
+    
+    if float_arg_value < min or float_arg_value > max:
+            raise_exception( argparse.ArgumentTypeError("\n\n#ERROR : must be between " + str(min) + " and " + str(max) +".\n"))
+
     return float_arg_value
 
 def checkBlastTaxa( param ):
@@ -471,7 +471,7 @@ def filter_biom(in_biom_file, impacted_file, output_file, params):
         # to store by criteria valid blast affiliations 
         filter_on_blastCriteria = False
         out_blast_affiliations = dict()
-        # to check if criteria has an impact
+        # to check if criteria has an impact on taxonomies
         tax_in=list()
         if observation['metadata']['blast_affiliations'] :
             for blast_affi in observation['metadata']['blast_affiliations']:
@@ -491,7 +491,8 @@ def filter_biom(in_biom_file, impacted_file, output_file, params):
                     if not label in impacted_dict:
                         impacted_dict[label] = list()
                     impacted_dict[label].append(observation['id'])
-                elif len(uniq_tax) == len(tax_in):
+                # elif len(uniq_tax) == len(tax_in):
+                elif len(out_blast_affiliations) == len(observation['metadata']['blast_affiliations']):
                     out_blast_affiliations.pop('filter_on_len')  
 
             # add blast evalue criteria
@@ -504,7 +505,8 @@ def filter_biom(in_biom_file, impacted_file, output_file, params):
                     if not label in impacted_dict:
                         impacted_dict[label] = list()
                     impacted_dict[label].append(observation['id'])
-                elif len(uniq_tax) == len(tax_in):
+                # elif len(uniq_tax) == len(tax_in):
+                elif len(out_blast_affiliations) == len(observation['metadata']['blast_affiliations']):
                     out_blast_affiliations.pop('filter_on_evalue')  
 
             # add blast identity criteria
@@ -517,10 +519,11 @@ def filter_biom(in_biom_file, impacted_file, output_file, params):
                     if not label in impacted_dict:
                         impacted_dict[label] = list()
                     impacted_dict[label].append(observation['id'])
-                elif len(uniq_tax) == len(tax_in):
+                # elif len(uniq_tax) == len(tax_in):
+                elif len(out_blast_affiliations) == len(observation['metadata']['blast_affiliations']):
                     out_blast_affiliations.pop('filter_on_identity')         
 
-            # add blast coverage criteria
+            # add blast min query coverage criteria
             if params.min_blast_coverage:
                 label = "Blast coverage < " + str(args.min_blast_coverage)
                 out_blast_affiliations['filter_on_coverage'] = impacted_blast_affi_on_blastMetrics(observation, "perc_query_coverage", ">=", params.min_blast_coverage)
@@ -530,8 +533,37 @@ def filter_biom(in_biom_file, impacted_file, output_file, params):
                     if not label in impacted_dict:
                         impacted_dict[label] = list()
                     impacted_dict[label].append(observation['id'])
-                elif len(uniq_tax) == len(tax_in):
+                # elif len(uniq_tax) == len(tax_in):
+                elif len(out_blast_affiliations) == len(observation['metadata']['blast_affiliations']):
                     out_blast_affiliations.pop('filter_on_coverage')
+
+            # add blast min subject coverage criteria 
+            if params.min_blast_subject_coverage:
+                label = "Blast subject coverage < " + str(args.min_blast_subject_coverage)
+                out_blast_affiliations['filter_on_min_subject_coverage'] = impacted_blast_affi_on_blastMetrics(observation, "perc_subject_coverage", ">=", params.min_blast_subject_coverage)
+                uniq_tax = get_uniq_tax(out_blast_affiliations['filter_on_min_subject_coverage'])
+                if len(uniq_tax) != len(tax_in):
+                    observation['metadata']['comment'].append("blast_subject_coverage_lt_" + str(params.min_blast_subject_coverage))
+                    if not label in impacted_dict:
+                        impacted_dict[label] = list()
+                    impacted_dict[label].append(observation['id'])
+                # elif len(uniq_tax) == len(tax_in):
+                elif len(out_blast_affiliations) == len(observation['metadata']['blast_affiliations']):
+                    out_blast_affiliations.pop('filter_on_min_subject_coverage')
+			
+            # add blast max subject coverage criteria 
+            if params.max_blast_subject_coverage:
+                label = "Blast subject coverage > " + str(args.max_blast_subject_coverage)
+                out_blast_affiliations['filter_on_max_subject_coverage'] = impacted_blast_affi_on_blastMetrics(observation, "perc_subject_coverage", "<=", params.max_blast_subject_coverage)
+                uniq_tax = get_uniq_tax(out_blast_affiliations['filter_on_max_subject_coverage'])
+                if len(uniq_tax) != len(tax_in):
+                    observation['metadata']['comment'].append("blast_subject_coverage_gt_" + str(params.max_blast_subject_coverage))
+                    if not label in impacted_dict:
+                        impacted_dict[label] = list()
+                    impacted_dict[label].append(observation['id'])
+                # elif len(uniq_tax) == len(tax_in):
+                elif len(out_blast_affiliations) == len(observation['metadata']['blast_affiliations']):
+                    out_blast_affiliations.pop('filter_on_max_subject_coverage')
 
             # add blast taxon to ignore criteria
             if params.ignore_blast_taxa or params.keep_blast_taxa:
@@ -551,10 +583,11 @@ def filter_biom(in_biom_file, impacted_file, output_file, params):
                     if not label in impacted_dict:
                         impacted_dict[label] = list()
                     impacted_dict[label].append(observation['id'])
-                elif len(uniq_tax) == len(tax_in):
+                # elif len(uniq_tax) == len(tax_in):
+                elif len(out_blast_affiliations) == len(observation['metadata']['blast_affiliations']):
                     out_blast_affiliations.pop('filter_on_taxonIgnored')
 
-        elif params.min_blast_length or params.max_blast_evalue or params.min_blast_identity or params.min_blast_coverage or params.ignore_blast_taxa or params.keep_blast_taxa and not observation['metadata']['blast_affiliations']:
+        elif params.min_blast_length or params.max_blast_evalue or params.min_blast_identity or params.min_blast_coverage or params.min_blast_subject_coverage or params.max_blast_subject_coverage or params.ignore_blast_taxa or params.keep_blast_taxa and not observation['metadata']['blast_affiliations']:
             label = "Blast missing affiliations"
             if not label in impacted_dict:
                 impacted_dict[label] = list()
@@ -903,9 +936,7 @@ def write_summary( summary_file, input_biom, output_biom, discards, tree_count_f
 
         # track lost blast taxon
         if len(out_biom.get_observation_metadata(observation_name)['blast_affiliations'])>0:
-            # print(out_biom.get_observation_metadata(observation_name))
             for blast_affi in out_biom.get_observation_metadata(observation_name)['blast_affiliations'] :
-                # print(blast_affi)
                 blast_taxonomy = blast_affi['taxonomy']
                 if issubclass(blast_taxonomy.__class__,str):
                     blast_taxonomy = blast_taxonomy.split(';')
@@ -1100,10 +1131,12 @@ if __name__ == '__main__':
     group_filter_blast_taxa = group_filter.add_mutually_exclusive_group()
     group_filter_blast_taxa.add_argument('--ignore-blast-taxa', type=str, nargs='*', help="Taxon list to masks/delete in Blast affiliations")
     group_filter_blast_taxa.add_argument('--keep-blast-taxa', type=str, nargs='*', help="Taxon list to keep in Blast affiliations. All others affiliations will be masks/delete.")
-    group_filter.add_argument('--min-rdp-bootstrap', type=str, action=BootstrapParameter, metavar=("TAXONOMIC_LEVEL:MIN_BOOTSTRAP"), help="The minimal RDP bootstrap must be superior to this value (between 0 and 1)." )
+    group_filter.add_argument('--min-rdp-bootstrap', type=str, action=BootstrapParameter, metavar=("TAXONOMIC_LEVEL:MIN_BOOTSTRAP"), help="The TAXONOMIC_LEVEL must be one of the --taxonomic-ranks. The minimal RDP bootstrap must be between 0 and 1." )
     group_filter.add_argument('--min-blast-identity', type=ratioParameter, help="The number corresponding to the blast percentage identity (between 0 and 100)." )
-    group_filter.add_argument('--min-blast-coverage', type=ratioParameter, help="The number corresponding to the blast percentage coverage (between 0 and 100)." )
-    group_filter.add_argument('--max-blast-evalue', type=float, help="The number corresponding to the blast e value (between 0 and 1).")
+    group_filter.add_argument('--min-blast-coverage', type=ratioParameter, help="The number corresponding to the query blast percentage coverage (between 0 and 100)." )
+    group_filter.add_argument('--min-blast-subject-coverage', type=ratioParameter, help="The number min corresponding to the subject blast percentage coverage (between 0 and 100)." )
+    group_filter.add_argument('--max-blast-subject-coverage', type=ratioParameter, help="The number max corresponding to the subject blast percentage coverage (between 0 and 100)." )
+    group_filter.add_argument('--max-blast-evalue', type=partial(ratioParameter, min=0.0, max=1.0), help="The number corresponding to the blast e value (between 0 and 1).")
     group_filter.add_argument('--min-blast-length', type=int, default=None, required=False, help="The number corresponding to the blast length." )
     #     Inputs
     group_input = parser.add_argument_group( 'Inputs' )
@@ -1139,7 +1172,7 @@ if __name__ == '__main__':
     if not args.delete and not args.mask:
         raise_exception( argparse.ArgumentTypeError("\n\n#ERROR : You must precise if you want to mask affiliations of delete ASV with --mask or --delete options.\n\n"))
 
-    if args.min_rdp_bootstrap is None and args.min_blast_length is None and args.max_blast_evalue is None and args.min_blast_identity is None and args.min_blast_coverage is None:
+    if args.min_rdp_bootstrap is None and args.min_blast_length is None and args.max_blast_evalue is None and args.min_blast_identity is None and args.min_blast_coverage is None and args.min_blast_subject_coverage is None and args.max_blast_subject_coverage is None:
         if args.ignore_blast_taxa is None and args.keep_blast_taxa is None:
             raise_exception(Exception("\n\n#ERROR : You need to specify at least on filtering criteria\n\n"))
         elif args.ignore_blast_taxa is not None and len(args.ignore_blast_taxa) == 0:
@@ -1170,7 +1203,11 @@ if __name__ == '__main__':
         if args.min_blast_identity is not None:
             raise_exception( argparse.ArgumentTypeError( "\n\n#ERROR : The BIOM input does not contain the metadata 'blast_affiliations'. You cannot use the parameter '--min-blast-identity' on this file.\n\n" ))
         if args.min_blast_coverage is not None:
-            raise_exception( argparse.ArgumentTypeError( "\n\n#ERROR : The BIOM input does not contain the metadata 'blast_affiliations'. You cannot use the parameter '--max-blast-coverage' on this file.\n\n" ))
+            raise_exception( argparse.ArgumentTypeError( "\n\n#ERROR : The BIOM input does not contain the metadata 'blast_affiliations'. You cannot use the parameter '--min-blast-coverage' on this file.\n\n" ))
+        if args.min_blast_subject_coverage is not None:
+            raise_exception( argparse.ArgumentTypeError( "\n\n#ERROR : The BIOM input does not contain the metadata 'blast_affiliations'. You cannot use the parameter '--min-blast-subject-coverage' on this file.\n\n" ))
+        if args.max_blast_subject_coverage is not None:
+            raise_exception( argparse.ArgumentTypeError( "\n\n#ERROR : The BIOM input does not contain the metadata 'blast_affiliations'. You cannot use the parameter '--max-blast-subject-coverage' on this file.\n\n" ))
         if args.ignore_blast_taxa is not None:
             raise_exception( argparse.ArgumentTypeError( "\n\n#ERROR : The BIOM input does not contain the metadata 'blast_affiliations'. You cannot use the parameter '--ignore-blast-taxa' on this file.\n\n" ))
         if args.keep_blast_taxa is not None:
@@ -1179,16 +1216,7 @@ if __name__ == '__main__':
     if args.ignore_blast_taxa is not None:
         checkBlastTaxa(args.ignore_blast_taxa)
     if args.keep_blast_taxa is not None:
-        checkBlastTaxa(args.keep_blast_taxa)       
-
-    #for observation in in_biom.get_observations():
-    #    taxonomy = observation['metadata']['blast_taxonomy']
-    #    if taxonomy == None or len(taxonomy) == 0:
-    #            print('\n\n#WARNING: you declare that taxonomies are defined on ' + str(len(args.taxonomic_ranks)) + ' ranks but your biom file contains taxonomy defined on ' + str(len(taxonomy)) + ', at least for ' + observation['id'] + '\n')
-    #            print('Those clusters will be delete if --delete mode activated\n')
-    #            break
-    #del in_biom
-    
+        checkBlastTaxa(args.keep_blast_taxa)          
     
 
     if args.delete and (not args.input_fasta or not args.output_fasta):
