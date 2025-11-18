@@ -24,11 +24,12 @@ mkdir -p $OUT
 --log-file $OUT/delete_log.txt \
 --min-rdp-bootstrap Species:0.8 \
 --min-blast-length 402 \
---min-blast-identity 1.0 \
---min-blast-coverage 1.0 \
+--min-blast-identity 100 \
+--min-blast-coverage 100 \
 --max-blast-evalue 0 \
 --delete \
 --bootstrap-tag rdp_bootstrap
+
 
 echo ""
 OUT=test/metrics-filter
@@ -42,8 +43,8 @@ mkdir -p $OUT
 --log-file $OUT/mask_log.txt \
 --min-rdp-bootstrap Species:0.8 \
 --min-blast-length 402 \
---min-blast-identity 1.0 \
---min-blast-coverage 1.0 \
+--min-blast-identity 100 \
+--min-blast-coverage 100 \
 --max-blast-evalue 0 \
 --mask
 
@@ -86,8 +87,8 @@ echo $OUT "deleting mode"
 --taxonomic-ranks Domain Phylum Class Order Family Genus Species \
 --min-rdp-bootstrap Species:0.8 \
 --min-blast-length 402 \
---min-blast-identity 1.0 \
---min-blast-coverage 1.0 \
+--min-blast-identity 100 \
+--min-blast-coverage 100 \
 --max-blast-evalue 0 \
 --ignore-blast-taxa "Methylovulum miyakonense" "subsp." "unknown species"
 
@@ -103,8 +104,8 @@ echo $OUT "masking mode"
 --taxonomic-ranks Domain Phylum Class Order Family Genus Species \
 --min-rdp-bootstrap Species:0.8 \
 --min-blast-length 402 \
---min-blast-identity 1.0 \
---min-blast-coverage 1.0 \
+--min-blast-identity 100 \
+--min-blast-coverage 100 \
 --max-blast-evalue 0 \
 --ignore-blast-taxa "Methylovulum miyakonense" "subsp." "unknown species"
 
@@ -120,6 +121,6 @@ echo $OUT "delete mode"
 --log-file $OUT/summary_ASV_without_affi_deleted.txt \
 --delete \
 --min-blast-length 40 \
---min-blast-identity 0.7 \
---min-blast-coverage 0.2 \
+--min-blast-identity 70 \
+--min-blast-coverage 20 \
 --keep-blast-taxa "Saccharomycetales"
