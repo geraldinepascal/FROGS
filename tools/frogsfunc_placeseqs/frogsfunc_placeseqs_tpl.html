@@ -188,6 +188,7 @@
 					{
 						name: '% coverage',
 						type: 'scatter',
+						symbol: 'diamond',
 						symbolSize: 8,
 						data: coverageData,
 						itemStyle: { color: hexToRgba(paletteColors10[CURRENT_THEME][1],0.5) }
@@ -195,13 +196,15 @@
 				];
 
 				// Récupérer les max pour calcul des pourcentages
+				/*
 				const maxIdentity = Math.max(...alignmentData.map(p => p[1]));
 				const maxCoverage = Math.max(...coverageData.map(p => p[1]));
 
 				// Options ECharts
 				const option = {
 					tooltip: {
-						trigger: 'item',
+						trigger: 'axis',
+    					axisPointer: { type: 'cross' },
 						formatter: function(params) {
 							return `<b>${params.data.name}</b><br>${params.value[0]}, ${params.value[1]}%`;
 						},
@@ -211,15 +214,17 @@
 						textStyle: { color: '#333' },
 						confine: true
 					},
-					trigger: 'axis',
-            		axisPointer: { type: 'cross' },
+					title: {
+						//text: "NSTI vs %identity and %coverage between kept ASVs and their closest PICRUSt2 reference sequence",
+						textStyle: {fontWeight: 'normal'},
+					},
 					xAxis: {
 						type: 'value',
-						nameLocation: 'center',
+						nameLocation: 'end',
 						name: 'NSTI value',
-						nameGap: 35,
 						axisLine: { show: true },
-						splitLine: { show: false }
+						splitLine: { show: false },
+						nameGap: 10
 					},
 					yAxis: {
 						type: 'value',
@@ -235,19 +240,19 @@
 							saveAsImage: { show: true }
 						}
 					},
-					grid: {
-						bottom: 150 // 🔹 augmente l’espace sous le graphique
-					},
 					series: mySeries,
 					legend: {
-						data: mySeries.map(s => s.name)
+						data: mySeries.map(s => s.name),
+						bottom: 10
+
 					}
-				};
+				};*/
 
 				// Initialisation ECharts
 				const chartDom = document.getElementById(container_id);
 				const scatterChart = echarts.init(chartDom, CURRENT_THEME, { renderer: 'svg', height: 600 });
-				scatterChart.setOption(option);
+				var scatterChart_options = scatterOption("", mySeries, alignmentData, coverageData);
+				scatterChart.setOption(scatterChart_options);
 
 				// Redimensionnement auto
 				window.addEventListener('resize', () => scatterChart.resize());
@@ -368,12 +373,13 @@
 					{
 						name: '% coverage',
 						type: 'scatter',
+						symbol: 'diamond',
 						symbolSize: 8,
 						data: coverageData,
 						itemStyle: { color: hexToRgba(paletteColors10[CURRENT_THEME][1],0.7) }
 					}
 				];
-				const option = {
+				/*const option = {
 					tooltip: {
 						trigger: 'item',
 						formatter: function(params) {
@@ -403,13 +409,14 @@
 					legend: {
 						data: mySeries.map(s => s.name)
 					}
-				};
+				};*/
 
 				// Récupérer les max pour calcul des pourcentages
-				const maxIdentity = Math.max(...alignmentData.map(p => p[1]));
-				const maxCoverage = Math.max(...coverageData.map(p => p[1]));
+				// const maxIdentity = Math.max(...alignmentData.map(p => p[1]));
+				// const maxCoverage = Math.max(...coverageData.map(p => p[1]));
 
-				var scatterChart_options = option;
+				//var scatterChart_options = option;
+				var scatterChart_options = scatterOption("", mySeries, alignmentData, coverageData);
 				scatterChart = recreateChart(scatterChart, "metrics-nsti-graph", scatterChart_options, CURRENT_THEME, 600);
 				
 			}

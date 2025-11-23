@@ -519,10 +519,17 @@ var radarOption = function(pTitle, categories, my_series) {
 };
 
 var lineOptionDualY = function(pTitle, pXTitle, x_values, y_axis_infos, my_series) {
+    const frogsColor = getCssVar('--frogsColor');
+    const frogsColor2 = getCssVar('--frogsColor2');
     return {
         tooltip: {
             trigger: 'axis',
-            //axisPointer: { type: 'cross' },
+            axisPointer: { 
+                type: 'cross',
+                label: {
+                    backgroundColor: frogsColor
+                }
+            },
             backgroundColor: 'rgba(255, 255, 255, 0.95)',
             borderWidth: 1,
             borderColor: '#ccc',
@@ -882,6 +889,89 @@ function pieOption(value_1, value_2, label_1, label_2, title, unit, value_3 = nu
             },
         }
         ]
+    };
+    return option;
+}
+
+function scatterOption(pTitle, mySeries, alignmentData, coverageData){
+    const frogsColor = getCssVar('--frogsColor');
+    const frogsColor2 = getCssVar('--frogsColor2');
+    const maxIdentity = Math.max(...alignmentData.map(p => p[1]));
+    const maxCoverage = Math.max(...coverageData.map(p => p[1]));
+
+    let option = {
+        tooltip: {
+            trigger: 'axis',
+            axisPointer: { 
+                type: 'cross',
+                label:{ backgroundColor: frogsColor }
+            },
+            backgroundColor: 'rgba(255,255,255,0.95)',
+            borderColor: '#ccc',
+            borderWidth: 1,
+            textStyle: { color: '#333' },
+            confine: true,
+            formatter: function(params) {
+        
+                if (!params || params.length === 0) return '';
+        
+                let tooltip = `
+                    <div style="font-weight:bold;margin-bottom:4px;">
+                        ${params[0].data.name}
+                    </div>
+                    <table style="border-collapse:collapse;">`;
+        
+                params.forEach(p => {
+                    const valueX = p.value[0];
+                    const valueY = p.value[1];
+        
+                    tooltip += `
+                        <tr>
+                            <td style="color:${p.color};padding-right:8px;">
+                                ${p.seriesName} :
+                            </td>
+                            <td style="text-align:right;">
+                                ${valueX} → ${valueY}%
+                            </td>
+                        </tr>`;
+                });
+        
+                tooltip += '</table>';
+                return tooltip;
+            }
+        },
+        title: {
+            //text: "NSTI vs %identity and %coverage between kept ASVs and their closest PICRUSt2 reference sequence",
+            textStyle: {fontWeight: 'normal'},
+        },
+        xAxis: {
+            type: 'value',
+            nameLocation: 'end',
+            name: 'NSTI value',
+            axisLine: { show: true },
+            splitLine: { show: false },
+            nameGap: 10
+        },
+        yAxis: {
+            type: 'value',
+            nameLocation: 'center',
+            name: 'alignment metrics (%)',
+            axisLine: { show: true },
+            splitLine: { show: true }
+        },
+        toolbox: {
+            feature: {
+                //dataView: { show: true, readOnly: false },
+                dataZoom: { title: { zoom: 'Zoom', back: 'Reset' } },
+                saveAsImage: { show: true }
+            }
+        },
+        series: mySeries,
+        legend: {
+            data: mySeries.map(s => s.name),
+            bottom: 10
+
+        }
     };
     return option;
 }
