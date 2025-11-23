@@ -60,7 +60,8 @@ function update_theme(val){
 					document.documentElement.style.setProperty('--frogsPreColor', "hsl(from var(--frogsColor) h s l / 0.1)");
 				 }
 				 else if(val == "FROGS5" ){
-					document.documentElement.style.setProperty('--frogsColor', "#03A5A8");
+					//document.documentElement.style.setProperty('--frogsColor', "#03A5A8");
+          document.documentElement.style.setProperty('--frogsColor', "#0d9673");
 					document.documentElement.style.setProperty('--frogsColorHover', "hsl(from var(--frogsColor) h calc(s + 4) calc(l - 3) / 1)");
 					document.documentElement.style.setProperty('--frogsPreColor', "hsl(from var(--frogsColor) h s l / 0.1)");
 				 }
@@ -100,7 +101,7 @@ a:hover{
 	background-color: var(--frogsColorHover);
 }
 .button {
-    background-color: var(--frogsColor)
+    background-color: var(--frogsColor) ;
     border          : none;
     color           : white;
     padding         : 5px 10px;

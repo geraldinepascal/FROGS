@@ -1,6 +1,6 @@
 ---
 #title: "FROGS Phyloseq: Alpha Diversity Visualisation (version `r params$version`)"
-copyright: "Copyright (C) 2024 INRAE"
+copyright: "Copyright (C) 2025 INRAE"
 license: "GNU General Public License"
 #version: "5.0.0"
 output: 
@@ -89,7 +89,7 @@ a:hover{
 	background-color: var(--frogsColorHover);
 }
 .button {
-    background-color: var(--frogsColor)
+    background-color: var(--frogsColor) ;
     border          : none;
     color           : white;
     padding         : 5px 10px;
