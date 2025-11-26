@@ -416,15 +416,15 @@ var lineOption = function(pTitle, pXTitle, pYTitle, pXCategories, pData) {
                 }
             }
         },
-        /*legend: {
-            //type: 'scroll',
-            type: 'plain',
+        legend: {
+            type: 'scroll',
+            //type: 'plain',
             orient: 'horizontal',
             //bottom: 20,
             //height: 100,
             //pageButtonGap: 5 // espace entre les boutons de navigation
-        },*/
-        legend: {
+        },
+        /*legend: {
             type: 'plain',
             orient: 'horizontal',
             bottom: 0,
@@ -433,7 +433,7 @@ var lineOption = function(pTitle, pXTitle, pYTitle, pXCategories, pData) {
             itemWidth: 25,
             itemHeight: 10,
             textStyle: { fontSize: 11 },
-        },
+        },*/
         dataZoom: [
             {
                 type: 'inside',   // zoom à la molette ou pinch
