@@ -16,10 +16,10 @@ const logoSteel = "iVBORw0KGgoAAAANSUhEUgAABkoAAAhPCAYAAACXR9fmAAAACXBIWXMAAC4jA
 /**************************************************************************** */
 
 paletteColors10 = {
-	"DefaultTheme": ['#03A5A8','#8fc63e','#F5F3BB','#BEDAC4','#412722','#DAB6C2','#58C1C4','#A1B56B','#C7A7B7','#E3DCCF'],
-	"SteelTheme" : ['#265763','#65c1bf','#F5F3BB','#BEDAC4','#412722','#DAB6C2','#58C1C4','#A1B56B','#C7A7B7','#E3DCCF'],
-	"CoralTheme": ['#00A3A6','#ed6d6c','#EFC7C2','#737F75','#7A8FA3','#D7B377','#A7C7A1','#A79BAE','#A0705A','#92B7C9'],
-	"GoldTheme": ['#ed6d6c','#f9b136','#ad8e9f','#a2a32f','#7398A6','#D7A5B3','#6B8E3A','#CFA96E','#7E6FA8','#E3C9B2']
+	"DefaultTheme": ['#03A5A8','#8fc63e','#B85C3A','#BEDAC4','#412722','#DAB6C2','#58C1C4','#A1B56B','#C7A7B7','#E3DCCF'],
+	"SteelTheme" : ['#265763','#65c1bf','#D88C3A','#BEDAC4','#412722','#DAB6C2','#58C1C4','#A1B56B','#C7A7B7','#E3DCCF'],
+	"CoralTheme": ['#00A3A6','#ed6d6c','#1F3A44','#737F75','#7A8FA3','#D7B377','#A7C7A1','#A79BAE','#A0705A','#92B7C9'],
+	"GoldTheme": ['#ed6d6c','#f9b136','#4C8F9C','#a2a32f','#7398A6','#D7A5B3','#6B8E3A','#CFA96E','#7E6FA8','#E3C9B2']
 }
 
 FROGSlogos = {
