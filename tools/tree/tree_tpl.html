@@ -24,8 +24,6 @@
 		<link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
 		<script type="application/javascript" src="https://cdn.rawgit.com/phylocanvas/phylocanvas-quickstart/v2.8.1/phylocanvas-quickstart.js"></script>
 		
-
-		
 		###IMPORT_CSS###
 		
 		###IMPORT_JS_UTILS###
@@ -119,6 +117,30 @@
 
 				});
 				CURRENT_THEME = val;
+				frogsSunburstPalette = getFrogsSunburstPalette();
+				if (typeof jDistrib !== "undefined" && jDistrib.graph.colors) {
+					jDistrib.graph.colors.set = frogsSunburstPalette;
+				}
+				// Recharger les graphiques avec le thème ECharts
+				// Cette fonction doit être définie dans le template HTML
+				updateCharts(CURRENT_THEME);
+				update_logo(CURRENT_THEME);
+
+				select = document.getElementById("themechoice");
+
+				// Réactiver uniquement les vraies options (celles avec une value)
+				Array.from(select.options).forEach(opt => {
+				if (opt.value) {
+					opt.disabled = false;
+				}
+				});
+				
+				// Désactiver l’option actuellement sélectionnée (si ce n’est pas le placeholder)
+				const selectedOption = select.options[select.selectedIndex];
+				if (selectedOption.value) {
+				selectedOption.disabled = true;
+				}
+				
 				// Recharger les graphiques avec le thème ECharts
 				// Cette fonction doit être définie dans le template HTML
 				updateCharts(CURRENT_THEME);
@@ -157,8 +179,6 @@
 
 				// Default theme
 				update_theme(DEFAULT_THEME);
-				select = document.getElementById("themechoice");
-				select.options[1].disabled = true 
 				
 				// Display failed ASVs table
 				if(removed_details_data.length>0){
