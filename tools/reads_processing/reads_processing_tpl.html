@@ -34,11 +34,6 @@
 				return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
 			}
 
-			
-
-			
-			
-			
 			/** --------------------------------------------------------------------------------------------------------------------------------------------
 			 Data from HTML
 			----------------------------------------------------------------------------------------------------------------------------------------------*/
@@ -530,6 +525,8 @@
 				});
 				// Default theme
 				update_theme(DEFAULT_THEME);
+				select = document.getElementById("themechoice");
+				select.options[1].disabled = true 
 				$('#filterBySample-table-combined input[type="checkbox"]').addClass('form-check-input');
 				if(process == "preprocess-only"){
 					$("#tab2").remove();
@@ -553,12 +550,11 @@
 	
 		<div class="container" style="max-width: fit-content; float: right;">
 			<select id="themechoice" class="form-select" onchange="update_theme($(this).val())" style="font-size: smaller;" aria-label="Default select example">
-				<option selected disabled>Switch theme</option>
-				<option value="FROGS5Theme">FROGS5</option>
-				<option value="PlumTheme">Plum</option>
+				<option selected disabled value="">Switch theme</option>
+				<option value="DefaultTheme">Default</option>
 				<option value="CoralTheme">Coral</option>
-				<option value="FROGS4Theme">FROGS4</option>
-				<option value="VintageTheme">Vintage</option>
+				<option value="GoldTheme">Gold</option>
+				<option value="SteelTheme">Steel</option>
 			</select>
 			<a style="padding: 0.5rem 1rem;"></a>
 		</div>
