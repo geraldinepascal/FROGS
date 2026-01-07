@@ -179,6 +179,8 @@
 
 				// Default theme
 				update_theme(DEFAULT_THEME);
+				select = document.getElementById("themechoice");
+				select.options[1].disabled = true 
 				
 				// Display failed ASVs table
 				if(removed_details_data.length>0){
