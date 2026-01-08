@@ -35,7 +35,7 @@ if (is.null(CURRENT_DIR)) {
   CURRENT_DIR <- getwd()
 }
 THEME_DIR <- normalizePath(
-  file.path(dirname(CURRENT_DIR), "../static"),
+  file.path(dirname(CURRENT_DIR), "static"),
   winslash = "/",
   mustWork = FALSE
 )
