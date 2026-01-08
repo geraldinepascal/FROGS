@@ -71,6 +71,7 @@ h2{
      height: 500px;
 }
      */
+
 #content {
     width: 90%;
     margin-right: auto;
@@ -263,3 +264,9 @@ a:hover{
     margin: 0 auto;
   }
 /* End Sunburst CSS */
+
+#boxplot-container, #sequences-distrib-chart, #samples-distrib-hc {
+    width: 100%;
+    min-height: 300px; /* ou 400px */
+    height: auto;
+}

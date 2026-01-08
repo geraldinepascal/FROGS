@@ -349,15 +349,14 @@
 			<h2 id="report-title" class="mb-0">Remove chimera report</h2>
 		</div>
 	
-		<div class="container" style="max-width: fit-content; float: right;">
-			<select id="themechoice" class="form-select" onchange="update_theme($(this).val())" style="font-size: smaller;" aria-label="Default select example">
-				<option selected disabled value="">Switch theme</option>
-				<option value="DefaultTheme">Default</option>
-				<option value="CoralTheme">Coral</option>
-				<option value="GoldTheme">Gold</option>
-				<option value="SteelTheme">Steel</option>
+		<div class="d-flex justify-content-end">
+			<select id="themechoice" class="form-select form-select-sm" onchange="update_theme($(this).val())" style="width: auto;" aria-label="Default select example">
+			  <option selected disabled value="">Switch theme</option>
+			  <option value="DefaultTheme">Default</option>
+			  <option value="CoralTheme">Coral</option>
+			  <option value="GoldTheme">Gold</option>
+			  <option value="SteelTheme">Steel</option>
 			</select>
-			<a style="padding: 0.5rem 1rem;"></a>
 		</div>
 
 		<!-- Tabs organization -->
@@ -414,15 +413,20 @@
 					</div>
 				</div>
 				<div>
-					<h2 class="pb-4 mt-4 mb-2 border-bottom">ASV size summary</h2>
-					<p><i>The ASV size is the sum of the abundances of the sequences grouped in a ASV.</i></p>
-					<div class="row" width="620px">
-						<div id="twofigs" style="height: 600px" class="row">
-							<div id="boxplot-container" class="col-12 col-md-8"" style="height:100%;"></div>
-							<div id="boxplot-table" class="col-12 col-md-4"></div>
-						</div>
+					<div class="row justify-content-center p-5">
+						<h2 class="pb-4 mt-4 mb-2 border-bottom">Cluster/ASV size summary</h2>
+						
+						<p class="col-12"><i>The cluster/ASV size is the sum of the abundances of the sequences grouped in a cluster/ASV.</i></p>
+						<div class="row" id="twofigs" style="min-height: 400px;">
+							<div class="col-md-8">
+							  <div id="boxplot-container" class="w-100" style="height: 100%;"></div>
+							</div>
+							<div class="col-md-4 table-responsive">
+							  <div id="boxplot-table"></div>
+							</div>
+						  </div>
 					</div>
-					<h2 class="pb-4 mt-4 mb-2 border-bottom">Cluster size details</h2>
+					<h2 class="pb-4 mt-4 mb-2 border-bottom">Cluster/ASV size details</h2>
 					<div id="clusters-size-details" class="col-md-12">
 					</div>
 				</div>

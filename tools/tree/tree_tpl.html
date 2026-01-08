@@ -219,15 +219,14 @@
 			<h2 id="report-title" class="mb-0">Tree report</h2>
 		</div>
 	
-		<div class="container" style="max-width: fit-content; float: right;">
-			<select id="themechoice" class="form-select" onchange="update_theme($(this).val())" style="font-size: smaller;" aria-label="Default select example">
-				<option selected disabled value="">Switch theme</option>
-				<option value="DefaultTheme">Default</option>
-				<option value="CoralTheme">Coral</option>
-				<option value="GoldTheme">Gold</option>
-				<option value="SteelTheme">Steel</option>
+		<div class="d-flex justify-content-end">
+			<select id="themechoice" class="form-select form-select-sm" onchange="update_theme($(this).val())" style="width: auto;" aria-label="Default select example">
+			  <option selected disabled value="">Switch theme</option>
+			  <option value="DefaultTheme">Default</option>
+			  <option value="CoralTheme">Coral</option>
+			  <option value="GoldTheme">Gold</option>
+			  <option value="SteelTheme">Steel</option>
 			</select>
-			<a style="padding: 0.5rem 1rem;"></a>
 		</div>
 
 		<!-- Tabs organization -->

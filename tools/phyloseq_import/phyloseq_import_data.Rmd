@@ -228,16 +228,23 @@ save(data, file=params$outputRdata)
 
 # {.tabset .tabset-fade .tabset-pills}
 
-<ul class="nav nav-pills" style="float: right; z-index: 10; position: relative; max-width: fit-content;">
-  <select id="themechoice" class="form-select" onchange="update_theme_Rmd($(this).val())"
-          style="font-size: smaller;">
+```{=html}
+<div class="row">
+  <div style="float:right">
+  <select id="themechoice"
+          class="form-select form-select-sm"
+          style="width: auto;"
+          onchange="update_theme_Rmd(this.value)"
+          aria-label="Switch theme">
     <option selected disabled value="">Switch theme</option>
     <option disabled value="DefaultTheme">Default</option>
     <option value="CoralTheme">Coral</option>
     <option value="GoldTheme">Gold</option>
     <option value="SteelTheme">Steel</option>
   </select>
-</ul>
+  </div>
+</div>
+```
 
 ## Summary
 ```{r summary}

@@ -66,7 +66,10 @@ function recreateChart(oldChart, elementId, option, theme, height = null) {
 
     // S'assurer que le conteneur a une taille visible
     if (!chartDom.style.height) chartDom.style.height = (height || 600) + "px";
-    //if (!chartDom.style.width)  chartDom.style.width  = chartDom.clientWidth ? chartDom.clientWidth + "px" : "100%";
+    //if (!chartDom.style.height) chartDom.style.width = (width || 600) + "px";
+    //if (!chartDom.style.width)  chartDom.style.width  = "50%";
+    //chartDom.style.width = chartDom.clientWidth ? chartDom.clientWidth + "px" : "90%%";
+
 
     // ⚡ pas de width/height fixés ici
     //const chart = echarts.init(chartDom, theme, {renderer: 'canvas', devicePixelRatio: 3});
@@ -175,6 +178,7 @@ var table = function (pTitle, pCategories, pData, footer = undefined) {
 
     // Table
     return `
+        <div class="table-responsive">
         <table
             class="table table-bordered table-striped"
             data-toggle="table"
@@ -191,6 +195,7 @@ var table = function (pTitle, pCategories, pData, footer = undefined) {
             ${table_caption}
             ${table_footer}
         </table>
+        </div>
     `;
 };
 
