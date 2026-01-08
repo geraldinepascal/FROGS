@@ -13,6 +13,11 @@ var numberDisplay = function( pValue ){
 	return new_val ;
 }
 
+function numericSorter(a, b) {
+    return parseFloat(a.replace(/,/g, "")) -
+           parseFloat(b.replace(/,/g, ""));
+}
+
 
 var get_dispersion = function( values, counts ) { 
     var dispersion = new Array();
@@ -118,7 +123,7 @@ var table = function(pTitle, pCategories, pData, footer = undefined) {
     var table_header_line = "";
 
     for (var idx = 0; idx < pCategories.length; idx++) {
-        table_header_line += "      <th data-sortable='true'>" + pCategories[idx] + "</th>\n";
+        table_header_line += "      <th data-sortable='true' data-sorter='numericSorter'>" + pCategories[idx] + "</th>\n";
     }
 
     table_header += "    <tr>\n" + table_header_line + "    </tr>\n";
@@ -144,6 +149,80 @@ var table = function(pTitle, pCategories, pData, footer = undefined) {
     table_body = "  <tbody>\n" + table_body + "  </tbody>\n";
 
     var table_caption = pTitle ? "  <caption>\n" + pTitle + "  </caption>\n" : "";
+
+    return `
+        <table
+            class="table table-bordered table-striped"
+            data-toggle="table"
+            data-search="true"
+            data-pagination="true"
+            data-page-size="10"
+            data-page-list='[5, 10, 20, 50, "All"]'
+            data-show-export="true"
+            data-export-types='["excel","csv"]'
+            data-export-data-type="all"
+        >
+            ${table_header}
+            ${table_body}
+            ${table_caption}
+            ${table_footer}
+        </table>
+    `;
+};
+
+var table = function (pTitle, pCategories, pData, footer = undefined) {
+
+    var isNumericColumn = pCategories.map((_, colIdx) => {
+        return pData.every(row =>
+            row[colIdx] === null ||
+            row[colIdx] === "" ||
+            typeof row[colIdx] === "number"
+        );
+    });
+
+    var table_header_line = "";
+
+    for (var idx = 0; idx < pCategories.length; idx++) {
+        let sorterAttr = isNumericColumn[idx]
+            ? " data-sorter='numericSorter'"
+            : "";
+        table_header_line +=
+            `      <th data-sortable="true"${sorterAttr}>${pCategories[idx]}</th>\n`;
+    }
+
+    var table_header =
+        "  <thead>\n" +
+        "    <tr>\n" +
+        table_header_line +
+        "    </tr>\n" +
+        "  </thead>\n";
+
+    var table_footer = footer
+        ? "<tfoot>\n" + footer + "</tfoot>\n"
+        : "";
+
+    var table_body = "";
+
+    for (var data_idx = 0; data_idx < pData.length; data_idx++) {
+        var table_body_row = "";
+        for (var category_idx = 0; category_idx < pCategories.length; category_idx++) {
+            let val = pData[data_idx][category_idx];
+            table_body_row += `      <td>${val}</td>\n`;
+        }
+        table_body +=
+            "    <tr>\n" +
+            table_body_row +
+            "    </tr>\n";
+    }
+
+    table_body =
+        "  <tbody>\n" +
+        table_body +
+        "  </tbody>\n";
+
+    var table_caption = pTitle
+        ? "  <caption>\n" + pTitle + "  </caption>\n"
+        : "";
 
     return `
         <table
