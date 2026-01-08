@@ -145,7 +145,14 @@ pre{
   font-size: 11px ;
   background-color: var(--frogsPreColor) !important;
 }
-
+#themechoice{
+  border-radius: 0.25em;
+  background-color: white;
+  border: 1px solid #dee2e6;
+  font-weight: 400;
+  line-height: 1.5;
+  padding: .375rem 2.25rem .375rem .75rem;
+}
 </style>
  
 ```{r package_import, message=FALSE, warning=FALSE}
