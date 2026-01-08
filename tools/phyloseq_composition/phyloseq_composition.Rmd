@@ -35,7 +35,7 @@ if (is.null(CURRENT_DIR)) {
   CURRENT_DIR <- getwd()
 }
 THEME_DIR <- normalizePath(
-  file.path(dirname(CURRENT_DIR), "static"),
+  file.path(dirname(CURRENT_DIR), "../static"),
   winslash = "/",
   mustWork = FALSE
 )
@@ -151,25 +151,6 @@ pre{
 knitr::opts_chunk$set(echo = TRUE, error = TRUE)
 ```
 
-# {.tabset .tabset-fade .tabset-pills}
-
-```{=html}
-<div class="row">
-  <div style="float:right">
-  <select id="themechoice"
-          class="form-select form-select-sm"
-          style="width: auto;"
-          onchange="update_theme_Rmd(this.value)"
-          aria-label="Switch theme">
-    <option selected disabled value="">Switch theme</option>
-    <option disabled value="DefaultTheme">Default</option>
-    <option value="CoralTheme">Coral</option>
-    <option value="GoldTheme">Gold</option>
-    <option value="SteelTheme">Steel</option>
-  </select>
-  </div>
-</div>
-```
 
 
 ```{r import, message=FALSE, warning=FALSE}
@@ -219,8 +200,29 @@ facet <- paste('facet_wrap(~', params$varExp,', scales = "free_x", nrow = 1)')
 
 ```
 
+# {.tabset .tabset-fade .tabset-pills}
+
+```{=html}
+<div class="row">
+  <div style="float:right">
+  <select id="themechoice"
+          class="form-select form-select-sm"
+          style="width: auto;"
+          onchange="update_theme_Rmd(this.value)"
+          aria-label="Switch theme">
+    <option selected disabled value="">Switch theme</option>
+    <option disabled value="DefaultTheme">Default</option>
+    <option value="CoralTheme">Coral</option>
+    <option value="GoldTheme">Gold</option>
+    <option value="SteelTheme">Steel</option>
+  </select>
+  </div>
+</div>
+```
+
+
 ## Bar plot
-```{r bar_plot, fig.width=10, fig.height=8}
+```{r bar_plot, fig.width=15, fig.height=8}
 p <- plot_bar(data,fill= rank_names(data)[2]) + eval(parse(text = facet)) + 
         ggtitle(paste("Bar plot colored by", rank_names(data)[2])) + 
         theme(plot.title = element_text(hjust = 0.5))
@@ -228,7 +230,7 @@ plot(p)
 ```
 
 ## Composition plot
-```{r composion_plot, fig.width=10, fig.height=8, warning=FALSE}
+```{r composion_plot, fig.width=15, fig.height=8, warning=FALSE}
 taxaSet1 <- unlist(strsplit(params$taxaSet1, " "))
 p        <- plot_composition(data, params$taxaRank1, taxaSet1, params$taxaRank2, params$numberOfTaxa, fill=params$taxaRank2) 
 p        <- p + eval(parse(text = facet)) + theme(plot.title = element_text(hjust = 0.5))
