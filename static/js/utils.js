@@ -131,7 +131,10 @@ var table = function(pTitle, pCategories, pData, footer = undefined) {
         var table_body_row = "";
         for (var category_idx = 0; category_idx < pCategories.length; category_idx++) {
             if (typeof pData[data_idx][category_idx] === "number") {
-                table_body_row += "      <td>" + numberDisplay(pData[data_idx][category_idx]) + "</td>\n";
+                table_body_row +=
+                    "<td data-value='" + pData[data_idx][category_idx] + "'>" +
+                    numberDisplay(pData[data_idx][category_idx]) +
+                    "</td>\n";
             } else {
                 table_body_row += "      <td>" + pData[data_idx][category_idx] + "</td>\n";
             }
