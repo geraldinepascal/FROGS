@@ -20,8 +20,10 @@ paletteColors10 = {
 	"DefaultTheme": ['#03A5A8','#8fc63e','#B85C3A', '#2F6F7E', '#5B8E3B', '#9C4F2E', '#6B4C7A', '#1F4E3D', '#C26A7A', '#B08A2E', '#4E5D63', '#7A6A4F', '#3F6B5F', '#8B5D7C', '#5C5A3A'],
 	//"SteelTheme" : ['#265763','#65c1bf','#D88C3A','#BEDAC4','#412722','#DAB6C2','#58C1C4','#A1B56B','#C7A7B7','#E3DCCF'],
 	"SteelTheme" : ['#265763','#65c1bf','#D88C3A',   '#3E4F6A', '#4F7F78', '#8C5A2B', '#6A4E73', '#2E5F4A', '#B75C6E', '#A8922E', '#5E6266', '#7C6A4E', '#3F6C74', '#8A6A7C', '#6B6A3E'],
-	"CoralTheme": ['#00A3A6','#ed6d6c','#1F3A44','#737F75','#7A8FA3','#D7B377','#A7C7A1','#A79BAE','#A0705A','#92B7C9'],
-	"GoldTheme": ['#ed6d6c','#f9b136','#4C8F9C','#a2a32f','#7398A6','#D7A5B3','#6B8E3A','#CFA96E','#7E6FA8','#E3C9B2']
+	//"CoralTheme": ['#00A3A6','#ed6d6c','#1F3A44','#737F75','#7A8FA3','#D7B377','#A7C7A1','#A79BAE','#A0705A','#92B7C9'],
+	"CoralTheme": ['#00A3A6','#ed6d6c','#1F3A44','#2F6F7A', '#7A8F3A', '#9C4B3C', '#6A4F7A', '#2E5E4F', '#B85E73', '#B49A32', '#5A5F63', '#7A6B4A', '#3F6F6A', '#8A5E6E', '#5C5A3F'],
+	//"GoldTheme": ['#ed6d6c','#f9b136','#4C8F9C','#a2a32f','#7398A6','#D7A5B3','#6B8E3A','#CFA96E','#7E6FA8','#E3C9B2']
+	"GoldTheme": ['#ed6d6c','#f9b136','#4C8F9C','#7E3F1D', '#C97F2A', '#8A9B3F', '#3B7A6A', '#1E4F6A', '#6E5B8C', '#A14C64', '#BFA65A', '#5C4632', '#7F8C92', '#4E6B3F', '#9C6B3D']
 }
 
 FROGSlogos = {
