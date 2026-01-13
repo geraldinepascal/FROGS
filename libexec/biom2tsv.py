@@ -53,7 +53,6 @@ def uniq( metadata_list, evaluated_tag, ambiguity_value ):
 
 def observation_line_parts( observation, count_by_sample, fields, list_separator ):
     no_data_str = "no data"
-    print(observation)
     line = list()
     for current_field in fields:
         if current_field == '@observation_name':
