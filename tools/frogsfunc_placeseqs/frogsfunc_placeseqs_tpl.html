@@ -2,731 +2,44 @@
 
 <html>
 	<head>
-		<title>FrogsFunc place seqs</title>
 		<meta charset="UTF-8" />
-		<meta name="author" content="Moussa Samb - GENPHYSE & Vincent Darbot - GENPHYSE & Geraldine Pascal - GENPHYSE" />
-        <meta name="version" content="5.0.0" />
-        <meta name="copyright" content="Copyright (C) 2024 INRAE" />
-		<!-- CSS -->
-		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.1.1/css/bootstrap.css"></link>
-		<link rel="stylesheet" href="https://cdn.datatables.net/1.10.19/css/dataTables.bootstrap4.min.css"></link>
-		<link rel="stylesheet" href="https://cdn.datatables.net/searchpanes/1.4.0/css/searchPanes.dataTables.min.css"></link>
+		<meta name="author" content="Frederic Escudie - Genotoul/MIAT & Maria Bernard - SIGENAE/GABI & Olivier Rué - Migale/MaIAGE" />
+        <meta name="version" content="5.1.0" />
+        <meta name="copyright" content="Copyright (C) 2025 INRAE" />
+		<!-- JQUERY -->
+		<script type="text/javascript" src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+		<!-- ECHARTS -->
+		<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/echarts@6.0.0/dist/echarts.min.js"></script>
+		<!-- Bootstrap -->
+		<link rel="stylesheet" href="https://cdn.datatables.net/1.10.21/css/dataTables.bootstrap4.min.css">
+		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-table@1.22.6/dist/bootstrap-table.min.css">
+		<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+		<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+		<script src="https://cdn.jsdelivr.net/npm/bootstrap-table@1.22.6/dist/bootstrap-table.min.js"></script>
+		<!-- Extensions Export -->
+		<script src="https://cdn.jsdelivr.net/npm/tableexport.jquery.plugin@1.28.0/tableExport.min.js"></script>
+		<script src="https://cdn.jsdelivr.net/npm/bootstrap-table@1.22.6/dist/extensions/export/bootstrap-table-export.min.js"></script>
+		<!-- Font Awesome -->
 		<link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
-		<link href="https://cdn.datatables.net/select/1.3.3/css/select.dataTables.min.css" rel="stylesheet">
-		<style type="text/css">
-			/*:root {
-				--frogsColor: #694F5D; 
-				--frogsColorHover: #87727d;
-				--frogsColorShadow: #6c5b64;
-				--frogsColor2: #BFD3C1;
-				--frogsColor3: #EFC7C2;
-				--frogsColorZoomHighCharts: rgb(222,159,115,0.25);
-			}
-			h2{
-				color: var(--frogsColor);
-			}
-			.frogsversion{
-				position: absolute;
-				right: 5%;
-				color: var(--frogsColor);
-				font-style: italic;
-				font-size: smaller;
-			}
-			.frogsversion > a{
-				border: none !important;
-			}
-			#js-alert {
-				width: 90%;
-				margin-right: auto;
-				margin-left: auto;
-			}
-			#content {
-				width: 90%;
-				margin-right: auto;
-				margin-left: auto;
-			}
-			.clear {
-				clear: both;
-				height: 0px;
-				width: 100%;
-				float: none !important;
-			}
-			.page-item.active .page-link {
-				z-index: 1;
-				color: #fff;
-				background-color: var(--frogsColor);
-				border-color: var(--frogsColor);
-			}
-			.btn {
-				color: #fff;
-				border: var(--frogsColor);
-				background-color: var(--frogsColor);
-			}
-			.btn:focus, .btn:active {
-				outline: none !important;
-				box-shadow: none !important;
-			}
-			.btn:hover{
-				color: #fff;
-				border: var(--frogsColorHover);
-				background-color: var(--frogsColorHover);
-			}
-			.pb-2, .py-2 {
-				padding-bottom: 1.5rem !important;
-				margin-bottom: 2rem !important;
-				margin-top: 4rem !important;
-			}
-			.pb-2-first{
-				padding-bottom: 1.5rem !important;
-				margin-bottom: 2rem !important;
-				margin-top: 1rem !important;
-			}
-			.nav-tabs .nav-link.active, .nav-tabs .nav-item.show .nav-link{
-				color: #fff;
-				background-color: var(--frogsColor);
-				border-color: #dee2e6 #dee2e6 #fff;
-			}
-			a {
-				color: var(--frogsColor);
-			}
-			a:hover{
-				color: var(--frogsColorHover);
-			}
-			.page-link{
-				color: var(--frogsColorButton);
-			}
-			.page-item.active .page-link {
-				color: #fff;
-			}
-			.highcharts-button > path{
-				stroke:#fff !important;
-				fill: var(--frogsColor) !important;
-			}
-			g.highcharts-button{
-				cursor:pointer !important;
-			}
-			g.highcharts-button:hover{
-				color: #fff;
-				border: var(--frogsColorHover);
-				background-color: var(--frogsColorHover);
-				background-color: var(--frogsColorHover);
-				cursor:pointer !important;
-			}
-			tbody > tr.selected, table.dataTable tbody > tr > .selected {
-				background-color: var(--frogsColor) !important;
-			}
-			*/
-			:root {
-				--frogsColor: #388697; 
-				--frogsColorHover: rgb(12,10,62,0.8);
-				--frogsColorShadow: #6c5b64;
-				--frogsColor2: #FA8883;
-				--frogsColor3: #EFC7C2;
-				--frogsColor4: #737f75;
-				--frogsColorZoomHighCharts: rgb(191,211,193,0.25);
-				--frogsButtonColor: rgb(12,10,62,0.6);
-				--frogsButtonBorderColor: rgb(12,10,62,0.6);
-				--frogsOddTable: rgba(249,86,79, 0.1);
-				--frogsCircleFontColor: #FFF;
-				--frogsCircleBackgroundColor: #FA8883;
-				--frogsCircleBorderColor: #FA8883;
-			}
-			/* Tables */
-			.table-striped tbody tr:nth-of-type(2n+1) {
-			  background-color: var(--frogsOddTable);
-			}
-			.container {
-				position: relative;
-				padding-left: 35px;
-				margin-bottom: 15px;
-				cursor: pointer;
-				-webkit-user-select: none;
-				-moz-user-select: none;
-				-ms-user-select: none;
-				user-select: none;
-			}
-			.container input {
-				position: absolute;
-				opacity: 0;
-				cursor: pointer;
-			}
-			.page-link{
-				color: var(--frogsColor);
-			}
-			.page-link:hover{
-				color: var(--frogsColorHover);
-			}
-			
-			/* Titles */
-			h2{
-				color: var(--frogsColor);
-			}
-			.pb-2, .py-2 {
-				padding-bottom: 1.5rem !important;
-				margin-bottom: 2rem !important;
-				margin-top: 4rem !important;
-			}
-			.pb-2-first{
-				padding-bottom: 1.5rem !important;
-				margin-bottom: 2rem !important;
-				margin-top: 1rem !important;
-			}
-			
-			/* Header */
-			.frogsversion{
-				position: absolute;
-				right: 5%;
-				color: var(--frogsColor);
-				font-style: italic;
-				font-size: smaller;
-				padding:8px;
-			}
-			.frogsversion > a{
-				border: none !important;
-				display: inline-block;
-			}
-			ul.nav-tabs {
-				margin-bottom: 30px;
-			}
-			.nav-tabs .nav-link.active, .nav-tabs .nav-item.show .nav-link{
-				color: #fff;
-				background-color: var(--frogsColor);
-				border-color: #dee2e6 #dee2e6 #fff;
-			}
-			
-			/* Buttons */
-			.btn {
-				color: #fff;
-				border:  var(--frogsButtonBorderColor);
-				background-color: var(--frogsButtonColor);
-			}
-			.btn:focus, .btn:active {
-				outline: none !important;
-				box-shadow: none !important;
-			}
-			.btn:hover:enabled{
-				color: #fff;
-				border: var(--frogsButtonBorderColor);
-				background-color: var(--frogsColorHover);
-				cursor:pointer !important;
-			}
-			.heatmap-button-container {
-				width: 200px;
-				margin-left: auto;
-				margin-right: auto;
-			}
-			
-			/* Global */
-			#dispersion {
-                 margin: auto;
-			}
-			#twofigs{
-                 height: 600px;
-			}
-			#content {
-                width: 90%;
-                margin-right: auto;
-                margin-left: auto;
-            }
-            #js-alert {
-                width: 90%;
-                margin-right: auto;
-                margin-left: auto;
-            }
-            a {
-				color: var(--frogsColor);
-			}
-			a:hover{
-				color: var(--frogsColorHover);
-			}
-			.page-item.active .page-link {
-				z-index: 1;
-				color: #fff;
-				background-color: var(--frogsButtonColor);
-				border-color: var(--frogsButtonColor);
-				outline: none !important;
-				box-shadow: none !important;
-			}
-			
-			/* Checkmarks in tables */
-			.checkmark {
-				position: absolute;
-				top: 0;
-				left: 0;
-				height: 20px;
-				width: 20px;
-				background-color: var(--frogsButtonColor);
-				border-radius: 5px;
-				opacity:0.65;
-			}
-			.container:hover input ~ .checkmark {
-				background-color: var(--frogsColorHover);
-			}
-			.checkmark:after {
-				content: "";
-				position: absolute;
-				display: none;
-			}
-			.container input:checked ~ .checkmark:after {
-				display: block;
-			}
-			.container .checkmark:after {
-				left: 7px;
-				top: 3px;
-				width: 6px;
-				height: 10px;
-				border: solid white;
-				border-width: 0 3px 3px 0;
-				-webkit-transform: rotate(45deg);
-				-ms-transform: rotate(45deg);
-				transform: rotate(45deg);
-			}
-			
-			/* Highcharts buttons */
-			.highcharts-button > path{
-				stroke:#fff !important;
-				fill: var(--frogsButtonColor) !important;
-			}
-			g.highcharts-button{
-				cursor:pointer !important;
-			}
-			g.highcharts-button:hover{
-				color: #fff;
-				border: var(--frogsColorHover);
-				background-color: var(--frogsColorHover);
-				cursor:pointer !important;
-			}
-			.highcharts-button > path{
-				stroke:#fff !important;
-				fill: var(--frogsColor) !important;
-			}
-			g.highcharts-button{
-				cursor:pointer !important;
-			}
-			g.highcharts-button:hover{
-				color: #fff;
-				border: var(--frogsColorHover);
-				background-color: var(--frogsColorHover);
-				background-color: var(--frogsColorHover);
-				cursor:pointer !important;
-			}
-			
-			/* Circles */
-			.circle {
-				border-style: solid;
-				border-width: 3px;
-				border-radius: 50px;
-				box-shadow: 2px 2px 2px var(--frogsColorShadow);
-				border-color: var(--frogsCircleBorderColor);
-				background: var(--frogsCircleBackgroundColor);
-				color: var(--frogsCircleFontColor);
-				padding: 10px;
-				width: 180px;
-				height: 98px;
-				line-height: 30px;
-				text-align: center;
-				margin-left: auto;
-				margin-right: auto;
-				margin-bottom: 10px;
-				vertical-align: middle;
-			}
-			.circle-value {
-				font-weight: bold;
-			}
-			
-			/* Venn */
-			#venn-filters {
-				padding: 10px;
-				background-color: #FFF;
-				background-clip: padding-box;
-				border: 1px solid rgba(0, 0, 0, 0.15);
-				border-radius: 4px;
-				box-shadow: 0px 6px 12px rgba(0, 0, 0, 0.176);
-				margin-right: auto;
-				margin-left: auto;
-				margin-bottom: 30px;
-			}
-			#byFilters-jvenn {
-				margin-right: auto;
-				margin-left: auto;
-			}
-			#venn-filters ul {
-				list-style-type: none;
-			}
-			
-			/* Sunburst */
-			#sunburst-detail table {
-				margin-left: auto;
-				margin-right: auto;
-			}	
-			#sunburst-detail p {
-				text-align: center;
-			}
-			#sunburst-menu input {
-				margin-right: 10px;
-			}
-			#display-global-sunburst {
-				margin-bottom: 40px;
-			}
-			
-			div.dtsp-panesContainer div.dtsp-searchPanes div.dtsp-searchPane div.dtsp-selected {
-				border: 2px solid #e1e5e8;
-			}
-						.highcharts-figure,
-			.highcharts-data-table table {
-				min-width: 360px;
-				max-width: 800px;
-				margin: 1em auto;
-			}
-
-			.highcharts-data-table table {
-				font-family: Verdana, sans-serif;
-				border-collapse: collapse;
-				border: 1px solid #ebebeb;
-				margin: 10px auto;
-				text-align: center;
-				width: 100%;
-				max-width: 500px;
-			}
-
-			.highcharts-data-table caption {
-				padding: 1em 0;
-				font-size: 1.2em;
-				color: var(--frogsColorShadow);
-			}
-
-			.highcharts-data-table th {
-				font-weight: 600;
-				padding: 0.5em;
-			}
-
-			.highcharts-data-table td,
-			.highcharts-data-table th,
-			.highcharts-data-table caption {
-				padding: 0.5em;
-			}
-
-			.highcharts-data-table thead tr,
-			.highcharts-data-table tr:nth-child(even) {
-				background: #f8f8f8;
-			}
-
-			.highcharts-data-table tr:hover {
-				background: #f1f7ff;
-			}
-		</style>
-		<!-- JS -->
-		<script type="text/javascript" src="https://code.jquery.com/jquery-2.1.3.min.js"></script>
-		<script type="text/javascript" src="https://code.highcharts.com/8.2.0/highcharts.js"></script>
-		<script type="text/javascript" src="https://code.highcharts.com/8.2.0/modules/exporting.js"></script>
-		<script type="text/javascript" src="https://code.highcharts.com/modules/export-data.js"></script>
-		<!--<script type="text/javascript" src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
-		<script type="text/javascript" src="https://cdn.datatables.net/1.10.19/js/dataTables.bootstrap4.min.js"></script>
-		<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js" integrity="sha384-smHYKdLADwkXOn1EmN1qk/HfnUcbVRZyYmZ4qpPea6sjB/pTJ0euyQp0Mk8ck+5T" crossorigin="anonymous"></script>-->
 		
-		<script type="text/javascript" src="https://cdn.datatables.net/1.11.3/js/jquery.dataTables.min.js"></script>
-		<script type="text/javascript" src="https://cdn.datatables.net/searchpanes/1.4.0/js/dataTables.searchPanes.min.js"></script>
-		<script type="text/javascript" src="https://cdn.datatables.net/select/1.3.3/js/dataTables.select.min.js"></script>
+		###IMPORT_CSS###
+		
+		###IMPORT_JS_UTILS###
+
+		###IMPORT_JS_THEME###
+
 		<script type="text/javascript">
-			/*
-			 * HTMLTable.js 0.1.0 - HTMLTable Library
-			 *
-			 * Copyright (c) 2015 Escudie Frederic
-			 * Licensed under the MIT (http://www.opensource.org/licenses/mit-license.php) license.
-			 */
-			function HTMLtable(e){var t,r,n=e,a=";";this.deleteColumns=function(e){for(var a=n.getElementsByTagName("tr"),o=0;o<a.length;o++){s=0;var i=a[o].getElementsByTagName("td");0==i.length&&(i=a[o].getElementsByTagName("th"));for(var v=0,s=0;s<t[1];s++)if(!r[o][s]){var f=i[v].getAttribute("colspan");if(null!=f)for(var m=0;f>m;m++){if(in_array(s+m,e)){var u=i[v].getAttribute("colspan");u-1==0?i[v].removeAttribute("colspan"):i[v].setAttribute("colspan",u-1)}if(null==i[v].getAttribute("colspan")){var h=i[v];a[o].removeChild(h),v--}}else if(in_array(s,e)){var h=i[v];a[o].removeChild(h),v--}v++}}l(),g()},this.filter=function(e,a){var l=new RegExp(e),g=new Array;null!=a&&a||(g.c0=!0);for(var o=n.getElementsByTagName("tr"),i=0;i<o.length;i++){f=0;var v=o[i].getElementsByTagName("td");if(0!=v.length)for(var s=0,f=0;f<t[1];f++)r[i][f]||(l.test(v[s].innerHTML)&&(g["c"+f]=!0),s++)}for(var m=new Array,u=0;u<t[1];u++)void 0===g["c"+u]&&m.push(u);this.deleteColumns(m)},this.getModel=function(){return n};var l=function(){for(var e=0,r=0,a=n.getElementsByTagName("tr"),l=0;l<a.length;l++){var g=0;e++;var o=a[l].getElementsByTagName("td");0==o.length&&(o=a[l].getElementsByTagName("th"));for(var i=0;i<o.length;i++){var v=o[i].getAttribute("colspan");g+=null==v?1:parseInt(v)}g>r&&(r=g)}t=new Array(2),t[0]=e,t[1]=r},g=function(){r=new Array(t[0]);for(var e=0;e<t[0];e++){r[e]=new Array(t[1]);for(var a=0;a<t[1];a++)r[e][a]=!1}for(var l=n.getElementsByTagName("tr"),g=0;g<l.length;g++){v=0;var o=l[g].getElementsByTagName("td");0==o.length&&(o=l[g].getElementsByTagName("th"));for(var i=0,v=0;v<t[1];v++)if(!r[g][v]){var s=0,f=0,m=o[i].getAttribute("rowspan");null!=m&&(s=parseInt(m)-1);var u=o[i].getAttribute("colspan");null!=u&&(f=parseInt(u)-1);for(var h=s;h>=0;h--)for(var y=f;y>=0;y--)(0!=h||0!=y)&&(r[g+h][v+y]=!0);i++}}};this.replace=function(e,a,l){var g=new RegExp(e);null==a&&(a=""),null==l&&(l="");for(var o=n.getElementsByTagName("tr"),i=0;i<o.length;i++){f=0;var v=o[i].getElementsByTagName("td");if(0!=v.length)for(var s=0,f=0;f<t[1];f++)if(!r[i][f]){var m=g.exec(v[s].innerHTML);null!=m&&(void 0===m[1]&&(m[1]=""),v[s].innerHTML=a+m[1]+l),s++}}},this.toCSV=function(){for(var e="",l=n.getElementsByTagName("tr"),g=0;g<l.length;g++){var o=l[g].getElementsByTagName("td");0==o.length&&(o=l[g].getElementsByTagName("th"));for(var i=0,v=0;v<t[1];v++)r[g][v]||(e+=o[i].innerHTML,i++),e+=a;e=e.substr(0,e.length-1)+"\n"}return e},l(),g()}var in_array=function(e,t){for(var r in t)if(t[r]==e)return!0;return!1};
 			
-			/*
-			 * dataTableExtractor.plugin.js 0.1.0 - datatableExport Library
-			 *
-			 * Copyright (c) 2015 Escudie Frederic
-			 * Licensed under the MIT (http://www.opensource.org/licenses/mit-license.php) license.
-			 */
-			!function(t){t.fn.datatableExport=function(a){var e={anchor_id:t(this).attr("id"),table_id:null,csv_separator:";",omitted_columns:[]},n=t.extend(e,a);if(!t(this).length)throw"The element where the datatableExport is called does not exist.";if(void 0==n.anchor_id)throw"The datatableExport plugin must be called on an element with id.";if(null==n.table_id)throw"You must set the table_id parameter in datatableExport plugin.";if(!t("#"+n.table_id))throw"The datatable '#"+n.table_id+"' cannot be retieve in DOM.";return this.each(function(){var a=t(this);a.on("click",function(){t.fn.datatableExport.csv(n.anchor_id,n.table_id,n.csv_separator,n.omitted_columns)})})},t.fn.datatableExport.cleanCellMarkup=function(a,e){t.parseHTML(e);t("#"+a).append('<div class="hidden data-tmp">'+e+"</div>"),t("#"+a+" .data-tmp").find("input").each(function(){var a="";a=t(this).is(":checkbox")?t(this).is(":checked")?"true":"false":t(this).val(),t(this).replaceWith(a)});var n=t("#"+a+" .data-tmp").text();return t("#"+a+" .data-tmp").remove(),n},t.fn.datatableExport.csv=function(a,e,n,i){var l="",r=t("#"+e).DataTable(),d=t("#"+e+" thead")[0],o=new HTMLtable(d.cloneNode(!0));o.deleteColumns(i),l+=o.toCSV();var c=r.rows().data();t.each(c,function(e,n){for(var r="",d=0;d<n.length;d++)-1==t.inArray(d,i)&&(r+='"'+t.fn.datatableExport.cleanCellMarkup(a,n[d])+'";');""!=r&&(r=r.slice(0,-1)),l+=r+"\n"}),t("#"+a+"-extract-csv").length||t("#"+a).append('<a id="'+a+'-extract-csv" href="data:text/csv;charset=UTF-8,'+encodeURI(l)+'" download="data.csv" style="display:none;"></a>'),t("#"+a+"-extract-csv")[0].click()}}(jQuery);
-		</script>
-		<script type="text/javascript">
-			/**
-			Colors
-			*/
-			var root = document.documentElement;
-			var style = getComputedStyle(root);
-			var frogsColor = style.getPropertyValue('--frogsColor');
-			var frogsColor2 = style.getPropertyValue('--frogsColor2');
-			var frogsColor3 = style.getPropertyValue('--frogsColor3');
-			var frogsColor4 = style.getPropertyValue('--frogsColor4');
-			var frogsColorZoomHighCharts = style.getPropertyValue('--frogsColorZoomHighCharts');
-			var frogsColorHover = style.getPropertyValue('--frogsColorHover');
-			var frogsButtonColor = style.getPropertyValue('--frogsButtonColor');
-			var frogsCircleFontColor = style.getPropertyValue('--frogsCircleFontColor');
-				
-			Highcharts.setOptions({
-					 //colors : [frogsColor2, frogsColor],
-					 colors: [
-							"#769576", // Vert clair
-							"#D9A6A6", // Rose pâle
-							"#C0C099", // Jaune pâle
-							"#567330", // Vert olive
-							"#B0B061", // Jaune clair
-							"#94A1B2", // Bleu clair
-							"#B04D4D", // Rouge clair
-							"#E6A320", // Or
-							"#E67A5A", // Saumon clair
-							"#819CA5"  // Bleu clair
-						],
-					 lang: {thousandsSep: ','}
-					});
+			var pieChart_Clusters;
+			var pieChart_Abundance;
+			var lineNSTIChart;
+			var pieChart_Clusters_options;
+			var pieChart_Abundance_options;
+			var lineNSTIChart_options;
+			var scatterChart;
+			var scatterChart_options;
+		
 			
-			function update_pie_plots(mainColor, secondColor, buttonColor, buttonColorHover){
-				try{
-					var chart = $('#abundance-filtered').highcharts();
-					chart.update({'colors':[mainColor,secondColor]});
-					chart.update({navigation:{
-						buttonOptions: {
-								theme: {
-									r: 4,
-									fill: buttonColor,
-									states: {
-										hover: {
-											fill: buttonColorHover,
-											stroke:buttonColor
-										},
-										select: {
-											stroke: buttonColor,
-											fill: buttonColorHover,
-										}
-									}
-								}
-							}
-						}
-					});
-					var chart = $('#nb-filtered').highcharts();
-					chart.update({'colors':[mainColor,secondColor]});
-					chart.update({navigation:{
-						buttonOptions: {
-								theme: {
-									r: 4,
-									fill: buttonColor,
-									states: {
-										hover: {
-											fill: buttonColorHover,
-											stroke:buttonColor
-										},
-										select: {
-											stroke: buttonColor,
-											fill: buttonColorHover,
-										}
-									}
-								}
-							}
-						}
-					});
-				} catch(err){}
-			}
-			
-			function update_scatter(mainColor, secondColor, buttonColor, buttonColorHover){
-				try{
-					var chart = $('#container_scatter').highcharts();
-					chart.series[0].update({'color':mainColor});
-					chart.series[1].update({'color':secondColor});
-					chart.update({navigation:{
-						buttonOptions: {
-								theme: {
-									r: 4,
-									fill: buttonColor,
-									states: {
-										hover: {
-											fill: buttonColorHover,
-											stroke:buttonColor
-										},
-										select: {
-											stroke: buttonColor,
-											fill: buttonColorHover,
-										}
-									}
-								}
-							}
-					}
-				});
-				} catch(err){}
-			}
-			
-			function update_lineplot(mainColor, secondColor, buttonColor, buttonColorHover){
-				try{
-					var chart = $('#sequence-distrib').highcharts();
-					chart.series[0].update({'color':mainColor});
-					chart.series[1].update({'color':secondColor});
-					chart.yAxis[0].update({'title':{'style':{'color':mainColor}}});
-					chart.yAxis[1].update({'title':{'style':{'color':secondColor}}});
-					chart.update({navigation:{
-						buttonOptions: {
-								theme: {
-									r: 4,
-									fill: buttonColor,
-									states: {
-										hover: {
-											fill: buttonColorHover,
-											stroke:buttonColor
-										},
-										select: {
-											stroke: buttonColor,
-											fill: buttonColorHover,
-										}
-									}
-								}
-							}
-						}
-					});
-				} catch(err){}
-			}
-			
-			function update_circles(lightColor, darkColor){
-				$(".circle").css("background","radial-gradient("+lightColor+", "+darkColor+")");
-			}
-			
-			function update_theme(val){
-				if(val == "Coral" ){
-					/*
-					:root {
-						--frogsColor: #388697; 
-						--frogsColorHover: rgb(12,10,62,0.8);
-						--frogsColorShadow: #6c5b64;
-						--frogsColor2: #FA8883;
-						--frogsColor3: #EFC7C2;
-						--frogsColor4: #737f75;
-						--frogsColorZoomHighCharts: rgb(191,211,193,0.25);
-						--frogsButtonColor: rgb(105,79,93,0.6);
-						--frogsButtonBorderColor: rgb(12,10,62,0.6);
-						--frogsOddTable: rgba(249,86,79, 0.1);
-						--frogsCircleFontColor: #FFF;
-						--frogsCircleBackgroundColor: #FA8883;
-						--frogsCircleBorderColor: #FA8883;
-					}
-					*/
-					document.documentElement.style.setProperty('--frogsColor', "#388697");
-					document.documentElement.style.setProperty('--frogsColorHover', "rgb(12,10,62,0.8)");
-					document.documentElement.style.setProperty('--frogsColorShadow', "#6c5b64");
-					document.documentElement.style.setProperty('--frogsColor2', "#FA8883");
-					document.documentElement.style.setProperty('--frogsColor3', "#EFC7C2");
-					document.documentElement.style.setProperty('--frogsColor4', "#737f75");
-					document.documentElement.style.setProperty('--frogsColorZoomHighCharts', "rgb(191,211,193,0.25)");
-					document.documentElement.style.setProperty('--frogsButtonColor', "rgb(12,10,62,0.6)");
-					document.documentElement.style.setProperty('--frogsButtonBorderColor', "rgb(12,10,62,0.8)");
-					document.documentElement.style.setProperty('--frogsOddTable', "rgba(249,86,79, 0.1)");
-					document.documentElement.style.setProperty('--frogsCircleFontColor', "#FFF");
-					document.documentElement.style.setProperty('--frogsCircleBackgroundColor',"#FA8883");
-					document.documentElement.style.setProperty('--frogsCircleBorderColor',"#FA8883");
-					
-					var root = document.documentElement;
-					var style = getComputedStyle(root);
-					var frogsColor = style.getPropertyValue('--frogsColor');
-					var frogsColor2 = style.getPropertyValue('--frogsColor2');
-					var frogsColor3 = style.getPropertyValue('--frogsColor3');
-					var frogsColor4 = style.getPropertyValue('--frogsColor4');
-					var frogsColorZoomHighCharts = style.getPropertyValue('--frogsColorZoomHighCharts');
-					var frogsColorHover = style.getPropertyValue('--frogsColorHover');
-					var frogsButtonColor = style.getPropertyValue('--frogsButtonColor');
-					var frogsCircleFontColor = style.getPropertyValue('--frogsCircleFontColor');
-					var frogsColorShadow = style.getPropertyValue('--frogsColorShadow');
-					
-					update_scatter(frogsColor, frogsColor2, frogsButtonColor, frogsColorHover);
-					update_pie_plots(frogsColor2, frogsColor, frogsButtonColor, frogsColorHover);
-					update_lineplot(frogsColor, frogsColor2, frogsButtonColor, frogsColorHover);
-					
-				}else if(val == "Plum" ){
-					/*
-					:root {
-						--frogsColor: #694F5D; 
-						--frogsColorHover: rgb(105,79,93,0.8);
-						--frogsColorShadow: #6c5b64;
-						--frogsColor2: #BFD3C1;
-						--frogsColor3: #EFC7C2;
-						--frogsColor4: #737f75;
-						--frogsColorZoomHighCharts: rgb(222,159,115,0.25);
-						--frogsButtonColor: rgb(105,79,93,0.6);
-						--frogsButtonBorderColor: rgb(105,79,93,0.8);
-						--frogsOddTable: #f2f2f2;
-						--frogsCircleFontColor: #694F5D;
-						--frogsCircleBackgroundColor: #BFD3C1;
-						--frogsCircleBorderColor: #BFD3C1;
-					}*/
-					document.documentElement.style.setProperty('--frogsColor', "#694F5D");
-					document.documentElement.style.setProperty('--frogsColorHover', "rgb(105,79,93,0.8)");
-					document.documentElement.style.setProperty('--frogsColorShadow', "#6c5b64");
-					document.documentElement.style.setProperty('--frogsColor2', "#BFD3C1");
-					document.documentElement.style.setProperty('--frogsColor3', "#EFC7C2");
-					document.documentElement.style.setProperty('--frogsColor4', "#737f75");
-					document.documentElement.style.setProperty('--frogsColorZoomHighCharts', "rgb(222,159,115,0.25)");
-					document.documentElement.style.setProperty('--frogsButtonColor', "rgb(105,79,93,0.6)");
-					document.documentElement.style.setProperty('--frogsButtonBorderColor', "rgb(105,79,93,0.8)");
-					document.documentElement.style.setProperty('--frogsOddTable', "#f2f2f2");
-					document.documentElement.style.setProperty('--frogsCircleFontColor', "#694F5D");
-					document.documentElement.style.setProperty('--frogsCircleBackgroundColor',"#BFD3C1");
-					document.documentElement.style.setProperty('--frogsCircleBorderColor',"#BFD3C1");
-					
-					var root = document.documentElement;
-					var style = getComputedStyle(root);
-					var frogsColor = style.getPropertyValue('--frogsColor');
-					var frogsColor2 = style.getPropertyValue('--frogsColor2');
-					var frogsColor3 = style.getPropertyValue('--frogsColor3');
-					var frogsColor4 = style.getPropertyValue('--frogsColor4');
-					var frogsColorZoomHighCharts = style.getPropertyValue('--frogsColorZoomHighCharts');
-					var frogsColorHover = style.getPropertyValue('--frogsColorHover');
-					var frogsButtonColor = style.getPropertyValue('--frogsButtonColor');
-					var frogsCircleFontColor = style.getPropertyValue('--frogsCircleFontColor');
-					var frogsColorShadow = style.getPropertyValue('--frogsColorShadow');
-					
-					update_scatter(frogsColor, frogsColor2, frogsButtonColor, frogsColorHover);
-					update_pie_plots(frogsColor2, frogsColor, frogsButtonColor, frogsColorHover);
-					update_lineplot(frogsColor, frogsColor2, frogsButtonColor, frogsColorHover);
-					
-				}else if(val == "FROGS4" ){
-					/*
-					:root {
-						--frogsColor: #8eadac; 
-						--frogsColorHover: #648a89;
-						--frogsColorShadow: #648a89;
-						--frogsColor2: #de9f73;
-						--frogsColor3: #ad8e9f;
-						--frogsColor4: #a2a32f;
-						--frogsColorZoomHighCharts: rgb(100, 138, 137, 0.25);
-						--frogsButtonColor: #8EADAC;
-						--frogsButtonBorderColor: #8EADAC;
-						--frogsOddTable: #f2f2f2;
-						--frogsCircleFontColor: #FFF;
-						--frogsCircleBackgroundColor: #8eadac;
-						--frogsCircleBorderColor: #648a89;
-					}*/
-					document.documentElement.style.setProperty('--frogsColor', "#8eadac");
-					document.documentElement.style.setProperty('--frogsColorHover', "#648a89");
-					document.documentElement.style.setProperty('--frogsColorShadow', "#648a89");
-					document.documentElement.style.setProperty('--frogsColor2', "#de9f73");
-					document.documentElement.style.setProperty('--frogsColor3', "#ad8e9f");
-					document.documentElement.style.setProperty('--frogsColor4', "#a2a32f");
-					document.documentElement.style.setProperty('--frogsColorZoomHighCharts', "rgb(100, 138, 137, 0.25)");
-					document.documentElement.style.setProperty('--frogsButtonColor', "#8EADAC");
-					document.documentElement.style.setProperty('--frogsButtonBorderColor', "#8EADAC");
-					document.documentElement.style.setProperty('--frogsOddTable', "#f2f2f2");
-					document.documentElement.style.setProperty('--frogsCircleFontColor', "#FFF");
-					document.documentElement.style.setProperty('--frogsCircleBackgroundColor',"#8eadac");
-					document.documentElement.style.setProperty('--frogsCircleBorderColor',"#648a89");
-					
-					var root = document.documentElement;
-					var style = getComputedStyle(root);
-					var frogsColor = style.getPropertyValue('--frogsColor');
-					var frogsColor2 = style.getPropertyValue('--frogsColor2');
-					var frogsColor3 = style.getPropertyValue('--frogsColor3');
-					var frogsColor4 = style.getPropertyValue('--frogsColor4');
-					var frogsColorZoomHighCharts = style.getPropertyValue('--frogsColorZoomHighCharts');
-					var frogsColorHover = style.getPropertyValue('--frogsColorHover');
-					var frogsButtonColor = style.getPropertyValue('--frogsButtonColor');
-					var frogsCircleFontColor = style.getPropertyValue('--frogsCircleFontColor');
-					var frogsColorShadow = style.getPropertyValue('--frogsColorShadow');
-					
-					update_scatter(frogsColor, frogsColor2, frogsButtonColor, frogsColorHover);
-					update_pie_plots(frogsColor, frogsColor2, frogsButtonColor, frogsColorHover);
-					update_lineplot(frogsColor, frogsColor2, frogsButtonColor, frogsColorHover);
-				 }
-			}
 			/**
 			 Data from HTML
 			*/
@@ -735,234 +48,6 @@
 			var detection_categories = ###DETECTION_CATEGORIES### ;
 			var detection_series = ###DETECTION_DATA### ;
 			var remove_info = ###REMOVE_DATA### ;
-			/**
-			 * Returns the string representation of the number. 
-			 * @param pValue {Float} The number to process.
-			 * @return {String} The string representation (example: 12856892.11111 => 12,856,892.11).
-			 */
-		    var numberDisplay = function( pValue ){
-		    	var new_val = "" ;
-		    	if( ("" + pValue + "").indexOf(".") != -1 ){
-		    		new_val = pValue.toFixed(2).replace(/(\d)(?=(\d{3})+\b)/g, '$1,');
-		    	} else {
-		    		new_val = pValue.toFixed().replace(/(\d)(?=(\d{3})+\b)/g, '$1,');
-		    	}
-		        return new_val ;
-		    }
-		    
-			/**
-			 * Returns the HTML table representation of the data. 
-			 * @param pTitle {String} The title of the table.
-			 * @param pCategories {Array} The title of each column.
-			 * @param pData {Array} 2D matrix with row and column data.
-			 * @return {String} The HTML table representation.
-			 */
-			var table = function( pTitle, pCategories, pData  ) {
-				// Header
-				var table_header = '' ;
-				var table_header_line = "" ;
-				for(var idx = 0 ; idx < pCategories.length ; idx++){
-					table_header_line += "      <th>" + pCategories[idx] + "</th>\n" ;
-				}
-				table_header += "    <tr>\n" + table_header_line + "    </tr>\n" ;
-				table_header = "  <thead>\n" + table_header + "  </thead>\n" ;
-				
-				// Body
-				var table_body = '' ;
-				for(var data_idx = 0 ; data_idx < pData.length ; data_idx++){
-					var table_body_row = "" ;
-					for(var category_idx = 0 ; category_idx < pCategories.length ; category_idx++){
-						if( typeof pData[data_idx][category_idx] === "number" ) {
-							table_body_row += "      <td>" + numberDisplay(pData[data_idx][category_idx]) + "</td>\n" ;
-						} else {
-							table_body_row += "      <td>" + pData[data_idx][category_idx] + "</td>\n" ;
-						}
-					}
-					table_body += "    <tr>\n" + table_body_row + "    </tr>\n" ;
-				}
-				table_body = "  <tbody>\n" + table_body + "  </tbody>\n" ;
-
-				return '<table class="table table-striped table-bordered">\n' + table_header + table_body + "</table>\n" ;
-			}
-			 
-			 /**
-			  * Returns hash use to init HightChart object (without 'type'). 
-			  * @param pTitle {String} The title of the chart.
-			  * @param pXTitle {String} The xAxis title.
-			  * @param pYTitle {String} The yAxis title.
-			  * @param pXCategories {Array} The title of each category (x scale labels).
-			  * @param pData {Array} The HightChart series.
-			  * @return {Hash} The hash.
-			  * @warning This method use HightChart xAxis.categories.
-			  */
-			 var chartplot_pie = function( pTitle, pXTitle, pYTitle, pXCategories, pData ) {
-			 	var chart = {
-			 	        title: {
-			 	            text: pTitle
-			 	        },
-			 	        xAxis: {},
-			 	        yAxis: {
-			 	            title: {
-			 	                text: pYTitle
-			 	            }
-			 	        },
-			 	        series: pData,
-			 	        credits: {
-			 	        	enabled: false
-			 	        },
-			 	        exporting:{buttons: {contextButton: { symbol: 'download' }}},
-                    buttons: {contextButton: {menuItems: ['downloadPNG', 'downloadSVG']}},
-                    navigation: {
-						buttonOptions: {
-							theme: {
-								r: 4,
-								fill: frogsColor,
-								states: {
-									hover: {
-										fill: frogsColorHover,
-										stroke: frogsColor
-									},
-									select: {
-										stroke: frogsColor,
-										fill: frogsColorHover,
-									}
-								}
-							}
-						}
-					}
-			 	}
-			 	if( pXCategories != null ){
-			 		chart['xAxis']['categories'] = pXCategories ;
-			 	}
-			 	if( pXTitle != null ){
-			 		chart['xAxis']['title'] = { text: pXTitle } ;
-			 	}
-			 	if( pData.length <= 1 ) {
-			 		chart['legend'] = {'enabled': false};
-			 	} else {
-			 		chart['legend'] = {'enabled': true};
-			 	}
-			 	return chart ;
-			 }
-
-			 var chartplot_line = function( pTitle, pXTitle, f_pYTitle, s_pYTitle, max_fY, max_sY, pXCategories, pData ) {
-			 	var chart = {
-			 	        title: {
-			 	            text: pTitle
-			 	        },
-			 	        xAxis: {
-			 	        	allowDecimals: true
-			 	        },
-			 	        yAxis: [{
-			 	            title: {
-			 	                text: f_pYTitle,
-			 	                style: {
-                					color: Highcharts.getOptions().colors[1]
-            					}
-			 	            },
-			 	            dataSorting: {
-        					enabled: true
-    						},
-			 	            max: max_fY,
-			 	            startOnTick: false,
-			 	            endOnTick:false
-			 	        } , {
-			 	        	//Secondary Y axis
-			 	        	gridLineWidth: 0,
-			 	        	opposite: true,
-			 	        	title: {
-			 	        		text: s_pYTitle,
-			 	        		style: {
-                					color: Highcharts.getOptions().colors[0]
-            					}
-			 	        	},
-			 	        	labels: {
-            					style: {
-                					color: Highcharts.getOptions().colors[0]
-            						}
-       							},
-       						max: max_sY
-			 	        }] ,
-			 	        tooltip: {
-			 	        	shared: true
-			 	        },
-
-			 	        series: pData,
-			 	        credits: {
-			 	        	enabled: false
-			 	        },
-			 	        exporting:{buttons: {contextButton: { symbol: 'download' }}}
-			 	}
-			 	if( pXCategories != null ){
-			 		chart['xAxis']['categories'] = pXCategories ;
-			 	}
-			 	if( pXTitle != null ){
-			 		chart['xAxis']['title'] = { text: pXTitle } ;
-			 	}
-			 	if( pData.length <= 1 ) {
-			 		chart['legend'] = {'enabled': false};
-			 	} else {
-			 		chart['legend'] = {'enabled': true};
-			 	}
-			 	return chart ;
-			 }
-			 
-			var pie_param = function( pTitle, pData, unity ) {
-				var series = [{
-	                type: 'pie',
-	                name: unity,
-	                data: pData
-            	}]
-				var plot = chartplot_pie( pTitle, null, null, null, series );
-				plot['tooltip'] = {
-		            pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
-		        };
-				plot['plotOptions'] = {
-		            pie: {
-		                allowPointSelect: true,
-		                cursor: 'pointer',
-		                dataLabels: {
-		                    enabled: true,
-		                    useHTML : true,
-		                    formatter: function () {
-        		                return this.point.name + ' : ' + numberDisplay(this.point.y);
-		                    },
-		                    style: {
-		                        color: (Highcharts.theme && Highcharts.theme.contrastTextColor) || 'black'
-		                    }
-		                }
-		            }
-		        };
-				return plot ;
-			};
-
-			var lineplot_param = function(pTitle, pXTitle, f_pYTitle, s_pYTitle, pXCategories, pData) {
-			 	max_sY = 0;
-			 	max_fY = 0;
-			 	for (var series_cur = 0; series_cur < pData[0]['data'].length ; series_cur++ ){
-			 		if (pData[0]['data'][series_cur] > max_sY) {
-			 			max_sY = pData[0]['data'][series_cur];
-			 		}
-			 		if (pData[1]['data'][series_cur] > max_fY) {
-			 			max_fY = pData[1]['data'][series_cur];
-			 		}
-			 	}
-				var chart = chartplot_line( pTitle, pXTitle, f_pYTitle, s_pYTitle, max_fY, max_sY, pXCategories, pData );
-			 	chart['chart'] = { 
-			 		type: 'line',
-			 		zoomType:"x",
-			 		selectionMarkerFill: frogsColorZoomHighCharts
-			 	};
-				chart['plotOptions'] = {
-					area: {
-						marker: {
-							enabled: true,
-							symbol: 'circle',radius:4,
-						}
-					}
-				};
-			 	return chart ;
-			 }
 
 			/////////// Line plot
 			var step_nsti = ###STEP_NSTI### ;
@@ -976,268 +61,451 @@
 			}];
 			var sum_series = new Array() ;
 
-			var clusters_ditrib_load = function( container_id ) {
-
-			var cluster_by_nsti = lineplot_param("", "NSTI value", "Nb kept sequences", "Nb kept ASVs", step_nsti, series);
-			cluster_by_nsti['tooltip'] = {
-				formatter:function() {
-							max = this.points[1].series.data[this.points[1].series.data.length - 1].y ;
-							tooltip_body = '' ;
-							for( var i=0 ; i<this.points.length ; i++) {
-								var pcnt = (this.points[1].point.y / max) * 100;
-								tooltip_body += '<tr> ' +
-									'<td style="color:' + this.points[i].series.color +'">' + this.points[i].series.name + ' :</td>' +
-									'<td> ' + Highcharts.numberFormat(this.points[i].point.y, 0) + '  (' + Highcharts.numberFormat((this.points[i].point.y / this.points[i].series.data[this.points[i].series.data.length - 1].y) * 100, 1)+ '%) </td>'
-								   '</tr>' ;
-							}
-							return '<table>' + tooltip_body + '</table>' ;
-						},
-						shared: true,
-						useHTML: true
-					},
-			$('#' + container_id).append('<div></div>');
-			$('#' + container_id).highcharts( cluster_by_nsti );
-			$('#' + container_id).append('<p class="graph-nb">N.B.: Select area to zoom in.</p>');
-			}
-			///////////////
-			$(function() {
-				$(".frogsversion > div > a").text("FROGS "+frogs_tool+" "+frogs_version);
-				
-				var alignment_series = [];
-				var coverage_series = [];
-
-				for(var cluster in detection_series) {
-					dict_a = {};
-					dict_c = {};
-					dict_a.name = detection_series[cluster].name;
-					dict_c.name = detection_series[cluster].name;
-					dict_a.x = parseFloat(detection_series[cluster].data[5]);
-					dict_c.x = parseFloat(detection_series[cluster].data[5]);
-					dict_a.y = parseFloat(detection_series[cluster].data[11].split(" ")[0]);
-					dict_c.y = parseFloat(detection_series[cluster].data[12].split(" ")[0]);
-					alignment_series.push(dict_a);
-					coverage_series.push(dict_c);
+			// Préparer les séries [x, y]
+			var myseries = [
+				{
+					name: 'ASVs',
+					type: 'line',
+					yAxisIndex: 1, // axe gauche
+					data: step_nsti.map((x, i) => series[0].data[i]),
+					itemStyle: { color: paletteColors10[CURRENT_THEME][0] },
+					lineStyle: { color: paletteColors10[CURRENT_THEME][0] }
+				},
+				{
+					name: 'Sequences',
+					type: 'line',
+					yAxisIndex: 0, // axe droit
+					data: step_nsti.map((x, i) => series[1].data[i]),
+					itemStyle: { color: paletteColors10[CURRENT_THEME][1] },
+					lineStyle: { color: paletteColors10[CURRENT_THEME][1] }
 				}
-				// alert(JSON.stringify(scatter_series, null, 4));
-				// Remove alert
-				$('#js-alert').remove();
-				$('#content').removeClass("hidden");
+			];
+			var y_axis_infos = [
+				{
+					type: 'value',
+					name: 'Sequences',
+					position: 'right',
+					alignTicks: true,
+					axisLabel: { formatter: '{value}' },
+					axisLine: {
+						show: true,
+						lineStyle: {
+							color: paletteColors10[CURRENT_THEME][1]
+						}
+					}
+				},
+				{
+					type: 'value',
+					name: 'ASVs',
+					position: 'left',
+					alignTicks: true,
+					axisLine: {
+						show: true,
+						lineStyle: {
+							color: paletteColors10[CURRENT_THEME][0]
+						}
+					},
+					axisLabel: { formatter: '{value}' }
+				}
+			];
+					    
+						 
+			 
+
+			 
+			
+
+			function nsti_ditrib_load(container_id) {
 				
-				// Radializes colors
-				Highcharts.setOptions({
-					 colors : [frogsColor2, frogsColor] ,
-					 lang: {thousandsSep: ','}
-					});
-					Highcharts.SVGRenderer.prototype.symbols.download = function (x, y, w, h) {
-					var path = [
-						// Arrow stem
-						'M', x + w * 0.5, y,
-						'L', x + w * 0.5, y + h * 0.7,
-						// Arrow head
-						'M', x + w * 0.3, y + h * 0.5,
-						'L', x + w * 0.5, y + h * 0.7,
-						'L', x + w * 0.7, y + h * 0.5,
-						// Box
-						'M', x, y + h * 0.9,
-						'L', x, y + h,
-						'L', x + w, y + h,
-						'L', x + w, y + h * 0.9
-					];
-					return path;
-				};
-				/* Radial gradient ?*/
-			    Highcharts.getOptions().colors = Highcharts.map(Highcharts.getOptions().colors, function (color) {
-			        return {
-			            radialGradient: { cx: 0.5, cy: 0.3, r: 0.7 },
-			            stops: [
-			                [0, color],
-			                [1, Highcharts.Color(color).brighten(-0.1).get('rgb')] // darken
-			            ]
-			        };
-			    });
 				
-			 	// Display chimera remove data
-				var nb_filtered_data = [
-					['Inserted', remove_info['nb_kept']],
-					['Removed', remove_info['nb_removed']]
-				];
-				$('#nb-filtered').highcharts( pie_param('Clusters', nb_filtered_data, 'Clusters') );
-				var abundance_filtered_data = [
-  					['Inserted', remove_info['abundance_kept']],
-  					['Removed', remove_info['abundance_removed']]
-  				];
-				$('#abundance-filtered').highcharts( pie_param('Abundance', abundance_filtered_data, 'Sequences') );
-				
-				// Display chimera detection data
+				var lineNSTIChart_options = option = lineOptionDualY(
+					"NSTI distribution",
+					"NSTI value", step_nsti, y_axis_infos, myseries
+				);
+
+				// Initialisation ECharts
+				var chartDom = document.getElementById(container_id);
+				var lineNSTIChart = echarts.init(chartDom, CURRENT_THEME, { renderer: 'svg', height: 600 });
+				lineNSTIChart.setOption(lineNSTIChart_options);
+
+				// Redimensionnement
+				window.addEventListener('resize', () => lineNSTIChart.resize());
+			}
+
+			var nb_filtered_data = {
+					'Inserted': remove_info['nb_kept'],
+					'Removed': remove_info['nb_removed']
+			};
+			var abundance_filtered_data = {
+  					'Inserted': remove_info['abundance_kept'],
+  					'Removed': remove_info['abundance_removed']
+			};
+
+			var table_load = function(container_id) {
 				var table_categories = detection_categories.slice() ;
-				table_categories.unshift( "ASV" );
+				table_categories.unshift( "ASV name" );
 				var table_series = new Array();
 				for( var spl_idx = 0 ; spl_idx < detection_series.length ; spl_idx++ ){
 					var nb_by_step = detection_series[spl_idx]['data'].slice() ;
 					nb_by_step.unshift( detection_series[spl_idx]['name'] );
 					table_series.push( nb_by_step );
 				};
-				$('#filter-log').append( table("Chimera detection by sample", table_categories, table_series) );
-				$('#filter-log table').prop( 'id', 'details-table' );
-				$('#filter-log table').DataTable({
-					dom:  	"<'#details-csv-export'><'row'<'col-sm-5'l><'col-sm-7'f>>" +
-							"<'row'<'col-sm-12'tr>>" +
-							"<'row'<'col-sm-5'i><'col-sm-7'p>>",
-					'lengthMenu': [[10, 25, 50, 100, -1], [10, 25, 50, 100, "All"]],
-				});
-				$('#details-csv-export').html( '<button class="btn"><span class="fa fa-download" aria-hidden="true"> CSV</span></button>' );
-				$('#details-csv-export').addClass( 'dataTables_filter' );
-				$('#details-csv-export').datatableExport({
-					'table_id': "details-table"
-				});
 
-				clusters_ditrib_load( "sequence-distrib" );
+				$('#' + container_id).append(
+					table("Distance to picrust2", table_categories, table_series)
+				);
 
+				$('#' + container_id + ' table').prop('id', 'my-table');
+				$('#my-table').bootstrapTable();
+			};
 
-				Highcharts.chart('container_scatter', {
-				chart: {
-					type: 'scatter',
-					zoomType: 'xy'
-				},
-				title: {
-					text: ''
-				},
-				exporting:{buttons: {contextButton: { symbol: 'download' }}},
-				navigation: {
-					buttonOptions: {
-							theme: {
-								r: 4,
-								fill: frogsColor,
-								states: {
-									hover: {
-										fill: frogsColorHover,
-										stroke:frogsColor
-									},
-									select: {
-										stroke: frogsColor,
-										fill: frogsColorHover,
-									}
-								}
-							}
-						}
-				},
-				xAxis: {
-					title: {
-						enabled: true,
-						text: 'NSTI value'
+			function scatter_nsti_load(container_id) {
+				// Préparer les séries ECharts
+				const alignmentData = detection_series.map(cluster => ({
+					name: cluster.name,
+					value: [
+							parseFloat(cluster.data[5]), // x : NSTI value
+							parseFloat(cluster.data[11].split(" ")[0]) // y : % identity
+						]
+				}));
+
+				const coverageData = detection_series.map(cluster => ({
+					name: cluster.name,
+					value:[
+							parseFloat(cluster.data[5]), // x : NSTI value
+							parseFloat(cluster.data[12].split(" ")[0]) // y : % coverage
+						]
+				}));
+
+				const mySeries = [
+					{
+						name: '% identity',
+						type: 'scatter',
+						symbolSize: 8,
+						data: alignmentData,
+						itemStyle: { color: hexToRgba(paletteColors10[CURRENT_THEME][0],0.5) }
 					},
-					startOnTick: true,
-					endOnTick: true,
-					showLastLabel: true
-				},
-				yAxis: {
-					title: {
-						text: 'alignment metrics (%)'
+					{
+						name: '% coverage',
+						type: 'scatter',
+						symbol: 'diamond',
+						symbolSize: 8,
+						data: coverageData,
+						itemStyle: { color: hexToRgba(paletteColors10[CURRENT_THEME][1],0.5) }
 					}
-				},
-				legend: {
-					backgroundColor: Highcharts.defaultOptions.chart.backgroundColor,
-				},
-				plotOptions: {
-					series : {
-						turboThreshold: 0
+				];
+
+				// Récupérer les max pour calcul des pourcentages
+				/*
+				const maxIdentity = Math.max(...alignmentData.map(p => p[1]));
+				const maxCoverage = Math.max(...coverageData.map(p => p[1]));
+
+				// Options ECharts
+				const option = {
+					tooltip: {
+						trigger: 'axis',
+    					axisPointer: { type: 'cross' },
+						formatter: function(params) {
+							return `<b>${params.data.name}</b><br>${params.value[0]}, ${params.value[1]}%`;
+						},
+						backgroundColor: 'rgba(255,255,255,0.95)',
+						borderColor: '#ccc',
+						borderWidth: 1,
+						textStyle: { color: '#333' },
+						confine: true
 					},
-					scatter: {
-						marker: {
-							radius: 5,
-							states: {
-								hover: {
-									enabled: true,
-									lineColor: 'rgb(100,100,100)'
-								}
-							}
-						},
-						states: {
-							hover: {
-								marker: {
-									enabled: false
-								}
-							}
-						},
-						tooltip: {
-							headerFormat: '<b>{point.key}</b><br>',
-							pointFormat: '{point.x}, {point.y}%'
+					title: {
+						//text: "NSTI vs %identity and %coverage between kept ASVs and their closest PICRUSt2 reference sequence",
+						textStyle: {fontWeight: 'normal'},
+					},
+					xAxis: {
+						type: 'value',
+						nameLocation: 'end',
+						name: 'NSTI value',
+						axisLine: { show: true },
+						splitLine: { show: false },
+						nameGap: 10
+					},
+					yAxis: {
+						type: 'value',
+						nameLocation: 'center',
+						name: 'alignment metrics (%)',
+						axisLine: { show: true },
+						splitLine: { show: true }
+					},
+					toolbox: {
+						feature: {
+							//dataView: { show: true, readOnly: false },
+							dataZoom: { title: { zoom: 'Zoom', back: 'Reset' } },
+							saveAsImage: { show: true }
 						}
-					}, 
-						dataLabels: {
-                    		format: "{point.key}",
-                    		enabled: true
-                	},
-					enableMouseTracking: false
-				},
-				series: [{
-					name: '% identity',
-					color: 'rgba(134, 165, 164, .5)',
-					data: alignment_series
-					}, {
-					name: '% coverage',
-					color: 'rgba(211, 148, 104, .5)',
-					data: coverage_series				
-					}]
+					},
+					series: mySeries,
+					legend: {
+						data: mySeries.map(s => s.name),
+						bottom: 10
+
+					}
+				};*/
+
+				// Initialisation ECharts
+				const chartDom = document.getElementById(container_id);
+				const scatterChart = echarts.init(chartDom, CURRENT_THEME, { renderer: 'svg', height: 600 });
+				var scatterChart_options = scatterOption("", mySeries, alignmentData, coverageData);
+				scatterChart.setOption(scatterChart_options);
+
+				// Redimensionnement auto
+				window.addEventListener('resize', () => scatterChart.resize());
+			}
+
+
+			
+
+
+			var summaryLoad = function(){
+				// Remove alert
+				$('#js-alert').remove();
+				document.getElementById("logo").src = "data:image/png;base64," + logoBase64;
+				$('#content').removeClass("hidden");
+				console.log(nb_filtered_data);
+				pieChart_Clusters_options = pieOption(nb_filtered_data['Inserted'], nb_filtered_data['Removed'], "Inserted", "Removed","ASVs","ASVs")
+				pieChart_Abundance_options = pieOption(abundance_filtered_data['Inserted'], abundance_filtered_data['Removed'], "Inserted", "Removed","Abundance","Sequences");
+				// Initialisation des graphiques avec ECharts
+				pieChart_Clusters = echarts.init(document.getElementById("nb-filtered"),CURRENT_THEME,{renderer: 'svg', height:600})
+				pieChart_Abundance = echarts.init(document.getElementById("abundance-filtered"),CURRENT_THEME,{renderer: 'svg', height:600})
+				pieChart_Clusters.setOption(pieChart_Clusters_options);
+				pieChart_Abundance.setOption(pieChart_Abundance_options);
+
+				// Table
+				table_load("details-table")
+
+				// NSTI graph
+				nsti_ditrib_load( "nsti-graph" );
+
+				// NSTI scatter
+				scatter_nsti_load("metrics-nsti-graph")
+				
+			}
+
+			function updateCharts(CURRENT_THEME) {
+				pieChart_Clusters = recreateChart(pieChart_Clusters, "nb-filtered", pieChart_Clusters_options, CURRENT_THEME, 600);
+				pieChart_Abundance = recreateChart(pieChart_Abundance, "abundance-filtered", pieChart_Abundance_options, CURRENT_THEME, 600);
+				
+				var myseries = [
+					{
+						name: 'ASVs',
+						type: 'line',
+						yAxisIndex: 0, // axe droit
+						data: step_nsti.map((x, i) => series[0].data[i]),
+						itemStyle: { color: paletteColors10[CURRENT_THEME][0] },
+						lineStyle: { color: paletteColors10[CURRENT_THEME][0] }
+					},
+					{
+						name: 'Sequences',
+						type: 'line',
+						yAxisIndex: 1, // axe gauche
+						data: step_nsti.map((x, i) => series[1].data[i]),
+						itemStyle: { color: paletteColors10[CURRENT_THEME][1] },
+						lineStyle: { color: paletteColors10[CURRENT_THEME][1] }
+					}
+				];
+				var y_axis_infos = [
+					{
+						type: 'value',
+						nameLocation: 'center',
+						name: 'Number of kept sequences',
+						position: 'left',
+						alignTicks: true,
+						axisLabel: { formatter: '{value}' },
+						axisLine: {
+							show: true,
+							lineStyle: {
+								color: paletteColors10[CURRENT_THEME][1]
+							}
+						}
+					},
+					{
+						type: 'value',
+						nameRotate: -90,
+						nameLocation: 'center',
+						name: 'Number of ketp ASVs',
+						position: 'right',
+						alignTicks: true,
+						axisLine: {
+							show: true,
+							lineStyle: {
+								color: paletteColors10[CURRENT_THEME][0]
+							}
+						},
+						axisLabel: { formatter: '{value}' }
+					}
+				];
+				var lineNSTIChart_options = lineOptionDualY(
+					"NSTI distribution",
+					"NSTI value", step_nsti, y_axis_infos, myseries
+				);
+				lineNSTIChart = recreateChart(lineNSTIChart, "nsti-graph", lineNSTIChart_options, CURRENT_THEME, 600);
+
+				const alignmentData = detection_series.map(cluster => ({
+					name: cluster.name,
+					value: [
+							parseFloat(cluster.data[5]), // x : NSTI value
+							parseFloat(cluster.data[11].split(" ")[0]) // y : % identity
+						]
+				}));
+
+				const coverageData = detection_series.map(cluster => ({
+					name: cluster.name,
+					value:[
+							parseFloat(cluster.data[5]), // x : NSTI value
+							parseFloat(cluster.data[12].split(" ")[0]) // y : % coverage
+						]
+				}));
+
+				const mySeries = [
+					{
+						name: '% identity',
+						type: 'scatter',
+						symbolSize: 8,
+						data: alignmentData,
+						itemStyle: { color: hexToRgba(paletteColors10[CURRENT_THEME][0],0.7) }
+					},
+					{
+						name: '% coverage',
+						type: 'scatter',
+						symbol: 'diamond',
+						symbolSize: 8,
+						data: coverageData,
+						itemStyle: { color: hexToRgba(paletteColors10[CURRENT_THEME][1],0.7) }
+					}
+				];
+				/*const option = {
+					tooltip: {
+						trigger: 'item',
+						formatter: function(params) {
+							return `<b>${params.data.name}</b><br>${params.value[0]}, ${params.value[1]}%`;
+						},
+						backgroundColor: 'rgba(255,255,255,0.95)',
+						borderColor: '#ccc',
+						borderWidth: 1,
+						textStyle: { color: '#333' },
+						confine: true
+					},
+					xAxis: {
+						type: 'value',
+						name: 'NSTI value',
+						axisLine: { show: true },
+						splitLine: { show: false }
+					},
+					yAxis: {
+						type: 'value',
+						nameLocation: 'center',
+						name: 'alignment metrics (%)',
+						axisLine: { show: true },
+						splitLine: { show: true }
+					},
+					series: mySeries,
+					grid: { left: 50, right: 50, top: 50, bottom: 50 },
+					legend: {
+						data: mySeries.map(s => s.name)
+					}
+				};*/
+
+				// Récupérer les max pour calcul des pourcentages
+				// const maxIdentity = Math.max(...alignmentData.map(p => p[1]));
+				// const maxCoverage = Math.max(...coverageData.map(p => p[1]));
+
+				//var scatterChart_options = option;
+				var scatterChart_options = scatterOption("", mySeries, alignmentData, coverageData);
+				scatterChart = recreateChart(scatterChart, "metrics-nsti-graph", scatterChart_options, CURRENT_THEME, 600);
+				
+			}
+			
+
+			
+
+			$(function () {
+				// Resize charts on window resize
+				window.addEventListener('resize', () => {
+					[pieChart_Clusters, pieChart_Abundance, lineNSTIChart].forEach(chart => {
+						if (chart) chart.resize();
+					});
 				});
 				
-				$('#themechoice').change(function() {
-					var $select = $(this);
-					var selectedIndex = $select.prop('selectedIndex');
-					
-					// Activer toutes les options
-					$select.find('option').prop('disabled', false);
-
-					// Désactiver l'option sélectionnée
-					if (selectedIndex > 0) { // Ignorer l'option "Switch theme"
-						$select.find('option').eq(selectedIndex).prop('disabled', true);
-					}
-
-					// Réinitialiser la sélection à "Switch theme"
-					$select.prop('selectedIndex', 0);
+				document.querySelectorAll('button[data-bs-toggle="tab"]').forEach(tab => {
+					tab.addEventListener('shown.bs.tab', function (e) {
+						setTimeout(() => {
+						if (pieChart_Clusters) pieChart_Clusters.resize();
+						if (pieChart_Abundance) pieChart_Abundance.resize();
+						}, 200);
+					});
 				});
-			})
+
+				$("#report-title").html("Place seqs report <i><small class='text-muted'>(" + frogs_tool + ", v" + frogs_version + ")<small></i>");
+
+				// Charger le résumé par défaut
+				summaryLoad();
+
+				// Default theme
+				update_theme(DEFAULT_THEME);
+				select = document.getElementById("themechoice");
+				select.options[1].disabled = true 
+
+			});
 		</script>
 	</head>
-	<body>
-		<!-- Alert -->
-		<p id="js-alert" class="alert alert-warning">
-			javascript is needed to display data.<br />
-			If you try to view this data on galaxy please contact your administrator to authorise javascript or download the file to view.
-		</p>
+		<body class="p-5">
+			<!-- Alert -->
+			<p id="js-alert" class="alert alert-warning">
+				javascript is needed to display data.<br />
+				If you are trying to view this data on galaxy, please contact your administrator to enable javascript or download the file for viewing.
+			</p>
+			<div class="container-fluid d-flex align-items-center mb-5">
+				<img id="logo" class="object-fit-contain me-3" style="height:180px;" src="data:image/png;base64," />
+				<h2 id="report-title" class="mb-0">Place seqs report</h2>
+			</div>
 		
-		<!-- Content -->
-		<div id="content" class="hidden">
-			<ul id="mytab" class="nav nav-tabs">
-				<li class="nav-item frogsversion">
-					<div class="container">
-						<select id="themechoice" class="form-select" onchange="update_theme($(this).val())" style="font-size: smaller;" aria-label="Default select example">
-							<option selected disabled>Switch theme</option>
-							<option value="Plum">Plum</option>
-							<option value="Coral" disabled>Coral</option>
-							<option value="FROGS4">FROGS4</option>
-						</select>
-						<a style="padding: 0.5rem 1rem;"></a>
-					</div>
+			<div class="d-flex justify-content-end">
+				<select id="themechoice" class="form-select form-select-sm" onchange="update_theme($(this).val())" style="width: auto;" aria-label="Default select example">
+				  <option selected disabled value="">Switch theme</option>
+				  <option value="DefaultTheme">Default</option>
+				  <option value="CoralTheme">Coral</option>
+				  <option value="GoldTheme">Gold</option>
+				  <option value="SteelTheme">Steel</option>
+				</select>
+			</div>
+
+			<!-- Tabs organization -->
+			<ul class="nav nav-tabs" id="myTab" role="tablist">
+				<li class="nav-item" role="presentation">
+				<button class="nav-link active" id="tab1-tab" data-bs-toggle="tab" data-bs-target="#tab1" type="button" role="tab">
+					Summary
+				</button>
 				</li>
 			</ul>
-			<div id="filter-summary">
-        		<h2 class="pb-2 mt-4 mb-2 border-bottom">Insertion in reference tree summary</h2>
-        		<div class="row">
-	        		<div id="nb-filtered" class="col-md-6"></div> 
-	        		<div id="abundance-filtered" class="col-md-6"></div>
-        		</div>
-			</div>
-			<div id="filter-log">
-				<h2 class="pb-2 mt-4 mb-2 border-bottom">Closest reference sequences by ASV</h2>
-			</div>
-			<div class="tab-content">
-				<h2 class="pb-2 mt-4 mb-2 border-bottom">ASV number according to NSTI threshold</h2>
-				<div id="sequence-distrib" role="tabpanel" class="tab-pane active">
+
+			<!-- Content -->
+			<div class="tab-content" id="myTabContent">
+				<!-- TAB 1 -->
+				<div class="tab-pane fade show active p-3 border border-top-0" id="tab1" role="tabpanel">
+					<h2 class="pb-4 mt-4 mb-2 border-bottom">Insertion into the reference tree summary</h2>
+					<div class="row justify-content-center p-5">
+						<div id="insertion-summary">
+							<div class="row">
+								<div id="nb-filtered" class="col-md-6"></div> 
+								<div id="abundance-filtered" class="col-md-6"></div>
+							</div>
+						</div>
+					</div>
+					<h2 class="pb-4 mt-4 mb-2 border-bottom">Closest reference sequences for each ASV</h2>
+					<div id="details-table" class="col-md-12"></div>
+					<h2 class="pb-4 mt-4 mb-2 border-bottom">Number of ASVs according to the NSTI threshold</h2>
+					<div id="nsti-graph" style="width:90% ;margin:auto"></div>
+					<h2 class="pb-4 mt-4 mb-2 border-bottom">NSTI vs %identity and %coverage between kept ASVs and their closest PICRUSt2 reference sequence</h2>
+					<div id="metrics-nsti-graph" style="width:90% ;margin:auto"></div>
 				</div>
 			</div>
-			<h2 class="pb-2 mt-4 mb-2 border-bottom"> %identity and coverage vs NSTI between kept ASV and closest PICRUSt2 reference sequence</h2>
-			<div id="container_scatter"></div>
-		</div>
-	</body>
+
+		</body>
+	
 </html>

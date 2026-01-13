@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 
-__author__ = 'Frederic Escudie - Genotoul/MIAT & Maria Bernard - SIGENAE/GABI'
+__author__ = 'Frederic Escudie - Genotoul/MIAT & Maria Bernard - SIGENAE/GABI & Olivier Rué - Migale/MaIAGE'
 __copyright__ = 'Copyright (C) 2024 INRAE'
 __license__ = 'GNU General Public License'
-__version__ = '5.0.2'
+__version__ = '5.1.0'
 __email__ = 'frogs-support@inrae.fr'
 __status__ = 'prod'
 
@@ -22,6 +22,10 @@ LIB_DIR = os.path.abspath(os.path.join(os.path.dirname(CURRENT_DIR), "lib"))
 sys.path.append(LIB_DIR)
 if os.getenv('PYTHONPATH') is None: os.environ['PYTHONPATH'] = LIB_DIR
 else: os.environ['PYTHONPATH'] = LIB_DIR + os.pathsep + os.environ['PYTHONPATH']
+# THEME
+THEME_DIR = os.path.abspath(os.path.join(os.path.dirname(CURRENT_DIR), "static"))
+if not os.path.exists(THEME_DIR):
+    THEME_DIR = os.path.abspath(os.path.join(os.path.dirname(os.path.dirname(CURRENT_DIR)), "static"))
 
 from frogsUtils import *
 from frogsSequenceIO import *
@@ -55,15 +59,16 @@ class ParallelChimera(Cmd):
     """
     @summary: Removes PCR chimera by samples.
     """
-    def __init__(self, in_fasta, in_abundance, out_fasta, out_abundance, out_summary, abundance_type, nb_cpus, log, debug, size_separator=None):
+    def __init__(self, in_fasta, in_abundance, out_fasta, out_abundance, out_summary, abundance_type, long_reads, nb_cpus, log, debug, size_separator=None):
         """
         """
         size_separator_option = "" if size_separator is None else "--size-separator '" + size_separator + "' "
+        long_reads_option = "--long-reads " if long_reads else ""
         debug_option = " --debug " if debug else ""
         Cmd.__init__( self,
                       'parallelChimera.py',
                       'Removes PCR chimera by samples.',
-                      debug_option + size_separator_option + "--lenient-filter --nb-cpus " + str(nb_cpus) + " --sequences " + in_fasta + " --" + abundance_type + " " + in_abundance + " --non-chimera " + out_fasta + " --out-abundance " + out_abundance + " --summary " + out_summary + " --log-file " + log,
+                      debug_option + size_separator_option + long_reads_option + "--lenient-filter --nb-cpus " + str(nb_cpus) + " --sequences " + in_fasta + " --" + abundance_type + " " + in_abundance + " --non-chimera " + out_fasta + " --out-abundance " + out_abundance + " --summary " + out_summary + " --log-file " + log,
                       '--version' )
 
     def get_version(self):
@@ -149,8 +154,8 @@ def write_summary( summary_file, results_chimera, depth_file, biom_file):
             if in_detection_metrics:
                 if section_first_line:
                     line_fields = line[1:].split("\t")[1:]
-                    line_fields.insert(1,"%  Clusters kept")
-                    line_fields.insert(3,"%  Cluster abundance kept")
+                    line_fields.insert(1,"%  of clusters kept")
+                    line_fields.insert(3,"%  of cluster abundance kept")
                     detection_categories = line_fields
                     section_first_line = False
                 else:
@@ -215,12 +220,27 @@ def write_summary( summary_file, results_chimera, depth_file, biom_file):
             'own_observations': own_observations
         }
     del biom
-
+    
     # Write
     FH_summary_tpl = open( os.path.join(CURRENT_DIR, "remove_chimera_tpl.html") )
     FH_summary_out = open( summary_file, "wt" )
+    # Load shared JS
+    with open(os.path.join(THEME_DIR, "js", "theme.js")) as f:
+        theme_js = f.read()
+    with open(os.path.join(THEME_DIR, "js", "utils.js")) as f:
+        utils_js = f.read()
+    # Load shared CSS
+    with open(os.path.join(THEME_DIR, "css", "common.css")) as f:
+        common_css = f.read()
     for line in FH_summary_tpl:
-        if "###DETECTION_CATEGORIES###" in line:
+        if "###IMPORT_CSS###" in line:
+            line = line.replace("###IMPORT_CSS###", f"<style type='text/css'>{common_css}</style>")
+        elif "###IMPORT_JS_UTILS###" in line:
+            # injection du JS inline
+            line = line.replace("###IMPORT_JS_UTILS###", f"<script>\n{utils_js}</script>")
+        elif "###IMPORT_JS_THEME###" in line:
+            line = line.replace("###IMPORT_JS_THEME###", f"<script>\n{theme_js}</script>")
+        elif "###DETECTION_CATEGORIES###" in line:
             line = line.replace( "###DETECTION_CATEGORIES###", json.dumps(detection_categories) )
         elif "###DETECTION_DATA###" in line:
             line = line.replace( "###DETECTION_DATA###", json.dumps(detection_data) )
@@ -254,6 +274,7 @@ if __name__ == "__main__":
     parser.add_argument('--version', action='version', version=__version__ )
     parser.add_argument('--debug', default=False, action='store_true', help="Keep temporary files to debug program. [Default: %(default)s]" )
     parser.add_argument('--nb-cpus', type=int, default=1, help="The maximum number of CPUs used. [Default: %(default)s]" )
+    parser.add_argument('--long-reads', default=False, action='store_true', help="If original sequences were long reads, use chimera_denovo algorithm to detect chimera, else, i.e for short reads, use uchime_denovo [Default: %(default)s]" )
     # Inputs
     group_input = parser.add_argument_group( 'Inputs' )
     group_input.add_argument('--input-fasta', required=True, help='The cluster sequences (format: FASTA).' )
@@ -278,7 +299,7 @@ if __name__ == "__main__":
         tmp_log  = tmpFiles.add(os.path.basename(args.output_fasta) + "_tmp.log")
         size_separator = get_size_separator( args.input_fasta )
 
-        ParallelChimera( args.input_fasta, args.input_biom, args.output_fasta, args.output_biom, tmp_chimera_summary, "biom", args.nb_cpus, tmp_log, args.debug, size_separator ).submit( args.log_file )
+        ParallelChimera( args.input_fasta, args.input_biom, args.output_fasta, args.output_biom, tmp_chimera_summary, "biom", args.long_reads, args.nb_cpus, tmp_log, args.debug, size_separator ).submit( args.log_file )
         
         depth_file = tmpFiles.add( "depths.tsv" )
         Depths(args.output_biom, depth_file).submit( args.log_file )

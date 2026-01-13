@@ -3,7 +3,7 @@
 __author__ = 'Maria Bernard - SIGENAE/GABI'
 __copyright__ = 'Copyright (C) 2024 INRAE'
 __license__ = 'GNU General Public License'
-__version__ = '5.0.2'
+__version__ = '5.1.0'
 __email__ = 'frogs-support@inrae.fr'
 __status__ = 'prod'
 
@@ -135,7 +135,7 @@ def process(params):
 ###################################################################################################################
 if __name__ == "__main__":
     # Manage parameters
-    parser = argparse.ArgumentParser(description="Refine affiliations, to manage amplicon included in other sequence, and to deal with surnumerary ASV (ASV with same affiliations.")
+    parser = argparse.ArgumentParser(description="Refine affiliations, to manage ampli1con included in other sequence, and to deal with surnumerary ASV (ASV with same affiliations).")
     parser.add_argument('--version', action='version', version=__version__)
     parser.add_argument('--debug', default=False, action='store_true', help="Keep temporary files to debug program. [Default: %(default)s]")
     

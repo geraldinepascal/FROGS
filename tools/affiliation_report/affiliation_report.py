@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 
-__author__ = 'Frédéric Escudié - Genotoul/MIAT'
-__copyright__ = 'Copyright (C) 2024 INRAE'
+__author__ = 'Frédéric Escudié - Genotoul/MIAT & Maria Bernard - SIGENAE/GABI & Olivier Rué - Migale/MaIAGE'
+__copyright__ = 'Copyright (C) 2025 INRAE'
 __license__ = 'GNU General Public License'
-__version__ = '5.0.2'
+__version__ = '5.1.0'
 __email__ = 'frogs-support@inrae.fr'
 __status__ = 'prod'
 
@@ -21,6 +21,10 @@ LIB_DIR = os.path.abspath(os.path.join(os.path.dirname(CURRENT_DIR), "lib"))
 sys.path.append(LIB_DIR)
 if os.getenv('PYTHONPATH') is None: os.environ['PYTHONPATH'] = LIB_DIR
 else: os.environ['PYTHONPATH'] = LIB_DIR + os.pathsep + os.environ['PYTHONPATH']
+# THEME
+THEME_DIR = os.path.abspath(os.path.join(os.path.dirname(CURRENT_DIR), "static"))
+if not os.path.exists(THEME_DIR):
+    THEME_DIR = os.path.abspath(os.path.join(os.path.dirname(os.path.dirname(CURRENT_DIR)), "static"))
 
 from frogsUtils import *
 from frogsBiom import BiomIO
@@ -278,9 +282,24 @@ def write_summary( summary_file, input_biom, tree_count_file, tree_ids_file, rar
     del biom
 
     # Write
-    FH_summary_tpl = open( os.path.join(CURRENT_DIR, "affiliation_stats_tpl.html") )
+    FH_summary_tpl = open( os.path.join(CURRENT_DIR, "affiliation_report_tpl.html") )
     FH_summary_out = open( summary_file, "wt" )
+    # Load shared JS
+    with open(os.path.join(THEME_DIR, "js", "theme.js")) as f:
+        theme_js = f.read()
+    with open(os.path.join(THEME_DIR, "js", "utils.js")) as f:
+        utils_js = f.read()
+    # Load shared CSS
+    with open(os.path.join(THEME_DIR, "css", "common.css")) as f:
+        common_css = f.read()
     for line in FH_summary_tpl:
+        if "###IMPORT_CSS###" in line:
+            line = line.replace("###IMPORT_CSS###", f"<style type='text/css'>{common_css}</style>")
+        elif "###IMPORT_JS_UTILS###" in line:
+            # injection du JS inline
+            line = line.replace("###IMPORT_JS_UTILS###", f"<script>\n{utils_js}</script>")
+        elif "###IMPORT_JS_THEME###" in line:
+            line = line.replace("###IMPORT_JS_THEME###", f"<script>\n{theme_js}</script>")
         if "###TAXONOMIC_RANKS###" in line:
             line = line.replace( "###TAXONOMIC_RANKS###", json.dumps(args.taxonomic_ranks) )
         elif "###SAMPLES_NAMES###" in line:
@@ -312,6 +331,7 @@ def process( args ):
         # Add temp taxonomy if multiple and without consensus
         tmp_biom = args.input_biom
         used_taxonomy_tag = args.taxonomy_tag
+        #### Is it usefull? ######
         if args.multiple_tag is not None:
             used_taxonomy_tag = args.tax_consensus_tag
             if args.tax_consensus_tag is None:
@@ -358,18 +378,18 @@ if __name__ == '__main__':
     parser.add_argument( '--taxonomic-ranks', nargs='*', default=["Domain", "Phylum", "Class", "Order", "Family", "Genus", "Species"], help='The ordered ranks levels used in the metadata taxonomy. [Default: %(default)s]' )
     parser.add_argument( '--rarefaction-ranks', nargs='*', default=["Genus"], help='The ranks that will be evaluated in rarefaction. [Default: %(default)s]' )
     group_exclusion_taxonomy = parser.add_mutually_exclusive_group()
-    group_exclusion_taxonomy.add_argument( '--taxonomy-tag', type=str, help='The metadata tag used in BIOM file to store the taxonomy. Use this parameter if the taxonomic affiliation has been processed by a software that adds only one affiliation or if you does not have a metadata with the consensus taxonomy (see "--tax-consensus-tag").Not allowed with --tax-consensus-tag.' )
-    group_exclusion_taxonomy.add_argument( '--tax-consensus-tag', type=str, help='The metadata tag used in BIOM file to store the consensus taxonomy. This parameter is used instead of "--taxonomy-tag" when you have several affiliations for each ASV.' )
-    parser.add_argument( '--multiple-tag', type=str, default=None, help='The metadata tag used in BIOM file to store the list of possible taxonomies. Use this parameter if the taxonomic affiliation has been processed by a software that adds several affiliation in the BIOM file (example: same score ambiguity).' )
-    parser.add_argument( '--bootstrap-tag', type=str, default=None, help='The metadata tag used in BIOM file to store the taxonomy bootstraps.' )
-    parser.add_argument( '--identity-tag', type=str, default=None, help='The metadata tag used in BIOM file to store the alignment identity.' )
-    parser.add_argument( '--coverage-tag', type=str, default=None, help='The metadata tag used in BIOM file to store the alignment observation coverage.' )
+    group_exclusion_taxonomy.add_argument( '--taxonomy-tag', type=str, help='The metadata tag used in BIOM file to store the taxonomy. Use this parameter if the taxonomic affiliation has been processed by a software that adds only one affiliation or if you don\'t have a metadata with the consensus taxonomy (see "--tax-consensus-tag").Not allowed with --tax-consensus-tag. ex: rdp_taxonomy' )
+    group_exclusion_taxonomy.add_argument( '--tax-consensus-tag', type=str, help='The metadata tag used in BIOM file to store the consensus taxonomy. This parameter is used instead of "--taxonomy-tag" when you have several affiliations for each ASV. ex: blast_taxonomy' )
+    parser.add_argument( '--multiple-tag', type=str, default=None, help='The metadata tag used in BIOM file to store the list of possible taxonomies. Use this parameter if the taxonomic affiliation has been processed by a software that adds several affiliation in the BIOM file (example: same score ambiguity). ex blast_affiliations' )
+    parser.add_argument( '--bootstrap-tag', type=str, default=None, help='The metadata tag used in BIOM file to store the taxonomy bootstraps. ex: rdp_bootstrap' )
+    parser.add_argument( '--identity-tag', type=str, default=None, help='The metadata tag used in BIOM file to store the alignment identity. ex: perc_identity' )
+    parser.add_argument( '--coverage-tag', type=str, default=None, help='The metadata tag used in BIOM file to store the alignment observation coverage. ex: perc_query_coverage' )
     #     Inputs
     group_input = parser.add_argument_group( 'Inputs' )
     group_input.add_argument('--input-biom', required=True, help="The input abundance file (format: BIOM)." )
     #     Outputs
     group_output = parser.add_argument_group( 'Outputs' )
-    group_output.add_argument('--html', default="affiliation_stats.html", help="The HTML file containing the graphs. [Default: %(default)s]" )
+    group_output.add_argument('--html', default="affiliation_report.html", help="The HTML file containing the graphs. [Default: %(default)s]" )
     group_output.add_argument('--log-file', default=sys.stdout, help='The list of commands executed. [Default: stdout]' )
     args = parser.parse_args()
     prevent_shell_injections(args)

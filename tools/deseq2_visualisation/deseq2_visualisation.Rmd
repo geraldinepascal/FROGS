@@ -1,8 +1,6 @@
 ---
-title: "FROGSSTAT DESeq2: Visualisation (version `r params$version`)"
 copyright: "Copyright (C) 2024 INRAE"
 license: "GNU General Public License"
-version: "5.0.0"
 output: 
   html_notebook:
     code_folding: hide
@@ -41,6 +39,8 @@ params:
     value: x
   version:
     value: x
+  tool:
+    value: x
 ---
 
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
@@ -48,161 +48,66 @@ params:
 <meta name="version" content="5.0.0" />
 <meta name="copyright" content="Copyright (C) 2024 INRAE" />
 
+
+```{r, echo=FALSE, results="asis"}
+CURRENT_DIR <- knitr::opts_knit$get("output.dir")
+if (is.null(CURRENT_DIR)) {
+  CURRENT_DIR <- getwd()
+}
+THEME_DIR <- normalizePath(
+  file.path(dirname(CURRENT_DIR), "static"),
+  winslash = "/",
+  mustWork = FALSE
+)
+
+js_theme_file <- normalizePath(
+  file.path(THEME_DIR, "js", "theme.js"),
+  winslash = "/",
+  mustWork = FALSE
+)
+
+lines <- readLines(js_theme_file, warn = FALSE)
+
+sep <- which(grepl("^//##", trimws(lines)))
+
+if (length(sep) < 2) {
+  stop("Tag not found in theme.js: '//##'")
+}
+
+js_code <- lines[(sep[1] + 1):(sep[2] - 1)]
+
+cat("<script>\n")
+cat(js_code, sep = "\n")
+cat("\n</script>")
+```
+
+<div style="display:flex; align-items:center; gap:15px; margin-bottom:20px;">
+  <img id="logo" src="data:image/png;base64," alt="FROGS logo" style="height:180px;">
+  <h1 style="margin:0;">Stat: DESeq2 Visualisation<i><span class="text-accent">(`r params$tool` v`r params$version`)</span></i></h1>
+</div>
+
 <script>
-function update_theme(val){
-				if(val == "Coral" ){
-					/*
-					:root {
-						--frogsColor: #388697; 
-						--frogsColorHover: rgb(12,10,62,0.8);
-						--frogsColorShadow: #6c5b64;
-						--frogsColor2: #FA8883;
-						--frogsColor3: #EFC7C2;
-						--frogsColor4: #737f75;
-						--frogsColorZoomHighCharts: rgb(191,211,193,0.25);
-						--frogsButtonColor: rgb(105,79,93,0.6);
-						--frogsButtonBorderColor: rgb(12,10,62,0.6);
-						--frogsOddTable: rgba(249,86,79, 0.1);
-						--frogsCircleFontColor: #FFF;
-						--frogsCircleBackgroundColor: #FA8883;
-						--frogsCircleBorderColor: #FA8883;
-						--frogsPreColor: rgba(191, 211, 193, 0.25);
-					}
-					*/
-					document.documentElement.style.setProperty('--frogsColor', "#388697");
-					document.documentElement.style.setProperty('--frogsColorHover', "rgb(12,10,62,0.8)");
-					document.documentElement.style.setProperty('--frogsColorShadow', "#6c5b64");
-					document.documentElement.style.setProperty('--frogsColor2', "#FA8883");
-					document.documentElement.style.setProperty('--frogsColor3', "#ffef99");
-					document.documentElement.style.setProperty('--frogsColor4', "#737f75");
-					document.documentElement.style.setProperty('--frogsColorZoomHighCharts', "rgb(191,211,193,0.25)");
-					document.documentElement.style.setProperty('--frogsButtonColor', "rgb(12,10,62,0.6)");
-					document.documentElement.style.setProperty('--frogsButtonBorderColor', "rgb(12,10,62,0.8)");
-					document.documentElement.style.setProperty('--frogsOddTable', "rgba(249,86,79, 0.1)");
-					document.documentElement.style.setProperty('--frogsCircleFontColor', "#FFF");
-					document.documentElement.style.setProperty('--frogsCircleBackgroundColor',"#FA8883");
-					document.documentElement.style.setProperty('--frogsCircleBorderColor',"#FA8883");
-					document.documentElement.style.setProperty('--frogsPreColor', "rgba(191, 211, 193, 0.25)");
-					
-					var root = document.documentElement;
-					var style = getComputedStyle(root);
-					var frogsColor = style.getPropertyValue('--frogsColor');
-					var frogsColor2 = style.getPropertyValue('--frogsColor2');
-					var frogsColor3 = style.getPropertyValue('--frogsColor3');
-					var frogsColor4 = style.getPropertyValue('--frogsColor4');
-					var frogsColorZoomHighCharts = style.getPropertyValue('--frogsColorZoomHighCharts');
-					var frogsColorHover = style.getPropertyValue('--frogsColorHover');
-					var frogsButtonColor = style.getPropertyValue('--frogsButtonColor');
-					var frogsCircleFontColor = style.getPropertyValue('--frogsCircleFontColor');
-					var frogsColorShadow = style.getPropertyValue('--frogsColorShadow');
-					
-					
-				}else if(val == "Plum" ){
-					/*
-					:root {
-						--frogsColor: #694F5D; 
-						--frogsColorHover: rgb(105,79,93,0.8);
-						--frogsColorShadow: #6c5b64;
-						--frogsColor2: #BFD3C1;
-						--frogsColor3: #EFC7C2;
-						--frogsColor4: #737f75;
-						--frogsColorZoomHighCharts: rgb(222,159,115,0.25);
-						--frogsButtonColor: rgb(105,79,93,0.6);
-						--frogsButtonBorderColor: rgb(105,79,93,0.8);
-						--frogsOddTable: #f2f2f2;
-						--frogsCircleFontColor: #694F5D;
-						--frogsCircleBackgroundColor: #BFD3C1;
-						--frogsCircleBorderColor: #BFD3C1;
-					}*/
-					document.documentElement.style.setProperty('--frogsColor', "#694F5D");
-					document.documentElement.style.setProperty('--frogsColorHover', "rgb(105,79,93,0.8)");
-					document.documentElement.style.setProperty('--frogsColorShadow', "#6c5b64");
-					document.documentElement.style.setProperty('--frogsColor2', "#BFD3C1");
-					document.documentElement.style.setProperty('--frogsColor3', "#4f5d69");
-					document.documentElement.style.setProperty('--frogsColor4', "#737f75");
-					document.documentElement.style.setProperty('--frogsColorZoomHighCharts', "rgb(222,159,115,0.25)");
-					document.documentElement.style.setProperty('--frogsButtonColor', "rgb(105,79,93,0.6)");
-					document.documentElement.style.setProperty('--frogsButtonBorderColor', "rgb(105,79,93,0.8)");
-					document.documentElement.style.setProperty('--frogsOddTable', "#f2f2f2");
-					document.documentElement.style.setProperty('--frogsCircleFontColor', "#694F5D");
-					document.documentElement.style.setProperty('--frogsCircleBackgroundColor',"#BFD3C1");
-					document.documentElement.style.setProperty('--frogsCircleBorderColor',"#BFD3C1");
-					document.documentElement.style.setProperty('--frogsPreColor', "rgba(191, 211, 193, 0.25)");
-					
-					var root = document.documentElement;
-					var style = getComputedStyle(root);
-					var frogsColor = style.getPropertyValue('--frogsColor');
-					var frogsColor2 = style.getPropertyValue('--frogsColor2');
-					var frogsColor3 = style.getPropertyValue('--frogsColor3');
-					var frogsColor4 = style.getPropertyValue('--frogsColor4');
-					var frogsColorZoomHighCharts = style.getPropertyValue('--frogsColorZoomHighCharts');
-					var frogsColorHover = style.getPropertyValue('--frogsColorHover');
-					var frogsButtonColor = style.getPropertyValue('--frogsButtonColor');
-					var frogsCircleFontColor = style.getPropertyValue('--frogsCircleFontColor');
-					var frogsColorShadow = style.getPropertyValue('--frogsColorShadow');
-					
-					
-				}else if(val == "FROGS4" ){
-					/*
-					:root {
-						--frogsColor: #8eadac; 
-						--frogsColorHover: #648a89;
-						--frogsColorShadow: #648a89;
-						--frogsColor2: #de9f73;
-						--frogsColor3: #ad8e9f;
-						--frogsColor4: #a2a32f;
-						--frogsColorZoomHighCharts: rgb(100, 138, 137, 0.25);
-						--frogsButtonColor: #8EADAC;
-						--frogsButtonBorderColor: #8EADAC;
-						--frogsOddTable: #f2f2f2;
-						--frogsCircleFontColor: #FFF;
-						--frogsCircleBackgroundColor: #8eadac;
-						--frogsCircleBorderColor: #648a89;
-					}*/
-					document.documentElement.style.setProperty('--frogsColor', "#8eadac");
-					document.documentElement.style.setProperty('--frogsColorHover', "#648a89");
-					document.documentElement.style.setProperty('--frogsColorShadow', "#648a89");
-					document.documentElement.style.setProperty('--frogsColor2', "#de9f73");
-					document.documentElement.style.setProperty('--frogsColor3', "#ad8e9f");
-					document.documentElement.style.setProperty('--frogsColor4', "#a2a32f");
-					document.documentElement.style.setProperty('--frogsColorZoomHighCharts', "rgb(100, 138, 137, 0.25)");
-					document.documentElement.style.setProperty('--frogsButtonColor', "#8EADAC");
-					document.documentElement.style.setProperty('--frogsButtonBorderColor', "#8EADAC");
-					document.documentElement.style.setProperty('--frogsOddTable', "#f2f2f2");
-					document.documentElement.style.setProperty('--frogsCircleFontColor', "#FFF");
-					document.documentElement.style.setProperty('--frogsCircleBackgroundColor',"#8eadac");
-					document.documentElement.style.setProperty('--frogsCircleBorderColor',"#648a89");
-					document.documentElement.style.setProperty('--frogsPreColor', "rgba(226, 234, 227, 0.25)");
-					
-					var root = document.documentElement;
-					var style = getComputedStyle(root);
-					var frogsColor = style.getPropertyValue('--frogsColor');
-					var frogsColor2 = style.getPropertyValue('--frogsColor2');
-					var frogsColor3 = style.getPropertyValue('--frogsColor3');
-					var frogsColor4 = style.getPropertyValue('--frogsColor4');
-					var frogsColorZoomHighCharts = style.getPropertyValue('--frogsColorZoomHighCharts');
-					var frogsColorHover = style.getPropertyValue('--frogsColorHover');
-					var frogsButtonColor = style.getPropertyValue('--frogsButtonColor');
-					var frogsCircleFontColor = style.getPropertyValue('--frogsCircleFontColor');
-					var frogsColorShadow = style.getPropertyValue('--frogsColorShadow');
-					
-				 }
-			}
+
+$(function () {
+  update_logo(CURRENT_THEME);
+});
+
+
 </script>
+
 
 <style type="text/css">
 :root {
-			--frogsColor: #388697; 
-			--frogsColorHover: rgb(12,10,62,0.8);
-			--frogsColorShadow: #6c5b64;
-			--frogsColor2: #FA8883;
-			--frogsColor3: #EFC7C2;
-			--frogsColor4: #737f75;
-			--frogsColorZoomHighCharts: rgb(191,211,193,0.25);
-			--frogsButtonColor: rgb(12,10,62,0.6);
-			--frogsButtonBorderColor: rgb(12,10,62,0.25);
-			--frogsPreColor: rgba(191, 211, 193, 0.25);
+			--frogsColor: #03A5A8; 
+			--frogsColorHover: hsl(from var(--frogsColor) h calc(s + 4) calc(l - 3) / 1);
+			--frogsPreColor: hsl(from var(--frogsColor) h s l / 0.1);
 		}
+.text-accent {
+  color: #595c5f;
+}
+.main-container{
+	max-width: 75% !important;
+}
 h1{
 	color: var(--frogsColor);
 }
@@ -224,7 +129,7 @@ a:hover{
 	background-color: var(--frogsColorHover);
 }
 .button {
-    background-color: var(--frogsButtonColor)
+    background-color: var(--frogsColor);
     border          : none;
     color           : white;
     padding         : 5px 10px;
@@ -265,24 +170,41 @@ pre{
 	border: none !important;
 	display: inline-block;
 }
+#themechoice{
+  border-radius: 0.25em;
+  background-color: white;
+  border: 1px solid #dee2e6;
+  font-weight: 400;
+  line-height: 1.5;
+  padding: .375rem 2.25rem .375rem .75rem;
+}
 </style>
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
 ```
-Phyloseq `r packageVersion("phyloseq")` and DESeq2 `r packageVersion("DESeq2")`
-
-```{=html}
-<select id="themechoice" class="form-select" onchange="update_theme($(this).val())" style="font-size: smaller;" aria-label="Default select example">
-	<option selected disabled>Switch theme</option>
-	<option value="Plum">Plum</option>
-	<option value="Coral">Coral</option>
-	<option value="FROGS4">FROGS4</option>
-</select>
-```
 
 # {.tabset .tabset-fade .tabset-pills}
-## Differentially abundant ASV/FUNCTION table
+
+```{=html}
+<div class="row">
+  <div style="float:right">
+  <select id="themechoice"
+          class="form-select form-select-sm"
+          style="width: auto;"
+          onchange="update_theme_Rmd(this.value)"
+          aria-label="Switch theme">
+    <option selected disabled value="">Switch theme</option>
+    <option disabled value="DefaultTheme">Default</option>
+    <option value="CoralTheme">Coral</option>
+    <option value="GoldTheme">Gold</option>
+    <option value="SteelTheme">Steel</option>
+  </select>
+  </div>
+</div>
+```
+
+## Differentially abundant `r params$analysis` table
 
 ```{r packages, echo=FALSE, code_folding="show"}
 library(phyloseq)
@@ -301,15 +223,7 @@ dds_input     <- get(load(params$dds))
 base_name <- dirname(params$dds)
 run_ipath <- ifelse(params$analysis == "ASV", FALSE, TRUE)
 result_names <- DESeq2::resultsNames(dds_input)
-
-# doc <- ""
-# if(length(result_names) == 2 || params$mod1 == "None"){
-#      results <- DESeq2::results(dds, name = result_names[1])
-# } else if(length(result_names)>=3){
-#      results <- DESeq2::results(dds_input, contrast = c(params$var, params$mod1, params$mod2) )
-#      doc <- paste0("You chose to compare ", params$mod1, " to the reference modality ", params$mod2, ". This implies that a positive log2FoldChange means more abundant in ", params$mod1, " than in ", params$mod2, ".")
-#      cat(doc)
-# }
+feature <- ifelse(params$analysis=="ASV","ASVs","Functions")
 doc <- ""
 # quantitative variable
 if(params$mod1 == "None"){
@@ -317,14 +231,14 @@ if(params$mod1 == "None"){
 # qualitative variable
 } else {
      results <- DESeq2::results(dds_input, contrast = c(params$var, params$mod1, params$mod2) )
-     doc <- paste0("You chose to compare ", params$mod1, " to the reference modality ", params$mod2, ". This implies that a positive log2FoldChange means more abundant in ", params$mod1, " than in ", params$mod2, ".")
+     doc <- paste0("You chose to compare ", params$mod1, " with ", params$mod2," reference. This implies that a positive log2FoldChange means more abundant in ", params$mod1, " than in ", params$mod2, ".")
      cat(doc)
 }
 
 #This implies that a positive log2FoldChange means more abundant in low than in high.")
 ```
 
-Then we extract significant ASVs or FUNCTIONs at the p-value adjusted threshold (after Benjamini Hochberg correction) and enrich results with taxonomic/functional classification and sort the results by pvalue.
+Significant `r feature` (adjusted p-value using Benjamini Hochberg correction < `r params$padj_th`) were extracted and sorted by adjusted p-value, and enriched with `r if(params$analysis=="ASV"){"taxonomic"}else{"functional"}` classification.
 
 ```{r da_abundances}
 
@@ -335,7 +249,6 @@ da.abundances_table <- results %>% as_tibble(rownames = "ID") %>%
 
 ```
 
-Using customize datatable we can explore the table of differentially expressed abundances
 ```{r datatable, message=FALSE}
 
 DT_foldchange <- da.abundances_table %>% datatable(filter = "top",                # ==> add filter for each column
@@ -412,15 +325,15 @@ svg_file_under <- params$svg_file_under
 ```{asis, eval=run_ipath, echo=run_ipath}
 ## iPath3
 
-### Differentially abundant functions visualized with iPath 3.
+### Visualisation of differentially abundant functions with iPath 3.
 ```
 ```{r doc_path, eval=run_ipath, echo=run_ipath, message=FALSE}
 # Import input files
 if(params$mod1 != "None") {
-     doc <- paste0("You chose to compare ", params$mod1, " to the reference modality ", params$mod2, ". This implies that the over-abundants pathways (first image) and under-abundant pathways (second image) are involved in ", params$mod1, " condition.")
+     doc <- paste0("You chose to compare ", params$mod1, " with ", params$mod2, " reference. This implies that the over-abundants pathways (first image) and under-abundant pathways (second image) are involved in ", params$mod1, " condition.")
      cat(doc)
 } else {
-     doc <- paste0("The first image (green paths) represents the over-abundants involved pathways. The second image (red paths) represents the under-abundant pathways.")
+     doc <- "The first image (green paths) represents the over-abundants involved pathways. The second image (red paths) represents the under-abundant pathways."
      cat(doc)
 }
 ```
@@ -428,8 +341,7 @@ if(params$mod1 != "None") {
 ```{asis, eval=run_ipath, echo=run_ipath}
 The darker the path, the higher the absolute log2 fold change (<=1, <=2, or >2).
 
-To visualise and explore metabolic pathways with [IPATH3 website](https://pathways.embl.de/),  use the two files 
-**ipath_under.tsv** and **ipath_over.tsv** as inputs. 
+Use the two files **ipath_under.tsv** and **ipath_over.tsv** as input to visualise and explore metabolic pathways with the [iPath3 website](https://pathways.embl.de/).
 ```
 
 ```{r ipath3, eval=run_ipath, echo=run_ipath}
@@ -463,7 +375,7 @@ Pie <- ggplot(da_pie, aes(x="", y=Number, fill=IDs)) +
            coord_polar("y", start=0) + 
            scale_fill_manual(values=c('#8EADAC', '#DE9F73', '#C0C0C0')) + 
            geom_text(aes(label = Number), position = position_stack(vjust = 0.5), color = "white") +
-           labs(x = NULL, y = NULL, fill = NULL, title = "Pie chart to view ASVs or FUNCTIONs number of Differential Abundance test") +
+           labs(x = NULL, y = NULL, fill = NULL, title = paste0("Pie chart to view ",feature," number of Differential Abundance test")) +
            theme_classic() + theme(
                 axis.line = element_blank(), 
                 axis.text = element_blank(),
@@ -492,18 +404,17 @@ y_axix_volcano_line <- -log10(params$padj_th)
 da_volcano <- da_volcano %>%
     mutate(
     	color = case_when(
-    		lfc > 0 & evidence > y_axix_volcano_line ~ "More", 
-    		lfc < 0 & evidence > y_axix_volcano_line ~ "Less", 
-    		TRUE                                     ~ "Equal"
+    		lfc > 0 & evidence > y_axix_volcano_line ~ "More abundant", 
+    		lfc < 0 & evidence > y_axix_volcano_line ~ "Less abundant", 
+    		TRUE                                     ~ "Equal abundance"
     	)
     )
 
 # Color corresponds to fold change directionality
 volcano_plot <- ggplot(da_volcano, aes(x = lfc, y = evidence)) + 
     geom_point(aes(color = factor(color)), size = 1.75, alpha = 0.8, na.rm = T) + # add gene points
-    theme_bw(base_size = 16) +                                                    # clean up theme
-    theme(legend.position = "none") +                                             # remove legend 
-    ggtitle(label = "Volcano Plot", subtitle = "Colored by effect sign") +        # add title
+    theme_bw(base_size = 16) + theme(legend.title = element_blank()) +           # clean up theme and remove legend title
+    ggtitle(label = "Volcano Plot", subtitle = paste0(feature," colored by effect sign")) +        # add title
     xlab(expression(log[2]("FoldChange"))) +                                      # x-axis label
     ylab(expression(-log[10]("adjusted p-value"))) +                              # y-axis label
     geom_vline(xintercept = 0, colour = "grey80", linetype = 2) +                                # add line at 0
@@ -516,7 +427,7 @@ volcano_plot <- ggplot(da_volcano, aes(x = lfc, y = evidence)) +
         colour = "black",
         vjust = 0,
         hjust = 0) + # add pvalue threshold           
-    scale_color_manual(values = c("More" = "#C6792B", "Less" = "#759493", "Equal" = "#C0C0C0")) # change colors
+    scale_color_manual(values = c("More abundant" = "#C6792B", "Less abundant" = "#759493", "Equal abundance" = "#C0C0C0")) # change colors
 
 # Plot figure
 volcano_plot + scale_y_continuous(trans = "log1p")
@@ -536,13 +447,12 @@ DESeq2::plotMA(results, ylim = c(-10,10),
 ## Heatmap plot
 
 ```{r echo = FALSE, eval = (nrow(da.abundances_table) <= 1)}
-cat("There is not engough (0 or 1) differentially abundant ASVs or FUNCTIONs to produce heatmap plot.")
+cat(paste0("There is not engough (0 or 1) differentially abundant ",feature," to produce heatmap plot."))
 ```
 
 ```{r heatmap, fig.width=10, fig.height=8, eval = (nrow(da.abundances_table) > 1)}
 
 da.abundances_table <- da.abundances_table %>% arrange(log2FoldChange)
-y_title <- ifelse(params$analysis == "ASV", "ASV", "Functions")
 
 abundances_input2 <- prune_samples(get_variable(abundances_input, params$var) %in% c(params$mod1, params$mod2), abundances_input)
 abundances_input3 <- prune_taxa(da.abundances_table$ID, abundances_input2)
@@ -568,9 +478,9 @@ if ( length(result_names)==2 || params$mod1 != "None"){
 	hplot <- plot_heatmap(hplot_input, 
 						  taxa.label = NULL,
 						  taxa.order = da.abundances_table$ID, low = "yellow", high = "red", na.value = "white") +
-                scale_y_discrete(y_title) +  
+                scale_y_discrete(feature) +  
 				facet_grid(as.formula(paste("~", params$var)), scales = "free_x") + 
-				ggtitle("Heatmap plot of DA asv or functions, between 2 conditions", subtitle = subtitle)
+				ggtitle(paste0("Heatmap plot of DA ",feature,", between 2 conditions"), subtitle = subtitle)
 ## Quantitative variable
 } else {
     idx <- order(get_variable(abundances_input, params$var))
@@ -580,9 +490,15 @@ if ( length(result_names)==2 || params$mod1 != "None"){
     					  taxa.label = NULL,
     	                  taxa.order = da.abundances_table$ID, sample.order = my.sample.order, 
     	                  low = "yellow", high = "red", na.value = "white") + 
-             scale_y_discrete(y_title) +
-             ggtitle(paste0("Heatmap plot of DA asv or functions with samples ordered according to ", params$var))
+             scale_y_discrete(feature) +
+             ggtitle(paste0("Heatmap plot of DA ",feature," with samples ordered according to ", params$var))
 }
 # ggplotly(hplot)
 hplot
+```
+
+## Reproducibility token
+
+```{r session, echo=TRUE, eval=TRUE}
+sessioninfo::session_info()
 ```

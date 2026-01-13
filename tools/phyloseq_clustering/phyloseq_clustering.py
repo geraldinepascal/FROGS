@@ -3,7 +3,7 @@
 __author__ = 'Ta Thi Ngan - SIGENAE/GABI & Maria Bernard - SIGENAE/GABI'
 __copyright__ = 'Copyright (C) 2024 INRAE'
 __license__ = 'GNU General Public License'
-__version__ = '5.0.2'
+__version__ = '5.1.0'
 __email__ = 'frogs-support@inrae.fr'
 __status__ = 'prod'
 
@@ -59,7 +59,7 @@ class Rscript(Cmd):
                       'Rscript',
                       'Run 1 code Rmarkdown',
                        '-e "rmarkdown::render(' + "'" + rmd + "',output_file='" + html + \
-                       "', params=list(phyloseq='" + phyloseq + "', varExp='" + varExp + "',distance='" + distance + "', libdir ='" + LIBR_DIR + "', version='"+ str(__version__) + "'), intermediates_dir='" + os.path.dirname(html) + "')" + '" 2> ' + rmd_stderr,
+                       "', params=list(phyloseq='" + phyloseq + "', varExp='" + varExp + "',distance='" + distance + "', libdir ='" + LIBR_DIR + "', version='"+ str(__version__) + "', tool='" + os.path.basename(__file__) + "'), intermediates_dir='" + os.path.dirname(html) + "')" + '" 2> ' + rmd_stderr,
                        "-e '(sessionInfo()[[1]][13])[[1]][1]; paste(\"Rmarkdown version: \",packageVersion(\"rmarkdown\")) ; library(phyloseq); paste(\"Phyloseq version: \",packageVersion(\"phyloseq\"))'")
     def get_version(self):
         """
@@ -81,11 +81,11 @@ if __name__ == "__main__":
     parser.add_argument('--version', action='version', version=__version__)
     parser.add_argument('--debug', default=False, action='store_true', help="Keep temporary files to debug program. [Default: %(default)s]" )   
     
-    parser.add_argument('--varExp', type=str, required=True, default=None, help='The experiment variable you want to analyse. [Default: %(default)s]')
+    parser.add_argument('--var-exp', type=str, required=True, default=None, help='The experiment variable you want to analyse. [Default: %(default)s]')
     # Inputs
     group_input = parser.add_argument_group( 'Inputs' )
-    group_input.add_argument('--rdata', required=True, default=None, help="The path of RData file containing a phyloseq object-the result of FROGS Phyloseq Import Data. [Default: %(default)s]" )
-    group_input.add_argument('--distance-matrix', required=True, default=None, help="The path of data file containing beta diversity distance matrix. These file is the result of FROGS Phyloseq Beta Diversity. [Default: %(default)s]" ) 
+    group_input.add_argument('--phyloseq-rdata', required=True, default=None, help="The path of RData file containing a phyloseq object-the result of phyloseq_import.py. [Default: %(default)s]" )
+    group_input.add_argument('--beta-distance-matrix', required=True, default=None, help="The path of data file containing beta diversity distance matrix. These file is the result of FROGS Phyloseq Beta Diversity. [Default: %(default)s]" ) 
 
     # output
     group_output = parser.add_argument_group( 'Outputs' )
@@ -96,12 +96,12 @@ if __name__ == "__main__":
     # Process 
     Logger.static_write(args.log_file, "## Application\nSoftware :" + sys.argv[0] + " (version : " + str(__version__) + ")\nCommand : " + " ".join(sys.argv) + "\n\n")
     html=os.path.abspath(args.html)
-    phyloseq=os.path.abspath(args.rdata)
-    distance=os.path.abspath(args.distance_matrix)
+    phyloseq=os.path.abspath(args.phyloseq_rdata)
+    distance=os.path.abspath(args.beta_distance_matrix)
     try:
         tmpFiles = TmpFiles(os.path.dirname(html))
         rmd_stderr = tmpFiles.add("rmarkdown.stderr")
-        Rscript(html, phyloseq, args.varExp, distance,rmd_stderr).submit( args.log_file )
+        Rscript(html, phyloseq, args.var_exp, distance,rmd_stderr).submit( args.log_file )
     finally :
         if not args.debug:
             tmpFiles.deleteAll()

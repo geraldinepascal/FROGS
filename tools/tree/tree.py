@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 
-__author__ = 'Ta Thi Ngan - SIGENAE/GABI & Maria Bernard - SIGENAE/GABI'
-__copyright__ = 'Copyright (C) 2024 INRAE'
+__author__ = 'Ta Thi Ngan - SIGENAE/GABI & Maria Bernard - SIGENAE/GABI & Olivier Rué - Migale/MaIAGE'
+__copyright__ = 'Copyright (C) 2025 INRAE'
 __license__ = 'GNU General Public License'
-__version__ = '5.0.2'
+__version__ = '5.1.0'
 __email__ = 'frogs-support@inrae.fr'
 __status__ = 'prod'
 
@@ -23,6 +23,11 @@ sys.path.append(LIB_DIR)
 if os.getenv('PYTHONPATH') is None: os.environ['PYTHONPATH'] = LIB_DIR
 else: os.environ['PYTHONPATH'] = LIB_DIR + os.pathsep + os.environ['PYTHONPATH']
 os.environ['MAFFT_BINARIES'] = ""
+# THEME
+THEME_DIR = os.path.abspath(os.path.join(os.path.dirname(CURRENT_DIR), "static"))
+if not os.path.exists(THEME_DIR):
+    THEME_DIR = os.path.abspath(os.path.join(os.path.dirname(os.path.dirname(CURRENT_DIR)), "static"))
+
 
 from frogsUtils import *
 from frogsSequenceIO import *
@@ -209,12 +214,27 @@ def write_summary( summary_file, fasta_in, align_out, biomfile, treefile):
     # Write
     FH_summary_tpl = open( os.path.join(CURRENT_DIR, "tree_tpl.html") )
     FH_summary_out = open( summary_file, "wt" )
+    # Load shared JS
+    with open(os.path.join(THEME_DIR, "js", "theme.js")) as f:
+        theme_js = f.read()
+    with open(os.path.join(THEME_DIR, "js", "utils.js")) as f:
+        utils_js = f.read()
+    # Load shared CSS
+    with open(os.path.join(THEME_DIR, "css", "common.css")) as f:
+        common_css = f.read()
     for line in FH_summary_tpl:
-        if "###HEIGHT###" in line:
+        if "###IMPORT_CSS###" in line:
+            line = line.replace("###IMPORT_CSS###", f"<style type='text/css'>{common_css}</style>")
+        elif "###IMPORT_JS_UTILS###" in line:
+            # injection du JS inline
+            line = line.replace("###IMPORT_JS_UTILS###", f"<script>\n{utils_js}</script>")
+        elif "###IMPORT_JS_THEME###" in line:
+            line = line.replace("###IMPORT_JS_THEME###", f"<script>\n{theme_js}</script>")
+        elif "###HEIGHT###" in line:
             line = line.replace( "###HEIGHT###", json.dumps(summary_info['asv_kept']*11+166))
-        if "###NEWICK###" in line:
+        elif "###NEWICK###" in line:
             line = line.replace( "###NEWICK###", newick)
-        if "##REMOVED_DETAILS_CATEGORIES###" in line:
+        elif "##REMOVED_DETAILS_CATEGORIES###" in line:
             line = line.replace( "###REMOVED_DETAILS_CATEGORIES###", json.dumps(removed_details_categories) )
         elif "###REMOVED_DETAILS_DATA###" in line:
             line = line.replace( "###REMOVED_DETAILS_DATA###", json.dumps(removed_details_data) )

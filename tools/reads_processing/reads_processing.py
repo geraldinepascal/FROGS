@@ -3,7 +3,7 @@
 __author__ = 'Olivier Rué - Migale/MaIAGE & Frédéric Escudié - Genotoul/MIAT - INRAE & Maria Bernard - SIGENAE/GABI'
 __copyright__ = 'Copyright (C) 2024 INRAE'
 __license__ = 'GNU General Public License'
-__version__ = '5.0.2'
+__version__ = '5.1.0'
 __email__ = 'frogs-support@inrae.fr'
 __status__ = 'prod'
 
@@ -27,6 +27,10 @@ LIB_DIR = os.path.abspath(os.path.join(os.path.dirname(CURRENT_DIR), "lib"))
 sys.path.append(LIB_DIR)
 if os.getenv('PYTHONPATH') is None: os.environ['PYTHONPATH'] = LIB_DIR
 else: os.environ['PYTHONPATH'] = LIB_DIR + os.pathsep + os.environ['PYTHONPATH']
+# THEME
+THEME_DIR = os.path.abspath(os.path.join(os.path.dirname(CURRENT_DIR), "static"))
+if not os.path.exists(THEME_DIR):
+    THEME_DIR = os.path.abspath(os.path.join(os.path.dirname(os.path.dirname(CURRENT_DIR)), "static"))
 
 from frogsUtils import *
 from frogsSequenceIO import *
@@ -254,7 +258,7 @@ class Pear(Cmd):
         if self.process == "dada2":
             nb_seq_denoised = get_nb_seq(self.in_R1)
             FH_log.write( '\tnb seq denoised: ' + str(nb_seq_denoised) + '\n' )
-        FH_log.write( '\tnb seq paired-end assembled: ' + str(nb_seq_merged) + '\n' )
+        FH_log.write( '\tnb seq assembled paired-end reads: ' + str(nb_seq_merged) + '\n' )
         FH_log.close()
 
 class Flash(Cmd):
@@ -302,7 +306,7 @@ class Flash(Cmd):
         if self.process == "dada2":
             nb_seq_denoised = get_nb_seq(self.in_R1)
             FH_log.write( '\tnb seq denoised: ' + str(nb_seq_denoised) + '\n' )
-        FH_log.write( '\tnb seq paired-end assembled: ' + str(nb_seq_merged) + '\n' )
+        FH_log.write( '\tnb seq assembled paired-end reads: ' + str(nb_seq_merged) + '\n' )
         FH_log.close()
 
 class Vsearch(Cmd):
@@ -352,7 +356,7 @@ class Vsearch(Cmd):
         if self.process == "dada2":
             nb_seq_denoised = get_nb_seq(self.in_R1)
             FH_log.write( '\tnb seq denoised: ' + str(nb_seq_denoised) + '\n' )
-        FH_log.write( '\tnb seq paired-end assembled: ' + str(nb_seq_merged) + '\n' )
+        FH_log.write( '\tnb seq assembled paired-end reads: ' + str(nb_seq_merged) + '\n' )
         FH_log.close()
 
 class Remove454prim(Cmd):
@@ -452,13 +456,10 @@ class Cutadapt3prim(Cmd):
         @param cutadapt_err: [str] Path to the error file.
         @param param: [Namespace] The primer sequence 'param.three_prim_primer', 'param.sequencer'
         """
-        opt = ''
-        if param.sequencer == "longreads":
-            opt = ' --revcomp '
         Cmd.__init__( self,
                       'cutadapt',
                       "Removes reads without the 3' primer and removes primer sequence.",
-                      '-a ' + param.three_prim_primer + ' --error-rate 0.1 --discard-untrimmed --match-read-wildcards --overlap ' + str(len(param.three_prim_primer) -1) + opt + ' -o ' + out_fastq + ' ' + in_fastq + ' > ' + cutadapt_log + ' 2> ' + cutadapt_err,
+                      '-a ' + param.three_prim_primer + ' --error-rate 0.1 --discard-untrimmed --match-read-wildcards --overlap ' + str(len(param.three_prim_primer) -1) + ' -o ' + out_fastq + ' ' + in_fastq + ' > ' + cutadapt_log + ' 2> ' + cutadapt_err,
                       '--version' )
         self.output_seq = out_fastq
 
@@ -800,9 +801,11 @@ def sort_fasta_and_count(in_fasta, in_count, out_fasta, out_count):
     cpt=1
     for entry in sorted_fasta_data:
         if "FROGS_combined" in entry[0]:
-            seqid = "Cluster_"+str(cpt)+"_FROGS_combined"#+";"+sizes
+            # seqid = "Cluster_"+str(cpt)+"_FROGS_combined"#+";"+sizes
+            seqid = "ID_"+str(cpt)+"_FROGS_combined"#+";"+sizes
         else:
-            seqid = "Cluster_"+str(cpt)#+";"+sizes
+            # seqid = "Cluster_"+str(cpt)#+";"+sizes
+            seqid = "ID_"+str(cpt)#+";"+sizes
         out_fasta_fh.write(">"+seqid+"\n"+entry[2]+"\n")
         cpt+=1
         
@@ -812,15 +815,17 @@ def sort_fasta_and_count(in_fasta, in_count, out_fasta, out_count):
     cpt=1
     for entry in sorted_tsv_data:
         if "FROGS_combined" in str(entry[0]):
-            seqid = "Cluster_"+str(cpt)+"_FROGS_combined"#+";"+sizes
+            # seqid = "Cluster_"+str(cpt)+"_FROGS_combined"#+";"+sizes
+            seqid = "ID_"+str(cpt)+"_FROGS_combined"#+";"+sizes
         else:
-            seqid = "Cluster_"+str(cpt)#+";"+sizes
+            # seqid = "Cluster_"+str(cpt)#+";"+sizes
+            seqid = "ID_"+str(cpt)#+";"+sizes
         out_count_fh.write(seqid+"\t"+"\t".join(entry[2])+"\n")
         cpt+=1
 
 def to_biom(count_file, output_biom, process):
     """
-    @summary : Write a biom and a fasta file from a count and a fasta file by adding Cluster_ prefix
+    @summary : Write a biom and a fasta file from a count and a fasta file by adding ID_ prefix
     @param count_file : [str] path to the count file. It contains the count of
                          sequences by sample of each preclusters.
                          Line format : "Precluster_id    nb_in_sampleA    nb_in_sampleB"
@@ -856,10 +861,12 @@ def to_biom(count_file, output_biom, process):
         if not line.startswith("#"):
             seq_id = line.strip().split()[0]
             if "FROGS_combined" in seq_id:
-                cluster_name = "Cluster_" + str(cluster_idx) + "_FROGS_combined"
+                # cluster_name = "Cluster_" + str(cluster_idx) + "_FROGS_combined"
+                cluster_name = "ID_" + str(cluster_idx) + "_FROGS_combined"
                 comment = ["FROGS_combined"]
             else:
-                cluster_name = "Cluster_" + str(cluster_idx)
+                # cluster_name = "Cluster_" + str(cluster_idx)
+                cluster_name = "ID_" + str(cluster_idx)
                 comment = list()
             cluster_count = {key:0 for key in samples}
             
@@ -1020,7 +1027,8 @@ def resizeSeed(seed_in, seed_in_compo, seed_out):
     with open(seed_in_compo,"rt") as f:
         for idx,line in enumerate(f.readlines()):
             if not line.startswith("#"):
-                cluster_name = "Cluster_" + str(idx+1) if not "FROGS_combined" in line.split()[0] else "Cluster_" + str(idx+1) + "_FROGS_combined"
+                # cluster_name = "Cluster_" + str(idx+1) if not "FROGS_combined" in line.split()[0] else "Cluster_" + str(idx+1) + "_FROGS_combined"
+                cluster_name = "ID_" + str(idx+1) if not "FROGS_combined" in line.split()[0] else "ID_" + str(idx+1) + "_FROGS_combined"
                 dict_cluster_abond[cluster_name]=sum([ int(n.split("_")[-1]) for n in line.strip().split()])
     f.close()
 
@@ -1043,9 +1051,11 @@ def agregate_composition(step1_compo , step2_compo, out_compo):
     with open(step1_compo,"rt") as f:
         for idx,line in enumerate(f.readlines()):
             if "FROGS_combined" in line.split()[0]:
-                dict_cluster1_compo["Cluster_"+str(idx+1)+"_FROGS_combined"]=line.strip()
+                # dict_cluster1_compo["Cluster_"+str(idx+1)+"_FROGS_combined"]=line.strip()
+                dict_cluster1_compo["ID_"+str(idx+1)+"_FROGS_combined"]=line.strip()
             else:
-                dict_cluster1_compo["Cluster_"+str(idx+1)]=line.strip()
+                # dict_cluster1_compo["Cluster_"+str(idx+1)]=line.strip()
+                dict_cluster1_compo["ID_"+str(idx+1)]=line.strip()
     f.close()
 
     FH_out=open(out_compo,"wt")
@@ -1090,9 +1100,9 @@ def summarise_results( samples_names, lengths_files, biom_file, depth_file, clas
             filters_by_sample["artificial combined"][spl_name] = filters["artificial combined"]
             # add total uncombined pair
             if param.process != "dada2":
-                filters_by_sample["artificial combined"][spl_name]["paired-end assembled"] = filters_by_sample["before process"][spl_name] - filters_by_sample["merged"][spl_name]["paired-end assembled"]
+                filters_by_sample["artificial combined"][spl_name]["assembled paired-end reads"] = filters_by_sample["before process"][spl_name] - filters_by_sample["merged"][spl_name]["assembled paired-end reads"]
             else:
-                filters_by_sample["artificial combined"][spl_name]["paired-end assembled"] = filters_by_sample["artificial combined"][spl_name]["after_merge"]
+                filters_by_sample["artificial combined"][spl_name]["assembled paired-end reads"] = filters_by_sample["artificial combined"][spl_name]["after_merge"]
                 del filters_by_sample["artificial combined"][spl_name]["after_merge"]
 
         # length distribution
@@ -1138,14 +1148,31 @@ def summarise_results( samples_names, lengths_files, biom_file, depth_file, clas
     del biom
 
     # Write
-    FH_summary_tpl = open( os.path.join(CURRENT_DIR, "denoising_tpl.html") )
+    FH_summary_tpl = open( os.path.join(CURRENT_DIR, "reads_processing_tpl.html") )
     FH_summary_out = open( param.html, "wt" )
+    # Load shared JS
+    with open(os.path.join(THEME_DIR, "js", "theme.js")) as f:
+        theme_js = f.read()
+    with open(os.path.join(THEME_DIR, "js", "utils.js")) as f:
+        utils_js = f.read()
+    # Load shared CSS
+    with open(os.path.join(THEME_DIR, "css", "common.css")) as f:
+        common_css = f.read()
     for line in FH_summary_tpl:
-        if "###CLUSTERS_SIZES###" in line:
+        if "###IMPORT_CSS###" in line:
+            line = line.replace("###IMPORT_CSS###", f"<style type='text/css'>{common_css}</style>")
+        elif "###IMPORT_JS_UTILS###" in line:
+            # injection du JS inline
+            line = line.replace("###IMPORT_JS_UTILS###", f"<script>\n{utils_js}</script>")
+        elif "###IMPORT_JS_THEME###" in line:
+            line = line.replace("###IMPORT_JS_THEME###", f"<script>\n{theme_js}</script>")
+        elif "###CLUSTERS_SIZES###" in line:
             #if args.process != "preprocess-only":
             line = line.replace( "###CLUSTERS_SIZES###", json.dumps(clusters_size) )
             #else:
             #    line = line.replace( "###CLUSTERS_SIZES###", "null" )
+        elif "###PROCESS###" in line:
+            line = line.replace( "###PROCESS###", "\""+ str(args.process)+"\"" )
         elif "###DATA_COUNTS###" in line:
             line = line.replace( "###DATA_COUNTS###", json.dumps(counts) )
         elif "###DATA_SAMPLE###" in line:
@@ -1398,7 +1425,7 @@ def get_nb_seq( reads_file ):
     FH_input.close()
     return int(nb_seq)
 
-def clean_before_denoising_process_multiples_files(R1_files, R2_files, samples_names, R1_out_files, R2_out_files, lengths_files, log_files, args):
+def clean_before_reads_processing_process_multiples_files(R1_files, R2_files, samples_names, R1_out_files, R2_out_files, lengths_files, log_files, args):
     """
     @summary: Remove primers and apply filters on sequences of all samples.
     @param R1_files: [list] List of path to reads 1 fastq files.
@@ -1412,11 +1439,11 @@ def clean_before_denoising_process_multiples_files(R1_files, R2_files, samples_n
     """
     for idx in range(len(R1_files)):
         if args.already_contiged:
-            clean_before_denoising_process( R1_files[idx], None, samples_names[idx], R1_out_files[idx], None, lengths_files[idx], log_files[idx], args )
+            clean_before_reads_processing_process( R1_files[idx], None, samples_names[idx], R1_out_files[idx], None, lengths_files[idx], log_files[idx], args )
         else:
-            clean_before_denoising_process( R1_files[idx], R2_files[idx], samples_names[idx], R1_out_files[idx], R2_out_files[idx], lengths_files[idx], log_files[idx], args )
+            clean_before_reads_processing_process( R1_files[idx], R2_files[idx], samples_names[idx], R1_out_files[idx], R2_out_files[idx], lengths_files[idx], log_files[idx], args )
 
-def clean_before_denoising_process(R1_file, R2_file, sample_name, R1_out_file, R2_out_file, lengths_file, log_file, args):
+def clean_before_reads_processing_process(R1_file, R2_file, sample_name, R1_out_file, R2_out_file, lengths_file, log_file, args):
     """
     @summary: Remove primers and apply filters from one sample.
     @param R1_file: [str] Path to reads 1 fastq file or contiged file of the sample.
@@ -1476,7 +1503,7 @@ def clean_before_denoising_process(R1_file, R2_file, sample_name, R1_out_file, R
         if not args.debug:
             tmp_files.deleteAll()
 
-def process_sample_after_denoising_multiple_files(R1_files, R2_files, samples_names, out_files, out_art_files, lengths_files, log_files, args):
+def process_sample_after_reads_processing_multiple_files(R1_files, R2_files, samples_names, out_files, out_art_files, lengths_files, log_files, args):
     """
     @summary: Merge and filters sequences from R1 and R2 FASTQ files list.
     @param R1_files: [list] List of path to reads 1 fastq files or contiged files (one by sample).
@@ -1490,11 +1517,11 @@ def process_sample_after_denoising_multiple_files(R1_files, R2_files, samples_na
     """
     for idx in range(len(out_files)):
         if args.already_contiged:
-            process_sample_after_denoising( R1_files[idx], None, samples_names[idx], out_files[idx], None, lengths_files[idx], log_files[idx], args )
+            process_sample_after_reads_processing( R1_files[idx], None, samples_names[idx], out_files[idx], None, lengths_files[idx], log_files[idx], args )
         else:
-            process_sample_after_denoising( R1_files[idx], R2_files[idx], samples_names[idx], out_files[idx], out_art_files[idx], lengths_files[idx], log_files[idx], args )
+            process_sample_after_reads_processing( R1_files[idx], R2_files[idx], samples_names[idx], out_files[idx], out_art_files[idx], lengths_files[idx], log_files[idx], args )
 
-def process_sample_after_denoising(R1_file, R2_file, sample_name, out_file, art_out_file, lengths_file, log_file, args):
+def process_sample_after_reads_processing(R1_file, R2_file, sample_name, out_file, art_out_file, lengths_file, log_file, args):
     """
     @summary: Remove primers and apply filters from one sample.
     @param R1_file: [str] Path to reads 1 fastq file or contiged file of the sample.
@@ -1603,7 +1630,7 @@ def process_sample_after_denoising(R1_file, R2_file, sample_name, out_file, art_
         # dealing with uncontiged reads.
         if args.keep_unmerged:
             Combined(out_notcombined_R1, out_notcombined_R2, "X"*100, art_out_cutadapt ).submit(log_file)
-            MultiFilter(art_out_cutadapt, None, min_len, None, 0, None, art_out_Nfilter, None, art_log_Nfilter, True, False, args).submit(log_file)
+            MultiFilter(art_out_cutadapt, None, min_len, None, None, None, art_out_Nfilter, None, art_log_Nfilter, True, False, args).submit(log_file)
             ReplaceJoinTag(art_out_Nfilter, "X"*100, "N"*100, art_out_XtoN ).submit(log_file)
             DerepBySample(out_NAndLengthfilter + " " + art_out_XtoN, out_file, out_count, size_separator="';size='").submit(log_file)
         
@@ -1867,7 +1894,6 @@ def process( args ):
             # Dereplicate global on combined filtered cutadapted multifiltered derep
             Logger.static_write(args.log_file, '##Sample\nAll\n##Commands\n')
             DerepGlobalMultiFasta(filtered_files, samples_names, tmp_files.add('derep_inputs.tsv'), dereplicated_fasta, tmp_count, args).submit( args.log_file )
-            
 
             # Check the number of sequences after filtering
             nb_seq = get_nb_seq(dereplicated_fasta)
@@ -1877,9 +1903,9 @@ def process( args ):
             # Temporary files
             filename_woext = os.path.split(dereplicated_fasta)[1].split('.')[0]
 
-            if args.distance == 1 and args.denoising:
-                Logger.static_write(args.log_file, "Warning: using the denoising option with a distance of 1 is useless. The denoising option is cancelled\n\n")
-                args.denoising = False
+            if args.distance == 1 and args.pre_clustering:
+                Logger.static_write(args.log_file, "Warning: using the --pre-clustering option with a distance of 1 is useless. The pre-clustering option is cancelled\n\n")
+                args.pre_clustering = False
 
             sorted_fasta = tmp_files.add( filename_woext + '_sorted.fasta' )
             replaceN_fasta = tmp_files.add( filename_woext + '_sorted_NtoA.fasta' )
@@ -1892,25 +1918,25 @@ def process( args ):
             Logger.static_write(args.log_file, "replace 100 N tags by 50A-50C in: " + sorted_fasta + " out : "+ replaceN_fasta +"\n")
             replaceNtags(sorted_fasta, replaceN_fasta)
 
-            if args.denoising and args.distance > 1:
-                # Denoising
-                denoising_log = tmp_files.add( filename_woext + '_denoising_log.txt' )
-                denoising_compo = tmp_files.add( filename_woext + '_denoising_composition.txt' )
-                denoising_seeds = tmp_files.add( filename_woext + '_denoising_seeds.fasta' )
-                denoising_resized_seeds = tmp_files.add( filename_woext + '_denoising_resizedSeeds.fasta' )
+            if args.pre_clustering and args.distance > 1:
+                # Pre-clustering
+                pre_clustering_log = tmp_files.add( filename_woext + '_pre_clustering_log.txt' )
+                pre_clustering_compo = tmp_files.add( filename_woext + '_pre_clustering_composition.txt' )
+                pre_clustering_seeds = tmp_files.add( filename_woext + '_pre_clustering_seeds.fasta' )
+                pre_clustering_resized_seeds = tmp_files.add( filename_woext + '_pre_clustering_resizedSeeds.fasta' )
                 swarms_file = tmp_files.add( filename_woext + '_swarmD' + str(args.distance) + '_composition.txt' )
-                final_sorted_fasta = tmp_files.add( filename_woext + '_denoising_sortedSeeds.fasta' )
+                final_sorted_fasta = tmp_files.add( filename_woext + '_pre_clustering_sortedSeeds.fasta' )
 
-                Swarm( replaceN_fasta, denoising_compo, denoising_log, 1 , args.fastidious, args.nb_cpus ).submit( args.log_file )
-                ExtractSwarmsFasta( replaceN_fasta, denoising_compo, denoising_seeds ).submit( args.log_file )
-                resizeSeed( denoising_seeds, denoising_compo, denoising_resized_seeds ) # add size to seeds name
-                SortFasta( denoising_resized_seeds, final_sorted_fasta, args.debug, "_" ).submit( args.log_file )
+                Swarm( replaceN_fasta, pre_clustering_compo, pre_clustering_log, 1 , args.fastidious, args.nb_cpus ).submit( args.log_file )
+                ExtractSwarmsFasta( replaceN_fasta, pre_clustering_compo, pre_clustering_seeds ).submit( args.log_file )
+                resizeSeed( pre_clustering_seeds, pre_clustering_compo, pre_clustering_resized_seeds ) # add size to seeds name
+                SortFasta( pre_clustering_resized_seeds, final_sorted_fasta, args.debug, "_" ).submit( args.log_file )
 
             Swarm( final_sorted_fasta, swarms_file, swarm_log, args.distance, args.fastidious, args.nb_cpus ).submit( args.log_file )
 
-            if args.denoising and args.distance > 1:
+            if args.pre_clustering and args.distance > 1:
                 # convert cluster composition in read composition ==> final swarm composition
-                agregate_composition(denoising_compo, swarms_file, args.output_compo)
+                agregate_composition(pre_clustering_compo, swarms_file, args.output_compo)
 
             Swarm2Biom( args.output_compo, tmp_count, args.output_biom).submit( args.log_file )
             ExtractSwarmsFasta( final_sorted_fasta, swarms_file, swarms_seeds ).submit( args.log_file )
@@ -1926,9 +1952,9 @@ def process( args ):
             log_files2 = [tmp_files.add(current_sample + '_after_dada2_log.txt') for current_sample in samples_names]
 
             if nb_processses_used == 1:
-                clean_before_denoising_process_multiples_files( R1_files, R2_files, samples_names, R1_cutadapted_files, R2_cutadapted_files, lengths_files, log_files, args )
+                clean_before_reads_processing_process_multiples_files( R1_files, R2_files, samples_names, R1_cutadapted_files, R2_cutadapted_files, lengths_files, log_files, args )
             else:
-                parallel_submission( clean_before_denoising_process_multiples_files, R1_files, R2_files, samples_names, R1_cutadapted_files, R2_cutadapted_files, lengths_files, log_files, nb_processses_used, args)
+                parallel_submission( clean_before_reads_processing_process_multiples_files, R1_files, R2_files, samples_names, R1_cutadapted_files, R2_cutadapted_files, lengths_files, log_files, nb_processses_used, args)
             ## Write summary
             log_append_files( args.log_file, log_files )
             
@@ -1998,14 +2024,14 @@ def process( args ):
             nb_processses_used = min( len(R1_files), args.nb_cpus ) # samples number may have changed
             if nb_processses_used == 1:
                 if not args.already_contiged:
-                    process_sample_after_denoising_multiple_files( R1_files, R2_files, samples_names, filtered_files, art_filtered_files, lengths_files, log_files2, args )
+                    process_sample_after_reads_processing_multiple_files( R1_files, R2_files, samples_names, filtered_files, art_filtered_files, lengths_files, log_files2, args )
                 else:
-                    process_sample_after_denoising_multiple_files( R1_files, None, samples_names, filtered_files, art_filtered_files, lengths_files, log_files2, args )
+                    process_sample_after_reads_processing_multiple_files( R1_files, None, samples_names, filtered_files, art_filtered_files, lengths_files, log_files2, args )
             else:
                 if not args.already_contiged:
-                    parallel_submission( process_sample_after_denoising_multiple_files, R1_files, R2_files, samples_names, filtered_files, art_filtered_files, lengths_files, log_files2, nb_processses_used, args)
+                    parallel_submission( process_sample_after_reads_processing_multiple_files, R1_files, R2_files, samples_names, filtered_files, art_filtered_files, lengths_files, log_files2, nb_processses_used, args)
                 else:
-                    parallel_submission( process_sample_after_denoising_multiple_files, R1_files, None, samples_names, filtered_files, art_filtered_files, lengths_files, log_files2, nb_processses_used, args)
+                    parallel_submission( process_sample_after_reads_processing_multiple_files, R1_files, None, samples_names, filtered_files, art_filtered_files, lengths_files, log_files2, nb_processses_used, args)
             #log_files.append(log_files_after_dada2)
 
             # Write summary
@@ -2083,7 +2109,7 @@ if __name__ == "__main__":
     subparsers = parser.add_subparsers()
     parser_illumina = subparsers.add_parser( 'illumina', help='Illumina sequencers.', usage='''
   For samples archive:
-    denoising.py illumina
+    reads_processing.py illumina
       [--nb-cpus NB_CPUS] [--debug] [--version]
       --input-archive ARCHIVE_FILE
         # if single-end ou already-contiged
@@ -2098,7 +2124,7 @@ if __name__ == "__main__":
       # clustering or denoising
       [--process {swarm, dada2, preprocess-only}]
         # if swarm
-        [--denoising] [--distance DISTANCE] [--fastidious] 
+        [--pre-clustering] [--distance DISTANCE] [--fastidious] 
         # if dada2
         [--sample-inference {pseudo-pooling, independent, pooling}]
       # outputs
@@ -2109,7 +2135,7 @@ if __name__ == "__main__":
 
       
   For samples files:
-      denoising.py illumina
+      reads_processing.py illumina
       [--nb-cpus NB_CPUS] [--debug] [--version]
       --input-R1 R1_FILE [R1_FILE ...]
       --samples-names SAMPLE_NAME [SAMPLE_NAME ...]
@@ -2126,7 +2152,7 @@ if __name__ == "__main__":
       # clustering or denoising
       [--process {swarm, dada2, preprocess-only}]
         # if swarm
-        [--denoising] [--distance DISTANCE] [--fastidious] 
+        [--pre-clustering] [--distance DISTANCE] [--fastidious] 
         # if dada2
         [--sample-inference {pseudo-pooling, independent, pooling}]
       # outputs
@@ -2160,9 +2186,9 @@ if __name__ == "__main__":
     group_clustering_or_denoising.add_argument('--process', default="swarm", choices=["swarm","dada2","preprocess-only"], help='Choose between performing only dereplication and using swarm or dada2 to build ASVs [Default: %(default)s]' )
             # swarm
     group_clustering = parser_illumina.add_argument_group( 'Clustering options' )
-    group_clustering.add_argument('--denoising', default=False, action='store_true',  help="denoise data by clustering read with distance=1 before perform real clustering. It is mutually exclusive with --fastidious. [Default: %(default)s]" )
+    group_clustering.add_argument('--pre-clustering', default=False, action='store_true',  help="denoise data by clustering read with distance=1 before perform real clustering. It is mutually exclusive with --fastidious. [Default: %(default)s]" )
     group_clustering.add_argument('--distance', type=int, default=1, help="Maximum distance between sequences in each aggregation step. RECOMMENDED : d=1 in combination with --fastidious option [Default: %(default)s]" )
-    group_clustering.add_argument('--fastidious', default=False, action='store_true',  help="use the fastidious option of swarm to refine cluster. RECOMMENDED in combination with a distance equal to 1 (-d). it is only usable with d=1 and mutually exclusive with --denoising. [Default: %(default)s]" )
+    group_clustering.add_argument('--fastidious', default=False, action='store_true',  help="use the fastidious option of swarm to refine cluster. RECOMMENDED in combination with a distance equal to 1 (-d). it is only usable with d=1 and mutually exclusive with --pre-clustering. [Default: %(default)s]" )
     group_clustering_output = parser_illumina.add_argument_group( 'Clustering output' )
     group_clustering_output.add_argument('--output-compo', default='clustering_swarms_composition.tsv', help='This output file will contain the composition of each cluster (format: TSV). One Line is a cluster ; each column is a sequence ID. [Default: %(default)s]')
             # dada2
@@ -2177,19 +2203,19 @@ if __name__ == "__main__":
     group_illumina_input.set_defaults( sequencer='illumina' )
     #     Illumina outputs
     group_illumina_output = parser_illumina.add_argument_group( 'Outputs' )
-    group_illumina_output.add_argument('--output-biom', default='denoising_abundance.biom', help='This output file will contain the abundance by sample for each cluster or ASV (format: BIOM). [Default: %(default)s]')
+    group_illumina_output.add_argument('--output-biom', default='reads_processing_abundance.biom', help='This output file will contain the abundance by sample for each cluster or ASV (format: BIOM). [Default: %(default)s]')
     group_illumina_output.add_argument('--output-fasta', default='sequences.fasta', help='This output file will contain the sequence for each cluster or ASV (format: FASTA). [Default: %(default)s]')
-    group_illumina_output.add_argument('--html', default='denoising.html', help='The HTML file containing the graphs. [Default: %(default)s]')
+    group_illumina_output.add_argument('--html', default='reads_processing.html', help='The HTML file containing the graphs. [Default: %(default)s]')
     group_illumina_output.add_argument('--log-file', default=sys.stdout, help='This output file will contain several information on executed commands.')
 
 
     parser_longreads = subparsers.add_parser( 'longreads', help='longreads sequencers (dada2 process is however not compatible with ONT data)', usage='''
-    denoising.py longreads
+    reads_processing.py longreads
     --input-archive ARCHIVE_FILE | --input-R1 R1_FILE [R1_FILE ...]
     --min-amplicon-size MIN_AMPLICON_SIZE
     --max-amplicon-size MAX_AMPLICON_SIZE
     [--process {swarm, dada2, preprocess-only}]
-    [--denoising] [--distance DISTANCE] [--fastidious] | [--sample-inference {pseudo-pooling, independent, pooling}]
+    [--pre-clustering] [--distance DISTANCE] [--fastidious] | [--sample-inference {pseudo-pooling, independent, pooling}]
     --without-primers | --five-prim-primer FIVE_PRIM_PRIMER --three-prim-primer THREE_PRIM_PRIMER
     [--nb-cpus NB_CPUS] [--debug] [--version]
     [--process PROCESS]
@@ -2213,23 +2239,23 @@ if __name__ == "__main__":
                                   nargs='+', default=None, help='The sample name for each R1/R2-files.')
     group_longreads_input.add_argument('--input-R1', required=None, nargs='+', help='The R1 sequence file for each sample (format: fastq). Required for single-ends OR paired-ends data.' )
     group_clustering_longreads = parser_longreads.add_argument_group( 'Clustering options' )
-    group_clustering_longreads.add_argument('--denoising', default=False, action='store_true',  help="denoise data by clustering read with distance=1 before perform real clustering. It is mutually exclusive with --fastidious. [Default: %(default)s]" )
+    group_clustering_longreads.add_argument('--pre-clustering', default=False, action='store_true',  help="denoise data by clustering read with distance=1 before perform real clustering. It is mutually exclusive with --fastidious. [Default: %(default)s]" )
     group_clustering_longreads.add_argument('--distance', type=int, default=1, help="Maximum distance between sequences in each aggregation step. RECOMMENDED : d=1 in combination with --fastidious option [Default: %(default)s]" )
-    group_clustering_longreads.add_argument('--fastidious', default=False, action='store_true',  help="use the fastidious option of swarm to refine cluster. RECOMMENDED in combination with a distance equal to 1 (-d). it is only usable with d=1 and mutually exclusive with --denoising. [Default: %(default)s]" )
+    group_clustering_longreads.add_argument('--fastidious', default=False, action='store_true',  help="use the fastidious option of swarm to refine cluster. RECOMMENDED in combination with a distance equal to 1 (-d). it is only usable with d=1 and mutually exclusive with --pre-clustering. [Default: %(default)s]" )
     group_clustering_longreads.add_argument('--output-compo', default='clustering_swarms_composition.tsv', help='This output file will contain the composition of each cluster (format: TSV). One Line is a cluster ; each column is a sequence ID. [Default: %(default)s]')
     group_denoising_longreads = parser_longreads.add_argument_group( 'Denoising options' )
     group_denoising_longreads.add_argument('--sample-inference', default="pseudo-pooling", choices=["pseudo-pooling", "independent", "pooling"],  help="Independent, pseudo-pooling of full pooling for dada2 samples processing. [Default: %(default)s]" )
     # Long-reads outputs
     group_longreads_output = parser_longreads.add_argument_group( 'Outputs' )
-    group_longreads_output.add_argument('--html', default='denoising.html', help='The HTML file containing the graphs. [Default: %(default)s]')
+    group_longreads_output.add_argument('--html', default='reads_processing.html', help='The HTML file containing the graphs. [Default: %(default)s]')
     group_longreads_output.add_argument('--log-file', default=sys.stdout, help='This output file will contain several information on executed commands.')
-    group_longreads_output.add_argument('--output-biom', default='denoising_abundance.biom', help='This output file will contain the abundance by sample for each cluster or ASV (format: BIOM). [Default: %(default)s]')
+    group_longreads_output.add_argument('--output-biom', default='reads_processing_abundance.biom', help='This output file will contain the abundance by sample for each cluster or ASV (format: BIOM). [Default: %(default)s]')
     group_longreads_output.add_argument('--output-fasta', default='sequences.fasta', help='This output file will contain the sequence for each cluster or ASV (format: FASTA). [Default: %(default)s]')
     parser_longreads.set_defaults( sequencer='longreads', already_contiged=True, keep_unmerged=False )
 
     # 454
     parser_454 = subparsers.add_parser('454', help='454 sequencers.', usage='''
-  denoising.py 454
+  reads_processing.py 454
     --input-archive ARCHIVE_FILE | --input-R1 R1_FILE [R1_FILE ...]
     --min-amplicon-size MIN_AMPLICON_SIZE
     --max-amplicon-size MAX_AMPLICON_SIZE
@@ -2254,17 +2280,15 @@ if __name__ == "__main__":
     group_454_input.add_argument('--input-R1', required=None, nargs='+', help='The sequence file for each sample (format: fastq).' )
     group_454_input.set_defaults( sequencer='454' )
     group_clustering = parser_454.add_argument_group( 'Clustering options' )
-    group_clustering.add_argument('--denoising', default=False, action='store_true',  help="denoise data by clustering read with distance=1 before perform real clustering. It is mutually exclusive with --fastidious. [Default: %(default)s]" )
+    group_clustering.add_argument('--pre-clustering', default=False, action='store_true',  help="denoise data by clustering read with distance=1 before perform real clustering. It is mutually exclusive with --fastidious. [Default: %(default)s]" )
     group_clustering.add_argument('--distance', type=int, default=1, help="Maximum distance between sequences in each aggregation step. RECOMMENDED : d=1 in combination with --fastidious option [Default: %(default)s]" )
-    group_clustering.add_argument('--fastidious', default=False, action='store_true',  help="use the fastidious option of swarm to refine cluster. RECOMMENDED in combination with a distance equal to 1 (-d). it is only usable with d=1 and mutually exclusive with --denoising. [Default: %(default)s]" )
+    group_clustering.add_argument('--fastidious', default=False, action='store_true',  help="use the fastidious option of swarm to refine cluster. RECOMMENDED in combination with a distance equal to 1 (-d). it is only usable with d=1 and mutually exclusive with --pre-clustering. [Default: %(default)s]" )
     group_clustering.add_argument('--output-compo', default='clustering_swarms_composition.tsv', help='This output file will contain the composition of each cluster (format: TSV). One Line is a cluster ; each column is a sequence ID. [Default: %(default)s]')
-    group_denoising = parser_454.add_argument_group( 'Denoising options' )
-    group_denoising.add_argument('--sample-inference', default="pseudo-pooling", choices=["pseudo-pooling", "independent", "pooling"],  help="Independent, pseudo-pooling of full pooling for dada2 samples processing. [Default: %(default)s]" )
     #     454 outputs
     group_454_output = parser_454.add_argument_group( 'Outputs' )
     group_454_output.add_argument('--output-biom', default='abundance.biom', help='This output file will contain the abundance by sample for each cluster or ASV (format: BIOM). [Default: %(default)s]')
     group_454_output.add_argument( '--output-fasta', default='sequences.fasta', help='This output file will contain the sequence for each cluster or ASV (format: FASTA). [Default: %(default)s]')
-    group_454_output.add_argument('--html', default='denoising.html', help='The HTML file containing the graphs. [Default: %(default)s]')
+    group_454_output.add_argument('--html', default='reads_processing.html', help='The HTML file containing the graphs. [Default: %(default)s]')
     group_454_output.add_argument('--log-file', default=sys.stdout, help='This output file will contain several information on executed commands.')
     parser_454.set_defaults( sequencer='454', already_contiged=True, keep_unmerged=False )
 
@@ -2310,8 +2334,8 @@ if __name__ == "__main__":
         if args.mismatch_rate and args.mismatch_rate < 0 or args.mismatch_rate > 1:
             raise_exception( argparse.ArgumentTypeError( "\n\n#ERROR : mismatch-rate option need to be included between 0 and 1.\n\n" ))
             
-    if args.denoising and args.fastidious:
-        raise_exception( parser.error("\n#ERROR : --fastidious and --denoising are mutually exclusive.\n\n"))
+    if args.pre_clustering and args.fastidious:
+        raise_exception( parser.error("\n#ERROR : --fastidious and --pre-clustering are mutually exclusive.\n\n"))
     if args.distance > 1 and args.fastidious:
         raise_exception( parser.error("\n#ERROR : --fastidious is not allowed with d>1.\n\n"))
 

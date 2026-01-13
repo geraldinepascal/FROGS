@@ -57,9 +57,11 @@ def filter_seq( input_fasta, clusters_file, cluster_fasta ):
         line = line.strip()
         representative_id = line.split()[0]
         if "FROGS_combined" in representative_id:
-            cluster_representative[representative_id] = "Cluster_" + str(cluster_idx) + "_FROGS_combined"
+            # cluster_representative[representative_id] = "Cluster_" + str(cluster_idx) + "_FROGS_combined"
+            cluster_representative[representative_id] = "ID_" + str(cluster_idx) + "_FROGS_combined"
         else:
-            cluster_representative[representative_id] = "Cluster_" + str(cluster_idx)
+            # cluster_representative[representative_id] = "Cluster_" + str(cluster_idx)
+            cluster_representative[representative_id] = "ID_" + str(cluster_idx)
         cluster_idx += 1
     clusters_fh.close()
 

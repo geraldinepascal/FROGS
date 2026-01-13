@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 
-__author__ = 'Katia Vidal - GENPHYSE & Frédéric Escudié - Genotoul/MIAT & Maria Bernard - SIGENAE/GABI'
-__copyright__ = 'Copyright (C) 2024 INRAE'
+__author__ = 'Katia Vidal - GENPHYSE & Frédéric Escudié - Genotoul/MIAT & Maria Bernard - SIGENAE/GABI & Olivier Rué - Migale/MaIAGE'
+__copyright__ = 'Copyright (C) 2025 INRAE'
 __license__ = 'GNU General Public License'
-__version__ = '5.0.2'
+__version__ = '5.1.0'
 __email__ = 'frogs-support@inrae.fr'
 __status__ = 'prod'
 
@@ -15,6 +15,7 @@ import json
 import operator
 import argparse
 import re
+from functools import partial
 
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
 # PATH
@@ -28,6 +29,10 @@ LIB_DIR = os.path.abspath(os.path.join(os.path.dirname(CURRENT_DIR), "lib"))
 sys.path.append(LIB_DIR)
 if os.getenv('PYTHONPATH') is None: os.environ['PYTHONPATH'] = LIB_DIR
 else: os.environ['PYTHONPATH'] = LIB_DIR + os.pathsep + os.environ['PYTHONPATH']
+# THEME
+THEME_DIR = os.path.abspath(os.path.join(os.path.dirname(CURRENT_DIR), "static"))
+if not os.path.exists(THEME_DIR):
+    THEME_DIR = os.path.abspath(os.path.join(os.path.dirname(os.path.dirname(CURRENT_DIR)), "static"))
 
 from frogsUtils import *
 from frogsBiom import *
@@ -138,7 +143,7 @@ class BootstrapParameter(argparse.Action):
         output["rank"] = value.split(":")[0]
         output["value"] = value.split(":")[1]
         try:
-            output["value"] = ratioParameter(output["value"])
+            output["value"] = ratioParameter(output["value"], min=0.0, max=1.0)
         except:
             raise_exception( argparse.ArgumentTypeError("\n\n#ERROR : The value for the MIN_BOOTSTRAP in parameter '--min-rdp-bootstrap' must be between 0.0 and 1.0.\n\n"))
         setattr(namespace, self.dest, output)
@@ -196,17 +201,16 @@ class UpdateFasta(Cmd):
 # FUNCTIONS
 #
 ##################################################################################################################################################
-def ratioParameter( arg_value ):
+def ratioParameter( arg_value, min=0, max=100 ):
     """
     @summary: Argparse type for ratio (float between 0 and 100).
     """
     float_arg_value = None
-    try:
-        float_arg_value = float(arg_value)
-        if float_arg_value < 0.0 or float_arg_value > 100.0:
-            raise_exception( argparse.ArgumentTypeError("\n\n#ERROR : must be between 0 and 100.\n"))
-    except:
-        raise_exception( argparse.ArgumentTypeError("\n\n#ERROR : must be between 0 and 100.\n"))
+    float_arg_value = float(arg_value)
+    
+    if float_arg_value < min or float_arg_value > max:
+            raise_exception( argparse.ArgumentTypeError("\n\n#ERROR : must be between " + str(min) + " and " + str(max) +".\n"))
+
     return float_arg_value
 
 def checkBlastTaxa( param ):
@@ -259,29 +263,55 @@ def impacted_blast_affi_on_blastMetrics( observation, tag, cmp_operator, thresho
 
     return blast_affiliations_out
 
-def impacted_blast_affi_on_blastTaxonomy(observation, taxon_ignored, init_keep):
+
+def impacted_blast_affi_on_blastTaxonomy(observation, taxon_list, to_keep):
     """
     @summary: return blast affiliations whithout undesired taxon
     @param observation [obj] : observation object with list of blast affiliations
-    @param taxon_ignored [list] : list of taxon to ignored (it may be partial terms)
-    @param init_keep [boolean] : True if --ignore-blast-taxa, False if --keep-blast-taxa
+    @param taxon_list [list] : list of taxon to search (it may be partial terms)
+    @param to_keep [boolean] : True if --ignore-blast-taxa, False if --keep-blast-taxa
     @return blast affiliations filtered list
     """
     blast_affiliations_out = dict()
-    for idx,blast_affi in enumerate(observation['metadata']['blast_affiliations'] ):
-        # True if ignore_blast_taxa, False if keep_blast_taxa
-        keep = init_keep
-        for t in taxon_ignored:
-            regexp = re.compile(t)
-            if regexp.search(";".join(blast_affi["taxonomy"])):
-                if keep:
-                    keep=False
-                else:
-                    keep=True
-        if keep:
-            blast_affiliations_out[idx] = blast_affi
+    blast_affiliations_present = dict()
+    blast_affiliations_absent = dict()
+    for idx,blast_affi in enumerate(observation['metadata']['blast_affiliations']):
+        found = False
+        for t in taxon_list:
+            if t in ";".join(blast_affi["taxonomy"]):
+                blast_affiliations_present[idx] = blast_affi
+                found = True
+                break
+        if not found:
+            blast_affiliations_absent[idx] = blast_affi
 
-    return blast_affiliations_out
+    if to_keep:
+        return blast_affiliations_absent
+    else:
+        return blast_affiliations_present
+
+# def impacted_blast_affi_on_blastTaxonomy(observation, taxon_ignored, init_keep):
+#     """
+#     @summary: return blast affiliations whithout undesired taxon
+#     @param observation [obj] : observation object with list of blast affiliations
+#     @param taxon_ignored [list] : list of taxon to ignored (it may be partial terms)
+#     @param init_keep [boolean] : True if --ignore-blast-taxa, False if --keep-blast-taxa
+#     @return blast affiliations filtered list
+#     """
+#     blast_affiliations_out = dict()
+#     for idx,blast_affi in enumerate(observation['metadata']['blast_affiliations'] ):
+#         # True if ignore_blast_taxa, False if keep_blast_taxa
+#         keep = init_keep
+#         for t in taxon_ignored:
+#             regexp = re.compile(t)
+#             if regexp.search(";".join(blast_affi["taxonomy"])):
+#                 if keep:
+#                     keep=False
+#                 else:
+#                     keep=True
+#         if keep:
+#             blast_affiliations_out[idx] = blast_affi
+#     return blast_affiliations_out
 
 def get_tax_consensus( taxonomies ):
     """
@@ -294,12 +324,25 @@ def get_tax_consensus( taxonomies ):
         return = ["Bacteria", "Proteobacteria", "Multi-affiliation", "Multi-affiliation"]
     """
     consensus = list()
+    # init with first taxonomy
     if len(taxonomies) != 0:
         consensus = copy.copy(taxonomies[0])
+        # for last rank take as taxon only the 2 first terms (ex: Listeria monocytogenes FSL R2-503 = Listeria monocytogenes)
+        # if len(consensus[-1].split(' ')) > 2:
+        #     consensus[-1] = ' '.join(consensus[-1].split(' ')[:2])
+    
+    # compare with other taxonomies
     for curr_taxonomy in taxonomies[1:]:
+        # for rank, taxon in enumerate(curr_taxonomy[:-1]):
         for rank, taxon in enumerate(curr_taxonomy):
             if consensus[rank] != "Multi-affiliation" and consensus[rank] != taxon:
                 consensus[rank] = "Multi-affiliation"
+        # for last rank take as taxon only the 2 first terms (ex: Listeria monocytogenes FSL R2-503 = Listeria monocytogenes)
+        # rank +=1
+        # taxon = ' '.join(curr_taxonomy[-1].split(' ')[:2])
+        # if consensus[rank] != "Multi-affiliation" and consensus[rank] != taxon:
+        #     consensus[rank] = "Multi-affiliation"
+
     # Clean case with same taxon name in different branches:
     #      with taxonomies = [["A", "B", "C"], ["A", "L", "C"]]
     #      consensus is ["A", "Multi-affiliation", "C"] but must be ["A", "Multi-affiliation", "Multi-affiliation"]
@@ -314,24 +357,23 @@ def get_tax_consensus( taxonomies ):
     return consensus
 
 
-
-def update_blast_metadata(metadata_dict, kept_affiliaitons):
+def update_blast_metadata(metadata_dict, kept_affiliations):
     """
     @summary : return impact status
     @param metadata_dict [dict] : original observation metadata dictionnary
     @param kept_affiliations [dict] : indexed blast affiliations to keep by filter
     @return a filtering status True (if all affiliation are removed), False otherwise
     """
-    
+
     # compare the number of filtering criteria to the number of time a taxonomy is kept.
-    nb_criteria = len(kept_affiliaitons)
+    nb_criteria = len(kept_affiliations)
     nb_index = dict()
-    for criteria in kept_affiliaitons:
-        for i in kept_affiliaitons[criteria]:
+
+    for criteria in kept_affiliations:
+        for i in kept_affiliations[criteria]:
             if i not in nb_index:
                 nb_index[i] = 0
             nb_index[i] += 1
-
     keys = list(nb_index.keys())
     keys.sort(reverse=True)
     
@@ -346,6 +388,7 @@ def update_blast_metadata(metadata_dict, kept_affiliaitons):
     # return impacting status
     if metadata_dict['blast_taxonomy'] is None :
         metadata_dict['blast_affiliations'] = []
+      
         return True
     else:
         return False
@@ -428,7 +471,7 @@ def filter_biom(in_biom_file, impacted_file, output_file, params):
         # to store by criteria valid blast affiliations 
         filter_on_blastCriteria = False
         out_blast_affiliations = dict()
-        # to check if criteria has an impact
+        # to check if criteria has an impact on taxonomies
         tax_in=list()
         if observation['metadata']['blast_affiliations'] :
             for blast_affi in observation['metadata']['blast_affiliations']:
@@ -448,7 +491,8 @@ def filter_biom(in_biom_file, impacted_file, output_file, params):
                     if not label in impacted_dict:
                         impacted_dict[label] = list()
                     impacted_dict[label].append(observation['id'])
-                elif len(uniq_tax) == len(tax_in):
+                # elif len(uniq_tax) == len(tax_in):
+                elif len(out_blast_affiliations) == len(observation['metadata']['blast_affiliations']):
                     out_blast_affiliations.pop('filter_on_len')  
 
             # add blast evalue criteria
@@ -461,7 +505,8 @@ def filter_biom(in_biom_file, impacted_file, output_file, params):
                     if not label in impacted_dict:
                         impacted_dict[label] = list()
                     impacted_dict[label].append(observation['id'])
-                elif len(uniq_tax) == len(tax_in):
+                # elif len(uniq_tax) == len(tax_in):
+                elif len(out_blast_affiliations) == len(observation['metadata']['blast_affiliations']):
                     out_blast_affiliations.pop('filter_on_evalue')  
 
             # add blast identity criteria
@@ -474,10 +519,11 @@ def filter_biom(in_biom_file, impacted_file, output_file, params):
                     if not label in impacted_dict:
                         impacted_dict[label] = list()
                     impacted_dict[label].append(observation['id'])
-                elif len(uniq_tax) == len(tax_in):
+                # elif len(uniq_tax) == len(tax_in):
+                elif len(out_blast_affiliations) == len(observation['metadata']['blast_affiliations']):
                     out_blast_affiliations.pop('filter_on_identity')         
 
-            # add blast coverage criteria
+            # add blast min query coverage criteria
             if params.min_blast_coverage:
                 label = "Blast coverage < " + str(args.min_blast_coverage)
                 out_blast_affiliations['filter_on_coverage'] = impacted_blast_affi_on_blastMetrics(observation, "perc_query_coverage", ">=", params.min_blast_coverage)
@@ -487,8 +533,37 @@ def filter_biom(in_biom_file, impacted_file, output_file, params):
                     if not label in impacted_dict:
                         impacted_dict[label] = list()
                     impacted_dict[label].append(observation['id'])
-                elif len(uniq_tax) == len(tax_in):
+                # elif len(uniq_tax) == len(tax_in):
+                elif len(out_blast_affiliations) == len(observation['metadata']['blast_affiliations']):
                     out_blast_affiliations.pop('filter_on_coverage')
+
+            # add blast min subject coverage criteria 
+            if params.min_blast_subject_coverage:
+                label = "Blast subject coverage < " + str(args.min_blast_subject_coverage)
+                out_blast_affiliations['filter_on_min_subject_coverage'] = impacted_blast_affi_on_blastMetrics(observation, "perc_subject_coverage", ">=", params.min_blast_subject_coverage)
+                uniq_tax = get_uniq_tax(out_blast_affiliations['filter_on_min_subject_coverage'])
+                if len(uniq_tax) != len(tax_in):
+                    observation['metadata']['comment'].append("blast_subject_coverage_lt_" + str(params.min_blast_subject_coverage))
+                    if not label in impacted_dict:
+                        impacted_dict[label] = list()
+                    impacted_dict[label].append(observation['id'])
+                # elif len(uniq_tax) == len(tax_in):
+                elif len(out_blast_affiliations) == len(observation['metadata']['blast_affiliations']):
+                    out_blast_affiliations.pop('filter_on_min_subject_coverage')
+			
+            # add blast max subject coverage criteria 
+            if params.max_blast_subject_coverage:
+                label = "Blast subject coverage > " + str(args.max_blast_subject_coverage)
+                out_blast_affiliations['filter_on_max_subject_coverage'] = impacted_blast_affi_on_blastMetrics(observation, "perc_subject_coverage", "<=", params.max_blast_subject_coverage)
+                uniq_tax = get_uniq_tax(out_blast_affiliations['filter_on_max_subject_coverage'])
+                if len(uniq_tax) != len(tax_in):
+                    observation['metadata']['comment'].append("blast_subject_coverage_gt_" + str(params.max_blast_subject_coverage))
+                    if not label in impacted_dict:
+                        impacted_dict[label] = list()
+                    impacted_dict[label].append(observation['id'])
+                # elif len(uniq_tax) == len(tax_in):
+                elif len(out_blast_affiliations) == len(observation['metadata']['blast_affiliations']):
+                    out_blast_affiliations.pop('filter_on_max_subject_coverage')
 
             # add blast taxon to ignore criteria
             if params.ignore_blast_taxa or params.keep_blast_taxa:
@@ -502,21 +577,23 @@ def filter_biom(in_biom_file, impacted_file, output_file, params):
                     label = "Blast taxonomies belong to desired taxon: " + " / ".join(param)
                 out_blast_affiliations['filter_on_taxonIgnored'] = impacted_blast_affi_on_blastTaxonomy(observation, param, keep)
                 uniq_tax = get_uniq_tax(out_blast_affiliations['filter_on_taxonIgnored'])
+                
                 if len(uniq_tax) != len(tax_in):
                     observation['metadata']['comment'].append("undesired_tax_in_blast")
                     if not label in impacted_dict:
                         impacted_dict[label] = list()
                     impacted_dict[label].append(observation['id'])
-                elif len(uniq_tax) == len(tax_in):
+                # elif len(uniq_tax) == len(tax_in):
+                elif len(out_blast_affiliations) == len(observation['metadata']['blast_affiliations']):
                     out_blast_affiliations.pop('filter_on_taxonIgnored')
 
-        elif params.min_blast_length or params.max_blast_evalue or params.min_blast_identity or params.min_blast_coverage or params.ignore_blast_taxa or params.keep_blast_taxa and not observation['metadata']['blast_affiliations']:
+        elif params.min_blast_length or params.max_blast_evalue or params.min_blast_identity or params.min_blast_coverage or params.min_blast_subject_coverage or params.max_blast_subject_coverage or params.ignore_blast_taxa or params.keep_blast_taxa and not observation['metadata']['blast_affiliations']:
             label = "Blast missing affiliations"
             if not label in impacted_dict:
                 impacted_dict[label] = list()
             impacted_dict[label].append(observation['id'])
             filter_on_blastCriteria = True
-            
+        
         # update blast_affiliation dictionnary and compute blast filtering status : True if all affiliations are removed else False
         metadata_out = copy.deepcopy(observation['metadata'])
         if len(out_blast_affiliations) > 0:
@@ -524,9 +601,14 @@ def filter_biom(in_biom_file, impacted_file, output_file, params):
 
         # keep impacting criteria only if filter_on_blastCriteria is True
         if not filter_on_blastCriteria : 
+            impact_to_delete = list()
             for impact in impacted_dict:
                 if impact.startswith('Blast') and observation['id'] in impacted_dict[impact]:
                     impacted_dict[impact].remove(observation['id'])
+                if len(impacted_dict[impact]) == 0:
+                    impact_to_delete.append(impact)
+            for impact in impact_to_delete:
+                del impacted_dict[impact]
 
         # write observation in impacted biom as the orignal but with additionnal status metadata corresponding to 
         # the type of filtering (ASV_deleted/Affiliation_masked/Blast_taxonomy_changed) and/or in output biom file whithout affiliation that do not respect one of the criteria
@@ -581,6 +663,55 @@ def filter_biom(in_biom_file, impacted_file, output_file, params):
     BiomIO.write( impacted_file, impacted_biom )
 
     return impacted_dict
+
+def get_bootstrap_distrib( input_biom, bootstrap_tag, multiple_tag ):
+    """
+    @summary: Returns by taxonomic rank the count (seq and clstr) for the different bootstrap categories.
+    @param input_biom: The path to the processed BIOM.
+    @param bootstrap_tag: The metadata tag used in BIOM file to store the taxonomy bootstraps.
+    @param multiple_tag: The metadata tag used in BIOM file to store the list of possible taxonomies.
+    @returns: [dict] By taxonomic rank the count for the different bootstrap categories.
+              Example:
+                {
+                    "Phylum": {
+                        "80": { "clstr": 1, "seq":100 },
+                        "90": {    "clstr": 2,    "seq":400 },
+                        "100": { "clstr": 50, "seq":20000 },
+                    },
+                    "Genus":{
+                        "80":{ "clstr": 1, "seq":100 },
+                        "90":{ "clstr": 2, "seq":400 },
+                        "100":{ "clstr": 50, "seq":20000 },
+                    }
+                }
+    """
+    bootstrap_results = dict()
+
+    biom = BiomIO.from_json( input_biom )
+    for observation in biom.get_observations():
+        observation_metadata = observation['metadata']
+        bootstrap = None
+        if multiple_tag is not None:
+            if multiple_tag in observation_metadata and observation_metadata[multiple_tag] is not None and len(observation_metadata[multiple_tag]) > 0:
+                bootstrap = observation_metadata[multiple_tag][0][bootstrap_tag]
+        else:
+            if bootstrap_tag in observation_metadata:
+                bootstrap = observation_metadata[bootstrap_tag]
+        if bootstrap is not None:
+            for taxonomy_depth, rank_bootstrap in enumerate( bootstrap ):
+                rank_bootstrap = rank_bootstrap * 100
+                rank = args.taxonomic_ranks[taxonomy_depth]
+                if rank not in bootstrap_results:
+                    bootstrap_results[rank] = dict()
+                if rank_bootstrap not in bootstrap_results[rank]:
+                    bootstrap_results[rank][rank_bootstrap] = {
+                        "clstr": 0,
+                        "seq": 0
+                    }
+                bootstrap_results[rank][rank_bootstrap]["clstr"] += 1
+                bootstrap_results[rank][rank_bootstrap]["seq"] += biom.get_observation_count( observation['id'] )
+    del biom
+    return bootstrap_results
 
 def get_alignment_distrib( input_biom, identity_tag, coverage_tag, multiple_tag ):
     """
@@ -771,7 +902,8 @@ def write_summary( summary_file, input_biom, output_biom, discards, tree_count_f
                     taxon_lost['RDP'][i].append(';'.join(rdp_taxonomy[:i+1]))
         
         # track blast taxon
-        if in_biom.get_observation_metadata(observation_name)['blast_affiliations'] is not None:
+        if in_biom.get_observation_metadata(observation_name)['blast_taxonomy'] is not None:
+            print(observation_name, "\n\t", in_biom.get_observation_metadata(observation_name)['blast_affiliations'], "\n\n")
             for blast_affi in in_biom.get_observation_metadata(observation_name)['blast_affiliations'] :
                 blast_taxonomy = blast_affi['taxonomy']
                 if issubclass(blast_taxonomy.__class__,str):
@@ -855,7 +987,22 @@ def write_summary( summary_file, input_biom, output_biom, discards, tree_count_f
     # Write summary results
     FH_summary_tpl = open( os.path.join(CURRENT_DIR, "affiliation_filters_tpl.html") )
     FH_summary_out = open( summary_file, "wt" )
+    # Load shared JS
+    with open(os.path.join(THEME_DIR, "js", "theme.js")) as f:
+        theme_js = f.read()
+    with open(os.path.join(THEME_DIR, "js", "utils.js")) as f:
+        utils_js = f.read()
+    # Load shared CSS
+    with open(os.path.join(THEME_DIR, "css", "common.css")) as f:
+        common_css = f.read()
     for line in FH_summary_tpl:
+        if "###IMPORT_CSS###" in line:
+            line = line.replace("###IMPORT_CSS###", f"<style type='text/css'>{common_css}</style>")
+        elif "###IMPORT_JS_UTILS###" in line:
+            # injection du JS inline
+            line = line.replace("###IMPORT_JS_UTILS###", f"<script>\n{utils_js}</script>")
+        elif "###IMPORT_JS_THEME###" in line:
+            line = line.replace("###IMPORT_JS_THEME###", f"<script>\n{theme_js}</script>")
         if "###PROCESSED_FILTERS###" in line:
             line = line.replace( "###PROCESSED_FILTERS###", json.dumps([filter for filter in discards if filter != 'Blast_taxonomy_changed']) )
         if "###MODE###" in line:
@@ -914,7 +1061,7 @@ def process( args ):
     try:
         # parse biom, store impacted, write output biom by deleting ASV or masking taxonomies
         impacted_dict = filter_biom(args.input_biom,impacted_biom, args.output_biom, args)
-        
+
         # write log
         Logger.static_write(args.log_file, "Identify ASV with :\n")
         for label in impacted_dict:
@@ -985,10 +1132,12 @@ if __name__ == '__main__':
     group_filter_blast_taxa = group_filter.add_mutually_exclusive_group()
     group_filter_blast_taxa.add_argument('--ignore-blast-taxa', type=str, nargs='*', help="Taxon list to masks/delete in Blast affiliations")
     group_filter_blast_taxa.add_argument('--keep-blast-taxa', type=str, nargs='*', help="Taxon list to keep in Blast affiliations. All others affiliations will be masks/delete.")
-    group_filter.add_argument('--min-rdp-bootstrap', type=str, action=BootstrapParameter, metavar=("TAXONOMIC_LEVEL:MIN_BOOTSTRAP"), help="The minimal RDP bootstrap must be superior to this value (between 0 and 1)." )
+    group_filter.add_argument('--min-rdp-bootstrap', type=str, action=BootstrapParameter, metavar=("TAXONOMIC_LEVEL:MIN_BOOTSTRAP"), help="The TAXONOMIC_LEVEL must be one of the --taxonomic-ranks. The minimal RDP bootstrap must be between 0 and 1." )
     group_filter.add_argument('--min-blast-identity', type=ratioParameter, help="The number corresponding to the blast percentage identity (between 0 and 100)." )
-    group_filter.add_argument('--min-blast-coverage', type=ratioParameter, help="The number corresponding to the blast percentage coverage (between 0 and 100)." )
-    group_filter.add_argument('--max-blast-evalue', type=float, help="The number corresponding to the blast e value (between 0 and 1).")
+    group_filter.add_argument('--min-blast-coverage', type=ratioParameter, help="The number corresponding to the query blast percentage coverage (between 0 and 100)." )
+    group_filter.add_argument('--min-blast-subject-coverage', type=ratioParameter, help="The number min corresponding to the subject blast percentage coverage (between 0 and 100)." )
+    group_filter.add_argument('--max-blast-subject-coverage', type=ratioParameter, help="The number max corresponding to the subject blast percentage coverage (between 0 and 100)." )
+    group_filter.add_argument('--max-blast-evalue', type=partial(ratioParameter, min=0.0, max=1.0), help="The number corresponding to the blast e value (between 0 and 1).")
     group_filter.add_argument('--min-blast-length', type=int, default=None, required=False, help="The number corresponding to the blast length." )
     #     Inputs
     group_input = parser.add_argument_group( 'Inputs' )
@@ -1024,7 +1173,7 @@ if __name__ == '__main__':
     if not args.delete and not args.mask:
         raise_exception( argparse.ArgumentTypeError("\n\n#ERROR : You must precise if you want to mask affiliations of delete ASV with --mask or --delete options.\n\n"))
 
-    if args.min_rdp_bootstrap is None and args.min_blast_length is None and args.max_blast_evalue is None and args.min_blast_identity is None and args.min_blast_coverage is None:
+    if args.min_rdp_bootstrap is None and args.min_blast_length is None and args.max_blast_evalue is None and args.min_blast_identity is None and args.min_blast_coverage is None and args.min_blast_subject_coverage is None and args.max_blast_subject_coverage is None:
         if args.ignore_blast_taxa is None and args.keep_blast_taxa is None:
             raise_exception(Exception("\n\n#ERROR : You need to specify at least on filtering criteria\n\n"))
         elif args.ignore_blast_taxa is not None and len(args.ignore_blast_taxa) == 0:
@@ -1055,7 +1204,11 @@ if __name__ == '__main__':
         if args.min_blast_identity is not None:
             raise_exception( argparse.ArgumentTypeError( "\n\n#ERROR : The BIOM input does not contain the metadata 'blast_affiliations'. You cannot use the parameter '--min-blast-identity' on this file.\n\n" ))
         if args.min_blast_coverage is not None:
-            raise_exception( argparse.ArgumentTypeError( "\n\n#ERROR : The BIOM input does not contain the metadata 'blast_affiliations'. You cannot use the parameter '--max-blast-coverage' on this file.\n\n" ))
+            raise_exception( argparse.ArgumentTypeError( "\n\n#ERROR : The BIOM input does not contain the metadata 'blast_affiliations'. You cannot use the parameter '--min-blast-coverage' on this file.\n\n" ))
+        if args.min_blast_subject_coverage is not None:
+            raise_exception( argparse.ArgumentTypeError( "\n\n#ERROR : The BIOM input does not contain the metadata 'blast_affiliations'. You cannot use the parameter '--min-blast-subject-coverage' on this file.\n\n" ))
+        if args.max_blast_subject_coverage is not None:
+            raise_exception( argparse.ArgumentTypeError( "\n\n#ERROR : The BIOM input does not contain the metadata 'blast_affiliations'. You cannot use the parameter '--max-blast-subject-coverage' on this file.\n\n" ))
         if args.ignore_blast_taxa is not None:
             raise_exception( argparse.ArgumentTypeError( "\n\n#ERROR : The BIOM input does not contain the metadata 'blast_affiliations'. You cannot use the parameter '--ignore-blast-taxa' on this file.\n\n" ))
         if args.keep_blast_taxa is not None:
@@ -1064,16 +1217,7 @@ if __name__ == '__main__':
     if args.ignore_blast_taxa is not None:
         checkBlastTaxa(args.ignore_blast_taxa)
     if args.keep_blast_taxa is not None:
-        checkBlastTaxa(args.keep_blast_taxa)       
-
-    #for observation in in_biom.get_observations():
-    #    taxonomy = observation['metadata']['blast_taxonomy']
-    #    if taxonomy == None or len(taxonomy) == 0:
-    #            print('\n\n#WARNING: you declare that taxonomies are defined on ' + str(len(args.taxonomic_ranks)) + ' ranks but your biom file contains taxonomy defined on ' + str(len(taxonomy)) + ', at least for ' + observation['id'] + '\n')
-    #            print('Those clusters will be delete if --delete mode activated\n')
-    #            break
-    #del in_biom
-    
+        checkBlastTaxa(args.keep_blast_taxa)          
     
 
     if args.delete and (not args.input_fasta or not args.output_fasta):

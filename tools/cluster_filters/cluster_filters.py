@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 
-__author__ = 'Katia Vidal - GENPHYSE & Frédéric Escudié - Genotoul/MIAT & Maria Bernard - SIGENAE/GABI'
-__copyright__ = 'Copyright (C) 2024 INRAE'
+__author__ = 'Katia Vidal - GENPHYSE & Frédéric Escudié - Genotoul/MIAT & Maria Bernard - SIGENAE/GABI & Olivier Rué - Migale/MaIAGE'
+__copyright__ = 'Copyright (C) 2025 INRAE'
 __license__ = 'GNU General Public License'
-__version__ = '5.0.2'
+__version__ = '5.1.0'
 __email__ = 'frogs-support@inrae.fr'
 __status__ = 'prod'
 
@@ -13,6 +13,7 @@ import json
 import operator
 import argparse
 import collections
+from decimal import Decimal
 
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
 # PATH
@@ -23,6 +24,11 @@ LIB_DIR = os.path.abspath(os.path.join(os.path.dirname(CURRENT_DIR), "lib"))
 sys.path.append(LIB_DIR)
 if os.getenv('PYTHONPATH') is None: os.environ['PYTHONPATH'] = LIB_DIR
 else: os.environ['PYTHONPATH'] = LIB_DIR + os.pathsep + os.environ['PYTHONPATH']
+# THEME
+THEME_DIR = os.path.abspath(os.path.join(os.path.dirname(CURRENT_DIR), "static"))
+if not os.path.exists(THEME_DIR):
+    THEME_DIR = os.path.abspath(os.path.join(os.path.dirname(os.path.dirname(CURRENT_DIR)), "static"))
+
 
 from frogsUtils import *
 from frogsBiom import Biom, BiomIO
@@ -198,7 +204,7 @@ def excluded_obs_on_abundance(input_biom, min_abundance, excluded_file):
     biom = BiomIO.from_json( input_biom )
     FH_excluded_file = open( excluded_file, "wt" )
     min_nb_seq = min_abundance
-    if type(min_abundance) == float:
+    if type(min_abundance) == Decimal:
         min_nb_seq = biom.get_total_count() * min_abundance
     for idx, count_by_sample in enumerate(biom.to_count()):
         observation = biom.rows[idx]
@@ -350,7 +356,7 @@ def write_summary( summary_file, input_biom, output_biom, replicate_log, discard
     FH_depth.close()
 
     # Get sample data
-    biom = BiomIO.from_json( input_biom )
+    biom = BiomIO.from_json( output_biom )
     samples_distrib = dict()
     for sample_name in biom.get_samples_names():
         shared_seq = 0
@@ -405,8 +411,23 @@ def write_summary( summary_file, input_biom, output_biom, replicate_log, discard
     # Write
     FH_summary_tpl = open( os.path.join(CURRENT_DIR, "cluster_filters_tpl.html") )
     FH_summary_out = open( summary_file, "wt" )
+    # Load shared JS
+    with open(os.path.join(THEME_DIR, "js", "theme.js")) as f:
+        theme_js = f.read()
+    with open(os.path.join(THEME_DIR, "js", "utils.js")) as f:
+        utils_js = f.read()
+    # Load shared CSS
+    with open(os.path.join(THEME_DIR, "css", "common.css")) as f:
+        common_css = f.read()
     for line in FH_summary_tpl:
-        if "###PORCESSED_FILTERS###" in line:
+        if "###IMPORT_CSS###" in line:
+            line = line.replace("###IMPORT_CSS###", f"<style type='text/css'>{common_css}</style>")
+        elif "###IMPORT_JS_UTILS###" in line:
+            # injection du JS inline
+            line = line.replace("###IMPORT_JS_UTILS###", f"<script>\n{utils_js}</script>")
+        elif "###IMPORT_JS_THEME###" in line:
+            line = line.replace("###IMPORT_JS_THEME###", f"<script>\n{theme_js}</script>")
+        elif "###PORCESSED_FILTERS###" in line:
             line = line.replace( "###PORCESSED_FILTERS###", json.dumps([filter for filter in discards]) )
         elif "###GLOBAL_RESULTS###" in line:
             line = line.replace( "###GLOBAL_RESULTS###", json.dumps(global_results) )
@@ -449,10 +470,8 @@ def minAbundParameter( arg_value ):
     @summary: Argparse type for min-abundance parameter.
     """
     str_value = arg_value.replace(",",".") 
-    cleaned_value = float(str_value) if "." in str_value or "e-" in str_value else int(str_value)
+    cleaned_value = Decimal(str_value) if "." in str_value or "e-" in str_value else int(str_value)
     return cleaned_value
-
-
 
 def process( args ):
     tmpFiles = TmpFiles( os.path.split(args.output_biom)[0] )
@@ -461,7 +480,7 @@ def process( args ):
         discards = dict() # by filter the discard file path
 
         if args.min_sample_presence is not None:
-            label = "Present in less than " + str(args.min_sample_presence) + " samples"
+            label = "Removed (present in fewer than " + str(args.min_sample_presence) + " samples)"
             discards[label] = tmpFiles.add( "min_sample_presence" )
             excluded_obs_on_samplePresence( args.input_biom, args.min_sample_presence, discards[label] )
 
@@ -469,24 +488,24 @@ def process( args ):
         if args.min_replicate_presence is None:
             FH_log = Logger(replicate_groups_log)
             FH_log.write('No replicate groups defined\n')
-        elif args.min_replicate_presence is not None and args.replicate_file is not None:
-            label = "Present in less than " + str(args.min_replicate_presence*100) + "%  of replicates of all replicate groups."
+        elif args.min_replicate_presence is not None and args.replicate_tsv is not None:
+            label = "Removed (present in fewer than " + str(args.min_replicate_presence*100) + "%  of replicates of all replicate groups)"
             discards[label] = tmpFiles.add( "min_replicate_presence")
-            excluded_obs_on_replicatePresence( args.input_biom, args.replicate_file, args.min_replicate_presence, replicate_groups_log, discards[label])
+            excluded_obs_on_replicatePresence( args.input_biom, args.replicate_tsv, args.min_replicate_presence, replicate_groups_log, discards[label])
 
         if args.min_abundance is not None:
-            
-            if type(args.min_abundance) == float:
+            if type(args.min_abundance) == Decimal:
                 biom = BiomIO.from_json( args.input_biom )
                 min_nb_seq = int(biom.get_total_count() * args.min_abundance) + 1
-                label = "Abundance < " + str(args.min_abundance*100) + "% (i.e " + str(min_nb_seq) + " sequences )"
+                label = "ASV abundance < " + str(float(args.min_abundance*100)) + "% (i.e " + str(min_nb_seq) + " sequences )"
             else:
-                label = "Abundance < " + str(args.min_abundance)
+                label = "ASV abundance < " + str(args.min_abundance)
+                min_nb_seq = args.min_abundance
             discards[label] = tmpFiles.add( "min_abundance" )
-            excluded_obs_on_abundance( args.input_biom, args.min_abundance, discards[label] )
+            excluded_obs_on_abundance( args.input_biom, min_nb_seq, discards[label] )
 
         if args.contaminant is not None:
-            label = "Present in databank of contaminants"
+            label = "Found in contaminant database"
             discards[label] = tmpFiles.add( "contaminant" )
             cleaned_seq = tmpFiles.add( "cleaned_sequences.fasta" )
             cleaned_biom = tmpFiles.add( "cleaned_abundance.biom" )
@@ -537,22 +556,22 @@ if __name__ == '__main__':
     
     #     Filters
     group_filter = parser.add_argument_group( 'Filters' )
-    group_filter.add_argument( '--nb-biggest-clusters', type=int, default=None, required=False, help="Number of most abundant clusters you want to keep.") 
+    group_filter.add_argument( '--nb-biggest-clusters', type=int, default=None, required=False, help="Number of most abundant clusters you want to keep, after all others filters applied.") 
     group_filter.add_argument('--min-sample-presence', type=int, help="Keep cluster present in at least this number of samples.") 
     group_filter.add_argument('--min-replicate-presence', type=minAbundParameter, default=None, help="Keep cluster present in at least this proportion of replicates in at least one group (please indicate a proportion between 0 and 1). Replicates must be defined with --replicate_file REPLICATE FILE")
-    group_filter.add_argument('--replicate_file', help='Replicate file must be specified if --min-replicate-presence is set. First column of the file must indicate the sample name, and the second column the group name of this replicate. Exemple: TEM1_L0001_R   Temoin.')
     group_filter.add_argument('--min-abundance', type=minAbundParameter, default=None, required=False, help="Minimum percentage/number of sequences, comparing to the total number of sequences, of a cluster (between 0 and 1 if percentage desired)." )
     #     Inputs
     group_input = parser.add_argument_group( 'Inputs' )
     group_input.add_argument('--input-biom', required=True, help="The input BIOM file. (format: BIOM)")
     group_input.add_argument('--input-fasta', required=True, help="The input FASTA file. (format: FASTA)")
     group_input.add_argument('--contaminant', default=None, help="Use this databank to filter sequence before affiliation. (format: FASTA)")
+    group_input.add_argument('--replicate-tsv', help='Sample replicate tsv file must be specified if --min-replicate-presence is set. First column indicates the sample name, and the second column the group name.')
     #     Outputs
     group_output = parser.add_argument_group( 'Outputs' )
     group_output.add_argument('--output-biom', default="cluster_filters_abundance.biom", help="The BIOM file output. (format: BIOM) [Default: %(default)s]")
     group_output.add_argument('--output-fasta', default="cluster_filters.fasta", help="The FASTA output file. (format: FASTA) [Default: %(default)s]")
     group_output.add_argument('--html', default="cluster_filters.html", help="The HTML file containing the graphs. [Default: %(default)s]")
-    group_output.add_argument('--excluded', default="cluster_filters_excluded.tsv", help="The TSV file that summarizes all the clusters discarded. (format: TSV) [Default: %(default)s]")
+    group_output.add_argument('--excluded', default="cluster_filters_excluded.tsv", help="The TSV file that summarizes all the discarded clusters. (format: TSV) [Default: %(default)s]")
     group_output.add_argument('--log-file', default=sys.stdout, help='This output file will contain several information on executed commands. [Default: stdout]')
     args = parser.parse_args()
     prevent_shell_injections(args)
@@ -563,7 +582,7 @@ if __name__ == '__main__':
         raise_exception( argparse.ArgumentTypeError( "\n\n#ERROR : At least one filter must be set to run " + os.path.basename(sys.argv[0]) + "\n\n"))
     if not args.min_abundance is None and (args.min_abundance <= 0 or (type(args.min_abundance) == float and args.min_abundance >= 1.0 ) ):
         raise_exception( argparse.ArgumentTypeError( "\n\n#ERROR : If filtering on abundance, you must indicate a positive threshold and if percentage abundance threshold must be smaller than 1.0. \n\n" ))
-    if not args.min_replicate_presence is None and args.replicate_file is None or not args.replicate_file is None and args.min_replicate_presence is None:
+    if not args.min_replicate_presence is None and args.replicate_tsv is None or not args.replicate_tsv is None and args.min_replicate_presence is None:
         raise_exception( argparse.ArgumentTypeError( "\n\n#ERROR : --min-replicate-presence and --replicate_file must be both specified.\n\n" ))
     elif not args.min_replicate_presence is None and (args.min_replicate_presence < 0 or args.min_replicate_presence > 1):
         raise_exception( argparse.ArgumentTypeError( "\n\n#ERROR : --min_replicate_presence must be a proportion (between 0 and 1).\n\n "))

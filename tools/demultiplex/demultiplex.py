@@ -3,7 +3,7 @@
 __author__ = 'Frédéric Escudié - Genotoul/MIAT & Maria Bernard - SIGENAE/GABI'
 __copyright__ = 'Copyright (C) 2024 INRAE'
 __license__ = 'GNU General Public License'
-__version__ = '5.0.2'
+__version__ = '5.1.0'
 __email__ = 'frogs-support@inrae.fr'
 __status__ = 'prod'
 
@@ -299,7 +299,7 @@ if __name__ == "__main__":
     group_output = parser.add_argument_group( 'Outputs' )
     # Outputs
     group_output.add_argument('--output-demultiplexed', default="demultiplexed_read.tar.gz", help='The tar file containing R1 files and R2 files for each sample (format: tar). [Default: %(default)s]' )
-    group_output.add_argument('--output-excluded', default="undemultiplexed_read.tar.gz", help='The tar file containing R1 files and R2 files not demultiplexed  (format: tar). [Default: %(default)s]' )
+    group_output.add_argument('--output-undemultiplexed', default="undemultiplexed_read.tar.gz", help='The tar file containing R1 files and R2 files not demultiplexed  (format: tar). [Default: %(default)s]' )
     group_output.add_argument('--summary', default='demultiplex_summary.tsv', help='TSV file with summary of filters results  (format: TSV). [Default: %(default)s]')
     group_output.add_argument('--log-file', default=sys.stdout, help='This output file will contain several informations on executed commands. [Default: stdout]')
     args = parser.parse_args()
@@ -369,12 +369,12 @@ if __name__ == "__main__":
             Logger.static_write(args.log_file,"\n#Archive demultiplexed R1 and R2 files\n")
             Archive(R1_files + R2_files, args.output_demultiplexed).submit( args.log_file )
             Logger.static_write(args.log_file,"\n#Archive undemultiplexed R1 and R2 files\n")
-            Archive([excluded_R1_file,excluded_R2_file], args.output_excluded).submit( args.log_file )
+            Archive([excluded_R1_file,excluded_R2_file], args.output_undemultiplexed).submit( args.log_file )
         else:
             Logger.static_write(args.log_file,"\n#Archive demultiplexed files\n")
             Archive(R1_files, args.output_demultiplexed).submit( args.log_file )
             Logger.static_write(args.log_file,"\n#Archive undemultiplexed files\n")
-            Archive([excluded_R1_file], args.output_excluded).submit( args.log_file )
+            Archive([excluded_R1_file], args.output_undemultiplexed).submit( args.log_file )
 
     # Remove temporary files
     finally:

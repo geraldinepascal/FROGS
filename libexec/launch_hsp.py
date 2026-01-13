@@ -56,8 +56,9 @@ class HspMarker(Cmd):
     """
     @summary: Predict number of marker copies (16S, 18S or ITS) for each cluster sequence (i.e ASV).
     """
-    def __init__(self, observed_marker_table, in_tree, hsp_method, output, log):
+    def __init__(self, observed_marker_table, in_tree, nb_cpus,  hsp_method, output, log):
         """
+        @param nb_cpus : [int] 'param.nb_cpus'.
         @param observed_marker_table: [str] Path to marker table file if marker studied is not 16S.
         @param in_tree: [str] Path to resulting tree file with inserted clusters sequences from frogsfunc_placeseqs.
         @param hsp_method: [str] HSP method to use.
@@ -71,7 +72,7 @@ class HspMarker(Cmd):
         Cmd.__init__(self,
                  'hsp.py',
                  'predict marker copy number per ASV sequence.', 
-                 input_marker + " -t " + in_tree + " --hsp_method " + hsp_method + " -o " + output + " --calculate_NSTI  2> " + log,
+                 input_marker + " -t " + in_tree + " -p " + str(nb_cpus) + " --hsp_method " + hsp_method + " -o " + output + " --calculate_NSTI  2> " + log,
                 "--version")
 
         self.output = output
@@ -114,7 +115,7 @@ def submit_cmd( cmd, stdout_path, stderr_path, get_version = False):
         raise_exception( Exception( "\n\n#ERROR : " + error_msg + "\n\n" ))
 
 
-def process_hsp_function(trait, observed_trait_table, in_tree, hsp_method, output, log):
+def process_hsp_function(trait, observed_trait_table, in_tree, nb_cpus, hsp_method, output, log):
     # run hsp.py
     if observed_trait_table is None:
         input_function = " --in_trait " + trait
@@ -128,14 +129,14 @@ def process_hsp_function(trait, observed_trait_table, in_tree, hsp_method, outpu
     version = submit_cmd(["hsp.py", "-v"],log, log, get_version = True )
 
     FH_log.write("## Software : " + version )
-    cmd = ["hsp.py", input_function.split()[0], input_function.split()[1] ,"-t", in_tree, "--hsp_method", hsp_method, "-o", output]
+    cmd = ["hsp.py", input_function.split()[0], input_function.split()[1] ,"-t", in_tree, "-p", str(nb_cpus), "--hsp_method", hsp_method, "-o", output]
     FH_log.write("## hsp.py command: " + " ".join(cmd) + "\n")
     submit_cmd( cmd, log, log )
     FH_log.close()
 
 
-def parallel_submission( function, inputs, tree, hsp_method, outputs, logs, cpu_used):
-    processes = [{'process':None, 'inputs':None, 'tree':tree, 'hsp_method':hsp_method, 'outputs':None, 'log_files':None} for trait in range(cpu_used)]
+def parallel_submission( function, inputs, tree, nb_cpus, hsp_method, outputs, logs, cpu_used):
+    processes = [{'process':None, 'inputs':None, 'tree':tree, 'nb_cpus':nb_cpus, 'hsp_method':hsp_method, 'outputs':None, 'log_files':None} for trait in range(cpu_used)]
     # Launch processes
     for trait in range(len(inputs)):
         process_idx = trait % cpu_used
@@ -147,10 +148,10 @@ def parallel_submission( function, inputs, tree, hsp_method, outputs, logs, cpu_
     for current_process in processes:
         if trait == 0:  # First process is threaded with parent job
             current_process['process'] = threading.Thread(target=function,
-                                                          args=(current_process['inputs'], None, tree, hsp_method, current_process['outputs'], current_process['log_files']))
+                                                          args=(current_process['inputs'], None, tree, nb_cpus, hsp_method, current_process['outputs'], current_process['log_files']))
         else:  # Others processes are processed on diffrerent CPU
             current_process['process'] = multiprocessing.Process(target=function,
-                                                          args=(current_process['inputs'], None, tree, hsp_method, current_process['outputs'], current_process['log_files']))
+                                                          args=(current_process['inputs'], None, tree, nb_cpus, hsp_method, current_process['outputs'], current_process['log_files']))
         current_process['process'].start()
     # Wait processes end
     for current_process in processes:
@@ -212,6 +213,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser( description='predict marker of gene copy number' )
     parser.add_argument('-v', '--version', action='version', version=__version__)
     parser.add_argument( '--debug', default=False, action='store_true', help="Keep temporary files to debug program." )
+    parser.add_argument('--nb-cpus', type=int, default=1, help="The maximum number of CPUs used. [Default: %(default)s]" )
     subparsers = parser.add_subparsers()
     # Inputs
     parser_marker = subparsers.add_parser('marker', help='Predict marker copy number per ASV sequence.')
@@ -226,7 +228,6 @@ if __name__ == "__main__":
     parser_marker.set_defaults(func=task_marker)
 
     parser_function = subparsers.add_parser('function', help='Predict gene copy number per ASV sequence.')
-    parser_function.add_argument('-p', '--nb-cpus', type=int, default=1, help="The maximum number of CPUs used. [Default: %(default)s]" )
     parser_function.add_argument('-m', '--marker-type', required=True, choices=['16S','ITS','18S'], help='Marker gene to be analyzed.')
     parser_function.add_argument('-i', '--marker-file', required=True, type=str, help='Table of predicted marker gene copy numbers (frogsfunc_placeseqs output : frogsfunc_marker.tsv).')
     parser_function.add_argument('-t', '--input-tree', required=True, type=str, help='frogsfunc_placeseqs output tree in newick format containing both studied sequences (i.e. ASVs) and reference sequences.')
@@ -252,7 +253,7 @@ if __name__ == "__main__":
         if args.to_launch == "marker":
             tmp_files=TmpFiles(os.path.split(args.output_marker)[0])
             tmp_hsp_marker = tmp_files.add( 'tmp_hsp_marker.log' )
-            HspMarker(args.input_marker_table, args.input_tree, args.hsp_method, args.output_marker, tmp_hsp_marker).submit(args.log_file)
+            HspMarker(args.input_marker_table, args.input_tree, args.nb_cpus, args.hsp_method, args.output_marker, tmp_hsp_marker).submit(args.log_file)
 
         if args.to_launch == "function":
             tmp_files=TmpFiles(args.output_dir)
@@ -269,16 +270,16 @@ if __name__ == "__main__":
                         function_cur = args.functions[i]
                         output_cur = functions_outputs[i]
                         log_cur = logs_hsp[i]
-                        process_hsp_function(function_cur, args.input_function_table, args.input_tree, args.hsp_method, output_cur, log_cur)
+                        process_hsp_function(function_cur, args.input_function_table, args.input_tree, args.nb_cpus, args.hsp_method, output_cur, log_cur)
 
                 else:
-                    parallel_submission( process_hsp_function, args.functions, args.input_tree, args.hsp_method, functions_outputs, logs_hsp, len(args.functions) )
+                    parallel_submission( process_hsp_function, args.functions, args.input_tree, args.nb_cpus, args.hsp_method, functions_outputs, logs_hsp, len(args.functions) )
             
             elif args.marker_type in ["ITS", "18S"]:
                 functions_outputs = args.output_dir + "/" + "EC_copynumbers_predicted.tsv"
                 logs_hsp = tmp_files.add("EC_tmp_hsp_function.log")
                 Logger.static_write(args.log_file, '\n\nRunning EC functions prediction.\n')
-                process_hsp_function(args.functions, args.input_function_table, args.input_tree, args.hsp_method, functions_outputs, logs_hsp)             
+                process_hsp_function(args.functions, args.input_function_table, args.input_tree, args.nb_cpus, args.hsp_method, functions_outputs, logs_hsp)             
 
             append_results(logs_hsp, args.log_file)
     

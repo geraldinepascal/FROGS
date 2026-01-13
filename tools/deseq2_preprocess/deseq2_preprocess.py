@@ -3,7 +3,7 @@
 __author__ = ' Ta Thi Ngan - SIGENAE/GABI & Maria Bernard - SIGENAE/GABI & Mahendra Mariadassou - MaIAGE'
 __copyright__ = 'Copyright (C) 2024 INRAE'
 __license__ = 'GNU General Public License'
-__version__ = '5.0.2'
+__version__ = '5.1.0'
 __email__ = 'frogs-support@inrae.fr'
 __status__ = 'prod'
 
@@ -104,7 +104,7 @@ class PhyloseqImport(Cmd):
         Cmd.__init__(self,
                  'phyloseq_import_data.py',
                  'create phyloseq object like with function abundances and annotation', 
-                 ' --biomfile ' + biom_file + ' --samplefile ' + sample_file + ' --ranks ' + ranks + ' --rdata ' + out_rdata + ' --html ' + out_html + '  2>> ' + log,
+                 ' --input-biom ' + biom_file + ' --sample-metadata-tsv ' + sample_file + ' --ranks ' + ranks + ' --output-phyloseq-rdata ' + out_rdata + ' --html ' + out_html + '  2>> ' + log,
                 "--version")
 
     def get_version(self):
@@ -138,22 +138,26 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser( description='Launch Rscript to generate dataframe of DESEq2 from a phyloseq object in RData file')
     parser.add_argument( '--version', action='version', version=__version__ )
     parser.add_argument( '--debug', default=False, action='store_true', help="Keep temporary files to debug program." )   
-    parser.add_argument('--var', type=str, required=True, help='Experimental variable suspected to have an impact on abundances. \
+    parser.add_argument('--var-exp', type=str, required=True, help='Experimental variable suspected to have an impact on abundances. \
         You may precise complexe string such as variables with confounding effect (ex: Treatment+Gender or Treatmet*Gender)' )   
+    parser.add_argument('--analysis-type', required=True, choices=['ASV', 'FUNCTION'], help='Differential analysis on ASV (see phyloseq_import.py) or on Function abundance (see frogsfunc_functions.py).')
+
     # Inputs
-    group_input = parser.add_argument_group( 'Inputs' )
-    group_input.add_argument('--analysis', required=True, choices=['ASV', 'FUNCTION'], help='Type of data to perform the differential analysis. ASV: DESeq2 is run on the ASVs abundances table. FUNCTION: DESeq2 is run on FROGSFUNC function abundances table (frogsfunc_functions_unstrat.tsv from FROGSFUNC function step).')
+    group_input = parser.add_argument_group()
+    group_input_asv = parser.add_argument_group( '# Inputs for ASV analysis type ' )
+    group_input_asv.add_argument('--phyloseq-rdata', help="The path of RData file containing a phyloseq object-the result of phyloseq_import.py. Required." )
 
-    group_input_asv_table = parser.add_argument_group( ' ASV ' )
-    group_input_asv_table.add_argument('--data', default=None, help="The path of RData file containing a phyloseq object, result of FROGS Phyloseq Import Data. Required.")
-
-    group_input_function_table = parser.add_argument_group( ' FUNCTION ' )
-    group_input_function_table.add_argument('--input-functions', default=None, help='Input file of metagenome function prediction abundances (frogsfunc_functions_unstrat.tsv from FROGSFUNC function step). Required. [Default: %(default)s].')
-    group_input_function_table.add_argument('--samplefile', default=None, help='path to sample file (format: TSV). Required.' )
-    group_input_function_table.add_argument('--out-Phyloseq', default='function_data.Rdata', help="path to store phyloseq-class object in Rdata file. [Default: %(default)s]" )
+    group_input_function = parser.add_argument_group( '# Inputs for FUNCTION analysis type ' )
+    group_input_function.add_argument('--input-functions-abund', help='Input file of metagenome function prediction abundances (frogsfunc_functions_unstrat.tsv from frogsfunc_functions.py). Required.')
+    group_input_function.add_argument('--sample-metadata-tsv', help='path to sample file (format: TSV). Required.' )
+    
     # output
-    group_output = parser.add_argument_group( 'Outputs' )
-    group_output.add_argument('--out-Rdata', default=None, help="The path to store resulting dataframe of DESeq2. [Default: %(default)s]" )
+    group_output = parser.add_argument_group( '# Outputs' )
+
+    group_output_fun = parser.add_argument_group( '  ## Outputs specific of FUNCTION analysis type ' )
+    group_output_fun.add_argument('--output-phyloseq-rdata', default='phyloseq_fun.Rdata', help="Rdata file path to store phyloseq-class object based on functions abundances and annotation. [Default: %(default)s]" )
+    
+    group_output.add_argument('--output-deseq-rdata', default=None, help="The path to store resulting dataframe of DESeq2. [Default: %(default)s]" )
     group_output.add_argument('--log-file', default=sys.stdout, help='This output file will contain several information on executed commands. [Default: stdout]')
     args = parser.parse_args()
     prevent_shell_injections(args)
@@ -161,31 +165,31 @@ if __name__ == "__main__":
     Logger.static_write(args.log_file, "## Application\nSoftware :" + sys.argv[0] + " (version : " + str(__version__) + ")\nCommand : " + " ".join(sys.argv) + "\n\n")
 
     # Check for ASV input
-    data = args.data
-    if args.analysis == "ASV" and data is None:
+    data = args.phyloseq_rdata
+    if args.analysis_type == "ASV" and data is None:
         parser.error("\n\n#ERROR : --data is required for ASVs analysis. ")
-    elif args.analysis == "ASV":
-        data=os.path.abspath(args.data)
+    elif args.analysis_type == "ASV":
+        data=os.path.abspath(args.phyloseq_rdata)
 
     # Check for FUNCTION input
-    if args.analysis == "FUNCTION":
-        if args.input_functions is None or args.samplefile is None:
+    if args.analysis_type == "FUNCTION":
+        if args.input_functions_abund is None or args.sample_metadata_tsv is None:
             parser.error("\n\n#ERROR : --input-functions and --samplefile both required for FROGSFUNC analysis.\n\n")
 
     # Adapt default output file name
-    if args.out_Rdata is None:
-        if args.analysis == "ASV":
-            args.out_Rdata = "asv_dds.Rdata"
-        elif args.analysis == "FUNCTION":
-            args.out_Rdata = "function_dds.Rdata"
+    if args.output_deseq_rdata is None:
+        if args.analysis_type == "ASV":
+            args.output_deseq_rdata = "asv_dds.Rdata"
+        elif args.analysis_type == "FUNCTION":
+            args.output_deseq_rdata = "function_dds.Rdata"
 
-    out_Rdata=os.path.abspath(args.out_Rdata)
+    out_Rdata=os.path.abspath(args.output_deseq_rdata)
     tmpFiles = TmpFiles(os.path.dirname(out_Rdata))
 
     # FUNCTION : phyloseq object generation
-    if args.analysis == "FUNCTION":
+    if args.analysis_type == "FUNCTION":
         tmp_function_abund_tostd = tmpFiles.add( "functions_unstrat_toStdbiom.tsv")
-        formate_abundances_file(args.input_functions, tmp_function_abund_tostd)
+        formate_abundances_file(args.input_functions_abund, tmp_function_abund_tostd)
 
         tmp_function_abundances_biom = tmpFiles.add( "function_abundances.biom")
         Tsv2biom(tmp_function_abund_tostd, tmp_function_abundances_biom).submit( args.log_file)
@@ -196,7 +200,7 @@ if __name__ == "__main__":
         #       - this is the default behavior of phyloseq (and check in phyloseq_import)
         
         sample_metadata_list = set()
-        FH_in = open(args.samplefile)
+        FH_in = open(args.sample_metadata_tsv)
         FH_in.readline()
         for line in FH_in:
             sample_metadata_list.add(line.split()[0]) 
@@ -213,11 +217,11 @@ if __name__ == "__main__":
         ranks = " ".join(['Level_4', 'Level_3', 'Level_2', 'Level_1'])
         phyloseq_log = tmpFiles.add( "phyloseq_import.log")
         phyloseq_html = tmpFiles.add( "phyloseq_import.nb.html")
-        PhyloseqImport(tmp_function_abundances_biom, args.samplefile, ranks, args.out_Phyloseq, phyloseq_html, phyloseq_log).submit( args.log_file)
+        PhyloseqImport(tmp_function_abundances_biom, args.sample_metadata_tsv, ranks, args.output_phyloseq_rdata, phyloseq_html, phyloseq_log).submit( args.log_file)
 
     try:
         R_stderr = tmpFiles.add("R.stderr")
-        Rscript(args.analysis, data, args.var, args.input_functions, args.samplefile, out_Rdata, R_stderr).submit(args.log_file)
+        Rscript(args.analysis_type, data, args.var_exp, args.input_functions_abund, args.sample_metadata_tsv, out_Rdata, R_stderr).submit(args.log_file)
     finally :
         if not args.debug:
             tmpFiles.deleteAll()

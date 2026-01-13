@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+
+<html>
+	<head>
+		<title>FROGS Clusters/ASVs stats</title>
+		<meta charset="UTF-8" />
+		<meta name="author" content="Frederic Escudie - Genotoul/MIAT & Maria Bernard - SIGENAE/GABI & Olivier Rué - Migale/MaIAGE" />
+        <meta name="version" content="5.1.0" />
+        <meta name="copyright" content="Copyright (C) 2025 INRAE" />
+		<!-- JQUERY -->
+		<script type="text/javascript" src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+		<!-- ECHARTS -->
+		<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/echarts@6.0.0/dist/echarts.min.js"></script>
+		<!-- Bootstrap -->
+		<link rel="stylesheet" href="https://cdn.datatables.net/1.10.21/css/dataTables.bootstrap4.min.css">
+		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-table@1.22.6/dist/bootstrap-table.min.css">
+		<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+		<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+		<script src="https://cdn.jsdelivr.net/npm/bootstrap-table@1.22.6/dist/bootstrap-table.min.js"></script>
+		<!-- Extensions Export -->
+		<script src="https://cdn.jsdelivr.net/npm/tableexport.jquery.plugin@1.28.0/tableExport.min.js"></script>
+		<script src="https://cdn.jsdelivr.net/npm/bootstrap-table@1.22.6/dist/extensions/export/bootstrap-table-export.min.js"></script>
+		<!-- Font Awesome -->
+		<link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+		
+		###IMPORT_CSS###
+		
+		###IMPORT_JS_UTILS###
+
+		###IMPORT_JS_THEME###
+
+		<script type="text/javascript">
+			
+			var boxplotChart;
+			var areaChart;
+			var treeChart;
+			var treeChart_options;
+			var boxplotChart_options;
+			var areaChart_options;
+
+			function updateCharts(CURRENT_THEME) {
+				if(treeChart_options) treeChart = recreateChart(treeChart, "boxplot-container", treeChart_options, CURRENT_THEME);
+				if(boxplotChart_options) boxplotChart = recreateChart(boxplotChart, "boxplot-container", boxplotChart_options, CURRENT_THEME);
+				if(areaChart_options) areaChart = recreateChart(areaChart, "sequences-distrib-chart", areaChart_options, CURRENT_THEME);
+			}
+
+			/**
+			 Data from HTML
+			*/
+			var clusters_sizes = ###CLUSTERS_SIZES### ;
+			var series = [{
+				'name': "All",
+				'data': ###DATA_COUNTS###
+			}];
+			var sum_series = new Array() ;
+			var samples_distrib = ###DATA_SAMPLE### ;
+			var newick = ###NEWICK### ;
+			var frogs_version = ###FROGS_VERSION### ;
+			var frogs_tool = ###FROGS_TOOL### ;
+			
+			//HC global var
+			var linkage_data = null ;
+			var d3_tree = null ;
+			var diagonal = null ;
+			var svg_layout = null ;
+			var node_id = 0 ;	
+
+			var sample_table_load = function( container_id ){
+				
+				var table_data = new Array();
+				for( sample in samples_distrib ){
+					table_data.push([
+					  sample,
+					  samples_distrib[sample]['shared_observations'] + samples_distrib[sample]['own_observations'],
+					  samples_distrib[sample]['shared_observations'],
+					  samples_distrib[sample]['own_observations'],
+					  samples_distrib[sample]['shared_seq'] + samples_distrib[sample]['own_seq'],
+					  samples_distrib[sample]['shared_seq'],
+					  samples_distrib[sample]['own_seq'],
+					])
+				}
+				$('#' + container_id).html( table("Sample information", ["Sample name", "Number of clusters/ASVs", "Number of shared clusters/ASVs", "Number of own clusters/ASVs", "Number of sequences", "Number of shared sequences", "Number of own sequences"], table_data) );
+				$('#' + container_id + ' table').prop( 'id', 'samples-table' );
+				$('#samples-table').bootstrapTable();
+			}
+
+			function getLeavesNames(node) {
+				var leaves = [];
+				function traverse(n) {
+					if (!n.branchset || n.branchset.length === 0) {
+						if (n.name) leaves.push(n.name);
+					} else {
+						n.branchset.forEach(traverse);
+					}
+				}
+				traverse(node);
+				return leaves;
+			}
+
+			function getMaxDepth(node) {
+				if (!node.branchset || node.branchset.length === 0) return 1;
+				return 1 + Math.max(...node.branchset.map(getMaxDepth));
+			}
+
+			function getNbLeaves(node) {
+				if (!node.branchset || node.branchset.length === 0) return 1;
+				return node.branchset.reduce((sum, child) => sum + getNbLeaves(child), 0);
+			}
+
+
+			function parseNewick(newick) {
+				var ancestors = [];
+				var tree = {};
+				var tokens = newick.split(/\s*(;|\(|\)|,|:)\s*/);
+				for (var i=0; i<tokens.length; i++) {
+					var token = tokens[i];
+					switch (token) {
+					case '(': // new branchset
+						var subtree = {};
+						tree.branchset = [subtree];
+						ancestors.push(tree);
+						tree = subtree;
+						break;
+					case ',': // another branch
+						var subtree = {};
+						ancestors[ancestors.length-1].branchset.push(subtree);
+						tree = subtree;
+						break;
+					case ')': // end current branchset
+						tree = ancestors.pop();
+						break;
+					case ':': // ignore length for now
+						break;
+					case ';': // end of newick
+						break;
+					default:
+						var x = tokens[i-1];
+						if (x == ')' || x == '(' || x == ',') {
+						tree.name = token;
+						} else if (x == ':') {
+						tree.length = parseFloat(token);
+						}
+					}
+				}
+				return tree;
+			}
+			
+			function parseNewick(newick) {
+				var ancestors = [];
+				var tree = {};
+				var tokens = newick.split(/\s*(;|\(|\)|,|:)\s*/);
+				for (var i=0; i<tokens.length; i++) {
+					var token = tokens[i];
+					switch (token) {
+						case '(': 
+							var subtree = {};
+							tree.branchset = [subtree];
+							ancestors.push(tree);
+							tree = subtree;
+							break;
+						case ',':
+							var subtree = {};
+							ancestors[ancestors.length-1].branchset.push(subtree);
+							tree = subtree;
+							break;
+						case ')':
+							tree = ancestors.pop();
+							break;
+						case ':': 
+							break;
+						case ';': 
+							break;
+						default:
+							var x = tokens[i-1];
+							if (x == ')' || x == '(' || x == ',') {
+								tree.name = token;
+							} else if (x == ':') {
+								tree.length = parseFloat(token);
+							}
+					}
+				}
+				return tree;
+			}
+
+			// --- 2. Convertir branchset → children pour ECharts ---
+			function convertToEchartsTree(node) {
+				const newNode = {};
+				
+				// Si le noeud a un nom, on l’affiche, sinon pas de label
+				if (node.name && node.name !== "") {
+					newNode.name = node.name;
+					newNode.label = { show: true }; // afficher le label
+				} else {
+					newNode.label = { show: false }; // cacher le label
+				}
+
+				// Children
+				if (node.branchset && node.branchset.length > 0) {
+					newNode.children = node.branchset.map(convertToEchartsTree);
+				}
+
+				return newNode;
+			}
+
+			// --- 3. Extraire les noms des feuilles ---
+			function getLeavesNames(node) {
+				var leaves = [];
+				function traverse(n) {
+					if (!n.children || n.children.length === 0) {
+						if (n.name) leaves.push(n.name);
+					} else {
+						n.children.forEach(traverse);
+					}
+				}
+				traverse(node);
+				return leaves;
+			}
+
+			function uncollapseAll(node) {
+				node.collapsed = false;
+				if (node.children) {
+					node.children.forEach(uncollapseAll);
+				}
+			}
+			
+
+			var hierarchical_clustering_load = function(container_id) {
+				// --- Titre + conteneur
+				$('#' + container_id).append('<h2 class="pb-2 mt-4 mb-2 border-bottom">Hierarchical clustering</h2>');
+				$('#' + container_id).append('<div id="samples-distrib-hc" style="width:100%;height:600px;"></div>');
+				
+
+				var parsedTree = parseNewick(newick);
+				var linkage_data = convertToEchartsTree(parsedTree);
+				var leaves_names = getLeavesNames(linkage_data);
+				uncollapseAll(linkage_data);
+
+				// --- 5. Init ECharts ---
+				var chartDom = document.getElementById('samples-distrib-hc');
+				treeChart = echarts.init(chartDom, CURRENT_THEME,{renderer: 'svg'});
+
+				var treeChart_options = {
+					tooltip: {
+						trigger: 'item',
+						triggerOn: 'mousemove',
+						formatter: function(params) {
+							return params.name || '';
+						}
+					},
+					series: [
+						{
+							type: 'tree',
+							data: [linkage_data],
+							top: '5%',
+							left: '8%',
+							bottom: '5%',
+							right: '20%',
+							symbol: 'circle',
+							symbolSize: 8,
+							orient: 'LR',
+							expandAndCollapse: true,
+							label: {
+								position: 'right',
+								verticalAlign: 'middle',
+								align: 'left',
+								fontSize: 12
+							},
+							leaves: {
+								label: {
+									position: 'right',
+									verticalAlign: 'middle',
+									align: 'left'
+								}
+							},
+							animationDurationUpdate: 750
+						}
+					]
+				};
+
+				treeChart.setOption(treeChart_options);
+
+				// --- 6. Afficher les warnings pour les échantillons exclus ---
+				var excluded_samples = $.grep(
+					Object.keys(samples_distrib),
+					function(el){ return $.inArray(el, leaves_names) == -1 }
+				);
+				if (excluded_samples.length > 0) {
+					$('#' + container_id).append(
+						'<div id="hc-warning" class="alert alert-warning alert-dismissible mt-3 p-2">' +
+						'Excluded because they have no sequence: ' + excluded_samples.sort().join(", ") +
+						'</div>'
+					);
+				}
+
+				// --- 7. Afficher le Newick ---
+				$('#' + container_id).append(
+					'<div id="hc-newick" class="m-5 p-3 shadow border">' +
+					'<span class="badge bg-primary">Newick</span> ' + newick +
+					'</div>'
+				);
+			};
+
+			var cluster_distrib_load = function() {
+				var dispersion = get_dispersion( clusters_sizes, series[0]['data'] );
+				
+				// Nb clusters and nb sequences
+				var nb_clusters = 0 ;
+				var nb_sequences = 0 ;
+				for( var clusters_sizes_idx = 0 ; clusters_sizes_idx < clusters_sizes.length ; clusters_sizes_idx++ ){
+					nb_clusters += series[0]['data'][clusters_sizes_idx] ;
+					nb_sequences += ( series[0]['data'][clusters_sizes_idx] * clusters_sizes[clusters_sizes_idx] );
+				}
+				
+				$("#clusters-number").text(numberDisplay(nb_clusters));
+				$("#sequences-number").text(numberDisplay(nb_sequences));
+				
+				// Boxplot
+				var boxplot_series = [{
+					'name': "Cluster/ASV size",
+					'data': [[dispersion['min'],
+					          dispersion['lower_quartile'],
+					          dispersion['median'],
+					          dispersion['upper_quartile'],
+					          dispersion['max']]]
+				}];
+				/*
+				Test data for boxplot
+				var boxplot_series = [{
+					'name': "Cluster/ASV size",
+					'data': [[10,
+					          15,
+					          25,
+					          75,
+					          100]]
+				}];*/
+				
+				boxplotChart_options = boxplotOption("Cluster/ASV size distribution", "", "Cluster/ASV size", ["All"], boxplot_series);
+				boxplotChart = echarts.init(document.getElementById('boxplot-container'),CURRENT_THEME,{renderer: 'svg'})
+				boxplotChart.setOption(boxplotChart_options);
+
+				// Deciles
+				var decile_data = [
+					["Min", dispersion['min']],
+					[1, dispersion['1_decile']],
+					[2, dispersion['2_decile']],
+					[3, dispersion['3_decile']],
+					[4, dispersion['4_decile']],
+					["Median", dispersion['5_decile']],
+					[6, dispersion['6_decile']],
+					[7, dispersion['7_decile']],
+					[8, dispersion['8_decile']],
+					[9, dispersion['9_decile']],
+					["Max", dispersion['max']]
+				];
+				
+				$("#boxplot-table").empty();
+				$("#boxplot-table").append( table("Cluster/ASV size distribution (decile)", ["Decile", "Value"], decile_data) );
+				
+				// Details
+				var cluster_sum = 0 ;
+				for( var idx=0 ; idx < clusters_sizes.length ; idx++ ){
+					cluster_sum += series[0]['data'][idx] ;
+				}
+				var distrib_data = new Array();
+				for( var idx=0 ; idx < clusters_sizes.length ; idx++ ){
+					var cluster_prct = Math.round((series[0]['data'][idx]/cluster_sum)*10000)/100 ;
+					distrib_data.push([ clusters_sizes[idx], series[0]['data'][idx], cluster_prct ]);
+				}
+
+				$("#clusters-size-details").empty()
+				$("#clusters-size-details").append( table("Cluster/ASV size", ["Cluster/ASV size", "Number of clusters/ASVs", "% of all clusters/ASVs"], distrib_data) );
+				$('#clusters-size-details table').last().prop( 'id', 'dispersion-table' );
+				$('#dispersion-table').bootstrapTable();
+
+				
+				
+				
+				
+				var series_cumulative = new Array() ;
+				for( var series_idx = 0 ; series_idx < series.length ; series_idx++ ){
+					series_cumulative.push({
+						'name': series[series_idx]['name'],
+						'data': new Array(),
+						'pointStart': 1
+					});
+					var sum = 0 ;
+					var previous_cumulative_count = 0 ;
+					for( var val_idx = 0 ; val_idx < series[series_idx]['data'].length ; val_idx++ ){
+						var current_count = series[series_idx]['data'][val_idx] * clusters_sizes[val_idx] ;
+						var cumulative_count = previous_cumulative_count + current_count ;
+						series_cumulative[series_idx]['data'].push( [clusters_sizes[val_idx], cumulative_count] );
+						previous_cumulative_count = cumulative_count ;
+					}
+					sum_series[series[series_idx]['name']] = previous_cumulative_count ;
+				}
+				for( var series_idx = 0 ; series_idx < series.length ; series_idx++ ){
+					for( var val_idx = 0 ; val_idx < series[series_idx]['data'].length ; val_idx++ ){
+						var current_prct = (series_cumulative[series_idx]['data'][val_idx][1] / sum_series[series[series_idx]['name']])*100 ;
+						series_cumulative[series_idx]['data'][val_idx][1] = Math.round(current_prct*100)/100 ;
+					}
+				}
+				areaChart_options = areaplotOption("Cumulative sequences proportion by cluster/ASV size", "Cluster/ASV size", "% sequences", null, series_cumulative);
+				areaChart = echarts.init(document.getElementById('sequences-distrib-chart'),CURRENT_THEME,{renderer: 'svg'})
+				areaChart.setOption(areaChart_options);
+
+			}
+
+			var summaryLoad = function(){
+				// Remove alertFROGS4
+				$('#js-alert').remove();
+				document.getElementById("logo").src = "data:image/png;base64," + logoBase64;
+				$('#content').removeClass("hidden");
+				
+				cluster_distrib_load();
+			}
+			
+
+			$(function () {
+				
+				// Resize charts on window resize
+				window.addEventListener('resize', () => {
+					[treeChart, boxplotChart, areaChart].forEach(chart => {
+						if (chart) chart.resize();
+					});
+				});
+				document.querySelectorAll('button[data-bs-toggle="tab"]').forEach(tab => {
+					tab.addEventListener('shown.bs.tab', function (e) {
+						setTimeout(() => {
+						if (treeChart) treeChart.resize();
+						if (boxplotChart) boxplotChart.resize();
+						if (areaChart) areaChart.resize();
+						}, 200);
+					});
+				});
+
+				$("#report-title").html("Cluster/ASV report <i><small class='text-muted'>(" + frogs_tool + ", v" + frogs_version + ")<small></i>");
+
+				// Charger le résumé par défaut
+				summaryLoad();
+
+				const tabEl = document.querySelectorAll('button[data-bs-toggle="tab"]');
+				tabEl.forEach(tab => {
+					tab.addEventListener('shown.bs.tab', function (event) {
+						const target = event.target.getAttribute("data-bs-target");
+						if (target === "#tab2") {
+							sample_table_load('samples-distrib-table');
+							if(newick != null){
+								hierarchical_clustering_load( "samples-distrib" );
+							}
+						}
+					});
+				});
+				// Default theme
+				update_theme(DEFAULT_THEME);
+				select = document.getElementById("themechoice");
+				select.options[1].disabled = true 
+
+			});
+
+			
+		</script>
+	</head>
+	<body class="p-5">
+		<!-- Alert -->
+		<p id="js-alert" class="alert alert-warning">
+			javascript is needed to display data.<br />
+			If you are trying to view this data on galaxy, please contact your administrator to enable javascript or download the file for viewing.
+		</p>
+		<div class="container-fluid d-flex align-items-center mb-5">
+			<img id="logo" class="object-fit-contain me-3" style="height:180px;" src="data:image/png;base64," />
+			<h2 id="report-title" class="mb-0">Cluster/ASVs report</h2>
+		</div>
+	
+		<div class="d-flex justify-content-end">
+			<select id="themechoice" class="form-select form-select-sm" onchange="update_theme($(this).val())" style="width: auto;" aria-label="Default select example">
+			  <option selected disabled value="">Switch theme</option>
+			  <option value="DefaultTheme">Default</option>
+			  <option value="CoralTheme">Coral</option>
+			  <option value="GoldTheme">Gold</option>
+			  <option value="SteelTheme">Steel</option>
+			</select>
+		</div>
+
+		<!-- Tabs organization -->
+		<ul class="nav nav-tabs" id="myTab" role="tablist">
+			<li class="nav-item" role="presentation">
+			  <button class="nav-link active" id="tab1-tab" data-bs-toggle="tab" data-bs-target="#tab1" type="button" role="tab">
+				Cluster/ASV distribution
+			  </button>
+			</li>
+			<li class="nav-item" role="presentation">
+			  <button class="nav-link" id="tab2-tab" data-bs-toggle="tab" data-bs-target="#tab2" type="button" role="tab">
+				Sample distribution
+			  </button>
+			</li>
+		</ul>
+
+		<!-- Content -->
+		<div class="tab-content" id="myTabContent">
+			<!-- TAB 1 -->
+			<div class="tab-pane fade show active p-3 border border-top-0" id="tab1" role="tabpanel">
+				<div class="row justify-content-center p-5">
+					<div id="nb-clusters" class="col-sm-6 col-md-4">
+						<div class="circle">
+							<span class="circle-title">Clusters/ASVs</span>
+							<span id="clusters-number" class="circle-value"></span>
+						</div>
+					</div>
+					<div id="nb-sequences" class="col-sm-6 col-md-4">
+						<div class="circle">
+							<span class="circle-title">Sequences</span>
+							<b><span id="sequences-number" ></span></b>
+						</div>
+					</div>
+				</div>
+				<div class="row justify-content-center p-5">
+					<h2 class="pb-4 mt-4 mb-2 border-bottom">Cluster/ASV size summary</h2>
+					
+					<p class="col-12"><i>The cluster/ASV size is the sum of the abundances of the sequences grouped in a cluster/ASV.</i></p>
+					<div class="row" id="twofigs" style="min-height: 400px;">
+						<div class="col-md-8">
+						  <div id="boxplot-container" class="w-100" style="height: 100%;"></div>
+						</div>
+						<div class="col-md-4 table-responsive">
+						  <div id="boxplot-table"></div>
+						</div>
+					  </div>
+				</div>
+				<h2 class="pb-4 mt-4 mb-2 border-bottom">Cluster/ASV size details</h2>
+				<div id="clusters-size-details" class="col-md-12">
+				</div>
+				<div class="row justify-content-center p-5"></div>
+					<h2 class="pb-4 mt-4 mb-2 border-bottom">Sequence distribution</h2>
+					<div id="sequences-distrib-chart"></div>
+			</div>
+			<!-- TAB 2 -->
+			<div class="tab-pane fade p-3 border border-top-0" id="tab2" role="tabpanel">
+				<h2 class="pb-4 mt-4 mb-2 border-bottom">Sequence count</h2>
+				<div id="samples-distrib-table" class="table-responsive"></div>
+				<div id="samples-distrib"></div>
+			</div>
+		</div>
+
+	</body>
+</html>

@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 
 __author__ = 'Ta Thi Ngan - SIGENAE/BABI & Maria Bernard - SIGENAE/GABI'
-__copyright__ = 'Copyright (C) 2024 INRAE'
+__copyright__ = 'Copyright (C) 2025 INRAE'
 __license__ = 'GNU General Public License'
-__version__ = '5.0.2'
+__version__ = '5.1.0'
 __email__ = 'frogs-support@inrae.fr'
 __status__ = 'prod'
 
@@ -60,7 +60,7 @@ class Rscript(Cmd):
                       'Rscript',
                       'Run 1 code Rmarkdown',
                        '-e "rmarkdown::render(' + "'" + rmd + "',output_file='" + html + \
-                       "', params=list(phyloseq='" + phyloseq + "', measures='" + measures + "', varExp='" + varExp + "',fileAlpha='" + alphaOut + "', libdir ='" + LIBR_DIR + "', version='"+ str(__version__) + "'), intermediates_dir='" + os.path.dirname(html) + "')" + '" 2> ' + rmd_stderr,
+                       "', params=list(phyloseq='" + phyloseq + "', measures='" + measures + "', varExp='" + varExp + "',fileAlpha='" + alphaOut + "', libdir ='" + LIBR_DIR + "', version='"+ str(__version__) + "', tool='" + os.path.basename(__file__) + "'), intermediates_dir='" + os.path.dirname(html) + "')" + '" 2> ' + rmd_stderr,
                        "-e '(sessionInfo()[[1]][13])[[1]][1]; paste(\"Rmarkdown version: \",packageVersion(\"rmarkdown\")) ; library(phyloseq); paste(\"Phyloseq version: \",packageVersion(\"phyloseq\"))'")
     def get_version(self):
         """
@@ -82,17 +82,17 @@ if __name__ == "__main__":
     parser.add_argument('--version', action='version', version=__version__ )
     parser.add_argument('--debug', default=False, action='store_true', help="Keep temporary files to debug program. [Default: %(default)s]" )   
     
-    parser.add_argument('--varExp', type=str, required=True, default=None, help='The experiment variable used to aggregate sample diversities. [Default: %(default)s]' )
+    parser.add_argument('--var-exp', type=str, required=True, default=None, help='The experiment variable used to aggregate sample diversities. [Default: %(default)s]' )
     parser.add_argument('--alpha-measures', type=str, nargs="*", default=['Observed','Chao1','Shannon','InvSimpson'], help='The indices of alpha diversity. Available indices : Observed, Chao1, Shannon, InvSimpson, Simpson, ACE, Fisher. [Default: %(default)s]')
   
     # Inputs
     group_input = parser.add_argument_group( 'Inputs' )
-    group_input.add_argument('--rdata', required=True, default=None, help="The path of RData file containing a phyloseq object-the result of FROGS Phyloseq Import Data. [Default: %(default)s]" )
+    group_input.add_argument('--phyloseq-rdata', required=True, default=None, help="The path of RData file containing a phyloseq object-the result of phyloseq_import.py. [Default: %(default)s]" )
 
     # output
     group_output = parser.add_argument_group( 'Outputs' )
     group_output.add_argument('--html', default='phyloseq_alpha_diversity.nb.html', help="The HTML file containing the graphs. [Default: %(default)s]" )
-    group_output.add_argument('--alpha-out', default='phyloseq_alpha_diversity.tsv', help="The path to store resulting data file containing alpha diversity table. [Default: %(default)s]" )    
+    group_output.add_argument('--output-alpha-tsv', default='phyloseq_alpha_diversity.tsv', help="The path to store resulting data file containing alpha diversity table. [Default: %(default)s]" )    
     group_output.add_argument('--log-file', default=sys.stdout, help="This output file will contain several informations on executed commands. [Default: stdout]")    
     args = parser.parse_args()
     prevent_shell_injections(args)   
@@ -107,14 +107,14 @@ if __name__ == "__main__":
             if m not in ["Observed", "Chao1", "Shannon", "InvSimpson", "Simpson", "ACE", "Fisher"] :
                 raise_exception( Exception("\n\n#ERROR : Measure, " + m + " is not a valid alpha diversity indice\n\n"))
 
-    phyloseq=os.path.abspath(args.rdata)
+    phyloseq=os.path.abspath(args.phyloseq_rdata )
     html=os.path.abspath(args.html)
-    alphaOut=os.path.abspath(args.alpha_out)
+    alphaOut=os.path.abspath(args.output_alpha_tsv)
     measures=",".join(args.alpha_measures)
     try:
         tmpFiles = TmpFiles(os.path.dirname(html))
         rmd_stderr = tmpFiles.add("rmarkdown.stderr")
-        Rscript(phyloseq, html, args.varExp, measures, alphaOut, rmd_stderr).submit( args.log_file )
+        Rscript(phyloseq, html, args.var_exp, measures, alphaOut, rmd_stderr).submit( args.log_file )
     finally :
         if not args.debug:
             tmpFiles.deleteAll()

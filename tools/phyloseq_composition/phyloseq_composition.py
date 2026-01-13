@@ -3,7 +3,7 @@
 __author__ = 'Ta Thi Ngan - SIGENAE/GABI & Maria Bernard - SIGENAE/GABI'
 __copyright__ = 'Copyright (C) 2024 INRAE'
 __license__ = 'GNU General Public License'
-__version__ = '5.0.2'
+__version__ = '5.1.0'
 __email__ = 'frogs-support@inrae.fr'
 __status__ = 'prod'
 
@@ -63,7 +63,7 @@ class Rscript(Cmd):
                        '-e "rmarkdown::render(' + "'" + rmd + "',output_file='" + html + \
                        "', params=list(phyloseq='" + phyloseq + "', varExp='" + varExp + \
                        "',taxaRank1='" + taxaRank1 + "',taxaSet1='" + taxaSet1 + "',taxaRank2='" + taxaRank2 + \
-                       "',numberOfTaxa=" + str(numberOfTaxa) + ", libdir ='" + LIBR_DIR + "', version='"+ str(__version__) + "'), intermediates_dir='" + os.path.dirname(html) + "')" + '" 2> ' + rmd_stderr,
+                       "',numberOfTaxa=" + str(numberOfTaxa) + ", libdir ='" + LIBR_DIR + "', version='"+ str(__version__) + "', tool='" + os.path.basename(__file__) + "'), intermediates_dir='" + os.path.dirname(html) + "')" + '" 2> ' + rmd_stderr,
                        "-e '(sessionInfo()[[1]][13])[[1]][1]; paste(\"Rmarkdown version: \",packageVersion(\"rmarkdown\")) ; library(phyloseq); paste(\"Phyloseq version: \",packageVersion(\"phyloseq\"))'")
     def get_version(self):
         """
@@ -85,15 +85,15 @@ if __name__ == "__main__":
     parser.add_argument( '--version', action='version', version=__version__ )
     parser.add_argument( '--debug', default=False, action='store_true', help="Keep temporary files to debug program. [Default: %(default)s]" )   
     
-    parser.add_argument('--varExp', type=str, required=True, help='The experiment variable used to split plot.' )
-    parser.add_argument('--taxaRank1', type=str, required=True, help='Select taxonomic rank name to subset your data. [ex: Kingdom]' )
-    parser.add_argument('--taxaSet1', type=str ,nargs='*', required=True, help='Select taxon name among taxaRank1 to subset your data. [ex: Bacteria]' )
-    parser.add_argument('--taxaRank2', type=str,required=True, help='Select sub taxonomic rank name to aggregate your data. [ex: Phylum]" ' )
-    parser.add_argument('--numberOfTaxa', type=int, required=True, help='The number of the most abundant taxa to keep at taxaRank2. [ex: 9]" ' )
+    parser.add_argument('--var-exp', type=str, required=True, help='The experiment variable used to split plot.' )
+    parser.add_argument('--taxa-rank-1', type=str, required=True, help='Select taxonomic rank name to subset your data. [ex: Kingdom]' )
+    parser.add_argument('--taxa-set-1', type=str ,nargs='*', required=True, help='Select taxon name among taxaRank1 to subset your data. [ex: Bacteria]' )
+    parser.add_argument('--taxa-rank-2', type=str,required=True, help='Select sub taxonomic rank name to aggregate your data. [ex: Phylum]" ' )
+    parser.add_argument('--number-of-taxa', type=int, required=True, help='The number of the most abundant taxa to keep at taxaRank2. [ex: 9]" ' )
   
     # Inputs
     group_input = parser.add_argument_group( 'Inputs' )
-    group_input.add_argument('--rdata', required=True, default=None, help="The path of RData file containing a phyloseq object-the result of FROGS Phyloseq Import Data. [Default: %(default)s]")
+    group_input.add_argument('--phyloseq-rdata', required=True, default=None, help="The path of RData file containing a phyloseq object-the result of phyloseq_import.py. [Default: %(default)s]" )
 
     # output
     group_output = parser.add_argument_group( 'Outputs' )
@@ -104,13 +104,13 @@ if __name__ == "__main__":
     # Process 
     Logger.static_write(args.log_file, "## Application\nSoftware :" + sys.argv[0] + " (version : " + str(__version__) + ")\nCommand : " + " ".join(sys.argv) + "\n\n")
     html=os.path.abspath(args.html)
-    phyloseq=os.path.abspath(args.rdata)
-    taxaSet1=" ".join(args.taxaSet1)
+    phyloseq=os.path.abspath(args.phyloseq_rdata)
+    taxaSet1=" ".join(args.taxa_set_1)
 
     try : 
         tmpFiles = TmpFiles(os.path.dirname(html))
         rmd_stderr = tmpFiles.add("rmarkdown.stderr")
-        Rscript(html, phyloseq, args.varExp, args.taxaRank1.strip(), str(taxaSet1.strip()), args.taxaRank2.strip(), args.numberOfTaxa, rmd_stderr).submit( args.log_file )
+        Rscript(html, phyloseq, args.var_exp, args.taxa_rank_1.strip(), str(taxaSet1.strip()), args.taxa_rank_2.strip(), args.number_of_taxa, rmd_stderr).submit( args.log_file )
 
     finally :
         if not args.debug:

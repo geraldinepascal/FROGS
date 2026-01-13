@@ -3,7 +3,7 @@
 __author__ = 'Moussa Samb - GENPHYSE & Vincent Darbot - GENPHYSE & Geraldine Pascal - GENPHYSE'
 __copyright__ = 'Copyright (C) 2024 INRAE'
 __license__ = 'GNU General Public License'
-__version__ = '5.0.2'
+__version__ = '5.1.0'
 __email__ = 'frogs@toulouse.inrae.fr'
 __status__ = 'prod'
 
@@ -23,6 +23,10 @@ LIB_DIR = os.path.abspath(os.path.join(os.path.dirname(CURRENT_DIR), "lib"))
 sys.path.append(LIB_DIR)
 if os.getenv('PYTHONPATH') is None: os.environ['PYTHONPATH'] = LIB_DIR
 else: os.environ['PYTHONPATH'] = LIB_DIR + os.pathsep + os.environ['PYTHONPATH']
+# THEME
+THEME_DIR = os.path.abspath(os.path.join(os.path.dirname(CURRENT_DIR), "static"))
+if not os.path.exists(THEME_DIR):
+    THEME_DIR = os.path.abspath(os.path.join(os.path.dirname(os.path.dirname(CURRENT_DIR)), "static"))
 
 from frogsUtils import *
 from frogsBiom import BiomIO
@@ -38,10 +42,11 @@ class PlaceSeqs(Cmd):
 	"""
 	@summary: place cluster sequences (i.e. ASVs) into a reference tree.
 	"""
-	def __init__(self, in_fasta, out_tree, placement_tool, ref_dir, min_align, log):
+	def __init__(self, in_fasta, out_tree, nb_cpus, placement_tool, ref_dir, min_align, log):
 		"""
 		@param in_fasta: [str] Path to input fasta file of unaligned cluster sequences.
 		@param out_tree: [str] Path to output resulting tree file with insert clusters sequences.
+		@param nb_cpus : [int] 'param.nb_cpus'.
 		@param placement_tool: [str] Placement tool to use (epa-ng or sepp).
 		@param ref_dir: [str] Directory containing reference sequence files.
 		@param min_align: [float] Proportion of the total length of an input query sequence that must align with reference sequences.
@@ -54,7 +59,7 @@ class PlaceSeqs(Cmd):
 		Cmd.__init__(self,
 		'place_seqs.py',
 		'Place studies sequences (i.e. ASVs) on reference tree.',
-		'--study_fasta ' + in_fasta + ' --out_tree ' + out_tree + ' --placement_tool ' + placement_tool + " --min_align " + str(min_align) + opt + " --verbose 2>> " + log,
+		'--study_fasta ' + in_fasta + ' --out_tree ' + out_tree + ' -p ' + str(nb_cpus) + ' --placement_tool ' + placement_tool + " --min_align " + str(min_align) + opt + " --verbose 2>> " + log,
 		'--version')
 
 	def get_version(self):
@@ -148,12 +153,13 @@ class HspMarker(Cmd):
 	"""
 	@summary: Predict number of marker copies (16S, 18S or ITS) for each cluster sequence (i.e ASV).
 	"""
-	def __init__(self, tree, marker_type, marker_table, hsp_method, biom_file, output, log, is_debug):
+	def __init__(self, tree, nb_cpus, marker_type, marker_table, hsp_method, biom_file, out_marker_copy, log, is_debug):
 		"""
+		@param nb_cpus : [int] 'param.nb_cpus'.
 		@param observed_marker_table: [str] Path to marker table file if marker studied is not 16S.
 		@param in_tree: [str] Path to resulting tree file with inserted clusters sequences from frogsfunc_placeseqs.
 		@param hsp_method: [str] HSP method to use.
-		@param output: [str] PICRUSt2 marker output file.
+		@param out_marker_copy: [str] PICRUSt2 marker output file.
 		"""
 		debug = ""
 		if is_debug:
@@ -166,10 +172,10 @@ class HspMarker(Cmd):
 		Cmd.__init__(self,
 				 'launch_hsp.py',
 				 'predict marker copy number per sequence.', 
-				  debug + ' marker --input-tree ' + tree + ' --marker-type ' + marker_type + opt + ' --hsp-method ' + hsp_method + ' -o ' + output + '  2> ' + log,
+				  debug + ' --nb-cpus ' + str(nb_cpus) + ' marker --input-tree ' + tree + ' --marker-type ' + marker_type + opt + ' --hsp-method ' + hsp_method + ' -o ' + out_marker_copy + '  2> ' + log,
 				"--version")
 
-		self.output = output
+		self.out_marker_copy = out_marker_copy
 		self.biom_file = biom_file
 
 	def get_version(self):
@@ -177,7 +183,7 @@ class HspMarker(Cmd):
 	
 	def parser(self, log_file):
 		biom = BiomIO.from_json(self.biom_file)
-		with open(self.output) as fi:
+		with open(self.out_marker_copy) as fi:
 			for li in fi:
 				if "metadata_NSTI" in li:
 					continue
@@ -314,11 +320,28 @@ def write_summary(in_fasta, excluded_file, biomfile, closest_ref_file, category,
 	summary_info['nb_kept'] = number_asv_all - summary_info['nb_removed']
 	summary_info['abundance_kept'] = number_abundance_all - summary_info['abundance_removed']
 
+	# Load shared JS
+	with open(os.path.join(THEME_DIR, "js", "theme.js")) as f:
+		theme_js = f.read()
+	with open(os.path.join(THEME_DIR, "js", "utils.js")) as f:
+		utils_js = f.read()
+    # Load shared CSS
+	with open(os.path.join(THEME_DIR, "css", "common.css")) as f:
+		common_css = f.read()
+
 	FH_summary_tpl = open( os.path.join(CURRENT_DIR, "frogsfunc_placeseqs_tpl.html") )
 	FH_summary_out = open( summary_file, "wt" )
+	
 
 	for line in FH_summary_tpl:
-		if "###DETECTION_CATEGORIES###" in line:
+		if "###IMPORT_CSS###" in line:
+			line = line.replace("###IMPORT_CSS###", f"<style type='text/css'>{common_css}</style>")
+		elif "###IMPORT_JS_UTILS###" in line:
+			# injection du JS inline
+			line = line.replace("###IMPORT_JS_UTILS###", f"<script>\n{utils_js}</script>")
+		elif "###IMPORT_JS_THEME###" in line:
+			line = line.replace("###IMPORT_JS_THEME###", f"<script>\n{theme_js}</script>")
+		elif "###DETECTION_CATEGORIES###" in line:
 			line = line.replace( "###DETECTION_CATEGORIES###", json.dumps(details_categorys) )
 		elif "###DETECTION_DATA###" in line:
 			line = line.replace( "###DETECTION_DATA###", json.dumps(infos_asvs) )
@@ -349,24 +372,26 @@ if __name__ == "__main__":
 	parser = argparse.ArgumentParser(description="place studies sequences (i.e. ASVs) into a reference tree.")
 	parser.add_argument('--version', action='version', version=__version__)
 	parser.add_argument('--debug', default=False, action='store_true', help="Keep temporary files to debug program. [Default: %(default)s]" )
+	parser.add_argument('--nb-cpus', type=int, default=1, help="The maximum number of CPUs used. [Default: %(default)s]" )
+	parser.add_argument('--placement-tool', default='epa-ng', choices=["epa-ng", "sepp"], help='Tool to place sequences into reference tree. Note that epa-ng is more sensitiv but very memory and computing power intensive. Warning : sepp is not usable for ITS and 18S analysis [Default: %(default)s]')
+	parser.add_argument('--min-align', type=restricted_float, default=0.8, help='Proportion of the total length of an input query sequence that must align with reference sequences. Any sequences with lengths below this value after making an alignment with reference sequences will be excluded from the placement and all subsequent steps. [Default: %(default)s].')
+	parser.add_argument('--hsp-method', default='mp', choices=['mp', 'emp_prob', 'pic', 'scp', 'subtree_average'], help='HSP method to use. mp: predict discrete traits using max parsimony. emp_prob: predict discrete traits based on empirical state probabilities across tips. subtree_average: predict continuous traits using subtree averaging. pic: predict continuous traits with phylogentic independent contrast. scp: reconstruct continuous traits using squared-change parsimony [Default: %(default)s].')   
+	
 	# Inputs
 	group_input = parser.add_argument_group('Inputs')
 	group_input.add_argument('--input-fasta', required=True, help="Input fasta file of unaligned studies sequences.")
 	group_input.add_argument('--input-biom', required=True, help='Input biom file of unaligned studies sequences.')
-	group_input.add_argument('--ref-dir', help='If marker studied is not 16S, this is the directory containing reference sequence files (for ITS, see: $PICRUST2_PATH/default_files/fungi/fungi_ITS')
-	group_input.add_argument('--placement-tool', default='epa-ng', choices=["epa-ng", "sepp"], help='Tool to place sequences into reference tree. Note that epa-ng is more sensitiv but very memory and computing power intensive. Warning : sepp is not usable for ITS and 18S analysis [Default: %(default)s]')
-	group_input.add_argument('--min-align', type=restricted_float, default=0.8, help='Proportion of the total length of an input query sequence that must align with reference sequences. Any sequences with lengths below this value after making an alignment with reference sequences will be excluded from the placement and all subsequent steps. [Default: %(default)s].')
-	group_input.add_argument('--input-marker-table',help="The input marker table describing directly observed traits (e.g. sequenced genomes) in tab-delimited format. (ex $PICRUSt2_PATH/default_files/fungi/ITS_counts.txt.gz).")	
-	group_input.add_argument('--hsp-method', default='mp', choices=['mp', 'emp_prob', 'pic', 'scp', 'subtree_average'], help='HSP method to use. mp: predict discrete traits using max parsimony. emp_prob: predict discrete traits based on empirical state probabilities across tips. subtree_average: predict continuous traits using subtree averaging. pic: predict continuous traits with phylogentic independent contrast. scp: reconstruct continuous traits using squared-change parsimony [Default: %(default)s].')   
+	group_input.add_argument('--ref-dir', help='If marker studied is not 16S, the directory containing reference sequence files (for ITS, see: $PICRUST2_PATH/default_files/fungi/fungi_ITS')
+	group_input.add_argument('--input-marker-table',help="If marker studied is not 16S, the marker table describing copy number by genome assembly. (ex: $PICRUSt2_PATH/default_files/fungi/ITS_counts.txt.gz).")	
 	# Outputs
 	group_output = parser.add_argument_group('Outputs')
-	group_output.add_argument('--output-tree', default='frogsfunc_placeseqs_tree.nwk', help='Reference tree output with insert sequences (format: newick). [Default: %(default)s]')
-	group_output.add_argument('--excluded', default='frogsfunc_placeseqs_excluded.txt', help='List of sequences not inserted in the tree. [Default: %(default)s]')
-	group_output.add_argument('--output-fasta', default='frogsfunc_placeseqs.fasta', help='Fasta file without non insert sequences. (format: FASTA). [Default: %(default)s]')
-	group_output.add_argument('--output-biom', default='frogsfunc_placeseqs.biom', help='Biom file without non insert sequences. (format: BIOM) [Default: %(default)s]')
+	group_output.add_argument('--output-tree', default='frogsfunc_placeseqs_tree.nwk', help='Reference and ASV phylogentic tree (format: newick). [Default: %(default)s]')
+	group_output.add_argument('--excluded', default='frogsfunc_placeseqs_asv_excluded.txt', help='Excluded ASV list. [Default: %(default)s]')
+	group_output.add_argument('--output-fasta', default='frogsfunc_placeseqs.fasta', help='Kept ASV sequence file. (format: FASTA). [Default: %(default)s]')
+	group_output.add_argument('--output-biom', default='frogsfunc_placeseqs.biom', help='Kept ASV abundance file. (format: BIOM) [Default: %(default)s]')
 	group_output.add_argument('--closests-ref', default='frogsfunc_placeseqs_closests_ref_sequences.txt', help='Informations about Clusters (i.e ASVs) and PICRUSt2 closest reference from cluster sequences (identifiants, taxonomies, phylogenetic distance from reference, nucleotidics sequences). [Default: %(default)s]')
-	group_output.add_argument('--html', default='frogsfunc_placeseqs_summary.html', help="Path to store resulting html file. [Default: %(default)s]" )
-	group_output.add_argument('--output-marker', default="frogsfunc_marker.tsv", type=str, help='Output table of predicted marker gene copy numbers per studied sequence in input tree. If the extension \".gz\" is added the table will automatically be gzipped. [Default: %(default)s]')	
+	group_output.add_argument('--html', default='frogsfunc_placeseqs_summary.html', help="HTML report. [Default: %(default)s]" )
+	group_output.add_argument('--output-marker-copy', default="frogsfunc_marker_copy_per_asv.tsv", type=str, help='Predicted marker gene copy numbers per kept ASV. If the extension \".gz\" is added the table will automatically be gzipped. [Default: %(default)s]')	
 	group_output.add_argument('--log-file', default=sys.stdout, help='List of commands executed. [Default: stdout]')
 	args = parser.parse_args()
 	prevent_shell_injections(args)
@@ -390,7 +415,7 @@ if __name__ == "__main__":
 		ConvertFasta(args.input_fasta, tmp_fasta, tmp_convert_fasta).submit(args.log_file)
 
 		tmp_place_seqs = tmp_files.add( 'tmp_place_seqs.log' )
-		PlaceSeqs(tmp_fasta, args.output_tree, args.placement_tool, args.ref_dir, args.min_align, tmp_place_seqs).submit(args.log_file)
+		PlaceSeqs(tmp_fasta, args.output_tree, args.nb_cpus, args.placement_tool, args.ref_dir, args.min_align, tmp_place_seqs).submit(args.log_file)
 		# parse place_seqs.py output in order to retrieve references sequences alignment, necessary for find_closest_ref_sequences step.
 		ref_aln = open(tmp_place_seqs).readlines()[0].strip().split()[4]
 
@@ -403,7 +428,7 @@ if __name__ == "__main__":
 			raise_exception( Exception ("\n\n#ERROR : --input-marker-table required when studied marker is not 16S!\n\n"))
 
 		tmp_hsp_marker = tmp_files.add( 'tmp_hsp_marker.log' )
-		HspMarker(args.output_tree, category, args.input_marker_table, args.hsp_method, args.output_biom, args.output_marker, tmp_hsp_marker, args.debug).submit(args.log_file)
+		HspMarker(args.output_tree, args.nb_cpus, category, args.input_marker_table, args.hsp_method, args.output_biom, args.output_marker_copy, tmp_hsp_marker, args.debug).submit(args.log_file)
 
 		tmp_find_closest_ref = tmp_files.add( 'tmp_find_closest_ref.log' )
 		FindClosestsRefSequences(args.output_tree, args.output_biom, args.output_fasta, ref_aln, args.output_biom, args.closests_ref, tmp_find_closest_ref).submit(args.log_file)
