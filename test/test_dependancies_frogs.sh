@@ -35,10 +35,13 @@ echo "Step demultiplex `date`"
 if $run_programs
 then
 demultiplex.py \
-	--input-R1 data/demultiplex_test2_R1.fq.gz --input-R2 data/demultiplex_test2_R2.fq.gz --input-barcode data/demultiplex_barcode.txt \
+	--input-R1 data/formation_small.fastq \
+	--input-barcode data/formation.barcode.txt \
 	--mismatches 1 --end both \
-	--output-demultiplexed $out_dir/demultiplexed.tar.gz --output-undemultiplexed $out_dir/undemultiplexed.tar.gz \
-	--log-file $out_dir/demultiplex.log --summary $out_dir/demultiplex_summary.txt
+	--output-demultiplexed $out_dir/demultiplexed.tar.gz \
+	--output-undemultiplexed $out_dir/undemultiplexed.tar.gz \
+	--log-file $out_dir/demultiplex.log \
+	--summary $out_dir/demultiplex_summary.txt 
 	if [ $? -ne 0 ]
 	then
 		echo "Error in demultiplex" >&2
@@ -51,22 +54,23 @@ then
 	echo "difference in demultiplex: demultiplex_summary.txt " >&2
 fi
 
-echo "Step denoising : Vsearch & swarm `date`"
+echo "Step reads_processing : Vsearch & swarm `date`"
 
 
 if $run_programs
 then
-denoising.py illumina \
+reads_processing.py illumina \
      --process swarm --fastidious \
 	 --min-amplicon-size 44 --max-amplicon-size 490 \
      --five-prim-primer GGCGVACGGGTGAGTAA --three-prim-primer GTGCCAGCNGCNGCGG \
      --R1-size 267 --R2-size 266 --merge-software vsearch \
      --nb-cpus $nb_cpu --mismatch-rate 0.15 \
 	 --input-archive data/test_dataset.tar.gz \
-	 --output-fasta $out_dir/01-denoising-swarm-vsearch.fasta \
-	 --output-biom $out_dir/01-denoising-swarm-vsearch.biom \
-	 --html $out_dir/01-denoising-swarm-vsearch.html \
-	 --log-file $out_dir/01-denoising-swarm-vsearch.log 
+	 --output-fasta $out_dir/01-reads_processing-swarm-vsearch.fasta \
+	 --output-biom $out_dir/01-reads_processing-swarm-vsearch.biom \
+	 --output-compo $out_dir/01-reads_processing-swarm-vsearch_compo.tsv \
+	 --html $out_dir/01-reads_processing-swarm-vsearch.html \
+	 --log-file $out_dir/01-reads_processing-swarm-vsearch.log 
 	 
 	if [ $? -ne 0 ]
 	then
@@ -75,42 +79,42 @@ denoising.py illumina \
 	fi
 fi
 
-if diff_line $out_dir/01-denoising-swarm-vsearch.fasta $expected_dir/01-denoising-swarm-vsearch.fasta 0
+if diff_line $out_dir/01-reads_processing-swarm-vsearch.fasta $expected_dir/01-reads_processing-swarm-vsearch.fasta 0
 then
-	echo "difference in denoising, swarm & vsearch: 01-denoising-swarm-vsearch.fasta" >&2
+	echo "difference in reads_processing, swarm & vsearch: 01-reads_processing-swarm-vsearch.fasta" >&2
 fi
 
-echo "Step denoising : dada2 keep-unmerged `date`"
+echo "Step reads_processing : dada2 keep-unmerged `date`"
 
 if $run_programs
 then
-denoising.py illumina \
+reads_processing.py illumina \
 	--process dada2 --keep-unmerged \
 	--input-archive data/verysmallITS.tar.gz \
 	--min-amplicon-size 50 --max-amplicon-size 1000 --merge-software vsearch \
 	--five-prim-primer TAGACTCGTCAHCGATGAAGAACGYRG --three-prim-primer GCATATCAATAAGCGSAGGAA \
 	--R1-size 300 --R2-size 300  --nb-cpus $nb_cpu \
-	--output-fasta $out_dir/01-denoising-dada2-clusters.fasta \
-	--output-biom $out_dir/01-denoising-dada2-clusters.biom \
-	--html $out_dir/01-denoising-dada2.html \
-	--log-file $out_dir/01-denoising-dada2.log
+	--output-fasta $out_dir/01-reads_processing-dada2-clusters.fasta \
+	--output-biom $out_dir/01-reads_processing-dada2-clusters.biom \
+	--html $out_dir/01-reads_processing-dada2.html \
+	--log-file $out_dir/01-reads_processing-dada2.log
 	
 	if [ $? -ne 0 ]
 	then
-		echo "Error in denoising : DADA2 & vsearch" >&2
+		echo "Error in reads_processing : DADA2 & vsearch" >&2
 		exit 1;
 	fi
 fi
 
  
-if diff_line $out_dir/01-denoising-dada2-clusters.fasta $expected_dir/01-denoising-dada2-clusters.fasta 0
+if diff_line $out_dir/01-reads_processing-dada2-clusters.fasta $expected_dir/01-reads_processing-dada2-clusters.fasta 0
 then
-	echo "difference in denoising dada2 & vsearch: 01-denoising-dada2-clusters.fasta" >&2
+	echo "difference in reads_processing dada2 & vsearch: 01-reads_processing-dada2-clusters.fasta" >&2
 fi
 
-if diff_size $out_dir/01-denoising-dada2-clusters.biom $expected_dir/01-denoising-dada2-clusters.biom 1
+if diff_size $out_dir/01-reads_processing-dada2-clusters.biom $expected_dir/01-reads_processing-dada2-clusters.biom 1
 then
-	echo "difference in denoising dada2 & vsearch: 01-denoising-dada2-clusters.biom " >&2
+	echo "difference in reads_processing dada2 & vsearch: 01-reads_processing-dada2-clusters.biom " >&2
 fi
 
 echo "Step remove_chimera `date`"
@@ -118,14 +122,14 @@ echo "Step remove_chimera `date`"
 if $run_programs
 then
 remove_chimera.py \
-	 --input-fasta $out_dir/01-denoising-swarm-vsearch.fasta \
-	 --input-biom $out_dir/01-denoising-swarm-vsearch.biom \
+	 --input-fasta $out_dir/01-reads_processing-swarm-vsearch.fasta \
+	 --input-biom $out_dir/01-reads_processing-swarm-vsearch.biom \
      --output-fasta $out_dir/03-chimera.fasta \
      --output-biom $out_dir/03-chimera.biom \
      --html $out_dir/03-chimera.html \
      --log-file $out_dir/03-chimera.log \
      --nb-cpus $nb_cpu
-	 
+
 	if [ $? -ne 0 ]
 	then
 		echo "Error in remove_chimera" >&2
@@ -153,7 +157,7 @@ echo "Step cluster filters `date`"
 if $run_programs
 then
 cluster_filters.py \
-	 --min-abundance 0.00005 \
+	--min-abundance 0.00005 \
 	--min-sample-presence 3 \
 	--contaminant data/phi.fa \
 	--nb-cpus $nb_cpu \
@@ -278,10 +282,9 @@ affiliation_filters.py \
 	--impacted $out_dir/07-impacted_ASV_masked.tsv \
 	--impacted-multihit $out_dir/07-impacted_ASV_masked_multihit.tsv \
 	--log-file $out_dir/07-affiliation_filter_maskMode.log \
-	--min-rdp-bootstrap Species:0.8 \
 	--min-blast-length 150 \
-	--min-blast-identity 1.0 \
-	--min-blast-coverage 1.0 \
+	--min-blast-identity 100 \
+	--min-blast-coverage 100 \
 	--max-blast-evalue 1e-150 \
 	--ignore-blast-taxa "g__Sarcodon" "s__Trichoderma" \
 	--mask \
@@ -328,7 +331,6 @@ affiliation_filters.py \
 	--impacted $out_dir/07-impacted_ASV_deleted.tsv \
 	--impacted-multihit $out_dir/07-impacted_ASV_deleted_multihit.tsv \
 	--log-file $out_dir/07-affiliation_filter_delMode.log \
-	--min-rdp-bootstrap Species:0.8 \
 	--min-blast-length 150 \
 	--min-blast-identity 1.0 \
 	--min-blast-coverage 1.0 \
@@ -409,7 +411,8 @@ echo "Step normalisation `date`"
 if $run_programs
 then
 normalisation.py \
-	 --num-reads 100 \
+	--num-reads 100 \
+	--delete-samples \
 	--input-biom $out_dir/08-affiliation_postprocessed.biom \
 	--input-fasta $out_dir/08-affiliation_postprocessed.fasta \
 	--output-biom $out_dir/09-normalisation.biom \
@@ -450,31 +453,31 @@ echo "Step clusters_stat `date`"
 
 if $run_programs
 then
-cluster_stats.py \
+cluster_asv_report.py \
 	 --input-biom $expected_dir/09-normalisation.biom \
-	 --html $out_dir/10-clustersStat.html \
-	 --log-file $out_dir/10-clustersStat.log
+	 --html $out_dir/10-clusters-asv-report.html \
+	 --log-file $out_dir/10-clusters-asv-report.log
 
 	if [ $? -ne 0 ]
 	then
-		echo "Error in cluster_stats" >&2
+		echo "Error in cluster_asv_report" >&2
 		exit 1;
 	fi
 fi
 
-if diff_line $out_dir/10-clustersStat.html $expected_dir/10-clustersStat.html 0
+if diff_line $out_dir/10-clustersStat.html $expected_dir/10-clusters-asv-report.html 0
 then
-	echo "Difference in cluster_stats : 10-clustersStat.html" >&2
+	echo "Difference in cluster_asv_report : 10-clusters-asv-report.html" >&2
 fi
 
-echo "Step affiliation_stats `date`"
+echo "Step affiliation_report `date`"
 
 if $run_programs
 then
-affiliation_stats.py \
+affiliation_report.py \
 	--input-biom $expected_dir/09-normalisation.biom \
-	--html $out_dir/11-affiliationsStat.html \
-	--log-file $out_dir/11-affiliationsStat.log \
+	--html $out_dir/11-affiliation_report.html \
+	--log-file $out_dir/11-affiliation_report.log \
 	--tax-consensus-tag "blast_taxonomy" \
 	--identity-tag "perc_identity" \
 	--coverage-tag "perc_query_coverage" \
@@ -484,20 +487,20 @@ affiliation_stats.py \
 
 	if [ $? -ne 0 ]
 	then
-		echo "Error in affiliation_stats" >&2
+		echo "Error in affiliation_report" >&2
 		exit 1;
 	fi
 fi
 
 # random sampling for rarefaction curve
-if diff_line $out_dir/11-affiliationsStat.html $expected_dir/11-affiliationsStat.html 1
+if diff_line $out_dir/11-affiliation_report.html $expected_dir/11-affiliation_report.html 1
 then
-	echo "Difference in nb diff affiliations_stat : 11-affiliationsStat.html" >&2
+	echo "Difference in nb diff affiliations_stat : 11-affiliation_report.html" >&2
 fi
 
-if diff_size $out_dir/11-affiliationsStat.html $expected_dir/11-affiliationsStat.html 10
+if diff_size $out_dir/11-affiliation_report.html $expected_dir/11-affiliation_report.html 10
 then
-	echo "Difference in size affiliations_stat : 11-affiliationsStat.html" >&2
+	echo "Difference in size affiliations_stat : 11-affiliation_report.html" >&2
 fi
 
 echo "Step biom_to_tsv `date`"
@@ -589,8 +592,8 @@ if $run_programs
 then
 tree.py \
 	 --nb-cpus $nb_cpu \
-	 --input-fasta $expected_dir/09-normalisation.fasta \
-	 --input-biom $expected_dir/09-normalisation.biom \
+	 --input-fasta $expected_dir/06-affiliation.fasta \
+	 --input-biom $expected_dir/06-affiliation.biom \
 	 --output-tree $out_dir/15-tree-mafft.nwk \
 	 --html $out_dir/15-tree-mafft.html \
 	 --log-file $out_dir/15-tree-mafft.log
@@ -825,7 +828,7 @@ deseq2_preprocess.py \
 	fi
 fi
 
-if diff_line $out_dir/23-deseq2_preprocess_asv.Rdata $expected_dir/23-deseq2_preprocess_asv.Rdata 50
+if diff_line $out_dir/23-deseq2_preprocess_asv.Rdata $expected_dir/23-deseq2_preprocess_asv.Rdata 10
 then
 	echo "Difference in deseq2_preprocess : 23-deseq2_preprocess.Rdata " >&2
 fi
@@ -849,9 +852,9 @@ deseq2_preprocess.py \
 	fi
 fi
 
-if diff_line $out_dir/23-deseq2_preprocess_func.Rdata $expected_dir/23-deseq2_preprocess_func.Rdata 50
+if diff_line $out_dir/23-deseq2_preprocess_func.Rdata $expected_dir/23-deseq2_preprocess_func.Rdata 10
 then
-	echo "Difference in deseq2_preprocess : 23-deseq2_preprocess.Rdata " >&2
+	echo "Difference in deseq2_preprocess : 23-deseq2_preprocess_func.Rdata " >&2
 fi
 
 echo "Step deseq2_visualisation ASV`date`"

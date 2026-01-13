@@ -22,13 +22,13 @@ fi
 echo "Step demultiplex `date`"
 
 demultiplex.py \
-	--input-R1 data/demultiplex_test2_R1.fq.gz \
-	--input-R2 data/demultiplex_test2_R2.fq.gz \
-	--input-barcode data/demultiplex_barcode.txt \
-    --mismatches 1 --end both \
-    --output-demultiplexed $out_dir/demultiplexed.tar.gz \
-    --output-undemultiplexed $out_dir/undemultiplexed.tar.gz \
-    --log-file $out_dir/demultiplex.log --summary $out_dir/demultiplex_summary.txt
+	--input-R1 data/formation_small.fastq.gz \
+	--input-barcode data/formation.barcode.txt \
+	--mismatches 1 --end both \
+	--output-demultiplexed $out_dir/demultiplexed.tar.gz \
+	--output-undemultiplexed $out_dir/undemultiplexed.tar.gz \
+	--log-file $out_dir/demultiplex.log \
+	--summary $out_dir/demultiplex_summary.txt 
 
 if [ $? -ne 0 ]
 then
@@ -36,69 +36,71 @@ then
 	exit 1;
 fi
 
-echo "Step denoising 16S vsearch swarm fastidious`date`":
+echo "Step reads_processing 16S vsearch swarm fastidious `date`":
 
-denoising.py illumina \
+reads_processing.py illumina \
 	--process swarm --fastidious \
 	--min-amplicon-size 44 --max-amplicon-size 490 \
 	--five-prim-primer GGCGVACGGGTGAGTAA --three-prim-primer GTGCCAGCNGCNGCGG \
 	--R1-size 267 --R2-size 266 --merge-software vsearch \
 	--nb-cpus $nb_cpu --mismatch-rate 0.15 \
 	--input-archive data/test_dataset.tar.gz \
-	--output-fasta $out_dir/01-denoising-swarm-vsearch.fasta \
-	--output-biom $out_dir/01-denoising-swarm-vsearch.biom \
-	--html $out_dir/01-denoising-swarm-vsearch.html \
-	--log-file $out_dir/01-denoising-swarm-vsearch.log
+	--output-fasta $out_dir/01-reads_processing-swarm-vsearch.fasta \
+	--output-biom $out_dir/01-reads_processing-swarm-vsearch.biom \
+	--output-compo $out_dir/01-reads_processing-swarm-vsearch_compo.tsv \
+	--html $out_dir/01-reads_processing-swarm-vsearch.html \
+	--log-file $out_dir/01-reads_processing-swarm-vsearch.log
 
 if [ $? -ne 0 ]
 then
-	echo "Error in denoising 16S vsearch " >&2
+	echo "Error in reads_processing 16S vsearch " >&2
 	exit 1;
 fi
  
- echo "Step denoising 16S vsearch swarm denoising and distance 3 `date`":
+ echo "Step reads_processing 16S vsearch swarm reads_processing and distance 3 `date`":
 
-denoising.py illumina \
+reads_processing.py illumina \
 	--process swarm \
 	--min-amplicon-size 44 --max-amplicon-size 490 \
 	--five-prim-primer GGCGVACGGGTGAGTAA --three-prim-primer GTGCCAGCNGCNGCGG \
 	--R1-size 267 --R2-size 266 --merge-software vsearch \
 	--nb-cpus $nb_cpu --mismatch-rate 0.15 \
 	--input-archive data/test_dataset.tar.gz \
-	--output-fasta $out_dir/01-denoising-swarm-dd3-vsearch.fasta \
-	--output-biom $out_dir/01-denoising-swarm-dd3-vsearch.biom \
-	--html $out_dir/01-denoising-swarm-dd3-vsearch.html \
-	--log-file $out_dir/01-denoising-swarm-dd3--vsearch.log \
-	--denoising --distance 3 
+	--output-fasta $out_dir/01-reads_processing-swarm-dd3-vsearch.fasta \
+	--output-biom $out_dir/01-reads_processing-swarm-dd3-vsearch.biom \
+	--output-compo $out_dir/01-reads_processing-swarm-dd3-vsearch_compo.tsv \
+	--html $out_dir/01-reads_processing-swarm-dd3-vsearch.html \
+	--log-file $out_dir/01-reads_processing-swarm-dd3--vsearch.log \
+	--pre-clustering --distance 3 
 
 if [ $? -ne 0 ]
 then
-	echo "Error in denoising 16S vsearch swarm denoising and distance 3 " >&2
+	echo "Error in reads_processing 16S vsearch swarm reads_processing and distance 3 " >&2
 	exit 1;
 fi
 
-echo "Step denoising: dada2 keep-unmerged `date`"
+echo "Step reads_processing: dada2 keep-unmerged `date`"
 
-denoising.py illumina  \
+reads_processing.py illumina  \
 	--process dada2 --keep-unmerged \
 	--input-archive data/verysmallITS.tar.gz \
 	--min-amplicon-size 50 --max-amplicon-size 1000 --merge-software vsearch \
 	--five-prim-primer TAGACTCGTCAHCGATGAAGAACGYRG --three-prim-primer GCATATCAATAAGCGSAGGAA \
 	--R1-size 300 --R2-size 300  --nb-cpus $nb_cpu \
-	--output-fasta $out_dir/01-denoising-dada2-clusters.fasta \
-	--output-biom $out_dir/01-denoising-dada2-clusters.biom \
-	--html $out_dir/01-denoising-dada2.html \
-	--log-file $out_dir/01-denoising-dada2.log
+	--output-fasta $out_dir/01-reads_processing-dada2-clusters.fasta \
+	--output-biom $out_dir/01-reads_processing-dada2-clusters.biom \
+	--html $out_dir/01-reads_processing-dada2.html \
+	--log-file $out_dir/01-reads_processing-dada2.log
 
 if [ $? -ne 0 ]
 then
-	echo "Error in denoising: dada2 keep-unmerged " >&2
+	echo "Error in reads_processing: dada2 keep-unmerged " >&2
 	exit 1;
 fi
 
-echo "Step denoising: preprocess only `date`"
+echo "Step reads_processing: preprocess only `date`"
 
-denoising.py illumina  \
+reads_processing.py illumina  \
 	--process preprocess-only \
 	--input-archive data/verysmallITS.tar.gz \
 	--min-amplicon-size 50 --max-amplicon-size 1000 --merge-software vsearch \
@@ -111,15 +113,15 @@ denoising.py illumina  \
 
 if [ $? -ne 0 ]
 then
-	echo "Error in denoising: preprocess only " >&2
+	echo "Error in reads_processing: preprocess only " >&2
 	exit 1;
 fi
 
 echo "Step remove_chimera `date`"
 
 remove_chimera.py \
-	--input-fasta $out_dir/01-denoising-swarm-vsearch.fasta \
-	--input-biom $out_dir/01-denoising-swarm-vsearch.biom \
+	--input-fasta $out_dir/01-reads_processing-swarm-vsearch.fasta \
+	--input-biom $out_dir/01-reads_processing-swarm-vsearch.biom \
 	--output-fasta $out_dir/03-chimera.fasta \
 	--output-biom $out_dir/03-chimera.biom \
 	--html $out_dir/03-chimera.html \
@@ -201,10 +203,9 @@ affiliation_filters.py \
 	--impacted $out_dir/07-impacted_ASV_masked.tsv \
 	--impacted-multihit $out_dir/07-impacted_ASV_masked_multihit.tsv \
 	--log-file $out_dir/07-affiliation_filter_maskMode.log \
-	--min-rdp-bootstrap Species:0.8 \
 	--min-blast-length 150 \
-	--min-blast-identity 1.0 \
-	--min-blast-coverage 1.0 \
+	--min-blast-identity 100 \
+	--min-blast-coverage 100 \
 	--max-blast-evalue 1e-150 \
 	--ignore-blast-taxa "g__Sarcodon" "s__Trichoderma" \
 	--mask \
@@ -227,10 +228,9 @@ affiliation_filters.py \
 	--impacted $out_dir/07-impacted_ASV_deleted.tsv \
 	--impacted-multihit $out_dir/07-impacted_ASV_deleted_multihit.tsv \
 	--log-file $out_dir/07-affiliation_filter_delMode.log \
-	--min-rdp-bootstrap Species:0.8 \
 	--min-blast-length 150 \
-	--min-blast-identity 1.0 \
-	--min-blast-coverage 1.0 \
+	--min-blast-identity 100 \
+	--min-blast-coverage 100 \
 	--max-blast-evalue 1e-150 \
 	--ignore-blast-taxa "g__Sarcodon" "s__Trichoderma" \
 	--delete \
@@ -259,7 +259,7 @@ then
 	exit 1;
 fi
 
-echo "Step normalisation fixe num-reads delete sample`date`"
+echo "Step normalisation fixe num-reads delete sample `date`"
 
 normalisation.py \
 	--num-reads 25000 \
@@ -277,7 +277,7 @@ then
 	exit 1;
 fi
 
-echo "Step normalisation fixe min_sample`date`"
+echo "Step normalisation fixe min_sample `date`"
 
 normalisation.py \
 	--sampling-by-min \
@@ -312,12 +312,12 @@ then
     exit 1;
 fi
 
-echo "Step cluster_stats `date`"
+echo "Step cluster_asv_report `date`"
 
-cluster_stats.py \
+cluster_asv_report.py \
  --input-biom $out_dir/09-normalisation.biom \
- --html $out_dir/10-clustersStat.html \
- --log-file $out_dir/10-clustersStat.log
+ --html $out_dir/10-clusters-asv-report.html \
+ --log-file $out_dir/10-clusters-asv-report.log
 
 if [ $? -ne 0 ]
 then
@@ -325,12 +325,12 @@ then
 	exit 1;
 fi
 	
-echo "Step affiliation_stats `date`"
+echo "Step affiliation_report `date`"
 
-affiliation_stats.py \
+affiliation_report.py \
  --input-biom $out_dir/09-normalisation.biom \
- --html $out_dir/11-affiliationsStat.html \
- --log-file $out_dir/11-affiliationsStat.log \
+ --html $out_dir/11-affiliation_report.html \
+ --log-file $out_dir/11-affiliation_report.log \
  --tax-consensus-tag "blast_taxonomy" \
  --identity-tag "perc_identity" \
  --coverage-tag "perc_query_coverage" \
@@ -340,7 +340,7 @@ affiliation_stats.py \
 
 if [ $? -ne 0 ]
 then
-	echo "Error in affiliation_stats" >&2
+	echo "Error in affiliation_report" >&2
 	exit 1;
 fi
 
@@ -392,8 +392,8 @@ echo "Step tree `date`"
 
 tree.py \
  --nb-cpus $nb_cpu \
- --input-fasta $out_dir/09-normalisation.fasta \
- --input-biom $out_dir/09-normalisation.biom \
+ --input-fasta $out_dir/04-filters.fasta \
+ --input-biom $out_dir/06-affiliation.biom \
  --output-tree $out_dir/15-tree-mafft.nwk \
  --html $out_dir/15-tree-mafft.html \
  --log-file $out_dir/15-tree-mafft.log

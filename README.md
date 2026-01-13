@@ -6,7 +6,7 @@
 
 Visit our web site : http://frogs.toulouse.inrae.fr/
 
-[![Release](https://img.shields.io/badge/release-5.1.0-blue.svg)![Date](https://img.shields.io/badge/date-May%202025-red.svg)](https://github.com/geraldinepascal/FROGS-wrappers/releases) [<img src="https://cdn.icon-icons.com/icons2/70/PNG/512/deezer_14086.png" width="2%" style="display: block; margin: auto;"/>](https://www.deezer.com/fr/playlist/5233843102?utm_source=deezer&utm_content=playlist-5233843102&utm_term=18632989_1545296531&utm_medium=web)
+[![Release](https://img.shields.io/badge/release-5.1.0-blue.svg)![Date](https://img.shields.io/badge/date-January%202026-red.svg)](https://github.com/geraldinepascal/FROGS-wrappers/releases) [<img src="https://cdn.icon-icons.com/icons2/70/PNG/512/deezer_14086.png" width="2%" style="display: block; margin: auto;"/>](https://www.deezer.com/fr/playlist/5233843102?utm_source=deezer&utm_content=playlist-5233843102&utm_term=18632989_1545296531&utm_medium=web)
 
 
 
@@ -19,7 +19,7 @@ FROGS-wrappers allow to add FROGS on a Galaxy instance. (see https://github.com/
 This workflow is focused on:
 
 - User-friendliness with lots of rich graphic outputs and the integration in Galaxy thanks to FROGS-wrappers.
-- Dealing with **Illumina**, **IonTorrent**, **454**, **PacBio** and **Oxford Nanopore** sequencing technology reads.
+- Dealing with **Illumina**, **Aviti**, **IonTorrent**, **454**, **PacBio** and **Oxford Nanopore** sequencing technology reads.
 - Dealing of non overlapping pair of sequences from long amplicon like ITS, or RPB2.
 - Accuracy with a clustering without global similarity threshold or a denoising process, the management of separated PCRs in the chimera removal step, and the management of multi-affiliations.
 - Access to general statistics on microbial communities and differential abundance analysis.
@@ -96,26 +96,26 @@ This FROGS repository is for command line user. If you want to install FROGS on 
 
 ## Tools dependencies
 
-FROGS is written in Python 3 (with external numpy and Scipy libraries) , uses also home-made scripts written in PERL5 and R 4.
+FROGS is written in Python 3 (with external numpy and Scipy libraries), uses also home-made scripts written in PERL5 and R 4.
 
 FROGS relies on different specific tools for each of the analysis steps.
 
 | FROGS Tools |Dependancy  | version tested |
 | ----------- | :--------: | -------------: |
-| Denoising and Remove_chimera |        [vsearch](https://github.com/torognes/vsearch)        | 2.17.0 |
-| Denoising                    | [flash](https://sourceforge.net/projects/flashpage/files/) (optional) |               1.2.11 |
-| Denoising                    |       [cutadapt](https://github.com/marcelm/cutadapt) (need to be >=2.8)       |            2.10 |
-| Denoising                    |          [swarm](https://github.com/torognes/swarm) (need to be >=2.1)          |            3.1.4 |
-| Denoising                    |          [DADA2](https://benjjneb.github.io/dada2/index.html)     |            1.22.0 |
-| ITSx                          |        [ITSx](http://microbiology.se/software/itsx/)         |  1.1.2 |
-| Taxonomic_affiliation               | [NCBI BLAST+](http://blast.ncbi.nlm.nih.gov/Blast.cgi?PAGE_TYPE=BlastDocs&DOC_TYPE=Download) |          2.16 |
-| Taxonomic_affiliation               | [EMBOSS needleall](http://emboss.sourceforge.net/apps/release/6.6/emboss/apps/needleall.html) |                6.6.0 |
-| Tree                          |       [MAFFT](https://mafft.cbrc.jp/alignment/server/)       |                7.525 |
-| Tree                          |     [Fasttree](http://www.microbesonline.org/fasttree/)      |               2.1.9 |
-| Tree / FROGSSTAT              | [plotly](https://plotly.com/r/), [phangorn](https://cran.r-project.org/web/packages/phangorn/index.html), [rmarkdown](https://cran.r-project.org/web/packages/rmarkdown/index.html), [phyloseq](https://joey711.github.io/phyloseq/), [DESeq2](https://bioconductor.org/packages/release/bioc/html/DESeq2.html), [optparse](https://cran.r-project.org/web/packages/optparse/index.html), [calibrate](https://cran.r-project.org/web/packages/calibrate/index.html), [formattable](https://cran.r-project.org/web/packages/formattable/), [DT](https://cran.r-project.org/web/packages/DT/index.html) |              R 4.1.2 |
-| FROGSSTAT | [pandoc](https://pandoc.org/) | 2.11.3|
-| FROGSFUNC | [PICRUSt2](https://github.com/picrust/picrust2/wiki) | 2.5.1|
-| FROGSFUNC | [ete3](http://etetoolkit.org/) | 3.1.1|
+| Denoising and Remove_chimera | [vsearch](https://github.com/torognes/vsearch)                           | 2.17.0 |
+| Denoising                    | [flash](https://sourceforge.net/projects/flashpage/files/) (optional)    | 1.2.11 |
+| Denoising                    | [cutadapt](https://github.com/marcelm/cutadapt) (need to be >=2.8)       | 2.10   |
+| Denoising                    | [swarm](https://github.com/torognes/swarm) (need to be >=2.1)            | 3.1.4  |
+| Denoising                    | [DADA2](https://benjjneb.github.io/dada2/index.html)                     | 1.22.0 |
+| ITSx                         | [ITSx](http://microbiology.se/software/itsx/)                            | 1.1.2  |
+| Taxonomic_affiliation    | [NCBI BLAST+](http://blast.ncbi.nlm.nih.gov/Blast.cgi?PAGE_TYPE=BlastDocs&DOC_TYPE=Download)  | 2.16  |
+| Taxonomic_affiliation    | [EMBOSS needleall](http://emboss.sourceforge.net/apps/release/6.6/emboss/apps/needleall.html) | 6.6.0 |
+| Tree                          | [MAFFT](https://mafft.cbrc.jp/alignment/server/)                        | 7.525 |
+| Tree                          | [Fasttree](http://www.microbesonline.org/fasttree/)                     | 2.1.9 |
+| Tree / FROGSSTAT              | [plotly](https://plotly.com/r/), [phangorn](https://cran.r-project.org/web/packages/phangorn/index.html), [rmarkdown](https://cran.r-project.org/web/packages/rmarkdown/index.html), [phyloseq](https://joey711.github.io/phyloseq/), [DESeq2](https://bioconductor.org/packages/release/bioc/html/DESeq2.html), [optparse](https://cran.r-project.org/web/packages/optparse/index.html), [calibrate](https://cran.r-project.org/web/packages/calibrate/index.html), [formattable](https://cran.r-project.org/web/packages/formattable/), [DT](https://cran.r-project.org/web/packages/DT/index.html)                                 | R 4.1.2 |
+| FROGSSTAT                   | [pandoc](https://pandoc.org/)                                              | 2.11.3 |
+| FROGSFUNC                   | [PICRUSt2](https://github.com/picrust/picrust2/wiki)                       | 2.5.1 |
+| FROGSFUNC                   | [ete3](http://etetoolkit.org/)                                             | 3.1.1 |
 
 ### **Use PEAR as read pairs merging software in preprocess**
 
@@ -183,8 +183,8 @@ Step affiliation_filters: masking mode Wed Apr 30 11:42:43 AM CEST 2025
 Step affiliation_filters: deleted mode Wed Apr 30 11:42:47 AM CEST 2025
 Step affiliation_postprocess Wed Apr 30 11:42:50 AM CEST 2025
 Step normalisation Wed Apr 30 11:42:52 AM CEST 2025
-Step cluster_stats Wed Apr 30 11:42:57 AM CEST 2025
-Step affiliation_stats Wed Apr 30 11:42:58 AM CEST 2025
+Step cluster_asv_report Wed Apr 30 11:42:57 AM CEST 2025
+Step affiliation_report Wed Apr 30 11:42:58 AM CEST 2025
 Step biom_to_tsv Wed Apr 30 11:42:59 AM CEST 2025
 Step biom_to_stdBiom Wed Apr 30 11:43:00 AM CEST 2025
 Step tsv_to_biom Wed Apr 30 11:43:00 AM CEST 2025

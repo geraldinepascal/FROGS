@@ -1,15 +1,19 @@
 # v5.1.0 [DATE]
-### Tools renammed
+
+### Tools//options renammed
 * denoising becomes reads_processing
 * cluster_stats becomes cluster_asv_report
 * affiliation_stats becomes affiliation_report
+* The frogsfunc tools options have been updated to be more consistent.
 
 ### Functions added
+* updating and standardising the graphic charter for HTML reports
 * remove_chimera.py : implement a chimera_denovo algorithm for long reads.
 
 ### Bugs fixed
-* denoising.py: For long reads, remove --revcomp option in cutadapt command line for 3' primer removal)
+* denoising.py: For long reads, remove --revcomp option in cutadapt command line for 3' primer removal
 * cluster_filters.py : fix bug while interpreting minmin-abundance as decimal value
+* affiliation_filter.py : correct behavior when using multiple taxon to ignore or keep
 
 # v5.0.2 [2025-05]
 * Issue #77: remove max-len parameter for artificial combined sequences
