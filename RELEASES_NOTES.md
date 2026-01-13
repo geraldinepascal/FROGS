@@ -1,5 +1,11 @@
 # v5.1.0 [DATE]
 
+### Design
+- new logos in HTML reports
+- new graphic charter
+- replace Highcharts with Echarts
+- modernize the JavaScript libraries used to build HTML reports
+
 ### Tools//options renammed
 * denoising becomes reads_processing
 * cluster_stats becomes cluster_asv_report
@@ -7,7 +13,6 @@
 * The frogsfunc tools options have been updated to be more consistent.
 
 ### Functions added
-* updating and standardising the graphic charter for HTML reports
 * remove_chimera.py : implement a chimera_denovo algorithm for long reads.
 
 ### Bugs fixed
