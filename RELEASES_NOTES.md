@@ -1,4 +1,10 @@
 # v5.1.0 [DATE]
+### Design
+- new logos in HTML reports
+- new graphic charter
+- replace Highcharts with Echarts
+- modernize the JavaScript libraries used to build HTML reports
+
 ### Tools renammed
 * denoising becomes reads_processing
 * cluster_stats becomes cluster_asv_report
