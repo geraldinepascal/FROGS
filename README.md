@@ -8,8 +8,6 @@ Visit our web site : http://frogs.toulouse.inrae.fr/
 
 [![Release](https://img.shields.io/badge/release-5.1.0-blue.svg)![Date](https://img.shields.io/badge/date-January%202026-red.svg)](https://github.com/geraldinepascal/FROGS-wrappers/releases) [<img src="https://cdn.icon-icons.com/icons2/70/PNG/512/deezer_14086.png" width="2%" style="display: block; margin: auto;"/>](https://www.deezer.com/fr/playlist/5233843102?utm_source=deezer&utm_content=playlist-5233843102&utm_term=18632989_1545296531&utm_medium=web)
 
-
-
 # Description
 
 FROGS is a CLI workflow designed to produce and analysis an ASV count matrix from high depth sequencing amplicon data.
@@ -102,7 +100,7 @@ FROGS relies on different specific tools for each of the analysis steps.
 
 | FROGS Tools |Dependancy  | version tested |
 | ----------- | :--------: | -------------: |
-| Denoising and Remove_chimera | [vsearch](https://github.com/torognes/vsearch)                           | 2.17.0 |
+| Denoising and Remove_chimera | [vsearch](https://github.com/torognes/vsearch)                           | 2.29.1 |
 | Denoising                    | [flash](https://sourceforge.net/projects/flashpage/files/) (optional)    | 1.2.11 |
 | Denoising                    | [cutadapt](https://github.com/marcelm/cutadapt) (need to be >=2.8)       | 2.10   |
 | Denoising                    | [swarm](https://github.com/torognes/swarm) (need to be >=2.1)            | 3.1.4  |
@@ -113,7 +111,7 @@ FROGS relies on different specific tools for each of the analysis steps.
 | Tree                          | [MAFFT](https://mafft.cbrc.jp/alignment/server/)                        | 7.525 |
 | Tree                          | [Fasttree](http://www.microbesonline.org/fasttree/)                     | 2.1.9 |
 | Tree / FROGSSTAT              | [plotly](https://plotly.com/r/), [phangorn](https://cran.r-project.org/web/packages/phangorn/index.html), [rmarkdown](https://cran.r-project.org/web/packages/rmarkdown/index.html), [phyloseq](https://joey711.github.io/phyloseq/), [DESeq2](https://bioconductor.org/packages/release/bioc/html/DESeq2.html), [optparse](https://cran.r-project.org/web/packages/optparse/index.html), [calibrate](https://cran.r-project.org/web/packages/calibrate/index.html), [formattable](https://cran.r-project.org/web/packages/formattable/), [DT](https://cran.r-project.org/web/packages/DT/index.html)                                 | R 4.1.2 |
-| FROGSSTAT                   | [pandoc](https://pandoc.org/)                                              | 2.11.3 |
+| FROGSSTAT                   | [pandoc](https://pandoc.org/)                                              | 2.19.2 |
 | FROGSFUNC                   | [PICRUSt2](https://github.com/picrust/picrust2/wiki)                       | 2.5.1 |
 | FROGSFUNC                   | [ete3](http://etetoolkit.org/)                                             | 3.1.1 |
 
@@ -169,39 +167,37 @@ Example:
 
 ```
 [user@computer:/home/frogs/FROGS/test/]$ sh test_frogs.sh 1 2 res
-Step demultiplex Wed Apr 30 11:40:08 AM CEST 2025
-Step denoising 16S vsearch Wed Apr 30 11:40:09 AM CEST 2025:
-Step denoising 16S vsearch swarm denoising and distance 3 Wed Apr 30 11:40:25 AM CEST 2025:
-Step denoising 16S pear Wed Apr 30 11:40:41 AM CEST 2025:
-Step denoising: dada2 keep-unmerged Wed Apr 30 11:41:49 AM CEST 2025
-Step denoising: preprocess only Wed Apr 30 11:42:12 AM CEST 2025
-Step remove_chimera Wed Apr 30 11:42:16 AM CEST 2025
-Step cluster_filters Wed Apr 30 11:42:19 AM CEST 2025
-Step itsx Wed Apr 30 11:42:26 AM CEST 2025
-Step taxonomic_affiliation Wed Apr 30 11:42:31 AM CEST 2025
-Step affiliation_filters: masking mode Wed Apr 30 11:42:43 AM CEST 2025
-Step affiliation_filters: deleted mode Wed Apr 30 11:42:47 AM CEST 2025
-Step affiliation_postprocess Wed Apr 30 11:42:50 AM CEST 2025
-Step normalisation Wed Apr 30 11:42:52 AM CEST 2025
-Step cluster_asv_report Wed Apr 30 11:42:57 AM CEST 2025
-Step affiliation_report Wed Apr 30 11:42:58 AM CEST 2025
-Step biom_to_tsv Wed Apr 30 11:42:59 AM CEST 2025
-Step biom_to_stdBiom Wed Apr 30 11:43:00 AM CEST 2025
-Step tsv_to_biom Wed Apr 30 11:43:00 AM CEST 2025
-Step tree Wed Apr 30 11:43:01 AM CEST 2025
-Step phyloseq_import_data Wed Apr 30 11:43:13 AM CEST 2025
-Step phyloseq_composition Wed Apr 30 11:44:20 AM CEST 2025
-Step phyloseq_alpha_diversity Wed Apr 30 11:44:44 AM CEST 2025
-Step phyloseq_beta_diversity Wed Apr 30 11:45:08 AM CEST 2025
-Step phyloseq_structure Wed Apr 30 11:45:24 AM CEST 2025
-Step phyloseq_clustering Wed Apr 30 11:45:39 AM CEST 2025
-Step phyloseq_manova Wed Apr 30 11:45:53 AM CEST 2025
-Step deseq2_preprocess Wed Apr 30 11:46:08 AM CEST 2025
-DESeq2 asv abundances
-DESeq2 function abundances
-Step deseq2_visualisation Wed Apr 30 11:47:30 AM CEST 2025
-DESeq2 ASV abundances
-DESeq2 function abundances
+Step demultiplex Wed Jan 14 01:11:27 PM CET 2026
+Step reads_processing 16S vsearch swarm fastidious Wed Jan 14 01:11:30 PM CET 2026:
+Step reads_processing 16S vsearch swarm reads_processing and distance 3 Wed Jan 14 01:11:35 PM CET 2026:
+Step reads_processing: dada2 keep-unmerged Wed Jan 14 01:11:39 PM CET 2026
+Step reads_processing: preprocess only Wed Jan 14 01:12:04 PM CET 2026
+Step remove_chimera Wed Jan 14 01:12:08 PM CET 2026
+Step cluster_filters Wed Jan 14 01:12:11 PM CET 2026
+Step itsx Wed Jan 14 01:12:19 PM CET 2026
+Step taxonomic_affiliation Wed Jan 14 01:12:28 PM CET 2026
+Step affiliation_filters: masking mode Wed Jan 14 01:12:37 PM CET 2026
+Step affiliation_postprocess Wed Jan 14 01:12:45 PM CET 2026
+Step normalisation fixe num-reads delete sample Wed Jan 14 01:12:46 PM CET 2026
+Step normalisation fixe min_sample Wed Jan 14 01:12:47 PM CET 2026
+Step normalisation fixe small num-readsWed Jan 14 01:12:52 PM CET 2026
+Step cluster_asv_report Wed Jan 14 01:12:53 PM CET 2026
+Step affiliation_report Wed Jan 14 01:12:53 PM CET 2026
+Step biom_to_tsv Wed Jan 14 01:12:54 PM CET 2026
+Step biom_to_stdBiom Wed Jan 14 01:12:55 PM CET 2026
+Step tsv_to_biom Wed Jan 14 01:12:55 PM CET 2026
+Step tree Wed Jan 14 01:12:55 PM CET 2026
+Step phyloseq_import_data Wed Jan 14 01:13:12 PM CET 2026
+Step phyloseq_composition Wed Jan 14 01:13:49 PM CET 2026
+Step phyloseq_alpha_diversity Wed Jan 14 01:14:04 PM CET 2026
+Step phyloseq_beta_diversity Wed Jan 14 01:14:18 PM CET 2026
+Step phyloseq_structure Wed Jan 14 01:14:27 PM CET 2026
+Step phyloseq_clustering Wed Jan 14 01:14:37 PM CET 2026
+Step phyloseq_manova Wed Jan 14 01:14:46 PM CET 2026
+Step deseq2_preprocess ASV Wed Jan 14 01:14:55 PM CET 2026
+Step deseq2_preprocess Function Wed Jan 14 01:15:17 PM CET 2026
+Step deseq2_visualisation ASV Wed Jan 14 01:15:47 PM CET 2026
+Step deseq2_visualisation Function Wed Jan 14 01:16:03 PM CET 2026
 Completed with success
 ```
 
@@ -220,9 +216,9 @@ Example:
 
 ```
 [user@computer:/home/frogs/FROGS/test/]$ sh test_frogsfunc.sh res
-Step frogsfunc_placeseqs Wed Apr 30 11:50:43 AM CEST 2025
-Step frogsfunc_functions Wed Apr 30 11:52:04 AM CEST 2025
-Step frogsfunc_pathways Wed Apr 30 11:54:47 AM CEST 2025
+Step frogsfunc_placeseqs Wed Jan 14 01:21:26 PM CET 2026
+Step frogsfunc_functions Wed Jan 14 01:22:04 PM CET 2026
+Step frogsfunc_pathways Wed Jan 14 01:23:07 PM CET 2026
 Completed with success
 ```
 

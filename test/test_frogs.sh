@@ -3,8 +3,8 @@ nb_cpu=$1
 java_mem=$2
 out_dir=$3
 
-# conda activate frogs@5.0.2
-# export PATH=/home/maria/workspace/FROGS_dev/app:$PATH
+# conda activate frogs@XX
+# export PATH=~/workspace/FROGS_dev/app:$PATH
 
 # Check parameters
 if [ "$#" -ne 3 ]; then
