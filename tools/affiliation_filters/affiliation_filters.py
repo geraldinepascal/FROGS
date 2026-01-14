@@ -903,7 +903,6 @@ def write_summary( summary_file, input_biom, output_biom, discards, tree_count_f
         
         # track blast taxon
         if in_biom.get_observation_metadata(observation_name)['blast_taxonomy'] is not None:
-            print(observation_name, "\n\t", in_biom.get_observation_metadata(observation_name)['blast_affiliations'], "\n\n")
             for blast_affi in in_biom.get_observation_metadata(observation_name)['blast_affiliations'] :
                 blast_taxonomy = blast_affi['taxonomy']
                 if issubclass(blast_taxonomy.__class__,str):

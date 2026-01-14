@@ -1,15 +1,15 @@
 #!/bin/bash
-out_dir=$1
-nb_cpus=$2
+nb_cpus=$1
+out_dir=$2
 
-# conda activate frogsfunc@5.0.2
-# export PATH=/home/maria/workspace/FROGS_dev/app:$PATH
+# conda activate frogs@XX
+# export PATH=~/workspace/FROGS_dev/app:$PATH
 
 
 # Check parameters
-if [ "$#" -ne 1 ]; then
+if [ "$#" -ne 2 ]; then
     echo "ERROR: Illegal number of parameters." ;
-    echo 'Command usage: test_frogsfunc.sh <OUT_FOLDER>' ;
+    echo 'Command usage: test_frogsfunc.sh <NB_CPU> <OUT_FOLDER>' ;
     exit 1 ;
 fi
 
@@ -96,11 +96,3 @@ then
 fi
 
 echo "Completed with success"
-
-
-
-frogsfunc_pathways.py --nb-cpus ${GALAXY_SLOTS:-1} \
-    --input-tsv '/tmp/tmpxdlpq188/files/f/9/1/dataset_f915b7f0-164b-4097-aee4-c896bd610cbf.dat' \
-    --map /home/maria/workspace/FROGS-wrappers_dev/tools/frogs_func/test-data/databases/frogs_picrust2_db/pathway_mapfiles/metacyc_path2rxn_struc_filt_pro.txt   \
-    --html /tmp/tmpxdlpq188/job_working_directory/000/2/outputs/dataset_0bb243c0-4ab1-4605-aa22-83e38875f101.dat \
-    --output-pathways-abund '/tmp/tmpxdlpq188/job_working_directory/000/2/outputs/dataset_57486ae8-bc4a-497b-a350-1ee140083574.dat']
