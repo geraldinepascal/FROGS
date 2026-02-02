@@ -1,24 +1,21 @@
-<div style="text-align: center;">
-  <!-- Première image (plus grande) -->
-  <div style="margin-bottom: 10px;">
+<p align="center">
     <a href="http://frogs.inrae.fr/">
-      <img src="FROGS.png" align="center" width="20%" style="display: block; margin: auto;"/>
+      <img src="FROGS.png" align="center" width="10%" style="display: block; margin: auto;"/>
     </a>
-  </div>
-
+</p>
   <!-- Trois images en ligne -->
-  <div style="display: flex; justify-content: center;">
+  <p align="center" style="display: flex; justify-content: center;">
     <a href="http://frogs.inrae.fr/">
-      <img src="frogs-core.png" width="20%"/>
+      <img src="frogs-core.png" width="10%"/>
     </a>
     <a href="http://frogs.inrae.fr/">
-      <img src="frogs-stat.png" width="20%"/>
+      <img src="frogs-stat.png" width="10%"/>
     </a>
     <a href="http://frogs.inrae.fr/">
-      <img src="frogs-func.png" width="20%"/>
+      <img src="frogs-func.png" width="10%"/>
     </a>
-  </div>
-</div>
+  </p>
+
 Visit our web site : http://frogs.inrae.fr/
 
 [![Release](https://img.shields.io/badge/release-5.1.0-blue.svg)![Date](https://img.shields.io/badge/date-January%202026-red.svg)](https://github.com/geraldinepascal/FROGS-wrappers/releases) [<img src="https://cdn.icon-icons.com/icons2/70/PNG/512/deezer_14086.png" width="2%" style="display: block; margin: auto;"/>](https://www.deezer.com/fr/playlist/5233843102?utm_source=deezer&utm_content=playlist-5233843102&utm_term=18632989_1545296531&utm_medium=web)
