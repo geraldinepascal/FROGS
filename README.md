@@ -1,19 +1,13 @@
 <p align="center">
     <a href="http://frogs.inrae.fr/">
-      <img src="FROGS.png" align="center" width="10%" style="display: block; margin: auto;"/>
+      <img src="FROGS.png" align="center" width="15%" style="display: block; margin: auto;"/>
     </a>
 </p>
   <!-- Trois images en ligne -->
   <p align="center" style="display: flex; justify-content: center;">
-    <a href="http://frogs.inrae.fr/">
-      <img src="frogs-core.png" width="10%"/>
-    </a>
-    <a href="http://frogs.inrae.fr/">
-      <img src="frogs-stat.png" width="10%"/>
-    </a>
-    <a href="http://frogs.inrae.fr/">
-      <img src="frogs-func.png" width="10%"/>
-    </a>
+    <img src="frogs-core.png" width="10%"/>
+    <img src="frogs-stat.png" width="10%"/>
+    <img src="frogs-func.png" width="10%"/>
   </p>
 
 Visit our web site : http://frogs.inrae.fr/
