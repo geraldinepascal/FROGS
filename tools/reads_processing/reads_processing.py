@@ -17,6 +17,7 @@ import tarfile
 import argparse
 import threading
 import multiprocessing
+import unicodedata
 
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
 # PATH
@@ -1321,26 +1322,41 @@ def samples_from_tar( archive, contiged, global_tmp_files, R1_files, R2_files, s
     if not tarfile.is_tarfile(archive):
         raise_exception( Exception("\n\n#ERROR : The archive '" + archive + "' is not a tar file.\n\n"))
     FH_tar = tarfile.open(archive)
-    # List R1_files, R2_files and samples_names
-    archive_members = sorted(FH_tar.getmembers(), key=lambda member: member.name)
-    for file_info in archive_members:
+    
+    all_members = FH_tar.getmembers()
+    # Valid members will be only FASTQ files
+    valid_members = []
+    
+    for m in all_members:
+        m.name = unicodedata.normalize('NFC', m.name)
+        
+        # If MacOSX archive, ignore all other files and directories
+        if "__MACOSX" in m.name or os.path.basename(m.name).startswith("._"):
+            continue
+        if m.isfile():
+            valid_members.append(m)
+    
+    valid_members.sort(key=lambda x: x.name)
+    
+    for file_info in valid_members:
+        filename = os.path.basename(file_info.name)
         if file_info.isfile():
             if contiged:
-                samples_names.append( file_info.name.split('.')[0] )
-                R1_tmp.append( os.path.join(tmp_folder, file_info.name) )
-                R1_files.append( global_tmp_files.add(file_info.name) )
+                samples_names.append( filename.split('.')[0] )
+                R1_tmp.append( os.path.join(tmp_folder, filename) )
+                R1_files.append( global_tmp_files.add(filename) )
             else:
-                if "_R1" in file_info.name or "_r1" in file_info.name:
-                    samples_names.append( re.split('_[Rr]1', file_info.name)[0] )
-                    R1_samples_names.append( re.split('_[Rr]1', file_info.name)[0] )
-                    R1_files.append( global_tmp_files.add(file_info.name) )
-                    R1_tmp.append( os.path.join(tmp_folder, file_info.name) )
-                elif "_R2" in file_info.name or "_r2" in file_info.name:
-                    R2_files.append( global_tmp_files.add(file_info.name) )
-                    R2_tmp.append( os.path.join(tmp_folder, file_info.name) )
-                    R2_samples_names.append( re.split('_[Rr]2', file_info.name)[0] )
+                if "_R1" in filename or "_r1" in filename:
+                    samples_names.append( re.split('_[Rr]1', filename)[0] )
+                    R1_samples_names.append( re.split('_[Rr]1', filename)[0] )
+                    R1_files.append( global_tmp_files.add(filename) )
+                    R1_tmp.append( os.path.join(tmp_folder, filename) )
+                elif "_R2" in filename or "_r2" in filename:
+                    R2_files.append( global_tmp_files.add(filename) )
+                    R2_tmp.append( os.path.join(tmp_folder, filename) )
+                    R2_samples_names.append( re.split('_[Rr]2', filename)[0] )
                 else:
-                    raise_exception( Exception("\n\n#ERROR : The file '" + file_info.name + "' in archive '" + archive + "' is invalid. The files names must contain '_R1' or '_R2'.\n\n"))
+                    raise_exception( Exception("\n\n#ERROR : The file '" + filename + "' in archive '" + archive + "' is invalid. The files names must contain '_R1' or '_R2'.\n\n"))
         else:
             raise_exception( Exception("\n\n#ERROR : The archive '" + archive + "' must not contain folders."))
     R1_files = sorted(R1_files)
@@ -1370,7 +1386,7 @@ def samples_from_tar( archive, contiged, global_tmp_files, R1_files, R2_files, s
     finally:
         for current_file in R1_tmp + R2_tmp:
             if os.path.exists(current_file) : os.remove( current_file )
-        os.rmdir(tmp_folder)
+        shutil.rmtree(tmp_folder)
 
 def is_gzip( file ):
     """
