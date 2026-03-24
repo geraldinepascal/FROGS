@@ -5,19 +5,21 @@ output:
   html_notebook:
     code_folding: hide
 params:
-   phyloseq:
-      value: x
-   measures:
-      value: x
-   varExp:
-      value: x
-   fileAlpha:
-      value: x
-   libdir:
-      value: x
-   version:
-      value: x
-   tool:
+  phyloseq:
+    value: x
+  measures:
+    value: x
+  varExp:
+    value: x
+  fileAlpha:
+    value: x
+  libdir:
+    value: x
+  themedir:
+    value: x 
+  version:
+    value: x
+  tool:
     value: x
 ---
 
@@ -27,12 +29,8 @@ params:
 <meta name="copyright" content="Copyright (C) 2025 INRAE" />
 
 ```{r, echo=FALSE, results="asis"}
-CURRENT_DIR <- knitr::opts_knit$get("output.dir")
-if (is.null(CURRENT_DIR)) {
-  CURRENT_DIR <- getwd()
-}
 THEME_DIR <- normalizePath(
-  file.path(dirname(CURRENT_DIR), "static"),
+  file.path(params$themedir),
   winslash = "/",
   mustWork = FALSE
 )

@@ -19,6 +19,8 @@ params:
     value: x
   libdir:
     value: x
+  themedir:
+    value: x
   version:
     value: x
   tool:
@@ -32,12 +34,8 @@ params:
 
 
 ```{r, echo=FALSE, results="asis"}
-CURRENT_DIR <- knitr::opts_knit$get("output.dir")
-if (is.null(CURRENT_DIR)) {
-  CURRENT_DIR <- getwd()
-}
 THEME_DIR <- normalizePath(
-  file.path(dirname(CURRENT_DIR), "static"),
+  file.path(params$themedir),
   winslash = "/",
   mustWork = FALSE
 )

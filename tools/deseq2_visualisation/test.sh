@@ -21,7 +21,7 @@ mkdir -p $OUT
 # test on quantitative variables for ASV abundances
 ./deseq2_visualisation.py --phyloseq-rdata  data/phyloseq_ASV.Rdata --deseq-rdata data/EnvType_DESeq_ASV.Rdata \
                             --analysis-type ASV --var-exp EnvType --mod1 SaumonFume --mod2 DesLardons \
-                            --log-file $OUT/deseq2_preprocess_EnvType_ASV.log \
+                            --log-file $OUT/deseq2_visualisation_EnvType_ASV.log \
                             --html $OUT/EnvType_DesLardons_SaumonFume_ASV.nb.html 
 
 # DESeq2 visualisation with FUNC
@@ -33,5 +33,5 @@ mkdir -p $OUT
 ./deseq2_visualisation.py --phyloseq-rdata  data/phyloseq_FUNC.Rdata --deseq-rdata data/EnvType_DESeq_FUNC.Rdata \
                             --analysis-type FUNCTION --var-exp EnvType --mod1 SaumonFume --mod2 DesLardons \
                             --output-ipath-over $OUT/deseq2_preprocess_EnvType_over_exp_FUNC.tsv --output-ipath-under $OUT/deseq2_preprocess_EnvType_under_exp_FUNC.tsv \
-                            --log-file $OUT/deseq2_preprocess_EnvType_FUNC.log \
+                            --log-file $OUT/deseq2_visualisation_EnvType_FUNC.log \
                             --html $OUT/EnvType_DesLardons_SaumonFume_FUNC.nb.html

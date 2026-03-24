@@ -30,6 +30,10 @@ if os.getenv('PYTHONPATH') is None: os.environ['PYTHONPATH'] = LIB_DIR
 else: os.environ['PYTHONPATH'] = LIB_DIR + os.pathsep + os.environ['PYTHONPATH']
 # LIBR
 LIBR_DIR = os.path.join(LIB_DIR,"external-lib")
+# THEME
+THEME_DIR = os.path.abspath(os.path.join(os.path.dirname(CURRENT_DIR), "static"))
+if not os.path.exists(THEME_DIR):
+    THEME_DIR = os.path.abspath(os.path.join(os.path.dirname(os.path.dirname(CURRENT_DIR)), "static"))
 
 from frogsUtils import *
 ##################################################################################################################################################
@@ -60,7 +64,7 @@ class Rscript(Cmd):
                       'Rscript',
                       'Run 1 code Rmarkdown',
                        '-e "rmarkdown::render(' + "'" + rmd + "',knit_root_dir='" + outdir + "',output_file='" + html + \
-                       "', params=list(phyloseq='" + phyloseq + "', varExp='" + varExp + "', methods='" + ",".join(methods) + "', libdir ='" + LIBR_DIR + "', version='"+ str(__version__) + "', tool='" + os.path.basename(__file__) + "'), intermediates_dir='" + os.path.dirname(html) + "')" + '" 2> ' + rmd_stderr,
+                       "', params=list(phyloseq='" + phyloseq + "', varExp='" + varExp + "', methods='" + ",".join(methods) + "', libdir ='" + LIBR_DIR + "', themedir ='" + THEME_DIR + "', version='"+ str(__version__) + "', tool='" + os.path.basename(__file__) + "'), intermediates_dir='" + os.path.dirname(html) + "')" + '" 2> ' + rmd_stderr,
                        "-e '(sessionInfo()[[1]][13])[[1]][1]; paste(\"Rmarkdown version: \",packageVersion(\"rmarkdown\")) ; library(phyloseq); paste(\"Phyloseq version: \",packageVersion(\"phyloseq\"))'")
     def get_version(self):
         """

@@ -10,6 +10,7 @@ __status__ = 'prod'
 import os
 import sys
 import argparse
+from pathlib import Path
 
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
 FROGS_DIR=""
@@ -31,6 +32,11 @@ else: os.environ['PYTHONPATH'] = LIB_DIR + os.pathsep + os.environ['PYTHONPATH']
 
 # LIBR
 LIBR_DIR = os.path.join(LIB_DIR,"external-lib")
+
+# THEME
+THEME_DIR = os.path.abspath(os.path.join(os.path.dirname(CURRENT_DIR), "static"))
+if not os.path.exists(THEME_DIR):
+    THEME_DIR = os.path.abspath(os.path.join(os.path.dirname(os.path.dirname(CURRENT_DIR)), "static"))
 
 from frogsUtils import *
 ##################################################################################################################################################
@@ -69,7 +75,7 @@ class Rscript(Cmd):
         Cmd.__init__( self,
                       'Rscript',
                       'Run deseq2_visualisation.Rmd',
-                       '-e "rmarkdown::render(' + "'" + rmd + "', output_file='" + html + "', params=list(abundance_data='" + abundance_data + "', analysis='" + analysis + "', dds='" + dds + "', var='" + var+"', mod1='" + mod1 + "', mod2='" + mod2 + "', padj_th=" + str(padj) + ", libdir ='" + LIB_DIR + "'" + ", version='"+ str(__version__) + "', tool='" + os.path.basename(__file__) + "'), intermediates_dir='" + os.path.dirname(html) +"')" + '" 2> ' + err ,
+                       '-e "rmarkdown::render(' + "'" + rmd + "', output_file='" + html + "', params=list(abundance_data='" + abundance_data + "', analysis='" + analysis + "', dds='" + dds + "', var='" + var+"', mod1='" + mod1 + "', mod2='" + mod2 + "', padj_th=" + str(padj) + ", libdir ='" + LIB_DIR + "', themedir ='" + THEME_DIR + "'" + ", version='"+ str(__version__)+ "'" + opt + ", tool='" + os.path.basename(__file__) + "'), intermediates_dir='" + os.path.dirname(html) +"')" + '" 2> ' + err ,
                       "-e '(sessionInfo()[[1]][13])[[1]][1]; library(DESeq2); paste(\"DESeq2 version: \",packageVersion(\"DESeq2\"))'")
                       
     def get_version(self):
@@ -106,8 +112,8 @@ if __name__ == "__main__":
     # output
     group_output = parser.add_argument_group( '# Outputs' )
     group_output_fun = parser.add_argument_group( '  ## Outputs specific of FUNCTION analysis type ' )
-    group_output_fun.add_argument('--output-ipath-over', default=None, help="The tsv file of over abundants functions [Default:ipath_over.tsv] " )
-    group_output_fun.add_argument('--output-ipath-under', default=None, help="The tsv file of under abundants functions [Default:ipath_under.tsv]" )
+    group_output_fun.add_argument('--output-ipath-over', default='ipath_over.txt', help="The text file of over abundants functions [Default:%(default)s] " )
+    group_output_fun.add_argument('--output-ipath-under', default='ipath_under.txt', help="The text file of under abundants functions [Default:%(default)s]" )
 
     group_output.add_argument('--html', default='DESeq2_visualisation.html', help="The HTML file containing the graphs. [Default: %(default)s]" )
     group_output.add_argument('--log-file', default=sys.stdout, help='This output file will contain several informations on executed commands. [Default: stdout]')
@@ -131,14 +137,12 @@ if __name__ == "__main__":
                 parser.error("\n\n#ERROR : --ipath-over and --ipath-under only available for FUNCTION analysis. ")
             Rscript(abundance_data, dds, args.var_exp, args.mod1, args.mod2, args.padj, html, args.analysis_type, R_stderr, None, None, None, None ).submit(args.log_file)
         elif args.analysis_type == "FUNCTION":
-            svg_ipath_file_over  = os.path.abspath(output_dir + "/" +  "ipath_over.svg")
-            svg_ipath_file_under  = os.path.abspath(output_dir + "/" +  "ipath_under.svg")
-            if args.output_ipath_over is None:
-                args.output_ipath_over = os.path.abspath(output_dir + "/" + "ipath_over.tsv")
-            if args.output_ipath_under is None:
-                args.output_ipath_under =  os.path.abspath(output_dir + "/" + "ipath_under.tsv")
+            output_ipath_over = os.path.abspath(args.output_ipath_over)
+            output_ipath_under = os.path.abspath(args.output_ipath_under)
+            svg_ipath_file_over  = os.path.abspath(Path(args.output_ipath_over).stem + ".svg")
+            svg_ipath_file_under  = os.path.abspath(Path(args.output_ipath_under).stem + ".svg")
 
-            Rscript(abundance_data, dds, args.var_exp, args.mod1, args.mod2, args.padj, html, args.analysis_type, R_stderr, args.output_ipath_over, args.output_ipath_under, svg_ipath_file_over, svg_ipath_file_under).submit(args.log_file)
+            Rscript(abundance_data, dds, args.var_exp, args.mod1, args.mod2, args.padj, html, args.analysis_type, R_stderr, output_ipath_over, output_ipath_under, svg_ipath_file_over, svg_ipath_file_under).submit(args.log_file)
     
     finally :
         if not args.debug:

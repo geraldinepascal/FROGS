@@ -5,18 +5,20 @@ output:
   html_notebook:
     code_folding : hide
 params:
-   phyloseq:
-      value: x
-   varExp:
-      value: x
-   distance:
-      value: x
-   libdir:
-      value: x
-   version:
-      value: x
-   tool:
-      value: x
+  phyloseq:
+    value: x
+  varExp:
+    value: x
+  distance:
+    value: x
+  libdir:
+    value: x
+  themedir:
+    value: x
+  version:
+    value: x
+  tool:
+    value: x
 ---
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 <meta name="author" content="Ta Thi Ngan - SIGENAE/GABI & Maria Bernard - SIGENAE/GABI" />
@@ -24,12 +26,8 @@ params:
 <meta name="copyright" content="Copyright (C) 2025 INRAE" />
 
 ```{r, echo=FALSE, results="asis"}
-CURRENT_DIR <- knitr::opts_knit$get("output.dir")
-if (is.null(CURRENT_DIR)) {
-  CURRENT_DIR <- getwd()
-}
 THEME_DIR <- normalizePath(
-  file.path(dirname(CURRENT_DIR), "static"),
+  file.path(params$themedir),
   winslash = "/",
   mustWork = FALSE
 )

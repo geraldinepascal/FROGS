@@ -26,6 +26,9 @@ params:
   # Path to the phyloseq-extend R functions : https://github.com/mahendra-mariadassou/phyloseq-extended, typically stored in FROGS/lib/external-lib
   libdir:
     value: x
+  # Path to FROGS theme directory, typically stored in FROGS/static
+  themedir:
+    value: x
   version:
     value: x
   tool:
@@ -38,12 +41,8 @@ params:
 <meta name="copyright" content="Copyright (C) 2025 INRAE" />
 
 ```{r, echo=FALSE, results="asis"}
-CURRENT_DIR <- knitr::opts_knit$get("output.dir")
-if (is.null(CURRENT_DIR)) {
-  CURRENT_DIR <- getwd()
-}
 THEME_DIR <- normalizePath(
-  file.path(dirname(CURRENT_DIR), "static"),
+  file.path(params$themedir),
   winslash = "/",
   mustWork = FALSE
 )
